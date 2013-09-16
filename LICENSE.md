@@ -1,7 +1,7 @@
 **Copyright Overview**
 
 * Models and textures of connector, ports, winches and magnet parts was created by Winn75, who retains the copyright.
-* Models and textures of containers, bays, strut and pipe was created by zzz, who retains the copyright.
+* Models and textures of containers, bays, strut, pipe and pylon was created by zzz, who retains the copyright.
 * Models for all remaining parts were created by KospY, who retains the copyrights.
 * Config files, shaders, source code and compiled binaries are under copyright retained by KospY.
 
