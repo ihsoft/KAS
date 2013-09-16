@@ -6,8 +6,9 @@
 * Config files, shaders, source code and compiled binaries are under copyright retained by KospY.
 
 **YOU MAY**:
-- Distribute KAS parts using the following part modules:
+- Distribute your own parts using the following part modules:
     - `KASModuleContainer`
+    - `KASModulePartBay`
     - `KASModuleGrab`
     - `KASModuleAttach`
 - Distribute video, screenshots or other media portraying unmodified versions of KAS in action.
