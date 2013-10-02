@@ -63,7 +63,7 @@ namespace KAS
         {
             if (winchConnected)
             {
-                winchConnected.UnplugHead();
+                if (!winchConnected.part.packed) winchConnected.UnplugHead();
             }
         }
 

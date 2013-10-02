@@ -122,7 +122,7 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndClose, sndClosePath, false);
             KAS_Shared.createFXSound(this.part, fxSndBipWrong, bipWrongSndPath, false);
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(this.OnVesselChange));
-            orgMass = this.part.mass;
+            orgMass = this.part.partInfo.partPrefab.mass;
             RefreshTotalSize();
         }
 

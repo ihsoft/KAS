@@ -330,6 +330,7 @@ namespace KAS
             }
             this.vessel.ctrlState = new FlightCtrlState();
             FlightInputHandler.SetNeutralControls();
+            GameEvents.onVesselWasModified.Fire(this.part.vessel);
         }
 
         public void Detach()
