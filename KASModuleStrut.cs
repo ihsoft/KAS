@@ -179,7 +179,6 @@ namespace KAS
             }
         }
 
-
         void OnVesselWasModified(Vessel vesselModified)
         {
             if (vesselModified != this.vessel) return;
@@ -208,15 +207,6 @@ namespace KAS
         void OnDestroy()
         {
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
-
-            this.strutRenderer.UnLoad();
-            if (linkedStrutModule)
-            {
-                linkedStrutModule.strutRenderer.UnLoad();
-                linkedStrutModule.linkedStrutModule = null;
-                linkedStrutModule.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
-                linkedStrutModule.Events["ContextMenuLink"].guiActiveUnfocused = true;
-            }
         }
 
         void OnJointBreak(float breakForce)
@@ -227,6 +217,13 @@ namespace KAS
         }
 
         public void OnPartGrab(Vessel kerbalEvaVessel)
+        {
+            if (linked) fxSndBroke.audio.Play();
+            StopEvaLink();
+            Unlink();
+        }
+
+        public void OnAttach()
         {
             if (linked) fxSndBroke.audio.Play();
             StopEvaLink();
@@ -258,7 +255,6 @@ namespace KAS
             strutRenderer.tgtNode = evaStrutTransform;
             strutRenderer.color = Color.green;
             strutRenderer.color.a = 0.5f;
-            strutRenderer.tubeHasCollider = false;
             strutRenderer.Load();
             linkedEvaVessel = FlightGlobals.ActiveVessel;
         }
@@ -306,7 +302,6 @@ namespace KAS
             this.strutRenderer.shaderName = "Diffuse";
             this.strutRenderer.color = Color.white;
             this.strutRenderer.color.a = 1f;
-            this.strutRenderer.tubeHasCollider = hasCollider;
             this.strutRenderer.Load();
 
             // Set references for the current module
