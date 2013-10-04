@@ -132,8 +132,6 @@ namespace KAS
             base.OnStart(state);
             if (state == StartState.Editor || state == StartState.None) return;
 
-            KAS_Shared.DebugLog("OnStart(Core) Attach type is : " + attachMode);
-
             if (attachMode.Docked)
             {
                 Part dockedPart = KAS_Shared.GetPartByID(this.vessel.id.ToString(), dockedPartID);
@@ -165,6 +163,7 @@ namespace KAS
 
             if (attachMode.FixedJoint)
             {
+
                 Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
                 if (attachedPart)
                 {
@@ -307,7 +306,7 @@ namespace KAS
             // Stop if already docked
             if (otherAttachModule.part.parent == this.part || this.part.parent == otherAttachModule.part)
             {
-                KAS_Shared.DebugWarning("DockTo(Base) Parts already docked, nothing more to do");
+                KAS_Shared.DebugWarning("DockTo(Core) Parts already docked, nothing more to do");
                 return;
             }
 
@@ -318,19 +317,64 @@ namespace KAS
             otherAttachModule.vessel.SetRotation(otherAttachModule.vessel.transform.rotation);
             
             // Couple depending of mass
-            if (this.vessel.GetTotalMass() >= otherAttachModule.vessel.GetTotalMass())
+
+            Vessel dominantVessel = GetDominantVessel(this.vessel, otherAttachModule.vessel);
+            KAS_Shared.DebugLog("DockTo(Core) Master vessel is " + dominantVessel.vesselName);
+            
+            if (dominantVessel == this.vessel)
             {
-                KAS_Shared.DebugLog("DockTo(Base) Docking " + otherAttachModule.part.partInfo.title + " from " + otherAttachModule.vessel.vesselName + " with " + this.part.partInfo.title + " from " + this.vessel.vesselName);
+                KAS_Shared.DebugLog("DockTo(Core) Docking " + otherAttachModule.part.partInfo.title + " from " + otherAttachModule.vessel.vesselName + " with " + this.part.partInfo.title + " from " + this.vessel.vesselName);
+                if (FlightGlobals.ActiveVessel == otherAttachModule.part.vessel) 
+                {
+                    KAS_Shared.DebugLog("DockTo(Core) Switching focus to " + this.part.vessel.vesselName);
+                    FlightGlobals.ForceSetActiveVessel(this.part.vessel);
+                }
                 otherAttachModule.part.Couple(this.part);
             }
             else
             {
-                KAS_Shared.DebugLog("DockTo(Base) Docking " + this.part.partInfo.title + " from " + this.vessel.vesselName + " with " + otherAttachModule.part.partInfo.title + " from " + otherAttachModule.vessel.vesselName);
+                KAS_Shared.DebugLog("DockTo(Core) Docking " + this.part.partInfo.title + " from " + this.vessel.vesselName + " with " + otherAttachModule.part.partInfo.title + " from " + otherAttachModule.vessel.vesselName);
+                if (FlightGlobals.ActiveVessel == this.part.vessel)
+                {
+                    KAS_Shared.DebugLog("DockTo(Core) Switching focus to " + otherAttachModule.part.vessel.vesselName);
+                    FlightGlobals.ForceSetActiveVessel(otherAttachModule.part.vessel);
+                }
                 this.part.Couple(otherAttachModule.part);
             }
+
             this.vessel.ctrlState = new FlightCtrlState();
             FlightInputHandler.SetNeutralControls();
             GameEvents.onVesselWasModified.Fire(this.part.vessel);
+        }
+
+        private Vessel GetDominantVessel(Vessel v1, Vessel v2)
+        {
+            // Check 1 - Dominant vessel will be the higher type
+            if (v1.vesselType > v2.vesselType) return v1;
+            if (v1.vesselType < v2.vesselType) return v2;
+
+            // Check 2- If type are the same, dominant vessel will be the heaviest
+            float diffMass = Mathf.Abs((v1.GetTotalMass() - v2.GetTotalMass()));
+            if (diffMass >= 0.01f)
+            {
+                if (v1.GetTotalMass() <= v2.GetTotalMass())
+                {
+                    return v2;
+                }
+                else
+                {
+                    return v1;
+                }
+            }
+            // Check 3 - If weight is similar, dominant vessel will be the one with the higher ID
+            if (v1.id.CompareTo(v2.id) <= 0)
+            {
+                return v2;
+            }
+            else
+            {
+                return v1;
+            }     
         }
 
         public void Detach()
