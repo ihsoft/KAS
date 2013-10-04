@@ -94,6 +94,11 @@ namespace KAS
                     }     
                 }
             }
+
+            if (FlightGlobals.ActiveVessel.heightFromTerrain == -1f)
+            {
+                KAS_Shared.DebugWarning("Warning ! ActiveVessel.heightFromTerrain are negative (" + FlightGlobals.ActiveVessel.heightFromTerrain + ") do not save now (vessel spawning underground bug) and please report this message to KospY on the KAS thread");
+            }
         }
 
         void OnGUI()
