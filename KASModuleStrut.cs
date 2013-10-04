@@ -19,7 +19,7 @@ namespace KAS
         [KSPField] public string tubeTgtType = "Joined";
         [KSPField] public float textureTiling = 4;
         [KSPField] public bool hasCollider = false;
-        [KSPField] public string tubeTexPath = "KAS/Textures/pipe";
+        [KSPField] public string tubeTexPath = "KAS/Textures/strut";
         [KSPField] public string sndLinkPath = "KAS/Sounds/strutBuild";
         [KSPField] public string sndUnlinkPath = "KAS/Sounds/strutRemove";
         [KSPField] public string sndBrokePath = "KAS/Sounds/broke";
