@@ -432,6 +432,7 @@ namespace KAS
             // Get saved port module if any
             if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
             {
+                KAS_Shared.DebugLog("OnStart(Winch) Retrieve part with ID : " + connectedPortInfo.savedPartID + " | From vessel ID : " + connectedPortInfo.savedVesselID);
                 Part connectedPartSaved = KAS_Shared.GetPartByID(connectedPortInfo.savedVesselID, connectedPortInfo.savedPartID);
                 if (connectedPartSaved)
                 {
@@ -534,6 +535,11 @@ namespace KAS
                 {
                     cableJointLength = 0f;
                     Deploy();
+                    if (headState == PlugState.Locked)
+                    {
+                        extend.active = false;
+                        KAS_Shared.DebugError("Deploy(Winch) - Something go wrong, cannot deploy the winch head !!");
+                    }
                 }
                 release.isrunning = true;
                 if (!release.starting)
@@ -575,6 +581,11 @@ namespace KAS
                 {
                     cableJointLength = 0f;
                     Deploy();
+                    if (headState == PlugState.Locked)
+                    {
+                        extend.active = false;
+                        KAS_Shared.DebugError("Deploy(Winch) - Something go wrong, cannot deploy the winch head !!");
+                    }
                 }
                 if (KAS_Shared.RequestPower(this.part, powerDrain))
                 {
@@ -699,13 +710,13 @@ namespace KAS
         {
             if (headState == PlugState.PlugDocked)
             {
-                if (IsUpDown(connectedPortInfo.module.part))
+                if (connectedPortInfo.module.part.parent == this.part)
                 {
-                    KAS_Shared.UpdateChildsOrgPos(this.part);
+                    KAS_Shared.UpdateChildsOrgPos(connectedPortInfo.module.part, true);
                 }
-                if (IsDownUp(connectedPortInfo.module.part))
+                if (this.part.parent == connectedPortInfo.module.part)
                 {
-                    KAS_Shared.UpdateChildsOrgPos(connectedPortInfo.module.part);
+                    KAS_Shared.UpdateChildsOrgPos(this.part, true);           
                 }
             }
         }
@@ -797,8 +808,8 @@ namespace KAS
                 }
                 else
                 {
-                    if (IsUpDown(nodeConnectedPart)) nodeConnectedPart.decouple();
-                    if (IsDownUp(nodeConnectedPart)) this.part.decouple();
+                    if (nodeConnectedPart.parent == this.part) nodeConnectedPart.decouple();
+                    if (this.part.parent == nodeConnectedPart) this.part.decouple();
                 }
                 PlugHead(tmpPortModule, PlugState.PlugDocked);
             }
@@ -809,7 +820,6 @@ namespace KAS
 
             KAS_Shared.DebugLog("Deploy(Winch) - Enable tube renderer");
             SetTubeRenderer(true);
-
             //KAS_Shared.DisableVesselCollision(this.part.vessel, headTransform.collider);
         }
 
@@ -827,11 +837,10 @@ namespace KAS
                 KAS_Shared.DebugLog("Lock(Winch) Dock connected port");
                 KASModulePort tmpPortModule = connectedPortInfo.module;
                 UnplugHead(false);
-                KAS_Shared.MoveVesselRelatedToTransform(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
+                KAS_Shared.MoveAlignLight(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
                 AttachDocked(tmpPortModule);
                 nodeConnectedPort = tmpPortModule;
-            }
-
+            }    
             KAS_Shared.RemovePhysicObject(this.part, headTransform);
             this.part.mass = orgWinchMass;
 
@@ -856,7 +865,6 @@ namespace KAS
                 tubeRenderer.tubeJoinedTexture = texCable;
                 tubeRenderer.srcJointType = KAS_Tube.tubeJointType.Joined;
                 tubeRenderer.tgtJointType = KAS_Tube.tubeJointType.Joined;
-                tubeRenderer.tubeHasCollider = false;
                 // Set source and target 
                 tubeRenderer.srcNode = headAnchorNode;
                 tubeRenderer.tgtNode = winchAnchorNode;
@@ -1015,12 +1023,13 @@ namespace KAS
                 if (fireSound) portModule.fxSndPlugDocked.audio.Play();
             }
 
-            // Move head
+
+            KAS_Shared.DebugLog("PlugHead(Winch) - Moving head..."); 
             headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -portModule.portNode.forward) * headTransform.rotation;
             headTransform.position = headTransform.position - (headPortNode.position - portModule.portNode.position);
             cableJointLength = cableRealLenght;
- 
-            // Create joint
+
+            KAS_Shared.DebugLog("PlugHead(Winch) - Creating joint..."); 
             if (headJoint) Destroy(headJoint);
             headJoint = portModule.part.gameObject.AddComponent<FixedJoint>();
             headJoint.connectedBody = headTransform.rigidbody;
@@ -1080,27 +1089,6 @@ namespace KAS
             }
         }
 
-        public void MovePort(KASModulePort portModule, Vector3 position, Quaternion rotation)
-        {
-            if (!IsUpDown(portModule.part) && !IsDownUp(portModule.part))
-            {
-                KAS_Shared.DebugError("SetPartAsMoveable(Core) - Unsupported configuration, moveable part must be parent or child of the core module !");
-                return;
-            }
-            if (IsUpDown(portModule.part))
-            {
-                KAS_Shared.DebugLog("MoveMoveablePart(Core) - Moveable part is up>down");
-                List<Part> allChilds = KAS_Shared.GetAllChilds(portModule.part, true);
-                KAS_Shared.MovePartWith(portModule.part, allChilds, position, rotation);
-            }
-            if (IsDownUp(portModule.part))
-            {
-                KAS_Shared.DebugLog("MoveMoveablePart(Core) - Moveable part is down>up");
-                List<Part> allParents = KAS_Shared.GetAllParents(portModule.part, true);
-                KAS_Shared.MovePartWith(portModule.part, allParents, position, rotation);
-            }
-        }
-
         public void Eject()
         {
             if (headState == PlugState.Locked && ejectEnabled)
@@ -1119,21 +1107,6 @@ namespace KAS
                 this.part.Rigidbody.AddForce(-force, ForceMode.Force);
                 fxSndEject.audio.Play();
             }
-        }
-
-        public bool IsUpDown(Part refPart)
-        {
-            //use new system 
-            //this.part.hasIndirectChild(this.part.localRoot)
-            //this.part.hasIndirectParent(this.part.localRoot)
-            if (refPart.parent == this.part) return true;
-            return false;
-        }
-
-        public bool IsDownUp(Part refPart)
-        {
-            if (this.part.parent == refPart) return true;
-            return false;
         }
 
         private bool IsLockable()
