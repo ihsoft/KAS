@@ -172,15 +172,24 @@ namespace KAS
                 {
                     UnityEngine.Object.Destroy(col);
                 }
-                allModelMr = new List<MeshRenderer>(pointer.GetComponentsInChildren<MeshRenderer>() as MeshRenderer[]);
-                foreach (MeshRenderer mr in allModelMr)
+
+                allModelMr = new List<MeshRenderer>();
+                // Remove attached tube mesh renderer if any
+                List<MeshRenderer> tmpAllModelMr = new List<MeshRenderer>(pointer.GetComponentsInChildren<MeshRenderer>() as MeshRenderer[]);
+                foreach (MeshRenderer mr in tmpAllModelMr)
                 {
+                    if (mr.name == "KAStube" || mr.name == "KASsrcSphere" || mr.name == "KASsrcTube" || mr.name == "KAStgtSphere" || mr.name == "KAStgtTube")
+                    {
+                        Destroy(mr);
+                        continue;
+                    }
+                    allModelMr.Add(mr);
                     mr.material = new Material(Shader.Find("Transparent/Diffuse"));
                 }
-                    pointerNodeTransform = new GameObject("KASPointerPartNode").transform;
-                    pointerNodeTransform.parent = pointer.transform;
-                    pointerNodeTransform.localPosition = partToAttach.srfAttachNode.position;
-                    pointerNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(pointer.transform, partToAttach.srfAttachNode.orientation);
+                pointerNodeTransform = new GameObject("KASPointerPartNode").transform;
+                pointerNodeTransform.parent = pointer.transform;
+                pointerNodeTransform.localPosition = partToAttach.srfAttachNode.position;
+                pointerNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(pointer.transform, partToAttach.srfAttachNode.orientation);
                 }
 
             //Set default color
