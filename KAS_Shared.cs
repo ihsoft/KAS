@@ -79,11 +79,49 @@ namespace KAS
             fromTransform.position = fromTransform.position - (fromTransform.TransformPoint(fromLocalPos) - hit.point);
         }
 
-        public static void MoveVesselRelatedToTransform(Vessel fromVessel, Transform fromTransform, Vessel toVessel, Transform toTransform)
+        public static void MoveAlignLight(Vessel fromVessel, Transform fromTransform, Vessel toVessel, Transform toTransform)
         {
             toVessel.SetRotation(toVessel.transform.rotation);
             fromVessel.SetRotation(Quaternion.FromToRotation(fromTransform.forward, -toTransform.forward) * fromVessel.transform.rotation);
             fromVessel.SetPosition(fromVessel.transform.position - (fromTransform.position - toTransform.position), true);
+        }
+
+        public static void MoveAlignLight(Part fromPart, Transform fromTransform, Part toPart, Transform toTransform, List<Part> partToMoveWith = null)
+        {
+            Quaternion rot = Quaternion.FromToRotation(fromTransform.forward, -toTransform.forward) * fromPart.transform.rotation;
+            Vector3 pos = (fromPart.transform.position - (fromTransform.position - toTransform.position));
+            if (partToMoveWith == null)
+            {
+                fromPart.transform.rotation = rot;
+                fromPart.transform.position = pos;
+            }
+            else
+            {
+                KAS_Shared.MovePartWith(fromPart, partToMoveWith, pos, rot);
+            }
+        }
+
+        public static void MovePartWith(Part rootPart, List<Part> moveWithParts, Vector3 position, Quaternion rotation)
+        {
+            Dictionary<Part, Transform> partsParent = new Dictionary<Part, Transform>();
+
+            // Save original parts parent (just in case) and child them to rootPart
+            foreach (Part p in moveWithParts)
+            {
+                if (p == rootPart) continue;
+                partsParent.Add(p, p.transform.parent);
+                p.transform.parent = rootPart.transform;
+            }
+
+            // Move root part
+            rootPart.transform.position = position;
+            rootPart.transform.rotation = rotation;
+
+            // Reset original parts parent
+            foreach (KeyValuePair<Part, Transform> pParent in partsParent)
+            {
+                pParent.Key.transform.parent = pParent.Value;
+            }
         }
 
         public static void AddNodeTransform(Part p, AttachNode attachNode)
@@ -210,12 +248,13 @@ namespace KAS
             transf.rigidbody.mass = mass;
             transf.transform.parent = null;
             transf.rigidbody.useGravity = true;
-            FlightGlobals.addPhysicalObject(transf.gameObject);
             if (copyRbVelFrom)
             {
                 transf.rigidbody.velocity = copyRbVelFrom.velocity;
                 transf.rigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
             }
+            FlightGlobals.addPhysicalObject(transf.gameObject);
+            //transf.gameObject.AddComponent<physicalObject>();
         }
 
         public static void RemovePhysicObject(Part p, Transform transf)
@@ -557,29 +596,6 @@ namespace KAS
             }
         }
 
-        public static void MovePartWith(Part rootPart, List<Part> moveWithParts, Vector3 position, Quaternion rotation)
-        {
-            Dictionary<Part, Transform> partsParent = new Dictionary<Part, Transform>();
-
-            // Save original parts parent (just in case) and child them to rootPart
-            foreach (Part p in moveWithParts)
-            {
-                if (p == rootPart) continue;
-                partsParent.Add(p, p.transform.parent);
-                p.transform.parent = rootPart.transform;
-            }
-
-            // Move root part
-            rootPart.transform.position = position;
-            rootPart.transform.rotation = rotation;
-
-            // Reset original parts parent
-            foreach (KeyValuePair<Part, Transform> pParent in partsParent)
-            {
-                pParent.Key.transform.parent = pParent.Value;
-            }
-        }
-
         public static void SetPartsPosition(Part rootPart, List<Part> parts, Vector3 position, bool usePristineCoords)
         { 
             if (!usePristineCoords)
@@ -720,6 +736,11 @@ namespace KAS
             Vessel searchVessel = FlightGlobals.Vessels.Find(ves => ves.id.ToString() == vesselID);
             if (searchVessel)
             {
+                if (!searchVessel.loaded)
+                {
+                    KAS_Shared.DebugWarning("GetPartByID - Searched vessel are not loaded, loading it...");
+                    searchVessel.Load();
+                }
                 Part searchedPart = searchVessel.Parts.Find(p => p.flightID.ToString() == partID);
                 if (searchedPart)
                 {
