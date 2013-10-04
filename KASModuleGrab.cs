@@ -94,6 +94,7 @@ namespace KAS
 
         public override void OnStart(StartState state)
         {
+            base.OnStart(state);
             if (state == StartState.Editor || state == StartState.None) return;
             KAS_Shared.createFXSound(this.part, fxSndGrab, grabSndPath, false);
             KAS_Shared.createFXSound(this.part, fxSndAttachPart, attachPartSndPath, false);
