@@ -15,7 +15,6 @@ public class KAS_Tube : MonoBehaviour
     // Common
     public Color color = Color.white;
     public bool updateContinually = true;
-    public bool tubeHasCollider = false;
     public float tubeScale = 0.15f;
     public float sphereScale = 0.15f;
     public float tubeTexTilingOffset = 2;
@@ -63,10 +62,11 @@ public class KAS_Tube : MonoBehaviour
     {
         //Create tube primitive
         tube = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        tube.name = "tube";
-        if (!tubeHasCollider) tube.collider.isTrigger = true;
+        tube.name = "KAStube";
+        Destroy(tube.collider);
         tube.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
         tubeMR = tube.GetComponent<MeshRenderer>();
+        tubeMR.name = "KAStube";
         tubeMR.material = new Material(Shader.Find(shaderName));
         tubeMR.material.mainTexture = tubeTexture;
         tubeMR.material.color = color;
@@ -76,8 +76,8 @@ public class KAS_Tube : MonoBehaviour
         {
             //Create sphere primitive at source
             srcSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            srcSphere.name = "srcRoundedSphere";
-            srcSphere.collider.isTrigger = true;
+            srcSphere.name = "KASsrcSphere";
+            Destroy(srcSphere.collider);
             srcSphere.transform.localScale = new Vector3(sphereScale, sphereScale, sphereScale);
             srcSphere.transform.parent = srcNode;
             srcSphere.transform.localPosition = Vector3.zero;
@@ -87,6 +87,7 @@ public class KAS_Tube : MonoBehaviour
                 srcSphere.transform.localPosition += new Vector3(0f, 0f, tubeScale / 2);
             }
             srcSphereMR = srcSphere.GetComponent<MeshRenderer>();
+            srcSphereMR.name = "KASsrcSphere";
             srcSphereMR.material = new Material(Shader.Find(shaderName));
             srcSphereMR.material.mainTexture = sphereTexture;
             srcSphereMR.material.color = color;
@@ -95,13 +96,14 @@ public class KAS_Tube : MonoBehaviour
             {
                 //Create joined tube primitive at source
                 srcTubeSphere = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                srcTubeSphere.name = "srcJoinedTube";
-                srcTubeSphere.collider.isTrigger = true;
+                srcTubeSphere.name = "KASsrcTube";
+                Destroy(srcTubeSphere.collider);
                 srcTubeSphere.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
                 srcTubeSphere.transform.parent = srcNode;
                 srcTubeSphere.transform.localPosition = Vector3.zero;
                 srcTubeSphere.transform.localRotation = Quaternion.identity;
                 srcTubeSphereMR = srcTubeSphere.GetComponent<MeshRenderer>();
+                srcTubeSphereMR.name = "KASsrcTube";
                 srcTubeSphereMR.material = new Material(Shader.Find(shaderName));
                 srcTubeSphereMR.material.mainTexture = tubeJoinedTexture;
                 srcTubeSphereMR.material.color = color;
@@ -113,8 +115,8 @@ public class KAS_Tube : MonoBehaviour
         {
             //Create sphere primitive at target
             tgtSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            tgtSphere.name = "tgtRoundedSphere";
-            tgtSphere.collider.isTrigger = true;
+            tgtSphere.name = "KAStgtSphere";
+            Destroy(tgtSphere.collider);
             tgtSphere.transform.localScale = new Vector3(sphereScale, sphereScale, sphereScale);
             tgtSphere.transform.parent = tgtNode;
             tgtSphere.transform.localPosition = Vector3.zero;
@@ -124,6 +126,7 @@ public class KAS_Tube : MonoBehaviour
                 tgtSphere.transform.localPosition += new Vector3(0f, 0f, tubeScale / 2);
             }
             tgtSphereMR = tgtSphere.GetComponent<MeshRenderer>();
+            tgtSphereMR.name = "KAStgtSphere";
             tgtSphereMR.material = new Material(Shader.Find(shaderName));
             tgtSphereMR.material.mainTexture = sphereTexture;
             tgtSphereMR.material.color = color;
@@ -131,13 +134,14 @@ public class KAS_Tube : MonoBehaviour
             {
                 //Create joined tube primitive at target
                 tgtTubeSphere = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                tgtTubeSphere.name = "tgtJoinedTube";
-                tgtTubeSphere.collider.isTrigger = true;
+                tgtTubeSphere.name = "KAStgtTube";
+                Destroy(tgtTubeSphere.collider);
                 tgtTubeSphere.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
                 tgtTubeSphere.transform.parent = tgtNode;
                 tgtTubeSphere.transform.localPosition = Vector3.zero;
                 tgtTubeSphere.transform.localRotation = Quaternion.identity;
                 tgtTubeSphereMR = tgtTubeSphere.GetComponent<MeshRenderer>();
+                tgtTubeSphereMR.name = "KAStgtTube";
                 tgtTubeSphereMR.material = new Material(Shader.Find(shaderName));
                 tgtTubeSphereMR.material.mainTexture = tubeJoinedTexture;
                 tgtTubeSphereMR.material.color = color;
