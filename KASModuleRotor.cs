@@ -69,7 +69,10 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = "speed : " + speed;
+            string info = base.GetInfo();
+            info += "---- Rotor ----";
+            info += "\n";
+            info += "speed : " + speed;
             info += "\n";
             info += "Force : " + force;
             info += "\n";
@@ -139,12 +142,13 @@ namespace KAS
         {
             if (rotorLoaded)
             {
-                foreach (AttachNode an in attachNodes)
+                if (this.part.hasIndirectParent(this.part.localRoot))
                 {
-                    if (an.attachedPart)
-                    {
-                        KAS_Shared.UpdateChildsOrgPos(an.attachedPart, true);
-                    }
+                    KAS_Shared.UpdateChildsOrgPos(this.part, false);
+                }
+                if (this.part.hasIndirectChild(this.part.localRoot))
+                {
+                    KAS_Shared.UpdateChildsOrgPos(this.part, true);
                 }
             }
         }

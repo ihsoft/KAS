@@ -55,6 +55,7 @@
     <Compile Include="KASAddonEditContainer.cs" />
     <Compile Include="KASModuleContainer.cs" />
     <Compile Include="KASModulePort.cs" />
+    <Compile Include="KASModuleTelescopicArm.cs" />
     <Compile Include="KASModuleWinch.cs" />
     <Compile Include="KASModuleAnchor.cs" />
     <Compile Include="KASModuleMagnet.cs" />
