@@ -10,6 +10,7 @@
     - `KASModuleGrab`
     - `KASModuleContainer`
     - `KASModulePartBay`
+    - `KASModulePort`
 - Distribute video, screenshots or other media portraying unmodified versions of KAS in action.
 - Distribute modified or unmodified versions of the KAS plugin source code on condition that a link to this license is included.
 - Modify KAS in any way for personal use.
