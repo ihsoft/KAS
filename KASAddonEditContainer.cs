@@ -12,7 +12,6 @@ namespace KAS
         public void Awake()
         {
             KASAddonControlKey.LoadKeyConfig();
-            KASAddonPointer.LoadKeyConfig();
         }
      
         public void Update()
