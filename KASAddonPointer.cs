@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -13,9 +14,6 @@ namespace KAS
         public GameObject audioGo = new GameObject();
         public AudioSource audioBipWrong = new AudioSource();
 
-        public static string attachKey = "h";
-        public static string rotateLeftKey = "b";
-        public static string rotateRightKey = "n";
         public enum PointerMode
         {
             MoveAndAttach = 0,
@@ -48,8 +46,6 @@ namespace KAS
 
         void Awake()
         {
-            LoadKeyConfig();
-
             audioBipWrong = audioGo.AddComponent<AudioSource>();
             audioBipWrong.volume = GameSettings.UI_VOLUME;
             audioBipWrong.panLevel = 0;  //set as 2D audiosource
@@ -65,27 +61,7 @@ namespace KAS
             }
         }
 
-        public static void LoadKeyConfig()
-        {
-            ConfigNode node = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/KAS/settings.cfg") ?? new ConfigNode();
-            foreach (ConfigNode attachNode in node.GetNodes("AttachPointer"))
-            {
-                if (attachNode.HasValue("attachKey"))
-                {
-                    attachKey = attachNode.GetValue("attachKey");
-                }
-                if (attachNode.HasValue("rotateLeftKey"))
-                {
-                    rotateLeftKey = attachNode.GetValue("rotateLeftKey");
-                }
-                if (attachNode.HasValue("rotateRightKey"))
-                {
-                    rotateRightKey = attachNode.GetValue("rotateRightKey");
-                }
-            }
-        }
- 
-        public static void StartPointer(Part partToMoveAndAttach, PointerMode mode, bool partIsValid, bool evaIsValid, bool staticIsValid, float maxDistance, Transform from, bool sendMsgOnly = false)
+        public static void StartPointer(Part partToMoveAndAttach, PointerMode mode, bool partIsValid, bool evaIsValid, bool staticIsValid, float maxDistance, Transform from, bool sendMsgOnly)
         {
             if (!running)
             {
@@ -112,38 +88,7 @@ namespace KAS
 
         void Update()
         {
-            UpdateKeyControl();
             UpdatePointer();
-        }
-
-        private static void UpdateKeyControl()
-        {
-            if (running)
-            {
-                if (
-                Input.GetKeyDown(KeyCode.Escape)
-                || Input.GetKeyDown(KeyCode.Space)
-                || Input.GetKeyDown(KeyCode.Mouse1)
-                || Input.GetKeyDown(KeyCode.Mouse2)
-                || Input.GetKeyDown(KeyCode.Return)
-                || Input.GetKeyDown(attachKey.ToLower())
-                )
-                {
-                    KAS_Shared.DebugLog("Cancel key pressed, stop eva attach mode");
-                    StopPointer();
-                }
-            }
-            else if (Input.GetKeyDown(attachKey.ToLower()))
-            {
-                KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-                if (grabbedModule)
-                {
-                    if (grabbedModule.attachOnPart || grabbedModule.attachOnEva || grabbedModule.attachOnStatic)
-                    {
-                        StartPointer(grabbedModule.part, PointerMode.MoveAndAttach, grabbedModule.attachOnPart, grabbedModule.attachOnEva, grabbedModule.attachOnStatic, grabbedModule.attachMaxDist, FlightGlobals.ActiveVessel.rootPart.transform);              
-                    }           
-                }
-            }
         }
 
         public void UpdatePointer()
@@ -234,11 +179,11 @@ namespace KAS
             foreach (MeshRenderer mr in allModelMr) mr.material.color = color;
 
             //Rotation keys
-            if (Input.GetKeyDown(rotateLeftKey.ToLower()))
+            if (Input.GetKeyDown(KASAddonControlKey.rotateLeftKey.ToLower()))
             {
                 RotatePointer(-15);
             }
-            if (Input.GetKeyDown(rotateRightKey.ToLower()))
+            if (Input.GetKeyDown(KASAddonControlKey.rotateRightKey.ToLower()))
             {
                 RotatePointer(+15);
             }
@@ -264,73 +209,163 @@ namespace KAS
                     return;
                 }
 
+                KASModuleGrab modulegrab = partToAttach.GetComponent<KASModuleGrab>();
+                
+
                 //Move and attach mode
                 if (pointerMode == PointerMode.MoveAndAttach)
                 {
                     // Drop and detach part if needed
-                    KASModuleGrab modulegrab = partToAttach.GetComponent<KASModuleGrab>();
                     if (modulegrab)
                     {
                         if (modulegrab.grabbed) modulegrab.Drop();
                         modulegrab.Detach();
-                        KAS_Shared.DecoupleFromAll(modulegrab.part);
                     }
 
-                    //Parent plugged winch connector for moving it too (only if part is a hook connected to a winch)  
-                    KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(partToAttach);
-                    if (moduleWinch) moduleWinch.headTransform.parent = partToAttach.transform;
-                }
-
-                //Move part
-                partToAttach.transform.position = pointer.transform.position;
-                partToAttach.transform.rotation = pointer.transform.rotation;
-
-                //Reset parent & Set cable lenght to real lenght
-                if (pointerMode == PointerMode.MoveAndAttach)
-                {
-                    KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(partToAttach);
-                    if (moduleWinch)
+                    KASModuleWinch connectedWinch = KAS_Shared.GetConnectedWinch(partToAttach);
+                    if (!connectedWinch)
                     {
-                        moduleWinch.headTransform.parent = null;
-                        moduleWinch.cableJointLength = moduleWinch.cableRealLenght;
+                        KAS_Shared.DecoupleFromAll(partToAttach);
                     }
-                }
 
-                if (msgOnly)
-                {
-                    if (hitPart) partToAttach.SendMessage("OnAttachPart", hitPart, SendMessageOptions.DontRequireReceiver);
-                    else partToAttach.SendMessage("OnAttachStatic", SendMessageOptions.DontRequireReceiver);
-                }
-                else
-                {
-                    KASModuleGrab modulegrab = partToAttach.GetComponent<KASModuleGrab>();
-                    if (!hitPart && !hitEva)
-                    {    
-                        if (modulegrab)
-                        {
-                            modulegrab.AttachStatic();
-                            modulegrab.fxSndAttachStatic.audio.Play();
-                        }
-                        else
-                        {
-                            KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, part cannot be attached on static");
-                        }
+                    //Move part
+                    partToAttach.transform.position = pointer.transform.position;
+                    partToAttach.transform.rotation = pointer.transform.rotation;
+
+                    if (connectedWinch)
+                    {
+                        //Set cable lenght to real lenght
+                        connectedWinch.cableJointLength = connectedWinch.cableRealLenght;                    
+                    }
+
+                    if (msgOnly)
+                    {
+                        KAS_Shared.DebugLog("UpdatePointer(Pointer) Attach using send message");
+                        if (hitPart) partToAttach.SendMessage("OnAttachPart", hitPart, SendMessageOptions.DontRequireReceiver);
+                        else partToAttach.SendMessage("OnAttachStatic", SendMessageOptions.DontRequireReceiver);
                     }
                     else
                     {
-                        partToAttach.Couple(hitPart);
-                        if (modulegrab)
+                        KAS_Shared.DebugLog("UpdatePointer(Pointer) Attach with couple or static method");
+                        if (!hitPart && !hitEva)
                         {
-                            modulegrab.fxSndAttachPart.audio.Play();
+                            if (modulegrab)
+                            {
+                                modulegrab.AttachStatic();
+                                modulegrab.fxSndAttachStatic.audio.Play();
+                            }
+                            else
+                            {
+                                KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, part cannot be attached on static");
+                            }
                         }
                         else
                         {
-                            KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, cannot fire sound");
+                            partToAttach.Couple(hitPart);
+                            if (modulegrab)
+                            {
+                                modulegrab.fxSndAttachPart.audio.Play();
+                            }
+                            else
+                            {
+                                KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, cannot fire sound");
+                            }
+                        }
+                        partToAttach.SendMessage("OnAttach", SendMessageOptions.DontRequireReceiver);     
+                    }
+                }
+
+                if (pointerMode == PointerMode.CopyAndAttach)
+                {
+                    // Not tested !
+                    Part newPart = KAS_Shared.CreatePart(partToAttach.partInfo, pointer.transform.position, pointer.transform.rotation, partToAttach);
+                    if (msgOnly)
+                    {
+                        if (hitPart) StartCoroutine(WaitAndSendMsg(newPart, pointer.transform.position, pointer.transform.rotation, hitPart));
+                        else StartCoroutine(WaitAndSendMsg(newPart, pointer.transform.position, pointer.transform.rotation));
+                    }
+                    else
+                    {         
+                        if (!hitPart && !hitEva)
+                        {
+                            StartCoroutine(WaitAndAttach(newPart, pointer.transform.position, pointer.transform.rotation, hitPart));
+                        }
+                        else
+                        {
+                            StartCoroutine(WaitAndAttach(newPart, pointer.transform.position, pointer.transform.rotation));
                         }
                     }
-                    partToAttach.SendMessage("OnAttach", SendMessageOptions.DontRequireReceiver);
-                    running = false;
                 }
+                running = false;
+            }
+        }
+
+        private IEnumerator WaitAndAttach(Part partToAttach, Vector3 position, Quaternion rotation, Part toPart = null)
+        {
+            while (!partToAttach.rigidbody)
+            {
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Waiting rigidbody to initialize...");
+                yield return new WaitForFixedUpdate();
+            }
+            KASModuleGrab moduleGrab = partToAttach.GetComponent<KASModuleGrab>();
+            if (toPart)
+            {
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Rigidbody initialized, setting velocity...");
+                partToAttach.rigidbody.velocity = toPart.rigidbody.velocity;
+                partToAttach.rigidbody.angularVelocity = toPart.rigidbody.angularVelocity;
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Waiting velocity to apply by waiting 0.1 seconds...");
+                yield return new WaitForSeconds(0.1f);
+                partToAttach.transform.position = position;
+                partToAttach.transform.rotation = rotation;
+                partToAttach.Couple(toPart);
+                if (moduleGrab)
+                {
+                    moduleGrab.fxSndAttachPart.audio.Play();
+                }
+                else
+                {
+                    KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, cannot fire sound");
+                }
+            }
+            else
+            {
+                partToAttach.transform.position = position;
+                partToAttach.transform.rotation = rotation;
+                if (moduleGrab)
+                {
+                    moduleGrab.AttachStatic();
+                    moduleGrab.fxSndAttachStatic.audio.Play();
+                }
+                else
+                {
+                    KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, part cannot be attached on static");
+                }
+            }
+        }
+
+        private IEnumerator WaitAndSendMsg(Part partToAttach, Vector3 position, Quaternion rotation, Part toPart = null)
+        {
+            while (!partToAttach.rigidbody)
+            {
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Waiting rigidbody to initialize...");
+                yield return new WaitForFixedUpdate();
+            }
+            if (toPart)
+            {
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Rigidbody initialized, setting velocity...");
+                partToAttach.rigidbody.velocity = toPart.rigidbody.velocity;
+                partToAttach.rigidbody.angularVelocity = toPart.rigidbody.angularVelocity;
+                KAS_Shared.DebugLog("WaitAndAttach(Pointer) - Waiting velocity to apply by waiting 0.1 seconds...");
+                yield return new WaitForSeconds(0.1f);
+                partToAttach.transform.position = position;
+                partToAttach.transform.rotation = rotation;
+                partToAttach.SendMessage("OnAttachPart", toPart, SendMessageOptions.DontRequireReceiver);
+            }
+            else
+            {
+                partToAttach.transform.position = position;
+                partToAttach.transform.rotation = rotation;
+                partToAttach.SendMessage("OnAttachStatic", SendMessageOptions.DontRequireReceiver);
             }
         }
 
@@ -357,11 +392,9 @@ namespace KAS
             // rcs block orientation (0.1, 0.0, 0.0) orient ok rotate nok
         }
         
-
-
         public static void ShowAttachHelpMsg()
         {
-            ScreenMessages.PostScreenMessage("Attach pointer enabled. Press " + rotateLeftKey + "/" + rotateRightKey + " to rotate and mouse click to attach. Press echap, space, mouse2 or " + attachKey + " to cancel.", 5, ScreenMessageStyle.UPPER_CENTER);
+            ScreenMessages.PostScreenMessage("Attach pointer enabled. Press " + KASAddonControlKey.rotateLeftKey + "/" + KASAddonControlKey.rotateRightKey + " to rotate and mouse click to attach. Press echap, space, mouse2 or " + KASAddonControlKey.attachKey + " to cancel.", 5, ScreenMessageStyle.UPPER_CENTER);
         }
 
     }
