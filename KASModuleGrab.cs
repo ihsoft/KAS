@@ -70,7 +70,7 @@ namespace KAS
             if (attachOnPart || attachOnEva || attachOnStatic)
             {
                 info += "\n";
-                info += "Attach key : " + KASAddonPointer.attachKey;
+                info += "Attach key : " + KASAddonControlKey.attachKey;
                 info += "\n";
                 info += "Can be attached on : ";
                 if (attachOnPart)
@@ -186,15 +186,28 @@ namespace KAS
             //Send message to other modules
             base.SendMessage("OnPartGrab", kerbalEvaVessel, SendMessageOptions.DontRequireReceiver);
 
-            //Get connected winch module if any
-            KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(this.part); 
-
             //Drop grabbed part on eva if needed
             KASModuleGrab tmpGrabbbedPartModule = KAS_Shared.GetGrabbedPartModule(kerbalEvaVessel);
             if (tmpGrabbbedPartModule)
             {
                 KAS_Shared.DebugWarning("Grab - Drop current grabbed part");
                 tmpGrabbbedPartModule.Drop();
+            }
+ 
+            evaNodeTransform = new GameObject("KASEvaNode").transform;
+            evaNodeTransform.parent = evaCollider.transform;
+            evaNodeTransform.localPosition = evaPartPos;
+            evaNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(evaCollider.transform, evaPartDir);
+
+            KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
+
+            //Grab winch connected head if any
+            KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(this.part);
+            if (moduleWinch)
+            {
+                KASModulePort modulePort = this.part.GetComponent<KASModulePort>();
+                moduleWinch.UnplugHead(false);
+                moduleWinch.GrabHead(kerbalEvaVessel, modulePort);
             }
 
             List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
@@ -203,42 +216,12 @@ namespace KAS
                 col.isTrigger = true;
             }
 
-            //Parent winch connector for moving it too if any
-            if (moduleWinch)
-            {
-                if (moduleWinch.headState == KASModuleWinch.PlugState.Locked) moduleWinch.Deploy();
-                moduleWinch.headTransform.parent = this.transform;
-            }
-
-            evaNodeTransform = new GameObject("KASEvaNode").transform;
-            evaNodeTransform.parent = evaCollider.transform;
-            evaNodeTransform.localPosition = evaPartPos;
-            evaNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(evaCollider.transform, evaPartDir);
-
-            KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
-
-            if (moduleWinch)
-            {              
-                moduleWinch.headTransform.parent = null;
-                // Parent eva to head for moving eva with the head
-                kerbalEvaVessel.rootPart.transform.parent = moduleWinch.headTransform;
-                // Set cable joint connected body to eva
-                moduleWinch.SetCableJointConnectedBody(kerbalEvaVessel.rootPart.rigidbody);
-                // Unparent eva to head
-                kerbalEvaVessel.rootPart.transform.parent = null;
-                moduleWinch.headTransform.parent = this.transform;
-                moduleWinch.cableJointLength = moduleWinch.cableRealLenght;
-                moduleWinch.release.active = true;
-            }
-            else
-            {
-                Detach();
-                KAS_Shared.DecoupleFromAll(this.part);
-                this.part.Couple(kerbalEvaVessel.rootPart);
-                //Destroy joint to avoid buggy eva move
-                Destroy(this.part.attachJoint);
-            }
-
+            Detach();
+            KAS_Shared.DecoupleFromAll(this.part);
+            this.part.Couple(kerbalEvaVessel.rootPart);
+            //Destroy joint to avoid buggy eva move
+            Destroy(this.part.attachJoint);
+            
             this.part.rigidbody.velocity = kerbalEvaVessel.rootPart.rigidbody.velocity;
 
             if (physicJoint)
@@ -262,7 +245,7 @@ namespace KAS
                 orgKerbalMass = kerbalEvaVessel.rootPart.mass;
                 kerbalEvaVessel.rootPart.mass += this.part.mass;
             }
-            
+
             evaHolderVesselName = kerbalEvaVessel.vesselName;
             evaHolderPart = kerbalEvaVessel.rootPart;
             grabbed = true;
@@ -281,29 +264,14 @@ namespace KAS
                 KAS_Shared.DebugLog("Drop - Dropping part :" + this.part.partInfo.name);
                 base.SendMessage("OnPartDrop", SendMessageOptions.DontRequireReceiver);
 
-                //Get connected winch module if any
-                KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(this.part);
-
-                //this.part.ResumeVelocity();
-
                 if (this.part.vessel.isEVA)
                 {
                     this.part.decouple();
                 }
 
-                KASAddonPointer.StopPointer();
-                
                 //Remove created joints between eva and part if exist
                 KAS_Shared.RemoveFixedJointBetween(this.part, evaHolderPart);
                 KAS_Shared.RemoveHingeJointBetween(this.part, evaHolderPart);
-
-                if (moduleWinch)
-                {
-                    moduleWinch.headTransform.parent = null;
-                    moduleWinch.SetCableJointConnectedBody(moduleWinch.headTransform.rigidbody);
-                    moduleWinch.cableJointLength = moduleWinch.cableRealLenght;
-                    moduleWinch.release.active = false;
-                }
 
                 List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
                 foreach (Collider col in allColliders)
@@ -330,6 +298,15 @@ namespace KAS
 
                 if (addPartMass & !physicJoint) evaHolderPart.mass = orgKerbalMass;
 
+                KASModuleWinch grabbedWinchHead = KAS_Shared.GetWinchModuleGrabbed(evaHolderPart.vessel);
+                if (grabbedWinchHead)
+                {
+                    if (grabbedWinchHead.grabbedPortModule)
+                    {
+                        KAS_Shared.DebugLog("Drop - Grabbed part have a port connected");
+                        grabbedWinchHead.PlugHead(grabbedWinchHead.grabbedPortModule, KASModuleWinch.PlugState.PlugDocked,fireSound:false);
+                    }
+                }
 
                 evaJoint = null;
                 evaNodeTransform = null;
@@ -402,7 +379,7 @@ namespace KAS
                 }
                 else
                 {
-                    KASAddonPointer.StartPointer(this.part, KASAddonPointer.PointerMode.MoveAndAttach, attachOnPart, attachOnEva, attachOnStatic, attachMaxDist, FlightGlobals.ActiveVessel.rootPart.transform);
+                    KASAddonPointer.StartPointer(this.part, KASAddonPointer.PointerMode.MoveAndAttach, attachOnPart, attachOnEva, attachOnStatic, attachMaxDist, this.part.transform, attachSendMsgOnly);
                 }
             }
             else
