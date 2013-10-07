@@ -20,12 +20,42 @@ namespace KAS
         [KSPField] public string magnetStartSndPath = "KAS/Sounds/magnetstart";
         [KSPField] public string magnetStopSndPath = "KAS/Sounds/magnetstop";
 
-        //Info
-        [KSPField(guiActive = true, guiName = "State", guiFormat="S")] public string state = "Off";
-
         public FXGroup fxSndAttach, fxSndDetach, fxSndMagnet, fxSndMagnetStart, fxSndMagnetStop;
-        public bool magnetActive = false;
-        private bool magnetStarted = false;
+
+        [KSPField(guiActive = true, guiName = "State", guiFormat="S")] public string state = "Off";
+        private bool _magnetActive = false;
+
+        public bool MagnetActive
+        {
+            get
+            {
+                return _magnetActive;
+            }
+            set
+            {
+                if (value == true && _magnetActive == false)
+                {
+                    KAS_Shared.DebugLog("MagnetActive(Magnet) Start magnet...");
+                    state = "On";
+                    if (!fxSndMagnetStart.audio.isPlaying)
+                    {
+                        fxSndMagnetStart.audio.Play();
+                    }
+                    if (!fxSndMagnet.audio.isPlaying)
+                    {
+                        fxSndMagnet.audio.Play();
+                    }
+                    _magnetActive = true;
+                }
+                else if (value == false && _magnetActive == true)
+                {
+                    KAS_Shared.DebugLog("MagnetActive(Magnet) Stop magnet...");
+                    state = "Off";
+                    DetachMagnet();
+                    _magnetActive = false;
+                }
+            }
+        }
 
         public override string GetInfo()
         {
@@ -47,6 +77,10 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndMagnet, magnetSndPath, true);
             KAS_Shared.createFXSound(this.part, fxSndMagnetStart, magnetStartSndPath, false);
             KAS_Shared.createFXSound(this.part, fxSndMagnetStop, magnetStopSndPath, false);
+            if (attachMode.FixedJoint)
+            {
+                MagnetActive = true;
+            }
         }
 
         public override void OnUpdate()
@@ -60,17 +94,34 @@ namespace KAS
         {
             KAS_Shared.DebugWarning("A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             KAS_Shared.DebugWarning("Disable magnet...");
-            magnetActive = false;
+            MagnetActive = false;
+        }
+
+        public void OnPartGrab(Vessel kerbalEvaVessel)
+        {
+            MagnetActive = false;
+            Events["ContextMenuMagnet"].guiActive = false;
+        }
+
+        public void OnPartDrop()
+        {
+            MagnetActive = false;
+            Events["ContextMenuMagnet"].guiActive = true;
         }
 
         public void OnAttachPart(Part targetPart)
         {
+            KAS_Shared.DebugLog("OnAttachPart(magnet) - Attach magnet to : " + targetPart.partInfo.title);
+            if (FixedAttach.connectedPart)
+            {
+                MagnetActive = false;
+            }        
             AttachMagnet(targetPart); 
         }
 
         void OnCollisionEnter(Collision collision)
         {
-            if (magnetActive)
+            if (MagnetActive)
             {
                 AttachOnCollision(collision, "enter");
             }
@@ -78,49 +129,25 @@ namespace KAS
 
         void OnCollisionStay(Collision collisionInfo)
         {
-            if (magnetActive)
+            if (MagnetActive)
             {
                 AttachOnCollision(collisionInfo, "stay");
             }
         }
 
         void UpdateMagnet()
-        {
-            if (magnetActive)
+        {         
+            if (!MagnetActive) return;
+            //Drain power and stop if no energy
+            if (!KAS_Shared.RequestPower(this.part, powerDrain))
             {
-                //Drain power and stop if no energy
-                if (!KAS_Shared.RequestPower(this.part, powerDrain))
+                state = "Insufficient Power";
+                if (this.part.vessel == FlightGlobals.ActiveVessel)
                 {
-                    state = "Insufficient Power";
-                    if (this.part.vessel == FlightGlobals.ActiveVessel)
-                    {
-                        ScreenMessages.PostScreenMessage("Magnet stopped ! Insufficient Power", 5, ScreenMessageStyle.UPPER_CENTER);
-                    }
-                    magnetActive = false;
-                    return;
+                    ScreenMessages.PostScreenMessage("Magnet stopped ! Insufficient Power", 5, ScreenMessageStyle.UPPER_CENTER);
                 }
-
-                if (!magnetStarted)
-                {
-                    KAS_Shared.DebugLog("UpdateMagnet - Start magnet...");
-                    fxSndMagnetStart.audio.Play();
-                    magnetStarted = true;
-                    state = "On";
-                }
-
-                if (!fxSndMagnet.audio.isPlaying)
-                {
-                    fxSndMagnet.audio.Play();
-                }   
-            }
-            else
-            {
-                if (magnetStarted)
-                {
-                    KAS_Shared.DebugLog("UpdateMagnet - Stop magnet...");
-                    DetachMagnet();
-                }
-            }
+                MagnetActive = false;
+            }            
         }
 
         private void AttachOnCollision(Collision collision, string type)
@@ -185,11 +212,14 @@ namespace KAS
                 AttachMagnet(p); 
    
                 // sound
-                if (FixedAttach.connectedPart) fxSndAttach.audio.Play();
+                if (FixedAttach.connectedPart)
+                {
+                    fxSndAttach.audio.Play();
+                }
             }
         }
 
-        public void AttachMagnet(Part partToAttach)
+        private void AttachMagnet(Part partToAttach)
         {
             if (KAS_Shared.RequestPower(this.part, powerDrain))
             {
@@ -198,8 +228,7 @@ namespace KAS
                 // Create joint
                 AttachFixed(partToAttach, breakForce);
                 // Set reference
-                magnetActive = true;
-                state = "Attached to : " + FixedAttach.connectedPart.partInfo.title;
+                MagnetActive = true;
             }
             else
             {
@@ -207,28 +236,22 @@ namespace KAS
             }
         }
 
-        public void DetachMagnet()
+        private void DetachMagnet()
         {
             this.part.collider.isTrigger = false;
-
             if (FixedAttach.connectedPart)
             {
                 fxSndDetach.audio.Play();
                 fxSndMagnetStop.audio.Play();
             }
-
             Detach();
-
-            magnetStarted = false;
-            magnetActive = false;
-            state = "Off";
             fxSndMagnet.audio.Stop();
         }
 
         [KSPEvent(name = "ContextMenuMagnet", active = true, guiActive = true, guiActiveUnfocused = false, guiName = "Magnet On/Off")]
         public void ContextMenuMagnet()
         {
-            magnetActive = !magnetActive;
+            MagnetActive = !MagnetActive;
         }
 
         [KSPAction("Toogle Magnet")]
@@ -238,11 +261,11 @@ namespace KAS
             {
                 if (param.type == KSPActionType.Activate)
                 {
-                    magnetActive = true;
+                    MagnetActive = true;
                 }
                 if (param.type == KSPActionType.Deactivate)
                 {
-                    magnetActive = false;
+                    MagnetActive = false;
                 }
             }
         }
@@ -252,7 +275,7 @@ namespace KAS
         {
             if (!this.part.packed)
             {
-                    magnetActive = true;
+                MagnetActive = true;
             }
         }
 
@@ -261,7 +284,7 @@ namespace KAS
         {
             if (!this.part.packed)
             {
-                magnetActive = false;
+                MagnetActive = false;
             }
         }
 
