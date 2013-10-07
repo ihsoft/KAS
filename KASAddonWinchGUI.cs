@@ -12,9 +12,7 @@ namespace KAS
         protected Rect guiWindowPos;
         private GUIStyle guiButtonStyle, guiDataboxStyle, guigreenStyle, guiYellowStyle, guiCyanStyle, guiMagentaStyle, guiCenterStyle, guiBoldCenterStyle, guiTooltipStyle;
         private Vector2 scrollPos = Vector2.zero;
-        private float scrollHeight = 300f;
 
-        private string guiToogleKey;
         private KASModuleWinch selectedWinchModule = null;
         private string tempWinchName = "";
         private bool remameActived = false;
@@ -24,35 +22,7 @@ namespace KAS
 
         public void Awake()
         {
-            ConfigNode node = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/KAS/settings.cfg") ?? new ConfigNode();
-            foreach (ConfigNode winchGuiNode in node.GetNodes("WinchGUI"))
-            {
-                if (winchGuiNode.HasValue("toogleKey"))
-                {
-                    guiToogleKey = winchGuiNode.GetValue("toogleKey");
-                }
-                if (winchGuiNode.HasValue("height"))
-                {
-                    scrollHeight = float.Parse(winchGuiNode.GetValue("height"));
-                }            
-            }
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(this.OnVesselChange));
-        }
-
-        public void Update()
-        {
-            if (Input.GetKeyDown(guiToogleKey.ToLower()))
-            {
-                if (KAS_Shared.GetAllWinch(FlightGlobals.ActiveVessel).Count > 0)
-                {
-                    KAS_Shared.DebugLog(KAS_Shared.GetAllWinch(FlightGlobals.ActiveVessel).Count + " winch has been found on the vessel, showing GUI...");
-                    ToggleGUI();
-                }
-                else
-                {
-                    ShowGUI(false);
-                }
-            }
         }
 
         void OnVesselChange(Vessel vess)
@@ -86,21 +56,23 @@ namespace KAS
 
         public static void ShowGUI(bool active)
         {
-            if (GuiActive)
+            if (active && !GuiActive)
             {
-                if (vesselOpenGui.Contains(FlightGlobals.ActiveVessel))
-                {
-                    vesselOpenGui.Remove(FlightGlobals.ActiveVessel);
-                }
-                GuiActive = false;
-            }
-            else
-            {
+                KAS_Shared.DebugLog("WinchGUI - Showing GUI...");
                 if (!vesselOpenGui.Contains(FlightGlobals.ActiveVessel))
                 {
                     vesselOpenGui.Add(FlightGlobals.ActiveVessel);
                 }
                 GuiActive = true;
+            }
+            else if (!active && GuiActive)
+            {
+                KAS_Shared.DebugLog("WinchGUI - Closing GUI...");
+                if (vesselOpenGui.Contains(FlightGlobals.ActiveVessel))
+                {
+                    vesselOpenGui.Remove(FlightGlobals.ActiveVessel);
+                }
+                GuiActive = false;
             }   
         }
 
@@ -371,7 +343,7 @@ namespace KAS
 
                 if (moduleHookMagnet)
                 {
-                    moduleHookMagnet.magnetActive = GUILayout.Toggle(moduleHookMagnet.magnetActive, new GUIContent("Magnet", "Magnet On/Off"), guiButtonStyle, GUILayout.Width(60f));
+                    moduleHookMagnet.MagnetActive = GUILayout.Toggle(moduleHookMagnet.MagnetActive, new GUIContent("Magnet", "Magnet On/Off"), guiButtonStyle, GUILayout.Width(60f));
                 }
 
                 if (moduleHookSuction)
