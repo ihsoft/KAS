@@ -68,7 +68,7 @@ namespace KAS
 
         // Transforms
         public Transform headTransform;
-        private Transform headPortNode;
+        public Transform headPortNode;
         private Transform winchAnchorNode;
         private Transform headAnchorNode;
 
@@ -88,6 +88,7 @@ namespace KAS
 
         // Plug
         public FixedJoint headJoint;
+        public KASModulePort grabbedPortModule = null;
         private PlugState headStateVar = PlugState.Locked;
 
         public PlugState headState
@@ -877,7 +878,7 @@ namespace KAS
             }
         }
 
-        public void GrabHead(Vessel kerbalEvaVessel)
+        public void GrabHead(Vessel kerbalEvaVessel, KASModulePort grabbedPort = null)
         {
             KAS_Shared.DebugLog("GrabHead(Winch) Grabbing part");
             //Drop already grabbed head
@@ -909,7 +910,19 @@ namespace KAS
 
             KAS_Shared.RemovePhysicObject(this.part, headTransform);
 
-            KAS_Shared.MoveAlign(headTransform, headPortNode, evaHeadNodeTransform);
+            if (grabbedPort)
+            {
+                KAS_Shared.DebugLog("GrabHead(Winch) - Moving head to grabbed port node...");
+                headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -grabbedPort.portNode.forward) * headTransform.rotation;
+                headTransform.position = headTransform.position - (headPortNode.position - grabbedPort.portNode.position);
+                grabbedPortModule = grabbedPort;
+            }
+            else
+            {
+                KAS_Shared.DebugLog("GrabHead(Winch) - Moving head to eva node...");
+                KAS_Shared.MoveAlign(headTransform, headPortNode, evaHeadNodeTransform);
+            }
+
             // Parent eva to head for moving eva with the head
             kerbalEvaVessel.rootPart.transform.parent = headTransform;
             // Set cable joint connected body to eva
@@ -941,6 +954,7 @@ namespace KAS
 
             if (evaHeadNodeTransform) Destroy(evaHeadNodeTransform.gameObject);
 
+            grabbedPortModule = null;
             release.active = false;
             cableJointLength = cableRealLenght;
             evaHolderPart = null;
@@ -1024,7 +1038,7 @@ namespace KAS
             }
 
 
-            KAS_Shared.DebugLog("PlugHead(Winch) - Moving head..."); 
+            KAS_Shared.DebugLog("PlugHead(Winch) - Moving head...");
             headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -portModule.portNode.forward) * headTransform.rotation;
             headTransform.position = headTransform.position - (headPortNode.position - portModule.portNode.position);
             cableJointLength = cableRealLenght;
