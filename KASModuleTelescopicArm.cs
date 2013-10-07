@@ -186,6 +186,7 @@ namespace KAS
 
         private void disableSectionCollision()
         {
+            KAS_Shared.DisableVesselCollision(this.vessel, this.part.collider);
             foreach (KeyValuePair<int, SectionInfo> section in sections)
             {
                 if (section.Value.transform.collider)
