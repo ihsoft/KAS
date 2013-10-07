@@ -73,13 +73,25 @@ namespace KAS
             this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
+        public void OnPartGrab(Vessel kerbalEvaVessel)
+        {
+            DetachGrapple();
+        }
+
         public void OnAttachStatic()
         {
+            DetachGrapple();
             AttachStaticGrapple(staticBreakForce);
         }
 
         public void OnAttachPart(Part targetPart)
         {
+            KAS_Shared.DebugLog("OnAttachPart(GrapplingHook)");
+            if (FixedAttach.connectedPart)
+            {
+                DetachGrapple();
+            }   
+
             AttachPartGrapple(targetPart, partBreakForce);
         }
 
