@@ -168,7 +168,6 @@ namespace KAS
                 if (attachedPart)
                 {
                     KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
-                    base.SendMessage("OnResetFixedAttach", SendMessageOptions.DontRequireReceiver);
                     AttachFixed(attachedPart, FixedAttach.savedBreakForce);
                 }
                 else
