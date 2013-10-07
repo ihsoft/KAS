@@ -22,7 +22,11 @@ namespace KAS
         public static string winchEvaRetractKey = "I";
         public static string rotorNegativeKey = "[4]";
         public static string rotorPositiveKey = "[6]";
-
+        public static string attachKey = "h";
+        public static string rotateLeftKey = "b";
+        public static string rotateRightKey = "n";
+        private static float guiScrollHeight = 300f;
+        private static string guiToogleKey;
 
         protected Rect guiHeadGrabWindowPos;
         private GUIStyle guiButtonStyle;
@@ -40,6 +44,8 @@ namespace KAS
             UpdateWinchKeyGrab();
             UpdateWinchCableControl();
             UpdateRotorControl();
+            UpdateAttachControl();
+            UpdateGUIControl();
         }
 
         public static void LoadKeyConfig()
@@ -102,6 +108,32 @@ namespace KAS
                     rotorPositiveKey = rotorNode.GetValue("rotorPositiveKey ");
                 }
             }
+            foreach (ConfigNode attachNode in node.GetNodes("AttachPointer"))
+            {
+                if (attachNode.HasValue("attachKey"))
+                {
+                    attachKey = attachNode.GetValue("attachKey");
+                }
+                if (attachNode.HasValue("rotateLeftKey"))
+                {
+                    rotateLeftKey = attachNode.GetValue("rotateLeftKey");
+                }
+                if (attachNode.HasValue("rotateRightKey"))
+                {
+                    rotateRightKey = attachNode.GetValue("rotateRightKey");
+                }
+            }
+            foreach (ConfigNode winchGuiNode in node.GetNodes("WinchGUI"))
+            {
+                if (winchGuiNode.HasValue("toogleKey"))
+                {
+                    guiToogleKey = winchGuiNode.GetValue("toogleKey");
+                }
+                if (winchGuiNode.HasValue("height"))
+                {
+                    guiScrollHeight = float.Parse(winchGuiNode.GetValue("height"));
+                }
+            }
         }
 
         void OnGUI()
@@ -121,12 +153,12 @@ namespace KAS
 
             Vector3 headScreenPoint = Camera.main.WorldToScreenPoint(clickedWinch.headTransform.position);
 
-            GUILayout.BeginArea(new Rect(headScreenPoint.x, Screen.height - headScreenPoint.y, 90, 40));
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginArea(new Rect(headScreenPoint.x, Screen.height - headScreenPoint.y, 200, 200));
+            GUILayout.BeginVertical();
 
             if (clickedWinch.evaHolderPart)
             {
-                if (GUILayout.Button("Drop (Key " + grabHeadKey + ")", guiButtonStyle, GUILayout.Width(90f)))
+                if (GUILayout.Button("Drop (Key " + grabHeadKey + ")", guiButtonStyle, GUILayout.Width(100f)))
                 {
                     clickedWinch.DropHead(); ;
                     clickedWinch = null;
@@ -134,10 +166,32 @@ namespace KAS
             }
             else
             {
-                if (GUILayout.Button("Grab (Key " + grabHeadKey + ")", guiButtonStyle, GUILayout.Width(90f)))
+                if (GUILayout.Button("Grab (Key " + grabHeadKey + ")", guiButtonStyle, GUILayout.Width(100f)))
                 {
                     clickedWinch.GrabHead(FlightGlobals.ActiveVessel);
                     clickedWinch = null;
+                }
+                if (clickedWinch)
+                {
+                    if (clickedWinch.headState == KASModuleWinch.PlugState.Deployed)
+                    {
+                        KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
+                        if (grabbedModule)
+                        {
+                            KASModulePort grabbedPort = grabbedModule.GetComponent<KASModulePort>();
+                            if (grabbedPort)
+                            {
+                                if (GUILayout.Button("Plug grabbed", guiButtonStyle, GUILayout.Width(100f)))
+                                {
+                                    grabbedModule.Drop();
+                                    grabbedPort.transform.rotation = Quaternion.FromToRotation(grabbedPort.portNode.forward, -clickedWinch.headPortNode.forward) * grabbedPort.transform.rotation;
+                                    grabbedPort.transform.position = grabbedPort.transform.position - (grabbedPort.portNode.position - clickedWinch.headPortNode.position);
+                                    clickedWinch.PlugHead(grabbedPort, KASModuleWinch.PlugState.PlugDocked);
+                                    clickedWinch = null;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             GUILayout.EndHorizontal();
@@ -276,6 +330,22 @@ namespace KAS
             }
         }
 
+        public void UpdateGUIControl()
+        {
+            if (Input.GetKeyDown(guiToogleKey.ToLower()))
+            {
+                if (KAS_Shared.GetAllWinch(FlightGlobals.ActiveVessel).Count > 0)
+                {
+                    KAS_Shared.DebugLog(KAS_Shared.GetAllWinch(FlightGlobals.ActiveVessel).Count + " winch has been found on the vessel, showing GUI...");
+                    KASAddonWinchGUI.ToggleGUI();
+                }
+                else
+                {
+                    KASAddonWinchGUI.ShowGUI(false);
+                }
+            }
+        }
+
         public void UpdateWinchCableControl()
         {
             //Extend key pressed
@@ -371,6 +441,36 @@ namespace KAS
                     if (grabbedWinchModule)
                     {
                         grabbedWinchModule.EventWinchRetract(false);
+                    }
+                }
+            }
+        }
+
+        private static void UpdateAttachControl()
+        {
+            if (KASAddonPointer.isRunning)
+            {
+                if (
+                Input.GetKeyDown(KeyCode.Escape)
+                || Input.GetKeyDown(KeyCode.Space)
+                || Input.GetKeyDown(KeyCode.Mouse1)
+                || Input.GetKeyDown(KeyCode.Mouse2)
+                || Input.GetKeyDown(KeyCode.Return)
+                || Input.GetKeyDown(attachKey.ToLower())
+                )
+                {
+                    KAS_Shared.DebugLog("Cancel key pressed, stop eva attach mode");
+                    KASAddonPointer.StopPointer();
+                }
+            }
+            else if (Input.GetKeyDown(attachKey.ToLower()))
+            {
+                KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
+                if (grabbedModule)
+                {
+                    if (grabbedModule.attachOnPart || grabbedModule.attachOnEva || grabbedModule.attachOnStatic)
+                    {
+                        KASAddonPointer.StartPointer(grabbedModule.part, KASAddonPointer.PointerMode.MoveAndAttach, grabbedModule.attachOnPart, grabbedModule.attachOnEva, grabbedModule.attachOnStatic, grabbedModule.attachMaxDist, grabbedModule.part.transform, grabbedModule.attachSendMsgOnly);
                     }
                 }
             }
