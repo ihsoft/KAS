@@ -254,7 +254,6 @@ namespace KAS
                 transf.rigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
             }
             FlightGlobals.addPhysicalObject(transf.gameObject);
-            //transf.gameObject.AddComponent<physicalObject>();
         }
 
         public static void RemovePhysicObject(Part p, Transform transf)
@@ -343,15 +342,61 @@ namespace KAS
             {
                 rotors = GetAllRotor();
             }
-            foreach (KASModuleRotor winch in rotors)
+            foreach (KASModuleRotor rotor in rotors)
             {
                 if (value != null)
                 {
-                    winch.SendMessage(methodeName, value, SendMessageOptions.DontRequireReceiver);
+                    rotor.SendMessage(methodeName, value, SendMessageOptions.DontRequireReceiver);
                 }
                 else
                 {
-                    winch.SendMessage(methodeName, SendMessageOptions.DontRequireReceiver);
+                    rotor.SendMessage(methodeName, SendMessageOptions.DontRequireReceiver);
+                }
+            }
+        }
+
+        public static List<KASModuleTelescopicArm> GetAllTelescopicArm(Vessel fromVessel = null)
+        {
+            List<KASModuleTelescopicArm> returnedTelescopicArms = new List<KASModuleTelescopicArm>();
+
+            List<KASModuleTelescopicArm> telescopicArms = new List<KASModuleTelescopicArm>(GameObject.FindObjectsOfType(typeof(KASModuleTelescopicArm)) as KASModuleTelescopicArm[]);
+            foreach (KASModuleTelescopicArm telescopicArm in telescopicArms)
+            {
+                if (fromVessel)
+                {
+                    if (telescopicArm.vessel == fromVessel)
+                    {
+                        returnedTelescopicArms.Add(telescopicArm);
+                    }
+                }
+                else
+                {
+                    returnedTelescopicArms.Add(telescopicArm);
+                }
+            }
+            return returnedTelescopicArms;
+        }
+
+        public static void SendMsgToTelescopicArm(String methodeName, object value = null, Vessel vess = null)
+        {
+            List<KASModuleTelescopicArm> telescopicArms = new List<KASModuleTelescopicArm>();
+            if (vess)
+            {
+                telescopicArms = GetAllTelescopicArm(vess);
+            }
+            else
+            {
+                telescopicArms = GetAllTelescopicArm();
+            }
+            foreach (KASModuleTelescopicArm telescopicArm in telescopicArms)
+            {
+                if (value != null)
+                {
+                    telescopicArm.SendMessage(methodeName, value, SendMessageOptions.DontRequireReceiver);
+                }
+                else
+                {
+                    telescopicArm.SendMessage(methodeName, SendMessageOptions.DontRequireReceiver);
                 }
             }
         }
