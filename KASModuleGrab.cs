@@ -130,20 +130,27 @@ namespace KAS
         {
             if (grabbed)
             {
-                if (evaHolderVesselName != null && evaHolderVesselName != "")
-                {              
-                    Vessel vess = KAS_Shared.GetVesselByName(evaHolderVesselName);
-                    if (vess)
+                if (!evaHolderPart)
+                {
+                    if (evaHolderVesselName != null && evaHolderVesselName != "")
                     {
-                        KAS_Shared.DebugLog("OnPartUnpack(EvaGrab) - Reset grab on : " + evaHolderVesselName);
-                        Grab(vess);
+                        Vessel vess = KAS_Shared.GetVesselByName(evaHolderVesselName);
+                        if (vess)
+                        {
+                            KAS_Shared.DebugLog("OnPartUnpack(EvaGrab) - Re-set grab after load on : " + evaHolderVesselName);
+                            Grab(vess);
+                        }
+                        else
+                        {
+                            evaHolderVesselName = null;
+                            evaHolderPart = null;
+                            grabbed = false;
+                        }
                     }
-                    else
-                    {
-                        evaHolderVesselName = null;
-                        evaHolderPart = null;
-                        grabbed = false;
-                    }
+                }
+                else
+                {
+                    if (!physicJoint) this.part.rigidbody.isKinematic = true;
                 }
             }
         }
@@ -295,6 +302,7 @@ namespace KAS
                 this.part.rigidbody.isKinematic = false;
                 this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
                 this.part.rigidbody.velocity = evaHolderPart.rigidbody.velocity;
+                this.part.rigidbody.angularVelocity = evaHolderPart.rigidbody.angularVelocity;
 
                 if (addPartMass & !physicJoint) evaHolderPart.mass = orgKerbalMass;
 
