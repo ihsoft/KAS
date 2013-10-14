@@ -673,6 +673,12 @@ namespace KAS
                     {
                         actionContainer.Take(ct.Key);
                     }
+                    /*
+                    if (GUILayout.Button(new GUIContent("Attach", "Attach part"), guiButtonStyle, GUILayout.Width(60f)))
+                    {
+                        KASModuleGrab moduleGrab = ct.Key.partPrefab.GetComponent<KASModuleGrab>();
+                        KASAddonPointer.StartPointer(ct.Key.partPrefab, KASAddonPointer.PointerMode.CopyAndAttach, true, true, true, 2, this.part.transform, false);
+                    }*/
                 }
                 if (showButton == ShowButton.Move)
                 {

@@ -71,6 +71,7 @@ namespace KAS
         public Transform headPortNode;
         private Transform winchAnchorNode;
         private Transform headAnchorNode;
+        private KASModulePhysicChild headPhysicModule;
 
         // Cable control
         [KSPField(isPersistant = true)] private bool controlActivated = true;
@@ -87,7 +88,6 @@ namespace KAS
         private Collider evaCollider;
 
         // Plug
-        public FixedJoint headJoint;
         public KASModulePort grabbedPortModule = null;
         private PlugState headStateVar = PlugState.Locked;
 
@@ -111,6 +111,7 @@ namespace KAS
             public string savedVesselID;
             public string savedPartID;
         }
+        private bool fromSave = false;
 
         // Cable & Head
         public SpringJoint cableJoint;
@@ -333,6 +334,7 @@ namespace KAS
                 headCurrentLocalPos = KSPUtil.ParseVector3(cableNode.GetValue("headLocalPos"));
                 headCurrentLocalRot = KSPUtil.ParseQuaternion(cableNode.GetValue("headLocalRot"));
                 headState = PlugState.Deployed;
+                fromSave = true;
             }
 
             if (node.HasNode("PLUG"))
@@ -349,6 +351,7 @@ namespace KAS
                 {
                     headState = PlugState.PlugUndocked;
                 }
+                fromSave = true;
             }
         }
 
@@ -471,44 +474,51 @@ namespace KAS
         void OnVesselGoOnRails(Vessel vess)
         {
             if (vess != this.vessel) return;
-            if (headState == PlugState.Deployed)
-            {
-                headTransform.rigidbody.isKinematic = true;
-            } 
         }
 
         void OnVesselGoOffRails(Vessel vess)
         {
             if (vess != this.vessel) return;
             // From save
-            if (headState == PlugState.Deployed && !cableJoint)
+            if (headState == PlugState.Deployed && fromSave)
             {
                 KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) Head deployed or docked and no cable joint exist, re-deploy and set head position");
                 Deploy();
                 KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headCurrentLocalPos, headCurrentLocalRot);
                 cableJointLength = cableRealLenght;
+                fromSave = false;
             }
 
-            if (headState == PlugState.PlugUndocked && !headJoint)
+            if (headState == PlugState.PlugUndocked && fromSave)
             {
-                KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) Plug (undocked) and no head joint found, Re-plug to : " + connectedPortInfo.module.part.partInfo.title);
+                KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) From save, Plug (undocked) to : " + connectedPortInfo.module.part.partInfo.title);
                 PlugHead(connectedPortInfo.module, PlugState.PlugUndocked, true, false);
+                fromSave = false;
             }
 
-            if (headState == PlugState.PlugDocked && !headJoint)
+            if (headState == PlugState.PlugDocked && fromSave)
             {
-                KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) Plug (docked) and no head joint found, deploying head and move port(s) parts");
+                KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) From save, Plug (docked) to : " + connectedPortInfo.module.part.partInfo.title);
                 PlugHead(connectedPortInfo.module, PlugState.PlugDocked, true, false);
+                fromSave = false;
             }
-            if (headTransform.rigidbody) headTransform.rigidbody.isKinematic = false;
         }
-     
+        
+        public void OnPartUnpack()
+        {
+            KAS_Shared.DebugLog("OnPartUnpack(Winch)");
+            if (headState != PlugState.Locked && headTransform.rigidbody)
+            {
+                cableJointLength = cableRealLenght;
+            }
+        }
+
         void OnDestroy()
         {
             GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
         }
-     
+
         public override void OnUpdate()
         {
             base.OnUpdate();
@@ -773,10 +783,7 @@ namespace KAS
             KAS_Shared.DebugLog("Deploy(Winch) - Return head to original pos");
             KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headOrgLocalPos, headOrgLocalRot);
 
-            KAS_Shared.DebugLog("Deploy(Winch) - Create physical object");
-
-
-            KAS_Shared.CreatePhysicObject(headTransform, headMass, this.part.rigidbody);
+            SetHeadToPhysic(true);
             orgWinchMass = this.part.mass;
             float newMass = this.part.mass - headMass;
             if (newMass > 0)
@@ -816,9 +823,11 @@ namespace KAS
             }
             else
             {
+                KAS_Shared.DebugLog("Deploy(Winch) - Deploy connector only...");
                 headState = PlugState.Deployed;
             }
 
+            nodeConnectedPort = null;
             KAS_Shared.DebugLog("Deploy(Winch) - Enable tube renderer");
             SetTubeRenderer(true);
             //KAS_Shared.DisableVesselCollision(this.part.vessel, headTransform.collider);
@@ -841,8 +850,8 @@ namespace KAS
                 KAS_Shared.MoveAlignLight(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
                 AttachDocked(tmpPortModule);
                 nodeConnectedPort = tmpPortModule;
-            }    
-            KAS_Shared.RemovePhysicObject(this.part, headTransform);
+            }
+            SetHeadToPhysic(false);
             this.part.mass = orgWinchMass;
 
             SetTubeRenderer(false);
@@ -908,7 +917,7 @@ namespace KAS
             evaHeadNodeTransform.localPosition = evaGrabHeadPos;
             evaHeadNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(evaCollider.transform, evaGrabHeadDir);
 
-            KAS_Shared.RemovePhysicObject(this.part, headTransform);
+            SetHeadToPhysic(false);
 
             if (grabbedPort)
             {
@@ -948,8 +957,7 @@ namespace KAS
             Collider evaCollider = KAS_Shared.GetEvaCollider(evaHolderPart.vessel, "jetpackCollider");
             KAS_Shared.MoveRelatedTo(headTransform, evaCollider.transform, evaDropHeadPos, evaDropHeadRot);
 
-            headTransform.parent = null;
-            KAS_Shared.CreatePhysicObject(headTransform, headMass, evaHolderPart.rigidbody);
+            SetHeadToPhysic(true);
             SetCableJointConnectedBody(headTransform.rigidbody);
 
             if (evaHeadNodeTransform) Destroy(evaHeadNodeTransform.gameObject);
@@ -959,6 +967,28 @@ namespace KAS
             cableJointLength = cableRealLenght;
             evaHolderPart = null;
             evaHeadNodeTransform = null;
+        }
+
+        public void SetHeadToPhysic(bool active)
+        {
+            if (active)
+            {
+                KAS_Shared.DebugLog("SetHeadToPhysic(Winch) - Create physical object");
+                headPhysicModule = this.part.gameObject.GetComponent<KASModulePhysicChild>();
+                if (!headPhysicModule)
+                {
+                    KAS_Shared.DebugLog("SetHeadToPhysic(Winch) - KASModulePhysicChild do not exist, adding it...");
+                    headPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
+                }
+                headPhysicModule.mass = headMass;
+                headPhysicModule.physicObj = headTransform.gameObject;
+                headPhysicModule.Start();
+            }
+            else
+            {
+                headPhysicModule.Stop();
+                Destroy(headPhysicModule);
+            }
         }
 
         public void SetCableJointConnectedBody(Rigidbody newBody)
@@ -1025,15 +1055,15 @@ namespace KAS
             if (plugMode == PlugState.PlugDocked)
             {
                 KAS_Shared.DebugLog("PlugHead(Winch) - Plug using docked mode");  
-                if (!fromSave)
-                {
+                //if (!fromSave)
+                //{
                     AttachDocked(portModule);
-                }
+                //}
                 // Remove joints between connector and winch
                 KAS_Shared.RemoveFixedJointBetween(this.part, portModule.part);
                 KAS_Shared.RemoveHingeJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
-                nodeConnectedPort = portModule;
+                //nodeConnectedPort = portModule;
                 if (fireSound) portModule.fxSndPlugDocked.audio.Play();
             }
 
@@ -1041,14 +1071,17 @@ namespace KAS
             KAS_Shared.DebugLog("PlugHead(Winch) - Moving head...");
             headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -portModule.portNode.forward) * headTransform.rotation;
             headTransform.position = headTransform.position - (headPortNode.position - portModule.portNode.position);
-            cableJointLength = cableRealLenght;
 
-            KAS_Shared.DebugLog("PlugHead(Winch) - Creating joint..."); 
-            if (headJoint) Destroy(headJoint);
-            headJoint = portModule.part.gameObject.AddComponent<FixedJoint>();
-            headJoint.connectedBody = headTransform.rigidbody;
-            headJoint.breakForce = portModule.breakForce;
-            headJoint.breakTorque = portModule.breakForce;
+            SetHeadToPhysic(false);
+            // Parent port to head for moving port with the head
+            portModule.part.transform.parent = headTransform;
+            // Set cable joint connected body to eva
+            SetCableJointConnectedBody(portModule.part.rigidbody);
+            // Unparent eva to head
+            portModule.part.transform.parent = null;
+
+            headTransform.parent = portModule.part.transform;
+            cableJointLength = cableRealLenght;
 
             // Set variables
             connectedPortInfo.module = portModule;
@@ -1057,22 +1090,22 @@ namespace KAS
 
         public void UnplugHead(bool fireSound = true)
         {
-            if (headState == PlugState.PlugUndocked || headState == PlugState.PlugDocked)
+            if (headState == PlugState.Locked || headState == PlugState.Deployed) return;
+
+            if (headState == PlugState.PlugUndocked)
             {
-                if (headState == PlugState.PlugUndocked)
-                {
-                    if (fireSound) connectedPortInfo.module.fxSndUnplug.audio.Play();
-                }
-                if (headState == PlugState.PlugDocked)
-                {
-                    Detach();
-                    if (fireSound) connectedPortInfo.module.fxSndUnplugDocked.audio.Play();
-                }
-                connectedPortInfo.module.winchConnected = null;
-                connectedPortInfo.module = null;
+                if (fireSound) connectedPortInfo.module.fxSndUnplug.audio.Play();
             }
-            if (headJoint) Destroy(headJoint);
-            headJoint = null;
+            if (headState == PlugState.PlugDocked)
+            {
+                Detach();
+                if (fireSound) connectedPortInfo.module.fxSndUnplugDocked.audio.Play();
+            }
+            SetHeadToPhysic(true);
+            SetCableJointConnectedBody(headTransform.rigidbody);
+
+            connectedPortInfo.module.winchConnected = null;
+            connectedPortInfo.module = null;
             nodeConnectedPort = null;
             headState = PlugState.Deployed;
         }
@@ -1281,7 +1314,7 @@ namespace KAS
         [KSPAction("Eject hook", actionGroup = KSPActionGroup.None)]
         public void ActionGroupEject(KSPActionParam param)
         {
-            Eject();
+            if (!this.part.packed) Eject();
         }
 
         [KSPAction("Release cable", actionGroup = KSPActionGroup.None)]
@@ -1314,7 +1347,7 @@ namespace KAS
         [KSPAction("Plug Mode", actionGroup = KSPActionGroup.None)]
         public void ActionGroupPlugMode(KSPActionParam param)
         {
-            TogglePlugMode();
+            if (!this.part.packed) TogglePlugMode();
         }
 
         [KSPAction("Unplug", actionGroup = KSPActionGroup.None)]
@@ -1375,42 +1408,55 @@ namespace KAS
         // Key control event
         public void EventWinchExtend(bool activated)
         {
-            if (!controlActivated) return;
-            if (controlInverted) retract.active = activated;
-            else extend.active = activated;
+            if (!this.part.packed)
+            {
+                if (!controlActivated) return;
+                if (controlInverted) retract.active = activated;
+                else extend.active = activated;
+            }
         }
 
         public void EventWinchRetract(bool activated)
         {
-            if (!controlActivated) return;
-            if (controlInverted) extend.active = activated;
-            else retract.active = activated;
+            if (!this.part.packed)
+            {
+                if (!controlActivated) return;
+                if (controlInverted) extend.active = activated;
+                else retract.active = activated;
+            }
         }
    
         public void EventWinchHeadLeft()
         {
-            if (connectedPortInfo.module)
+            if (!this.part.packed)
             {
-                connectedPortInfo.module.TurnLeft();
-            }         
+                if (connectedPortInfo.module)
+                {
+                    connectedPortInfo.module.TurnLeft();
+                }
+            }
         }
 
         public void EventWinchHeadRight()
         {
-            if (!controlActivated || headState == PlugState.Locked) return;
-            if (connectedPortInfo.module)
+            if (!this.part.packed)
             {
-                connectedPortInfo.module.TurnRight();
-            }  
+                if (!controlActivated || headState == PlugState.Locked) return;
+                if (connectedPortInfo.module)
+                {
+                    connectedPortInfo.module.TurnRight();
+                }
+            }
         }
 
         public void EventWinchEject()
         {
-            Eject();
+            if (!this.part.packed) Eject();
         }
 
         public void EventWinchHook()
         {
+            if (this.part.packed) return;
             if (GetHookMagnet())
             {
                 GetHookMagnet().ContextMenuMagnet();
@@ -1422,7 +1468,7 @@ namespace KAS
             if (GetHookSuction())
             {
                 GetHookSuction().ContextMenuDetach();
-            }
+            }           
         }
     }
 }
