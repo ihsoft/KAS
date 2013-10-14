@@ -55,6 +55,7 @@ namespace KAS
         private Quaternion rotorOrgLocalRot;
         public List<FixedJoint> fixedJnts = new List<FixedJoint>();
 
+        private KASModulePhysicChild rotorPhysicModule;
         private bool rotorActivated = false;
         private bool rotorLoaded = false;
         private bool rotorGoingTo = false;
@@ -155,11 +156,20 @@ namespace KAS
 
         public void LoadRotor()
         {
-            KAS_Shared.DebugLog("LoadRotor - Find rotor transform...");
+            KAS_Shared.DebugLog("LoadRotor(Rotor) - Find rotor transform...");
             rotorTransform = this.part.FindModelTransform(rotorTransformName);
 
-            KAS_Shared.DebugLog("LoadRotor - Create physical object...");
-            KAS_Shared.CreatePhysicObject(rotorTransform, rotorMass, this.part.rigidbody);
+            KAS_Shared.DebugLog("LoadRotor(Rotor) - Create physical object...");
+            rotorPhysicModule = this.part.gameObject.GetComponent<KASModulePhysicChild>();
+            if (!rotorPhysicModule)
+            {
+                KAS_Shared.DebugLog("LoadRotor(Rotor) - KASModulePhysicChild do not exist, adding it...");
+                rotorPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
+            }
+            rotorPhysicModule.mass = rotorMass;
+            rotorPhysicModule.physicObj = rotorTransform.gameObject;
+            rotorPhysicModule.Start();
+
             orgRotorMass = this.part.mass;
             float newMass = this.part.mass - rotorMass;
             if (newMass > 0)
