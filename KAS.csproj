@@ -62,6 +62,7 @@
     <Compile Include="KASModuleStrut.cs" />
     <Compile Include="KASModuleAttachCore.cs" />
     <Compile Include="KASAddonControlKey.cs" />
+    <Compile Include="KASModulePhysicChild.cs" />
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KASModuleGrab.cs" />
     <Compile Include="KASModulePartBay.cs" />
