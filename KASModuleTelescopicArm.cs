@@ -18,8 +18,6 @@ namespace KAS
         [KSPField] public float driveForce = 10;
         [KSPField] public float boomHeadMass= 0.01f;
         [KSPField] public float headPosOffset = 100;
-        [KSPField] public string extendKey = "[7]";
-        [KSPField] public string retractKey = "[9]";
 
         //Sounds
         [KSPField] public string motorStartSndPath = "KAS/Sounds/telescopicMotorstart";
@@ -33,10 +31,9 @@ namespace KAS
         private Dictionary<int, Vector3> savedSectionsLocalPos = new Dictionary<int, Vector3>();
         private List<AttachNode> attachNodes = new List<AttachNode>();
         public List<FixedJoint> fixedJnts = new List<FixedJoint>();
-
+        private KASModulePhysicChild boomHeadPhysicModule;
         private float orgBoomHeadMass;
         private bool boomHeadLoaded = false;
-
 
         [KSPField(isPersistant = true)] private int sectionIndex = 0;
         [KSPField(guiActive = true, guiName = "Keyboard control", guiFormat="S")] public string controlField = "Activated";
@@ -46,6 +43,7 @@ namespace KAS
         [KSPField(isPersistant = true, guiActive = true, guiName = "Head current position", guiFormat = "F6", guiUnits = "m")] public float headPos = 0;
         [KSPField(isPersistant = true, guiActive = true, guiName = "Head target position", guiFormat = "F6", guiUnits = "m")] public float targetPos = 0;
         [KSPField(isPersistant = true)] private bool controlActivated = true;     
+        [KSPField(isPersistant = true)] private bool controlInverted = false;
         private float sectionTotalLenght = 0;
         private moveHead extend;
         private moveHead retract;
@@ -53,12 +51,7 @@ namespace KAS
         private float driveWay;
         public bool driveActived = false;
         public DriveState driveState = DriveState.Stopped;
-        public enum DriveAction
-        {
-            Stop = 0,
-            Extend = 1,
-            Retract = 2,
-        }
+
         public enum DriveState
         {
             Stopped = 0,
@@ -93,9 +86,9 @@ namespace KAS
             info += "Force : " + driveForce;
             info += "\n";
             info += "Power consumption : " + powerDrain + "/s";
-            info += "Key press : " + extendKey + " to extend";
+            info += "Key press : " + KASAddonControlKey.telescopicExtendKey + " to extend";
             info += "\n";
-            info += "Key press : " + retractKey + " to retract";
+            info += "Key press : " + KASAddonControlKey.telescopicRetractKey + " to retract";
             return info;
         }
         
@@ -130,8 +123,8 @@ namespace KAS
             base.OnStart(state);
             if (state == StartState.Editor || state == StartState.None) return;
 
-            Events["ContextMenuRetract"].guiName = "Retract (" + retractKey + ")";
-            Events["ContextMenuExtend"].guiName = "Extend (" + extendKey + ")";
+            Events["ContextMenuRetract"].guiName = "Retract (" + KASAddonControlKey.telescopicRetractKey + ")";
+            Events["ContextMenuExtend"].guiName = "Extend (" + KASAddonControlKey.telescopicExtendKey + ")";
 
             KAS_Shared.createFXSound(this.part, fxSndMotorStart, motorStartSndPath, false);
             KAS_Shared.createFXSound(this.part, fxSndMotor, motorSndPath, true);
@@ -217,7 +210,16 @@ namespace KAS
             }
 
             KAS_Shared.DebugLog("LoadBoomHead(TelescopicArm) Create physical object...");
-            KAS_Shared.CreatePhysicObject(sections[0].transform, boomHeadMass, this.part.rigidbody);
+            boomHeadPhysicModule = this.part.gameObject.GetComponent<KASModulePhysicChild>();
+            if (!boomHeadPhysicModule)
+            {
+                KAS_Shared.DebugLog("LoadBoomHead(TelescopicArm) - KASModulePhysicChild do not exist, adding it...");
+                boomHeadPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
+            }
+            boomHeadPhysicModule.mass = boomHeadMass;
+            boomHeadPhysicModule.physicObj = sections[0].transform.gameObject;
+            boomHeadPhysicModule.Start();
+
             orgBoomHeadMass = this.part.mass;
             float newMass = this.part.mass - boomHeadMass;
             if (newMass > 0)
@@ -330,31 +332,7 @@ namespace KAS
             UpdateExtend();
             UpdateRetract();
             UpdateSections();
-            UpdateControl();
             UpdateOrgPos();
-        }
-
-        private void UpdateControl()
-        {
-            if (!controlActivated) return;
-            //Extend key pressed
-            if (Input.GetKeyDown(extendKey.ToLower()))
-            {
-                extend.active = true;
-            }
-            if (Input.GetKeyUp(extendKey.ToLower()))
-            {
-                extend.active = false;
-            }
-            //Retract key pressed
-            if (Input.GetKeyDown(retractKey.ToLower()))
-            {
-                retract.active = true;
-            }
-            if (Input.GetKeyUp(retractKey.ToLower()))
-            {
-                retract.active = false;
-            }
         }
 
         private void UpdateHeadPos()
@@ -561,94 +539,11 @@ namespace KAS
             }
         }
 
-        private void DriveControl(DriveAction action)
-        {
-            if (action == DriveAction.Stop)
-            {
-                JointDrive drv = new JointDrive();
-                drv.mode = JointDriveMode.Position;
-                drv.positionSpring = driveSpring;
-                drv.positionDamper = driveDamper;
-                drv.maximumForce = driveForce;
-                slideJoint.xDrive = slideJoint.yDrive = slideJoint.zDrive = drv;
-
-                KAS_Shared.DebugLog("DriveControl(SlideMotor) - Stopping drive...");
-                slideJoint.targetVelocity = Vector3.zero;
-                fxSndMotorStop.audio.Play();
-                if (fxSndMotor.audio.isPlaying) fxSndMotor.audio.Stop();
-                driveActived = false;
-                driveState = DriveState.Stopped;
-                stateField = "Idle";
-            }
-            else
-            {
-                if (KAS_Shared.RequestPower(this.part, powerDrain))
-                {
-                    JointDrive drv = new JointDrive();
-                    drv.mode = JointDriveMode.Velocity;
-                    drv.positionSpring = driveSpring;
-                    drv.positionDamper = driveDamper;
-                    drv.maximumForce = driveForce;
-                    slideJoint.xDrive = slideJoint.yDrive = slideJoint.zDrive = drv;
-
-
-                    //Sound
-                    if (slideJoint.targetVelocity == Vector3.zero)
-                    {
-                        fxSndMotorStart.audio.Play();
-                    }
-                    if (!fxSndMotor.audio.isPlaying) fxSndMotor.audio.Play();
-
-                    float tgtSpeed = 0;
-                    if (action == DriveAction.Extend)
-                    {
-                        tgtSpeed = speed; 
-                        driveState = DriveState.Extending;
-                        stateField = "Extending...";
-                    }
-                    if (action == DriveAction.Retract)
-                    {
-                        tgtSpeed = -speed;
-                        driveState = DriveState.Retracting;
-                        stateField = "Retracting...";
-                    }
-                    slideJoint.targetVelocity = new Vector3(Mathf.Abs(direction.x * tgtSpeed), Mathf.Abs(direction.y * tgtSpeed), Mathf.Abs(direction.z * tgtSpeed));
-                    driveActived = true;
-                }
-                else
-                {
-                    if (this.part.vessel == FlightGlobals.ActiveVessel)
-                    {
-                        ScreenMessages.PostScreenMessage(this.part.partInfo.title + " stopped ! Insufficient Power", 5, ScreenMessageStyle.UPPER_CENTER);
-                    }
-                    stateField = "Insufficient Power";
-                }
-            }
-        }
-
         [KSPEvent(name = "ContextMenuToggleControl", active = true, guiActive = true, guiName = "Toggle Control")]
         public void ContextMenuToggleControl()
         {
             controlActivated = !controlActivated;
             controlField = controlActivated.ToString();
-        }
-
-        [KSPEvent(name = "ContextMenuRetract2", active = true, guiActive = true, guiName = "Retract2")]
-        public void ContextMenuRetract2()
-        {
-            DriveControl(DriveAction.Retract);
-        }
-
-        [KSPEvent(name = "ContextMenuExtend2", active = true, guiActive = true, guiName = "Extend2")]
-        public void ContextMenuExtend2()
-        {
-            DriveControl(DriveAction.Extend);
-        }
-
-        [KSPEvent(name = "ContextMenuStop2", active = true, guiActive = true, guiName = "Stop2")]
-        public void ContextMenuStop2()
-        {
-            DriveControl(DriveAction.Stop);
         }
 
         [KSPEvent(name = "ContextMenuRetract", active = true, guiActive = true, guiName = "Retract")]
@@ -679,6 +574,20 @@ namespace KAS
             {
                 ContextMenuExtend();
             }
+        }
+
+        public void EventTelescopicExtend(bool activated)
+        {
+            if (!controlActivated) return;
+            if (controlInverted) retract.active = activated;
+            else extend.active = activated;
+        }
+
+        public void EventTelescopicRetract(bool activated)
+        {
+            if (!controlActivated) return;
+            if (controlInverted) extend.active = activated;
+            else retract.active = activated;
         }
 
     }
