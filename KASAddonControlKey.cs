@@ -17,11 +17,13 @@ namespace KAS
         public static string winchHeadLeftKey = "[1]";
         public static string winchHeadRightKey = "[3]";
         public static string winchHookKey = "[0]";
-        public static string winchEjectKey = "[.]";
+        public static string winchEjectKey = "[8]";
         public static string winchEvaExtendKey = "K";
         public static string winchEvaRetractKey = "I";
         public static string rotorNegativeKey = "[4]";
         public static string rotorPositiveKey = "[6]";
+        public static string telescopicExtendKey = "[9]";
+        public static string telescopicRetractKey = "[7]";
         public static string attachKey = "h";
         public static string rotateLeftKey = "b";
         public static string rotateRightKey = "n";
@@ -44,6 +46,7 @@ namespace KAS
             UpdateWinchKeyGrab();
             UpdateWinchCableControl();
             UpdateRotorControl();
+            UpdateTelescopicArmControl();
             UpdateAttachControl();
             UpdateGUIControl();
         }
@@ -106,6 +109,17 @@ namespace KAS
                 if (rotorNode.HasValue("rotorPositiveKey "))
                 {
                     rotorPositiveKey = rotorNode.GetValue("rotorPositiveKey ");
+                }
+            }
+            foreach (ConfigNode telescopicArmNode in node.GetNodes("TelescopicArm"))
+            {
+                if (telescopicArmNode.HasValue("extendKey"))
+                {
+                    telescopicExtendKey = telescopicArmNode.GetValue("extendKey");
+                }
+                if (telescopicArmNode.HasValue("retractKey"))
+                {
+                    telescopicRetractKey = telescopicArmNode.GetValue("retractKey");
                 }
             }
             foreach (ConfigNode attachNode in node.GetNodes("AttachPointer"))
@@ -198,7 +212,7 @@ namespace KAS
             GUILayout.EndArea();
         }
 
-        public void UpdateGrab()
+        private void UpdateGrab()
         {
             if (Input.GetKeyDown(grabPartKey.ToLower()))
             {
@@ -246,8 +260,8 @@ namespace KAS
                 }
             }
         }
-        
-        public void UpdateWinchMouseGrab()
+
+        private void UpdateWinchMouseGrab()
         {
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {
@@ -288,7 +302,7 @@ namespace KAS
             }
         }
 
-        public void UpdateWinchKeyGrab()
+        private void UpdateWinchKeyGrab()
         {
             if (Input.GetKeyDown(grabHeadKey.ToLower()))
             {
@@ -330,7 +344,7 @@ namespace KAS
             }
         }
 
-        public void UpdateGUIControl()
+        private void UpdateGUIControl()
         {
             if (Input.GetKeyDown(guiToogleKey.ToLower()))
             {
@@ -346,7 +360,7 @@ namespace KAS
             }
         }
 
-        public void UpdateWinchCableControl()
+        private void UpdateWinchCableControl()
         {
             //Extend key pressed
             if (winchExtendKey != "")
@@ -446,7 +460,7 @@ namespace KAS
             }
         }
 
-        private static void UpdateAttachControl()
+        private void UpdateAttachControl()
         {
             if (KASAddonPointer.isRunning)
             {
@@ -500,6 +514,34 @@ namespace KAS
                 if (Input.GetKeyUp(rotorPositiveKey.ToLower()))
                 {
                     KAS_Shared.SendMsgToRotor("EventRotorPositive", false, vess: FlightGlobals.ActiveVessel);
+                }
+            }
+        }
+
+        private void UpdateTelescopicArmControl()
+        {
+            //extend key pressed
+            if (telescopicExtendKey != "")
+            {
+                if (Input.GetKeyDown(telescopicExtendKey.ToLower()))
+                {
+                    KAS_Shared.SendMsgToTelescopicArm("EventTelescopicExtend", true, vess: FlightGlobals.ActiveVessel);
+                }
+                if (Input.GetKeyUp(telescopicExtendKey.ToLower()))
+                {
+                    KAS_Shared.SendMsgToTelescopicArm("EventTelescopicExtend", false, vess: FlightGlobals.ActiveVessel);
+                }
+            }
+            //retract key pressed
+            if (telescopicRetractKey != "")
+            {
+                if (Input.GetKeyDown(telescopicRetractKey.ToLower()))
+                {
+                    KAS_Shared.SendMsgToTelescopicArm("EventTelescopicRetract", true, vess: FlightGlobals.ActiveVessel);
+                }
+                if (Input.GetKeyUp(telescopicRetractKey.ToLower()))
+                {
+                    KAS_Shared.SendMsgToTelescopicArm("EventTelescopicRetract", false, vess: FlightGlobals.ActiveVessel);
                 }
             }
         }
