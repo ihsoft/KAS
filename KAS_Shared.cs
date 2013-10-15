@@ -404,7 +404,15 @@ namespace KAS
 
         public static Part GetPartUnderCursor()
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray;
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                ray = FlightCamera.fetch.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
+            else
+            {
+                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 557059))
             {
@@ -418,7 +426,15 @@ namespace KAS
 
         public static Transform GetTransformUnderCursor()
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray;
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                ray = FlightCamera.fetch.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
+            else
+            {
+                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 557059))
             {
@@ -433,9 +449,17 @@ namespace KAS
 
         public static KerbalEVA GetKerbalEvaUnderCursor()
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray;
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                ray = FlightCamera.fetch.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
+            else
+            {
+                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+            }
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out hit, 557059))
             {
                 return hit.transform.gameObject.GetComponent<KerbalEVA>();
             }
