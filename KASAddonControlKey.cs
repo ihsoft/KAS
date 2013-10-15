@@ -224,7 +224,7 @@ namespace KAS
                     {
                         grabbedPart.Drop();
                         return;
-                    } 
+                    }
                     List<Collider> nearestColliders = new List<Collider>(Physics.OverlapSphere(FlightGlobals.ActiveVessel.transform.position, radius, 557059));
                     float shorterDist = Mathf.Infinity;
                     KASModuleGrab nearestModuleGrab = null;
