@@ -38,23 +38,32 @@ namespace KAS
 
     public void OnPartPack()
     {
-        KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
-        currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, this.part.transform);
-        currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, this.part.transform);
-        FlightGlobals.removePhysicalObject(physicObj);
-        physicObj.rigidbody.isKinematic = true;
-        physicObj.transform.parent = this.part.transform;
-        StartCoroutine(WaitPhysicUpdate());       
+        if (physicActive)
+        {
+            KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
+            currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, this.part.transform);
+            currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, this.part.transform);
+            FlightGlobals.removePhysicalObject(physicObj);
+            physicObj.rigidbody.isKinematic = true;
+            physicObj.transform.parent = this.part.transform;
+            StartCoroutine(WaitPhysicUpdate());
+        }
     }
 
     public void OnPartUnpack()
     {
-        KAS_Shared.DebugLog("OnPartUnpack(PhysicChild)");
-        physicObj.transform.parent = null;
-        KAS_Shared.SetPartLocalPosRotFrom(physicObj.transform, this.part.transform, currentLocalPos, currentLocalRot);
-        physicObj.rigidbody.isKinematic = false;
-        FlightGlobals.addPhysicalObject(physicObj);
-        StartCoroutine(WaitPhysicUpdate());
+        if (physicActive)
+        {
+            if (physicObj.rigidbody.isKinematic)
+            {
+                KAS_Shared.DebugLog("OnPartUnpack(PhysicChild)");
+                physicObj.transform.parent = null;
+                KAS_Shared.SetPartLocalPosRotFrom(physicObj.transform, this.part.transform, currentLocalPos, currentLocalRot);
+                physicObj.rigidbody.isKinematic = false;
+                FlightGlobals.addPhysicalObject(physicObj);
+                StartCoroutine(WaitPhysicUpdate());
+            }
+        }
     }
 
     private IEnumerator WaitPhysicUpdate()
