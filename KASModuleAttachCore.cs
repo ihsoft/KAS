@@ -222,12 +222,6 @@ namespace KAS
 
         public void MoveAbove(Vector3 position, Vector3 normal, float distance)
         {
-            //If a connector is plugged in, parent plugged winch connector for moving it too (only if part is a hook connected to a winch)
-            KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(this.part);
-            if (moduleWinch)
-            {
-                moduleWinch.headTransform.parent = this.transform;               
-            }
             //Find position above the surface   
             Vector3 hitAbove = position + (normal * distance);
             //Find the rotation aligned with the object surface
@@ -235,11 +229,6 @@ namespace KAS
             //Set position and rotation
             this.part.transform.position = hitAbove;
             this.part.transform.rotation = alignedRotation;
-            //If a connector is plugged in, unparent it to return to the default state
-            if (moduleWinch)
-            {
-                moduleWinch.headTransform.transform.parent = null;
-            }
         }
 
         public void AttachFixed(Part otherPart, float breakForce)
