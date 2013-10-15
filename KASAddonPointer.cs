@@ -100,7 +100,7 @@ namespace KAS
             }
 
             //Cast ray
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = FlightCamera.fetch.mainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (!Physics.Raycast(ray, out hit, 500, 557059))
             {
