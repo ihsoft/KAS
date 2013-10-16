@@ -189,6 +189,7 @@ namespace KAS
             Dictionary<AvailablePart, int> edct = new Dictionary<AvailablePart, int>();
             foreach (AvailablePart avPart in PartLoader.LoadedPartsList)
             {
+                if (!ResearchAndDevelopment.PartModelPurchased(avPart)) { continue; }
                 KASModuleGrab grabModule = avPart.partPrefab.GetComponent<KASModuleGrab>();
                 if (grabModule)
                 {
