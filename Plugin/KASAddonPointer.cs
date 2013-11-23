@@ -154,30 +154,19 @@ namespace KAS
             if (!hitPart && !hitEva && allowStatic) isValidObj = true;
 
             //Check distance
-            bool isValidDist = false;
+            bool isValidSourceDist = true;
             if (sourceTransform)
             {
-                float distToPointer = Vector3.Distance(sourceTransform.position, hit.point);
-                if (distToPointer > maxDist)
-                {
-                    isValidDist = false;
-                }
-                else
-                {
-                    isValidDist = true;
-                }
+                isValidSourceDist = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, sourceTransform.position) <= maxDist;
             }
-            else
-            {
-                isValidDist = true;
-            }
+            bool isValidTargetDist = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, hit.point) <= maxDist;
 
             //Set color
             if (!isValidObj)
             {
                 color = Color.red;
             }
-            else if (!isValidDist)
+            else if (!isValidSourceDist || !isValidTargetDist)
             {
                 color = Color.yellow;
             }
@@ -208,7 +197,14 @@ namespace KAS
                     return;
                 }
 
-                if (!isValidDist)
+                if (!isValidSourceDist)
+                {
+                    ScreenMessages.PostScreenMessage("Can't attach, too far from source !");
+                    audioBipWrong.Play();
+                    return;
+                }
+
+                if (!isValidTargetDist)
                 {
                     ScreenMessages.PostScreenMessage("Can't attach, too far from target !");
                     audioBipWrong.Play();
