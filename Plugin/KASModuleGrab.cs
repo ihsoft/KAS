@@ -362,6 +362,11 @@ namespace KAS
                 Events["ContextMenuEvaAttach"].guiActiveUnfocused = false;
                 Events["ContextMenuEvaAttach"].guiActive = false;
             }
+
+            foreach (var window in GameObject.FindObjectsOfType(typeof(UIPartActionWindow)).Cast<UIPartActionWindow>().Where(w => w.part == this.part))
+            {
+                window.displayDirty = true;
+            }
         }
 
         [KSPEvent(name = "ContextMenuGrab", active = true, guiActiveUnfocused = false, guiActive = false, unfocusedRange = 2f, guiName = "Grab")]
