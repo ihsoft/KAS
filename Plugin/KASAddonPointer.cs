@@ -173,8 +173,14 @@ namespace KAS
             }
 
             //Set color
-            if (!isValidObj) color = Color.red;
-            if (!isValidDist) color = Color.yellow;
+            if (!isValidObj)
+            {
+                color = Color.red;
+            }
+            else if (!isValidDist)
+            {
+                color = Color.yellow;
+            }
             color.a = 0.5f;
             foreach (MeshRenderer mr in allModelMr) mr.material.color = color;
 
