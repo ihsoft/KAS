@@ -1,3 +1,6 @@
+# Solution file
+*.sln
+
 # Kospy > DebugTools
 DebugTools
 
