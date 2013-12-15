@@ -462,7 +462,7 @@ namespace KAS
             showGUI = guiMode.None;
             exchangeContainer = null;
             availableContents = null;
-            if (HighLogic.LoadedSceneIsEditor) EditorLogic.fetch.Unlock();
+            if (HighLogic.LoadedSceneIsEditor) EditorLogic.fetch.Unlock("KAS DisableEditorClickthrough");
         }
 
         void OnGUI()

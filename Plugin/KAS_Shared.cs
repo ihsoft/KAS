@@ -411,7 +411,7 @@ namespace KAS
             }
             else
             {
-                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+                ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             }
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 557059))
@@ -433,7 +433,7 @@ namespace KAS
             }
             else
             {
-                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+                ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             }
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 557059))
@@ -456,7 +456,7 @@ namespace KAS
             }
             else
             {
-                ray = Camera.mainCamera.ScreenPointToRay(Input.mousePosition);
+                ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             }
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 557059))
@@ -473,11 +473,11 @@ namespace KAS
         {
             if (MouseIsOverWindow(guiWindowRect) && !EditorLogic.editorLocked)
             {
-                EditorLogic.fetch.Lock(true, true, true);
+                EditorLogic.fetch.Lock(true, true, true, "KAS DisableEditorClickthrough");
             }
             if (!MouseIsOverWindow(guiWindowRect) && EditorLogic.editorLocked)
             {
-                EditorLogic.fetch.Unlock();
+                EditorLogic.fetch.Unlock("KAS DisableEditorClickthrough");
             }
         }
 
