@@ -78,18 +78,11 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Telescopic Arm ----";
-            info += "\n";
-            info += "speed : " + speed;
-            info += "\n";
-            info += "Force : " + driveForce;
-            info += "\n";
-            info += "Power consumption : " + powerDrain + "/s";
-            info += "Key press : " + KASAddonControlKey.telescopicExtendKey + " to extend";
-            info += "\n";
-            info += "Key press : " + KASAddonControlKey.telescopicRetractKey + " to retract";
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Speed</b>: {0:F0}", speed); sb.AppendLine();
+            sb.AppendFormat("<b>Drive force</b>: {0:F0}", driveForce); sb.AppendLine();
+            sb.AppendFormat("<b>Power consumption</b>: {0:F1}/s", powerDrain); sb.AppendLine();
+            return sb.ToString();
         }
         
         public override void OnSave(ConfigNode node)

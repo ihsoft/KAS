@@ -45,21 +45,17 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Strut ----";
-            info += "\n";
-            info += "Compatibility : " + type;
-            info += "\n";
-            info += "Max lenght : " + maxLenght;
-            info += "\n";
-            info += "Max angle : " + maxAngle;
-            info += "\n";
-            info += "Break force : " + breakForce;
-            info += "\n";
-            info += "Scale : " + tubeScale;
-            info += "\n";
-            info += "Can be linked to another vessel : " + allowDock;
-            return info;
+            var sb = new StringBuilder();
+            sb.Append("<b>Compatibility</b>: "); sb.AppendLine(type);
+            sb.AppendFormat("<b>Maximum length</b>: {0:F0}m", maxLenght); sb.AppendLine();
+            sb.AppendFormat("<b>Maximum angle</b>: {0:F0}", maxAngle); sb.AppendLine();
+            sb.AppendFormat("<b>Strength</b>: {0:F0}", breakForce); sb.AppendLine();
+            if (allowDock)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Can be linked to another vessel.");
+            }
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)

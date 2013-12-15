@@ -19,13 +19,10 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Timed Bomb ----";
-            info += "\n";
-            info += "Delay : " + delay;
-            info += "\n";
-            info += "Explosion radius : " + explosionRadius;
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Delay</b>: {0:F1}s", delay); sb.AppendLine();
+            sb.AppendFormat("<b>Explosion radius</b>: {0:F0}m", explosionRadius); sb.AppendLine();
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)

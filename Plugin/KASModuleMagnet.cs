@@ -59,13 +59,10 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Magnet ----";
-            info += "\n";
-            info += "Break Force : " + breakForce;
-            info += "\n";
-            info += "Power consumption : " + powerDrain + "/s";
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Magnet strength</b>: {0:F0}", breakForce); sb.AppendLine();
+            sb.AppendFormat("<b>Power consumption</b>: {0:F1}/s", powerDrain); sb.AppendLine();
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)

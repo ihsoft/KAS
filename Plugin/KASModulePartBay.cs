@@ -13,15 +13,6 @@ namespace KAS
         public Dictionary<AttachNode, List<string>> bays = new Dictionary<AttachNode, List<string>>();
         public FXGroup fxSndStore;
 
-        public override string GetInfo()
-        {
-            string info = base.GetInfo();
-            info += "---- Part bay ----";
-            info += "\n";
-            info += "Allow release : " + allowRelease;
-            return info;
-        }
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);

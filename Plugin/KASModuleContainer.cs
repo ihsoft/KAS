@@ -65,11 +65,7 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Container ----";
-            info += "\n";
-            info += "Max size : " + maxSize;
-            return info;
+            return String.Format("<b>Capacity</b>: {0:F0}", maxSize);
         }
 
         public override void OnSave(ConfigNode node)

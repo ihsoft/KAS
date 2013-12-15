@@ -56,40 +56,35 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Grab ----";
-            info += "\n";
-            info += "Grab key : " + KASAddonControlKey.grabPartKey;
-            info += "\n";
-            info += "Storable : " + storable;
+            var sb = new StringBuilder();
+
             if (storable)
             {
-                info += "\n";
-                info += "Stored size : " + storedSize;
+                sb.AppendFormat("<b>Stored size</b>: {0:F0}", storedSize); sb.AppendLine();
             }
+            else
+            {
+                sb.AppendLine("Part cannot be stored.");
+            }
+
             if (attachOnPart || attachOnEva || attachOnStatic)
             {
-                info += "\n";
-                info += "Attach key : " + KASAddonControlKey.attachKey;
-                info += "\n";
-                info += "Can be attached on : ";
+                sb.AppendLine("Can attach to:");
                 if (attachOnPart)
                 {
-                    info += "\n";
-                    info += "- Parts";
+                    sb.AppendLine("- Parts");
                 }
                 if (attachOnEva)
                 {
-                    info += "\n";
-                    info += "- Eva";
+                    sb.AppendLine("- EVA");
                 }
                 if (attachOnStatic)
                 {
-                    info += "\n";
-                    info += "- Static";
+                    sb.AppendLine("- Ground");
                 }
             }
-            return info;
+
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)
