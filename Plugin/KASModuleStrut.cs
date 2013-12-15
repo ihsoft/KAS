@@ -316,6 +316,8 @@ namespace KAS
             tgtModule.Events["ContextMenuLink"].guiActiveUnfocused = false;
             tgtModule.linked = true;
 
+            KAS_Shared.InvalidateContextMenu(this.part);
+
             if (setJointOrDock)
             {
                 // Create joint or dock part
@@ -350,11 +352,13 @@ namespace KAS
                 linkedStrutModule.linked = false;
                 linkedStrutModule.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
                 linkedStrutModule.Events["ContextMenuLink"].guiActiveUnfocused = true;
+                KAS_Shared.InvalidateContextMenu(linkedStrutModule.part);
             }
             this.strutRenderer.UnLoad();
             this.linked = false;
             this.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
             this.Events["ContextMenuLink"].guiActiveUnfocused = true;
+            KAS_Shared.InvalidateContextMenu(this.part);
             // Detach parts
             if (linkedStrutModule) linkedStrutModule.Detach();
             this.Detach();

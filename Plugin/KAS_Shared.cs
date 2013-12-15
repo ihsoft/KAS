@@ -917,5 +917,13 @@ namespace KAS
             }     
         }
 
+        public static void InvalidateContextMenu(Part part)
+        {
+            foreach (var window in GameObject.FindObjectsOfType(typeof(UIPartActionWindow)).Cast<UIPartActionWindow>().Where(w => w.part == part))
+            {
+                window.displayDirty = true;
+            }
+        }
+
     }
 }
