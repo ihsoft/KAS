@@ -258,48 +258,10 @@ namespace KAS
         
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Winch ----";
-            info += "\n";
-            info += "Max lenght : " + maxLenght + " m";
-            info += "\n";
-            info += "Cable spring : " + cableSpring;
-            info += "\n";
-            info += "Cable damper : " + cableDamper;
-            info += "\n";
-            info += "Cable width : " + cableWidth;
-            info += "\n";
-            info += "Motor max speed : " + motorMaxSpeed;
-            info += "\n";
-            info += "Motor min speed : " + motorMinSpeed;
-            info += "\n";
-            info += "Motor acceleration : " + motorAcceleration;
-            info += "\n";
-            info += "Power consumption : " + powerDrain + "/s";
-            if (ejectEnabled)
-            {
-                info += "\n";
-                info += "Eject force : " + ejectForce;
-            }
-            info += "\n";
-            info += "Grab head key : " + KASAddonControlKey.grabHeadKey;
-            info += "\n";
-            info += "Extend key : " + KASAddonControlKey.winchExtendKey;
-            info += "\n";
-            info += "Retract key : " + KASAddonControlKey.winchRetractKey;
-            info += "\n";
-            info += "Rotate left key : " + KASAddonControlKey.winchHeadLeftKey;
-            info += "\n";
-            info += "Rotate right key : " + KASAddonControlKey.winchHeadRightKey;
-            info += "\n";
-            info += "Toogle hook : " + KASAddonControlKey.winchHookKey;
-            if (ejectEnabled)
-            {
-                info += "\n";
-                info += "Eject key : " + KASAddonControlKey.winchEjectKey;
-            }
-           
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Maximum length</b>: {0:F0}m", maxLenght); sb.AppendLine();
+            sb.AppendFormat("<b>Power consumption</b>: {0:F1}", powerDrain); sb.AppendLine();
+            return sb.ToString();
         }
 
         public override void OnSave(ConfigNode node)

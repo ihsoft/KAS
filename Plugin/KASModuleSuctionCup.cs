@@ -21,11 +21,7 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Suction Cup ----";
-            info += "\n";
-            info += "Break Force : " + breakForce;
-            return info;
+            return String.Format("<b>Strength:</b> {0:F0}", breakForce);
         }
 
         public override void OnStart(StartState state)

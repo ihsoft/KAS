@@ -32,15 +32,11 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Grappling Hook ----";
-            info += "\n";
-            info += "Attach strength (part) : " + partBreakForce;
-            info += "\n";
-            info += "Attach strength (ground) : " + staticBreakForce;
-            info += "\n";
-            info += "Inpact force : " + forceNeeded;
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Attach strength (part)</b>: {0:F0}", partBreakForce); sb.AppendLine();
+            sb.AppendFormat("<b>Attach strength (ground)</b>: {0:F0}", staticBreakForce); sb.AppendLine();
+            sb.AppendFormat("<b>Impact force required</b>: {0:F0}", forceNeeded); sb.AppendLine();
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)

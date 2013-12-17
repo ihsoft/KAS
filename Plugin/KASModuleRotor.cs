@@ -70,26 +70,16 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Rotor ----";
-            info += "\n";
-            info += "speed : " + speed;
-            info += "\n";
-            info += "Force : " + force;
-            info += "\n";
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Speed</b>: {0:F1}", speed); sb.AppendLine();
+            sb.AppendFormat("<b>Torque</b>: {0:F1}", force); sb.AppendLine();
             if (hasLimit)
             {
-                info += "Minimum angle: " + limitMin;
-                info += "\n";
-                info += "Maximum angle : " + limitMax;
-                info += "\n";
+                sb.AppendFormat("<b>Minimum angle</b>: {0:F0}", limitMin); sb.AppendLine();
+                sb.AppendFormat("<b>Maximum angle</b>: {0:F0}", limitMax); sb.AppendLine();
             }
-            info += "Key press : " + KASAddonControlKey.rotorNegativeKey + " for going " + negativeWayText;
-            info += "\n";
-            info += "Key press : " + KASAddonControlKey.rotorPositiveKey + " for going " + positiveWayText;
-            info += "\n";
-            info += "Power consumption : " + powerDrain + "/s";
-            return info;
+            sb.AppendFormat("<b>Power consumption</b>: {0:F1}/s", powerDrain); sb.AppendLine();
+            return sb.ToString();
         }
        
         public override void OnStart(StartState state)

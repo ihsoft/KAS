@@ -24,17 +24,12 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Anchor ----";
-            info += "\n";
-            info += "Ground drag : " + groundDrag;
-            info += "\n";
-            info += "Bounciness : " + bounciness;
-            info += "\n";
-            info += "Dynamic friction: " + dynamicFriction;
-            info += "\n";
-            info += "Static friction : " + staticFriction;
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Ground drag</b>: {0:F0}", groundDrag); sb.AppendLine();
+            sb.AppendFormat("<b>Bounciness</b>: {0:F1}", bounciness); sb.AppendLine();
+            sb.AppendFormat("<b>Dynamic friction</b>: {0:F1}", dynamicFriction); sb.AppendLine();
+            sb.AppendFormat("<b>Static friction</b>: {0:F1}", staticFriction); sb.AppendLine();
+            return sb.ToString();
         }
 
         public void OnPartUnpack()

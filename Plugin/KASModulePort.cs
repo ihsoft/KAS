@@ -40,13 +40,10 @@ namespace KAS
 
         public override string GetInfo()
         {
-            string info = base.GetInfo();
-            info += "---- Port ----";
-            info += "\n";
-            info += "Strength : " + breakForce;
-            info += "\n";
-            info += "Rotating force : " + rotateForce;
-            return info;
+            var sb = new StringBuilder();
+            sb.AppendFormat("<b>Strength</b>: {0:F0}", breakForce); sb.AppendLine();
+            sb.AppendFormat("<b>Rotor torque</b>: {0:F1}", rotateForce); sb.AppendLine();
+            return sb.ToString();
         }
 
         public override void OnStart(StartState state)
