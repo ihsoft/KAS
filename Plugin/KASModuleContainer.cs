@@ -409,6 +409,7 @@ namespace KAS
             }
         }
 
+        [KSPEvent(guiActiveEditor = true, active = true, guiName = "Edit Container")]
         public void EditContents()
         {
             if (showGUI != guiMode.None)

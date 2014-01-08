@@ -43,7 +43,6 @@
     <Compile Include="KASModuleGrapplingHook.cs" />
     <Compile Include="KASModuleRotor.cs" />
     <Compile Include="KASModuleSuctionCup.cs" />
-    <Compile Include="KASAddonEditContainer.cs" />
     <Compile Include="KASModuleContainer.cs" />
     <Compile Include="KASModulePort.cs" />
     <Compile Include="KASModuleTelescopicArm.cs" />
