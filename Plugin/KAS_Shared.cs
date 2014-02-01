@@ -247,6 +247,19 @@ namespace KAS
             transf.parent = p.transform;
         }
 
+        public static void ResetCollisionEnhancer(Part p, bool create_new = true)
+        {
+            if (p.collisionEnhancer)
+            {
+                UnityEngine.Object.DestroyImmediate(p.collisionEnhancer);
+            }
+
+            if (create_new)
+            {
+                p.collisionEnhancer = p.gameObject.AddComponent<CollisionEnhancer>();
+            }
+        }
+
         public static List<KASModuleWinch> GetAllWinch(Vessel fromVessel = null)
         {
             List<KASModuleWinch> returnedWinches = new List<KASModuleWinch>();

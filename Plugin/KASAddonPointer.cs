@@ -239,6 +239,8 @@ namespace KAS
                         connectedWinch.cableJointLength = connectedWinch.cableRealLenght;                    
                     }
 
+                    KAS_Shared.ResetCollisionEnhancer(partToAttach);
+
                     if (msgOnly)
                     {
                         KAS_Shared.DebugLog("UpdatePointer(Pointer) Attach using send message");
@@ -342,6 +344,7 @@ namespace KAS
                     KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, part cannot be attached on static");
                 }
             }
+            KAS_Shared.ResetCollisionEnhancer(partToAttach);
         }
 
         private IEnumerator WaitAndSendMsg(Part partToAttach, Vector3 position, Quaternion rotation, Part toPart = null)

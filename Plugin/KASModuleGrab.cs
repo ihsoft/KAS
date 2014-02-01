@@ -233,12 +233,14 @@ namespace KAS
                 evaJoint.connectedBody = evaCollider.attachedRigidbody;
                 evaJoint.breakForce = 5;
                 evaJoint.breakTorque = 5;
+                KAS_Shared.ResetCollisionEnhancer(this.part);
             }
             else
             {
                 this.part.physicalSignificance = Part.PhysicalSignificance.NONE;
                 this.part.transform.parent = evaNodeTransform;
                 this.part.rigidbody.isKinematic = true;
+                KAS_Shared.ResetCollisionEnhancer(this.part, false);
             }
 
             //Add grabbed part mass to eva
@@ -265,6 +267,12 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("Drop - Dropping part :" + this.part.partInfo.name);
                 base.SendMessage("OnPartDrop", SendMessageOptions.DontRequireReceiver);
+
+                if (this.part.rigidbody)
+                {
+                    this.part.transform.parent = null;
+                    this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
+                }
 
                 if (this.part.vessel.isEVA)
                 {
@@ -298,6 +306,8 @@ namespace KAS
                 this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
                 this.part.rigidbody.velocity = evaHolderPart.rigidbody.velocity;
                 this.part.rigidbody.angularVelocity = evaHolderPart.rigidbody.angularVelocity;
+
+                KAS_Shared.ResetCollisionEnhancer(this.part);
 
                 if (addPartMass & !physicJoint) evaHolderPart.mass = orgKerbalMass;
 
