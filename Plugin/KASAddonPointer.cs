@@ -134,7 +134,7 @@ namespace KAS
                 pointerNodeTransform = new GameObject("KASPointerPartNode").transform;
                 pointerNodeTransform.parent = pointer.transform;
                 pointerNodeTransform.localPosition = partToAttach.srfAttachNode.position;
-                pointerNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(pointer.transform, partToAttach.srfAttachNode.orientation);
+                pointerNodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(partToAttach.srfAttachNode.orientation, Vector3.up));
                 }
 
             //Set default color
@@ -183,8 +183,7 @@ namespace KAS
                 RotatePointer(+15);
             }
 
-            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit);
-            pointer.transform.rotation *= Quaternion.Euler(customRot);
+            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit, Quaternion.Euler(customRot));
             
             //Attach on click
             if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -373,21 +372,7 @@ namespace KAS
 
         private static void RotatePointer(float dist)
         {
-            //left (-1.0, 0.0, 0.0) | right (1.0, 0.0, 0.0)   
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.left || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.right)
-            {
-                customRot.Set(customRot.x + dist, customRot.y, customRot.z);
-            }
-            //down (0.0, -1.0, 0.0) | up (0.0, 1.0, 0.0)
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.down || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.up)
-            {
-                customRot.Set(customRot.x, customRot.y + dist, customRot.z);
-            }
-            //back (0.0, 0.0, -1.0) | forward (0.0, 0.0, 1.0)
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.back || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.forward)
-            {
-                customRot.Set(customRot.x, customRot.y, customRot.z + dist);
-            }
+            customRot.Set(customRot.x, customRot.y, customRot.z + dist);
             //battery orientation, illuminator (0.0, 0.0, -1.0) orient nok rotate nok
             //radial cport/pipe/strut/round rcs orientation (0.0, -1.3, 0.0) orient ok rotate ok
             //telus bay / rover  orientation (1.0, 0.0, 0.0) orient ok rotate nok

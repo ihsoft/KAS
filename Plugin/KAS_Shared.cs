@@ -131,13 +131,13 @@ namespace KAS
                 Transform nodeTransform = new GameObject("KASNodeTransf").transform;
                 nodeTransform.parent = p.transform;
                 nodeTransform.localPosition = attachNode.position;
-                nodeTransform.rotation = KAS_Shared.DirectionToQuaternion(p.transform, attachNode.orientation);
+                nodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(attachNode.orientation, Vector3.up));
                 attachNode.nodeTransform = nodeTransform;
             }
             else
             {
                 attachNode.nodeTransform.localPosition = attachNode.position;
-                attachNode.nodeTransform.rotation = KAS_Shared.DirectionToQuaternion(p.transform, attachNode.orientation);
+                attachNode.nodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(attachNode.orientation, Vector3.up));
                 KAS_Shared.DebugLog("AddTransformToAttachNode - Node : " + attachNode.id + " already have a nodeTransform, only update");
             }
         }
@@ -166,7 +166,7 @@ namespace KAS
             return Quaternion.LookRotation(nodeDir, refDir);
         }
 
-        public static void MoveAlign(Transform source, Transform childNode, RaycastHit hit)
+        public static void MoveAlign(Transform source, Transform childNode, RaycastHit hit, Quaternion adjust)
         {
             Vector3 refDirection = Vector3.up;
             Vector3 alterDirection = Vector3.forward;
@@ -188,7 +188,7 @@ namespace KAS
                 rotation = Quaternion.LookRotation(hit.normal, refDir);
             }
 
-            MoveAlign(source, childNode, hit.point, rotation);
+            MoveAlign(source, childNode, hit.point, rotation * adjust);
         }
 
         public static void MoveAlign(Transform source, Transform childNode, Transform target)
@@ -198,23 +198,7 @@ namespace KAS
 
         public static void MoveAlign(Transform source, Transform childNode, Vector3 targetPos, Quaternion targetRot)
         {
-            Vector3 nodeDir = source.InverseTransformDirection(childNode.forward);
-
-            //down (0.0, -1.0, 0.0) | up (0.0, 1.0, 0.0)                    // Exemple : pipe (0.0, -1.0, 0.0) 
-            if (nodeDir == Vector3.down || nodeDir == Vector3.up)
-            {
-                source.rotation = targetRot * (childNode.localRotation * Quaternion.AngleAxis(180, Vector3.forward));
-            }
-            //back (0.0, 0.0, -1.0) | forward (0.0, 0.0, 1.0)               // Exemple : radial engine (0.0, 0.0, -1.0)   
-            if (nodeDir == Vector3.back || nodeDir == Vector3.forward)
-            {
-                source.rotation = targetRot * (childNode.localRotation);
-            }
-            //left (-1.0, 0.0, 0.0) | right (1.0, 0.0, 0.0)                 // Exemple : solar panel (1.0, 0.0, 0.0)  
-            if (nodeDir == Vector3.left || nodeDir == Vector3.right)
-            {
-                source.rotation = targetRot * (childNode.localRotation);
-            }
+            source.rotation = targetRot * Quaternion.Inverse(childNode.localRotation);
             source.position = source.position - (childNode.position - targetPos);
         }
 
