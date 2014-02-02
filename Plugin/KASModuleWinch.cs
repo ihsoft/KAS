@@ -431,6 +431,7 @@ namespace KAS
             KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
             GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
         void OnVesselGoOnRails(Vessel vess)
@@ -466,6 +467,15 @@ namespace KAS
             }
         }
         
+        void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)
+        {
+            if (evaHolderPart && !grabbedPortModule && fromToAction.from.vessel == evaHolderPart.vessel)
+            {
+                KAS_Shared.DebugLog(fromToAction.from.vessel.vesselName + " boarding " + fromToAction.to.vessel.vesselName + " with a winch head grabbed, dropping it to avoid destruction");
+                DropHead();
+            }
+        }
+
         public void OnPartUnpack()
         {
             KAS_Shared.DebugLog("OnPartUnpack(Winch)");
@@ -479,6 +489,7 @@ namespace KAS
         {
             GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
         public override void OnUpdate()
@@ -881,12 +892,13 @@ namespace KAS
 
             SetHeadToPhysic(false);
 
+            grabbedPortModule = grabbedPort;
+
             if (grabbedPort)
             {
                 KAS_Shared.DebugLog("GrabHead(Winch) - Moving head to grabbed port node...");
                 headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -grabbedPort.portNode.forward) * headTransform.rotation;
                 headTransform.position = headTransform.position - (headPortNode.position - grabbedPort.portNode.position);
-                grabbedPortModule = grabbedPort;
             }
             else
             {
