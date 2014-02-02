@@ -185,10 +185,10 @@ namespace KAS
                 {
                     if (allowDock)
                     {
-                        KAS_Shared.DebugWarning("OnVesselWasModified(strut) Source and target vessel are different, docking strut... (allowDock = true)");
-                        KASModuleStrut tmpLinkedStrutMod = linkedStrutModule;
-                        Unlink();
-                        LinkTo(tmpLinkedStrutMod, false);
+                        KAS_Shared.DebugWarning("OnVesselWasModified(strut) Source and target vessel are different, postponing docking strut... (allowDock = true)");
+                        // This callback is invoked while the vessel is being
+                        // modified, so any further changes must be postponed.
+                        StartCoroutine(WaitAndRedock());
                     }
                     else
                     {
@@ -198,6 +198,20 @@ namespace KAS
                     }
                 }
             }        
+        }
+
+        private IEnumerator<YieldInstruction> WaitAndRedock()
+        {
+            yield return null;
+
+            // If still ok, we can redock now
+            if (part && vessel && linked && linkedStrutModule.vessel != this.vessel && allowDock)
+            {
+                KAS_Shared.DebugWarning("WaitAndRedock(strut) Source and target vessel are different, docking strut... (allowDock = true)");
+                KASModuleStrut tmpLinkedStrutMod = linkedStrutModule;
+                Unlink();
+                LinkTo(tmpLinkedStrutMod, false);
+            }
         }
 
         void OnDestroy()
