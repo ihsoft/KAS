@@ -505,7 +505,7 @@ namespace KAS
 
             Part newPart = (Part)obj;
             newPart.gameObject.SetActive(true);
-            newPart.gameObject.name = "KASCreatedPart";
+            newPart.gameObject.name = avPart.name + " (KAS created)";
             newPart.partInfo = avPart;
             newPart.highlightRecurse = true;
 
@@ -543,6 +543,15 @@ namespace KAS
 
             v.SetPosition(position);
             v.SetRotation(rotation);
+
+            // Solar panels from containers don't work otherwise
+            for (int i = 0; i < newPart.Modules.Count; i++)
+            {
+                ConfigNode node = new ConfigNode();
+                node.AddValue("name", newPart.Modules[i].moduleName);
+                newPart.LoadModule(node, i);
+            }
+
             return newPart;
         }
 
