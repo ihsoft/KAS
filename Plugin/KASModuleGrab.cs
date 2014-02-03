@@ -52,6 +52,7 @@ namespace KAS
         private Transform evaNodeTransform;
         private AttachNode partNode;
         private FixedJoint evaJoint;
+        private List<Collider> keepTriggers;
 
 
         public override string GetInfo()
@@ -212,9 +213,16 @@ namespace KAS
                 moduleWinch.GrabHead(kerbalEvaVessel, modulePort);
             }
 
+            keepTriggers = new List<Collider>();
+
             List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
             foreach (Collider col in allColliders)
             {
+                if (col.isTrigger)
+                {
+                    keepTriggers.Add(col);
+                }
+
                 col.isTrigger = true;
             }
 
@@ -286,7 +294,7 @@ namespace KAS
                 List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
                 foreach (Collider col in allColliders)
                 {
-                    col.isTrigger = false;
+                    col.isTrigger = (keepTriggers != null && keepTriggers.Contains(col));
                 }
 
                 if (customGroundPos && evaHolderPart.checkLanded())
@@ -321,6 +329,7 @@ namespace KAS
                     }
                 }
 
+                keepTriggers = null;
                 evaJoint = null;
                 evaNodeTransform = null;
                 evaHolderVesselName = null;
