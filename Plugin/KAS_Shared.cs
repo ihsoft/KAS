@@ -508,6 +508,7 @@ namespace KAS
             newPart.gameObject.name = avPart.name + " (KAS created)";
             newPart.partInfo = avPart;
             newPart.highlightRecurse = true;
+            newPart.SetMirror(Vector3.one);
 
             ShipConstruct newShip = new ShipConstruct();
             newShip.Add(newPart);
@@ -528,9 +529,6 @@ namespace KAS
             v.rootPart.flagURL = flagFromPart.flagURL;
 
             //v.rootPart.collider.isTrigger = true;
-
-            v.rootPart.FindModelTransform("model").localScale *= v.rootPart.rescaleFactor;
-
 
             //v.landedAt = "somewhere";
                         
