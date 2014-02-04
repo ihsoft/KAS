@@ -316,6 +316,7 @@ namespace KAS
                 {
                     KAS_Shared.DebugLog("DockTo(Core) Switching focus to " + this.part.vessel.vesselName);
                     FlightGlobals.ForceSetActiveVessel(this.part.vessel);
+                    FlightInputHandler.ResumeVesselCtrlState(this.part.vessel);
                 }
                 otherAttachModule.part.Couple(this.part);
             }
@@ -326,12 +327,11 @@ namespace KAS
                 {
                     KAS_Shared.DebugLog("DockTo(Core) Switching focus to " + otherAttachModule.part.vessel.vesselName);
                     FlightGlobals.ForceSetActiveVessel(otherAttachModule.part.vessel);
+                    FlightInputHandler.ResumeVesselCtrlState(otherAttachModule.part.vessel);
                 }
                 this.part.Couple(otherAttachModule.part);
             }
 
-            this.vessel.ctrlState = new FlightCtrlState();
-            FlightInputHandler.SetNeutralControls();
             GameEvents.onVesselWasModified.Fire(this.part.vessel);
         }
 
