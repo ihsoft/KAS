@@ -126,18 +126,25 @@ namespace KAS
 
         public static void AddNodeTransform(Part p, AttachNode attachNode)
         {
+            Quaternion rotation = Quaternion.LookRotation(attachNode.orientation, Vector3.up);
+
+            if (attachNode.nodeType == AttachNode.NodeType.Surface)
+            {
+                rotation = Quaternion.Inverse(rotation);
+            }
+
             if (attachNode.nodeTransform == null)
             {
                 Transform nodeTransform = new GameObject("KASNodeTransf").transform;
                 nodeTransform.parent = p.transform;
                 nodeTransform.localPosition = attachNode.position;
-                nodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(attachNode.orientation, Vector3.up));
+                nodeTransform.localRotation = rotation;
                 attachNode.nodeTransform = nodeTransform;
             }
             else
             {
                 attachNode.nodeTransform.localPosition = attachNode.position;
-                attachNode.nodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(attachNode.orientation, Vector3.up));
+                attachNode.nodeTransform.localRotation = rotation;
                 KAS_Shared.DebugLog("AddTransformToAttachNode - Node : " + attachNode.id + " already have a nodeTransform, only update");
             }
         }
