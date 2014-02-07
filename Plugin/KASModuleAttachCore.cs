@@ -207,24 +207,41 @@ namespace KAS
 
         protected virtual void OnDestroy()
         {
+            SetCreateJointOnUnpack(false);
+
             if (StaticAttach.connectedGameObject)
             {
                 Destroy(StaticAttach.connectedGameObject);
             }
         }
 
-        public override void OnUpdate()
+        private void SetCreateJointOnUnpack(bool newval)
         {
-            base.OnUpdate();
-            if (!HighLogic.LoadedSceneIsFlight) return;
+            if (FixedAttach.createJointOnUnpack != newval)
+            {
+                FixedAttach.createJointOnUnpack = newval;
 
-            if (FixedAttach.createJointOnUnpack)
+                if (newval)
+                {
+                    GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+                }
+                else
+                {
+                    GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+                }
+            }
+        }
+
+        private void OnVesselGoOffRails(Vessel vess)
+        {
+            if (FixedAttach.createJointOnUnpack &&
+                (vess == this.vessel || vess == FixedAttach.connectedPart.vessel))
             {
                 if (!this.part.packed && !FixedAttach.connectedPart.packed)
                 {
                     KAS_Shared.DebugWarning("OnUpdate(Core) Fixed attach set and both part unpacked, creating fixed joint...");
                     AttachFixed(FixedAttach.connectedPart, FixedAttach.savedBreakForce);
-                    FixedAttach.createJointOnUnpack = false;
+                    SetCreateJointOnUnpack(false);
                 }
             }
         }
@@ -256,7 +273,7 @@ namespace KAS
             }
             else
             {
-                FixedAttach.createJointOnUnpack = true;
+                SetCreateJointOnUnpack(true);
                 KAS_Shared.DebugWarning("AttachFixed(Core) Cannot create fixed joint as part(s) is packed, delaying to unpack...");
             }
         }
@@ -427,6 +444,7 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("Detach(Base) Removing fixed joint on " + this.part.partInfo.title);
                 if (FixedAttach.fixedJoint) Destroy(FixedAttach.fixedJoint);
+                SetCreateJointOnUnpack(false);
                 FixedAttach.fixedJoint = null;
                 FixedAttach.connectedPart = null;
                 attachMode.FixedJoint = false;
