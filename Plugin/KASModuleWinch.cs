@@ -476,8 +476,10 @@ namespace KAS
             }
         }
 
-        public void OnPartUnpack()
+        public override void OnPartUnpack()
         {
+            base.OnPartUnpack();
+
             KAS_Shared.DebugLog("OnPartUnpack(Winch)");
             if (headState != PlugState.Locked && headTransform.rigidbody)
             {
@@ -485,8 +487,10 @@ namespace KAS
             }
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
             GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));

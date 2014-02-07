@@ -180,28 +180,18 @@ namespace KAS
             {
                 // Nothing to do (see OnVesselLoaded)
             }
-
-            GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-            GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));     
         }
 
-        void OnVesselGoOnRails(Vessel vess)
+        public virtual void OnPartPack()
         {
-            if (vess != this.vessel)
-            {
-                return;
-            }
-
             if (StaticAttach.connectedGameObject)
             {
                 Destroy(StaticAttach.connectedGameObject);
             }
         }
 
-        void OnVesselGoOffRails(Vessel vess)
+        public virtual void OnPartUnpack()
         {
-            if (vess != this.vessel) return;
-
             if (attachMode.StaticJoint)
             {
                 KAS_Shared.DebugLog("OnVesselGoOffRails(Core) Re-attach static object");
@@ -215,11 +205,8 @@ namespace KAS
             Detach();
         }
 
-        void OnDestroy()
+        protected virtual void OnDestroy()
         {
-            GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-            GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
-
             if (StaticAttach.connectedGameObject)
             {
                 Destroy(StaticAttach.connectedGameObject);

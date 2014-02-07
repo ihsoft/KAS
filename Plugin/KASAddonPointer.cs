@@ -59,6 +59,18 @@ namespace KAS
                 KAS_Shared.DebugError("Awake(AttachPointer) Bip wrong sound not found in the game database !");
                 ScreenMessages.PostScreenMessage("Sound file : " + bipWrongSndPath + " as not been found, please check your KAS installation !", 10, ScreenMessageStyle.UPPER_CENTER);
             }
+
+            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(this.OnVesselChange));
+        }
+
+        void OnDestroy()
+        {
+            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(this.OnVesselChange));
+        }
+
+        void OnVesselChange(Vessel vesselChange)
+        {
+            if (KASAddonPointer.isRunning) KASAddonPointer.StopPointer();
         }
 
         public static void StartPointer(Part partToMoveAndAttach, PointerMode mode, bool partIsValid, bool evaIsValid, bool staticIsValid, float maxDistance, Transform from, bool sendMsgOnly)
