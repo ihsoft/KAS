@@ -1036,8 +1036,7 @@ namespace KAS
                 // This should be safe even if already connected
                 AttachDocked(portModule);
                 // Remove joints between connector and winch
-                KAS_Shared.RemoveFixedJointBetween(this.part, portModule.part);
-                KAS_Shared.RemoveHingeJointBetween(this.part, portModule.part);
+                KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
                 //nodeConnectedPort = portModule;
                 if (fireSound) portModule.fxSndPlugDocked.audio.Play();

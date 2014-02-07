@@ -601,6 +601,18 @@ namespace KAS
             }
         }
 
+        public static void RemoveAttachJointBetween(Part part1, Part part2)
+        {
+            if (part1.attachJoint && part1.attachJoint.connectedBody == part2.rigidbody)
+            {
+                UnityEngine.Object.Destroy(part1.attachJoint);
+            }
+            if (part2.attachJoint && part2.attachJoint.connectedBody == part1.rigidbody)
+            {
+                UnityEngine.Object.Destroy(part2.attachJoint);
+            }
+        }
+
         public static void RemoveFixedJointBetween(Part part1, Part part2)
         {
             List<FixedJoint> fixedJoints1 = new List<FixedJoint>(part1.GetComponents<FixedJoint>());
