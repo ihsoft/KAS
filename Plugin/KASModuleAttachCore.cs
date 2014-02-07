@@ -273,7 +273,7 @@ namespace KAS
             attachMode.StaticJoint = true;
         }
 
-        public void AttachDocked(KASModuleAttachCore otherAttachModule)
+        public void AttachDocked(KASModuleAttachCore otherAttachModule, Vessel forceDominant = null)
         {
             // Save vessel Info
             this.vesselInfo = new DockedVesselInfo();
@@ -298,6 +298,13 @@ namespace KAS
                 return;
             }
 
+            // This results in a somewhat wrong state, but it's better to not make it even more wrong
+            if (otherAttachModule.part.vessel == this.part.vessel)
+            {
+                KAS_Shared.DebugWarning("DockTo(Core) BUG: Parts belong to the same vessel, doing nothing");
+                return;
+            }
+
             // Reset vessels position and rotation for returning all parts to their original position and rotation before coupling
             this.vessel.SetPosition(this.vessel.transform.position, true);
             this.vessel.SetRotation(this.vessel.transform.rotation);
@@ -307,6 +314,12 @@ namespace KAS
             // Couple depending of mass
 
             Vessel dominantVessel = GetDominantVessel(this.vessel, otherAttachModule.vessel);
+
+            if (forceDominant == this.vessel || forceDominant == otherAttachModule.vessel)
+            {
+                dominantVessel = forceDominant;
+            }
+
             KAS_Shared.DebugLog("DockTo(Core) Master vessel is " + dominantVessel.vesselName);
             
             if (dominantVessel == this.vessel)
