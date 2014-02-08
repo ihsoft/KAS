@@ -469,7 +469,7 @@ namespace KAS
 
             if (showGUI != guiMode.None)
             {
-                guiMainWindowPos = GUILayout.Window(5501, guiMainWindowPos, GuiMainWindow, this.part.partInfo.title, GUILayout.MinWidth(1), GUILayout.MinHeight(1));
+                guiMainWindowPos = GUILayout.Window(GetInstanceID(), guiMainWindowPos, GuiMainWindow, this.part.partInfo.title, GUILayout.MinWidth(1), GUILayout.MinHeight(1));
                 if (HighLogic.LoadedSceneIsEditor) KAS_Shared.DisableEditorClickthrough(guiMainWindowPos);
             }  
         }
