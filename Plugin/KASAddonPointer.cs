@@ -186,16 +186,28 @@ namespace KAS
             foreach (MeshRenderer mr in allModelMr) mr.material.color = color;
 
             //Rotation keys
+            Vector3 delta = new Vector3(0,0,1);
+
+            if (Input.GetKey(KeyCode.LeftAlt))
+            {
+                delta = new Vector3(1,0,0);
+            }
+            else if (Input.GetKey(KeyCode.RightAlt))
+            {
+                delta = new Vector3(0,-1,0);
+            }
+
             if (Input.GetKeyDown(KASAddonControlKey.rotateLeftKey.ToLower()))
             {
-                RotatePointer(-15);
+                customRot -= delta * 15;
             }
             if (Input.GetKeyDown(KASAddonControlKey.rotateRightKey.ToLower()))
             {
-                RotatePointer(+15);
+                customRot += delta * 15;
             }
 
-            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit, Quaternion.Euler(customRot));
+            Quaternion rotAdjust = Quaternion.Euler(0,0,customRot.z) * Quaternion.Euler(customRot.x,customRot.y,0);
+            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit, rotAdjust);
             
             //Attach on click
             if (Input.GetKeyDown(KeyCode.Mouse0))
