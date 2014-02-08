@@ -221,11 +221,12 @@ namespace KAS
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
         }
 
-        void OnJointBreak(float breakForce)
+        protected override void OnJointBreak(float breakForce)
         {
             KAS_Shared.DebugWarning("OnJointBreak(Strut) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             Unlink();
             fxSndBroke.audio.Play();
+            base.OnJointBreak(breakForce);
         }
 
         public void OnPartGrab(Vessel kerbalEvaVessel)
