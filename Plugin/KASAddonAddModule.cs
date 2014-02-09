@@ -59,6 +59,7 @@ namespace KAS
                 if (grabNode.HasValue("physicJoint")) grabModule.physicJoint = bool.Parse(grabNode.GetValue("physicJoint"));
                 if (grabNode.HasValue("addPartMass")) grabModule.addPartMass = bool.Parse(grabNode.GetValue("addPartMass"));
                 if (grabNode.HasValue("storable")) grabModule.storable = bool.Parse(grabNode.GetValue("storable"));
+                if (grabNode.HasValue("stateless")) grabModule.stateless = bool.Parse(grabNode.GetValue("stateless"));
                 if (grabNode.HasValue("storedSize")) grabModule.storedSize = int.Parse(grabNode.GetValue("storedSize"));
                 if (grabNode.HasValue("bayType")) grabModule.bayType = grabNode.GetValue("bayType").ToString();
                 if (grabNode.HasValue("bayNode")) grabModule.bayNode = grabNode.GetValue("bayNode").ToString();

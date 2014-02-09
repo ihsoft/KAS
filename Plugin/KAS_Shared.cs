@@ -560,6 +560,126 @@ namespace KAS
             return newPart;
         }
 
+        public static ConfigNode SavePartSnapshot(Part part)
+        {
+            // Seems fine with a null vessel in 0.23 if some empty lists are allocated below
+            ProtoPartSnapshot snapshot = new ProtoPartSnapshot(part, null);
+
+            ConfigNode node = new ConfigNode("CONTENT_PART");
+
+            snapshot.attachNodes = new List<AttachNodeSnapshot>();
+            snapshot.srfAttachNode = new AttachNodeSnapshot("attach,-1");
+            snapshot.symLinks = new List<ProtoPartSnapshot>();
+            snapshot.symLinkIdxs = new List<int>();
+
+            snapshot.Save(node);
+
+            node.AddValue("kas_total_mass", part.mass+part.GetResourceMass());
+
+            // Prune unimportant data
+            node.RemoveValues("parent");
+            node.RemoveValues("position");
+            node.RemoveValues("rotation");
+            node.RemoveValues("istg");
+            node.RemoveValues("dstg");
+            node.RemoveValues("sqor");
+            node.RemoveValues("sidx");
+            node.RemoveValues("attm");
+            node.RemoveValues("srfN");
+            node.RemoveValues("attN");
+            node.RemoveValues("connected");
+            node.RemoveValues("attached");
+            node.RemoveValues("flag");
+
+            node.RemoveNodes("ACTIONS");
+
+            // Remove modules that are not in prefab since they won't load anyway
+            var module_nodes = node.GetNodes("MODULE");
+            var prefab_modules = part.partInfo.partPrefab.GetComponents<PartModule>();
+
+            node.RemoveNodes("MODULE");
+
+            for (int i = 0; i < prefab_modules.Length && i < module_nodes.Length; i++)
+            {
+                var module = module_nodes[i];
+                var name = module.GetValue("name") ?? "";
+
+                node.AddNode(module);
+
+                if (name.StartsWith("KASModule"))
+                {
+                    // Prune the state of the KAS modules completely
+                    module.ClearData();
+                    module.AddValue("name", name);
+                    continue;
+                }
+
+                module.RemoveNodes("ACTIONS");
+            }
+
+            return node;
+        }
+
+        public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
+        {
+            ConfigNode node_copy = new ConfigNode();
+            node.CopyTo(node_copy);
+
+            node_copy.RemoveValues("kas_total_mass");
+
+            ProtoPartSnapshot snapshot = new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
+
+            if (HighLogic.CurrentGame.flightState.ContainsFlightID(snapshot.flightID))
+                snapshot.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
+
+            snapshot.parentIdx = 0;
+            snapshot.position = position;
+            snapshot.rotation = rotation;
+            snapshot.stageIndex = 0;
+            snapshot.defaultInverseStage = 0;
+            snapshot.seqOverride = -1;
+            snapshot.inStageIndex = -1;
+            snapshot.attachMode = (int)AttachModes.SRF_ATTACH;
+            snapshot.attached = true;
+            snapshot.connected = true;
+            snapshot.flagURL = vessel.rootPart.flagURL;
+
+            Part new_part = snapshot.Load(vessel, false);
+
+            vessel.Parts.Add(new_part);
+
+            if (vessel.packed)
+            {
+                GameEvents.onVesselWasModified.Fire(vessel);
+            }
+            else
+            {
+                new_part.StartCoroutine(WaitAndUnpack(new_part));
+            }
+
+            return new_part;
+        }
+
+        private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part)
+        {
+            while (!part.started && part.State != PartStates.DEAD)
+            {
+                yield return null;
+            }
+
+            if (part.vessel && part.State != PartStates.DEAD)
+            {
+                if (part.packed && !part.vessel.packed)
+                {
+                    part.Unpack();
+                    part.InitializeModules();
+                    part.ResumeVelocity();
+                }
+
+                GameEvents.onVesselWasModified.Fire(part.vessel);
+            }
+        }
+
         public static ConfigNode GetBaseConfigNode(PartModule partModule)
         {
             UrlDir.UrlConfig pConfig = null;

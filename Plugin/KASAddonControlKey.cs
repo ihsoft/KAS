@@ -196,7 +196,7 @@ namespace KAS
                     if (clickedWinch.headState == KASModuleWinch.PlugState.Deployed)
                     {
                         KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-                        if (grabbedModule)
+                        if (grabbedModule && !grabbedModule.part.packed)
                         {
                             KASModulePort grabbedPort = grabbedModule.GetComponent<KASModulePort>();
                             if (grabbedPort)
@@ -228,7 +228,10 @@ namespace KAS
                     KASModuleGrab grabbedPart = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
                     if (grabbedPart)
                     {
-                        grabbedPart.Drop();
+                        if (!grabbedPart.part.packed)
+                        {
+                            grabbedPart.Drop();
+                        }
                         return;
                     }
                     List<Collider> nearestColliders = new List<Collider>(Physics.OverlapSphere(FlightGlobals.ActiveVessel.transform.position, radius, 557059));

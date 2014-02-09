@@ -27,9 +27,9 @@ namespace KAS
 
             public float storedSize { get { return grabModule.storedSize; } }
 
-            public int totalCount { get { return pristine_count; } }
+            public int totalCount { get { return pristine_count + instances.Count; } }
             public float totalSize { get { return storedSize * totalCount; } }
-            public float totalMass { get { return pristine_mass * totalCount; } }
+            public float totalMass { get { return pristine_mass * pristine_count + instance_mass; } }
 
             public float averageMass
             {
@@ -42,6 +42,9 @@ namespace KAS
 
             public readonly float pristine_mass;
             public int pristine_count;
+
+            public float instance_mass;
+            public readonly List<ConfigNode> instances = new List<ConfigNode>();
 
             private PartContent(AvailablePart avPart, KASModuleGrab grab)
             {
@@ -84,6 +87,13 @@ namespace KAS
                 {
                     pristine_count += int.Parse(node.GetValue("qty"));
                 }
+                else if (node.name == "CONTENT_PART" && node.HasValue("kas_total_mass"))
+                {
+                    ConfigNode nodeD = new ConfigNode();
+                    node.CopyTo(nodeD);
+                    instance_mass += float.Parse(node.GetValue("kas_total_mass"));
+                    instances.Add(nodeD);
+                }
             }
 
             public void Save(ConfigNode node)
@@ -94,6 +104,20 @@ namespace KAS
                     nodeD.AddValue("name", name);
                     nodeD.AddValue("qty", pristine_count);
                 }
+                foreach (var inst in instances)
+                {
+                    ConfigNode nodeD = node.AddNode("CONTENT_PART");
+                    inst.CopyTo(nodeD);
+                }
+            }
+
+            public ConfigNode PopInstance()
+            {
+                ConfigNode node = instances[0];
+                float mass = float.Parse(node.GetValue("kas_total_mass"));
+                instance_mass -= mass;
+                instances.RemoveAt(0);
+                return node;
             }
         }
 
@@ -161,13 +185,18 @@ namespace KAS
         {
             base.OnLoad(node);
 
-            if (node.HasNode("CONTENT"))
+            if (node.HasNode("CONTENT") || node.HasNode("CONTENT_PART"))
             {
                 contents.Clear();
             }
 
-            foreach (ConfigNode cn in node.GetNodes("CONTENT"))
+            foreach (ConfigNode cn in node.nodes)
             {
+                if (cn.name != "CONTENT" && cn.name != "CONTENT_PART")
+                {
+                    continue;
+                }
+
                 string AvPartName = cn.GetValue("name") ?? "null";
                 PartContent item = PartContent.Get(contents, AvPartName);
 
@@ -302,6 +331,26 @@ namespace KAS
                 KAS_Shared.DebugError("Take(Container) Take action is already running, please wait !");
                 return;
             }
+            if (!FlightGlobals.ActiveVessel.isEVA)
+            {
+                KAS_Shared.DebugError("Take(Container) Can only grab from EVA!");
+                return;
+            }
+            KASModuleGrab grabbed = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
+            if (grabbed && grabbed.part.packed)
+            {
+                KAS_Shared.DebugError("Take(Container) EVA holding a packed part!");
+                return;
+            }
+            if (avPart.pristine_count <= 0 && avPart.instances.Count > 0)
+            {
+                if (TakeStoredInstance(avPart.instances[0], FlightGlobals.ActiveVessel))
+                {
+                    avPart.PopInstance();
+                    RefreshTotalSize();
+                }
+                return;
+            }
             KASModuleGrab prefabGrabModule = avPart.grabModule;
             // get grabbed position and rotation
             Vector3 pos = FlightGlobals.ActiveVessel.rootPart.transform.TransformPoint(prefabGrabModule.evaPartPos);
@@ -324,7 +373,8 @@ namespace KAS
                 KAS_Shared.DebugError("Take(Container) Cannot grab the part taken, no grab module found !");
                 return;
             }
-            Remove(avPart.part, 1);
+            avPart.pristine_count--;
+            RefreshTotalSize();
             StartCoroutine(WaitAndGrab(moduleGrab, FlightGlobals.ActiveVessel));
         }
 
@@ -347,10 +397,25 @@ namespace KAS
             waitAndGrabRunning = false;
         }
 
+        private bool TakeStoredInstance(ConfigNode node, Vessel vessel)
+        {
+            Part newPart = KAS_Shared.LoadPartSnapshot(vessel, node, Vector3.zero, Quaternion.identity);
+
+            KASModuleGrab moduleGrab = newPart.GetComponent<KASModuleGrab>();
+            if (!moduleGrab || !moduleGrab.GrabPending())
+            {
+                KAS_Shared.DebugError("Take(Container) Cannot grab the part taken, no grab module found !");
+                newPart.Die();
+                return false;
+            }
+
+            return true;
+        }
+
         private void StoreGrabbedPart()
         {
             KASModuleGrab moduleGrab = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-            if (!moduleGrab)
+            if (!moduleGrab || moduleGrab.part.packed)
             {
                 fxSndBipWrong.audio.Play();
                 ScreenMessages.PostScreenMessage("You didn't grab anything to store !", 5, ScreenMessageStyle.UPPER_CENTER);
@@ -368,7 +433,22 @@ namespace KAS
                 ScreenMessages.PostScreenMessage("Max size of the container reached !", 5, ScreenMessageStyle.UPPER_CENTER);
                 return;
             }
-            Add(moduleGrab.part.partInfo, 1);
+            PartContent info = PartContent.Get(contents, moduleGrab.part.partInfo.name);
+            if (info == null)
+            {
+                fxSndBipWrong.audio.Play();
+                ScreenMessages.PostScreenMessage("Could not store part!", 5, ScreenMessageStyle.UPPER_CENTER);
+                return;
+            }
+            if (moduleGrab.stateless)
+            {
+                info.pristine_count++;
+            }
+            else
+            {
+                info.Load(KAS_Shared.SavePartSnapshot(moduleGrab.part));
+            }
+            RefreshTotalSize();
             moduleGrab.Drop();
             moduleGrab.part.Die();
             fxSndStore.audio.Play();
@@ -376,14 +456,27 @@ namespace KAS
 
         private void Move(PartContent aPart, int qty, KASModuleContainer destContainer)
         {
-            if (destContainer.MaxSizeReached(aPart.grabModule, 1))
+            if (destContainer.MaxSizeReached(aPart.grabModule, qty))
             {
                 fxSndBipWrong.audio.Play();
                 ScreenMessages.PostScreenMessage("Max size of the destination container reached !", 5, ScreenMessageStyle.UPPER_CENTER);
                 return;
             }
-            Remove(aPart.part, qty);
-            destContainer.Add(aPart.part, qty);
+            PartContent dest = PartContent.Get(destContainer.contents, aPart.name);
+            if (aPart.pristine_count > 0)
+            {
+                int delta = Math.Min(aPart.pristine_count, qty);
+                aPart.pristine_count -= delta;
+                dest.pristine_count += delta;
+                qty -= delta;
+            }
+            while (qty > 0 && aPart.instances.Count > 0)
+            {
+                dest.Load(aPart.PopInstance());
+                qty--;
+            }
+            RefreshTotalSize();
+            destContainer.RefreshTotalSize();
         }
 
         public void TakeContents(Vessel evaVessel)
