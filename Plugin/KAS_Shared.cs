@@ -512,7 +512,7 @@ namespace KAS
 
             Part newPart = (Part)obj;
             newPart.gameObject.SetActive(true);
-            newPart.gameObject.name = avPart.name + " (KAS created)";
+            newPart.gameObject.name = avPart.name;
             newPart.partInfo = avPart;
             newPart.highlightRecurse = true;
             newPart.SetMirror(Vector3.one);
@@ -532,7 +532,7 @@ namespace KAS
             v.Initialize(false);
             v.Landed = true;
             v.rootPart.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
-            v.rootPart.missionID = (uint)Guid.NewGuid().GetHashCode();
+            v.rootPart.missionID = flagFromPart.missionID;
             v.rootPart.flagURL = flagFromPart.flagURL;
 
             //v.rootPart.collider.isTrigger = true;
