@@ -606,7 +606,12 @@ namespace KAS
 
                 node.AddNode(module);
 
-                if (name.StartsWith("KASModule"))
+                if (name == "KASModuleContainer")
+                {
+                    // Containers get to keep their contents
+                    module.RemoveNodes("EVENTS");
+                }
+                else if (name.StartsWith("KASModule"))
                 {
                     // Prune the state of the KAS modules completely
                     module.ClearData();
