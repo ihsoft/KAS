@@ -135,18 +135,26 @@ namespace KAS
             if (attachMode.Docked)
             {
                 Part dockedPart = KAS_Shared.GetPartByID(this.vessel.id.ToString(), dockedPartID);
-                if (dockedPart)
+                if (dockedPart && (dockedPart == part.parent || dockedPart.parent == part))
                 {
                     KASModuleAttachCore dockedAttachModuleTmp = dockedPart.GetComponent<KASModuleAttachCore>();
-                    if (dockedAttachModuleTmp)
-                    {
-                        KAS_Shared.DebugLog("OnLoad(Core) Re-set docking on " + dockedAttachModuleTmp.part.partInfo.title);
-                        AttachDocked(dockedAttachModuleTmp);
-                    }
-                    else
+                    if (dockedAttachModuleTmp == null)
                     {
                         KAS_Shared.DebugError("OnLoad(Core) Unable to get docked module !");
                         attachMode.Docked = false;
+                    }
+                    else if (dockedAttachModuleTmp.attachMode.Docked &&
+                             dockedAttachModuleTmp.dockedPartID == part.flightID.ToString() &&
+                             dockedAttachModuleTmp.vesselInfo != null)
+                    {
+                        KAS_Shared.DebugLog("OnLoad(Core) Part already docked to " + dockedAttachModuleTmp.part.partInfo.title);
+                        this.dockedAttachModule = dockedAttachModuleTmp;
+                        dockedAttachModuleTmp.dockedAttachModule = this;
+                    }
+                    else
+                    {
+                        KAS_Shared.DebugLog("OnLoad(Core) Re-set docking on " + dockedAttachModuleTmp.part.partInfo.title);
+                        AttachDocked(dockedAttachModuleTmp);
                     }
                 }
                 else
@@ -301,21 +309,33 @@ namespace KAS
 
         public void AttachDocked(KASModuleAttachCore otherAttachModule, Vessel forceDominant = null)
         {
+            // Don't overwrite vesselInfo on redundant calls
+            if (this.part.vessel == otherAttachModule.part.vessel &&
+                attachMode.Docked && dockedAttachModule == otherAttachModule &&
+                otherAttachModule.attachMode.Docked && otherAttachModule.dockedAttachModule == this &&
+                this.vesselInfo != null && otherAttachModule.vesselInfo != null)
+            {
+                KAS_Shared.DebugWarning("DockTo(Core) Parts already docked, nothing to do at all");
+                return;
+            }
+
             // Save vessel Info
             this.vesselInfo = new DockedVesselInfo();
             this.vesselInfo.name = this.vessel.vesselName;
             this.vesselInfo.vesselType = this.vessel.vesselType;
             this.vesselInfo.rootPartUId = this.vessel.rootPart.flightID;
             this.dockedAttachModule = otherAttachModule;
+            this.dockedPartID = otherAttachModule.part.flightID.ToString();
 
             otherAttachModule.vesselInfo = new DockedVesselInfo();
             otherAttachModule.vesselInfo.name = otherAttachModule.vessel.vesselName;
             otherAttachModule.vesselInfo.vesselType = otherAttachModule.vessel.vesselType;
             otherAttachModule.vesselInfo.rootPartUId = otherAttachModule.vessel.rootPart.flightID;
             otherAttachModule.dockedAttachModule = this;
+            otherAttachModule.dockedPartID = this.part.flightID.ToString();
 
             // Set reference
-            attachMode.Docked = true;
+            attachMode.Docked = otherAttachModule.attachMode.Docked = true;
 
             // Stop if already docked
             if (otherAttachModule.part.parent == this.part || this.part.parent == otherAttachModule.part)
@@ -429,8 +449,14 @@ namespace KAS
                     KAS_Shared.DebugLog("Detach(Base) Undocking " + this.part.partInfo.title + " from " + this.vessel.vesselName);
                     this.part.Undock(this.vesselInfo);
                 }
-                dockedAttachModule.dockedAttachModule = null;
+                if (dockedAttachModule.dockedAttachModule == this)
+                {
+                    dockedAttachModule.dockedAttachModule = null;
+                    dockedAttachModule.dockedPartID = null;
+                    dockedAttachModule.attachMode.Docked = false;
+                }
                 this.dockedAttachModule = null;
+                this.dockedPartID = null;
                 attachMode.Docked = false;
             }
             // Coupled

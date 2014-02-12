@@ -131,7 +131,7 @@ namespace KAS
             }
 
             // Reset link if docked
-            if (attachMode.Docked)
+            if (attachMode.Docked && !linked)
             {
                 KAS_Shared.DebugLog("OnStart(strut) Docked strut detected from save, relinking...");
                 KASModuleStrut linkedStrutModuleSavedD = dockedAttachModule.GetComponent<KASModuleStrut>();
