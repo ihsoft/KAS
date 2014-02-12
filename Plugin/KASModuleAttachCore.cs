@@ -223,6 +223,21 @@ namespace KAS
             }
         }
 
+        protected virtual void OnPartDie()
+        {
+            if (attachMode.Docked)
+            {
+                if (dockedAttachModule && dockedAttachModule.dockedAttachModule == this)
+                {
+                    dockedAttachModule.attachMode.Docked = false;
+                    dockedAttachModule.dockedAttachModule = null;
+                }
+
+                attachMode.Docked = false;
+                dockedAttachModule = null;
+            }
+        }
+
         private void SetCreateJointOnUnpack(bool newval)
         {
             if (FixedAttach.createJointOnUnpack != newval)

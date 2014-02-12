@@ -166,6 +166,12 @@ namespace KAS
 
         void UpdateTube()
         {
+            if (!srcNode || !tgtNode)
+            {
+                UnLoad();
+                return;
+            }
+
             Vector3 tmpSrcNode = new Vector3(0f, 0f, 0f);
             if (srcJointType == tubeJointType.ShiftedAndRounded || srcJointType == tubeJointType.Joined)
             {

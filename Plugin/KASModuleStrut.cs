@@ -221,6 +221,16 @@ namespace KAS
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
         }
 
+        protected override void OnPartDie()
+        {
+            base.OnPartDie();
+
+            if (linked)
+            {
+                Unlink();
+            }
+        }
+
         protected override void OnJointBreak(float breakForce)
         {
             KAS_Shared.DebugWarning("OnJointBreak(Strut) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);

@@ -496,6 +496,22 @@ namespace KAS
             GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
+        protected override void OnPartDie()
+        {
+            base.OnPartDie();
+
+            if (evaHolderPart)
+            {
+                DropHead();
+            }
+            else
+            {
+                UnplugHead(false);
+            }
+
+            SetHeadToPhysic(false);
+        }
+
         public override void OnUpdate()
         {
             base.OnUpdate();
