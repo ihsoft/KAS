@@ -625,6 +625,28 @@ namespace KAS
             return node;
         }
 
+        public struct RigidbodyInertia
+        {
+            public float mass;
+            public Vector3 CoM, tensor;
+            public Quaternion tensorRotation;
+
+            public RigidbodyInertia(Rigidbody rb)
+            {
+                mass = rb.mass;
+                CoM = rb.centerOfMass;
+                tensor = rb.inertiaTensor;
+                tensorRotation = rb.inertiaTensorRotation;
+            }
+            public void Restore(Rigidbody rb)
+            {
+                rb.mass = mass;
+                rb.centerOfMass = CoM;
+                rb.inertiaTensor = tensor;
+                rb.inertiaTensorRotation = tensorRotation;
+            }
+        }
+
         public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
         {
             ConfigNode node_copy = new ConfigNode();
@@ -649,6 +671,9 @@ namespace KAS
             snapshot.connected = true;
             snapshot.flagURL = vessel.rootPart.flagURL;
 
+            // Save properties that may be messed up by new colliders
+            RigidbodyInertia rb_backup = new RigidbodyInertia(vessel.rootPart.rb);
+
             Part new_part = snapshot.Load(vessel, false);
 
             vessel.Parts.Add(new_part);
@@ -659,13 +684,45 @@ namespace KAS
             }
             else
             {
-                new_part.StartCoroutine(WaitAndUnpack(new_part));
+                // Request initialization as nonphysical to prevent explosions
+                new_part.physicalSignificance = Part.PhysicalSignificance.NONE;
+
+                // Disable all sub-objects with colliders
+                List<Collider> re_enable = new List<Collider>();
+
+                foreach (var collider in new_part.GetComponentsInChildren<Collider>())
+                {
+                    if (collider.gameObject.activeSelf)
+                    {
+                        re_enable.Add(collider);
+                        collider.gameObject.SetActive(false);
+                    }
+                }
+
+                new_part.StartCoroutine(WaitAndUnpack(new_part, re_enable));
             }
+
+            rb_backup.Restore(vessel.rootPart.rb);
 
             return new_part;
         }
 
-        private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part)
+        private static void FinishDelayedCreation(Part part, List<Collider> re_enable)
+        {
+            // Dissociate from parent and restore colliders
+            part.transform.parent = null;
+
+            foreach (var collider in re_enable)
+            {
+                collider.gameObject.SetActive(true);
+            }
+
+            // Create the rigid body
+            part.PromoteToPhysicalPart();
+            part.rb.mass = part.mass + part.GetResourceMass();
+        }
+
+        private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part, List<Collider> re_enable)
         {
             while (!part.started && part.State != PartStates.DEAD)
             {
@@ -674,6 +731,8 @@ namespace KAS
 
             if (part.vessel && part.State != PartStates.DEAD)
             {
+                FinishDelayedCreation(part, re_enable);
+
                 if (part.packed && !part.vessel.packed)
                 {
                     part.Unpack();

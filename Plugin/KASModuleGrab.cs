@@ -217,6 +217,11 @@ namespace KAS
 
             KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
 
+            if (this.part.vessel == kerbalEvaVessel)
+            {
+                this.part.UpdateOrgPosAndRot(kerbalEvaVessel.rootPart);
+            }
+
             return true;
         }
 
