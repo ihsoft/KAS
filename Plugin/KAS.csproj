@@ -36,6 +36,7 @@
     <Reference Include="UnityEngine" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
     <Compile Include="KASAddonPointer.cs" />
