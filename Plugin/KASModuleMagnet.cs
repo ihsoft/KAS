@@ -87,8 +87,9 @@ namespace KAS
             UpdateMagnet();
         }
 
-        void OnJointBreak(float breakForce)
+        protected override void OnJointBreak(float breakForce)
         {
+            base.OnJointBreak(breakForce);
             KAS_Shared.DebugWarning("A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             KAS_Shared.DebugWarning("Disable magnet...");
             MagnetActive = false;

@@ -63,7 +63,7 @@ namespace KAS
         public void ContextMenuStore()
         {
             KASModuleGrab moduleEvaGrab = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-            if (!moduleEvaGrab)
+            if (!moduleEvaGrab || moduleEvaGrab.part.packed)
             {
                 ScreenMessages.PostScreenMessage("You need to grab a part before", 2, ScreenMessageStyle.UPPER_CENTER);
                 KAS_Shared.DebugWarning("ContextMenuStore - GetGrabbedPartModule return null !");

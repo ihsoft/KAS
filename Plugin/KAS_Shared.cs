@@ -126,18 +126,25 @@ namespace KAS
 
         public static void AddNodeTransform(Part p, AttachNode attachNode)
         {
+            Quaternion rotation = Quaternion.LookRotation(attachNode.orientation, Vector3.up);
+
+            if (attachNode.nodeType == AttachNode.NodeType.Surface)
+            {
+                rotation = Quaternion.Inverse(rotation);
+            }
+
             if (attachNode.nodeTransform == null)
             {
                 Transform nodeTransform = new GameObject("KASNodeTransf").transform;
                 nodeTransform.parent = p.transform;
                 nodeTransform.localPosition = attachNode.position;
-                nodeTransform.rotation = KAS_Shared.DirectionToQuaternion(p.transform, attachNode.orientation);
+                nodeTransform.localRotation = rotation;
                 attachNode.nodeTransform = nodeTransform;
             }
             else
             {
                 attachNode.nodeTransform.localPosition = attachNode.position;
-                attachNode.nodeTransform.rotation = KAS_Shared.DirectionToQuaternion(p.transform, attachNode.orientation);
+                attachNode.nodeTransform.localRotation = rotation;
                 KAS_Shared.DebugLog("AddTransformToAttachNode - Node : " + attachNode.id + " already have a nodeTransform, only update");
             }
         }
@@ -166,7 +173,7 @@ namespace KAS
             return Quaternion.LookRotation(nodeDir, refDir);
         }
 
-        public static void MoveAlign(Transform source, Transform childNode, RaycastHit hit)
+        public static void MoveAlign(Transform source, Transform childNode, RaycastHit hit, Quaternion adjust)
         {
             Vector3 refDirection = Vector3.up;
             Vector3 alterDirection = Vector3.forward;
@@ -188,7 +195,7 @@ namespace KAS
                 rotation = Quaternion.LookRotation(hit.normal, refDir);
             }
 
-            MoveAlign(source, childNode, hit.point, rotation);
+            MoveAlign(source, childNode, hit.point, rotation * adjust);
         }
 
         public static void MoveAlign(Transform source, Transform childNode, Transform target)
@@ -198,23 +205,7 @@ namespace KAS
 
         public static void MoveAlign(Transform source, Transform childNode, Vector3 targetPos, Quaternion targetRot)
         {
-            Vector3 nodeDir = source.InverseTransformDirection(childNode.forward);
-
-            //down (0.0, -1.0, 0.0) | up (0.0, 1.0, 0.0)                    // Exemple : pipe (0.0, -1.0, 0.0) 
-            if (nodeDir == Vector3.down || nodeDir == Vector3.up)
-            {
-                source.rotation = targetRot * (childNode.localRotation * Quaternion.AngleAxis(180, Vector3.forward));
-            }
-            //back (0.0, 0.0, -1.0) | forward (0.0, 0.0, 1.0)               // Exemple : radial engine (0.0, 0.0, -1.0)   
-            if (nodeDir == Vector3.back || nodeDir == Vector3.forward)
-            {
-                source.rotation = targetRot * (childNode.localRotation);
-            }
-            //left (-1.0, 0.0, 0.0) | right (1.0, 0.0, 0.0)                 // Exemple : solar panel (1.0, 0.0, 0.0)  
-            if (nodeDir == Vector3.left || nodeDir == Vector3.right)
-            {
-                source.rotation = targetRot * (childNode.localRotation);
-            }
+            source.rotation = targetRot * Quaternion.Inverse(childNode.localRotation);
             source.position = source.position - (childNode.position - targetPos);
         }
 
@@ -261,6 +252,19 @@ namespace KAS
             FlightGlobals.removePhysicalObject(transf.gameObject);
             UnityEngine.Object.Destroy(transf.rigidbody);
             transf.parent = p.transform;
+        }
+
+        public static void ResetCollisionEnhancer(Part p, bool create_new = true)
+        {
+            if (p.collisionEnhancer)
+            {
+                UnityEngine.Object.DestroyImmediate(p.collisionEnhancer);
+            }
+
+            if (create_new)
+            {
+                p.collisionEnhancer = p.gameObject.AddComponent<CollisionEnhancer>();
+            }
         }
 
         public static List<KASModuleWinch> GetAllWinch(Vessel fromVessel = null)
@@ -508,9 +512,10 @@ namespace KAS
 
             Part newPart = (Part)obj;
             newPart.gameObject.SetActive(true);
-            newPart.gameObject.name = "KASCreatedPart";
+            newPart.gameObject.name = avPart.name;
             newPart.partInfo = avPart;
             newPart.highlightRecurse = true;
+            newPart.SetMirror(Vector3.one);
 
             ShipConstruct newShip = new ShipConstruct();
             newShip.Add(newPart);
@@ -527,13 +532,10 @@ namespace KAS
             v.Initialize(false);
             v.Landed = true;
             v.rootPart.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
-            v.rootPart.missionID = (uint)Guid.NewGuid().GetHashCode();
+            v.rootPart.missionID = flagFromPart.missionID;
             v.rootPart.flagURL = flagFromPart.flagURL;
 
             //v.rootPart.collider.isTrigger = true;
-
-            v.rootPart.FindModelTransform("model").localScale *= v.rootPart.rescaleFactor;
-
 
             //v.landedAt = "somewhere";
                         
@@ -546,7 +548,200 @@ namespace KAS
 
             v.SetPosition(position);
             v.SetRotation(rotation);
+
+            // Solar panels from containers don't work otherwise
+            for (int i = 0; i < newPart.Modules.Count; i++)
+            {
+                ConfigNode node = new ConfigNode();
+                node.AddValue("name", newPart.Modules[i].moduleName);
+                newPart.LoadModule(node, i);
+            }
+
             return newPart;
+        }
+
+        public static ConfigNode SavePartSnapshot(Part part)
+        {
+            // Seems fine with a null vessel in 0.23 if some empty lists are allocated below
+            ProtoPartSnapshot snapshot = new ProtoPartSnapshot(part, null);
+
+            ConfigNode node = new ConfigNode("CONTENT_PART");
+
+            snapshot.attachNodes = new List<AttachNodeSnapshot>();
+            snapshot.srfAttachNode = new AttachNodeSnapshot("attach,-1");
+            snapshot.symLinks = new List<ProtoPartSnapshot>();
+            snapshot.symLinkIdxs = new List<int>();
+
+            snapshot.Save(node);
+
+            node.AddValue("kas_total_mass", part.mass+part.GetResourceMass());
+
+            // Prune unimportant data
+            node.RemoveValues("parent");
+            node.RemoveValues("position");
+            node.RemoveValues("rotation");
+            node.RemoveValues("istg");
+            node.RemoveValues("dstg");
+            node.RemoveValues("sqor");
+            node.RemoveValues("sidx");
+            node.RemoveValues("attm");
+            node.RemoveValues("srfN");
+            node.RemoveValues("attN");
+            node.RemoveValues("connected");
+            node.RemoveValues("attached");
+            node.RemoveValues("flag");
+
+            node.RemoveNodes("ACTIONS");
+
+            // Remove modules that are not in prefab since they won't load anyway
+            var module_nodes = node.GetNodes("MODULE");
+            var prefab_modules = part.partInfo.partPrefab.GetComponents<PartModule>();
+
+            node.RemoveNodes("MODULE");
+
+            for (int i = 0; i < prefab_modules.Length && i < module_nodes.Length; i++)
+            {
+                var module = module_nodes[i];
+                var name = module.GetValue("name") ?? "";
+
+                node.AddNode(module);
+
+                if (name == "KASModuleContainer")
+                {
+                    // Containers get to keep their contents
+                    module.RemoveNodes("EVENTS");
+                }
+                else if (name.StartsWith("KASModule"))
+                {
+                    // Prune the state of the KAS modules completely
+                    module.ClearData();
+                    module.AddValue("name", name);
+                    continue;
+                }
+
+                module.RemoveNodes("ACTIONS");
+            }
+
+            return node;
+        }
+
+        public struct RigidbodyInertia
+        {
+            public float mass;
+            public Vector3 CoM, tensor;
+            public Quaternion tensorRotation;
+
+            public RigidbodyInertia(Rigidbody rb)
+            {
+                mass = rb.mass;
+                CoM = rb.centerOfMass;
+                tensor = rb.inertiaTensor;
+                tensorRotation = rb.inertiaTensorRotation;
+            }
+            public void Restore(Rigidbody rb)
+            {
+                rb.mass = mass;
+                rb.centerOfMass = CoM;
+                rb.inertiaTensor = tensor;
+                rb.inertiaTensorRotation = tensorRotation;
+            }
+        }
+
+        public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
+        {
+            ConfigNode node_copy = new ConfigNode();
+            node.CopyTo(node_copy);
+
+            node_copy.RemoveValues("kas_total_mass");
+
+            ProtoPartSnapshot snapshot = new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
+
+            if (HighLogic.CurrentGame.flightState.ContainsFlightID(snapshot.flightID))
+                snapshot.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
+
+            snapshot.parentIdx = 0;
+            snapshot.position = position;
+            snapshot.rotation = rotation;
+            snapshot.stageIndex = 0;
+            snapshot.defaultInverseStage = 0;
+            snapshot.seqOverride = -1;
+            snapshot.inStageIndex = -1;
+            snapshot.attachMode = (int)AttachModes.SRF_ATTACH;
+            snapshot.attached = true;
+            snapshot.connected = true;
+            snapshot.flagURL = vessel.rootPart.flagURL;
+
+            // Save properties that may be messed up by new colliders
+            RigidbodyInertia rb_backup = new RigidbodyInertia(vessel.rootPart.rb);
+
+            Part new_part = snapshot.Load(vessel, false);
+
+            vessel.Parts.Add(new_part);
+
+            if (vessel.packed)
+            {
+                GameEvents.onVesselWasModified.Fire(vessel);
+            }
+            else
+            {
+                // Request initialization as nonphysical to prevent explosions
+                new_part.physicalSignificance = Part.PhysicalSignificance.NONE;
+
+                // Disable all sub-objects with colliders
+                List<Collider> re_enable = new List<Collider>();
+
+                foreach (var collider in new_part.GetComponentsInChildren<Collider>())
+                {
+                    if (collider.gameObject.activeSelf)
+                    {
+                        re_enable.Add(collider);
+                        collider.gameObject.SetActive(false);
+                    }
+                }
+
+                new_part.StartCoroutine(WaitAndUnpack(new_part, re_enable));
+            }
+
+            rb_backup.Restore(vessel.rootPart.rb);
+
+            return new_part;
+        }
+
+        private static void FinishDelayedCreation(Part part, List<Collider> re_enable)
+        {
+            // Dissociate from parent and restore colliders
+            part.transform.parent = null;
+
+            foreach (var collider in re_enable)
+            {
+                collider.gameObject.SetActive(true);
+            }
+
+            // Create the rigid body
+            part.PromoteToPhysicalPart();
+            part.rb.mass = part.mass + part.GetResourceMass();
+        }
+
+        private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part, List<Collider> re_enable)
+        {
+            while (!part.started && part.State != PartStates.DEAD)
+            {
+                yield return null;
+            }
+
+            if (part.vessel && part.State != PartStates.DEAD)
+            {
+                FinishDelayedCreation(part, re_enable);
+
+                if (part.packed && !part.vessel.packed)
+                {
+                    part.Unpack();
+                    part.InitializeModules();
+                    part.ResumeVelocity();
+                }
+
+                GameEvents.onVesselWasModified.Fire(part.vessel);
+            }
         }
 
         public static ConfigNode GetBaseConfigNode(PartModule partModule)
@@ -587,6 +782,18 @@ namespace KAS
             foreach (Part vp in vess.parts)
             {
                 Physics.IgnoreCollision(col, vp.collider, true);
+            }
+        }
+
+        public static void RemoveAttachJointBetween(Part part1, Part part2)
+        {
+            if (part1.attachJoint && part1.attachJoint.connectedBody == part2.rigidbody)
+            {
+                UnityEngine.Object.Destroy(part1.attachJoint);
+            }
+            if (part2.attachJoint && part2.attachJoint.connectedBody == part1.rigidbody)
+            {
+                UnityEngine.Object.Destroy(part2.attachJoint);
             }
         }
 
