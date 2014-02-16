@@ -59,6 +59,18 @@ namespace KAS
                 KAS_Shared.DebugError("Awake(AttachPointer) Bip wrong sound not found in the game database !");
                 ScreenMessages.PostScreenMessage("Sound file : " + bipWrongSndPath + " as not been found, please check your KAS installation !", 10, ScreenMessageStyle.UPPER_CENTER);
             }
+
+            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(this.OnVesselChange));
+        }
+
+        void OnDestroy()
+        {
+            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(this.OnVesselChange));
+        }
+
+        void OnVesselChange(Vessel vesselChange)
+        {
+            if (KASAddonPointer.isRunning) KASAddonPointer.StopPointer();
         }
 
         public static void StartPointer(Part partToMoveAndAttach, PointerMode mode, bool partIsValid, bool evaIsValid, bool staticIsValid, float maxDistance, Transform from, bool sendMsgOnly)
@@ -134,7 +146,7 @@ namespace KAS
                 pointerNodeTransform = new GameObject("KASPointerPartNode").transform;
                 pointerNodeTransform.parent = pointer.transform;
                 pointerNodeTransform.localPosition = partToAttach.srfAttachNode.position;
-                pointerNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(pointer.transform, partToAttach.srfAttachNode.orientation);
+                pointerNodeTransform.localRotation = Quaternion.Inverse(Quaternion.LookRotation(partToAttach.srfAttachNode.orientation, Vector3.up));
                 }
 
             //Set default color
@@ -174,17 +186,28 @@ namespace KAS
             foreach (MeshRenderer mr in allModelMr) mr.material.color = color;
 
             //Rotation keys
+            Vector3 delta = new Vector3(0,0,1);
+
+            if (Input.GetKey(KeyCode.LeftAlt))
+            {
+                delta = new Vector3(1,0,0);
+            }
+            else if (Input.GetKey(KeyCode.RightAlt))
+            {
+                delta = new Vector3(0,-1,0);
+            }
+
             if (Input.GetKeyDown(KASAddonControlKey.rotateLeftKey.ToLower()))
             {
-                RotatePointer(-15);
+                customRot -= delta * 15;
             }
             if (Input.GetKeyDown(KASAddonControlKey.rotateRightKey.ToLower()))
             {
-                RotatePointer(+15);
+                customRot += delta * 15;
             }
 
-            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit);
-            pointer.transform.rotation *= Quaternion.Euler(customRot);
+            Quaternion rotAdjust = Quaternion.Euler(0,0,customRot.z) * Quaternion.Euler(customRot.x,customRot.y,0);
+            KAS_Shared.MoveAlign(pointer.transform, pointerNodeTransform, hit, rotAdjust);
             
             //Attach on click
             if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -239,6 +262,8 @@ namespace KAS
                         //Set cable lenght to real lenght
                         connectedWinch.cableJointLength = connectedWinch.cableRealLenght;                    
                     }
+
+                    KAS_Shared.ResetCollisionEnhancer(partToAttach);
 
                     if (msgOnly)
                     {
@@ -343,6 +368,7 @@ namespace KAS
                     KAS_Shared.DebugWarning("UpdatePointer(Pointer) No grab module found, part cannot be attached on static");
                 }
             }
+            KAS_Shared.ResetCollisionEnhancer(partToAttach);
         }
 
         private IEnumerator WaitAndSendMsg(Part partToAttach, Vector3 position, Quaternion rotation, Part toPart = null)
@@ -373,21 +399,7 @@ namespace KAS
 
         private static void RotatePointer(float dist)
         {
-            //left (-1.0, 0.0, 0.0) | right (1.0, 0.0, 0.0)   
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.left || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.right)
-            {
-                customRot.Set(customRot.x + dist, customRot.y, customRot.z);
-            }
-            //down (0.0, -1.0, 0.0) | up (0.0, 1.0, 0.0)
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.down || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.up)
-            {
-                customRot.Set(customRot.x, customRot.y + dist, customRot.z);
-            }
-            //back (0.0, 0.0, -1.0) | forward (0.0, 0.0, 1.0)
-            if (Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.back || Vector3.Normalize(partToAttach.srfAttachNode.orientation) == Vector3.forward)
-            {
-                customRot.Set(customRot.x, customRot.y, customRot.z + dist);
-            }
+            customRot.Set(customRot.x, customRot.y, customRot.z + dist);
             //battery orientation, illuminator (0.0, 0.0, -1.0) orient nok rotate nok
             //radial cport/pipe/strut/round rcs orientation (0.0, -1.3, 0.0) orient ok rotate ok
             //telus bay / rover  orientation (1.0, 0.0, 0.0) orient ok rotate nok

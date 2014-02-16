@@ -59,13 +59,17 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndDetach, detachSndPath, false);
         }
 
-        public void OnPartUnpack()
+        public override void OnPartUnpack()
         {
+            base.OnPartUnpack();
+
             this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
-        public void OnPartPack()
+        public override void OnPartPack()
         {
+            base.OnPartPack();
+
             this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 

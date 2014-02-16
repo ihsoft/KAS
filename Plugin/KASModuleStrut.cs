@@ -131,7 +131,7 @@ namespace KAS
             }
 
             // Reset link if docked
-            if (attachMode.Docked)
+            if (attachMode.Docked && !linked)
             {
                 KAS_Shared.DebugLog("OnStart(strut) Docked strut detected from save, relinking...");
                 KASModuleStrut linkedStrutModuleSavedD = dockedAttachModule.GetComponent<KASModuleStrut>();
@@ -185,10 +185,10 @@ namespace KAS
                 {
                     if (allowDock)
                     {
-                        KAS_Shared.DebugWarning("OnVesselWasModified(strut) Source and target vessel are different, docking strut... (allowDock = true)");
-                        KASModuleStrut tmpLinkedStrutMod = linkedStrutModule;
-                        Unlink();
-                        LinkTo(tmpLinkedStrutMod, false);
+                        KAS_Shared.DebugWarning("OnVesselWasModified(strut) Source and target vessel are different, postponing docking strut... (allowDock = true)");
+                        // This callback is invoked while the vessel is being
+                        // modified, so any further changes must be postponed.
+                        StartCoroutine(WaitAndRedock());
                     }
                     else
                     {
@@ -200,16 +200,43 @@ namespace KAS
             }        
         }
 
-        void OnDestroy()
+        private IEnumerator<YieldInstruction> WaitAndRedock()
         {
+            yield return null;
+
+            // If still ok, we can redock now
+            if (part && vessel && linked && linkedStrutModule.vessel != this.vessel && allowDock)
+            {
+                KAS_Shared.DebugWarning("WaitAndRedock(strut) Source and target vessel are different, docking strut... (allowDock = true)");
+                KASModuleStrut tmpLinkedStrutMod = linkedStrutModule;
+                Unlink();
+                LinkTo(tmpLinkedStrutMod, false);
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
         }
 
-        void OnJointBreak(float breakForce)
+        protected override void OnPartDie()
+        {
+            base.OnPartDie();
+
+            if (linked)
+            {
+                Unlink();
+            }
+        }
+
+        protected override void OnJointBreak(float breakForce)
         {
             KAS_Shared.DebugWarning("OnJointBreak(Strut) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             Unlink();
             fxSndBroke.audio.Play();
+            base.OnJointBreak(breakForce);
         }
 
         public void OnPartGrab(Vessel kerbalEvaVessel)

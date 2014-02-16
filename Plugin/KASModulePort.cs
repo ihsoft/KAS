@@ -56,6 +56,16 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndUnplugDocked, unplugDockedSndPath, false);   
         }
 
+        protected override void OnPartDie()
+        {
+            base.OnPartDie();
+
+            if (winchConnected)
+            {
+                winchConnected.UnplugHead(false);
+            }
+        }
+
         public void TurnLeft()
         {
             Vector3 force = portNode.TransformDirection(Vector3.forward) * rotateForce;

@@ -20,6 +20,7 @@ namespace KAS
         [KSPField] public bool physicJoint = false;
         [KSPField] public string evaTransformName = "jetpackCollider";
         [KSPField] public bool storable = false;
+        [KSPField] public bool stateless = true;
         [KSPField] public int storedSize = 1;
         [KSPField] public string bayType = null;
         [KSPField] public string bayNode  = "top";
@@ -52,6 +53,8 @@ namespace KAS
         private Transform evaNodeTransform;
         private AttachNode partNode;
         private FixedJoint evaJoint;
+        private List<Collider> keepTriggers;
+        private bool grab_pending = false;
 
 
         public override string GetInfo()
@@ -95,15 +98,7 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndAttachPart, attachPartSndPath, false);
             KAS_Shared.createFXSound(this.part, fxSndDetach, detachSndPath, false);
             KAS_Shared.createFXSound(this.part, fxSndAttachStatic, attachStaticSndPath, false);
-            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
-            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(this.OnVesselChange));
             RefreshContextMenu();
-        }
-
-
-        void OnVesselChange(Vessel vesselChange)
-        {
-            if (KASAddonPointer.isRunning) KASAddonPointer.StopPointer();
         }
 
         void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)
@@ -115,14 +110,20 @@ namespace KAS
             }
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
-            GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
-            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(this.OnVesselChange));
+            base.OnDestroy();
+
+            if (grabbed)
+            {
+                GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+            }
         }
 
-        public void OnPartUnpack()
+        public override void OnPartUnpack()
         {
+            base.OnPartUnpack();
+
             if (grabbed)
             {
                 if (!evaHolderPart)
@@ -137,11 +138,18 @@ namespace KAS
                         }
                         else
                         {
+                            GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
                             evaHolderVesselName = null;
                             evaHolderPart = null;
                             grabbed = false;
                         }
                     }
+                }
+                else if (grab_pending)
+                {
+                    grabbed = false;
+                    Grab(this.vessel);
+                    grab_pending = false;
                 }
                 else
                 {
@@ -150,16 +158,14 @@ namespace KAS
             }
         }
 
-        public void Grab(Vessel kerbalEvaVessel)
+        private bool AlignEvaPosition(Vessel kerbalEvaVessel)
         {
-            KAS_Shared.DebugLog("Grab - Grabbing part :" + this.part.partInfo.name);
-
             //Get eva transform
             evaCollider = KAS_Shared.GetEvaCollider(kerbalEvaVessel, evaTransformName);
             if (!evaCollider)
             {
                 KAS_Shared.DebugLog("Grab - " + evaTransformName + "transform not found on eva !");
-                return;
+                return false;
             }
 
             //Get attach node
@@ -168,7 +174,7 @@ namespace KAS
                 if (this.part.srfAttachNode == null)
                 {
                     KAS_Shared.DebugLog("Grab - surface attach node cannot be found on the part !");
-                    return;
+                    return false;
                 }
                 KAS_Shared.AddNodeTransform(this.part, this.part.srfAttachNode);
                 partNode = this.part.srfAttachNode;
@@ -179,7 +185,7 @@ namespace KAS
                 if (an == null)
                 {
                     KAS_Shared.DebugLog("Grab - " + attachNodeName + " node cannot be found on the part !");
-                    return;
+                    return false;
                 }
                 KAS_Shared.AddNodeTransform(this.part, an);
                 partNode = an;
@@ -192,16 +198,57 @@ namespace KAS
             KASModuleGrab tmpGrabbbedPartModule = KAS_Shared.GetGrabbedPartModule(kerbalEvaVessel);
             if (tmpGrabbbedPartModule)
             {
+                if (tmpGrabbbedPartModule.part.packed)
+                {
+                    KAS_Shared.DebugWarning("Grab - cannot drop an incompletely grabbed part!");
+                    return false;
+                }
+
                 KAS_Shared.DebugWarning("Grab - Drop current grabbed part");
                 tmpGrabbbedPartModule.Drop();
             }
  
+            if (evaNodeTransform) Destroy(evaNodeTransform.gameObject);
+
             evaNodeTransform = new GameObject("KASEvaNode").transform;
             evaNodeTransform.parent = evaCollider.transform;
             evaNodeTransform.localPosition = evaPartPos;
             evaNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(evaCollider.transform, evaPartDir);
 
             KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
+
+            if (this.part.vessel == kerbalEvaVessel)
+            {
+                this.part.UpdateOrgPosAndRot(kerbalEvaVessel.rootPart);
+            }
+
+            return true;
+        }
+
+        internal bool GrabPending()
+        {
+            KAS_Shared.DebugLog("GrabPending - Preparing To Grab part :" + this.part.partInfo.name);
+
+            if (!AlignEvaPosition(this.vessel))
+            {
+                return false;
+            }
+
+            evaHolderVesselName = this.vessel.vesselName;
+            evaHolderPart = this.vessel.rootPart;
+            grabbed = grab_pending = true;
+
+            return true;
+        }
+
+        public void Grab(Vessel kerbalEvaVessel)
+        {
+            KAS_Shared.DebugLog("Grab - Grabbing part :" + this.part.partInfo.name);
+
+            if (!AlignEvaPosition(kerbalEvaVessel))
+            {
+                return;
+            }
 
             //Grab winch connected head if any
             KASModuleWinch moduleWinch = KAS_Shared.GetConnectedWinch(this.part);
@@ -212,15 +259,36 @@ namespace KAS
                 moduleWinch.GrabHead(kerbalEvaVessel, modulePort);
             }
 
+            keepTriggers = new List<Collider>();
+
             List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
             foreach (Collider col in allColliders)
             {
+                if (col.isTrigger)
+                {
+                    keepTriggers.Add(col);
+                }
+
                 col.isTrigger = true;
             }
 
             Detach();
-            KAS_Shared.DecoupleFromAll(this.part);
-            this.part.Couple(kerbalEvaVessel.rootPart);
+
+            if (this.part.vessel != kerbalEvaVessel)
+            {
+                KAS_Shared.DecoupleFromAll(this.part);
+                this.part.Couple(kerbalEvaVessel.rootPart);
+            }
+            else
+            {
+                if (this.part.parent != kerbalEvaVessel.rootPart)
+                {
+                    this.part.setParent(null);
+                    this.part.setParent(kerbalEvaVessel.rootPart);
+                }
+                this.part.PromoteToPhysicalPart();
+            }
+
             //Destroy joint to avoid buggy eva move
             Destroy(this.part.attachJoint);
             
@@ -233,12 +301,14 @@ namespace KAS
                 evaJoint.connectedBody = evaCollider.attachedRigidbody;
                 evaJoint.breakForce = 5;
                 evaJoint.breakTorque = 5;
+                KAS_Shared.ResetCollisionEnhancer(this.part);
             }
             else
             {
                 this.part.physicalSignificance = Part.PhysicalSignificance.NONE;
                 this.part.transform.parent = evaNodeTransform;
                 this.part.rigidbody.isKinematic = true;
+                KAS_Shared.ResetCollisionEnhancer(this.part, false);
             }
 
             //Add grabbed part mass to eva
@@ -248,9 +318,12 @@ namespace KAS
                 kerbalEvaVessel.rootPart.mass += this.part.mass;
             }
 
+            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+
             evaHolderVesselName = kerbalEvaVessel.vesselName;
             evaHolderPart = kerbalEvaVessel.rootPart;
             grabbed = true;
+            grab_pending = false;
 
             RefreshContextMenu();
 
@@ -266,9 +339,26 @@ namespace KAS
                 KAS_Shared.DebugLog("Drop - Dropping part :" + this.part.partInfo.name);
                 base.SendMessage("OnPartDrop", SendMessageOptions.DontRequireReceiver);
 
-                if (this.part.vessel.isEVA)
+                if (this.part.rigidbody)
+                {
+                    this.part.transform.parent = null;
+                    this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
+                }
+
+                if (this.part.vessel.isEVA || grab_pending)
                 {
                     this.part.decouple();
+                }
+
+                if (grab_pending)
+                {
+                    Destroy(evaNodeTransform.gameObject);
+                    evaNodeTransform = null;
+                    evaHolderVesselName = null;
+                    evaHolderPart = null;
+                    grabbed = grab_pending = false;
+                    RefreshContextMenu();
+                    return;
                 }
 
                 //Remove created joints between eva and part if exist
@@ -278,7 +368,7 @@ namespace KAS
                 List<Collider> allColliders = new List<Collider>(this.part.GetComponentsInChildren<Collider>() as Collider[]);
                 foreach (Collider col in allColliders)
                 {
-                    col.isTrigger = false;
+                    col.isTrigger = (keepTriggers != null && keepTriggers.Contains(col));
                 }
 
                 if (customGroundPos && evaHolderPart.checkLanded())
@@ -299,6 +389,8 @@ namespace KAS
                 this.part.rigidbody.velocity = evaHolderPart.rigidbody.velocity;
                 this.part.rigidbody.angularVelocity = evaHolderPart.rigidbody.angularVelocity;
 
+                KAS_Shared.ResetCollisionEnhancer(this.part);
+
                 if (addPartMass & !physicJoint) evaHolderPart.mass = orgKerbalMass;
 
                 KASModuleWinch grabbedWinchHead = KAS_Shared.GetWinchModuleGrabbed(evaHolderPart.vessel);
@@ -311,11 +403,14 @@ namespace KAS
                     }
                 }
 
+                GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+
+                keepTriggers = null;
                 evaJoint = null;
                 evaNodeTransform = null;
                 evaHolderVesselName = null;
                 evaHolderPart = null;
-                grabbed = false;
+                grabbed = grab_pending = false;
 
                 RefreshContextMenu();
 
@@ -370,7 +465,10 @@ namespace KAS
         [KSPEvent(name = "ContextMenuDrop", active = true, guiActiveUnfocused = false, guiActive = false, unfocusedRange = 2f, guiName = "Drop")]
         public void ContextMenuDrop()
         {
-            Drop();
+            if (!part.packed)
+            {
+                Drop();
+            }
         }
 
         [KSPEvent(name = "ContextMenuEvaAttach", active = true, guiActiveUnfocused = false, guiActive = false, guiName = "Attach")]

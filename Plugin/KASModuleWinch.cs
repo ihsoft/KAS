@@ -431,6 +431,7 @@ namespace KAS
             KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
             GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
         void OnVesselGoOnRails(Vessel vess)
@@ -466,8 +467,19 @@ namespace KAS
             }
         }
         
-        public void OnPartUnpack()
+        void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)
         {
+            if (evaHolderPart && !grabbedPortModule && fromToAction.from.vessel == evaHolderPart.vessel)
+            {
+                KAS_Shared.DebugLog(fromToAction.from.vessel.vesselName + " boarding " + fromToAction.to.vessel.vesselName + " with a winch head grabbed, dropping it to avoid destruction");
+                DropHead();
+            }
+        }
+
+        public override void OnPartUnpack()
+        {
+            base.OnPartUnpack();
+
             KAS_Shared.DebugLog("OnPartUnpack(Winch)");
             if (headState != PlugState.Locked && headTransform.rigidbody)
             {
@@ -475,10 +487,29 @@ namespace KAS
             }
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
             GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+        }
+
+        protected override void OnPartDie()
+        {
+            base.OnPartDie();
+
+            if (evaHolderPart)
+            {
+                DropHead();
+            }
+            else
+            {
+                UnplugHead(false);
+            }
+
+            SetHeadToPhysic(false);
         }
 
         public override void OnUpdate()
@@ -771,17 +802,7 @@ namespace KAS
             if (nodeConnectedPort)
             {
                 KAS_Shared.DebugLog("Deploy(Winch) - Connected port detected, plug head in docked mode...");
-                KASModulePort tmpPortModule = nodeConnectedPort;
-                if (attachMode.Docked)
-                {
-                    Detach();
-                }
-                else
-                {
-                    if (nodeConnectedPart.parent == this.part) nodeConnectedPart.decouple();
-                    if (this.part.parent == nodeConnectedPart) this.part.decouple();
-                }
-                PlugHead(tmpPortModule, PlugState.PlugDocked);
+                PlugHead(nodeConnectedPort, PlugState.PlugDocked, alreadyDocked:true);
             }
             else
             {
@@ -807,11 +828,21 @@ namespace KAS
             if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
             {
                 KAS_Shared.DebugLog("Lock(Winch) Dock connected port");
+                // Save control state
+                Vessel originalVessel = this.vessel;
+                bool is_active = (FlightGlobals.ActiveVessel == this.vessel);
+                // Decouple and re-dock
                 KASModulePort tmpPortModule = connectedPortInfo.module;
                 UnplugHead(false);
                 KAS_Shared.MoveAlignLight(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
-                AttachDocked(tmpPortModule);
+                AttachDocked(tmpPortModule, originalVessel);
                 nodeConnectedPort = tmpPortModule;
+                // Restore controls and focus
+                if (is_active)
+                {
+                    FlightGlobals.ForceSetActiveVessel(this.vessel);
+                    FlightInputHandler.ResumeVesselCtrlState(this.vessel);
+                }
             }
             SetHeadToPhysic(false);
             this.part.mass = orgWinchMass;
@@ -881,12 +912,13 @@ namespace KAS
 
             SetHeadToPhysic(false);
 
+            grabbedPortModule = grabbedPort;
+
             if (grabbedPort)
             {
                 KAS_Shared.DebugLog("GrabHead(Winch) - Moving head to grabbed port node...");
                 headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -grabbedPort.portNode.forward) * headTransform.rotation;
                 headTransform.position = headTransform.position - (headPortNode.position - grabbedPort.portNode.position);
-                grabbedPortModule = grabbedPort;
             }
             else
             {
@@ -987,22 +1019,26 @@ namespace KAS
             }
         }
 
-        public void PlugHead(KASModulePort portModule, PlugState plugMode, bool fromSave = false, bool fireSound = true)
+        public void PlugHead(KASModulePort portModule, PlugState plugMode, bool fromSave = false, bool fireSound = true, bool alreadyDocked = false)
         {
             if (plugMode == PlugState.Locked || plugMode == PlugState.Deployed) return;
-            if (portModule.strutConnected())
+
+            if (!alreadyDocked)
             {
-                ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
-                return;
-            }
-            if (portModule.plugState == KASModulePort.KASPlugState.PlugDock || portModule.plugState == KASModulePort.KASPlugState.PlugUndock)
-            {
-                ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
-                return;
-            }
-            if (this.part.vessel == portModule.part.vessel && fromSave == false)
-            {
-                plugMode = PlugState.PlugUndocked;
+                if (portModule.strutConnected())
+                {
+                    ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
+                    return;
+                }
+                if (portModule.plugState == KASModulePort.KASPlugState.PlugDock || portModule.plugState == KASModulePort.KASPlugState.PlugUndock)
+                {
+                    ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
+                    return;
+                }
+                if (this.part.vessel == portModule.part.vessel && fromSave == false)
+                {
+                    plugMode = PlugState.PlugUndocked;
+                }
             }
 
             if (!cableJoint) Deploy();
@@ -1017,13 +1053,10 @@ namespace KAS
             if (plugMode == PlugState.PlugDocked)
             {
                 KAS_Shared.DebugLog("PlugHead(Winch) - Plug using docked mode");  
-                //if (!fromSave)
-                //{
-                    AttachDocked(portModule);
-                //}
+                // This should be safe even if already connected
+                AttachDocked(portModule);
                 // Remove joints between connector and winch
-                KAS_Shared.RemoveFixedJointBetween(this.part, portModule.part);
-                KAS_Shared.RemoveHingeJointBetween(this.part, portModule.part);
+                KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
                 //nodeConnectedPort = portModule;
                 if (fireSound) portModule.fxSndPlugDocked.audio.Play();
