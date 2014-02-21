@@ -105,6 +105,11 @@ namespace KAS
 
         public void UpdatePointer()
         {
+            if (running && MapView.MapIsEnabled)
+            {
+                StopPointer();
+            }
+
             if (!running)
             {
                 if (pointer) UnityEngine.Object.Destroy(pointer);

@@ -1425,6 +1425,7 @@ namespace KAS
         {
             if (!this.part.packed)
             {
+                if (!controlActivated || headState == PlugState.Locked) return;
                 if (connectedPortInfo.module)
                 {
                     connectedPortInfo.module.TurnLeft();
@@ -1446,12 +1447,15 @@ namespace KAS
 
         public void EventWinchEject()
         {
-            if (!this.part.packed) Eject();
+            if (!this.part.packed && controlActivated)
+            {
+                Eject();
+            }
         }
 
         public void EventWinchHook()
         {
-            if (this.part.packed) return;
+            if (this.part.packed || !controlActivated) return;
             if (GetHookMagnet())
             {
                 GetHookMagnet().ContextMenuMagnet();
