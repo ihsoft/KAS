@@ -248,7 +248,7 @@ namespace KAS
                     // Drop and detach part if needed
                     if (modulegrab)
                     {
-                        if (modulegrab.grabbed) modulegrab.Drop();
+                        if (modulegrab.grabbed) modulegrab.Drop(true);
                         modulegrab.Detach();
                     }
 
