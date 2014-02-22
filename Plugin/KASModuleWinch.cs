@@ -1094,7 +1094,7 @@ namespace KAS
             portModule.part.transform.parent = null;
 
             headTransform.parent = portModule.part.transform;
-            cableJointLength = cableRealLenght;
+            cableJointLength = cableRealLenght + 0.01f;
 
             // Set variables
             connectedPortInfo.module = portModule;
