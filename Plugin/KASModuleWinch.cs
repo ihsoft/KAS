@@ -398,6 +398,30 @@ namespace KAS
             // Get saved port module if any
             if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
             {
+                StartCoroutine(WaitAndLoadConnection());
+            }
+
+            if (headState != PlugState.Locked)
+            {
+                KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headCurrentLocalPos, headCurrentLocalRot);
+                SetTubeRenderer(true);
+            }
+
+            motorSpeedSetting = motorMaxSpeed / 2;
+
+            KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
+            GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
+            GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+        }
+
+        IEnumerator WaitAndLoadConnection()
+        {
+            yield return new WaitForEndOfFrame();
+
+            // Get saved port module if any
+            if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
+            {
                 KAS_Shared.DebugLog("OnStart(Winch) Retrieve part with ID : " + connectedPortInfo.savedPartID + " | From vessel ID : " + connectedPortInfo.savedVesselID);
                 Part connectedPartSaved = KAS_Shared.GetPartByID(connectedPortInfo.savedVesselID, connectedPortInfo.savedPartID);
                 if (connectedPartSaved)
@@ -419,19 +443,6 @@ namespace KAS
                     headState = PlugState.Locked;
                 }
             }
-        
-            if (headState != PlugState.Locked)
-            {
-                KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headCurrentLocalPos, headCurrentLocalRot);
-                SetTubeRenderer(true);
-            }
-
-            motorSpeedSetting = motorMaxSpeed / 2;
-
-            KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
-            GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-            GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
-            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
         void OnVesselGoOnRails(Vessel vess)
@@ -441,7 +452,11 @@ namespace KAS
 
         void OnVesselGoOffRails(Vessel vess)
         {
-            if (vess != this.vessel) return;
+            if (!fromSave || vessel.packed || (connectedPortInfo.module && connectedPortInfo.module.vessel.packed))
+            {
+                return;
+            }
+
             // From save
             if (headState == PlugState.Deployed && fromSave)
             {
@@ -465,6 +480,9 @@ namespace KAS
                 PlugHead(connectedPortInfo.module, PlugState.PlugDocked, true, false);
                 fromSave = false;
             }
+
+            // Just in case
+            fromSave = false;
         }
         
         void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)

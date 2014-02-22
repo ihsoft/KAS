@@ -1017,21 +1017,27 @@ namespace KAS
                     KAS_Shared.DebugWarning("GetPartByID - Searched vessel are not loaded, loading it...");
                     searchVessel.Load();
                 }
-                Part searchedPart = searchVessel.Parts.Find(p => p.flightID.ToString() == partID);
-                if (searchedPart)
-                {
-                    return searchedPart;
-                }
-                else
-                {
-                    KAS_Shared.DebugError("GetPartByID - Searched part not found !");
-                }
+                return GetPartByID(searchVessel, partID);
             }
             else
             {
                 KAS_Shared.DebugError("GetPartByID - Searched vessel not found !");
             }
             return null;
+        }
+
+        public static Part GetPartByID(Vessel searchVessel, string partID)
+        {
+            Part searchedPart = searchVessel.Parts.Find(p => p.flightID.ToString() == partID);
+            if (searchedPart)
+            {
+                return searchedPart;
+            }
+            else
+            {
+                KAS_Shared.DebugError("GetPartByID - Searched part not found !");
+                return null;
+            }
         }
 
         public static KASModuleWinch GetConnectedWinch(Part p)

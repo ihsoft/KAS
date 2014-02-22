@@ -122,14 +122,6 @@ namespace KAS
                     break;
             }
 
-            // Reset link if a fixed joint exist
-            if (attachMode.FixedJoint)
-            {
-                KAS_Shared.DebugLog("OnStart(strut) Docked / fixed joint detected from save, relinking...");
-                KASModuleStrut linkedStrutModuleSavedF = FixedAttach.connectedPart.GetComponent<KASModuleStrut>();
-                LinkTo(linkedStrutModuleSavedF, false, true);
-            }
-
             // Reset link if docked
             if (attachMode.Docked && !linked)
             {
@@ -140,6 +132,19 @@ namespace KAS
 
             // Loading onVesselWasModified KSP event
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
+        }
+
+        protected override void InitFixedAttach()
+        {
+            base.InitFixedAttach();
+
+            // Reset link if a fixed joint exist
+            if (attachMode.FixedJoint)
+            {
+                KAS_Shared.DebugLog("OnStart(strut) Docked / fixed joint detected from save, relinking...");
+                KASModuleStrut linkedStrutModuleSavedF = FixedAttach.connectedPart.GetComponent<KASModuleStrut>();
+                LinkTo(linkedStrutModuleSavedF, false, true);
+            }
         }
 
         public override void OnUpdate()

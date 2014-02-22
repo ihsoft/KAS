@@ -134,7 +134,7 @@ namespace KAS
 
             if (attachMode.Docked)
             {
-                Part dockedPart = KAS_Shared.GetPartByID(this.vessel.id.ToString(), dockedPartID);
+                Part dockedPart = KAS_Shared.GetPartByID(this.vessel, dockedPartID);
                 if (dockedPart && (dockedPart == part.parent || dockedPart.parent == part))
                 {
                     KASModuleAttachCore dockedAttachModuleTmp = dockedPart.GetComponent<KASModuleAttachCore>();
@@ -171,18 +171,7 @@ namespace KAS
 
             if (attachMode.FixedJoint)
             {
-
-                Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
-                if (attachedPart)
-                {
-                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
-                    AttachFixed(attachedPart, FixedAttach.savedBreakForce);
-                }
-                else
-                {
-                    KAS_Shared.DebugError("OnLoad(Core) Unable to get saved connected part of the fixed joint !");
-                    attachMode.FixedJoint = false;
-                }
+                StartCoroutine(WaitAndInitFixedAttach());
             }
             if (attachMode.StaticJoint)
             {
@@ -195,6 +184,31 @@ namespace KAS
             if (StaticAttach.connectedGameObject)
             {
                 Destroy(StaticAttach.connectedGameObject);
+            }
+        }
+
+        private IEnumerator<YieldInstruction> WaitAndInitFixedAttach()
+        {
+            yield return new WaitForEndOfFrame();
+
+            InitFixedAttach();
+        }
+
+        protected virtual void InitFixedAttach()
+        {
+            if (attachMode.FixedJoint)
+            {
+                Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
+                if (attachedPart)
+                {
+                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
+                    AttachFixed(attachedPart, FixedAttach.savedBreakForce);
+                }
+                else
+                {
+                    KAS_Shared.DebugError("OnLoad(Core) Unable to get saved connected part of the fixed joint !");
+                    attachMode.FixedJoint = false;
+                }
             }
         }
 
