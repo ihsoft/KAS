@@ -60,6 +60,7 @@ namespace KAS
         // Winch GUI
         [KSPField(isPersistant = true)] public string winchName = "";
         public bool isActive = true;
+        private bool isBlocked = false;
         public bool guiRepeatRetract = false;
         public bool guiRepeatExtend = false;
         public bool guiRepeatTurnLeft = false;
@@ -385,9 +386,9 @@ namespace KAS
             {
                 if (nodeConnectedPart)
                 {
-                    KAS_Shared.DebugError("OnStart(Winch) Connected part is not a port, configuration not supported !");
-                    DisableWinch();
-                    return;
+                    KAS_Shared.DebugWarning("OnStart(Winch) Connected part is not a port, configuration not supported !");
+                    isBlocked = true;
+                    headState = PlugState.Locked;
                 }
                 else
                 {
@@ -534,7 +535,10 @@ namespace KAS
         {
             base.OnUpdate();
             if (!HighLogic.LoadedSceneIsFlight) return;
-            UpdateMotor();
+            if (isActive && !isBlocked)
+            {
+                UpdateMotor();
+            }
             UpdateOrgPos();
         }
 
@@ -549,7 +553,7 @@ namespace KAS
         }
 
         private void UpdateMotor()
-        {         
+        {
             #region release
             if (release.active)
             {
@@ -1233,6 +1237,20 @@ namespace KAS
             }
         }
 
+        public bool CheckBlocked(bool message = false)
+        {
+            if (isBlocked && nodeConnectedPart && !nodeConnectedPort)
+            {
+                if (message)
+                {
+                    ScreenMessages.PostScreenMessage("Winch is blocked by "+nodeConnectedPart.partInfo.title+"!", 5, ScreenMessageStyle.UPPER_CENTER);
+                }
+                return true;
+            }
+
+            return isBlocked = false;
+        }
+
         [KSPEvent(name = "ContextMenuToggleControl", active = true, guiActive = true, guiName = "Winch: Toggle Control")]
         public void ContextMenuToggleControl()
         {
@@ -1280,25 +1298,37 @@ namespace KAS
         [KSPEvent(name = "ContextMenuEject", active = true, guiActive = true, guiName = "Eject")]
         public void ContextMenuEject()
         {
-            Eject();
+            if (!CheckBlocked(true))
+            {
+                Eject();
+            }
         }
 
         [KSPEvent(name = "ContextMenuRelease", active = true, guiActive = true, guiName = "Release")]
         public void ContextMenuRelease()
         {
-            release.active = !release.active;
+            if (!CheckBlocked(true))
+            {
+                release.active = !release.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuRetract", active = true, guiActive = true, guiName = "Retract")]
         public void ContextMenuRetract()
         {
-            retract.active = !retract.active;
+            if (!CheckBlocked(true))
+            {
+                retract.active = !retract.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuExtend", active = true, guiActive = true, guiName = "Extend")]
         public void ContextMenuExtend()
         {
-            extend.active = !extend.active;
+            if (!CheckBlocked(true))
+            {
+                extend.active = !extend.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuGrabHead", active = true, guiActive = false, guiActiveUnfocused = true, guiName = "Grab connector")]
@@ -1327,7 +1357,7 @@ namespace KAS
         [KSPAction("Eject hook", actionGroup = KSPActionGroup.None)]
         public void ActionGroupEject(KSPActionParam param)
         {
-            if (!this.part.packed) Eject();
+            if (!this.part.packed && !CheckBlocked(true)) Eject();
         }
 
         [KSPAction("Release cable", actionGroup = KSPActionGroup.None)]
@@ -1421,7 +1451,7 @@ namespace KAS
         // Key control event
         public void EventWinchExtend(bool activated)
         {
-            if (!this.part.packed)
+            if (!this.part.packed && !CheckBlocked())
             {
                 if (!controlActivated) return;
                 if (controlInverted) retract.active = activated;
@@ -1431,7 +1461,7 @@ namespace KAS
 
         public void EventWinchRetract(bool activated)
         {
-            if (!this.part.packed)
+            if (!this.part.packed && !CheckBlocked())
             {
                 if (!controlActivated) return;
                 if (controlInverted) extend.active = activated;
@@ -1465,7 +1495,7 @@ namespace KAS
 
         public void EventWinchEject()
         {
-            if (!this.part.packed && controlActivated)
+            if (!this.part.packed && controlActivated && !CheckBlocked())
             {
                 Eject();
             }
