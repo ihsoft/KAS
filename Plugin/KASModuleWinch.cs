@@ -824,6 +824,7 @@ namespace KAS
             if (nodeConnectedPort)
             {
                 KAS_Shared.DebugLog("Deploy(Winch) - Connected port detected, plug head in docked mode...");
+                nodeConnectedPort.nodeConnectedPart = null;
                 PlugHead(nodeConnectedPort, PlugState.PlugDocked, alreadyDocked:true);
             }
             else
@@ -859,6 +860,7 @@ namespace KAS
                 KAS_Shared.MoveAlignLight(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
                 AttachDocked(tmpPortModule, originalVessel);
                 nodeConnectedPort = tmpPortModule;
+                tmpPortModule.nodeConnectedPart = this.part;
                 // Restore controls and focus
                 if (is_active)
                 {
@@ -1122,6 +1124,7 @@ namespace KAS
             SetCableJointConnectedBody(headTransform.rigidbody);
 
             connectedPortInfo.module.winchConnected = null;
+            connectedPortInfo.module.nodeConnectedPart = null;
             connectedPortInfo.module = null;
             nodeConnectedPort = null;
             headState = PlugState.Deployed;
