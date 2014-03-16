@@ -293,6 +293,8 @@ namespace KAS
                         }
                         else
                         {
+                            partToAttach.attachMode = AttachModes.SRF_ATTACH;
+                            partToAttach.srfAttachNode.attachedPart = hitPart;
                             partToAttach.Couple(hitPart);
                             if (modulegrab)
                             {
