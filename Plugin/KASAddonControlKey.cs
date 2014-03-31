@@ -41,8 +41,8 @@ namespace KAS
 
         public void Update()
         {
-            // Ignore if an edit field is active
-            if (GUIUtility.keyboardControl != 0)
+            // Ignore if an edit field is active, or in map view
+            if (GUIUtility.keyboardControl != 0 || MapView.MapIsEnabled)
             {
                 return;
             }

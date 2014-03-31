@@ -134,7 +134,7 @@ namespace KAS
 
             if (attachMode.Docked)
             {
-                Part dockedPart = KAS_Shared.GetPartByID(this.vessel.id.ToString(), dockedPartID);
+                Part dockedPart = KAS_Shared.GetPartByID(this.vessel, dockedPartID);
                 if (dockedPart && (dockedPart == part.parent || dockedPart.parent == part))
                 {
                     KASModuleAttachCore dockedAttachModuleTmp = dockedPart.GetComponent<KASModuleAttachCore>();
@@ -171,18 +171,7 @@ namespace KAS
 
             if (attachMode.FixedJoint)
             {
-
-                Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
-                if (attachedPart)
-                {
-                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
-                    AttachFixed(attachedPart, FixedAttach.savedBreakForce);
-                }
-                else
-                {
-                    KAS_Shared.DebugError("OnLoad(Core) Unable to get saved connected part of the fixed joint !");
-                    attachMode.FixedJoint = false;
-                }
+                StartCoroutine(WaitAndInitFixedAttach());
             }
             if (attachMode.StaticJoint)
             {
@@ -195,6 +184,31 @@ namespace KAS
             if (StaticAttach.connectedGameObject)
             {
                 Destroy(StaticAttach.connectedGameObject);
+            }
+        }
+
+        private IEnumerator<YieldInstruction> WaitAndInitFixedAttach()
+        {
+            yield return new WaitForEndOfFrame();
+
+            InitFixedAttach();
+        }
+
+        protected virtual void InitFixedAttach()
+        {
+            if (attachMode.FixedJoint)
+            {
+                Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
+                if (attachedPart)
+                {
+                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
+                    AttachFixed(attachedPart, FixedAttach.savedBreakForce);
+                }
+                else
+                {
+                    KAS_Shared.DebugError("OnLoad(Core) Unable to get saved connected part of the fixed joint !");
+                    attachMode.FixedJoint = false;
+                }
             }
         }
 
@@ -447,6 +461,26 @@ namespace KAS
             if (attachMode.StaticJoint) Detach(AttachType.StaticJoint);  
         }
 
+        private void UndockVessel()
+        {
+            if (part.parent != null)
+            {
+                var my_node = part.findAttachNodeByPart(part.parent);
+                if (my_node != null)
+                {
+                    my_node.attachedPart = null;
+                }
+
+                var other_node = part.parent.findAttachNodeByPart(part);
+                if (other_node != null)
+                {
+                    other_node.attachedPart = null;
+                }
+            }
+
+            part.Undock(vesselInfo);
+        }
+
         public void Detach(AttachType attachType)
         {
             KAS_Shared.DebugLog("Detach(Base) Attach type is : " + attachMode);
@@ -457,12 +491,12 @@ namespace KAS
                 if (dockedAttachModule.part.parent == this.part)
                 {
                     KAS_Shared.DebugLog("Detach(Base) Undocking " + dockedAttachModule.part.partInfo.title + " from " + dockedAttachModule.vessel.vesselName);
-                    dockedAttachModule.part.Undock(dockedAttachModule.vesselInfo);
+                    dockedAttachModule.UndockVessel();
                 }
                 if (this.part.parent == dockedAttachModule.part)
                 {
                     KAS_Shared.DebugLog("Detach(Base) Undocking " + this.part.partInfo.title + " from " + this.vessel.vesselName);
-                    this.part.Undock(this.vesselInfo);
+                    this.UndockVessel();
                 }
                 if (dockedAttachModule.dockedAttachModule == this)
                 {

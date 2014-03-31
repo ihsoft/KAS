@@ -332,7 +332,7 @@ namespace KAS
             base.SendMessage("OnPartGrabbed", kerbalEvaVessel, SendMessageOptions.DontRequireReceiver);
         }
 
-        public void Drop()
+        public void Drop(bool forAttach = false)
         {
             if (grabbed)
             {
@@ -396,10 +396,19 @@ namespace KAS
                 KASModuleWinch grabbedWinchHead = KAS_Shared.GetWinchModuleGrabbed(evaHolderPart.vessel);
                 if (grabbedWinchHead)
                 {
-                    if (grabbedWinchHead.grabbedPortModule)
+                    if (grabbedWinchHead.grabbedPortModule && grabbedWinchHead.grabbedPortModule.part == part)
                     {
                         KAS_Shared.DebugLog("Drop - Grabbed part have a port connected");
-                        grabbedWinchHead.PlugHead(grabbedWinchHead.grabbedPortModule, KASModuleWinch.PlugState.PlugDocked,fireSound:false);
+
+                        if (forAttach)
+                        {
+                            // Docked causes big problems when the part is later coupled
+                            grabbedWinchHead.PlugHead(grabbedWinchHead.grabbedPortModule, KASModuleWinch.PlugState.PlugUndocked,fireSound:false);
+                        }
+                        else
+                        {
+                            grabbedWinchHead.PlugHead(grabbedWinchHead.grabbedPortModule, KASModuleWinch.PlugState.PlugDocked,fireSound:false);
+                        }
                     }
                 }
 

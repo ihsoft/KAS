@@ -105,6 +105,11 @@ namespace KAS
 
         public void UpdatePointer()
         {
+            if (running && MapView.MapIsEnabled)
+            {
+                StopPointer();
+            }
+
             if (!running)
             {
                 if (pointer) UnityEngine.Object.Destroy(pointer);
@@ -243,7 +248,7 @@ namespace KAS
                     // Drop and detach part if needed
                     if (modulegrab)
                     {
-                        if (modulegrab.grabbed) modulegrab.Drop();
+                        if (modulegrab.grabbed) modulegrab.Drop(true);
                         modulegrab.Detach();
                     }
 
@@ -288,6 +293,8 @@ namespace KAS
                         }
                         else
                         {
+                            partToAttach.attachMode = AttachModes.SRF_ATTACH;
+                            partToAttach.srfAttachNode.attachedPart = hitPart;
                             partToAttach.Couple(hitPart);
                             if (modulegrab)
                             {
