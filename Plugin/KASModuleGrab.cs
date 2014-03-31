@@ -290,7 +290,7 @@ namespace KAS
             }
 
             //Destroy joint to avoid buggy eva move
-            Destroy(this.part.attachJoint);
+            this.part.attachJoint.DestroyJoint();
             
             this.part.rigidbody.velocity = kerbalEvaVessel.rootPart.rigidbody.velocity;
 

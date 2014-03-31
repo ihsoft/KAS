@@ -787,13 +787,13 @@ namespace KAS
 
         public static void RemoveAttachJointBetween(Part part1, Part part2)
         {
-            if (part1.attachJoint && part1.attachJoint.connectedBody == part2.rigidbody)
+            if (part1.attachJoint && ((part1.attachJoint.Host == part1 && part1.attachJoint.Target == part2) || (part1.attachJoint.Host == part2 && part1.attachJoint.Target == part1)))
             {
-                UnityEngine.Object.Destroy(part1.attachJoint);
+                part1.attachJoint.DestroyJoint();
             }
-            if (part2.attachJoint && part2.attachJoint.connectedBody == part1.rigidbody)
+            if (part2.attachJoint && ((part2.attachJoint.Host == part2 && part2.attachJoint.Target == part1) || (part2.attachJoint.Host == part1 && part2.attachJoint.Target == part2)))
             {
-                UnityEngine.Object.Destroy(part2.attachJoint);
+                part2.attachJoint.DestroyJoint();
             }
         }
 
