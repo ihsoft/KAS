@@ -60,6 +60,7 @@ namespace KAS
         // Winch GUI
         [KSPField(isPersistant = true)] public string winchName = "";
         public bool isActive = true;
+        private bool isBlocked = false;
         public bool guiRepeatRetract = false;
         public bool guiRepeatExtend = false;
         public bool guiRepeatTurnLeft = false;
@@ -385,15 +386,39 @@ namespace KAS
             {
                 if (nodeConnectedPart)
                 {
-                    KAS_Shared.DebugError("OnStart(Winch) Connected part is not a port, configuration not supported !");
-                    DisableWinch();
-                    return;
+                    KAS_Shared.DebugWarning("OnStart(Winch) Connected part is not a port, configuration not supported !");
+                    isBlocked = true;
+                    headState = PlugState.Locked;
                 }
                 else
                 {
                     KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
                 }      
             }
+
+            // Get saved port module if any
+            if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
+            {
+                StartCoroutine(WaitAndLoadConnection());
+            }
+
+            if (headState != PlugState.Locked)
+            {
+                KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headCurrentLocalPos, headCurrentLocalRot);
+                SetTubeRenderer(true);
+            }
+
+            motorSpeedSetting = motorMaxSpeed / 2;
+
+            KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
+            GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
+            GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
+            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+        }
+
+        IEnumerator WaitAndLoadConnection()
+        {
+            yield return new WaitForEndOfFrame();
 
             // Get saved port module if any
             if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
@@ -419,19 +444,6 @@ namespace KAS
                     headState = PlugState.Locked;
                 }
             }
-        
-            if (headState != PlugState.Locked)
-            {
-                KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headCurrentLocalPos, headCurrentLocalRot);
-                SetTubeRenderer(true);
-            }
-
-            motorSpeedSetting = motorMaxSpeed / 2;
-
-            KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
-            GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-            GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
-            GameEvents.onCrewBoardVessel.Add(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
         }
 
         void OnVesselGoOnRails(Vessel vess)
@@ -441,7 +453,11 @@ namespace KAS
 
         void OnVesselGoOffRails(Vessel vess)
         {
-            if (vess != this.vessel) return;
+            if (!fromSave || vessel.packed || (connectedPortInfo.module && connectedPortInfo.module.vessel.packed))
+            {
+                return;
+            }
+
             // From save
             if (headState == PlugState.Deployed && fromSave)
             {
@@ -465,6 +481,9 @@ namespace KAS
                 PlugHead(connectedPortInfo.module, PlugState.PlugDocked, true, false);
                 fromSave = false;
             }
+
+            // Just in case
+            fromSave = false;
         }
         
         void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)
@@ -516,7 +535,10 @@ namespace KAS
         {
             base.OnUpdate();
             if (!HighLogic.LoadedSceneIsFlight) return;
-            UpdateMotor();
+            if (isActive && !isBlocked)
+            {
+                UpdateMotor();
+            }
             UpdateOrgPos();
         }
 
@@ -531,7 +553,7 @@ namespace KAS
         }
 
         private void UpdateMotor()
-        {         
+        {
             #region release
             if (release.active)
             {
@@ -802,6 +824,7 @@ namespace KAS
             if (nodeConnectedPort)
             {
                 KAS_Shared.DebugLog("Deploy(Winch) - Connected port detected, plug head in docked mode...");
+                nodeConnectedPort.nodeConnectedPart = null;
                 PlugHead(nodeConnectedPort, PlugState.PlugDocked, alreadyDocked:true);
             }
             else
@@ -837,6 +860,7 @@ namespace KAS
                 KAS_Shared.MoveAlignLight(tmpPortModule.part.vessel, tmpPortModule.portNode, this.part.vessel, this.headPortNode);
                 AttachDocked(tmpPortModule, originalVessel);
                 nodeConnectedPort = tmpPortModule;
+                tmpPortModule.nodeConnectedPart = this.part;
                 // Restore controls and focus
                 if (is_active)
                 {
@@ -1076,7 +1100,7 @@ namespace KAS
             portModule.part.transform.parent = null;
 
             headTransform.parent = portModule.part.transform;
-            cableJointLength = cableRealLenght;
+            cableJointLength = cableRealLenght + 0.01f;
 
             // Set variables
             connectedPortInfo.module = portModule;
@@ -1100,6 +1124,7 @@ namespace KAS
             SetCableJointConnectedBody(headTransform.rigidbody);
 
             connectedPortInfo.module.winchConnected = null;
+            connectedPortInfo.module.nodeConnectedPart = null;
             connectedPortInfo.module = null;
             nodeConnectedPort = null;
             headState = PlugState.Deployed;
@@ -1215,6 +1240,20 @@ namespace KAS
             }
         }
 
+        public bool CheckBlocked(bool message = false)
+        {
+            if (isBlocked && nodeConnectedPart && !nodeConnectedPort)
+            {
+                if (message)
+                {
+                    ScreenMessages.PostScreenMessage("Winch is blocked by "+nodeConnectedPart.partInfo.title+"!", 5, ScreenMessageStyle.UPPER_CENTER);
+                }
+                return true;
+            }
+
+            return isBlocked = false;
+        }
+
         [KSPEvent(name = "ContextMenuToggleControl", active = true, guiActive = true, guiName = "Winch: Toggle Control")]
         public void ContextMenuToggleControl()
         {
@@ -1262,25 +1301,37 @@ namespace KAS
         [KSPEvent(name = "ContextMenuEject", active = true, guiActive = true, guiName = "Eject")]
         public void ContextMenuEject()
         {
-            Eject();
+            if (!CheckBlocked(true))
+            {
+                Eject();
+            }
         }
 
         [KSPEvent(name = "ContextMenuRelease", active = true, guiActive = true, guiName = "Release")]
         public void ContextMenuRelease()
         {
-            release.active = !release.active;
+            if (!CheckBlocked(true))
+            {
+                release.active = !release.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuRetract", active = true, guiActive = true, guiName = "Retract")]
         public void ContextMenuRetract()
         {
-            retract.active = !retract.active;
+            if (!CheckBlocked(true))
+            {
+                retract.active = !retract.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuExtend", active = true, guiActive = true, guiName = "Extend")]
         public void ContextMenuExtend()
         {
-            extend.active = !extend.active;
+            if (!CheckBlocked(true))
+            {
+                extend.active = !extend.active;
+            }
         }
 
         [KSPEvent(name = "ContextMenuGrabHead", active = true, guiActive = false, guiActiveUnfocused = true, guiName = "Grab connector")]
@@ -1309,7 +1360,7 @@ namespace KAS
         [KSPAction("Eject hook", actionGroup = KSPActionGroup.None)]
         public void ActionGroupEject(KSPActionParam param)
         {
-            if (!this.part.packed) Eject();
+            if (!this.part.packed && !CheckBlocked(true)) Eject();
         }
 
         [KSPAction("Release cable", actionGroup = KSPActionGroup.None)]
@@ -1403,7 +1454,7 @@ namespace KAS
         // Key control event
         public void EventWinchExtend(bool activated)
         {
-            if (!this.part.packed)
+            if (!this.part.packed && !CheckBlocked())
             {
                 if (!controlActivated) return;
                 if (controlInverted) retract.active = activated;
@@ -1413,7 +1464,7 @@ namespace KAS
 
         public void EventWinchRetract(bool activated)
         {
-            if (!this.part.packed)
+            if (!this.part.packed && !CheckBlocked())
             {
                 if (!controlActivated) return;
                 if (controlInverted) extend.active = activated;
@@ -1425,6 +1476,7 @@ namespace KAS
         {
             if (!this.part.packed)
             {
+                if (!controlActivated || headState == PlugState.Locked) return;
                 if (connectedPortInfo.module)
                 {
                     connectedPortInfo.module.TurnLeft();
@@ -1446,12 +1498,15 @@ namespace KAS
 
         public void EventWinchEject()
         {
-            if (!this.part.packed) Eject();
+            if (!this.part.packed && controlActivated && !CheckBlocked())
+            {
+                Eject();
+            }
         }
 
         public void EventWinchHook()
         {
-            if (this.part.packed) return;
+            if (this.part.packed || !controlActivated) return;
             if (GetHookMagnet())
             {
                 GetHookMagnet().ContextMenuMagnet();

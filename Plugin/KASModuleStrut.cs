@@ -12,6 +12,7 @@ namespace KAS
         [KSPField] public float maxLenght = 4f;
         [KSPField] public float maxAngle = 0.10f;
         [KSPField] public bool allowDock = false;
+        [KSPField] public bool allowPumpFuel = false;
         [KSPField] public float breakForce = 15f;
         [KSPField] public float tubeScale = 0.15f;
         [KSPField] public float jointScale = 0.15f;
@@ -26,12 +27,17 @@ namespace KAS
         [KSPField] public Vector3 evaStrutPos = new Vector3(0f, 0.03f, -0.24f);
         [KSPField] public Vector3 evaStrutRot = new Vector3(270f, 0f, 0f);
 
+        [KSPField(isPersistant=true)]
+        public bool pumpFuel = false;
+
         public KAS_Tube strutRenderer;
 
         private bool linkValid = true;
         private bool linked = false;
         public KASModuleStrut linkedStrutModule = null;
         public Vessel linkedEvaVessel = null;
+
+        private Part pumpFrom, pumpTo;
 
         public FXGroup fxSndLink, fxSndUnlink, fxSndBroke;
    
@@ -122,14 +128,6 @@ namespace KAS
                     break;
             }
 
-            // Reset link if a fixed joint exist
-            if (attachMode.FixedJoint)
-            {
-                KAS_Shared.DebugLog("OnStart(strut) Docked / fixed joint detected from save, relinking...");
-                KASModuleStrut linkedStrutModuleSavedF = FixedAttach.connectedPart.GetComponent<KASModuleStrut>();
-                LinkTo(linkedStrutModuleSavedF, false, true);
-            }
-
             // Reset link if docked
             if (attachMode.Docked && !linked)
             {
@@ -140,6 +138,19 @@ namespace KAS
 
             // Loading onVesselWasModified KSP event
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
+        }
+
+        protected override void InitFixedAttach()
+        {
+            base.InitFixedAttach();
+
+            // Reset link if a fixed joint exist
+            if (attachMode.FixedJoint)
+            {
+                KAS_Shared.DebugLog("OnStart(strut) Docked / fixed joint detected from save, relinking...");
+                KASModuleStrut linkedStrutModuleSavedF = FixedAttach.connectedPart.GetComponent<KASModuleStrut>();
+                LinkTo(linkedStrutModuleSavedF, false, true);
+            }
         }
 
         public override void OnUpdate()
@@ -197,6 +208,10 @@ namespace KAS
                         fxSndBroke.audio.Play();
                     }
                 }
+                else if (pumpTo && (!pumpFrom || pumpFrom.State == PartStates.DEAD || pumpTo.vessel != pumpFrom.vessel))
+                {
+                    StopPump();
+                }
             }        
         }
 
@@ -217,6 +232,8 @@ namespace KAS
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
+            UnlinkPump();
 
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(this.OnVesselWasModified));
         }
@@ -244,6 +261,7 @@ namespace KAS
             if (linked) fxSndBroke.audio.Play();
             StopEvaLink();
             Unlink();
+            StopPump();
         }
 
         public void OnAttach()
@@ -251,6 +269,7 @@ namespace KAS
             if (linked) fxSndBroke.audio.Play();
             StopEvaLink();
             Unlink();
+            StopPump();
         }
 
         private void SetEvaLink()
@@ -340,6 +359,7 @@ namespace KAS
             tgtModule.linked = true;
 
             KAS_Shared.InvalidateContextMenu(this.part);
+            KAS_Shared.InvalidateContextMenu(tgtModule.part);
 
             if (setJointOrDock)
             {
@@ -363,7 +383,74 @@ namespace KAS
                 KAS_Shared.DebugLog("LinkTo(Strut) setJointOrDock = false, ignoring dock and creating joint");
             }
 
+            // Connect fuel flow when appropriate
+            bool both_attached = this.part.srfAttachNode.attachedPart && tgtModule.part.srfAttachNode.attachedPart;
+
+            this.Events["ContextMenuTogglePump"].active = this.allowPumpFuel && both_attached;
+            if (this.pumpFuel)
+            {
+                this.StartPump(checkCondition);
+            }
+
+            tgtModule.Events["ContextMenuTogglePump"].active = tgtModule.allowPumpFuel && both_attached;
+            if (tgtModule.pumpFuel)
+            {
+                tgtModule.StartPump(checkCondition);
+            }
+
             return true;
+        }
+
+        private void StartPump(bool from_ui)
+        {
+            StopPump();
+
+            if (!linkedStrutModule || linkedStrutModule.part.vessel != part.vessel)
+            {
+                if (from_ui)
+                {
+                    ScreenMessages.PostScreenMessage("Can't pump when not connected to the same vessel!", 3, ScreenMessageStyle.UPPER_CENTER);
+                }
+
+                return;
+            }
+
+            Part target = part.srfAttachNode.attachedPart;
+            Part source = linkedStrutModule.part.srfAttachNode.attachedPart;
+
+            if (!target || !source)
+            {
+                if (from_ui)
+                {
+                    ScreenMessages.PostScreenMessage("Can't pump when an end is dangling!", 3, ScreenMessageStyle.UPPER_CENTER);
+                }
+
+                return;
+            }
+
+            pumpTo = target;
+            pumpFrom = source;
+            pumpTo.fuelLookupTargets.Add(pumpFrom);
+            pumpFuel = true;
+            Events["ContextMenuTogglePump"].guiName = "Stop Pumping";
+            KAS_Shared.InvalidateContextMenu(this.part);
+        }
+
+        private void StopPump()
+        {
+            UnlinkPump();
+            pumpFuel = false;
+            Events["ContextMenuTogglePump"].guiName = "Pump Here";
+            KAS_Shared.InvalidateContextMenu(this.part);
+        }
+
+        private void UnlinkPump()
+        {
+            if (pumpTo)
+            {
+                pumpTo.fuelLookupTargets.Remove(pumpFrom);
+            }
+            pumpTo = pumpFrom = null;
         }
 
         private void Unlink()
@@ -371,16 +458,20 @@ namespace KAS
             // Unload tube renderer
             if (linkedStrutModule)
             {
+                linkedStrutModule.UnlinkPump();
                 linkedStrutModule.strutRenderer.UnLoad();
                 linkedStrutModule.linked = false;
                 linkedStrutModule.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
                 linkedStrutModule.Events["ContextMenuLink"].guiActiveUnfocused = true;
+                linkedStrutModule.Events["ContextMenuTogglePump"].active = false;
                 KAS_Shared.InvalidateContextMenu(linkedStrutModule.part);
             }
+            this.UnlinkPump();
             this.strutRenderer.UnLoad();
             this.linked = false;
             this.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
             this.Events["ContextMenuLink"].guiActiveUnfocused = true;
+            this.Events["ContextMenuTogglePump"].active = false;
             KAS_Shared.InvalidateContextMenu(this.part);
             // Detach parts
             if (linkedStrutModule) linkedStrutModule.Detach();
@@ -438,6 +529,19 @@ namespace KAS
                 }
             }
             return null;
+        }
+
+        [KSPEvent(name = "ContextMenuTogglePump", active = false, guiActiveUnfocused = true, guiActive = true, unfocusedRange = 2f, guiName = "Pump Here")]
+        public void ContextMenuTogglePump()
+        {
+            if (pumpFuel)
+            {
+                StopPump();
+            }
+            else
+            {
+                StartPump(true);
+            }
         }
 
         [KSPEvent(name = "ContextMenuLink", active = true, guiActiveUnfocused = true, guiActive = false, unfocusedRange = 2f, guiName = "Link")]

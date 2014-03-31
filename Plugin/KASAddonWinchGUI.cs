@@ -163,7 +163,7 @@ namespace KAS
             int i = 0;
             foreach (KASModuleWinch winchModule in allWinchModule)
             {
-                if (winchModule.vessel != FlightGlobals.ActiveVessel || !winchModule.isActive) continue;
+                if (winchModule.vessel != FlightGlobals.ActiveVessel || !winchModule.isActive || winchModule.CheckBlocked()) continue;
 
                 GUILayout.BeginHorizontal();
 
