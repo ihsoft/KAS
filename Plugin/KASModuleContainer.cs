@@ -449,7 +449,7 @@ namespace KAS
                 info.Load(KAS_Shared.SavePartSnapshot(moduleGrab.part));
             }
             RefreshTotalSize();
-            moduleGrab.Drop();
+            moduleGrab.Drop(true);
             moduleGrab.part.Die();
             fxSndStore.audio.Play();
         }

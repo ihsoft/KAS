@@ -38,6 +38,31 @@ namespace KAS
             get { return this.part.FindModelTransform(nodeTransformName);}
         }
 
+        public Part nodeConnectedPart
+        {
+            get
+            {
+                AttachNode an = this.part.findAttachNode(attachNode);
+                if (an != null)
+                {
+                    return an.attachedPart;
+                }
+                return null;
+            }
+            set
+            {
+                AttachNode an = this.part.findAttachNode(attachNode);
+                if (an != null)
+                {
+                    an.attachedPart = value;
+                }
+                else
+                {
+                    KAS_Shared.DebugError("connectedPart(Port) Cannot set connectedPart !");
+                }
+            }
+        }
+
         public override string GetInfo()
         {
             var sb = new StringBuilder();

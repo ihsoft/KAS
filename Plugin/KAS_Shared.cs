@@ -787,13 +787,13 @@ namespace KAS
 
         public static void RemoveAttachJointBetween(Part part1, Part part2)
         {
-            if (part1.attachJoint && part1.attachJoint.connectedBody == part2.rigidbody)
+            if (part1.attachJoint && ((part1.attachJoint.Host == part1 && part1.attachJoint.Target == part2) || (part1.attachJoint.Host == part2 && part1.attachJoint.Target == part1)))
             {
-                UnityEngine.Object.Destroy(part1.attachJoint);
+                part1.attachJoint.DestroyJoint();
             }
-            if (part2.attachJoint && part2.attachJoint.connectedBody == part1.rigidbody)
+            if (part2.attachJoint && ((part2.attachJoint.Host == part2 && part2.attachJoint.Target == part1) || (part2.attachJoint.Host == part1 && part2.attachJoint.Target == part2)))
             {
-                UnityEngine.Object.Destroy(part2.attachJoint);
+                part2.attachJoint.DestroyJoint();
             }
         }
 
@@ -1017,21 +1017,27 @@ namespace KAS
                     KAS_Shared.DebugWarning("GetPartByID - Searched vessel are not loaded, loading it...");
                     searchVessel.Load();
                 }
-                Part searchedPart = searchVessel.Parts.Find(p => p.flightID.ToString() == partID);
-                if (searchedPart)
-                {
-                    return searchedPart;
-                }
-                else
-                {
-                    KAS_Shared.DebugError("GetPartByID - Searched part not found !");
-                }
+                return GetPartByID(searchVessel, partID);
             }
             else
             {
                 KAS_Shared.DebugError("GetPartByID - Searched vessel not found !");
             }
             return null;
+        }
+
+        public static Part GetPartByID(Vessel searchVessel, string partID)
+        {
+            Part searchedPart = searchVessel.Parts.Find(p => p.flightID.ToString() == partID);
+            if (searchedPart)
+            {
+                return searchedPart;
+            }
+            else
+            {
+                KAS_Shared.DebugError("GetPartByID - Searched part not found !");
+                return null;
+            }
         }
 
         public static KASModuleWinch GetConnectedWinch(Part p)
