@@ -315,7 +315,7 @@ namespace KAS
             {
                 if (!CheckLink(this.strutTransform, tgtModule.strutTransform, true))
                 {
-                    ScreenMessages.PostScreenMessage("Max angle or lenght reached, cannot link !", 5, ScreenMessageStyle.UPPER_CENTER);
+                    ScreenMessages.PostScreenMessage("Max angle or length reached, cannot link !", 5, ScreenMessageStyle.UPPER_CENTER);
                     return false;
                 }
 
@@ -555,7 +555,7 @@ namespace KAS
             else
             {
                 SetEvaLink();
-                ScreenMessages.PostScreenMessage("Link mode enabled, press Echap or Enter to cancel", 10, ScreenMessageStyle.UPPER_CENTER);
+                ScreenMessages.PostScreenMessage("Link mode enabled, press Escape or Enter to cancel", 10, ScreenMessageStyle.UPPER_CENTER);
             }
         }
 

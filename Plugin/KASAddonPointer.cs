@@ -415,7 +415,7 @@ namespace KAS
         
         public static void ShowAttachHelpMsg()
         {
-            ScreenMessages.PostScreenMessage("Attach pointer enabled. Press " + KASAddonControlKey.rotateLeftKey + "/" + KASAddonControlKey.rotateRightKey + " to rotate and mouse click to attach. Press echap, space, mouse2 or " + KASAddonControlKey.attachKey + " to cancel.", 5, ScreenMessageStyle.UPPER_CENTER);
+            ScreenMessages.PostScreenMessage("Attach pointer enabled. Press " + KASAddonControlKey.rotateLeftKey + "/" + KASAddonControlKey.rotateRightKey + " to rotate and mouse click to attach. Press escape, space, mouse2 or " + KASAddonControlKey.attachKey + " to cancel.", 5, ScreenMessageStyle.UPPER_CENTER);
         }
 
     }
