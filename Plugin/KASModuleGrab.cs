@@ -55,6 +55,7 @@ namespace KAS
         private FixedJoint evaJoint;
         private List<Collider> keepTriggers;
         private bool grab_pending = false;
+        private bool syncGrab = false;
 
         public override string GetInfo()
         {
@@ -173,93 +174,15 @@ namespace KAS
                     Grab(this.vessel);
                     grab_pending = false;
                 }
-                else
-                {
-                    if (!physicJoint) this.part.rigidbody.isKinematic = true;
-                }
             }
-        }
-
-        private bool AlignEvaPosition(Vessel kerbalEvaVessel)
-        {
-            //Get eva transform
-            evaCollider = KAS_Shared.GetEvaCollider(kerbalEvaVessel, evaTransformName);
-            if (!evaCollider)
-            {
-                KAS_Shared.DebugLog("Grab - " + evaTransformName + "transform not found on eva !");
-                return false;
-            }
-
-            //Get attach node
-            if (attachNodeName == null || attachNodeName == "")
-            {
-                if (this.part.srfAttachNode == null)
-                {
-                    KAS_Shared.DebugLog("Grab - surface attach node cannot be found on the part !");
-                    return false;
-                }
-                KAS_Shared.AddNodeTransform(this.part, this.part.srfAttachNode);
-                partNode = this.part.srfAttachNode;
-            }
-            else
-            {
-                AttachNode an = this.part.findAttachNode(attachNodeName);
-                if (an == null)
-                {
-                    KAS_Shared.DebugLog("Grab - " + attachNodeName + " node cannot be found on the part !");
-                    return false;
-                }
-                KAS_Shared.AddNodeTransform(this.part, an);
-                partNode = an;
-            }
-
-            //Send message to other modules
-            base.SendMessage("OnPartGrab", kerbalEvaVessel, SendMessageOptions.DontRequireReceiver);
-
-            //Drop grabbed part on eva if needed
-            KASModuleGrab tmpGrabbbedPartModule = KAS_Shared.GetGrabbedPartModule(kerbalEvaVessel);
-            if (tmpGrabbbedPartModule)
-            {
-                if (tmpGrabbbedPartModule.part.packed)
-                {
-                    KAS_Shared.DebugWarning("Grab - cannot drop an incompletely grabbed part!");
-                    return false;
-                }
-
-                KAS_Shared.DebugWarning("Grab - Drop current grabbed part");
-                tmpGrabbbedPartModule.Drop();
-            }
- 
-            if (evaNodeTransform) Destroy(evaNodeTransform.gameObject);
-
-            evaNodeTransform = new GameObject("KASEvaNode").transform;
-            evaNodeTransform.parent = evaCollider.transform;
-            evaNodeTransform.localPosition = evaPartPos;
-            evaNodeTransform.rotation = KAS_Shared.DirectionToQuaternion(evaCollider.transform, evaPartDir);
-
-            KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
-
-            if (this.part.vessel == kerbalEvaVessel)
-            {
-                this.part.UpdateOrgPosAndRot(kerbalEvaVessel.rootPart);
-            }
-
-            return true;
         }
 
         internal bool GrabPending()
         {
             KAS_Shared.DebugLog("GrabPending - Preparing To Grab part :" + this.part.partInfo.name);
-
-            if (!AlignEvaPosition(this.vessel))
-            {
-                return false;
-            }
-
             evaHolderVesselName = this.vessel.vesselName;
             evaHolderPart = this.vessel.rootPart;
             grabbed = grab_pending = true;
-
             return true;
         }
 
@@ -286,6 +209,15 @@ namespace KAS
                 }
 
                 col.isTrigger = true;
+            }
+        }
+
+        void FixedUpdate()
+        {
+            if (syncGrab)
+            {
+                KAS_Shared.MoveAlign(this.part.transform, partNode.nodeTransform, evaNodeTransform);
+                this.part.rigidbody.velocity = FlightGlobals.ActiveVessel.rootPart.rigidbody.velocity;
             }
         }
 
@@ -333,9 +265,12 @@ namespace KAS
 
             //Detach if needed
             Detach();
-            
-            //Decouple part
-            KAS_Shared.DecoupleFromAll(this.part);
+
+            //Decouple part (if not already done, in case of loading after a save with the part grabbed)
+            if (this.part.vessel != kerbalEvaVessel)
+            {
+                KAS_Shared.DecoupleFromAll(this.part);
+            }
 
             //Wait decouple action (x64 fix)
             yield return new WaitForFixedUpdate();
@@ -350,17 +285,17 @@ namespace KAS
                 moduleWinch.GrabHead(kerbalEvaVessel, modulePort);
             }
 
-            //Couple part to eva
-            this.part.Couple(kerbalEvaVessel.rootPart);
+            //Couple part to eva (if not already done, in case of loading after a save with the part grabbed)
+            if (this.part.vessel != kerbalEvaVessel)
+            {
+                this.part.Couple(kerbalEvaVessel.rootPart);
+            }
 
             //Destroy joint to avoid buggy eva move
             if (this.part.attachJoint)
             {
                 this.part.attachJoint.DestroyJoint();
             }
-
-            //Set part velocity to kerbal velocity
-            this.part.rigidbody.velocity = kerbalEvaVessel.rootPart.rigidbody.velocity;
 
             //Set part to physic join or kinematic with parent
             if (physicJoint)
@@ -374,12 +309,10 @@ namespace KAS
             }
             else
             {
-                this.part.physicalSignificance = Part.PhysicalSignificance.NONE;
-                this.part.transform.parent = evaNodeTransform;
-                this.part.rigidbody.isKinematic = true;
+                syncGrab = true;
                 KAS_Shared.ResetCollisionEnhancer(this.part, false);
             }
-
+            
             //Add grabbed part mass to eva
             if (addPartMass && !physicJoint)
             {
@@ -413,12 +346,6 @@ namespace KAS
                 KAS_Shared.DebugLog("Drop - Dropping part :" + this.part.partInfo.name);
 
                 base.SendMessage("OnPartDrop", SendMessageOptions.DontRequireReceiver);
-
-                if (this.part.rigidbody)
-                {
-                    this.part.transform.parent = null;
-                    this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
-                }
 
                 if (this.part.vessel.isEVA || grab_pending)
                 {
@@ -458,9 +385,6 @@ namespace KAS
                 if (evaNodeTransform) Destroy(evaNodeTransform.gameObject);
                 if (evaJoint) Destroy(evaJoint);
 
-                this.part.transform.parent = null;
-                this.part.rigidbody.isKinematic = false;
-                this.part.physicalSignificance = Part.PhysicalSignificance.FULL;
                 this.part.rigidbody.velocity = evaHolderPart.rigidbody.velocity;
                 this.part.rigidbody.angularVelocity = evaHolderPart.rigidbody.angularVelocity;
 
@@ -489,6 +413,7 @@ namespace KAS
 
                 GameEvents.onCrewBoardVessel.Remove(new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
 
+                syncGrab = false;
                 keepTriggers = null;
                 evaJoint = null;
                 evaNodeTransform = null;
