@@ -212,7 +212,7 @@ namespace KAS
             }
         }
 
-        void FixedUpdate()
+        public void FixedUpdate()
         {
             if (syncGrab)
             {
