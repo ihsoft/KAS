@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 using UnityEngine;
 
@@ -221,10 +223,41 @@ namespace KAS
             }
         }
 
-        protected virtual void OnJointBreak(float breakForce)
+        private void OnJointBreak(float breakForce)
         {
             KAS_Shared.DebugWarning("OnJointBreak(Core) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
-            Detach();
+            StartCoroutine(WaitAndCheckJoint());
+        }
+
+        private IEnumerator WaitAndCheckJoint()
+        {
+                yield return new WaitForFixedUpdate();
+                if (attachMode.StaticJoint)
+                {
+                    if (StaticAttach.fixedJoint == null)
+                    {
+                        KAS_Shared.DebugWarning("WaitAndCheckJoint(Core) Static join broken !");
+                        OnJointBreakStatic();
+                    } 
+                }
+                if (attachMode.FixedJoint)
+                {
+                    if (FixedAttach.fixedJoint == null)
+                    {
+                        KAS_Shared.DebugWarning("WaitAndCheckJoint(Core) Fixed join broken !");
+                        OnJointBreakFixed();
+                    }
+                }
+        }
+
+        public virtual void OnJointBreakStatic()
+        {
+            Detach(AttachType.StaticJoint);
+        }
+
+        public virtual void OnJointBreakFixed()
+        {
+            Detach(AttachType.FixedJoint);
         }
 
         protected virtual void OnDestroy()
@@ -328,10 +361,10 @@ namespace KAS
 
             KAS_Shared.DebugLog("JointToStatic(Base) Create fixed joint on the kinematic rigidbody");
             if (StaticAttach.fixedJoint) Destroy(StaticAttach.fixedJoint);
-            FixedJoint CurJoint = obj.AddComponent<FixedJoint>();
+            FixedJoint CurJoint = this.part.gameObject.AddComponent<FixedJoint>();
             CurJoint.breakForce = breakForce;
             CurJoint.breakTorque = breakForce;
-            CurJoint.connectedBody = this.part.rigidbody;
+            CurJoint.connectedBody = obj.rigidbody;
             StaticAttach.fixedJoint = CurJoint;
             attachMode.StaticJoint = true;
         }
@@ -455,6 +488,7 @@ namespace KAS
 
         public void Detach()
         {
+            //KAS_Shared.DebugLog("Detach(Base) Attach mode is Docked:" + attachMode.Docked + ",Coupled:" + attachMode.Coupled + ",FixedJoint:" + attachMode.FixedJoint + ",StaticJoint:" + attachMode.StaticJoint);
             if (attachMode.Docked) Detach(AttachType.Docked);
             if (attachMode.Coupled) Detach(AttachType.Coupled);
             if (attachMode.FixedJoint) Detach(AttachType.FixedJoint);
@@ -483,7 +517,8 @@ namespace KAS
 
         public void Detach(AttachType attachType)
         {
-            KAS_Shared.DebugLog("Detach(Base) Attach type is : " + attachMode);
+            KAS_Shared.DebugLog("Detach(Base) Attach mode is Docked:" + attachMode.Docked + ",Coupled:" + attachMode.Coupled + ",FixedJoint:" + attachMode.FixedJoint + ",StaticJoint:" + attachMode.StaticJoint);
+            KAS_Shared.DebugLog("Detach(Base) Attach type is : " + attachType);
 
             // Docked
             if (attachType == AttachType.Docked)

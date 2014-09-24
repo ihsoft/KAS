@@ -59,6 +59,11 @@ namespace KAS
             KAS_Shared.createFXSound(this.part, fxSndDetach, detachSndPath, false);
         }
 
+        public override void OnJointBreakStatic()
+        {
+            DetachGrapple();
+        }
+
         public override void OnPartUnpack()
         {
             base.OnPartUnpack();

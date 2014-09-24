@@ -87,12 +87,11 @@ namespace KAS
             UpdateMagnet();
         }
 
-        protected override void OnJointBreak(float breakForce)
+        public override void OnJointBreakFixed()
         {
-            base.OnJointBreak(breakForce);
-            KAS_Shared.DebugWarning("A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             KAS_Shared.DebugWarning("Disable magnet...");
             MagnetActive = false;
+            base.OnJointBreakFixed();
         }
 
         public void OnPartGrab(Vessel kerbalEvaVessel)

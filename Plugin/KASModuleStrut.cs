@@ -248,12 +248,11 @@ namespace KAS
             }
         }
 
-        protected override void OnJointBreak(float breakForce)
+        public override void OnJointBreakFixed()
         {
             KAS_Shared.DebugWarning("OnJointBreak(Strut) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             Unlink();
             fxSndBroke.audio.Play();
-            base.OnJointBreak(breakForce);
         }
 
         public void OnPartGrab(Vessel kerbalEvaVessel)
