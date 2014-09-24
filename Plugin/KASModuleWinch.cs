@@ -1161,6 +1161,7 @@ namespace KAS
             if (headState == PlugState.Locked && ejectEnabled)
             {
                 Deploy();
+                retract.full = false;
                 cableJointLength = maxLenght;
                 Vector3 force = winchAnchorNode.TransformDirection(Vector3.forward) * ejectForce;
                 if (connectedPortInfo.module)
