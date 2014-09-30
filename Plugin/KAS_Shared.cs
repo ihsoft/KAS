@@ -647,14 +647,23 @@ namespace KAS
             }
         }
 
-        public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
+        public static ProtoPartSnapshot LoadProtoPartSnapshot(ConfigNode node)
         {
+            ProtoPartSnapshot result = null;
+
             ConfigNode node_copy = new ConfigNode();
             node.CopyTo(node_copy);
 
             node_copy.RemoveValues("kas_total_mass");
 
-            ProtoPartSnapshot snapshot = new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
+            result = new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
+
+            return result;
+        }
+
+        public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
+        {
+            ProtoPartSnapshot snapshot = KAS_Shared.LoadProtoPartSnapshot(node);
 
             if (HighLogic.CurrentGame.flightState.ContainsFlightID(snapshot.flightID))
                 snapshot.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);

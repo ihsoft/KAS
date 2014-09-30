@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace KAS
 {
-    public class KASModuleContainer : PartModule
+    public class KASModuleContainer : PartModule, IPartCostModifier
     {
         [KSPField] public float maxSize = 10f;
         [KSPField] public float maxOpenDistance = 2f;
@@ -292,6 +292,8 @@ namespace KAS
                 item.pristine_count += qty;
                 RefreshTotalSize();
             }
+
+            GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
         }
 
         private void Remove(AvailablePart avPart, int qty)
@@ -301,6 +303,8 @@ namespace KAS
             {
                 item.pristine_count = Math.Max(0, item.pristine_count - qty);
                 RefreshTotalSize();
+
+                GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
             }
             else
             {
@@ -809,6 +813,7 @@ namespace KAS
 
                 GUILayout.Label(new GUIContent("Weight : " + actionContainer.part.mass.ToString("0.000"), "Total weight of the container with contents"), guiRightWhiteStyle);
                 GUILayout.Label(new GUIContent(" | Space : " + actionContainer.totalSize.ToString("0.0") + " / " + actionContainer.maxSize.ToString("0.0"), "Space used / Max space"), guiRightWhiteStyle);
+                GUILayout.Label(new GUIContent(" | Cost : √" + actionContainer.GetModuleCost().ToString("0.00"), "Total cost of the container's contents"), guiRightWhiteStyle);
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
             }
@@ -828,5 +833,72 @@ namespace KAS
                 ViewContents();
             }           
         }
+
+        #region IPartCostModifier Implementation
+
+        private float CalculateResourceCost(PartResourceDefinition resourceDefinition, float amount, float maxAmount)
+        {
+            float result = 0.0f;
+
+            // A part's cost is dry + resources. Remove the total resource cost and then add
+            // the cost for the actual amount of the resource in the part. (This will yield a negative
+            // result if amount < maxAmount.)
+            result -= resourceDefinition.unitCost * maxAmount;
+            result += resourceDefinition.unitCost * amount;
+
+            return result;
+        }
+
+        public float GetModuleCost()
+        {
+            float result = 0.0f;
+
+            Dictionary<string, PartContent> contents = this.GetContent();
+
+            // Iterate through the contents, of which there may be multiple of each part.
+            foreach(PartContent partContent in contents.Values)
+            {
+                // Iterate through all of the instances of this part. (stateless = false)
+                foreach(ConfigNode partConfigNode in partContent.instances)
+                {
+                    ProtoPartSnapshot partSnapshot = KAS_Shared.LoadProtoPartSnapshot(partConfigNode);
+
+                    // Add the base cost and the calculated module costs for this specific instance, in case one or more modules need to
+                    // adjust the part's cost based on this instance's saved state.
+                    float instancedPartCost = partContent.part.cost + partSnapshot.moduleCosts;
+
+                    foreach(ProtoPartResourceSnapshot resourceSnapshot in partSnapshot.resources)
+                    {
+                        float amount = float.Parse(resourceSnapshot.resourceValues.GetValue("amount"));
+                        float maxAmount = float.Parse(resourceSnapshot.resourceValues.GetValue("maxAmount"));
+                        
+                        PartResourceDefinition resourceDefinition = PartResourceLibrary.Instance.GetDefinition(resourceSnapshot.resourceName);
+
+                        // Add the resource cost, which if amount != maxAmount will actually be a negative number because the base part cost
+                        // includes the cost of maxAmount of the resource.
+                        instancedPartCost += this.CalculateResourceCost(resourceDefinition, amount, maxAmount);
+                    }
+
+                    result += instancedPartCost;
+                }
+
+                // The rest of the parts are pristine and have a common base cost.
+                float singlePartCost = partContent.part.cost + partContent.part.partPrefab.GetModuleCosts();
+                             
+                // And the pristine parts have a common resource cost.
+                foreach(PartResource partResource in partContent.part.partPrefab.Resources)
+                {
+                    // NOTE: See comment on the above CalculateResourceCost call.
+                    singlePartCost += this.CalculateResourceCost(partResource.info, (float)partResource.amount, (float)partResource.maxAmount);
+                }
+
+                // Tack on the total cost of the pristine parts.
+                result += singlePartCost * partContent.pristine_count;
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }
