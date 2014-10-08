@@ -30,10 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="UnityEngine" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Games\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompatibilityChecker.cs" />
@@ -63,9 +67,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "D:\ServerFolders" xcopy "$(TargetPath)" "D:\ServerFolders\Softwares\SyncFolder\KSP_0.20\GameData\KAS\Plugins\" /Y
-IF EXIST "c:\games\KSP" xcopy "$(TargetPath)" "c:\games\KSP\GameData\KAS\Plugins\" /Y
-IF EXIST "D:\games\KSP" xcopy "$(TargetPath)" "D:\games\KSP\GameData\KAS\Plugins\" /Y</PostBuildEvent>
+    <PostBuildEvent>IF EXIST "D:\games\KSP" xcopy "$(TargetPath)" "D:\games\KSP\GameData\KAS\Plugins\" /Y
+IF EXIST "E:\games\KSP" xcopy "$(TargetPath)" "E:\games\KSP\GameData\KAS\Plugins\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
