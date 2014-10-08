@@ -53,8 +53,8 @@ namespace KAS
             \*-----------------------------------------------*/
 
             const int compatibleMajor = 0;
-            const int compatibleMinor = 24;
-            const int compatibleRevision = 2;
+            const int compatibleMinor = 25;
+            const int compatibleRevision = 0;
 
             return (Versioning.version_major == compatibleMajor) && (Versioning.version_minor == compatibleMinor) && (Versioning.Revision == compatibleRevision);
 
