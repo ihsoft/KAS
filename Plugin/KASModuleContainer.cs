@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace KAS
 {
-    public class KASModuleContainer : PartModule, IPartCostModifier
+    public class KASModuleContainer : PartModule, IPartCostModifier, IScienceDataContainer
     {
         [KSPField] public float maxSize = 10f;
         [KSPField] public float maxOpenDistance = 2f;
@@ -123,7 +123,7 @@ namespace KAS
 
         public Dictionary<string, PartContent> availableContents = new Dictionary<string, PartContent>();
         public Dictionary<string, PartContent> contents = new Dictionary<string, PartContent>();
-
+        
         private KASModuleContainer exchangeContainer = null;
         public float totalSize = 0;
         private bool waitAndGrabRunning = false;
@@ -179,11 +179,23 @@ namespace KAS
             {
                 item.Save(node);
             }
+
+            List<ScienceData> scienceData = this.RecoverScienceContent();
+
+            // We save the data in case the vessel is recovered, but in OnLoad, we don't care about "recovered" science data - the contents
+            // of this containerwill be restored and retain the data. We'll recover it again in future calls to OnSave.
+            foreach(ScienceData scienceDataItem in scienceData)
+            {
+                scienceDataItem.Save(node.AddNode("ScienceData"));
+            }
         }
 
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
+
+            // Do not load ScienceData nodes for this module's host part (a KAS container) as they were only stored in case the vessel was
+            // recovered. The original parts still contain the science data. (See OnSave.)
 
             if (node.HasNode("CONTENT") || node.HasNode("CONTENT_PART"))
             {
@@ -230,6 +242,48 @@ namespace KAS
             {
                 CloseAllGUI();
             }
+        }
+
+        private List<ScienceData> RecoverScienceContent()
+        {
+            List<ScienceData> result = new List<ScienceData>();
+
+            Dictionary<string, PartContent> contents = this.GetContent();
+
+            // Iterate through the contents, of which there may be multiple of each part.
+            foreach(PartContent partContent in contents.Values)
+            {
+                // Iterate through all of the instances of this part. (stateless = false)
+                foreach(ConfigNode partConfigNode in partContent.instances)
+                {
+                    ProtoPartSnapshot partSnapshot = KAS_Shared.LoadProtoPartSnapshot(partConfigNode);
+
+                    foreach(ProtoPartModuleSnapshot moduleSnapshot in partSnapshot.modules)
+                    {
+                        // In order to load the state of the module, it must be added to a part. Temporarily add it to this
+                        // module's host part and then remove it after it is evaluated.
+                        int moduleIndex = this.part.Modules.Count;
+                        part.AddModule(moduleSnapshot.moduleName);
+
+                        PartModule module = moduleSnapshot.Load(this.part, ref moduleIndex);
+
+                        // ModuleScienceExperiment and ModuleScienceContainer implement IScienceDataContainer. Also, because KASModuleContainer
+                        // now implements IScienceDataContainer, it is conceivable that nested KAS containers with science data will be properly
+                        // recovered.
+                        if(module is IScienceDataContainer)
+                        {
+                            IScienceDataContainer scienceDataContainer = (IScienceDataContainer)module;
+
+                            // Duplicate science experiments are OK, the science awards are evaluated correctly by KSP.
+                            result.AddRange(scienceDataContainer.GetData());
+                        }
+
+                        this.part.RemoveModule(module);
+                    }
+                }
+            }
+
+            return result;
         }
 
         void OnDestroy()
@@ -649,6 +703,7 @@ namespace KAS
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("Close", "Close container"), guiButtonStyle, GUILayout.Width(60f)))
             {
+                this.activeEditTab = EditTab.All;
                 CloseAllGUI();
                 fxSndClose.audio.Play();
             }
@@ -897,6 +952,49 @@ namespace KAS
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region IScienceDataContainer Implementation
+
+        // IScienceDataContainer is implemented so that KASModuleContainer is a IScienceDataContainer to ensure it gets
+        // evaluated during vessel recovery. However, during vessel recovery the GetData() method is not called to retrieve
+        // the actual science from the module. Rather, the vessel's saved state is used with a ProtoVessel and science is
+        // recovered by examining the ScienceData ConfigNode(s). (See OnSave().)
+
+        public void DumpData(ScienceData data)
+        {
+            // Not called during vessel recovery and a KAS container doesn't expose container services to the player.
+        }
+
+        public ScienceData[] GetData()
+        {
+            List<ScienceData> scienceData = this.RecoverScienceContent();
+            
+            return scienceData.ToArray();
+        }
+
+        public int GetScienceCount()
+        {
+            List<ScienceData> scienceData = this.RecoverScienceContent();
+            
+            return scienceData.Count;
+        }
+
+        public bool IsRerunnable()
+        {
+            return false;
+        }
+
+        public void ReviewData()
+        {
+            // Not called during vessel recovery and a KAS container doesn't expose container services to the player.
+        }
+
+        public void ReviewDataItem(ScienceData data)
+        {
+            // Not called during vessel recovery and a KAS container doesn't expose container services to the player.
         }
 
         #endregion
