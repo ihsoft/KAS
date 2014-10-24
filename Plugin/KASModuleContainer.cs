@@ -30,6 +30,7 @@ namespace KAS
             public int totalCount { get { return pristine_count + instances.Count; } }
             public float totalSize { get { return storedSize * totalCount; } }
             public float totalMass { get { return pristine_mass * pristine_count + instance_mass; } }
+            public float totalCost { get { return pristine_cost * pristine_count + instance_cost; } }
 
             public float averageMass
             {
@@ -40,10 +41,19 @@ namespace KAS
                 }
             }
 
-            public readonly float pristine_mass;
+            public float averageCost
+            {
+                get
+                {
+                    int count = totalCount;
+                    return count > 0 ? totalCost / count : pristine_cost;
+                }
+            }
+
+            public readonly float pristine_mass, pristine_cost;
             public int pristine_count;
 
-            public float instance_mass;
+            public float instance_mass, instance_cost;
             public readonly List<ConfigNode> instances = new List<ConfigNode>();
 
             private PartContent(AvailablePart avPart, KASModuleGrab grab)
@@ -51,10 +61,12 @@ namespace KAS
                 part = avPart;
                 grabModule = grab;
                 pristine_mass = part.partPrefab.mass;
+                pristine_cost = part.cost + part.partPrefab.GetModuleCosts();
 
                 foreach (var res in part.partPrefab.GetComponents<PartResource>())
                 {
                     pristine_mass += (float)(res.amount * res.info.density);
+                    pristine_cost += (float)(res.amount - res.maxAmount) * res.info.unitCost;
                 }
             }
 
@@ -91,7 +103,19 @@ namespace KAS
                 {
                     ConfigNode nodeD = new ConfigNode();
                     node.CopyTo(nodeD);
-                    instance_mass += float.Parse(node.GetValue("kas_total_mass"));
+
+                    // Backward compatibility: compute the cost and save it
+                    if (!nodeD.HasValue("kas_total_cost"))
+                    {
+                        var snapshot = KAS_Shared.LoadProtoPartSnapshot(nodeD);
+
+                        float dry_cost, fuel_cost;
+                        float total_cost = ShipConstruction.GetPartCosts(snapshot, part, out dry_cost, out fuel_cost);
+                        nodeD.AddValue("kas_total_cost", total_cost);
+                    }
+
+                    instance_mass += float.Parse(nodeD.GetValue("kas_total_mass"));
+                    instance_cost += float.Parse(nodeD.GetValue("kas_total_cost"));
                     instances.Add(nodeD);
                 }
             }
@@ -116,6 +140,8 @@ namespace KAS
                 ConfigNode node = instances[0];
                 float mass = float.Parse(node.GetValue("kas_total_mass"));
                 instance_mass -= mass;
+                float cost = float.Parse(node.GetValue("kas_total_cost"));
+                instance_cost -= cost;
                 instances.RemoveAt(0);
                 return node;
             }
@@ -800,9 +826,10 @@ namespace KAS
             foreach (PartContent item in contentsList.Values)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(new GUIContent("  " + item.part.title, "Name"), guiCenterStyle, GUILayout.Width(300f));
-                GUILayout.Label(new GUIContent("  " + item.storedSize.ToString("0.0"), "Size"), guiCenterStyle, GUILayout.Width(50f));
-                GUILayout.Label(new GUIContent("  " + item.averageMass.ToString("0.000"), "Mass"), guiCenterStyle, GUILayout.Width(50f));
+                GUILayout.Label(new GUIContent("  " + item.part.title, "Name"), guiCenterStyle, GUILayout.Width(280f));
+                GUILayout.Label(new GUIContent("  " + item.storedSize.ToString("0.0"), "Size"), guiCenterStyle, GUILayout.Width(40f));
+                GUILayout.Label(new GUIContent("  " + item.averageMass.ToString("0.000"), "Mass"), guiCenterStyle, GUILayout.Width(40f));
+                GUILayout.Label(new GUIContent("  " + item.averageCost.ToString("0"), "Cost"), guiCenterStyle, GUILayout.Width(40f));
                 GUILayout.Label(new GUIContent("  " + item.totalCount, "Quantity"), guiCenterStyle, GUILayout.Width(50f));
                 if (showButton == ShowButton.Add)
                 {
@@ -891,64 +918,13 @@ namespace KAS
 
         #region IPartCostModifier Implementation
 
-        private float CalculateResourceCost(PartResourceDefinition resourceDefinition, float amount, float maxAmount)
-        {
-            float result = 0.0f;
-
-            // A part's cost is dry + resources. Remove the total resource cost and then add
-            // the cost for the actual amount of the resource in the part. (This will yield a negative
-            // result if amount < maxAmount.)
-            result -= resourceDefinition.unitCost * maxAmount;
-            result += resourceDefinition.unitCost * amount;
-
-            return result;
-        }
-
         public float GetModuleCost()
         {
             float result = 0.0f;
 
-            Dictionary<string, PartContent> contents = this.GetContent();
-
-            // Iterate through the contents, of which there may be multiple of each part.
-            foreach(PartContent partContent in contents.Values)
+            foreach (PartContent item in contents.Values)
             {
-                // Iterate through all of the instances of this part. (stateless = false)
-                foreach(ConfigNode partConfigNode in partContent.instances)
-                {
-                    ProtoPartSnapshot partSnapshot = KAS_Shared.LoadProtoPartSnapshot(partConfigNode);
-
-                    // Add the base cost and the calculated module costs for this specific instance, in case one or more modules need to
-                    // adjust the part's cost based on this instance's saved state.
-                    float instancedPartCost = partContent.part.cost + partSnapshot.moduleCosts;
-
-                    foreach(ProtoPartResourceSnapshot resourceSnapshot in partSnapshot.resources)
-                    {
-                        float amount = float.Parse(resourceSnapshot.resourceValues.GetValue("amount"));
-                        float maxAmount = float.Parse(resourceSnapshot.resourceValues.GetValue("maxAmount"));
-                        
-                        PartResourceDefinition resourceDefinition = PartResourceLibrary.Instance.GetDefinition(resourceSnapshot.resourceName);
-
-                        // Add the resource cost, which if amount != maxAmount will actually be a negative number because the base part cost
-                        // includes the cost of maxAmount of the resource.
-                        instancedPartCost += this.CalculateResourceCost(resourceDefinition, amount, maxAmount);
-                    }
-
-                    result += instancedPartCost;
-                }
-
-                // The rest of the parts are pristine and have a common base cost.
-                float singlePartCost = partContent.part.cost + partContent.part.partPrefab.GetModuleCosts();
-                             
-                // And the pristine parts have a common resource cost.
-                foreach(PartResource partResource in partContent.part.partPrefab.Resources)
-                {
-                    // NOTE: See comment on the above CalculateResourceCost call.
-                    singlePartCost += this.CalculateResourceCost(partResource.info, (float)partResource.amount, (float)partResource.maxAmount);
-                }
-
-                // Tack on the total cost of the pristine parts.
-                result += singlePartCost * partContent.pristine_count;
+                result += item.totalCost;
             }
 
             return result;
