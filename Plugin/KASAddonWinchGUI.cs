@@ -197,7 +197,7 @@ namespace KAS
                     }
                     if (!winchModule.highLightStarted)
                     {
-                        winchModule.part.SetHighlight(true);
+                        winchModule.part.SetHighlight(true,false);
                         winchModule.highLightStarted = true;
                     }
                 }
@@ -205,7 +205,7 @@ namespace KAS
                 {
                     if (winchModule.highLightStarted)
                     {
-                        winchModule.part.SetHighlight(false);
+                        winchModule.part.SetHighlight(false, false);
                         winchModule.highLightStarted = false;
                     }
                 }

@@ -61,7 +61,7 @@ namespace KAS
                 part = avPart;
                 grabModule = grab;
                 pristine_mass = part.partPrefab.mass;
-                pristine_cost = part.cost + part.partPrefab.GetModuleCosts();
+                pristine_cost = part.cost + part.partPrefab.GetModuleCosts(0);
 
                 foreach (var res in part.partPrefab.GetComponents<PartResource>())
                 {
@@ -857,7 +857,7 @@ namespace KAS
 
                 GUILayout.Label(new GUIContent("Weight : " + actionContainer.part.mass.ToString("0.000"), "Total weight of the container with contents"), guiRightWhiteStyle);
                 GUILayout.Label(new GUIContent(" | Space : " + actionContainer.totalSize.ToString("0.0") + " / " + actionContainer.maxSize.ToString("0.0"), "Space used / Max space"), guiRightWhiteStyle);
-                GUILayout.Label(new GUIContent(" | Cost : √" + actionContainer.GetModuleCost().ToString("0.00"), "Total cost of the container's contents"), guiRightWhiteStyle);
+                GUILayout.Label(new GUIContent(" | Cost : √" + actionContainer.GetModuleCost(0).ToString("0.00"), "Total cost of the container's contents"), guiRightWhiteStyle);
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
             }
@@ -880,16 +880,14 @@ namespace KAS
 
         #region IPartCostModifier Implementation
 
-        public float GetModuleCost()
+        public float GetModuleCost(float defaultCost)
         {
-            float result = 0.0f;
-
             foreach (PartContent item in contents.Values)
             {
-                result += item.totalCost;
+                defaultCost += item.totalCost;
             }
 
-            return result;
+            return defaultCost;
         }
 
         #endregion

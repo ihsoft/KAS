@@ -27,7 +27,7 @@ namespace KAS
 
         private static Vector3 vectTest = Vector3.forward;
         private static float testDegree = 180;
-
+        private static bool inputLock = false;
 
         public static void DebugLog(string text)
         {
@@ -475,13 +475,16 @@ namespace KAS
 
         public static void DisableEditorClickthrough(Rect guiWindowRect)
         {
-            if (MouseIsOverWindow(guiWindowRect) && !EditorLogic.editorLocked)
+            if (MouseIsOverWindow(guiWindowRect) && !inputLock)
             {
                 EditorLogic.fetch.Lock(true, true, true, "KAS DisableEditorClickthrough");
+                inputLock = true;
             }
-            if (!MouseIsOverWindow(guiWindowRect) && EditorLogic.editorLocked)
+            if (!MouseIsOverWindow(guiWindowRect) && inputLock)
             {
                 EditorLogic.fetch.Unlock("KAS DisableEditorClickthrough");
+                inputLock = false;
+
             }
         }
 
@@ -514,14 +517,14 @@ namespace KAS
             newPart.gameObject.SetActive(true);
             newPart.gameObject.name = avPart.name;
             newPart.partInfo = avPart;
-            newPart.highlightRecurse = true;
+            //newPart.highlightRecurse = true;
             newPart.SetMirror(Vector3.one);
 
             ShipConstruct newShip = new ShipConstruct();
             newShip.Add(newPart);
             newShip.SaveShip();
             newShip.shipName = avPart.title;
-            newShip.shipType = 1;
+            //newShip.ty = 1;
 
             VesselCrewManifest vessCrewManifest = new VesselCrewManifest();
             Vessel currentVessel = FlightGlobals.ActiveVessel;
