@@ -223,7 +223,7 @@ namespace KAS
             }
         }
 
-        private void OnJointBreak(float breakForce)
+        protected virtual void OnJointBreak(float breakForce)
         {
             KAS_Shared.DebugWarning("OnJointBreak(Core) A joint broken on " + part.partInfo.title + " !, force: " + breakForce);
             StartCoroutine(WaitAndCheckJoint());

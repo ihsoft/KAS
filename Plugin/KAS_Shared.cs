@@ -574,7 +574,10 @@ namespace KAS
 
             snapshot.Save(node);
 
+            float dry_cost, fuel_cost;
+            float total_cost = ShipConstruction.GetPartCosts(snapshot, part.partInfo, out dry_cost, out fuel_cost);
             node.AddValue("kas_total_mass", part.mass+part.GetResourceMass());
+            node.AddValue("kas_total_cost", total_cost);
 
             // Prune unimportant data
             node.RemoveValues("parent");
@@ -649,16 +652,13 @@ namespace KAS
 
         public static ProtoPartSnapshot LoadProtoPartSnapshot(ConfigNode node)
         {
-            ProtoPartSnapshot result = null;
-
             ConfigNode node_copy = new ConfigNode();
             node.CopyTo(node_copy);
 
             node_copy.RemoveValues("kas_total_mass");
+            node_copy.RemoveValues("kas_total_cost");
 
-            result = new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
-
-            return result;
+            return new ProtoPartSnapshot(node_copy, null, HighLogic.CurrentGame);
         }
 
         public static Part LoadPartSnapshot(Vessel vessel, ConfigNode node, Vector3 position, Quaternion rotation)
