@@ -31,23 +31,24 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>E:\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="KIS, Version=1.0.5602.32645, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Games\KSP\GameData\KIS\Plugins\KIS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Games\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>E:\Games\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
-    <Compile Include="KASAddonPointer.cs" />
-    <Compile Include="KASAddonAddModule.cs" />
-    <Compile Include="KASModuleGrapplingHook.cs" />
+    <Compile Include="KASModuleHarpoon.cs" />
     <Compile Include="KASModuleRotor.cs" />
-    <Compile Include="KASModuleSuctionCup.cs" />
     <Compile Include="KASModuleContainer.cs" />
     <Compile Include="KASModulePort.cs" />
     <Compile Include="KASModuleTelescopicArm.cs" />
@@ -59,15 +60,13 @@
     <Compile Include="KASAddonControlKey.cs" />
     <Compile Include="KASModulePhysicChild.cs" />
     <Compile Include="KAS_Tube.cs" />
-    <Compile Include="KASModuleGrab.cs" />
-    <Compile Include="KASModulePartBay.cs" />
     <Compile Include="KAS_Shared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="KASModuleTimedBomb.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "D:\games\KSP" xcopy "$(TargetPath)" "D:\games\KSP\GameData\KAS\Plugins\" /Y
+    <PostBuildEvent>IF EXIST "C:\games\KSP" xcopy "$(TargetPath)" "C:\games\KSP\GameData\KAS\Plugins\" /Y
+IF EXIST "D:\games\KSP" xcopy "$(TargetPath)" "D:\games\KSP\GameData\KAS\Plugins\" /Y
 IF EXIST "E:\games\KSP" xcopy "$(TargetPath)" "E:\games\KSP\GameData\KAS\Plugins\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
