@@ -5,15 +5,15 @@
 KAS introduce new gameplay mechanics by adding winches, and eva attachable struts/pipes. 
 It gives some purpose to EVA and can be used for many things:
 
-Resource transfer
-Towing parts
-Base/vessel interconnections
-Vessel consolidation
-Cranes
-Airship anchoring
-Skycranes
-Elevators
-...and more
+- Resource transfer
+- Towing parts
+- Base/vessel interconnections
+- Vessel consolidation
+- Cranes
+- Airship anchoring
+- Skycranes
+- Elevators
+- ...and more
 
 
 ===
