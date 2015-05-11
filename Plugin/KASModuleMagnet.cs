@@ -2,27 +2,39 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using KIS;
 
 namespace KAS
 {
     public class KASModuleMagnet : KASModuleAttachCore
     {
-        [KSPField] public float powerDrain = 1f;
-        [KSPField] public float breakForce = 10;
-        [KSPField] public float minFwdDot = 0.998f;
-        [KSPField] public float minRollDot = float.MinValue;
-        [KSPField] public bool attachToEva = false;
+        [KSPField]
+        public float powerDrain = 1f;
+        [KSPField]
+        public float breakForce = 10;
+        [KSPField]
+        public float minFwdDot = 0.998f;
+        [KSPField]
+        public float minRollDot = float.MinValue;
+        [KSPField]
+        public bool attachToEva = false;
 
         //Sounds
-        [KSPField] public string attachSndPath = "KAS/Sounds/magnetAttach";
-        [KSPField] public string detachSndPath = "KAS/Sounds/magnetDetach";
-        [KSPField] public string magnetSndPath = "KAS/Sounds/magnet";
-        [KSPField] public string magnetStartSndPath = "KAS/Sounds/magnetstart";
-        [KSPField] public string magnetStopSndPath = "KAS/Sounds/magnetstop";
+        [KSPField]
+        public string attachSndPath = "KAS/Sounds/magnetAttach";
+        [KSPField]
+        public string detachSndPath = "KAS/Sounds/magnetDetach";
+        [KSPField]
+        public string magnetSndPath = "KAS/Sounds/magnet";
+        [KSPField]
+        public string magnetStartSndPath = "KAS/Sounds/magnetstart";
+        [KSPField]
+        public string magnetStopSndPath = "KAS/Sounds/magnetstop";
 
         public FXGroup fxSndAttach, fxSndDetach, fxSndMagnet, fxSndMagnetStart, fxSndMagnetStop;
 
-        [KSPField(guiActive = true, guiName = "State", guiFormat="S")] public string state = "Off";
+        [KSPField(guiActive = true, guiName = "State", guiFormat = "S")]
+        public string state = "Off";
         private bool _magnetActive = false;
 
         public bool MagnetActive
@@ -94,26 +106,29 @@ namespace KAS
             base.OnJointBreakFixed();
         }
 
-        public void OnPartGrab(Vessel kerbalEvaVessel)
+        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
         {
-            MagnetActive = false;
-            Events["ContextMenuMagnet"].guiActive = false;
-        }
-
-        public void OnPartDrop()
-        {
-            MagnetActive = false;
-            Events["ContextMenuMagnet"].guiActive = true;
-        }
-
-        public void OnAttachPart(Part targetPart)
-        {
-            KAS_Shared.DebugLog("OnAttachPart(magnet) - Attach magnet to : " + targetPart.partInfo.title);
-            if (FixedAttach.connectedPart)
+            if (messageInfo.action == KIS_Shared.MessageAction.Store || messageInfo.action == KIS_Shared.MessageAction.AttachStart)
             {
                 MagnetActive = false;
-            }        
-            AttachMagnet(targetPart); 
+            }
+            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            {
+                if (messageInfo.tgtPart)
+                {
+                    if (KISAddonPointer.GetCurrentAttachNode().id == "srfAttach")
+                    {
+                        if (!messageInfo.tgtPart.vessel.isEVA) AttachMagnet(messageInfo.tgtPart);
+                    }
+                }
+                else
+                {
+                    if (FixedAttach.connectedPart)
+                    {
+                        MagnetActive = false;
+                    }
+                }
+            }
         }
 
         void OnCollisionEnter(Collision collision)
@@ -133,7 +148,7 @@ namespace KAS
         }
 
         void UpdateMagnet()
-        {         
+        {
             if (!MagnetActive) return;
             //Drain power and stop if no energy
             if (!KAS_Shared.RequestPower(this.part, powerDrain))
@@ -144,7 +159,7 @@ namespace KAS
                     ScreenMessages.PostScreenMessage("Magnet stopped ! Insufficient Power", 5, ScreenMessageStyle.UPPER_CENTER);
                 }
                 MagnetActive = false;
-            }            
+            }
         }
 
         private void AttachOnCollision(Collision collision, string type)
@@ -206,8 +221,8 @@ namespace KAS
                 KAS_Shared.DebugLog("AttachOnCollision - Attach to surface the object");
 
                 // attach
-                AttachMagnet(p); 
-   
+                AttachMagnet(p);
+
                 // sound
                 if (FixedAttach.connectedPart)
                 {
@@ -245,7 +260,7 @@ namespace KAS
             fxSndMagnet.audio.Stop();
         }
 
-        [KSPEvent(name = "ContextMenuMagnet", active = true, guiActive = true, guiActiveUnfocused = false, guiName = "Magnet On/Off")]
+        [KSPEvent(name = "ContextMenuMagnet", active = true, guiActive = true, guiActiveUnfocused = true, guiName = "Magnet On/Off")]
         public void ContextMenuMagnet()
         {
             MagnetActive = !MagnetActive;

@@ -4,10 +4,11 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KIS;
 
 namespace KAS
 {
-    public class KASModuleGrapplingHook : KASModuleAttachCore
+    public class KASModuleHarpoon : KASModuleAttachCore
     {
         [KSPField] public float forceNeeded = 5;
         [KSPField] public bool attachToPart = true;
@@ -15,16 +16,13 @@ namespace KAS
         [KSPField] public float rayLenght = 1;
         [KSPField] public float partBreakForce = 10;
         [KSPField] public float staticBreakForce = 15;
-        //[KSPField] public float minFwdDot = 0.990f;
-        //[KSPField] public float minRollDot = float.MinValue;
         [KSPField] public float aboveDist = 0f;
 
         //Sounds
         [KSPField] public string attachStaticSndPath = "KAS/Sounds/grappleAttachStatic";
-        [KSPField] public  string attachPartSndPath = "KAS/Sounds/grappleAttachPart";
-        [KSPField] public  string attachEvaSndPath = "KAS/Sounds/grappleAttachEva";
-        [KSPField] public  string detachSndPath = "KAS/Sounds/grappleDetach";
-        public FXGroup fxSndAttachStatic, fxSndAttachPart, fxSndAttachEva, fxSndDetach;
+        [KSPField] public string attachPartSndPath = "KAS/Sounds/grappleAttachPart";
+        [KSPField] public string attachEvaSndPath = "KAS/Sounds/grappleAttachEva";
+        [KSPField] public string detachSndPath = "KAS/Sounds/grappleDetach";
 
         //Info
         [KSPField(guiActive = true, guiName = "State", guiFormat="S")] public string state = "Idle";
@@ -52,11 +50,6 @@ namespace KAS
                 Events["ContextMenuDetach"].guiActive = false;
                 Events["ContextMenuDetach"].guiActiveUnfocused = false;
             }
-
-            KAS_Shared.createFXSound(this.part, fxSndAttachStatic, attachStaticSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndAttachPart, attachPartSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndAttachEva, attachEvaSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndDetach, detachSndPath, false);
         }
 
         public override void OnJointBreakStatic()
@@ -78,26 +71,17 @@ namespace KAS
             this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
-        public void OnPartGrab(Vessel kerbalEvaVessel)
+        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
         {
-            DetachGrapple();
-        }
-
-        public void OnAttachStatic()
-        {
-            DetachGrapple();
-            AttachStaticGrapple(staticBreakForce);
-        }
-
-        public void OnAttachPart(Part targetPart)
-        {
-            KAS_Shared.DebugLog("OnAttachPart(GrapplingHook)");
-            if (FixedAttach.connectedPart)
+            if (messageInfo.action == KIS_Shared.MessageAction.Store || messageInfo.action == KIS_Shared.MessageAction.AttachStart)
             {
                 DetachGrapple();
-            }   
-
-            AttachPartGrapple(targetPart, partBreakForce);
+            }
+            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            {
+                DetachGrapple();
+                if (messageInfo.tgtPart == null) AttachStaticGrapple(staticBreakForce);    
+            }
         }
 
         void OnCollisionEnter(Collision collision)
@@ -195,11 +179,11 @@ namespace KAS
             //Sound
             if (attachToPart.vessel.isEVA)
             {
-                fxSndAttachEva.audio.Play();
+                KIS_Shared.PlaySoundAtPoint(attachEvaSndPath, this.part.transform.position);
             }
             else
             {
-                fxSndAttachPart.audio.Play();
+                KIS_Shared.PlaySoundAtPoint(attachPartSndPath, this.part.transform.position);
             }
         }
 
@@ -209,7 +193,7 @@ namespace KAS
             Events["ContextMenuDetach"].guiActive = true;
             Events["ContextMenuDetach"].guiActiveUnfocused = true;
             state = "Ground attached";
-            fxSndAttachStatic.audio.Play();
+            KIS_Shared.PlaySoundAtPoint(attachStaticSndPath, this.part.transform.position);
         }
         
         public void DetachGrapple()
@@ -220,7 +204,7 @@ namespace KAS
             if (attachMode.StaticJoint || attachMode.FixedJoint)
             {
                 Detach();
-                fxSndDetach.audio.Play();
+                KIS_Shared.PlaySoundAtPoint(detachSndPath, this.part.transform.position);
             }
         }
 

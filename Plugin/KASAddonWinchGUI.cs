@@ -338,22 +338,11 @@ namespace KAS
                 GUI.enabled = true;
 
                 KASModuleMagnet moduleHookMagnet = winchModule.GetHookMagnet();
-                KASModuleSuctionCup moduleHookSuction = winchModule.GetHookSuction();
-                KASModuleGrapplingHook moduleHookGrapple = winchModule.GetHookGrapple();
+                KASModuleHarpoon moduleHookGrapple = winchModule.GetHookGrapple();
 
                 if (moduleHookMagnet)
                 {
                     moduleHookMagnet.MagnetActive = GUILayout.Toggle(moduleHookMagnet.MagnetActive, new GUIContent("Magnet", "Magnet On/Off"), guiButtonStyle, GUILayout.Width(60f));
-                }
-
-                if (moduleHookSuction)
-                {
-                    if (!moduleHookSuction.attachMode.FixedJoint) GUI.enabled = false;
-                    if (GUILayout.Button(new GUIContent("Detach", "Detach attached object(s)"), guiButtonStyle, GUILayout.Width(60f)))
-                    {
-                        moduleHookSuction.DetachSuction();
-                    }
-                    GUI.enabled = true;
                 }
 
                 if (moduleHookGrapple)
@@ -366,7 +355,7 @@ namespace KAS
                     GUI.enabled = true;
                 }
 
-                if (!moduleHookMagnet && !moduleHookSuction && !moduleHookGrapple)
+                if (!moduleHookMagnet && !moduleHookGrapple)
                 {
                     GUI.enabled = false;
                     GUILayout.Button(new GUIContent("-", "Nothing connected or hook not supported"), guiButtonStyle, GUILayout.Width(60f));
