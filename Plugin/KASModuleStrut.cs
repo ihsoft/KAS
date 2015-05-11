@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using KIS;
 
 namespace KAS
 {
@@ -33,7 +34,7 @@ namespace KAS
         public KAS_Tube strutRenderer;
 
         private bool linkValid = true;
-        private bool linked = false;
+        public  bool linked = false;
         public KASModuleStrut linkedStrutModule = null;
         public Vessel linkedEvaVessel = null;
 
@@ -255,20 +256,15 @@ namespace KAS
             fxSndBroke.audio.Play();
         }
 
-        public void OnPartGrab(Vessel kerbalEvaVessel)
+        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
         {
-            if (linked) fxSndBroke.audio.Play();
-            StopEvaLink();
-            Unlink();
-            StopPump();
-        }
-
-        public void OnAttach()
-        {
-            if (linked) fxSndBroke.audio.Play();
-            StopEvaLink();
-            Unlink();
-            StopPump();
+            if (messageInfo.action == KIS_Shared.MessageAction.Store || messageInfo.action == KIS_Shared.MessageAction.AttachStart || messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            {
+                if (linked) fxSndBroke.audio.Play();
+                StopEvaLink();
+                Unlink();
+                StopPump();
+            }
         }
 
         private void SetEvaLink()
@@ -298,6 +294,7 @@ namespace KAS
             strutRenderer.color.a = 0.5f;
             strutRenderer.Load();
             linkedEvaVessel = FlightGlobals.ActiveVessel;
+            InputLockManager.SetControlLock(ControlTypes.PAUSE, "KASStrutLink");
         }
 
         private void StopEvaLink()
@@ -305,6 +302,7 @@ namespace KAS
             strutRenderer.UnLoad();
             linkedEvaVessel = null;
             if (evaStrutTransform) Destroy(evaStrutTransform.gameObject);
+            InputLockManager.RemoveControlLock("KASStrutLink");
         }
 
         private bool LinkTo(KASModuleStrut tgtModule, bool checkCondition = true, bool setJointOrDock = true)
@@ -546,6 +544,15 @@ namespace KAS
         [KSPEvent(name = "ContextMenuLink", active = true, guiActiveUnfocused = true, guiActive = false, unfocusedRange = 2f, guiName = "Link")]
         public void ContextMenuLink()
         {
+            KASModulePort portModule = this.part.GetComponent<KASModulePort>();
+            if (portModule)
+            {
+                if (portModule.plugged)
+                {
+                    ScreenMessages.PostScreenMessage("Cannot link, port is already used", 5, ScreenMessageStyle.UPPER_CENTER);
+                    return;
+                }
+            }
             KASModuleStrut EvaLinkedStrutModule = GetEvaLinkedStrutModule(FlightGlobals.ActiveVessel);
             if (EvaLinkedStrutModule)
             {
