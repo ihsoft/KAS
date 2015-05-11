@@ -26,7 +26,6 @@ namespace KAS
         private static List<Part> parentList;
 
         private static Vector3 vectTest = Vector3.forward;
-        private static float testDegree = 180;
         private static bool inputLock = false;
 
         public static void DebugLog(string text)
@@ -937,21 +936,6 @@ namespace KAS
             {
                 if (pc2.parent) pc2.decouple();
             }
-        }
-
-        public static KASModuleGrab GetGrabbedPartModule(Vessel evaVessel)
-        {
-            List<KASModuleGrab> allEvaGrab = new List<KASModuleGrab>(GameObject.FindObjectsOfType(typeof(KASModuleGrab)) as KASModuleGrab[]);
-            foreach (KASModuleGrab evaGrab in allEvaGrab)
-            {
-                if (!evaGrab.grabbed) continue;
-                if (!evaGrab.evaHolderPart) continue;
-                if (evaGrab.evaHolderPart.vessel == evaVessel)
-                {
-                    return evaGrab;
-                }
-            }
-            return null;
         }
 
         public static KASModuleWinch GetWinchModuleGrabbed(Vessel evaVessel)
