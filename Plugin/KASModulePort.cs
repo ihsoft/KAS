@@ -3,39 +3,42 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using KIS;
 
 namespace KAS
 {
     public class KASModulePort : KASModuleAttachCore
     {
         //Part.cfg
-        [KSPField] public string nodeType = "kasplug";
-        [KSPField] public string attachNode = "bottom";
-        [KSPField] public string nodeTransformName = "portNode";
-        [KSPField] public float breakForce = 30;
-        [KSPField] public float rotateForce = 1f;
+        [KSPField]
+        public string nodeType = "kasplug";
+        [KSPField]
+        public string attachNode = "bottom";
+        [KSPField]
+        public string nodeTransformName = "portNode";
+        [KSPField]
+        public float breakForce = 30;
+        [KSPField]
+        public float rotateForce = 1f;
 
         //Sounds
-        [KSPField] public string plugSndPath = "KAS/Sounds/plug";
-        [KSPField] public string unplugSndPath = "KAS/Sounds/unplug";
-        [KSPField] public string plugDockedSndPath = "KAS/Sounds/plugdocked";
-        [KSPField] public string unplugDockedSndPath = "KAS/Sounds/unplugdocked";
-        public FXGroup fxSndPlug, fxSndUnplug, fxSndPlugDocked, fxSndUnplugDocked; 
+        [KSPField]
+        public string plugSndPath = "KAS/Sounds/plug";
+        [KSPField]
+        public string unplugSndPath = "KAS/Sounds/unplug";
+        [KSPField]
+        public string plugDockedSndPath = "KAS/Sounds/plugdocked";
+        [KSPField]
+        public string unplugDockedSndPath = "KAS/Sounds/unplugdocked";
 
-        public KASPlugState plugState = 0;
-        public enum KASPlugState
-        {
-            Ready = 0,
-            PreAttached = 1,
-            PlugUndock = 2,
-            PlugDock = 3,
-        }
+        [KSPField(isPersistant = true)]
+        public bool plugged = false;
 
         public KASModuleWinch winchConnected;
 
         public Transform portNode
         {
-            get { return this.part.FindModelTransform(nodeTransformName);}
+            get { return this.part.FindModelTransform(nodeTransformName); }
         }
 
         public Part nodeConnectedPart
@@ -71,16 +74,6 @@ namespace KAS
             return sb.ToString();
         }
 
-        public override void OnStart(StartState state)
-        {
-            base.OnStart(state);
-            if (state == StartState.Editor || state == StartState.None) return;
-            KAS_Shared.createFXSound(this.part, fxSndPlug, plugSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndUnplug, unplugSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndPlugDocked, plugDockedSndPath, false);
-            KAS_Shared.createFXSound(this.part, fxSndUnplugDocked, unplugDockedSndPath, false);   
-        }
-
         protected override void OnPartDie()
         {
             base.OnPartDie();
@@ -88,6 +81,71 @@ namespace KAS
             if (winchConnected)
             {
                 winchConnected.UnplugHead(false);
+            }
+        }
+
+        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
+        {
+            if (messageInfo.action == KIS_Shared.MessageAction.Store)
+            {
+                if (winchConnected)
+                {
+                    winchConnected.UnplugHead(false);
+                }
+            }
+            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            {
+                if (winchConnected)
+                {
+                    winchConnected.cableJointLength = winchConnected.cableRealLenght;
+                    winchConnected.PlugHead(this, KASModuleWinch.PlugState.PlugDocked, false, false, true);
+                }
+            }
+            if (messageInfo.action == KIS_Shared.MessageAction.AttachStart)
+            {
+                if (messageInfo.TgtAttachNode != null)
+                {
+                    KASModuleWinch moduleWinch = messageInfo.TgtAttachNode.owner.GetComponent<KASModuleWinch>();
+                    if (moduleWinch)
+                    {
+                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && messageInfo.TgtAttachNode.id == moduleWinch.connectedPortNodeName)
+                        {
+                            if (winchConnected)
+                            {
+                                winchConnected.UnplugHead(false);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            if (messageInfo.action == KIS_Shared.MessageAction.AttachEnd)
+            {
+                if (messageInfo.TgtAttachNode != null)
+                {
+                    KASModuleWinch moduleWinch = messageInfo.TgtAttachNode.owner.GetComponent<KASModuleWinch>();
+                    if (moduleWinch)
+                    {
+                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && messageInfo.TgtAttachNode.id == moduleWinch.connectedPortNodeName)
+                        {
+                            moduleWinch.PlugHead(this, KASModuleWinch.PlugState.PlugDocked, alreadyDocked: true);
+                            StartCoroutine(WaitAndRemoveJoint());
+                        }
+                    }
+                }
+            }
+        }
+
+        private IEnumerator WaitAndRemoveJoint()
+        {
+            while (!this.part.started && this.part.State != PartStates.DEAD)
+            {
+                KAS_Shared.DebugLog("WaitAndRemoveJoint - Waiting initialization of the part...");
+                yield return null;
+            }
+            if (this.part.attachJoint)
+            {
+                this.part.attachJoint.DestroyJoint();
             }
         }
 

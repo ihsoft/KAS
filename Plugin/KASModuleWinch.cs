@@ -4,53 +4,82 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KIS;
 
 namespace KAS
 {
-    public class KASModuleWinchHead : MonoBehaviour
-    {
-        public KASModuleWinch connectedWinch;
-    }
-
     public class KASModuleWinch : KASModuleAttachCore
     {
         //Part.cfg file
-        [KSPField] public float maxLenght = 50.0f;
-        [KSPField] public float cableSpring = 1000.0f;
-        [KSPField] public float cableDamper = 0.1f;
-        [KSPField] public float cableWidth = 0.04f;
-        [KSPField] public float motorMaxSpeed = 2f;
-        [KSPField] public float motorMinSpeed = 0.01f;
-        [KSPField] public float motorAcceleration = 0.05f;
-        [KSPField] public float powerDrain = 0.5f;
-        [KSPField] public float releaseOffset = 1f;
-        [KSPField] public string headTransformName = "head";
-        [KSPField] public float headMass = 0.01f;
-        [KSPField] public string headPortNodeName = "portNode";
-        [KSPField] public string connectedPortNodeName = "bottom";
-        [KSPField] public string anchorNodeName = "anchorNode";
-        [KSPField] public Vector3 evaGrabHeadPos = new Vector3(0.05f, 0.01f, -0.11f);
-        [KSPField] public Vector3 evaGrabHeadDir = new Vector3(0f, 0f, -1f);
-        [KSPField] public Vector3 evaDropHeadPos = new Vector3(0.05f, 0.01f, -0.16f);
-        [KSPField] public Vector3 evaDropHeadRot = new Vector3(180f, 0f, 0f);
-        [KSPField] public bool ejectEnabled = true;
-        [KSPField] public float ejectForce = 20f;
-        [KSPField] public float lockMinDist = 0.08f;
-        [KSPField] public float lockMinFwdDot = 0.90f;
+        [KSPField]
+        public float maxLenght = 50.0f;
+        [KSPField]
+        public float cableSpring = 1000.0f;
+        [KSPField]
+        public float cableDamper = 0.1f;
+        [KSPField]
+        public float cableWidth = 0.04f;
+        [KSPField]
+        public float motorMaxSpeed = 2f;
+        [KSPField]
+        public float motorMinSpeed = 0.01f;
+        [KSPField]
+        public float motorAcceleration = 0.05f;
+        [KSPField]
+        public float powerDrain = 0.5f;
+        [KSPField]
+        public float releaseOffset = 1f;
+        [KSPField]
+        public string headTransformName = "head";
+        [KSPField]
+        public float headMass = 0.01f;
+        [KSPField]
+        public string headPortNodeName = "portNode";
+        [KSPField]
+        public string connectedPortNodeName = "bottom";
+        [KSPField]
+        public string anchorNodeName = "anchorNode";
+        [KSPField]
+        public Vector3 evaGrabHeadPos = new Vector3(0.05f, 0.01f, -0.11f);
+        [KSPField]
+        public Vector3 evaGrabHeadDir = new Vector3(0f, 0f, -1f);
+        [KSPField]
+        public Vector3 evaDropHeadPos = new Vector3(0.05f, 0.01f, -0.16f);
+        [KSPField]
+        public Vector3 evaDropHeadRot = new Vector3(180f, 0f, 0f);
+        [KSPField]
+        public bool ejectEnabled = true;
+        [KSPField]
+        public float ejectForce = 20f;
+        [KSPField]
+        public float lockMinDist = 0.08f;
+        [KSPField]
+        public float lockMinFwdDot = 0.90f;
 
         //Sounds & texture
-        [KSPField] private string cableTexPath = "KAS/Textures/cable";
-        [KSPField] private string motorSndPath = "KAS/Sounds/winchSmallMotor";
-        [KSPField] private string motorStartSndPath = "KAS/Sounds/winchSmallMotorStart";
-        [KSPField] private string motorStopSndPath = "KAS/Sounds/winchSmallMotorStop";
-        [KSPField] private string headLockSndPath = "KAS/Sounds/winchSmallLock";
-        [KSPField] private string ejectSndPath = "KAS/Sounds/winchSmallEject";
-        [KSPField] public string headGrabSndPath = "KAS/Sounds/grab";
+        [KSPField]
+        private string cableTexPath = "KAS/Textures/cable";
+        [KSPField]
+        private string motorSndPath = "KAS/Sounds/winchSmallMotor";
+        [KSPField]
+        private string motorStartSndPath = "KAS/Sounds/winchSmallMotorStart";
+        [KSPField]
+        private string motorStopSndPath = "KAS/Sounds/winchSmallMotorStop";
+        [KSPField]
+        private string headLockSndPath = "KAS/Sounds/winchSmallLock";
+        [KSPField]
+        private string ejectSndPath = "KAS/Sounds/winchSmallEject";
+        [KSPField]
+        public string headGrabSndPath = "KAS/Sounds/grab";
 
-        [KSPField(guiActive = true, guiName = "Key control", guiFormat="S")] public string controlField = "";
-        [KSPField(guiActive = true, guiName = "Head State", guiFormat="S")] public string headStateField = "Locked";
-        [KSPField(guiActive = true, guiName = "Cable State", guiFormat="S")] public string winchStateField = "Idle";
-        [KSPField(guiActive = true, guiName = "Lenght", guiFormat = "F2", guiUnits="m")] public float lengthField = 0.0f;
+        [KSPField(guiActive = true, guiName = "Key control", guiFormat = "S")]
+        public string controlField = "";
+        [KSPField(guiActive = true, guiName = "Head State", guiFormat = "S")]
+        public string headStateField = "Locked";
+        [KSPField(guiActive = true, guiName = "Cable State", guiFormat = "S")]
+        public string winchStateField = "Idle";
+        [KSPField(guiActive = true, guiName = "Lenght", guiFormat = "F2", guiUnits = "m")]
+        public float lengthField = 0.0f;
 
         // FX
         public FXGroup fxSndMotorStart, fxSndMotor, fxSndMotorStop, fxSndHeadLock, fxSndEject, fxSndHeadGrab;
@@ -58,13 +87,14 @@ namespace KAS
         public KAS_Tube tubeRenderer;
 
         // Winch GUI
-        [KSPField(isPersistant = true)] public string winchName = "";
+        [KSPField(isPersistant = true)]
+        public string winchName = "";
         public bool isActive = true;
         private bool isBlocked = false;
         public bool guiRepeatRetract = false;
         public bool guiRepeatExtend = false;
         public bool guiRepeatTurnLeft = false;
-        public bool guiRepeatTurnRight= false;
+        public bool guiRepeatTurnRight = false;
         public bool highLightStarted = false;
 
         // Transforms
@@ -75,16 +105,17 @@ namespace KAS
         private KASModulePhysicChild headPhysicModule;
 
         // Cable control
-        [KSPField(isPersistant = true)] private bool controlActivated = true;
-        [KSPField(isPersistant = true)] private bool controlInverted = false;
+        [KSPField(isPersistant = true)]
+        private bool controlActivated = true;
+        [KSPField(isPersistant = true)]
+        private bool controlInverted = false;
         public KAS_Shared.cableControl release;
         public KAS_Shared.cableControl retract;
         public KAS_Shared.cableControl extend;
         public float motorSpeed = 0f;
         public float motorSpeedSetting;
-        
+
         public Part evaHolderPart = null;
-        private float orgKerbalMass;
         private Transform evaHeadNodeTransform;
         private Collider evaCollider;
 
@@ -256,7 +287,7 @@ namespace KAS
                 }
             }
         }
-        
+
         public override string GetInfo()
         {
             var sb = new StringBuilder();
@@ -274,7 +305,7 @@ namespace KAS
                 KAS_Shared.DebugLog("OnSave(Winch) Winch head deployed, saving info...");
                 ConfigNode cableNode = node.AddNode("Head");
                 cableNode.AddValue("headLocalPos", KSPUtil.WriteVector(KAS_Shared.GetLocalPosFrom(headTransform, this.part.transform)));
-                cableNode.AddValue("headLocalRot", KSPUtil.WriteQuaternion(KAS_Shared.GetLocalRotFrom(headTransform, this.part.transform)));     
+                cableNode.AddValue("headLocalRot", KSPUtil.WriteQuaternion(KAS_Shared.GetLocalRotFrom(headTransform, this.part.transform)));
             }
 
             if (headState == PlugState.PlugDocked || headState == PlugState.PlugUndocked)
@@ -348,7 +379,7 @@ namespace KAS
             // get winch anchor node
             winchAnchorNode = this.part.FindModelTransform(anchorNodeName);
             if (!winchAnchorNode)
-            { 
+            {
                 KAS_Shared.DebugError("OnStart(Winch) Winch anchor tranform node " + anchorNodeName + " not found in the model !");
                 DisableWinch();
                 return;
@@ -363,9 +394,17 @@ namespace KAS
                 return;
             }
 
-            // Set head module 
-            KASModuleWinchHead winchHeadModule = headTransform.gameObject.AddComponent<KASModuleWinchHead>();
-            winchHeadModule.connectedWinch = this;
+            //Set connector node transform
+            AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+            an.nodeTransform = new GameObject("KASWinchConnectorAn").transform;
+            an.nodeTransform.parent = this.part.transform;
+            an.nodeTransform.localPosition = an.position;
+            an.nodeTransform.localRotation = KIS.KIS_Shared.GetNodeRotation(an);
+            an.nodeTransform.parent = headTransform;
+
+            // Set linked object module 
+            KIS.LinkedObject linkedObject = headTransform.gameObject.AddComponent<KIS.LinkedObject>();
+            linkedObject.part = this.part;
 
             // Create head anchor node
             headAnchorNode = new GameObject("KASHeadAnchor").transform;
@@ -373,7 +412,7 @@ namespace KAS
             headAnchorNode.rotation = winchAnchorNode.rotation;
             headAnchorNode.parent = headTransform;
             headAnchorNode.rotation *= Quaternion.Euler(new Vector3(180f, 0f, 0f));
-    
+
             // Get original head position and rotation
             headOrgLocalPos = KAS_Shared.GetLocalPosFrom(headTransform, this.part.transform);
             headOrgLocalRot = KAS_Shared.GetLocalRotFrom(headTransform, this.part.transform);
@@ -393,7 +432,7 @@ namespace KAS
                 else
                 {
                     KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
-                }      
+                }
             }
 
             // Get saved port module if any
@@ -478,14 +517,14 @@ namespace KAS
             if (headState == PlugState.PlugDocked && fromSave)
             {
                 KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) From save, Plug (docked) to : " + connectedPortInfo.module.part.partInfo.title);
-                PlugHead(connectedPortInfo.module, PlugState.PlugDocked, true, false);
+                PlugHead(connectedPortInfo.module, PlugState.PlugDocked, true, false, true);
                 fromSave = false;
             }
 
             // Just in case
             fromSave = false;
         }
-        
+
         void OnCrewBoardVessel(GameEvents.FromToAction<Part, Part> fromToAction)
         {
             if (evaHolderPart && !grabbedPortModule && fromToAction.from.vessel == evaHolderPart.vessel)
@@ -494,7 +533,7 @@ namespace KAS
                 DropHead();
             }
         }
-
+        
         public override void OnPartUnpack()
         {
             base.OnPartUnpack();
@@ -599,7 +638,7 @@ namespace KAS
                 }
             }
             #endregion
-            
+
             #region Extend
             if (extend.active && !extend.full)
             {
@@ -742,7 +781,7 @@ namespace KAS
                 }
                 if (this.part.parent == connectedPortInfo.module.part)
                 {
-                    KAS_Shared.UpdateChildsOrgPos(this.part, true);           
+                    KAS_Shared.UpdateChildsOrgPos(this.part, true);
                 }
             }
         }
@@ -790,7 +829,7 @@ namespace KAS
             {
                 ScreenMessages.PostScreenMessage("Connected parts not aligned ! Locking impossible.", 5, ScreenMessageStyle.UPPER_CENTER);
                 retract.active = false;
-            } 
+            }
         }
 
         public void Deploy()
@@ -825,7 +864,7 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("Deploy(Winch) - Connected port detected, plug head in docked mode...");
                 nodeConnectedPort.nodeConnectedPart = null;
-                PlugHead(nodeConnectedPort, PlugState.PlugDocked, alreadyDocked:true);
+                PlugHead(nodeConnectedPort, PlugState.PlugDocked, alreadyDocked: true);
             }
             else
             {
@@ -949,14 +988,8 @@ namespace KAS
                 KAS_Shared.DebugLog("GrabHead(Winch) - Moving head to eva node...");
                 KAS_Shared.MoveAlign(headTransform, headPortNode, evaHeadNodeTransform);
             }
-
-            // Parent eva to head for moving eva with the head
-            kerbalEvaVessel.rootPart.transform.parent = headTransform;
             // Set cable joint connected body to eva
             SetCableJointConnectedBody(kerbalEvaVessel.rootPart.rigidbody);
-            // Unparent eva to head
-            kerbalEvaVessel.rootPart.transform.parent = null;
-
             headTransform.parent = evaHeadNodeTransform;
             cableJointLength = cableRealLenght;
 
@@ -1011,14 +1044,25 @@ namespace KAS
 
         public void SetCableJointConnectedBody(Rigidbody newBody)
         {
-            //Save current connector position
+            //Save body relative position
+            Vector3 relativeBodyPos = KAS_Shared.GetLocalPosFrom(newBody.transform, headTransform);
+            Quaternion relativeBodyRot = KAS_Shared.GetLocalRotFrom(newBody.transform, headTransform);
+
+            //Save body and head current position
             Vector3 currentPos = headTransform.position;
             Quaternion currentRot = headTransform.rotation;
-            // Move head to lock position
+            Vector3 currentBodyPos = newBody.transform.position;
+            Quaternion currentBodyRot = newBody.transform.rotation;
+
+            // Move head and body to lock position
             KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform, headOrgLocalPos, headOrgLocalRot);
+            KAS_Shared.SetPartLocalPosRotFrom(newBody.transform, headTransform, relativeBodyPos, relativeBodyRot);
+
             // Connect eva rigidbody
             cableJoint.connectedBody = newBody;
-            // Return connector to the current position
+            // Return body and head to the current position
+            newBody.transform.position = currentBodyPos;
+            newBody.transform.rotation = currentBodyRot;
             headTransform.position = currentPos;
             headTransform.rotation = currentRot;
         }
@@ -1054,7 +1098,7 @@ namespace KAS
                     ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
                     return;
                 }
-                if (portModule.plugState == KASModulePort.KASPlugState.PlugDock || portModule.plugState == KASModulePort.KASPlugState.PlugUndock)
+                if (portModule.plugged)
                 {
                     ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !", 5, ScreenMessageStyle.UPPER_CENTER);
                     return;
@@ -1067,43 +1111,38 @@ namespace KAS
 
             if (!cableJoint) Deploy();
             DropHead();
-
+            
             if (plugMode == PlugState.PlugUndocked)
             {
                 KAS_Shared.DebugLog("PlugHead(Winch) - Plug using undocked mode");
                 headState = PlugState.PlugUndocked;
-                if (fireSound) portModule.fxSndPlug.audio.Play();
+                if (fireSound) KIS_Shared.PlaySoundAtPoint(portModule.plugSndPath, portModule.part.transform.position);
             }
             if (plugMode == PlugState.PlugDocked)
             {
-                KAS_Shared.DebugLog("PlugHead(Winch) - Plug using docked mode");  
+                KAS_Shared.DebugLog("PlugHead(Winch) - Plug using docked mode");
                 // This should be safe even if already connected
                 AttachDocked(portModule);
+                // Set attached part
+                portModule.part.findAttachNode(portModule.attachNode).attachedPart = this.part;
+                this.part.findAttachNode(connectedPortNodeName).attachedPart = portModule.part;
                 // Remove joints between connector and winch
                 KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
-                //nodeConnectedPort = portModule;
-                if (fireSound) portModule.fxSndPlugDocked.audio.Play();
+                if (fireSound) KIS_Shared.PlaySoundAtPoint(portModule.plugDockedSndPath, portModule.part.transform.position);
             }
-
 
             KAS_Shared.DebugLog("PlugHead(Winch) - Moving head...");
             headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -portModule.portNode.forward) * headTransform.rotation;
             headTransform.position = headTransform.position - (headPortNode.position - portModule.portNode.position);
-
             SetHeadToPhysic(false);
-            // Parent port to head for moving port with the head
-            portModule.part.transform.parent = headTransform;
-            // Set cable joint connected body to eva
             SetCableJointConnectedBody(portModule.part.rigidbody);
-            // Unparent eva to head
-            portModule.part.transform.parent = null;
-
             headTransform.parent = portModule.part.transform;
             cableJointLength = cableRealLenght + 0.01f;
 
             // Set variables
             connectedPortInfo.module = portModule;
+            connectedPortInfo.module.plugged = true;
             portModule.winchConnected = this;
         }
 
@@ -1113,18 +1152,19 @@ namespace KAS
 
             if (headState == PlugState.PlugUndocked)
             {
-                if (fireSound) connectedPortInfo.module.fxSndUnplug.audio.Play();
+                if (fireSound) KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.plugSndPath, connectedPortInfo.module.part.transform.position);
             }
             if (headState == PlugState.PlugDocked)
             {
                 Detach();
-                if (fireSound) connectedPortInfo.module.fxSndUnplugDocked.audio.Play();
+                if (fireSound) KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.unplugDockedSndPath, connectedPortInfo.module.part.transform.position);
             }
             SetHeadToPhysic(true);
             SetCableJointConnectedBody(headTransform.rigidbody);
 
             connectedPortInfo.module.winchConnected = null;
             connectedPortInfo.module.nodeConnectedPart = null;
+            connectedPortInfo.module.plugged = false;
             connectedPortInfo.module = null;
             nodeConnectedPort = null;
             headState = PlugState.Deployed;
@@ -1166,8 +1206,7 @@ namespace KAS
                 Vector3 force = winchAnchorNode.TransformDirection(Vector3.forward) * ejectForce;
                 if (connectedPortInfo.module)
                 {
-                    //connectedPortInfo.module.part.Rigidbody.AddForce(force, ForceMode.Force);
-                    StartCoroutine(WaitAndApplyForce(force));
+                    connectedPortInfo.module.part.Rigidbody.AddForce(force, ForceMode.Force);
                 }
                 else
                 {
@@ -1176,13 +1215,6 @@ namespace KAS
                 this.part.Rigidbody.AddForce(-force, ForceMode.Force);
                 fxSndEject.audio.Play();
             }
-        }
-
-        // X64 fix for eject
-        private IEnumerator WaitAndApplyForce(Vector3 force)
-        {
-            yield return new WaitForFixedUpdate();
-            connectedPortInfo.module.part.Rigidbody.AddForce(force, ForceMode.Force);
         }
 
         private bool IsLockable()
@@ -1217,20 +1249,11 @@ namespace KAS
             return null;
         }
 
-        public KASModuleSuctionCup GetHookSuction()
+        public KASModuleHarpoon GetHookGrapple()
         {
             if (connectedPortInfo.module)
             {
-                return connectedPortInfo.module.GetComponent<KASModuleSuctionCup>();
-            }
-            return null;
-        }
-
-        public KASModuleGrapplingHook GetHookGrapple()
-        {
-            if (connectedPortInfo.module)
-            {
-                return connectedPortInfo.module.GetComponent<KASModuleGrapplingHook>();
+                return connectedPortInfo.module.GetComponent<KASModuleHarpoon>();
             }
             return null;
         }
@@ -1255,7 +1278,7 @@ namespace KAS
             {
                 if (message)
                 {
-                    ScreenMessages.PostScreenMessage("Winch is blocked by "+nodeConnectedPart.partInfo.title+"!", 5, ScreenMessageStyle.UPPER_CENTER);
+                    ScreenMessages.PostScreenMessage("Winch is blocked by " + nodeConnectedPart.partInfo.title + "!", 5, ScreenMessageStyle.UPPER_CENTER);
                 }
                 return true;
             }
@@ -1480,7 +1503,7 @@ namespace KAS
                 else retract.active = activated;
             }
         }
-   
+
         public void EventWinchHeadLeft()
         {
             if (!this.part.packed)
@@ -1524,10 +1547,6 @@ namespace KAS
             {
                 GetHookGrapple().ContextMenuDetach();
             }
-            if (GetHookSuction())
-            {
-                GetHookSuction().ContextMenuDetach();
-            }           
         }
     }
 }
