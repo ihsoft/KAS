@@ -17,10 +17,7 @@ namespace KAS
         //External
         private KASModuleWinch moduleWinch = null;
         private KASModuleMagnet moduleMagnet = null;
-        private KASModuleSuctionCup moduleSuctionCup = null;
-        private KASModuleGrapplingHook moduleGrapple = null;
-        private KASModuleGrab moduleGrab = null;
-        private KASModuleTimedBomb moduleTimedBomb = null;
+        private KASModuleHarpoon moduleGrapple = null;
         private KASModulePort modulePort = null;
         private KASModuleAnchor moduleAnchor = null;
         private KASModuleStrut moduleStrut = null;
@@ -71,22 +68,16 @@ namespace KAS
                     if (clickedPart)
                     {
                         moduleWinch = null;
-                        moduleGrab = null;
                         moduleMagnet = null;
-                        moduleSuctionCup = null;
                         moduleGrapple = null;
-                        moduleTimedBomb = null;
                         modulePort = null;
                         moduleAnchor = null;
                         moduleStrut = null;
                         moduleRotor = null;
 
                         moduleWinch = clickedPart.GetComponent<KASModuleWinch>();
-                        moduleGrab = clickedPart.GetComponent<KASModuleGrab>();
                         moduleMagnet = clickedPart.GetComponent<KASModuleMagnet>();
-                        moduleSuctionCup = clickedPart.GetComponent<KASModuleSuctionCup>();
-                        moduleGrapple = clickedPart.GetComponent<KASModuleGrapplingHook>();
-                        moduleTimedBomb = clickedPart.GetComponent<KASModuleTimedBomb>();
+                        moduleGrapple = clickedPart.GetComponent<KASModuleHarpoon>();
                         modulePort = clickedPart.GetComponent<KASModulePort>();
                         moduleAnchor = clickedPart.GetComponent<KASModuleAnchor>();
                         moduleStrut = clickedPart.GetComponent<KASModuleStrut>();
@@ -190,20 +181,6 @@ namespace KAS
             #endregion
 
             GUILayout.BeginHorizontal();
-            if (moduleGrab)
-            {
-                if (GUILayout.Button("Grab", guiButtonStyle))
-                {
-                    menu = KASGuiConfigMenu.GRAB;
-                }
-            }
-            if (moduleSuctionCup)
-            {
-                if (GUILayout.Button("SuctionCup", guiButtonStyle))
-                {
-                    menu = KASGuiConfigMenu.SUCTION;
-                }
-            }
             if (moduleMagnet)
             {
                 if (GUILayout.Button("Magnet", guiButtonStyle))
@@ -223,13 +200,6 @@ namespace KAS
                 if (GUILayout.Button("Winch", guiButtonStyle))
                 {
                     menu = KASGuiConfigMenu.WINCH;
-                }
-            }
-            if (moduleTimedBomb)
-            {
-                if (GUILayout.Button("TimedBomb", guiButtonStyle))
-                {
-                    menu = KASGuiConfigMenu.TIMEDBOMB;
                 }
             }
             if (modulePort)
@@ -261,7 +231,7 @@ namespace KAS
                 }
             }
 
-            if (!moduleGrab && !moduleSuctionCup && !moduleMagnet && !moduleWinch && !moduleTimedBomb && !modulePort && !moduleGrapple && !moduleAnchor && !moduleRotor)
+            if (!moduleMagnet && !moduleWinch && !modulePort && !moduleGrapple && !moduleAnchor && !moduleRotor)
             {
                 GUILayout.Label("No supported module found !", guiMagentaStyle);
             }
@@ -272,14 +242,6 @@ namespace KAS
             {
                 GuiConfigWinchTab();
             }
-            if (menu == KASGuiConfigMenu.GRAB)
-            {
-                GuiConfigEvaGrabTab();
-            }
-            if (menu == KASGuiConfigMenu.SUCTION)
-            {
-                GuiConfigSuctionCupTab();
-            }
             if (menu == KASGuiConfigMenu.GRAPPLE)
             {
                 GuiConfigGrappleTab();
@@ -287,10 +249,6 @@ namespace KAS
             if (menu == KASGuiConfigMenu.MAGNET)
             {
                 GuiConfigMagnetTab();
-            }
-            if (menu == KASGuiConfigMenu.TIMEDBOMB)
-            {
-                GuiConfigTimedBombTab();
             }
             if (menu == KASGuiConfigMenu.PORT)
             {
@@ -479,129 +437,6 @@ namespace KAS
             GUILayout.EndVertical();
         }
 
-        private void GuiConfigEvaGrabTab()
-        {
-            GUILayout.BeginVertical(guiDataboxStyle);
-
-            //List all configuration values
-            Dictionary<string, float> confValues = new Dictionary<string, float>();
-            confValues.Add("evaPartPosx", moduleGrab.evaPartPos.x);
-            confValues.Add("evaPartPosy", moduleGrab.evaPartPos.y);
-            confValues.Add("evaPartPosz", moduleGrab.evaPartPos.z);
-            confValues.Add("evaPartDirx", moduleGrab.evaPartDir.x);
-            confValues.Add("evaPartDiry", moduleGrab.evaPartDir.y);
-            confValues.Add("evaPartDirz", moduleGrab.evaPartDir.z);
-            confValues.Add("dropPartPosx", moduleGrab.dropPartPos.x);
-            confValues.Add("dropPartPosy", moduleGrab.dropPartPos.y);
-            confValues.Add("dropPartPosz", moduleGrab.dropPartPos.z);
-            confValues.Add("dropPartRotx", moduleGrab.dropPartRot.x);
-            confValues.Add("dropPartRoty", moduleGrab.dropPartRot.y);
-            confValues.Add("dropPartRotz", moduleGrab.dropPartRot.z);
-            confValues.Add("bayRotx", moduleGrab.bayRot.x);
-            confValues.Add("bayRoty", moduleGrab.bayRot.y);
-            confValues.Add("bayRotz", moduleGrab.bayRot.z);
-            confValues.Add("attachMaxDist", moduleGrab.attachMaxDist);
-             
-            //Show config controls
-            ConfigValues(confValues);
-
-            //Toogle buttons for bool values
-            moduleGrab.attachOnPart = GUILayout.Toggle(moduleGrab.attachOnPart, "attachOnPart", guiButtonStyle);
-            moduleGrab.attachOnEva = GUILayout.Toggle(moduleGrab.attachOnEva, "attachOnEva", guiButtonStyle);
-            moduleGrab.attachOnStatic = GUILayout.Toggle(moduleGrab.attachOnStatic, "attachOnStatic", guiButtonStyle);
-            moduleGrab.customGroundPos = GUILayout.Toggle(moduleGrab.customGroundPos, "customGroundPos", guiButtonStyle);
-            moduleGrab.physicJoint = GUILayout.Toggle(moduleGrab.physicJoint, "physicJoint", guiButtonStyle);
-
-            //Set configuration if value changed
-            if (confValues["evaPartPosx"] != moduleGrab.evaPartPos.x)
-            {
-                moduleGrab.evaPartPos = new Vector3(confValues["evaPartPosx"], confValues["evaPartPosy"], confValues["evaPartPosz"]);
-            }
-            if (confValues["evaPartPosy"] != moduleGrab.evaPartPos.y)
-            {
-                moduleGrab.evaPartPos = new Vector3(confValues["evaPartPosx"], confValues["evaPartPosy"], confValues["evaPartPosz"]);
-            }
-            if (confValues["evaPartPosz"] != moduleGrab.evaPartPos.z)
-            {
-                moduleGrab.evaPartPos = new Vector3(confValues["evaPartPosx"], confValues["evaPartPosy"], confValues["evaPartPosz"]);
-            }
-            if (confValues["evaPartDirx"] != moduleGrab.evaPartDir.x)
-            {
-                moduleGrab.evaPartDir = new Vector3(confValues["evaPartDirx"], confValues["evaPartDiry"], confValues["evaPartDirz"]);
-            }
-            if (confValues["evaPartDiry"] != moduleGrab.evaPartDir.y)
-            {
-                moduleGrab.evaPartDir = new Vector3(confValues["evaPartDirx"], confValues["evaPartDiry"], confValues["evaPartDirz"]);
-            }
-            if (confValues["evaPartDirz"] != moduleGrab.evaPartDir.z)
-            {
-                moduleGrab.evaPartDir = new Vector3(confValues["evaPartDirx"], confValues["evaPartDiry"], confValues["evaPartDirz"]);
-            }
-            if (confValues["bayRotx"] != moduleGrab.bayRot.x)
-            {
-                moduleGrab.bayRot = new Vector3(confValues["bayRotx"], confValues["bayRoty"], confValues["bayRotz"]);
-            }
-            if (confValues["bayRoty"] != moduleGrab.bayRot.y)
-            {
-                moduleGrab.bayRot = new Vector3(confValues["bayRotx"], confValues["bayRoty"], confValues["bayRotz"]);
-            }
-            if (confValues["bayRotz"] != moduleGrab.bayRot.z)
-            {
-                moduleGrab.bayRot = new Vector3(confValues["bayRotx"], confValues["bayRoty"], confValues["bayRotz"]);
-            }
-            if (confValues["attachMaxDist"] != moduleGrab.attachMaxDist)
-            {
-                moduleGrab.attachMaxDist = confValues["attachMaxDist"];
-            }
-            if (confValues["dropPartPosx"] != moduleGrab.dropPartPos.x)
-            {
-                moduleGrab.dropPartPos = new Vector3(confValues["dropPartPosx"], confValues["dropPartPosy"], confValues["dropPartPosz"]);
-            }
-            if (confValues["dropPartPosy"] != moduleGrab.dropPartPos.y)
-            {
-                moduleGrab.dropPartPos = new Vector3(confValues["dropPartPosx"], confValues["dropPartPosy"], confValues["dropPartPosz"]);
-            }
-            if (confValues["dropPartPosz"] != moduleGrab.dropPartPos.z)
-            {
-                moduleGrab.dropPartPos = new Vector3(confValues["dropPartPosx"], confValues["dropPartPosy"], confValues["dropPartPosz"]);
-            }
-            if (confValues["dropPartRotx"] != moduleGrab.dropPartRot.x)
-            {
-                moduleGrab.dropPartRot = new Vector3(confValues["dropPartRotx"], confValues["dropPartRoty"], confValues["dropPartRotz"]);
-            }
-            if (confValues["dropPartRoty"] != moduleGrab.dropPartRot.y)
-            {
-                moduleGrab.dropPartRot = new Vector3(confValues["dropPartRotx"], confValues["dropPartRoty"], confValues["dropPartRotz"]);
-            }
-            if (confValues["dropPartRotz"] != moduleGrab.dropPartRot.z)
-            {
-                moduleGrab.dropPartRot = new Vector3(confValues["dropPartRotx"], confValues["dropPartRoty"], confValues["dropPartRotz"]);
-            }         
-            GUILayout.Space(25);
-            GUILayout.EndVertical();
-        }
-
-        private void GuiConfigSuctionCupTab()
-        {
-            GUILayout.BeginVertical(guiDataboxStyle);
-
-            //List all configuration values
-            Dictionary<string, float> confValues = new Dictionary<string, float>();
-            confValues.Add("attachbreakForce", moduleSuctionCup.breakForce);
-
-            //Show config controls
-            ConfigValues(confValues);
-
-            //Set configuration if value changed
-            if (confValues["attachbreakForce"] != moduleSuctionCup.breakForce)
-            {
-                moduleSuctionCup.breakForce = confValues["attachbreakForce"];
-            }
-         
-            GUILayout.Space(25);
-            GUILayout.EndVertical();
-        }
-
         private void GuiConfigStrutTab()
         {
             GUILayout.BeginVertical(guiDataboxStyle);
@@ -768,32 +603,6 @@ namespace KAS
                 moduleMagnet.powerDrain = confValues["magnetPowerDrain"];
             }
             
-            GUILayout.Space(25);
-            GUILayout.EndVertical();
-        }
-
-        private void GuiConfigTimedBombTab()
-        {
-            GUILayout.BeginVertical(guiDataboxStyle);
-
-            //List all configuration values
-            Dictionary<string, float> confValues = new Dictionary<string, float>();
-            confValues.Add("delay", moduleTimedBomb.delay);
-            confValues.Add("explosionRadius", moduleTimedBomb.explosionRadius);
-
-            //Show config controls
-            ConfigValues(confValues);
-
-            //Set configuration if value changed
-            if (confValues["delay"] != moduleTimedBomb.delay)
-            {
-                moduleTimedBomb.delay = confValues["delay"];
-            }
-            if (confValues["explosionRadius"] != moduleTimedBomb.explosionRadius)
-            {
-                moduleTimedBomb.explosionRadius = confValues["explosionRadius"];
-            }
-
             GUILayout.Space(25);
             GUILayout.EndVertical();
         }
