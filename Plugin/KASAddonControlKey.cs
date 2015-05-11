@@ -10,7 +10,6 @@ namespace KAS
     public class KASAddonControlKey : MonoBehaviour
     {
         public static float radius = 2f;
-        public static string grabPartKey = "g";
         public static string grabHeadKey = "w";
         public static string winchExtendKey = "[2]";
         public static string winchRetractKey = "[5]";
@@ -24,9 +23,6 @@ namespace KAS
         public static string rotorPositiveKey = "[6]";
         public static string telescopicExtendKey = "[9]";
         public static string telescopicRetractKey = "[7]";
-        public static string attachKey = "h";
-        public static string rotateLeftKey = "b";
-        public static string rotateRightKey = "n";
         private static float guiScrollHeight = 300f;
         private static string guiToogleKey;
 
@@ -47,32 +43,23 @@ namespace KAS
                 return;
             }
 
-            UpdateGrab();
             UpdateWinchMouseGrab();
             UpdateWinchKeyGrab();
             UpdateWinchCableControl();
             UpdateRotorControl();
             UpdateTelescopicArmControl();
-            UpdateAttachControl();
             UpdateGUIControl();
         }
 
         public static void LoadKeyConfig()
         {
             ConfigNode node = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/KAS/settings.cfg") ?? new ConfigNode();
-            foreach (ConfigNode grabNode in node.GetNodes("GrabModule"))
-            {
-                if (grabNode.HasValue("grabPartKey"))
-                {
-                    grabPartKey = grabNode.GetValue("grabPartKey");
-                }
-                if (grabNode.HasValue("grabConnectorKey"))
-                {
-                    grabHeadKey = grabNode.GetValue("grabConnectorKey");
-                }
-            }
             foreach (ConfigNode winchNode in node.GetNodes("WinchModule"))
             {
+                if (winchNode.HasValue("grabConnectorKey"))
+                {
+                    grabHeadKey = winchNode.GetValue("grabConnectorKey");
+                }
                 if (winchNode.HasValue("extendKey"))
                 {
                     winchExtendKey = winchNode.GetValue("extendKey");
@@ -128,21 +115,6 @@ namespace KAS
                     telescopicRetractKey = telescopicArmNode.GetValue("retractKey");
                 }
             }
-            foreach (ConfigNode attachNode in node.GetNodes("AttachPointer"))
-            {
-                if (attachNode.HasValue("attachKey"))
-                {
-                    attachKey = attachNode.GetValue("attachKey");
-                }
-                if (attachNode.HasValue("rotateLeftKey"))
-                {
-                    rotateLeftKey = attachNode.GetValue("rotateLeftKey");
-                }
-                if (attachNode.HasValue("rotateRightKey"))
-                {
-                    rotateRightKey = attachNode.GetValue("rotateRightKey");
-                }
-            }
             foreach (ConfigNode winchGuiNode in node.GetNodes("WinchGUI"))
             {
                 if (winchGuiNode.HasValue("toogleKey"))
@@ -191,83 +163,9 @@ namespace KAS
                     clickedWinch.GrabHead(FlightGlobals.ActiveVessel);
                     clickedWinch = null;
                 }
-                if (clickedWinch)
-                {
-                    if (clickedWinch.headState == KASModuleWinch.PlugState.Deployed)
-                    {
-                        KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-                        if (grabbedModule && !grabbedModule.part.packed)
-                        {
-                            KASModulePort grabbedPort = grabbedModule.GetComponent<KASModulePort>();
-                            if (grabbedPort)
-                            {
-                                if (GUILayout.Button("Plug grabbed", guiButtonStyle, GUILayout.Width(100f)))
-                                {
-                                    grabbedModule.Drop();
-                                    grabbedPort.transform.rotation = Quaternion.FromToRotation(grabbedPort.portNode.forward, -clickedWinch.headPortNode.forward) * grabbedPort.transform.rotation;
-                                    grabbedPort.transform.position = grabbedPort.transform.position - (grabbedPort.portNode.position - clickedWinch.headPortNode.position);
-                                    clickedWinch.PlugHead(grabbedPort, KASModuleWinch.PlugState.PlugDocked);
-                                    clickedWinch = null;
-                                }
-                            }
-                        }
-                    }
-                }
             }
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
-        }
-
-        private void UpdateGrab()
-        {
-            if (Input.GetKeyDown(grabPartKey.ToLower()))
-            {
-                if (FlightGlobals.ActiveVessel.isEVA)
-                {
-                    // Check if a part is already grabbed
-                    KASModuleGrab grabbedPart = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-                    if (grabbedPart)
-                    {
-                        if (!grabbedPart.part.packed)
-                        {
-                            grabbedPart.Drop();
-                        }
-                        return;
-                    }
-                    List<Collider> nearestColliders = new List<Collider>(Physics.OverlapSphere(FlightGlobals.ActiveVessel.transform.position, radius, 557059));
-                    float shorterDist = Mathf.Infinity;
-                    KASModuleGrab nearestModuleGrab = null;
-                    foreach (Collider col in nearestColliders)
-                    {
-                        // Check if if the collider have a rigidbody
-                        if (!col.attachedRigidbody) continue;
-                        // Check if it's a part
-                        Part p = col.attachedRigidbody.GetComponent<Part>();
-                        if (!p) continue;
-                        // Check if it's grabbable part
-                        KASModuleGrab moduleGrab = p.GetComponent<KASModuleGrab>();
-                        if (!moduleGrab) continue;
-                        // Check if it's a part is connected
-                        if (moduleGrab.part.isConnected) continue;
-                        // Check if it's a part grabbed by another kerbal eva
-                        if (moduleGrab.evaHolderPart) continue;
-
-                        // Select the nearest grabbable part
-                        float distToGrab = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, moduleGrab.part.transform.position);
-                        if (distToGrab <= shorterDist)
-                        {
-                            shorterDist = distToGrab;
-                            nearestModuleGrab = moduleGrab;
-                        }
-                    }
-                    //Grab nearest part if exist
-                    if (nearestModuleGrab)
-                    {
-                        nearestModuleGrab.Grab(FlightGlobals.ActiveVessel);
-                        return;
-                    }
-                }
-            }
         }
 
         private void UpdateWinchMouseGrab()
@@ -291,18 +189,18 @@ namespace KAS
                             return;
                         }
                     }
-                    
+
 
                     Transform headTransform = KAS_Shared.GetTransformUnderCursor();
                     if (headTransform)
                     {
-                        KASModuleWinchHead winchHeadModule = headTransform.gameObject.GetComponent<KASModuleWinchHead>();
-                        if (winchHeadModule)
+                        KIS.LinkedObject linkedObject = headTransform.gameObject.GetComponent<KIS.LinkedObject>();
+                        if (linkedObject)
                         {
                             float dist = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, headTransform.position);
                             if (dist <= radius)
                             {
-                                clickedWinch = winchHeadModule.connectedWinch;
+                                clickedWinch = linkedObject.part.GetComponent<KASModuleWinch>();
                                 return;
                             }
                         }
@@ -328,19 +226,21 @@ namespace KAS
                     KASModuleWinch nearestModuleWinch = null;
                     foreach (Collider col in nearestColliders)
                     {
-                        KASModuleWinchHead headModule = col.transform.gameObject.GetComponent<KASModuleWinchHead>();
-                        if (!headModule) continue;
+                        KIS.LinkedObject linkedObject = col.transform.gameObject.GetComponent<KIS.LinkedObject>();
+                        if (!linkedObject) continue;
+                        KASModuleWinch winchModule = linkedObject.part.GetComponent<KASModuleWinch>();
+                        if (!winchModule) continue;
 
                         // Check if the head is plugged
-                        if (headModule.connectedWinch.headState != KASModuleWinch.PlugState.Deployed) continue;
+                        if (winchModule.headState != KASModuleWinch.PlugState.Deployed) continue;
                         // Check if it's a head grabbed by another kerbal eva
-                        if (headModule.connectedWinch.evaHolderPart) continue;
+                        if (winchModule.evaHolderPart) continue;
                         // Select the nearest grabbable part
-                        float distToGrab = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, headModule.connectedWinch.part.transform.position);
+                        float distToGrab = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, winchModule.part.transform.position);
                         if (distToGrab <= shorterDist)
                         {
                             shorterDist = distToGrab;
-                            nearestModuleWinch = headModule.connectedWinch;
+                            nearestModuleWinch = winchModule;
                         }
                     }
                     //Grab nearest head if exist
@@ -464,36 +364,6 @@ namespace KAS
                     if (grabbedWinchModule)
                     {
                         grabbedWinchModule.EventWinchRetract(false);
-                    }
-                }
-            }
-        }
-
-        private void UpdateAttachControl()
-        {
-            if (KASAddonPointer.isRunning)
-            {
-                if (
-                Input.GetKeyDown(KeyCode.Escape)
-                || Input.GetKeyDown(KeyCode.Space)
-                || Input.GetKeyDown(KeyCode.Mouse1)
-                || Input.GetKeyDown(KeyCode.Mouse2)
-                || Input.GetKeyDown(KeyCode.Return)
-                || Input.GetKeyDown(attachKey.ToLower())
-                )
-                {
-                    KAS_Shared.DebugLog("Cancel key pressed, stop eva attach mode");
-                    KASAddonPointer.StopPointer();
-                }
-            }
-            else if (Input.GetKeyDown(attachKey.ToLower()))
-            {
-                KASModuleGrab grabbedModule = KAS_Shared.GetGrabbedPartModule(FlightGlobals.ActiveVessel);
-                if (grabbedModule)
-                {
-                    if (grabbedModule.attachOnPart || grabbedModule.attachOnEva || grabbedModule.attachOnStatic)
-                    {
-                        KASAddonPointer.StartPointer(grabbedModule.part, KASAddonPointer.PointerMode.MoveAndAttach, grabbedModule.attachOnPart, grabbedModule.attachOnEva, grabbedModule.attachOnStatic, grabbedModule.attachMaxDist, grabbedModule.part.transform, grabbedModule.attachSendMsgOnly);
                     }
                 }
             }
