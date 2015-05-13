@@ -123,7 +123,7 @@ namespace KAS
                 }
                 else
                 {
-                    if (FixedAttach.connectedPart)
+                    if (FixedAttach.tgtPart)
                     {
                         MagnetActive = false;
                     }
@@ -180,7 +180,7 @@ namespace KAS
                 }
 
                 // Check if not already attached
-                if (FixedAttach.connectedPart)
+                if (FixedAttach.tgtPart)
                 {
                     continue;
                 }
@@ -224,7 +224,7 @@ namespace KAS
                 AttachMagnet(p);
 
                 // sound
-                if (FixedAttach.connectedPart)
+                if (FixedAttach.tgtPart)
                 {
                     fxSndAttach.audio.Play();
                 }
@@ -238,7 +238,7 @@ namespace KAS
                 //Disable all collisions
                 this.part.collider.isTrigger = true;
                 // Create joint
-                AttachFixed(partToAttach, breakForce);
+                AttachFixed(this.part, partToAttach, breakForce);
                 // Set reference
                 MagnetActive = true;
             }
@@ -251,7 +251,7 @@ namespace KAS
         private void DetachMagnet()
         {
             this.part.collider.isTrigger = false;
-            if (FixedAttach.connectedPart)
+            if (FixedAttach.tgtPart)
             {
                 fxSndDetach.audio.Play();
                 fxSndMagnetStop.audio.Play();

@@ -174,7 +174,7 @@ namespace KAS
 
         public void AttachPartGrapple(Part attachToPart, float breakForce)
         {
-            AttachFixed(attachToPart, partBreakForce);
+            AttachFixed(this.part, attachToPart, partBreakForce);
             state = "Attached to : " + attachToPart.partInfo.title;
             //Sound
             if (attachToPart.vessel.isEVA)

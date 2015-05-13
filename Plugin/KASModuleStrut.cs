@@ -8,40 +8,64 @@ namespace KAS
 {
     public class KASModuleStrut : KASModuleAttachCore
     {
-        [KSPField] public string type = "default";
-        [KSPField] public string nodeTransform = null;
-        [KSPField] public float maxLenght = 4f;
-        [KSPField] public float maxAngle = 0.10f;
-        [KSPField] public bool allowDock = false;
-        [KSPField] public bool allowPumpFuel = false;
-        [KSPField] public float breakForce = 15f;
-        [KSPField] public float tubeScale = 0.15f;
-        [KSPField] public float jointScale = 0.15f;
-        [KSPField] public string tubeSrcType = "Joined";
-        [KSPField] public string tubeTgtType = "Joined";
-        [KSPField] public float textureTiling = 4;
-        [KSPField] public bool hasCollider = false;
-        [KSPField] public string tubeTexPath = "KAS/Textures/strut";
-        [KSPField] public string sndLinkPath = "KAS/Sounds/strutBuild";
-        [KSPField] public string sndUnlinkPath = "KAS/Sounds/strutRemove";
-        [KSPField] public string sndBrokePath = "KAS/Sounds/broke";
-        [KSPField] public Vector3 evaStrutPos = new Vector3(0f, 0.03f, -0.24f);
-        [KSPField] public Vector3 evaStrutRot = new Vector3(270f, 0f, 0f);
+        [KSPField]
+        public string type = "default";
+        [KSPField]
+        public string nodeTransform = null;
+        [KSPField]
+        public float maxLenght = 4f;
+        [KSPField]
+        public float maxAngle = 0.10f;
+        [KSPField]
+        public bool allowDock = false;
+        [KSPField]
+        public bool allowPumpFuel = false;
+        [KSPField]
+        public float breakForce = 15f;
+        [KSPField]
+        public float tubeScale = 0.15f;
+        [KSPField]
+        public float jointScale = 0.15f;
+        [KSPField]
+        public string tubeSrcType = "Joined";
+        [KSPField]
+        public string tubeTgtType = "Joined";
+        [KSPField]
+        public float textureTiling = 4;
+        [KSPField]
+        public bool hasCollider = false;
+        [KSPField]
+        public string tubeTexPath = "KAS/Textures/strut";
+        [KSPField]
+        public string sndLinkPath = "KAS/Sounds/strutBuild";
+        [KSPField]
+        public string sndUnlinkPath = "KAS/Sounds/strutRemove";
+        [KSPField]
+        public string sndBrokePath = "KAS/Sounds/broke";
+        [KSPField]
+        public Vector3 evaStrutPos = new Vector3(0f, 0.03f, -0.24f);
+        [KSPField]
+        public Vector3 evaStrutRot = new Vector3(270f, 0f, 0f);
 
-        [KSPField(isPersistant=true)]
+        [KSPField(isPersistant = true)]
         public bool pumpFuel = false;
+        [KSPField(isPersistant = true)]
+        public string tgtStrutPartID;
+        [KSPField(isPersistant = true)]
+        public string tgtStrutVesselID;
+
 
         public KAS_Tube strutRenderer;
 
         private bool linkValid = true;
-        public  bool linked = false;
+        public bool linked = false;
         public KASModuleStrut linkedStrutModule = null;
         public Vessel linkedEvaVessel = null;
 
         private Part pumpFrom, pumpTo;
 
         public FXGroup fxSndLink, fxSndUnlink, fxSndBroke;
-   
+
         private Texture2D texStrut;
         private Transform evaStrutTransform;
 
@@ -149,8 +173,16 @@ namespace KAS
             if (attachMode.FixedJoint)
             {
                 KAS_Shared.DebugLog("OnStart(strut) Docked / fixed joint detected from save, relinking...");
-                KASModuleStrut linkedStrutModuleSavedF = FixedAttach.connectedPart.GetComponent<KASModuleStrut>();
-                LinkTo(linkedStrutModuleSavedF, false, true);
+                Part tgtStrutPart = KAS_Shared.GetPartByID(tgtStrutVesselID, tgtStrutPartID);
+                if (tgtStrutPart)
+                {
+                    KASModuleStrut linkedStrutModuleSavedF = tgtStrutPart.GetComponent<KASModuleStrut>();
+                    LinkTo(linkedStrutModuleSavedF, false, true);
+                }
+                else
+                {
+                    KAS_Shared.DebugError("OnStart(strut) Target strut part not found !");
+                }
             }
         }
 
@@ -213,7 +245,7 @@ namespace KAS
                 {
                     StopPump();
                 }
-            }        
+            }
         }
 
         private IEnumerator<YieldInstruction> WaitAndRedock()
@@ -354,6 +386,8 @@ namespace KAS
             tgtModule.Events["ContextMenuUnlink"].guiActiveUnfocused = true;
             tgtModule.Events["ContextMenuLink"].guiActiveUnfocused = false;
             tgtModule.linked = true;
+            tgtStrutPartID = tgtModule.part.flightID.ToString();
+            tgtStrutVesselID = tgtModule.part.vessel.id.ToString();
 
             KAS_Shared.InvalidateContextMenu(this.part);
             KAS_Shared.InvalidateContextMenu(tgtModule.part);
@@ -366,7 +400,17 @@ namespace KAS
                     if (tgtModule.part.parent != this.part && this.part.parent != tgtModule.part)
                     {
                         KAS_Shared.DebugLog("LinkTo(Strut) Parts are from the same vessel but are not connected, setting joint...");
-                        AttachFixed(tgtModule.part, breakForce);
+                        if (this.part.parent && tgtModule.part.parent)
+                        {
+                            KAS_Shared.DebugLog("LinkTo(Strut) Set joint on struts parents");
+                            AttachFixed(this.part.parent, tgtModule.part.parent, breakForce);
+                        }
+                        else
+                        {
+                            KAS_Shared.DebugLog("LinkTo(Strut) Set joint on struts");
+                            AttachFixed(this.part, tgtModule.part, breakForce);
+                        }
+
                     }
                 }
                 else
@@ -466,6 +510,8 @@ namespace KAS
             this.UnlinkPump();
             this.strutRenderer.UnLoad();
             this.linked = false;
+            tgtStrutPartID = null;
+            tgtStrutVesselID = null;
             this.Events["ContextMenuUnlink"].guiActiveUnfocused = false;
             this.Events["ContextMenuLink"].guiActiveUnfocused = true;
             this.Events["ContextMenuTogglePump"].active = false;
@@ -477,7 +523,7 @@ namespace KAS
             if (linkedStrutModule) linkedStrutModule.linkedStrutModule = null;
             this.linkedStrutModule = null;
         }
-         
+
         private bool CheckLink(Transform srcTransform, Transform tgtTransform, bool checkTgtAngle)
         {
             bool maxLenghtReached = false;
@@ -556,7 +602,7 @@ namespace KAS
             KASModuleStrut EvaLinkedStrutModule = GetEvaLinkedStrutModule(FlightGlobals.ActiveVessel);
             if (EvaLinkedStrutModule)
             {
-                if (EvaLinkedStrutModule.LinkTo(this)) fxSndLink.audio.Play();           
+                if (EvaLinkedStrutModule.LinkTo(this)) fxSndLink.audio.Play();
             }
             else
             {

@@ -14,10 +14,13 @@ namespace KAS
         public struct FxAttach
         {
             public FixedJoint fixedJoint;
-            public Part connectedPart;
+            public Part srcPart;
+            public Part tgtPart;
             public bool createJointOnUnpack;
-            public string savedPartID;
-            public string savedVesselID;
+            public string savedSrcPartID;
+            public string savedSrcVesselID;
+            public string savedTgtPartID;
+            public string savedTgtVesselID;
             public float savedBreakForce;
         }
 
@@ -69,8 +72,10 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("OnSave(Core) Fixed joint detected, saving info...");
                 ConfigNode FxNode = node.AddNode("FIXEDATTACH");
-                FxNode.AddValue("connectedPartID", FixedAttach.connectedPart.flightID.ToString());
-                FxNode.AddValue("connectedVesselID", FixedAttach.connectedPart.vessel.id.ToString());
+                FxNode.AddValue("srcPartID", FixedAttach.srcPart.flightID.ToString());
+                FxNode.AddValue("srcVesselID", FixedAttach.srcPart.vessel.id.ToString());
+                FxNode.AddValue("tgtPartID", FixedAttach.tgtPart.flightID.ToString());
+                FxNode.AddValue("tgtVesselID", FixedAttach.tgtPart.vessel.id.ToString());
                 if (FixedAttach.fixedJoint)
                 {
                     KAS_Shared.DebugLog("OnSave(Core) Saving breakforce from joint config : " + FixedAttach.fixedJoint.breakForce);
@@ -110,10 +115,19 @@ namespace KAS
             {
                 ConfigNode FxNode = node.GetNode("FIXEDATTACH");
                 KAS_Shared.DebugLog("OnLoad(Core) Loading fixed joint info from save...");
-                FixedAttach.savedPartID = FxNode.GetValue("connectedPartID").ToString();
-                FixedAttach.savedVesselID = FxNode.GetValue("connectedVesselID").ToString();
-                FixedAttach.savedBreakForce = float.Parse(FxNode.GetValue("breakForce"));
-                attachMode.FixedJoint = true;     
+                if (FxNode.HasValue("srcPartID") && FxNode.HasValue("srcVesselID") && FxNode.HasValue("tgtPartID") && FxNode.HasValue("tgtVesselID") && FxNode.HasValue("breakForce"))
+                {
+                    FixedAttach.savedSrcPartID = FxNode.GetValue("srcPartID").ToString();
+                    FixedAttach.savedSrcVesselID = FxNode.GetValue("srcVesselID").ToString();
+                    FixedAttach.savedTgtPartID = FxNode.GetValue("tgtPartID").ToString();
+                    FixedAttach.savedTgtVesselID = FxNode.GetValue("tgtVesselID").ToString();
+                    FixedAttach.savedBreakForce = float.Parse(FxNode.GetValue("breakForce"));
+                    attachMode.FixedJoint = true;
+                }
+                else
+                {
+                    KAS_Shared.DebugWarning("OnLoad(Core) Missing node value(s) !");
+                }
             }
             if (node.HasNode("DOCKEDVESSEL") && node.HasValue("dockedPartID"))
             {
@@ -200,11 +214,12 @@ namespace KAS
         {
             if (attachMode.FixedJoint)
             {
-                Part attachedPart = KAS_Shared.GetPartByID(FixedAttach.savedVesselID, FixedAttach.savedPartID);
-                if (attachedPart)
+                Part srcPart = KAS_Shared.GetPartByID(FixedAttach.savedSrcVesselID, FixedAttach.savedSrcPartID);
+                Part tgtPart = KAS_Shared.GetPartByID(FixedAttach.savedTgtVesselID, FixedAttach.savedTgtPartID);
+                if (tgtPart)
                 {
-                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + attachedPart.partInfo.title);
-                    AttachFixed(attachedPart, FixedAttach.savedBreakForce);
+                    KAS_Shared.DebugLog("OnLoad(Core) Re-set fixed joint on " + tgtPart.partInfo.title);
+                    AttachFixed(srcPart, tgtPart, FixedAttach.savedBreakForce);
                 }
                 else
                 {
@@ -304,15 +319,11 @@ namespace KAS
 
         private void OnVesselGoOffRails(Vessel vess)
         {
-            if (FixedAttach.createJointOnUnpack &&
-                (vess == this.vessel || vess == FixedAttach.connectedPart.vessel))
+            if (FixedAttach.createJointOnUnpack && (vess == FixedAttach.srcPart.vessel || vess == FixedAttach.tgtPart.vessel))
             {
-                if (!this.part.packed && !FixedAttach.connectedPart.packed)
-                {
-                    KAS_Shared.DebugWarning("OnUpdate(Core) Fixed attach set and both part unpacked, creating fixed joint...");
-                    AttachFixed(FixedAttach.connectedPart, FixedAttach.savedBreakForce);
-                    SetCreateJointOnUnpack(false);
-                }
+                KAS_Shared.DebugWarning("OnUpdate(Core) Fixed attach set and both part unpacked, creating fixed joint...");
+                AttachFixed(FixedAttach.srcPart, FixedAttach.tgtPart, FixedAttach.savedBreakForce);
+                SetCreateJointOnUnpack(false);
             }
         }
 
@@ -327,17 +338,18 @@ namespace KAS
             this.part.transform.rotation = alignedRotation;
         }
 
-        public void AttachFixed(Part otherPart, float breakForce)
+        public void AttachFixed(Part srcPart, Part tgtPart, float breakForce)
         {
             attachMode.FixedJoint = true;
-            FixedAttach.connectedPart = otherPart;
+            FixedAttach.srcPart = srcPart;
+            FixedAttach.tgtPart = tgtPart;
 
-            if (!this.part.packed && !otherPart.packed)
+            if (!srcPart.packed && !tgtPart.packed)
             {
-                KAS_Shared.DebugLog("AttachFixed(Core) Create fixed joint on " + this.part.partInfo.title + " with " + otherPart.partInfo.title);
+                KAS_Shared.DebugLog("AttachFixed(Core) Create fixed joint on " + srcPart.partInfo.title + " with " + tgtPart.partInfo.title);
                 if (FixedAttach.fixedJoint) Destroy(FixedAttach.fixedJoint);
-                FixedAttach.fixedJoint = this.part.gameObject.AddComponent<FixedJoint>();
-                FixedAttach.fixedJoint.connectedBody = otherPart.rigidbody;
+                FixedAttach.fixedJoint = srcPart.gameObject.AddComponent<FixedJoint>();
+                FixedAttach.fixedJoint.connectedBody = tgtPart.rigidbody;
                 FixedAttach.fixedJoint.breakForce = breakForce;
                 FixedAttach.fixedJoint.breakTorque = breakForce;
             }
@@ -552,11 +564,11 @@ namespace KAS
             // FixedJoint
             if (attachType == AttachType.FixedJoint)
             {
-                KAS_Shared.DebugLog("Detach(Base) Removing fixed joint on " + this.part.partInfo.title);
+                KAS_Shared.DebugLog("Detach(Base) Removing fixed joint on " + FixedAttach.srcPart.partInfo.title);
                 if (FixedAttach.fixedJoint) Destroy(FixedAttach.fixedJoint);
                 SetCreateJointOnUnpack(false);
                 FixedAttach.fixedJoint = null;
-                FixedAttach.connectedPart = null;
+                FixedAttach.tgtPart = null;
                 attachMode.FixedJoint = false;
             }
             // StaticJoint
