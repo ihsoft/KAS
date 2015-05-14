@@ -33,8 +33,7 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>E:\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="KIS, Version=1.0.5602.32645, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="KIS">
       <HintPath>E:\Games\KSP\GameData\KIS\Plugins\KIS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -44,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KASAddonCheckKIS.cs" />
     <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
