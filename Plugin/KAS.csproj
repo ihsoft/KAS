@@ -43,7 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KASAddonCheckKIS.cs" />
+    <Compile Include="DependancyChecker.cs" />
     <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
