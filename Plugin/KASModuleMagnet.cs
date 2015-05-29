@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using KIS;
 
 namespace KAS
 {
@@ -106,19 +105,22 @@ namespace KAS
             base.OnJointBreakFixed();
         }
 
-        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
+        public void OnKISAction(BaseEventData baseEventData)
         {
-            if (messageInfo.action == KIS_Shared.MessageAction.Store || messageInfo.action == KIS_Shared.MessageAction.AttachStart)
+            string action = baseEventData.GetString("action");
+            Part tgtPart = (Part)baseEventData.Get("targetPart");
+
+            if (action == KIS.KIS_Shared.MessageAction.Store.ToString() || action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
             {
                 MagnetActive = false;
             }
-            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
             {
-                if (messageInfo.tgtPart)
+                if (tgtPart)
                 {
-                    if (KISAddonPointer.GetCurrentAttachNode().id == "srfAttach")
+                    if (KIS.KISAddonPointer.GetCurrentAttachNode().id == "srfAttach")
                     {
-                        if (!messageInfo.tgtPart.vessel.isEVA) AttachMagnet(messageInfo.tgtPart);
+                        if (!tgtPart.vessel.isEVA) AttachMagnet(tgtPart);
                     }
                 }
                 else

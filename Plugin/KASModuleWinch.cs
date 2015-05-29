@@ -4,7 +4,6 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
-using KIS;
 
 namespace KAS
 {
@@ -1116,7 +1115,7 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("PlugHead(Winch) - Plug using undocked mode");
                 headState = PlugState.PlugUndocked;
-                if (fireSound) KIS_Shared.PlaySoundAtPoint(portModule.plugSndPath, portModule.part.transform.position);
+                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(portModule.plugSndPath, portModule.part.transform.position);
             }
             if (plugMode == PlugState.PlugDocked)
             {
@@ -1129,7 +1128,7 @@ namespace KAS
                 // Remove joints between connector and winch
                 KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
-                if (fireSound) KIS_Shared.PlaySoundAtPoint(portModule.plugDockedSndPath, portModule.part.transform.position);
+                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(portModule.plugDockedSndPath, portModule.part.transform.position);
             }
 
             KAS_Shared.DebugLog("PlugHead(Winch) - Moving head...");
@@ -1152,12 +1151,12 @@ namespace KAS
 
             if (headState == PlugState.PlugUndocked)
             {
-                if (fireSound) KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.plugSndPath, connectedPortInfo.module.part.transform.position);
+                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.plugSndPath, connectedPortInfo.module.part.transform.position);
             }
             if (headState == PlugState.PlugDocked)
             {
                 Detach();
-                if (fireSound) KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.unplugDockedSndPath, connectedPortInfo.module.part.transform.position);
+                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.unplugDockedSndPath, connectedPortInfo.module.part.transform.position);
             }
             SetHeadToPhysic(true);
             SetCableJointConnectedBody(headTransform.rigidbody);

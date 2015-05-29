@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using UnityEngine;
-using KIS;
 
 namespace KAS
 {
@@ -84,16 +83,20 @@ namespace KAS
             }
         }
 
-        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
+        public void OnKISAction(BaseEventData baseEventData)
         {
-            if (messageInfo.action == KIS_Shared.MessageAction.Store)
+            string action = baseEventData.GetString("action");
+            Part tgtPart = (Part)baseEventData.Get("targetPart");
+            AttachNode tgtNode = (AttachNode)baseEventData.Get("targetNode");
+
+            if (action == KIS.KIS_Shared.MessageAction.Store.ToString())
             {
                 if (winchConnected)
                 {
                     winchConnected.UnplugHead(false);
                 }
             }
-            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
             {
                 if (winchConnected)
                 {
@@ -101,14 +104,14 @@ namespace KAS
                     winchConnected.PlugHead(this, KASModuleWinch.PlugState.PlugDocked, false, false, true);
                 }
             }
-            if (messageInfo.action == KIS_Shared.MessageAction.AttachStart)
+            if (action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
             {
-                if (messageInfo.TgtAttachNode != null)
+                if (tgtNode != null)
                 {
-                    KASModuleWinch moduleWinch = messageInfo.TgtAttachNode.owner.GetComponent<KASModuleWinch>();
+                    KASModuleWinch moduleWinch = tgtNode.owner.GetComponent<KASModuleWinch>();
                     if (moduleWinch)
                     {
-                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && messageInfo.TgtAttachNode.id == moduleWinch.connectedPortNodeName)
+                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && tgtNode.id == moduleWinch.connectedPortNodeName)
                         {
                             if (winchConnected)
                             {
@@ -119,14 +122,14 @@ namespace KAS
                     }
                 }
             }
-            if (messageInfo.action == KIS_Shared.MessageAction.AttachEnd)
+            if (action == KIS.KIS_Shared.MessageAction.AttachEnd.ToString())
             {
-                if (messageInfo.TgtAttachNode != null)
+                if (tgtNode != null)
                 {
-                    KASModuleWinch moduleWinch = messageInfo.TgtAttachNode.owner.GetComponent<KASModuleWinch>();
+                    KASModuleWinch moduleWinch = tgtNode.owner.GetComponent<KASModuleWinch>();
                     if (moduleWinch)
                     {
-                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && messageInfo.TgtAttachNode.id == moduleWinch.connectedPortNodeName)
+                        if (moduleWinch.headState == KASModuleWinch.PlugState.Deployed && tgtNode.id == moduleWinch.connectedPortNodeName)
                         {
                             moduleWinch.PlugHead(this, KASModuleWinch.PlugState.PlugDocked, alreadyDocked: true);
                             StartCoroutine(WaitAndRemoveJoint());

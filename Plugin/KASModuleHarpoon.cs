@@ -4,7 +4,6 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
-using KIS;
 
 namespace KAS
 {
@@ -71,16 +70,19 @@ namespace KAS
             this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
-        public void OnKISAction(KIS_Shared.MessageInfo messageInfo)
+        public void OnKISAction(BaseEventData baseEventData)
         {
-            if (messageInfo.action == KIS_Shared.MessageAction.Store || messageInfo.action == KIS_Shared.MessageAction.AttachStart)
+            string action = baseEventData.GetString("action");
+            Part tgtPart = (Part)baseEventData.Get("targetPart");
+
+            if (action == KIS.KIS_Shared.MessageAction.Store.ToString() || action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
             {
                 DetachGrapple();
             }
-            if (messageInfo.action == KIS_Shared.MessageAction.DropEnd)
+            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
             {
                 DetachGrapple();
-                if (messageInfo.tgtPart == null) AttachStaticGrapple(staticBreakForce);    
+                if (tgtPart == null) AttachStaticGrapple(staticBreakForce);
             }
         }
 
@@ -179,11 +181,11 @@ namespace KAS
             //Sound
             if (attachToPart.vessel.isEVA)
             {
-                KIS_Shared.PlaySoundAtPoint(attachEvaSndPath, this.part.transform.position);
+                KIS.KIS_Shared.PlaySoundAtPoint(attachEvaSndPath, this.part.transform.position);
             }
             else
             {
-                KIS_Shared.PlaySoundAtPoint(attachPartSndPath, this.part.transform.position);
+                KIS.KIS_Shared.PlaySoundAtPoint(attachPartSndPath, this.part.transform.position);
             }
         }
 
@@ -193,7 +195,7 @@ namespace KAS
             Events["ContextMenuDetach"].guiActive = true;
             Events["ContextMenuDetach"].guiActiveUnfocused = true;
             state = "Ground attached";
-            KIS_Shared.PlaySoundAtPoint(attachStaticSndPath, this.part.transform.position);
+            KIS.KIS_Shared.PlaySoundAtPoint(attachStaticSndPath, this.part.transform.position);
         }
         
         public void DetachGrapple()
@@ -204,7 +206,7 @@ namespace KAS
             if (attachMode.StaticJoint || attachMode.FixedJoint)
             {
                 Detach();
-                KIS_Shared.PlaySoundAtPoint(detachSndPath, this.part.transform.position);
+                KIS.KIS_Shared.PlaySoundAtPoint(detachSndPath, this.part.transform.position);
             }
         }
 
