@@ -1129,6 +1129,8 @@ namespace KAS
                 KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
                 if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(portModule.plugDockedSndPath, portModule.part.transform.position);
+                // Kerbal Joint Reinforcement compatibility
+                GameEvents.onPartUndock.Fire(portModule.part);
             }
 
             KAS_Shared.DebugLog("PlugHead(Winch) - Moving head...");
@@ -1143,8 +1145,6 @@ namespace KAS
             connectedPortInfo.module = portModule;
             connectedPortInfo.module.plugged = true;
             portModule.winchConnected = this;
-
-            GameEvents.onVesselWasModified.Fire(this.part.vessel);
         }
 
         public void UnplugHead(bool fireSound = true)
