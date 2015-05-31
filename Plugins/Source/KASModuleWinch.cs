@@ -1143,6 +1143,8 @@ namespace KAS
             connectedPortInfo.module = portModule;
             connectedPortInfo.module.plugged = true;
             portModule.winchConnected = this;
+
+            GameEvents.onVesselWasModified.Fire(this.part.vessel);
         }
 
         public void UnplugHead(bool fireSound = true)
