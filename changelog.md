@@ -1,4 +1,4 @@
-### 0.5.2 (Not released yet)
+### 0.5.2 (31 May, 2015)
 - [Enhancement] Converted parts textures to DDS 
 - [Enhancement] AVC is now used for version check
 - [Enhancement] Added a KIS version dependancy check 
