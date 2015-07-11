@@ -1,3 +1,7 @@
+### 0.5.3 (Not released yet)
+- [Fix] Compatibility fix for KSP 1.0.4
+- [Fix] Updated pylon to use the new KIS module for ground attachement
+
 ### 0.5.2 (31 May, 2015)
 - [Enhancement] Converted parts textures to DDS 
 - [Enhancement] AVC is now used for version check
