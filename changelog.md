@@ -1,5 +1,6 @@
 ### 0.5.3 (Not released yet)
-- [Fix] Compatibility fix for KSP 1.0.4
+- [Fix] Compatibility update for KSP 1.0.4
+- [Fix] Updated KAS to use the latest version of KIS (v1.2)
 - [Fix] Updated pylon to use the new KIS module for ground attachement
 
 ### 0.5.2 (31 May, 2015)
