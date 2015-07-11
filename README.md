@@ -17,4 +17,4 @@ It gives some purpose to EVA and can be used for many things:
 
 
 ===
-Forum thread: [KAS](http://forum.kerbalspaceprogram.com/showthread.php/25563-0-20-KAS-v0-3-1-Kerbal-Attachment-System)  
+Forum thread: [KAS](http://forum.kerbalspaceprogram.com/threads/92514-1-0-2-Kerbal-Attachment-System-%28KAS%29-0-5-0) 
