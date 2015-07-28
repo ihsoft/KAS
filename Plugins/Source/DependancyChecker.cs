@@ -33,8 +33,10 @@ namespace KAS
             {
                 Debug.Log("Assembly : " + dependancyAssembly.GetName().Name + " | Version : " + dependancyAssembly.GetName().Version + " found !");
                 Debug.Log("Minimal version needed is : " + minimalVersion);
-
-                if (dependancyAssembly.GetName().Version.Major < minimalVersionMajor || dependancyAssembly.GetName().Version.Minor < minimalVersionMinor || dependancyAssembly.GetName().Version.Build < minimalVersionBuild)
+                int dependancyAssemblyVersion = (dependancyAssembly.GetName().Version.Major * 100) + (dependancyAssembly.GetName().Version.Minor * 10) + (dependancyAssembly.GetName().Version.Build);
+                int minimalAssemblyVersion = (minimalVersionMajor * 100) + (minimalVersionMinor * 10) + (minimalVersionBuild);
+                Debug.Log("INT : " + dependancyAssemblyVersion + "/" + minimalAssemblyVersion);
+                if (dependancyAssemblyVersion < minimalAssemblyVersion)
                 {
                     Debug.LogError(assemblyName + " version " + dependancyAssembly.GetName().Version + "is not compatible with " + currentModName + "!");
                     var sb = new StringBuilder();
