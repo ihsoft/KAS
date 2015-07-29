@@ -1,3 +1,6 @@
+### 0.5.4 (Not released yet)
+- [Fix] Fixed KIS dependancy checker not working as expected
+
 ### 0.5.3 (11 July 2015)
 - [Fix] Compatibility update for KSP 1.0.4
 - [Fix] Updated KAS to use the latest version of KIS (v1.2)
