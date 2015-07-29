@@ -13,9 +13,9 @@ namespace KAS
         string currentModName = "KAS";
         string assemblyName = "KIS";
         int minimalVersionMajor = 1;
-        int minimalVersionMinor = 1;
-        int minimalVersionBuild = 6;
-        bool checkPresence = true;
+        int minimalVersionMinor = 2;
+        int minimalVersionBuild = 1;
+        bool checkPresence = false;
 
         public void Start()
         {
