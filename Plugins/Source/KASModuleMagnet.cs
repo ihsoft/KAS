@@ -108,17 +108,18 @@ namespace KAS
         public void OnKISAction(BaseEventData baseEventData)
         {
             string action = baseEventData.GetString("action");
+            string sourceNodeID = baseEventData.GetString("sourceNode");
             Part tgtPart = (Part)baseEventData.Get("targetPart");
 
-            if (action == KIS.KIS_Shared.MessageAction.Store.ToString() || action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
+            if (action == "Store" || action == "AttachStart" || action == "DropEnd")
             {
                 MagnetActive = false;
             }
-            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
+            if (action == "AttachEnd")
             {
                 if (tgtPart)
                 {
-                    if (KIS.KISAddonPointer.GetCurrentAttachNode().id == "srfAttach")
+                    if (sourceNodeID == "srfAttach")
                     {
                         if (!tgtPart.vessel.isEVA) AttachMagnet(tgtPart);
                     }

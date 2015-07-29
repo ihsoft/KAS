@@ -194,13 +194,13 @@ namespace KAS
                     Transform headTransform = KAS_Shared.GetTransformUnderCursor();
                     if (headTransform)
                     {
-                        KIS.LinkedObject linkedObject = headTransform.gameObject.GetComponent<KIS.LinkedObject>();
-                        if (linkedObject)
+                        KAS_LinkedPart linkedPart = headTransform.gameObject.GetComponent<KAS_LinkedPart>();
+                        if (linkedPart)
                         {
                             float dist = Vector3.Distance(FlightGlobals.ActiveVessel.transform.position, headTransform.position);
                             if (dist <= radius)
                             {
-                                clickedWinch = linkedObject.part.GetComponent<KASModuleWinch>();
+                                clickedWinch = linkedPart.part.GetComponent<KASModuleWinch>();
                                 return;
                             }
                         }
@@ -226,9 +226,9 @@ namespace KAS
                     KASModuleWinch nearestModuleWinch = null;
                     foreach (Collider col in nearestColliders)
                     {
-                        KIS.LinkedObject linkedObject = col.transform.gameObject.GetComponent<KIS.LinkedObject>();
-                        if (!linkedObject) continue;
-                        KASModuleWinch winchModule = linkedObject.part.GetComponent<KASModuleWinch>();
+                        KAS_LinkedPart linkedPart = col.transform.gameObject.GetComponent<KAS_LinkedPart>();
+                        if (!linkedPart) continue;
+                        KASModuleWinch winchModule = linkedPart.part.GetComponent<KASModuleWinch>();
                         if (!winchModule) continue;
 
                         // Check if the head is plugged

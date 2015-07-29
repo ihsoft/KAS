@@ -292,7 +292,7 @@ namespace KAS
             string action = baseEventData.GetString("action");
             Part tgtPart = (Part)baseEventData.Get("targetPart");
 
-            if (action == KIS.KIS_Shared.MessageAction.Store.ToString() || action == KIS.KIS_Shared.MessageAction.AttachStart.ToString() || action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
+            if (action == "Store" || action == "AttachStart" || action == "DropEnd")
             {
                 if (linked) fxSndBroke.audio.Play();
                 StopEvaLink();

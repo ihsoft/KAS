@@ -89,14 +89,14 @@ namespace KAS
             Part tgtPart = (Part)baseEventData.Get("targetPart");
             AttachNode tgtNode = (AttachNode)baseEventData.Get("targetNode");
 
-            if (action == KIS.KIS_Shared.MessageAction.Store.ToString())
+            if (action == "Store")
             {
                 if (winchConnected)
                 {
                     winchConnected.UnplugHead(false);
                 }
             }
-            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
+            if (action == "DropEnd")
             {
                 if (winchConnected)
                 {
@@ -104,7 +104,7 @@ namespace KAS
                     winchConnected.PlugHead(this, KASModuleWinch.PlugState.PlugDocked, false, false, true);
                 }
             }
-            if (action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
+            if (action == "AttachStart")
             {
                 if (tgtNode != null)
                 {
@@ -122,8 +122,12 @@ namespace KAS
                     }
                 }
             }
-            if (action == KIS.KIS_Shared.MessageAction.AttachEnd.ToString())
+            if (action == "AttachEnd")
             {
+                if (winchConnected)
+                {
+                    winchConnected.cableJointLength = winchConnected.cableRealLenght;
+                }
                 if (tgtNode != null)
                 {
                     KASModuleWinch moduleWinch = tgtNode.owner.GetComponent<KASModuleWinch>();

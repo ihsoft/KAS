@@ -398,12 +398,12 @@ namespace KAS
             an.nodeTransform = new GameObject("KASWinchConnectorAn").transform;
             an.nodeTransform.parent = this.part.transform;
             an.nodeTransform.localPosition = an.position;
-            an.nodeTransform.localRotation = KIS.KIS_Shared.GetNodeRotation(an);
+            an.nodeTransform.localRotation = Quaternion.LookRotation(an.orientation);
             an.nodeTransform.parent = headTransform;
 
             // Set linked object module 
-            KIS.LinkedObject linkedObject = headTransform.gameObject.AddComponent<KIS.LinkedObject>();
-            linkedObject.part = this.part;
+            KAS_LinkedPart linkedPart = headTransform.gameObject.AddComponent<KAS_LinkedPart>();
+            linkedPart.part = this.part;
 
             // Create head anchor node
             headAnchorNode = new GameObject("KASHeadAnchor").transform;
@@ -1115,7 +1115,7 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("PlugHead(Winch) - Plug using undocked mode");
                 headState = PlugState.PlugUndocked;
-                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(portModule.plugSndPath, portModule.part.transform.position);
+                if (fireSound) AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(portModule.plugSndPath), portModule.part.transform.position);
             }
             if (plugMode == PlugState.PlugDocked)
             {
@@ -1128,7 +1128,7 @@ namespace KAS
                 // Remove joints between connector and winch
                 KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
                 headState = PlugState.PlugDocked;
-                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(portModule.plugDockedSndPath, portModule.part.transform.position);
+                if (fireSound) AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(portModule.plugDockedSndPath), portModule.part.transform.position);
                 // Kerbal Joint Reinforcement compatibility
                 GameEvents.onPartUndock.Fire(portModule.part);
             }
@@ -1153,12 +1153,12 @@ namespace KAS
 
             if (headState == PlugState.PlugUndocked)
             {
-                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.plugSndPath, connectedPortInfo.module.part.transform.position);
+                if (fireSound) AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(connectedPortInfo.module.plugSndPath), connectedPortInfo.module.part.transform.position);
             }
             if (headState == PlugState.PlugDocked)
             {
                 Detach();
-                if (fireSound) KIS.KIS_Shared.PlaySoundAtPoint(connectedPortInfo.module.unplugDockedSndPath, connectedPortInfo.module.part.transform.position);
+                if (fireSound) AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(connectedPortInfo.module.unplugDockedSndPath), connectedPortInfo.module.part.transform.position);
             }
             SetHeadToPhysic(true);
             SetCableJointConnectedBody(headTransform.rigidbody);

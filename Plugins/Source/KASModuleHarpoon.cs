@@ -75,11 +75,11 @@ namespace KAS
             string action = baseEventData.GetString("action");
             Part tgtPart = (Part)baseEventData.Get("targetPart");
 
-            if (action == KIS.KIS_Shared.MessageAction.Store.ToString() || action == KIS.KIS_Shared.MessageAction.AttachStart.ToString())
+            if (action == "Store" || action == "AttachStart" || action == "DropEnd")
             {
                 DetachGrapple();
             }
-            if (action == KIS.KIS_Shared.MessageAction.DropEnd.ToString())
+            if (action == "AttachEnd")
             {
                 DetachGrapple();
                 if (tgtPart == null) AttachStaticGrapple(staticBreakForce);
@@ -181,11 +181,11 @@ namespace KAS
             //Sound
             if (attachToPart.vessel.isEVA)
             {
-                KIS.KIS_Shared.PlaySoundAtPoint(attachEvaSndPath, this.part.transform.position);
+                AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(attachEvaSndPath), this.part.transform.position);
             }
             else
             {
-                KIS.KIS_Shared.PlaySoundAtPoint(attachPartSndPath, this.part.transform.position);
+                AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(attachPartSndPath), this.part.transform.position);
             }
         }
 
@@ -195,7 +195,7 @@ namespace KAS
             Events["ContextMenuDetach"].guiActive = true;
             Events["ContextMenuDetach"].guiActiveUnfocused = true;
             state = "Ground attached";
-            KIS.KIS_Shared.PlaySoundAtPoint(attachStaticSndPath, this.part.transform.position);
+            AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(attachStaticSndPath), this.part.transform.position);
         }
         
         public void DetachGrapple()
@@ -206,7 +206,7 @@ namespace KAS
             if (attachMode.StaticJoint || attachMode.FixedJoint)
             {
                 Detach();
-                KIS.KIS_Shared.PlaySoundAtPoint(detachSndPath, this.part.transform.position);
+                AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(detachSndPath), this.part.transform.position);
             }
         }
 

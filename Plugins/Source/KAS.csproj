@@ -33,9 +33,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>E:\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="KIS">
-      <HintPath>E:\Games\KSP\GameData\KIS\Plugins\KIS.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
@@ -48,7 +45,6 @@
     <Compile Include="KASAddonDebugTools.cs" />
     <Compile Include="KASModuleHarpoon.cs" />
     <Compile Include="KASModuleRotor.cs" />
-    <Compile Include="KASModuleContainer.cs" />
     <Compile Include="KASModulePort.cs" />
     <Compile Include="KASModuleTelescopicArm.cs" />
     <Compile Include="KASModuleWinch.cs" />

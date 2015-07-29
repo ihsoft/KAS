@@ -8,6 +8,11 @@ using KSP.IO;
 
 namespace KAS
 {
+    public class KAS_LinkedPart : MonoBehaviour
+    {
+        public Part part;
+    }
+
     static public class KAS_Shared
     {
         //Debug log yes/no
