@@ -1,4 +1,4 @@
-### 0.5.4 (Not released yet)
+### 0.5.4 (29 July 2015)
 - [Enhancement] Allow KAS to work without KIS (removed KIS dependancy)
 - [Enhancement] Moving harpoons with KIS will not attach them on the ground anymore (attach key
 must now be used)
