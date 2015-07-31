@@ -31,12 +31,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>E:\Games\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>E:\Games\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -62,7 +62,9 @@
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "C:\games\KSP" xcopy "$(TargetPath)" "C:\games\KSP\GameData\KAS\Plugins\" /Y
 IF EXIST "D:\games\KSP" xcopy "$(TargetPath)" "D:\games\KSP\GameData\KAS\Plugins\" /Y
-IF EXIST "E:\games\KSP" xcopy "$(TargetPath)" "E:\games\KSP\GameData\KAS\Plugins\" /Y</PostBuildEvent>
+IF EXIST "E:\games\KSP" xcopy "$(TargetPath)" "E:\games\KSP\GameData\KAS\Plugins\" /Y
+del /q $(TargetDir)
+del /q $(SolutionDir)\obj\Debug\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
