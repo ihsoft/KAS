@@ -2,7 +2,7 @@
 ####Mod for [Kerbal Space Program](http://www.kerbalspaceprogram.com/)
 ===
 
-KAS introduce new gameplay mechanics by adding winches, and eva attachable struts/pipes. 
+KAS introduces new gameplay mechanics by adding winches, and EVA attachable struts/pipes. 
 It gives some purpose to EVA and can be used for many things:
 
 - Resource transfer
