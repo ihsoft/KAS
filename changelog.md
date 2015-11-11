@@ -1,3 +1,6 @@
+### 0.5.5 (11 November 2015)
+- [Fix] Compatibility update for KSP 1.0.5
+
 ### 0.5.4 (29 July 2015)
 - [Enhancement] Allow KAS to work without KIS (removed KIS dependancy)
 - [Enhancement] Moving harpoons with KIS will not attach them on the ground anymore (attach key
