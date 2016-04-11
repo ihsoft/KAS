@@ -19,6 +19,15 @@ namespace KAS
 
         public void Start()
         {
+            // FIXME: Drop on release.
+            Debug.LogWarning("Show disclaimer");
+            PopupDialog.SpawnPopupDialog(
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), "KAS Pre-Release",
+                "You're using a test version of KAS that is intended to be used for testing"
+                + " purposes only.\nMake sure you've made backups of your savefiles since they"
+                + " may get badly broken!",
+                "I agree to take this risk", false, HighLogic.UISkin);
+          
             string minimalVersion = minimalVersionMajor + "." + minimalVersionMinor + "." + minimalVersionBuild;
             Assembly dependancyAssembly = null;
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
