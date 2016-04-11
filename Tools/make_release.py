@@ -39,8 +39,6 @@ DEST_RELEASES = '..'
 DEST_RELEASE_NAME_FMT = 'KAS_v%d.%d.%d'
 # A file name format for releases with build field other than zero.
 DEST_RELEASE_NAME_WITH_BUILD_FMT = 'KAS_v%d.%d.%d_build%d'
-# File in the dest folders which will be updated with the latest version numbers.
-DEST_VERSION_FILE = '/KAS.version'
 # The name of the destintation binary.
 DEST_VERSIONED_BINARY = '/KAS.dll'
 
