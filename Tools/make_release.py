@@ -37,6 +37,8 @@ DEST_RELEASES = '..'
 # A format string which accepts VERSION as argument and return distribution
 # file name with no extension.
 DEST_RELEASE_NAME_FMT = 'KAS_v%d.%d.%d'
+# A file name format for releases with build field other than zero.
+DEST_RELEASE_NAME_WITH_BUILD_FMT = 'KAS_v%d.%d.%d_build%d'
 # File in the dest folders which will be updated with the latest version numbers.
 DEST_VERSION_FILE = '/KAS.version'
 # The name of the destintation binary.
@@ -152,17 +154,18 @@ def ExtractVersion():
       continue
     # Expect: [assembly: AssemblyVersion("X.Y.Z")]
     print line
-    matches = re.match(r'\[assembly: AssemblyVersion\("(\d+)\.(\d+)\.(\d+)"\)\]', line)
+    matches = re.match(r'\[assembly: AssemblyVersion\("(\d+)\.(\d+)\.(\d+)(.(\d+))?"\)\]', line)
     if matches:
       VERSION = (int(matches.group(1)),  # MAJOR
                  int(matches.group(2)),  # MINOR
-                 int(matches.group(3)))  # PATCH
+                 int(matches.group(3)),  # PATCH
+                 int(matches.group(5) or 0))  # BUILD, optional.
       break
       
   if VERSION is None:
     print 'ERROR: Cannot extract version.'
     exit(-1)
-  print 'Releasing version: v%d.%d.%d' % VERSION
+  print 'Releasing version: v%d.%d.%d build %d' % VERSION
 
 
 # Updates the destination files with the version info.
@@ -192,8 +195,16 @@ def UpdateVersionInJsonFile_(name):
   content['VERSION']['MAJOR'] = VERSION[0]
   content['VERSION']['MINOR'] = VERSION[1]
   content['VERSION']['PATCH'] = VERSION[2]
+  content['VERSION']['BUILD'] = VERSION[3]
   with open(name, 'w') as fp:
     json.dump(content, fp, indent=4, sort_keys=True)
+
+
+def MakeReleaseFileName():
+  if VERSION[3]:
+    return DEST_RELEASE_NAME_WITH_BUILD_FMT % VERSION
+  else:
+    return DEST_RELEASE_NAME_FMT % VERSION[:3]
 
 
 # Creates a package for re-destribution.
@@ -204,7 +215,7 @@ def MakePackage():
     print 'No package requested, skipping.'
     return
 
-  release_name = DEST_RELEASE_NAME_FMT % VERSION
+  release_name = MakeReleaseFileName();
   package_file_name = '%s/%s.zip' % (DEST_RELEASES, release_name)
   if os.path.exists(package_file_name):
     if not OVERWRITE_PACKAGE:
