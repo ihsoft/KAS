@@ -349,7 +349,7 @@ namespace KAS
                 KAS_Shared.DebugLog("AttachFixed(Core) Create fixed joint on " + srcPart.partInfo.title + " with " + tgtPart.partInfo.title);
                 if (FixedAttach.fixedJoint) Destroy(FixedAttach.fixedJoint);
                 FixedAttach.fixedJoint = srcPart.gameObject.AddComponent<FixedJoint>();
-                FixedAttach.fixedJoint.connectedBody = tgtPart.rigidbody;
+                FixedAttach.fixedJoint.connectedBody = tgtPart.rb;
                 FixedAttach.fixedJoint.breakForce = breakForce;
                 FixedAttach.fixedJoint.breakTorque = breakForce;
             }
@@ -365,8 +365,8 @@ namespace KAS
             KAS_Shared.DebugLog("JointToStatic(Base) Create kinematic rigidbody");
             if (StaticAttach.connectedGameObject) Destroy(StaticAttach.connectedGameObject);
             GameObject obj = new GameObject("KASBody");
-            obj.AddComponent<Rigidbody>();
-            obj.rigidbody.isKinematic = true;
+            var objRigidbody = obj.AddComponent<Rigidbody>();
+            objRigidbody.isKinematic = true;
             obj.transform.position = this.part.transform.position;
             obj.transform.rotation = this.part.transform.rotation;
             StaticAttach.connectedGameObject = obj;
@@ -376,7 +376,8 @@ namespace KAS
             FixedJoint CurJoint = this.part.gameObject.AddComponent<FixedJoint>();
             CurJoint.breakForce = breakForce;
             CurJoint.breakTorque = breakForce;
-            CurJoint.connectedBody = obj.rigidbody;
+            // FIXME: Just don't set connected body when attaching to static.
+            CurJoint.connectedBody = objRigidbody;
             StaticAttach.fixedJoint = CurJoint;
             attachMode.StaticJoint = true;
         }

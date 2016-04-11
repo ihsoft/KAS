@@ -239,14 +239,14 @@ namespace KAS
 
         public static void CreatePhysicObject(Transform transf, float mass, Rigidbody copyRbVelFrom = null)
         {
-            transf.gameObject.AddComponent<Rigidbody>();
-            transf.rigidbody.mass = mass;
+            var transfRigidbody = transf.gameObject.AddComponent<Rigidbody>();
+            transfRigidbody.mass = mass;
             transf.transform.parent = null;
-            transf.rigidbody.useGravity = true;
+            transfRigidbody.useGravity = true;
             if (copyRbVelFrom)
             {
-                transf.rigidbody.velocity = copyRbVelFrom.velocity;
-                transf.rigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
+                transfRigidbody.velocity = copyRbVelFrom.velocity;
+                transfRigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
             }
             FlightGlobals.addPhysicalObject(transf.gameObject);
         }
@@ -254,7 +254,7 @@ namespace KAS
         public static void RemovePhysicObject(Part p, Transform transf)
         {
             FlightGlobals.removePhysicalObject(transf.gameObject);
-            UnityEngine.Object.Destroy(transf.rigidbody);
+            UnityEngine.Object.Destroy(transf.GetComponent<Rigidbody>());
             transf.parent = p.transform;
         }
 
@@ -818,7 +818,7 @@ namespace KAS
             List<FixedJoint> fixedJoints1 = new List<FixedJoint>(part1.GetComponents<FixedJoint>());
             foreach (FixedJoint fj1 in fixedJoints1)
             {
-                if (fj1.connectedBody == part2.rigidbody)
+                if (fj1.connectedBody == part2.rb)
                 {
                     UnityEngine.Object.Destroy(fj1);
                 }
@@ -826,7 +826,7 @@ namespace KAS
             List<FixedJoint> fixedJoints2 = new List<FixedJoint>(part2.GetComponents<FixedJoint>());
             foreach (FixedJoint fj2 in fixedJoints2)
             {
-                if (fj2.connectedBody == part1.rigidbody)
+                if (fj2.connectedBody == part1.rb)
                 {
                     UnityEngine.Object.Destroy(fj2);
                 }
@@ -838,7 +838,7 @@ namespace KAS
             List<HingeJoint> hingeJoints1 = new List<HingeJoint>(part1.GetComponents<HingeJoint>());
             foreach (HingeJoint hj1 in hingeJoints1)
             {
-                if (hj1.connectedBody == part2.rigidbody)
+                if (hj1.connectedBody == part2.rb)
                 {
                     UnityEngine.Object.Destroy(hj1);
                 }
@@ -846,7 +846,7 @@ namespace KAS
             List<HingeJoint> hingeJoints2 = new List<HingeJoint>(part2.GetComponents<HingeJoint>());
             foreach (HingeJoint hj2 in hingeJoints2)
             {
-                if (hj2.connectedBody == part1.rigidbody)
+                if (hj2.connectedBody == part1.rb)
                 {
                     UnityEngine.Object.Destroy(hj2);
                 }

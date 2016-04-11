@@ -175,9 +175,10 @@ namespace KAS
             KAS_Shared.DisableVesselCollision(this.vessel, this.part.collider);
             foreach (KeyValuePair<int, SectionInfo> section in sections)
             {
-                if (section.Value.transform.collider)
+                var transformCollider = section.Value.transform.GetComponent<Collider>();
+                if (transformCollider)
                 {
-                    KAS_Shared.DisableVesselCollision(this.vessel, section.Value.transform.collider);
+                    KAS_Shared.DisableVesselCollision(this.vessel, transformCollider);
                 }
                 else
                 {
@@ -229,7 +230,7 @@ namespace KAS
 
             KAS_Shared.DebugLog("LoadBoomHead(TelescopicArm) - Create configurable joint...");
             slideJoint = this.part.gameObject.AddComponent<ConfigurableJoint>();
-            slideJoint.connectedBody = sections[0].transform.rigidbody;
+            slideJoint.connectedBody = sections[0].transform.GetComponent<Rigidbody>();
             slideJoint.axis = Vector3.zero;
             slideJoint.secondaryAxis = Vector3.zero;
             slideJoint.breakForce = breakForce;
@@ -308,7 +309,7 @@ namespace KAS
                         KAS_Shared.RemoveFixedJointBetween(this.part, an.attachedPart);
                         KAS_Shared.RemoveHingeJointBetween(this.part, an.attachedPart);
                         FixedJoint fjnt = an.attachedPart.gameObject.AddComponent<FixedJoint>();
-                        fjnt.connectedBody = sections[0].transform.rigidbody;
+                        fjnt.connectedBody = sections[0].transform.GetComponent<Rigidbody>();
                         fixedJnts.Add(fjnt);
                     }
                 }

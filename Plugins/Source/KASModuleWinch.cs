@@ -538,7 +538,7 @@ namespace KAS
             base.OnPartUnpack();
 
             KAS_Shared.DebugLog("OnPartUnpack(Winch)");
-            if (headState != PlugState.Locked && headTransform.rigidbody)
+            if (headState != PlugState.Locked && headTransform.GetComponent<Rigidbody>())
             {
                 cableJointLength = cableRealLenght;
             }
@@ -850,7 +850,7 @@ namespace KAS
 
             KAS_Shared.DebugLog("Deploy(Winch) - Create spring joint");
             cableJoint = this.part.gameObject.AddComponent<SpringJoint>();
-            cableJoint.connectedBody = headTransform.rigidbody;
+            cableJoint.connectedBody = headTransform.GetComponent<Rigidbody>();
             cableJoint.maxDistance = 0;
             cableJoint.minDistance = 0;
             cableJoint.spring = cableSpring;
@@ -988,7 +988,7 @@ namespace KAS
                 KAS_Shared.MoveAlign(headTransform, headPortNode, evaHeadNodeTransform);
             }
             // Set cable joint connected body to eva
-            SetCableJointConnectedBody(kerbalEvaVessel.rootPart.rigidbody);
+            SetCableJointConnectedBody(kerbalEvaVessel.rootPart.rb);
             headTransform.parent = evaHeadNodeTransform;
             cableJointLength = cableRealLenght;
 
@@ -1008,7 +1008,7 @@ namespace KAS
             KAS_Shared.MoveRelatedTo(headTransform, evaCollider.transform, evaDropHeadPos, evaDropHeadRot);
 
             SetHeadToPhysic(true);
-            SetCableJointConnectedBody(headTransform.rigidbody);
+            SetCableJointConnectedBody(headTransform.GetComponent<Rigidbody>());
 
             if (evaHeadNodeTransform) Destroy(evaHeadNodeTransform.gameObject);
 
@@ -1137,7 +1137,7 @@ namespace KAS
             headTransform.rotation = Quaternion.FromToRotation(headPortNode.forward, -portModule.portNode.forward) * headTransform.rotation;
             headTransform.position = headTransform.position - (headPortNode.position - portModule.portNode.position);
             SetHeadToPhysic(false);
-            SetCableJointConnectedBody(portModule.part.rigidbody);
+            SetCableJointConnectedBody(portModule.part.rb);
             headTransform.parent = portModule.part.transform;
             cableJointLength = cableRealLenght + 0.01f;
 
@@ -1161,7 +1161,7 @@ namespace KAS
                 if (fireSound) AudioSource.PlayClipAtPoint(GameDatabase.Instance.GetAudioClip(connectedPortInfo.module.unplugDockedSndPath), connectedPortInfo.module.part.transform.position);
             }
             SetHeadToPhysic(true);
-            SetCableJointConnectedBody(headTransform.rigidbody);
+            SetCableJointConnectedBody(headTransform.GetComponent<Rigidbody>());
 
             connectedPortInfo.module.winchConnected = null;
             connectedPortInfo.module.nodeConnectedPart = null;
@@ -1211,7 +1211,7 @@ namespace KAS
                 }
                 else
                 {
-                    headTransform.rigidbody.AddForce(force, ForceMode.Force);
+                    headTransform.GetComponent<Rigidbody>().AddForce(force, ForceMode.Force);
                 }
                 this.part.Rigidbody.AddForce(-force, ForceMode.Force);
                 fxSndEject.audio.Play();

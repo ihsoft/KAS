@@ -60,14 +60,14 @@ namespace KAS
         {
             base.OnPartUnpack();
 
-            this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            this.part.rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         public override void OnPartPack()
         {
             base.OnPartPack();
 
-            this.part.rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            this.part.rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
         public void OnKISAction(BaseEventData baseEventData)

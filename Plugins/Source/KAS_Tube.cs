@@ -65,7 +65,7 @@ namespace KAS
             //Create tube primitive
             tube = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             tube.name = "KAStube";
-            DestroyImmediate(tube.collider);
+            DestroyImmediate(tube.GetComponent<Collider>());
             tube.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
             tubeMR = tube.GetComponent<MeshRenderer>();
             tubeMR.name = "KAStube";
@@ -79,7 +79,7 @@ namespace KAS
                 //Create sphere primitive at source
                 srcSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 srcSphere.name = "KASsrcSphere";
-                DestroyImmediate(srcSphere.collider);
+                DestroyImmediate(srcSphere.GetComponent<Collider>());
                 srcSphere.transform.localScale = new Vector3(sphereScale, sphereScale, sphereScale);
                 srcSphere.transform.parent = srcNode;
                 srcSphere.transform.localPosition = Vector3.zero;
@@ -99,7 +99,7 @@ namespace KAS
                     //Create joined tube primitive at source
                     srcTubeSphere = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                     srcTubeSphere.name = "KASsrcTube";
-                    DestroyImmediate(srcTubeSphere.collider);
+                    DestroyImmediate(srcTubeSphere.GetComponent<Collider>());
                     srcTubeSphere.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
                     srcTubeSphere.transform.parent = srcNode;
                     srcTubeSphere.transform.localPosition = Vector3.zero;
@@ -118,7 +118,7 @@ namespace KAS
                 //Create sphere primitive at target
                 tgtSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tgtSphere.name = "KAStgtSphere";
-                DestroyImmediate(tgtSphere.collider);
+                DestroyImmediate(tgtSphere.GetComponent<Collider>());
                 tgtSphere.transform.localScale = new Vector3(sphereScale, sphereScale, sphereScale);
                 tgtSphere.transform.parent = tgtNode;
                 tgtSphere.transform.localPosition = Vector3.zero;
@@ -137,7 +137,7 @@ namespace KAS
                     //Create joined tube primitive at target
                     tgtTubeSphere = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                     tgtTubeSphere.name = "KAStgtTube";
-                    DestroyImmediate(tgtTubeSphere.collider);
+                    DestroyImmediate(tgtTubeSphere.GetComponent<Collider>());
                     tgtTubeSphere.transform.localScale = new Vector3(tubeScale, tubeScale, tubeScale);
                     tgtTubeSphere.transform.parent = tgtNode;
                     tgtTubeSphere.transform.localPosition = Vector3.zero;
@@ -259,7 +259,7 @@ namespace KAS
 
         public void DisableCollision(bool active)
         {
-            tube.collider.isTrigger = active;
+            tube.GetComponent<Collider>().isTrigger = active;
         }
 
         void ScaleBetweenPoints(Transform obj, Vector3 srcPos, Vector3 tgtPos, Vector3 angle, Material material = null, float textureTilingOffset = 0)

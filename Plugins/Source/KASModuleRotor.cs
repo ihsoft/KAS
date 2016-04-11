@@ -116,7 +116,7 @@ namespace KAS
         {
             if (!hingeJnt) return;
             currentAngle = hingeJnt.angle;
-            currentSpeed = rotorTransform.rigidbody.angularVelocity.magnitude;
+            currentSpeed = rotorTransform.GetComponent<Rigidbody>().angularVelocity.magnitude;
             rotorLocalPos = KAS_Shared.GetLocalPosFrom(rotorTransform.transform, this.part.transform);
             rotorLocalRot = KAS_Shared.GetLocalRotFrom(rotorTransform.transform, this.part.transform);
             if (rotorGoingTo)
@@ -176,9 +176,10 @@ namespace KAS
             rotorOrgLocalRot = KAS_Shared.GetLocalRotFrom(rotorTransform, this.part.transform);
 
             KAS_Shared.DebugLog("LoadRotor - Disable collision...");
-            if (rotorTransform.collider)
+            var rotorTransformCollider = rotorTransform.GetComponent<Collider>();
+            if (rotorTransformCollider)
             {
-                KAS_Shared.DisableVesselCollision(this.part.vessel, rotorTransform.collider);
+                KAS_Shared.DisableVesselCollision(this.part.vessel, rotorTransformCollider);
             }
             else
             {
@@ -187,7 +188,7 @@ namespace KAS
 
             KAS_Shared.DebugLog("LoadRotor - Create hinge joint...");
             hingeJnt = this.part.gameObject.AddComponent<HingeJoint>();
-            hingeJnt.connectedBody = rotorTransform.rigidbody;
+            hingeJnt.connectedBody = rotorTransform.GetComponent<Rigidbody>();
             ResetLimitsConfig();
             ResetMotorConfig();
             ResetSpringConfig();
@@ -220,7 +221,7 @@ namespace KAS
                         KAS_Shared.RemoveFixedJointBetween(this.part, an.attachedPart);
                         KAS_Shared.RemoveHingeJointBetween(this.part, an.attachedPart);
                         FixedJoint fjnt = an.attachedPart.gameObject.AddComponent<FixedJoint>();
-                        fjnt.connectedBody = rotorTransform.rigidbody;
+                        fjnt.connectedBody = rotorTransform.GetComponent<Rigidbody>();
                         fixedJnts.Add(fjnt);
                     }
                 }
