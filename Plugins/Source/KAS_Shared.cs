@@ -1114,7 +1114,7 @@ namespace KAS
             group.audio.volume = GameSettings.SHIP_VOLUME;
             group.audio.rolloffMode = AudioRolloffMode.Linear;
             group.audio.dopplerLevel = 0f;
-            group.audio.panLevel = 1f;
+            group.audio.spatialBlend = 1f;
             group.audio.maxDistance = maxDistance;
             group.audio.loop = loop;
             group.audio.playOnAwake = false;

@@ -268,12 +268,14 @@ namespace KAS
             drv.maximumForce = driveForce;
             slideJoint.xDrive = slideJoint.yDrive = slideJoint.zDrive = drv;
 
-            SoftJointLimit jointLimit = new SoftJointLimit();
+            var jointLimit = new SoftJointLimit();
             jointLimit.limit = sectionTotalLenght;
-            jointLimit.damper = 200;
-            jointLimit.spring = 1000;
             jointLimit.bounciness = 1;
             slideJoint.linearLimit = jointLimit;
+            slideJoint.linearLimitSpring = new SoftJointLimitSpring() {
+                damper = 200,
+                spring = 1000
+            };
 
             if (savedSectionsLocalPos.Count > 0)
             {

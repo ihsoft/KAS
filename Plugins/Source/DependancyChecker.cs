@@ -42,7 +42,10 @@ namespace KAS
                     var sb = new StringBuilder();
                     sb.AppendFormat(assemblyName + " version must be " + minimalVersion + " or greater for this version of " + currentModName + "."); sb.AppendLine();
                     sb.AppendFormat("Please update " + assemblyName + " to the latest version."); sb.AppendLine();
-                    PopupDialog.SpawnPopupDialog(currentModName + "/" + assemblyName + " Version mismatch", sb.ToString(), "OK", false, HighLogic.Skin);
+                    PopupDialog.SpawnPopupDialog(
+                        new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                        currentModName + "/" + assemblyName + " Version mismatch", sb.ToString(),
+                        "OK", false, HighLogic.UISkin);
                 }
             }
             else if (checkPresence)
@@ -51,7 +54,9 @@ namespace KAS
                 var sb = new StringBuilder();
                 sb.AppendFormat(assemblyName + " is required for " + currentModName + "."); sb.AppendLine();
                 sb.AppendFormat("Please install " + assemblyName + " before using " + currentModName + "."); sb.AppendLine();
-                PopupDialog.SpawnPopupDialog(assemblyName + " not found !", sb.ToString(), "OK", false, HighLogic.Skin);
+                PopupDialog.SpawnPopupDialog(
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    assemblyName + " not found !", sb.ToString(), "OK", false, HighLogic.UISkin);
             }
         }
     }
