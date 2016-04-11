@@ -15,9 +15,10 @@ go into the game's folder and drop all your mods. Most of them won't work anyway
 interfere with the new KIS/KAS.
 - Install latest pre-release builds of KIS/KAS from the development forum the thread (TBD).
 
-### Building for KSP 1.1
+### Running two versions of KSP
 
-- Follow building instructions from `BUILD.md`.
-- To avoid the versions mess map 1.0.5 backup to a logical drive `R:` and adjust project settings
-accordingly.
-- Run versions from the file explorer instead of Steam.
+With Steam on Windows there are strange artefacts when running 1.1.0 not from the original folder.
+So, it's encouraged to copy both versions in the independent folders and map required version to
+the original Steam's folder via `mklink /D` command. Keep in mind you need to run it under
+administrator. Shutdown and don't run Steam when a "wrong" version is mapped, otherwise Steam will
+rewrite the files.
