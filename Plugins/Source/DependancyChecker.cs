@@ -20,13 +20,14 @@ namespace KAS
         public void Start()
         {
             // FIXME: Drop on release.
-            Debug.LogWarning("Show disclaimer");
+            Debug.LogWarning("Test version of KAS detected!!!");
             PopupDialog.SpawnPopupDialog(
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), "KAS Pre-Release",
                 "You're using a test version of KAS that is intended to be used for testing"
                 + " purposes only.\nMake sure you've made backups of your savefiles since they"
                 + " may get badly broken!",
-                "I agree to take this risk", false, HighLogic.UISkin);
+                "I agree to take this risk", false /* persistAcrossScenes */, HighLogic.UISkin,
+                isModal: false);
           
             string minimalVersion = minimalVersionMajor + "." + minimalVersionMinor + "." + minimalVersionBuild;
             Assembly dependancyAssembly = null;
