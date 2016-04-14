@@ -735,7 +735,7 @@ namespace KAS
 
             // Create the rigid body
             part.PromoteToPhysicalPart();
-            part.rb.mass = part.mass + part.GetResourceMass();
+            part.Rigidbody.mass = part.mass + part.GetResourceMass();
         }
 
         private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part, List<Collider> re_enable)
