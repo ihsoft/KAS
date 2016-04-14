@@ -1,0 +1,2 @@
+Alpha 3 (candidate):
+- [Enhancement] Improved search tags and descriptions in parts.
