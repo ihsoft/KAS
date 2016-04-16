@@ -13,7 +13,7 @@
     "NAME": "Kerbal Attachment System", 
     "URL": "https://raw.githubusercontent.com/KospY/KAS/master/kas.version", 
     "VERSION": {
-        "BUILD": 3, 
+        "BUILD": 4, 
         "MAJOR": 0, 
         "MINOR": 5, 
         "PATCH": 6
