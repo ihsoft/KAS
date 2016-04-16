@@ -1,4 +1,8 @@
-Alpha 3 (candidate):
+Alpha 3:
 - [Enhancement] Improved search tags and descriptions in parts.
 - [Change] Increase hooks break strength with respect to Unity 5 physics change.
 - [Internal] Migrate from `Part.rb` to `Part.Rigidbody` to handle parts with no rigidbody (e.g. radial adapter).
+
+Alpha 4 (candidate):
+- [Enhancement] MInor changes in parts descriptions.
+- [Internal] Report mod's version when showing pre-release warning.
