@@ -95,7 +95,12 @@ namespace KAS
         }
 
         private void AttachOnCollision(Collision collision)
-        {       
+        {
+            // Revert precision mode back to the performance. Non-discrete modes are very expensive.
+            KAS_Shared.DebugLog(string.Format(
+                "AttachOnCollision - Set collision mode back to Discrete on: {0}", part));
+            part.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+          
             //Don't attach if inpact force is too low
             if (collision.relativeVelocity.magnitude < forceNeeded) return;
 
