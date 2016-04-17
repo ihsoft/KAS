@@ -7,7 +7,7 @@
     "NAME": "KAS", 
     "URL": "https://raw.githubusercontent.com/KospY/KAS/master/kas.version", 
     "VERSION": {
-        "BUILD": 4, 
+        "BUILD": 5, 
         "MAJOR": 0, 
         "MINOR": 5, 
         "PATCH": 6
