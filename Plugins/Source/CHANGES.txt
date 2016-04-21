@@ -7,6 +7,9 @@ Alpha 4:
 - [Enhancement] Minor changes in parts descriptions.
 - [Internal] Report mod's version when showing pre-release warning.
 
-Alpha 5 (candidate):
+Alpha 5:
 - [Internal] On eject set collision detection mode to CONTINUES to not punch thru the collider.
 
+Alpha 6 (candidate):
+- [Change] Increase static attach strength on pylon to preven joint breakage.
+- [Fix] Fix bootom & srf attach nodes on pylon to make it more stable and prevent explosions on physics start.
