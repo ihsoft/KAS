@@ -11,5 +11,5 @@ Alpha 5:
 - [Internal] On eject set collision detection mode to CONTINUES to not punch thru the collider.
 
 Alpha 6 (candidate):
-- [Change] Increase static attach strength on pylon to preven joint breakage.
-- [Fix] Fix bootom & srf attach nodes on pylon to make it more stable and prevent explosions on physics start.
+- [Change] Increase static attach strength on pylon to prevent joint breakage.
+- [Fix] Fix bottom & srf attach nodes on pylon to make it more stable and prevent explosions on physics start.
