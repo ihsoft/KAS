@@ -1205,17 +1205,48 @@ namespace KAS
                 retract.full = false;
                 cableJointLength = maxLenght;
                 Vector3 force = winchAnchorNode.TransformDirection(Vector3.forward) * ejectForce;
-                if (connectedPortInfo.module)
-                {
-                    connectedPortInfo.module.part.Rigidbody.AddForce(force, ForceMode.Force);
-                }
-                else
-                {
-                    headTransform.GetComponent<Rigidbody>().AddForce(force, ForceMode.Force);
-                }
+                Rigidbody rb = connectedPortInfo.module
+                    ? connectedPortInfo.module.part.Rigidbody
+                    : headTransform.GetComponent<Rigidbody>();
+
+                // Apply ejection force on the projectile and enhance collision check mode. 
+                rb.AddForce(force, ForceMode.Force);
+                StartCoroutine(LimitFreeFlyDistance(rb, cableJointLength));
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                KAS_Shared.DebugLog(string.Format(
+                    "Set collision mode to ContinuousDynamic on part {0}", rb));
+
+                // Compensate recoil on the winch.
                 this.part.Rigidbody.AddForce(-force, ForceMode.Force);
                 fxSndEject.audio.Play();
             }
+        }
+
+        /// <summary>A coroutine to restore performance collision check mode.</summary>
+        /// <remarks>Given the maximum length of the cable this coroutine estimates how long will it
+        /// take for a harpoon to hit anything, and this time is used as a timeout. When a target is
+        /// hit the collision check mode get reset in the harpoon's code right at the impact. If
+        /// harpoon hit nothing then this coroutine will disable the mode by timeout.</remarks>
+        IEnumerator LimitFreeFlyDistance(Rigidbody rb, float maxLength) {
+          StopCoroutine("LimitFreeFlyDistance");  // In case of one is running.
+
+          // Give one physics update frame for the eject force to apply. 
+          yield return new WaitForFixedUpdate();
+
+          // Figure out how much time it will take for harpoon to fly at the maximum distance. 
+          var maxTimeToFly = cableJointLength / rb.velocity.magnitude;
+          KAS_Shared.DebugLog(string.Format(
+              "Projectile {0} has been ejected at speed {1}. Max cable length {2} will be exahusted"
+              + " in {3} seconds.",
+              rb, rb.velocity.magnitude, maxLenght, maxTimeToFly));
+          yield return new WaitForSeconds(maxTimeToFly + 0.5f);  // Add a delta just in case.
+
+          // Restore performance mode if harpoon hasn't hit anyting.
+          if (rb.collisionDetectionMode != CollisionDetectionMode.Discrete) {
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            KAS_Shared.DebugLog(string.Format(
+                "Projectile {0} hasn't hit anything. Reset collision check mode to Discrete", rb));
+          }
         }
 
         private bool IsLockable()

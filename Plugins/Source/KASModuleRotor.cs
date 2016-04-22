@@ -243,11 +243,10 @@ namespace KAS
 
         public void ResetLimitsConfig()
         {
-            JointLimits lmt = new JointLimits();
+            var lmt = new JointLimits();
             lmt.min = limitMin;
-            lmt.minBounce = limitMinBounce;
             lmt.max = limitMax;
-            lmt.maxBounce = limitMaxBounce;
+            lmt.bounciness = limitMinBounce;
             hingeJnt.limits = lmt;
         }
 
@@ -366,11 +365,10 @@ namespace KAS
             mtr.targetVelocity = 0;
             hingeJnt.motor = mtr;
             //Limit config (workaround, motor don't seem to keep position correctly with mass attached)
-            JointLimits lmt = new JointLimits();
+            var lmt = new JointLimits();
             lmt.min = hingeJnt.angle - stopOffset;
-            lmt.minBounce = 0;
             lmt.max = hingeJnt.angle + stopOffset;
-            lmt.maxBounce = 0;
+            lmt.bounciness = 0;
             hingeJnt.limits = lmt;
             //Misc
             hingeJnt.useLimits = true;

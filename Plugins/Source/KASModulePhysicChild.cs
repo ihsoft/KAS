@@ -26,8 +26,8 @@ public class KASModulePhysicChild : PartModule
             physicObjRigidbody.mass = mass;
             physicObj.transform.parent = null;
             physicObjRigidbody.useGravity = true;
-            physicObjRigidbody.velocity = this.part.rb.velocity;
-            physicObjRigidbody.angularVelocity = this.part.rb.angularVelocity;
+            physicObjRigidbody.velocity = this.part.Rigidbody.velocity;
+            physicObjRigidbody.angularVelocity = this.part.Rigidbody.angularVelocity;
             FlightGlobals.addPhysicalObject(physicObj);
             physicActive = true;
         }
@@ -75,9 +75,9 @@ public class KASModulePhysicChild : PartModule
         var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
         if (physicObjRigidbody.isKinematic == false)
         {
-            KAS_Shared.DebugLog("WaitPhysicUpdate(PhysicChild) Set velocity to : " + this.part.rb.velocity + " | angular velocity : " + this.part.rb.angularVelocity);
-            physicObjRigidbody.angularVelocity = this.part.rb.angularVelocity;
-            physicObjRigidbody.velocity = this.part.rb.velocity;
+            KAS_Shared.DebugLog("WaitPhysicUpdate(PhysicChild) Set velocity to : " + this.part.Rigidbody.velocity + " | angular velocity : " + this.part.Rigidbody.angularVelocity);
+            physicObjRigidbody.angularVelocity = this.part.Rigidbody.angularVelocity;
+            physicObjRigidbody.velocity = this.part.Rigidbody.velocity;
         }
     }
 

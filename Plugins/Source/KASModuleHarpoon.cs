@@ -30,9 +30,9 @@ namespace KAS
         public override string GetInfo()
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("<b>Attach strength (part)</b>: {0:F0}", partBreakForce); sb.AppendLine();
-            sb.AppendFormat("<b>Attach strength (ground)</b>: {0:F0}", staticBreakForce); sb.AppendLine();
-            sb.AppendFormat("<b>Impact force required</b>: {0:F0}", forceNeeded); sb.AppendLine();
+            sb.AppendFormat("<b>Attach strength (part)</b>: {0:F0}", partBreakForce).AppendLine();
+            sb.AppendFormat("<b>Attach strength (ground)</b>: {0:F0}", staticBreakForce).AppendLine();
+            sb.AppendFormat("<b>Impact force required</b>: {0:F0}", forceNeeded).AppendLine();
             return sb.ToString();
         }
 
@@ -60,14 +60,14 @@ namespace KAS
         {
             base.OnPartUnpack();
 
-            this.part.rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            this.part.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         public override void OnPartPack()
         {
             base.OnPartPack();
 
-            this.part.rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            this.part.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
         public void OnKISAction(BaseEventData baseEventData)
@@ -82,7 +82,7 @@ namespace KAS
             if (action == "AttachEnd")
             {
                 DetachGrapple();
-                if (tgtPart == null) AttachStaticGrapple(staticBreakForce);
+                if (tgtPart == null) AttachStaticGrapple();
             }
         }
 
@@ -95,7 +95,12 @@ namespace KAS
         }
 
         private void AttachOnCollision(Collision collision)
-        {       
+        {
+            // Revert precision mode back to the performance. Non-discrete modes are very expensive.
+            KAS_Shared.DebugLog(string.Format(
+                "AttachOnCollision - Set collision mode back to Discrete on: {0}", part));
+            part.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+          
             //Don't attach if inpact force is too low
             if (collision.relativeVelocity.magnitude < forceNeeded) return;
 
@@ -165,16 +170,16 @@ namespace KAS
             {
                 KAS_Shared.DebugLog("AttachOnCollision - grappleAttachOnPart=true");
                 KAS_Shared.DebugLog("AttachOnCollision - Attaching to part : " + nearestHitPart.partInfo.title); 
-                AttachPartGrapple(nearestHitPart, partBreakForce);
+                AttachPartGrapple(nearestHitPart);
             }
             else
             {
                 KAS_Shared.DebugLog("AttachOnCollision - Attaching to static : " + nearestHit.collider.name);
-                AttachStaticGrapple(staticBreakForce);
+                AttachStaticGrapple();
             }
         }
 
-        public void AttachPartGrapple(Part attachToPart, float breakForce)
+        public void AttachPartGrapple(Part attachToPart)
         {
             AttachFixed(this.part, attachToPart, partBreakForce);
             state = "Attached to : " + attachToPart.partInfo.title;
@@ -189,7 +194,7 @@ namespace KAS
             }
         }
 
-        public void AttachStaticGrapple(float breakForce)
+        public void AttachStaticGrapple()
         {
             AttachStatic(staticBreakForce);
             Events["ContextMenuDetach"].guiActive = true;

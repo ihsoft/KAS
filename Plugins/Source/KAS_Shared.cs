@@ -735,7 +735,7 @@ namespace KAS
 
             // Create the rigid body
             part.PromoteToPhysicalPart();
-            part.rb.mass = part.mass + part.GetResourceMass();
+            part.Rigidbody.mass = part.mass + part.GetResourceMass();
         }
 
         private static IEnumerator<YieldInstruction> WaitAndUnpack(Part part, List<Collider> re_enable)
@@ -1114,7 +1114,7 @@ namespace KAS
             group.audio.volume = GameSettings.SHIP_VOLUME;
             group.audio.rolloffMode = AudioRolloffMode.Linear;
             group.audio.dopplerLevel = 0f;
-            group.audio.panLevel = 1f;
+            group.audio.spatialBlend = 1f;
             group.audio.maxDistance = maxDistance;
             group.audio.loop = loop;
             group.audio.playOnAwake = false;
