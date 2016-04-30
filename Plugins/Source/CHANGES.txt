@@ -1,1 +1,2 @@
 Pre-release changes:
+- [Change] Migrate parts to the new enum in KISItem (see KIS 1.2.8 release notes).
