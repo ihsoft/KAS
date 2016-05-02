@@ -2,14 +2,14 @@
     "KSP_VERSION": {
         "MAJOR": 1, 
         "MINOR": 1, 
-        "PATCH": 0
+        "PATCH": 2
     }, 
     "NAME": "KAS", 
     "URL": "https://raw.githubusercontent.com/KospY/KAS/master/kas.version", 
     "VERSION": {
-        "BUILD": 7, 
+        "BUILD": 0, 
         "MAJOR": 0, 
         "MINOR": 5, 
-        "PATCH": 6
+        "PATCH": 7
     }
 }
