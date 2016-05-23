@@ -46,10 +46,7 @@ public class KASModulePhysicChild : PartModule {
       var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
       if (physicObjRigidbody.isKinematic) {
         KAS_Shared.DebugLog("OnPartUnpack(PhysicChild)");
-
         physicObj.transform.parent = null;
-        //physicObj.transform.parent = part.transform;
-
         KAS_Shared.SetPartLocalPosRotFrom(
             physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
         physicObjRigidbody.isKinematic = false;
