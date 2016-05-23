@@ -61,12 +61,12 @@ public class KASModulePhysicChild : PartModule {
     KAS_Shared.SetPartLocalPosRotFrom(
         physicObj.transform, this.part.transform, currentLocalPos, currentLocalRot);
     var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
-    if (physicObjRigidbody.isKinematic == false) {
-      KAS_Shared.DebugLog("WaitPhysicUpdate(PhysicChild) Set velocity to : "
-                          + this.part.Rigidbody.velocity + " | angular velocity : "
-                          + this.part.Rigidbody.angularVelocity);
-      physicObjRigidbody.angularVelocity = this.part.Rigidbody.angularVelocity;
-      physicObjRigidbody.velocity = this.part.Rigidbody.velocity;
+    if (!physicObjRigidbody.isKinematic) {
+      KAS_Shared.DebugLog(string.Format(
+          "WaitPhysicUpdate(PhysicChild) Set velocity to: {0} | angular velocity: {1}",
+          part.Rigidbody.velocity, part.Rigidbody.angularVelocity));
+      physicObjRigidbody.angularVelocity = part.Rigidbody.angularVelocity;
+      physicObjRigidbody.velocity = part.Rigidbody.velocity;
     }
   }
 

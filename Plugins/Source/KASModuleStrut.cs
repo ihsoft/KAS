@@ -97,8 +97,9 @@ public class KASModuleStrut : KASModuleAttachCore {
     if (!texStrut) {
       KAS_Shared.DebugError("tube texture loading error !");
       ScreenMessages.PostScreenMessage(
-          "Texture file : " + tubeTexPath
-          + " as not been found, please check your KAS installation !",
+          string.Format(
+              "Texture file : {0} has not been found, please check your KAS installation !",
+              tubeTexPath),
           10, ScreenMessageStyle.UPPER_CENTER);
     }
     // loading sounds
@@ -262,8 +263,9 @@ public class KASModuleStrut : KASModuleAttachCore {
   }
 
   public override void OnJointBreakFixed() {
-    KAS_Shared.DebugWarning("OnJointBreak(Strut) A joint broken on " + part.partInfo.title
-                            + " !, force: " + breakForce);
+    KAS_Shared.DebugWarning(
+        string.Format("OnJointBreak(Strut) A joint broken on {0}!, force: {1}",
+                      part.partInfo.title, breakForce));
     Unlink();
     fxSndBroke.audio.Play();
   }
@@ -325,28 +327,29 @@ public class KASModuleStrut : KASModuleAttachCore {
     //Check condition if needed
     if (checkCondition) {
       if (!CheckLink(this.strutTransform, tgtModule.strutTransform, true)) {
-        ScreenMessages.PostScreenMessage("Max angle or length reached, cannot link !",
+        ScreenMessages.PostScreenMessage("Max angle or length reached, cannot link!",
                                          5, ScreenMessageStyle.UPPER_CENTER);
         return false;
       }
 
       if (tgtModule == this) {
-        ScreenMessages.PostScreenMessage(this.part.partInfo.title + " cannot be linked to itself !",
-                                         5, ScreenMessageStyle.UPPER_CENTER);
+        ScreenMessages.PostScreenMessage(
+            string.Format("{0} cannot be linked to itself!", part.partInfo.title),
+            5, ScreenMessageStyle.UPPER_CENTER);
         return false;
       }
 
       if (tgtModule.type != this.type) {
         ScreenMessages.PostScreenMessage(
-            this.part.partInfo.title + " cannot be linked to " + tgtModule.part.partInfo.title
-            + " because they are not compatible !",
+            string.Format("{0} cannot be linked to {1} because they are not compatible!", 
+                          part.partInfo.title, tgtModule.part.partInfo.title),
             5, ScreenMessageStyle.UPPER_CENTER);
         return false;
       }
 
       if (tgtModule.vessel != this.vessel && !allowDock) {
         ScreenMessages.PostScreenMessage(
-            this.part.partInfo.title + " cannot be linked to another vessel !",
+            string.Format("{0} cannot be linked to another vessel!", part.partInfo.title),
             5, ScreenMessageStyle.UPPER_CENTER);
         return false;
       }
