@@ -59,7 +59,7 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  private IEnumerator WaitPhysicUpdate() {
+  IEnumerator WaitPhysicUpdate() {
     yield return new WaitForFixedUpdate();
     KAS_Shared.SetPartLocalPosRotFrom(
         physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
@@ -85,7 +85,7 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  private void OnDestroy() {
+  void OnDestroy() {
     KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
     if (physicActive) {
       Stop();
