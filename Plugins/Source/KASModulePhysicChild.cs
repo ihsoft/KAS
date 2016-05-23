@@ -8,9 +8,9 @@ public class KASModulePhysicChild : PartModule {
   public float mass = 0.01f;
   public GameObject physicObj;
 
-  private bool physicActive = false;
-  private Vector3 currentLocalPos;
-  private Quaternion currentLocalRot;
+  bool physicActive = false;
+  Vector3 currentLocalPos;
+  Quaternion currentLocalRot;
 
   // Methods
   public void Start() {
@@ -32,11 +32,11 @@ public class KASModulePhysicChild : PartModule {
   public void OnPartPack() {
     if (physicActive) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
-      currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, this.part.transform);
-      currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, this.part.transform);
+      currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
+      currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, part.transform);
       FlightGlobals.removePhysicalObject(physicObj);
       physicObj.GetComponent<Rigidbody>().isKinematic = true;
-      physicObj.transform.parent = this.part.transform;
+      physicObj.transform.parent = part.transform;
       StartCoroutine(WaitPhysicUpdate());
     }
   }
@@ -46,9 +46,12 @@ public class KASModulePhysicChild : PartModule {
       var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
       if (physicObjRigidbody.isKinematic) {
         KAS_Shared.DebugLog("OnPartUnpack(PhysicChild)");
+
         physicObj.transform.parent = null;
+        //physicObj.transform.parent = part.transform;
+
         KAS_Shared.SetPartLocalPosRotFrom(
-            physicObj.transform, this.part.transform, currentLocalPos, currentLocalRot);
+            physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
         physicObjRigidbody.isKinematic = false;
         FlightGlobals.addPhysicalObject(physicObj);
         StartCoroutine(WaitPhysicUpdate());
@@ -59,7 +62,7 @@ public class KASModulePhysicChild : PartModule {
   private IEnumerator WaitPhysicUpdate() {
     yield return new WaitForFixedUpdate();
     KAS_Shared.SetPartLocalPosRotFrom(
-        physicObj.transform, this.part.transform, currentLocalPos, currentLocalRot);
+        physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
     var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
     if (!physicObjRigidbody.isKinematic) {
       KAS_Shared.DebugLog(string.Format(
@@ -75,7 +78,7 @@ public class KASModulePhysicChild : PartModule {
     if (physicActive) {
       FlightGlobals.removePhysicalObject(physicObj);
       UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
-      physicObj.transform.parent = this.part.transform;
+      physicObj.transform.parent = part.transform;
       physicActive = false;
     } else {
       KAS_Shared.DebugWarning("Stop(PhysicChild) Physic already stopped !");

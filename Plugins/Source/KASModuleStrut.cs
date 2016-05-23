@@ -347,7 +347,7 @@ public class KASModuleStrut : KASModuleAttachCore {
         return false;
       }
 
-      if (tgtModule.vessel != this.vessel && !allowDock) {
+      if (tgtModule.vessel != vessel && !allowDock) {
         ScreenMessages.PostScreenMessage(
             string.Format("{0} cannot be linked to another vessel!", part.partInfo.title),
             5, ScreenMessageStyle.UPPER_CENTER);
@@ -382,16 +382,16 @@ public class KASModuleStrut : KASModuleAttachCore {
 
     if (setJointOrDock) {
       // Create joint or dock part
-      if (tgtModule.vessel == this.vessel) {
-        if (tgtModule.part.parent != this.part && this.part.parent != tgtModule.part) {
+      if (tgtModule.vessel == vessel) {
+        if (tgtModule.part.parent != part && part.parent != tgtModule.part) {
           KAS_Shared.DebugLog("LinkTo(Strut) Parts are from the same vessel but are not connected,"
                               + " setting joint...");
-          if (this.part.parent && tgtModule.part.parent) {
+          if (part.parent && tgtModule.part.parent) {
             KAS_Shared.DebugLog("LinkTo(Strut) Set joint on struts parents");
-            AttachFixed(this.part.parent, tgtModule.part.parent, breakForce);
+            AttachFixed(part.parent, tgtModule.part.parent, breakForce);
           } else {
             KAS_Shared.DebugLog("LinkTo(Strut) Set joint on struts");
-            AttachFixed(this.part, tgtModule.part, breakForce);
+            AttachFixed(part, tgtModule.part, breakForce);
           }
         }
       } else {

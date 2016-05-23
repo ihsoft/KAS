@@ -113,8 +113,8 @@ public class KASModuleAttachCore : PartModule {
     }
     if (node.HasNode("DOCKEDVESSEL") && node.HasValue("dockedPartID")) {
       KAS_Shared.DebugLog("OnLoad(Core) Loading docked info from save...");
-      this.vesselInfo = new DockedVesselInfo();
-      this.vesselInfo.Load(node.GetNode("DOCKEDVESSEL"));
+      vesselInfo = new DockedVesselInfo();
+      vesselInfo.Load(node.GetNode("DOCKEDVESSEL"));
       dockedPartID = node.GetValue("dockedPartID").ToString();
       attachMode.Docked = true;
     }
@@ -308,7 +308,7 @@ public class KASModuleAttachCore : PartModule {
     if (StaticAttach.connectedGameObject) {
       Destroy(StaticAttach.connectedGameObject);
     }
-    GameObject obj = new GameObject("KASBody");
+    var obj = new GameObject("KASBody");
     var objRigidbody = obj.AddComponent<Rigidbody>();
     objRigidbody.isKinematic = true;
     obj.transform.position = this.part.transform.position;
@@ -330,48 +330,49 @@ public class KASModuleAttachCore : PartModule {
 
   public void AttachDocked(KASModuleAttachCore otherAttachModule, Vessel forceDominant = null) {
     // Don't overwrite vesselInfo on redundant calls
-    if (this.part.vessel == otherAttachModule.part.vessel
+    if (part.vessel == otherAttachModule.part.vessel
         && attachMode.Docked && dockedAttachModule == otherAttachModule
         && otherAttachModule.attachMode.Docked && otherAttachModule.dockedAttachModule == this
-        && this.vesselInfo != null && otherAttachModule.vesselInfo != null) {
+        && vesselInfo != null && otherAttachModule.vesselInfo != null) {
       KAS_Shared.DebugWarning("DockTo(Core) Parts already docked, nothing to do at all");
       return;
     }
 
     // Save vessel Info
-    this.vesselInfo = new DockedVesselInfo();
-    this.vesselInfo.name = this.vessel.vesselName;
-    this.vesselInfo.vesselType = this.vessel.vesselType;
-    this.vesselInfo.rootPartUId = this.vessel.rootPart.flightID;
-    this.dockedAttachModule = otherAttachModule;
-    this.dockedPartID = otherAttachModule.part.flightID.ToString();
+    vesselInfo = new DockedVesselInfo();
+    vesselInfo.name = vessel.vesselName;
+    vesselInfo.vesselType = vessel.vesselType;
+    vesselInfo.rootPartUId = vessel.rootPart.flightID;
+    dockedAttachModule = otherAttachModule;
+    dockedPartID = otherAttachModule.part.flightID.ToString();
 
     otherAttachModule.vesselInfo = new DockedVesselInfo();
     otherAttachModule.vesselInfo.name = otherAttachModule.vessel.vesselName;
     otherAttachModule.vesselInfo.vesselType = otherAttachModule.vessel.vesselType;
     otherAttachModule.vesselInfo.rootPartUId = otherAttachModule.vessel.rootPart.flightID;
     otherAttachModule.dockedAttachModule = this;
-    otherAttachModule.dockedPartID = this.part.flightID.ToString();
+    otherAttachModule.dockedPartID = part.flightID.ToString();
 
     // Set reference
-    attachMode.Docked = otherAttachModule.attachMode.Docked = true;
+    attachMode.Docked = true;
+    otherAttachModule.attachMode.Docked = true;
 
     // Stop if already docked
-    if (otherAttachModule.part.parent == this.part || this.part.parent == otherAttachModule.part) {
+    if (otherAttachModule.part.parent == part || part.parent == otherAttachModule.part) {
       KAS_Shared.DebugWarning("DockTo(Core) Parts already docked, nothing more to do");
       return;
     }
 
-    // This results in a somewhat wrong state, but it's better to not make it even more wrong
-    if (otherAttachModule.part.vessel == this.part.vessel) {
+    // This results in a somewhat wrong state, but it's better to not make it even more wrong.
+    if (otherAttachModule.part.vessel == part.vessel) {
       KAS_Shared.DebugWarning("DockTo(Core) BUG: Parts belong to the same vessel, doing nothing");
       return;
     }
 
     // Reset vessels position and rotation for returning all parts to their original position and
     // rotation before coupling
-    this.vessel.SetPosition(this.vessel.transform.position, true);
-    this.vessel.SetRotation(this.vessel.transform.rotation);
+    vessel.SetPosition(vessel.transform.position, true);
+    vessel.SetRotation(vessel.transform.rotation);
     otherAttachModule.vessel.SetPosition(otherAttachModule.vessel.transform.position, true);
     otherAttachModule.vessel.SetRotation(otherAttachModule.vessel.transform.rotation);
           
@@ -411,7 +412,7 @@ public class KASModuleAttachCore : PartModule {
         FlightGlobals.ForceSetActiveVessel(otherAttachModule.part.vessel);
         FlightInputHandler.ResumeVesselCtrlState(otherAttachModule.part.vessel);
       }
-      this.part.Couple(otherAttachModule.part);
+      part.Couple(otherAttachModule.part);
     }
 
     GameEvents.onVesselWasModified.Fire(this.part.vessel);
@@ -429,18 +430,10 @@ public class KASModuleAttachCore : PartModule {
     // Check 2- If type are the same, dominant vessel will be the heaviest
     float diffMass = Mathf.Abs((v1.GetTotalMass() - v2.GetTotalMass()));
     if (diffMass >= 0.01f) {
-      if (v1.GetTotalMass() <= v2.GetTotalMass()) {
-        return v2;
-      } else {
-        return v1;
-      }
+      return v1.GetTotalMass() <= v2.GetTotalMass() ? v2 : v1;
     }
     // Check 3 - If weight is similar, dominant vessel will be the one with the higher ID
-    if (v1.id.CompareTo(v2.id) <= 0) {
-      return v2;
-    } else {
-      return v1;
-    }     
+    return v1.id.CompareTo(v2.id) <= 0 ? v2 : v1;
   }
 
   public void Detach() {
@@ -498,13 +491,13 @@ public class KASModuleAttachCore : PartModule {
         dockedAttachModule.dockedPartID = null;
         dockedAttachModule.attachMode.Docked = false;
       }
-      this.dockedAttachModule = null;
-      this.dockedPartID = null;
+      dockedAttachModule = null;
+      dockedPartID = null;
       attachMode.Docked = false;
     }
     // Coupled
     if (attachType == AttachType.Coupled) {
-      // Todo
+      // TODO???
       attachMode.Coupled = false;
     }
     // FixedJoint
