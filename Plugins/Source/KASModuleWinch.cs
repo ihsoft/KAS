@@ -978,7 +978,7 @@ public class KASModuleWinch : KASModuleAttachCore {
       return;
     }
 
-    if (!alreadyDocked) {
+    if (!alreadyDocked && !fromSave) {
       if (portModule.strutConnected()) {
         ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !",
                                          5, ScreenMessageStyle.UPPER_CENTER);
@@ -989,7 +989,7 @@ public class KASModuleWinch : KASModuleAttachCore {
                                          5, ScreenMessageStyle.UPPER_CENTER);
         return;
       }
-      if (this.part.vessel == portModule.part.vessel && fromSave == false) {
+      if (this.part.vessel == portModule.part.vessel) {
         plugMode = PlugState.PlugUndocked;
       }
     }
