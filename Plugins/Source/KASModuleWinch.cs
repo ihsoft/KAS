@@ -392,14 +392,7 @@ public class KASModuleWinch : KASModuleAttachCore {
       KAS_Shared.DebugWarning("OnStart(Winch) NodeConnectedPort is : "
                               + nodeConnectedPort.part.partInfo.title);
     } else {
-      if (nodeConnectedPart) {
-        KAS_Shared.DebugWarning(
-            "OnStart(Winch) Connected part is not a port, configuration not supported !");
-        isBlocked = true;
-        headState = PlugState.Locked;
-      } else {
-        KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
-      }
+      KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
     }
 
     // Get saved port module if any
