@@ -30,27 +30,21 @@ static public class KAS_Shared {
   private static Vector3 vectTest = Vector3.forward;
   private static bool inputLock = false;
 
-  public static void DebugLog(string text) {
+  public static void DebugLog(string format, params object[] args) {
     if (debugLogActive) {
-      Debug.Log("[KAS] " + text);
+      Debug.LogFormat(format, args);
     }
   }
 
-  public static void DebugLog(string text, UnityEngine.Object context) {
+  public static void DebugWarning(string format, params object[] args) {
     if (debugLogActive) {
-      Debug.Log("[KAS] " + text, context);
+      Debug.LogWarningFormat(format, args);
     }
   }
 
-  public static void DebugWarning(string text) {
+  public static void DebugError(string format, params object[] args) {
     if (debugLogActive) {
-      Debug.LogWarning("[KAS] " + text);
-    }
-  }
-
-  public static void DebugError(string text) {
-    if (debugLogActive) {
-      Debug.LogError("[KAS] " + text);
+      Debug.LogErrorFormat(format, args);
     }
   }
 
