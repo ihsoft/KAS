@@ -388,11 +388,13 @@ public class KASModuleWinch : KASModuleAttachCore {
     headOrgLocalPos = KAS_Shared.GetLocalPosFrom(headTransform, this.part.transform);
     headOrgLocalRot = KAS_Shared.GetLocalRotFrom(headTransform, this.part.transform);
 
-    if (nodeConnectedPort) {
-      KAS_Shared.DebugWarning("OnStart(Winch) NodeConnectedPort is : "
-                              + nodeConnectedPort.part.partInfo.title);
-    } else {
-      KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
+    if (headState == PlugState.PlugDocked) {
+      if (nodeConnectedPort) {
+        KAS_Shared.DebugLog(
+            "OnStart(Winch) NodeConnectedPort is : {0}", nodeConnectedPort.part.partInfo.title);
+      } else {
+        KAS_Shared.DebugWarning("OnStart(Winch) No connected part found !");
+      }
     }
 
     // Get saved port module if any
