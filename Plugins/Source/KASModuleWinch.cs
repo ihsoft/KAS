@@ -326,8 +326,9 @@ public class KASModuleWinch : KASModuleAttachCore {
     if (!texCable) {
       KAS_Shared.DebugError("cable texture loading error !");
       ScreenMessages.PostScreenMessage(
-          "Texture file : " + cableTexPath
-          + " as not been found, please check your KAS installation !",
+          string.Format(
+              "Texture file : {0} as not been found, please check your KAS installation !",
+              cableTexPath),
           10, ScreenMessageStyle.UPPER_CENTER);
     }
     KAS_Shared.createFXSound(this.part, fxSndMotorStart, motorStartSndPath, false);
@@ -980,13 +981,15 @@ public class KASModuleWinch : KASModuleAttachCore {
 
     if (!alreadyDocked) {
       if (portModule.strutConnected()) {
-        ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !",
-                                         5, ScreenMessageStyle.UPPER_CENTER);
+        ScreenMessages.PostScreenMessage(
+            string.Format("{0} is already used !", portModule.part.partInfo.title),
+            5, ScreenMessageStyle.UPPER_CENTER);
         return;
       }
       if (portModule.plugged) {
-        ScreenMessages.PostScreenMessage(portModule.part.partInfo.title + " is already used !",
-                                         5, ScreenMessageStyle.UPPER_CENTER);
+        ScreenMessages.PostScreenMessage(
+            string.Format("{0} is already used !", portModule.part.partInfo.title),
+            5, ScreenMessageStyle.UPPER_CENTER);
         return;
       }
       if (this.part.vessel == portModule.part.vessel && fromSave == false) {
@@ -1196,7 +1199,7 @@ public class KASModuleWinch : KASModuleAttachCore {
     if (isBlocked && nodeConnectedPart && !nodeConnectedPort) {
       if (message) {
         ScreenMessages.PostScreenMessage(
-            "Winch is blocked by " + nodeConnectedPart.partInfo.title + "!",
+            string.Format("Winch is blocked by {0}!", nodeConnectedPart.partInfo.title),
             5, ScreenMessageStyle.UPPER_CENTER);
       }
       return true;

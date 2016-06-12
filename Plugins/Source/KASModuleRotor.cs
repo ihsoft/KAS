@@ -323,8 +323,9 @@ public class KASModuleRotor : PartModule {
       rotorActivated = true;
     } else {
       if (this.part.vessel == FlightGlobals.ActiveVessel) {
-        ScreenMessages.PostScreenMessage(this.part.partInfo.title + " stopped ! Insufficient Power",
-                                         5, ScreenMessageStyle.UPPER_CENTER);
+        ScreenMessages.PostScreenMessage(
+            string.Format("{0} stopped ! Insufficient Power", this.part.partInfo.title),
+            5, ScreenMessageStyle.UPPER_CENTER);
       }
       stateField = "Insufficient Power";
     }

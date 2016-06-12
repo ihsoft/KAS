@@ -292,8 +292,9 @@ public class KASModuleStrut : KASModuleAttachCore {
       return;
     }
     if (linked) {
-      ScreenMessages.PostScreenMessage(this.part.partInfo.title + " is already linked !",
-                                       5, ScreenMessageStyle.UPPER_CENTER);
+      ScreenMessages.PostScreenMessage(
+          string.Format("{0} is already linked !", this.part.partInfo.title),
+          5, ScreenMessageStyle.UPPER_CENTER);
       return;
     }
 

@@ -928,7 +928,8 @@ static public class KAS_Shared {
     } else {
       KAS_Shared.DebugError("Sound not found in the game database !");
       ScreenMessages.PostScreenMessage(
-          "Sound file : " + sndPath + " as not been found, please check your KAS installation !",
+          string.Format("Sound file : {0} as not been found, please check your KAS installation !",
+                        sndPath),
           10, ScreenMessageStyle.UPPER_CENTER);
       return false;
     }     
