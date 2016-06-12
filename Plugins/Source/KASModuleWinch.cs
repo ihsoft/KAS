@@ -408,11 +408,10 @@ public class KASModuleWinch : KASModuleAttachCore {
 
     motorSpeedSetting = motorMaxSpeed / 2;
 
-    KAS_Shared.DebugWarning("OnStart(Winch) HeadState : " + headState);
-    GameEvents.onVesselGoOnRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-    GameEvents.onVesselGoOffRails.Add(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
-    GameEvents.onCrewBoardVessel.Add(
-        new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+    KAS_Shared.DebugLog("OnStart(Winch) HeadState : {0}", headState);
+    GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
+    GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+    GameEvents.onCrewBoardVessel.Add(OnCrewBoardVessel);
   }
 
   IEnumerator WaitAndLoadConnection() {
@@ -501,10 +500,9 @@ public class KASModuleWinch : KASModuleAttachCore {
   protected override void OnDestroy() {
     base.OnDestroy();
 
-    GameEvents.onVesselGoOnRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOnRails));
-    GameEvents.onVesselGoOffRails.Remove(new EventData<Vessel>.OnEvent(this.OnVesselGoOffRails));
-    GameEvents.onCrewBoardVessel.Remove(
-        new EventData<GameEvents.FromToAction<Part, Part>>.OnEvent(this.OnCrewBoardVessel));
+    GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
+    GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+    GameEvents.onCrewBoardVessel.Remove(OnCrewBoardVessel);
   }
 
   protected override void OnPartDie() {
