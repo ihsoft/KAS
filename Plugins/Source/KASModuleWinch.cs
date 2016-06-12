@@ -210,7 +210,7 @@ public class KASModuleWinch : KASModuleAttachCore {
 
   public KASModulePort nodeConnectedPort {
     get {
-      AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+      AttachNode an = part.findAttachNode(connectedPortNodeName);
       if (an != null) {
         if (an.attachedPart) {
           KASModulePort portModule = an.attachedPart.GetComponent<KASModulePort>();
@@ -331,12 +331,12 @@ public class KASModuleWinch : KASModuleAttachCore {
               cableTexPath),
           10, ScreenMessageStyle.UPPER_CENTER);
     }
-    KAS_Shared.createFXSound(this.part, fxSndMotorStart, motorStartSndPath, false);
-    KAS_Shared.createFXSound(this.part, fxSndMotor, motorSndPath, true);
-    KAS_Shared.createFXSound(this.part, fxSndMotorStop, motorStopSndPath, false);
-    KAS_Shared.createFXSound(this.part, fxSndHeadLock, headLockSndPath, false);
-    KAS_Shared.createFXSound(this.part, fxSndEject, ejectSndPath, false);
-    KAS_Shared.createFXSound(this.part, fxSndHeadGrab, headGrabSndPath, false);
+    KAS_Shared.createFXSound(part, fxSndMotorStart, motorStartSndPath, false);
+    KAS_Shared.createFXSound(part, fxSndMotor, motorSndPath, true);
+    KAS_Shared.createFXSound(part, fxSndMotorStop, motorStopSndPath, false);
+    KAS_Shared.createFXSound(part, fxSndHeadLock, headLockSndPath, false);
+    KAS_Shared.createFXSound(part, fxSndEject, ejectSndPath, false);
+    KAS_Shared.createFXSound(part, fxSndHeadGrab, headGrabSndPath, false);
 
     // Get head transform
     headTransform = this.part.FindModelTransform(headTransformName);
