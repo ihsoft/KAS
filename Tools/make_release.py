@@ -151,7 +151,6 @@ def ExtractVersion():
     if line.lstrip().startswith('//'):
       continue
     # Expect: [assembly: AssemblyVersion("X.Y.Z")]
-    print line
     matches = re.match(r'\[assembly: AssemblyVersion\("(\d+)\.(\d+)\.(\d+)(.(\d+))?"\)\]', line)
     if matches:
       VERSION = (int(matches.group(1)),  # MAJOR
