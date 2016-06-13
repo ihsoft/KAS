@@ -6,8 +6,8 @@
     "abstract"        : "KAS introduces new gameplay mechanics by adding winches, containers, dynamic struts/pipes and grabbable & attachable parts.",
     "resources"       : {
         "homepage": "http://forum.kerbalspaceprogram.com/threads/92514",
-        "repository": "https://github.com/KospY/KAS"
-        "bugtracker": "https://github.com/KospY/KAS/issues",
+        "repository": "https://github.com/KospY/KAS",
+        "bugtracker": "https://github.com/KospY/KAS/issues"
     },
     "depends"         : [
         { "name": "ModuleManager" }
