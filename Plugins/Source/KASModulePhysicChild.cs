@@ -19,7 +19,7 @@ public class KASModulePhysicChild : PartModule {
       var physicObjRigidbody = physicObj.AddComponent<Rigidbody>();
       physicObjRigidbody.mass = mass;
       physicObj.transform.parent = null;
-      physicObjRigidbody.useGravity = true;
+      physicObjRigidbody.useGravity = false;
       physicObjRigidbody.velocity = part.Rigidbody.velocity;
       physicObjRigidbody.angularVelocity = part.Rigidbody.angularVelocity;
       FlightGlobals.addPhysicalObject(physicObj);

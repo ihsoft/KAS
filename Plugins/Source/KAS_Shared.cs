@@ -212,7 +212,7 @@ static public class KAS_Shared {
     var transfRigidbody = transf.gameObject.AddComponent<Rigidbody>();
     transfRigidbody.mass = mass;
     transf.transform.parent = null;
-    transfRigidbody.useGravity = true;
+    transfRigidbody.useGravity = false;
     if (copyRbVelFrom) {
       transfRigidbody.velocity = copyRbVelFrom.velocity;
       transfRigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
