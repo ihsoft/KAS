@@ -20,7 +20,7 @@ public class KASModuleWinch : KASModuleAttachCore {
   [KSPField]
   public float motorMinSpeed = 0.01f;
   [KSPField]
-  public float motorAcceleration = 0.05f;
+  public float motorAcceleration = 0.4f;  // Speed change per second.
   [KSPField]
   public float powerDrain = 0.5f;
   [KSPField]
@@ -604,12 +604,7 @@ public class KASModuleWinch : KASModuleAttachCore {
         if (motorSpeedSetting <= 0) {
           motorSpeedSetting = motorMinSpeed;
         }
-        if (motorSpeed < motorSpeedSetting) {
-          motorSpeed += motorAcceleration;
-        }
-        if (motorSpeed > motorSpeedSetting + motorAcceleration) {
-          motorSpeed -= motorAcceleration;
-        }
+        BringMotorToSpeed(motorSpeedSetting);
         float tempCablelenghtE = cableJointLength + motorSpeed * TimeWarp.deltaTime;
         if (tempCablelenghtE > maxLenght) {
           extend.full = true;
@@ -656,12 +651,7 @@ public class KASModuleWinch : KASModuleAttachCore {
         if (motorSpeedSetting <= 0) {
           motorSpeedSetting = motorMinSpeed;
         }
-        if (motorSpeed < motorSpeedSetting) {
-          motorSpeed += motorAcceleration;
-        }
-        if (motorSpeed > motorSpeedSetting + motorAcceleration) {
-          motorSpeed -= motorAcceleration;
-        }
+        BringMotorToSpeed(motorSpeedSetting);
         float tempCableLenghtR = cableJointLength - motorSpeed * TimeWarp.deltaTime;
         if (tempCableLenghtR > 0) {
           if (!fxSndMotor.audio.isPlaying) {
@@ -1421,6 +1411,27 @@ public class KASModuleWinch : KASModuleAttachCore {
     }
     if (GetHookGrapple()) {
       GetHookGrapple().ContextMenuDetach();
+    }
+  }
+
+  /// <summary>Accelerates or decelerates the motor to match the target speed.</summary>
+  /// <remarks>Acceleration is controlled via <see cref="motorAcceleration"/> which specifies speed
+  /// change per second.</remarks>
+  /// <param name="targetSpeed"></param>
+  void BringMotorToSpeed(float targetSpeed) {
+    if (!Mathf.Approximately(motorSpeed, targetSpeed)) {
+      var scaledMotorAcceleration = motorAcceleration * TimeWarp.deltaTime;
+      if (motorSpeed < targetSpeed) {
+        motorSpeed += scaledMotorAcceleration;
+        if (motorSpeed > targetSpeed) {
+          motorSpeed = targetSpeed;
+        }
+      } else {
+        motorSpeed -= scaledMotorAcceleration;
+        if (motorSpeed < targetSpeed) {
+          motorSpeed = targetSpeed;
+        }
+      }
     }
   }
 }

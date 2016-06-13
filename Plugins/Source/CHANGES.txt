@@ -1,2 +1,4 @@
 Pre-release changes:
 - [Fix] #167: Loading winch connected same vessel.
+- [Fix] #169: Winch motor acceleration is not scaled to FPS.
+
