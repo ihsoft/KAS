@@ -1,3 +1,8 @@
+### 0.5.8 (June 12th, 2016)
+- [Fix] #167: Loading winch connected same vessel.
+- [Fix] #169: Winch motor acceleration is not scaled to FPS.
+- [Fix] #168: #Disconnected winch head behaves against the gravity.
+
 ### 0.5.7 (2 may 2016)
 - [Change] Compatibility change for KSP 1.1.2.
 - [Change] Migrate parts to the new enum in KISItem (see KIS 1.2.8 release notes).
