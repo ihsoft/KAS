@@ -208,25 +208,6 @@ static public class KAS_Shared {
     return evaCollider;
   }
 
-  public static void CreatePhysicObject(Transform transf, float mass,
-                                        Rigidbody copyRbVelFrom = null) {
-    var transfRigidbody = transf.gameObject.AddComponent<Rigidbody>();
-    transfRigidbody.mass = mass;
-    transf.transform.parent = null;
-    transfRigidbody.useGravity = false;
-    if (copyRbVelFrom) {
-      transfRigidbody.velocity = copyRbVelFrom.velocity;
-      transfRigidbody.angularVelocity = copyRbVelFrom.angularVelocity;
-    }
-    FlightGlobals.addPhysicalObject(transf.gameObject);
-  }
-
-  public static void RemovePhysicObject(Part p, Transform transf) {
-    FlightGlobals.removePhysicalObject(transf.gameObject);
-    UnityEngine.Object.Destroy(transf.GetComponent<Rigidbody>());
-    transf.parent = p.transform;
-  }
-
   public static void ResetCollisionEnhancer(Part p, bool create_new = true) {
     if (p.collisionEnhancer) {
       UnityEngine.Object.DestroyImmediate(p.collisionEnhancer);
