@@ -906,12 +906,10 @@ public class KASModuleWinch : KASModuleAttachCore {
             "SetHeadToPhysic(Winch) - KASModulePhysicChild do not exist, adding it...");
         headPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
       }
-      headPhysicModule.mass = headMass;
-      headPhysicModule.physicObj = headTransform.gameObject;
-      headPhysicModule.StartPhysics();
+      headPhysicModule.StartPhysics(headTransform.gameObject, headMass);
     } else {
-      headPhysicModule.StopPhysics();
-      Destroy(headPhysicModule);
+      // Yes, it must be immediate. Otherwise, the further code will try to behave on the module.
+      DestroyImmediate(headPhysicModule);
     }
   }
 

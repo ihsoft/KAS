@@ -158,9 +158,7 @@ public class KASModuleRotor : PartModule {
       KAS_Shared.DebugLog("LoadRotor(Rotor) - KASModulePhysicChild do not exist, adding it...");
       rotorPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
     }
-    rotorPhysicModule.mass = rotorMass;
-    rotorPhysicModule.physicObj = rotorTransform.gameObject;
-    rotorPhysicModule.StartPhysics();
+    rotorPhysicModule.StartPhysics(rotorTransform.gameObject, rotorMass);
 
     orgRotorMass = this.part.mass;
     float newMass = this.part.mass - rotorMass;

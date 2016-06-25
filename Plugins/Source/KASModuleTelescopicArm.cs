@@ -217,9 +217,7 @@ public class KASModuleTelescopicArm : PartModule {
           "LoadBoomHead(TelescopicArm) - KASModulePhysicChild do not exist, adding it...");
       boomHeadPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
     }
-    boomHeadPhysicModule.mass = boomHeadMass;
-    boomHeadPhysicModule.physicObj = sections[0].transform.gameObject;
-    boomHeadPhysicModule.StartPhysics();
+    boomHeadPhysicModule.StartPhysics(sections[0].transform.gameObject, boomHeadMass);
 
     orgBoomHeadMass = this.part.mass;
     float newMass = this.part.mass - boomHeadMass;

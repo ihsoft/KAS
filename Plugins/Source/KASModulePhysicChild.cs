@@ -5,19 +5,20 @@ using System.Collections;
 namespace KAS {
 
 public class KASModulePhysicChild : PartModule {
-  public float mass = 0.01f;
-  public GameObject physicObj;
-
   Vector3 currentLocalPos;
   Quaternion currentLocalRot;
+  GameObject physicObj;
   Rigidbody physicObjRb;
+  float mass = 0.01f;
 
   /// <summary>Starts physics handling on the object.</summary>
   /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
   /// mass and velocity settings.</remarks>
-  public void StartPhysics() {
+  public void StartPhysics(GameObject physicObj, float mass) {
     KAS_Shared.DebugLog("StartPhysics(PhysicChild)");
-    if (physicObjRb == null) {
+    if (this.physicObj == null) {
+      this.physicObj = physicObj;
+      this.mass = mass;
       physicObjRb = physicObj.AddComponent<Rigidbody>();
       physicObj.transform.parent = null;
       physicObjRb.mass = mass;
@@ -33,10 +34,11 @@ public class KASModulePhysicChild : PartModule {
   /// <remarks>Rigidbody on the object gets destroyed.</remarks>
   public void StopPhysics() {
     KAS_Shared.DebugLog("StopPhysics(PhysicChild)");
-    if (physicObjRb != null) {
+    if (physicObj != null) {
       UnityEngine.Object.Destroy(physicObjRb);
       physicObjRb = null;
       physicObj.transform.parent = part.transform;
+      physicObj = null;
     } else {
       KAS_Shared.DebugWarning("StopPhysics(PhysicChild) Physic already stopped! Ignore.");
     }
@@ -45,7 +47,7 @@ public class KASModulePhysicChild : PartModule {
   /// <summary>Part's message handler.</summary>
   /// <remarks>Temporarily suspends physics handling on the object.</remarks>
   void OnPartPack() {
-    if (physicObjRb != null) {
+    if (physicObj != null) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
       currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
       currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, part.transform);
@@ -58,7 +60,7 @@ public class KASModulePhysicChild : PartModule {
   /// <summary>Part's message handler.</summary>
   /// <remarks>Resumes physics handling on the object.</remarks>
   void OnPartUnpack() {
-    if (physicObjRb != null && physicObjRb.isKinematic) {
+    if (physicObj != null && physicObjRb.isKinematic) {
       KAS_Shared.DebugLog("OnPartUnpack(PhysicChild)");
       physicObj.transform.parent = null;
       KAS_Shared.SetPartLocalPosRotFrom(
