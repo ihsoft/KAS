@@ -160,7 +160,7 @@ public class KASModuleRotor : PartModule {
     }
     rotorPhysicModule.mass = rotorMass;
     rotorPhysicModule.physicObj = rotorTransform.gameObject;
-    rotorPhysicModule.Start();
+    rotorPhysicModule.StartPhysics();
 
     orgRotorMass = this.part.mass;
     float newMass = this.part.mass - rotorMass;

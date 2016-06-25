@@ -908,9 +908,9 @@ public class KASModuleWinch : KASModuleAttachCore {
       }
       headPhysicModule.mass = headMass;
       headPhysicModule.physicObj = headTransform.gameObject;
-      headPhysicModule.Start();
+      headPhysicModule.StartPhysics();
     } else {
-      headPhysicModule.Stop();
+      headPhysicModule.StopPhysics();
       Destroy(headPhysicModule);
     }
   }

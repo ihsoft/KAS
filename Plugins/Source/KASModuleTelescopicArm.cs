@@ -219,7 +219,7 @@ public class KASModuleTelescopicArm : PartModule {
     }
     boomHeadPhysicModule.mass = boomHeadMass;
     boomHeadPhysicModule.physicObj = sections[0].transform.gameObject;
-    boomHeadPhysicModule.Start();
+    boomHeadPhysicModule.StartPhysics();
 
     orgBoomHeadMass = this.part.mass;
     float newMass = this.part.mass - boomHeadMass;

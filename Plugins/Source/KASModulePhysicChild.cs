@@ -15,8 +15,8 @@ public class KASModulePhysicChild : PartModule {
   /// <summary>Starts physics handling on the object.</summary>
   /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
   /// mass and velocity settings.</remarks>
-  public void Start() {
-    KAS_Shared.DebugLog("Start(PhysicChild)");
+  public void StartPhysics() {
+    KAS_Shared.DebugLog("StartPhysics(PhysicChild)");
     if (!physicActive) {
       var physicObjRigidbody = physicObj.AddComponent<Rigidbody>();
       physicObjRigidbody.mass = mass;
@@ -27,20 +27,20 @@ public class KASModulePhysicChild : PartModule {
       FlightGlobals.addPhysicalObject(physicObj);
       physicActive = true;
     } else {
-      KAS_Shared.DebugWarning("Start(PhysicChild) Physic already started !");
+      KAS_Shared.DebugWarning("StartPhysics(PhysicChild) Physic already started! Ingore.");
     }
   }
 
   /// <summary>Stops physics handling on the object.</summary>
   /// <remarks>Rigidbody on the object gets destroyed.</remarks>
-  public void Stop() {
-    KAS_Shared.DebugLog("Stop(PhysicChild)");
+  public void StopPhysics() {
+    KAS_Shared.DebugLog("StopPhysics(PhysicChild)");
     if (physicActive) {
       UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
       physicObj.transform.parent = part.transform;
       physicActive = false;
     } else {
-      KAS_Shared.DebugWarning("Stop(PhysicChild) Physic already stopped !");
+      KAS_Shared.DebugWarning("StopPhysics(PhysicChild) Physic already stopped! Ignore.");
     }
   }
 
@@ -79,7 +79,7 @@ public class KASModulePhysicChild : PartModule {
   void OnDestroy() {
     KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
     if (physicActive) {
-      Stop();
+      StopPhysics();
     }
   }
 
