@@ -25,7 +25,7 @@ public class KASModulePhysicChild : PartModule {
       physicObjRb.velocity = part.Rigidbody.velocity;
       physicObjRb.angularVelocity = part.Rigidbody.angularVelocity;
     } else {
-      KAS_Shared.DebugWarning("StartPhysics(PhysicChild) Physic already started! Ingore.");
+      KAS_Shared.DebugWarning("StartPhysics(PhysicChild) Physic already started! Ignore.");
     }
   }
 
