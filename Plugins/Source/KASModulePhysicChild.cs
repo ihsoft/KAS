@@ -93,9 +93,9 @@ public class KASModulePhysicChild : PartModule {
         physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
     var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
     if (!physicObjRigidbody.isKinematic) {
-      KAS_Shared.DebugLog(string.Format(
+      KAS_Shared.DebugLog(
           "WaitPhysicUpdate(PhysicChild) Set velocity to: {0} | angular velocity: {1}",
-          part.Rigidbody.velocity, part.Rigidbody.angularVelocity));
+          part.Rigidbody.velocity, part.Rigidbody.angularVelocity);
       physicObjRigidbody.angularVelocity = part.Rigidbody.angularVelocity;
       physicObjRigidbody.velocity = part.Rigidbody.velocity;
     }
