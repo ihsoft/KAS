@@ -12,9 +12,11 @@ public class KASModulePhysicChild : PartModule {
   Vector3 currentLocalPos;
   Quaternion currentLocalRot;
 
-  // Methods
   public void Start() {
     KAS_Shared.DebugLog("Start(PhysicChild)");
+  /// <summary>Starts physics handling on the object.</summary>
+  /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
+  /// mass and velocity settings.</remarks>
     if (!physicActive) {
       var physicObjRigidbody = physicObj.AddComponent<Rigidbody>();
       physicObjRigidbody.mass = mass;
@@ -31,6 +33,8 @@ public class KASModulePhysicChild : PartModule {
 
   public void Stop() {
     KAS_Shared.DebugLog("Stop(PhysicChild)");
+  /// <summary>Stops physics handling on the object.</summary>
+  /// <remarks>Rigidbody on the object gets destroyed.</remarks>
     if (physicActive) {
       UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
       physicObj.transform.parent = part.transform;
@@ -41,6 +45,8 @@ public class KASModulePhysicChild : PartModule {
   }
 
   public void OnPartPack() {
+  /// <summary>Part's message handler.</summary>
+  /// <remarks>Temporarily suspends physics handling on the object.</remarks>
     if (physicActive) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
       currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
@@ -53,6 +59,8 @@ public class KASModulePhysicChild : PartModule {
   }
 
   public void OnPartUnpack() {
+  /// <summary>Part's message handler.</summary>
+  /// <remarks>Resumes physics handling on the object.</remarks>
     if (physicActive) {
       var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
       if (physicObjRigidbody.isKinematic) {
@@ -67,6 +75,7 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
+  /// <summary>Overriden from MonoBehavior.</summary>
   void OnDestroy() {
     KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
     if (physicActive) {
@@ -74,6 +83,10 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
+  /// <summary>Aligns position, rotation and velocity of the rigidbody.</summary>
+  /// <remarks>The update is delayed till the next fixed update to let game's physics to work.
+  /// </remarks>
+  /// <returns>Nothing.</returns>
   IEnumerator WaitPhysicUpdate() {
     yield return new WaitForFixedUpdate();
     KAS_Shared.SetPartLocalPosRotFrom(
