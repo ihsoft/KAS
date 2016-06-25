@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KSP.UI.Screens;
 
 namespace KAS {
 
@@ -425,10 +426,10 @@ static public class KAS_Shared {
 
     //v.landedAt = "somewhere";
                       
-    Staging.beginFlight();
+    StageManager.BeginFlight();
     newShip.parts[0].vessel.ResumeStaging();
-    Staging.GenerateStagingSequence(newShip.parts[0].localRoot);
-    Staging.RecalculateVesselStaging(newShip.parts[0].vessel);
+    StageManager.GenerateStagingSequence(newShip.parts[0].localRoot);
+    StageManager.RecalculateVesselStaging(newShip.parts[0].vessel);
 
     FlightGlobals.SetActiveVessel(currentVessel);
 
