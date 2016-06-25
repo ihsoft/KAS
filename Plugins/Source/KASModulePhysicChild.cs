@@ -29,6 +29,17 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
+  public void Stop() {
+    KAS_Shared.DebugLog("Stop(PhysicChild)");
+    if (physicActive) {
+      UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
+      physicObj.transform.parent = part.transform;
+      physicActive = false;
+    } else {
+      KAS_Shared.DebugWarning("Stop(PhysicChild) Physic already stopped !");
+    }
+  }
+
   public void OnPartPack() {
     if (physicActive) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
@@ -56,6 +67,13 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
+  void OnDestroy() {
+    KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
+    if (physicActive) {
+      Stop();
+    }
+  }
+
   IEnumerator WaitPhysicUpdate() {
     yield return new WaitForFixedUpdate();
     KAS_Shared.SetPartLocalPosRotFrom(
@@ -67,25 +85,6 @@ public class KASModulePhysicChild : PartModule {
           part.Rigidbody.velocity, part.Rigidbody.angularVelocity));
       physicObjRigidbody.angularVelocity = part.Rigidbody.angularVelocity;
       physicObjRigidbody.velocity = part.Rigidbody.velocity;
-    }
-  }
-
-  public void Stop() {
-    KAS_Shared.DebugLog("Stop(PhysicChild)");
-    if (physicActive) {
-      FlightGlobals.removePhysicalObject(physicObj);
-      UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
-      physicObj.transform.parent = part.transform;
-      physicActive = false;
-    } else {
-      KAS_Shared.DebugWarning("Stop(PhysicChild) Physic already stopped !");
-    }
-  }
-
-  void OnDestroy() {
-    KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
-    if (physicActive) {
-      Stop();
     }
   }
 }
