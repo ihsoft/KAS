@@ -46,7 +46,7 @@ public class KASModulePhysicChild : PartModule {
 
   /// <summary>Part's message handler.</summary>
   /// <remarks>Temporarily suspends physics handling on the object.</remarks>
-  public void OnPartPack() {
+  void OnPartPack() {
     if (physicActive) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
       currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
@@ -60,7 +60,7 @@ public class KASModulePhysicChild : PartModule {
 
   /// <summary>Part's message handler.</summary>
   /// <remarks>Resumes physics handling on the object.</remarks>
-  public void OnPartUnpack() {
+  void OnPartUnpack() {
     if (physicActive) {
       var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
       if (physicObjRigidbody.isKinematic) {
