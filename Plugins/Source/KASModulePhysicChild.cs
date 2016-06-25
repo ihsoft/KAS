@@ -5,14 +5,21 @@ using System.Collections;
 namespace KAS {
 
 public class KASModulePhysicChild : PartModule {
+  /// <summary>Local position to save during (un)packing.</summary>
   Vector3 currentLocalPos;
+  /// <summary>Local roattion to save during (un)packing.</summary>
   Quaternion currentLocalRot;
+  /// <summary>A physics object. This module doesn't own it.</summary>
   GameObject physicObj;
+  /// <summary>Cached rigidbody of the physics object.</summary>
   Rigidbody physicObjRb;
 
   /// <summary>Starts physics handling on the object.</summary>
-  /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
-  /// mass and velocity settings.</remarks>
+  /// <remarks>The object is expected to not have rigidbody. The one will be added with the proper
+  /// mass and velocity settings. Parent transform of the physics object will be set top
+  /// <c>null</c>, and it will become an idependent object.</remarks>
+  /// <param name="physicObj">Game object to attach physics to.</param>
+  /// <param name="mass">Mass of the rigidbody.</param>
   public void StartPhysics(GameObject physicObj, float mass) {
     KAS_Shared.DebugLog("StartPhysics(PhysicChild)");
     if (this.physicObj == null) {
