@@ -12,11 +12,11 @@ public class KASModulePhysicChild : PartModule {
   Vector3 currentLocalPos;
   Quaternion currentLocalRot;
 
-  public void Start() {
-    KAS_Shared.DebugLog("Start(PhysicChild)");
   /// <summary>Starts physics handling on the object.</summary>
   /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
   /// mass and velocity settings.</remarks>
+  public void Start() {
+    KAS_Shared.DebugLog("Start(PhysicChild)");
     if (!physicActive) {
       var physicObjRigidbody = physicObj.AddComponent<Rigidbody>();
       physicObjRigidbody.mass = mass;
@@ -31,10 +31,10 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  public void Stop() {
-    KAS_Shared.DebugLog("Stop(PhysicChild)");
   /// <summary>Stops physics handling on the object.</summary>
   /// <remarks>Rigidbody on the object gets destroyed.</remarks>
+  public void Stop() {
+    KAS_Shared.DebugLog("Stop(PhysicChild)");
     if (physicActive) {
       UnityEngine.Object.Destroy(physicObj.GetComponent<Rigidbody>());
       physicObj.transform.parent = part.transform;
@@ -44,9 +44,9 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  public void OnPartPack() {
   /// <summary>Part's message handler.</summary>
   /// <remarks>Temporarily suspends physics handling on the object.</remarks>
+  public void OnPartPack() {
     if (physicActive) {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
       currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
@@ -58,9 +58,9 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  public void OnPartUnpack() {
   /// <summary>Part's message handler.</summary>
   /// <remarks>Resumes physics handling on the object.</remarks>
+  public void OnPartUnpack() {
     if (physicActive) {
       var physicObjRigidbody = physicObj.GetComponent<Rigidbody>();
       if (physicObjRigidbody.isKinematic) {
