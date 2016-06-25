@@ -24,7 +24,6 @@ public class KASModulePhysicChild : PartModule {
       physicObjRigidbody.useGravity = false;
       physicObjRigidbody.velocity = part.Rigidbody.velocity;
       physicObjRigidbody.angularVelocity = part.Rigidbody.angularVelocity;
-      FlightGlobals.addPhysicalObject(physicObj);
       physicActive = true;
     } else {
       KAS_Shared.DebugWarning("StartPhysics(PhysicChild) Physic already started! Ingore.");
@@ -51,7 +50,6 @@ public class KASModulePhysicChild : PartModule {
       KAS_Shared.DebugLog("OnPartPack(PhysicChild)");
       currentLocalPos = KAS_Shared.GetLocalPosFrom(physicObj.transform, part.transform);
       currentLocalRot = KAS_Shared.GetLocalRotFrom(physicObj.transform, part.transform);
-      FlightGlobals.removePhysicalObject(physicObj);
       physicObj.GetComponent<Rigidbody>().isKinematic = true;
       physicObj.transform.parent = part.transform;
       StartCoroutine(WaitPhysicUpdate());
@@ -69,7 +67,6 @@ public class KASModulePhysicChild : PartModule {
         KAS_Shared.SetPartLocalPosRotFrom(
             physicObj.transform, part.transform, currentLocalPos, currentLocalRot);
         physicObjRigidbody.isKinematic = false;
-        FlightGlobals.addPhysicalObject(physicObj);
         StartCoroutine(WaitPhysicUpdate());
       }
     }
@@ -80,6 +77,16 @@ public class KASModulePhysicChild : PartModule {
     KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
     if (physicActive) {
       StopPhysics();
+    }
+  }
+
+  /// <summary>Overriden from MonoBehavior.</summary>
+  void FixedUpdate() {
+    if (physicActive) {
+      var rb = physicObj.GetComponent<Rigidbody>();
+      if (rb != null && !rb.isKinematic) {
+        rb.AddForce(part.vessel.graviticAcceleration, ForceMode.Acceleration);
+      }
     }
   }
 
