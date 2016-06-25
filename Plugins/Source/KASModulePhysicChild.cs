@@ -8,7 +8,7 @@ public class KASModulePhysicChild : PartModule {
   public float mass = 0.01f;
   public GameObject physicObj;
 
-  bool physicActive = false;
+  bool physicActive;
   Vector3 currentLocalPos;
   Quaternion currentLocalRot;
 
