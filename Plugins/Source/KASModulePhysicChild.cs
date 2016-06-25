@@ -9,7 +9,6 @@ public class KASModulePhysicChild : PartModule {
   Quaternion currentLocalRot;
   GameObject physicObj;
   Rigidbody physicObjRb;
-  float mass = 0.01f;
 
   /// <summary>Starts physics handling on the object.</summary>
   /// <remarks>The object is expected to not have Rigidbody. The one will be added with the proper
@@ -18,7 +17,6 @@ public class KASModulePhysicChild : PartModule {
     KAS_Shared.DebugLog("StartPhysics(PhysicChild)");
     if (this.physicObj == null) {
       this.physicObj = physicObj;
-      this.mass = mass;
       physicObjRb = physicObj.AddComponent<Rigidbody>();
       physicObj.transform.parent = null;
       physicObjRb.mass = mass;
