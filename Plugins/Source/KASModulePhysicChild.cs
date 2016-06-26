@@ -92,7 +92,7 @@ public class KASModulePhysicChild : PartModule {
   /// <summary>Overriden from MonoBehavior.</summary>
   void FixedUpdate() {
     if (physicObjRb != null && !physicObjRb.isKinematic) {
-      physicObjRb.AddForce(part.vessel.graviticAcceleration, ForceMode.Acceleration);
+      physicObjRb.AddForce(FlightIntegrator.ActiveVesselFI.appliedAccel, ForceMode.Acceleration);
     }
   }
 
