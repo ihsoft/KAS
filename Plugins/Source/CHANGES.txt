@@ -1,1 +1,2 @@
 Pre-release changes:
+- [Fix] #171: KSP 1.1.3 compatibility.
