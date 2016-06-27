@@ -900,11 +900,11 @@ public class KASModuleWinch : KASModuleAttachCore {
   public void SetHeadToPhysic(bool active) {
     if (active) {
       KAS_Shared.DebugLog("SetHeadToPhysic(Winch) - Create physical object");
-      headPhysicModule = this.part.gameObject.GetComponent<KASModulePhysicChild>();
+      headPhysicModule = part.gameObject.GetComponent<KASModulePhysicChild>();
       if (!headPhysicModule) {
         KAS_Shared.DebugLog(
             "SetHeadToPhysic(Winch) - KASModulePhysicChild do not exist, adding it...");
-        headPhysicModule = this.part.gameObject.AddComponent<KASModulePhysicChild>();
+        headPhysicModule = part.gameObject.AddComponent<KASModulePhysicChild>();
       }
       headPhysicModule.StartPhysics(headTransform.gameObject, headMass);
     } else {
