@@ -456,7 +456,7 @@ public class KASModuleWinch : KASModuleAttachCore {
     if (headState == PlugState.Deployed && fromSave) {
       KAS_Shared.DebugLog("OnVesselGoOffRails(Winch) Head deployed or docked and no cable joint"
                           + " exist, re-deploy and set head position");
-      Deploy();
+      Deploy(delayPhysics: true);
       KAS_Shared.SetPartLocalPosRotFrom(headTransform, this.part.transform,
                                         headCurrentLocalPos, headCurrentLocalRot);
       cableJointLength = cableRealLenght;
@@ -725,12 +725,12 @@ public class KASModuleWinch : KASModuleAttachCore {
     }
   }
 
-  public void Deploy() {
+  public void Deploy(bool delayPhysics = false) {
     KAS_Shared.DebugLog("Deploy(Winch) - Return head to original pos");
     KAS_Shared.SetPartLocalPosRotFrom(
         headTransform, this.part.transform, headOrgLocalPos, headOrgLocalRot);
 
-    SetHeadToPhysic(true);
+    SetHeadToPhysic(true, delayPhysics);
     orgWinchMass = this.part.mass;
     float newMass = this.part.mass - headMass;
     if (newMass > 0) {
@@ -897,7 +897,7 @@ public class KASModuleWinch : KASModuleAttachCore {
     evaHeadNodeTransform = null;
   }
 
-  public void SetHeadToPhysic(bool active) {
+  public void SetHeadToPhysic(bool active, bool delayPhysics = false) {
     if (active) {
       KAS_Shared.DebugLog("SetHeadToPhysic(Winch) - Create physical object");
       headPhysicModule = part.gameObject.GetComponent<KASModulePhysicChild>();
@@ -906,7 +906,7 @@ public class KASModuleWinch : KASModuleAttachCore {
             "SetHeadToPhysic(Winch) - KASModulePhysicChild do not exist, adding it...");
         headPhysicModule = part.gameObject.AddComponent<KASModulePhysicChild>();
       }
-      headPhysicModule.StartPhysics(headTransform.gameObject, headMass);
+      headPhysicModule.StartPhysics(headTransform.gameObject, headMass, delayPhysics: delayPhysics);
     } else {
       // Yes, it must be immediate. Otherwise, the further code will try to behave on the module.
       DestroyImmediate(headPhysicModule);
