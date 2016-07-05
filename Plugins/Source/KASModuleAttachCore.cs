@@ -328,7 +328,7 @@ public class KASModuleAttachCore : PartModule {
     attachMode.StaticJoint = true;
   }
 
-  public void AttachDocked(KASModuleAttachCore otherAttachModule, Vessel forceDominant = null) {
+  protected void AttachDocked(KASModuleAttachCore otherAttachModule, Vessel forceDominant = null) {
     // Don't overwrite vesselInfo on redundant calls
     if (part.vessel == otherAttachModule.part.vessel
         && attachMode.Docked && dockedAttachModule == otherAttachModule
