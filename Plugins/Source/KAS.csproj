@@ -51,6 +51,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="api\ILinkEventListener.cs" />
+    <Compile Include="api\ILinkSource.cs" />
+    <Compile Include="api\ILinkTarget.cs" />
+    <Compile Include="api\KASEvents.cs" />
+    <Compile Include="api\GUILinkMode.cs" />
+    <Compile Include="api\LinkState.cs" />
     <Compile Include="DependancyChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
@@ -68,6 +74,11 @@
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KAS_Shared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UtilsMethods.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="modules" />
+    <Folder Include="api" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
