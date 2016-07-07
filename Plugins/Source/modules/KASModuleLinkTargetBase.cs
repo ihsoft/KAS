@@ -129,13 +129,7 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
 
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnJointBreak(float breakForce) {
-    // Do nothing. The source will handle all the work.
-  }
-
-  /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnLinkCreatedEvent(KASEvents.LinkInfo info) {
+  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkInfo info) {
     // Lock this target if another target on the part has accepted the link.
     if (!isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = true;
@@ -144,11 +138,18 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
 
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnLinkBrokenEvent(KASEvents.LinkInfo info) {
-    // Unlock this yarget if link with another target on the part has broke.
+  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkInfo info) {
+    // Unlock this target if link with another target on the part has broke.
     if (isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = false;
     }
+  }
+
+  /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
+  /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
+  /// <param name="breakForce">Actual force that has been applied.</param>
+  protected virtual void OnJointBreak(float breakForce) {
+    // Do nothing. The source will handle all the work.
   }
 
   /// <summary>Triggers when state has being assigned with a value.</summary>

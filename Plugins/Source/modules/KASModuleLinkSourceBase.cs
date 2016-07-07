@@ -205,16 +205,8 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
   }
 
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnJointBreak(float breakForce) {
-    Debug.LogWarningFormat("Connection between {0} and {1} has broken with force {2}",
-                           part.name, linkTarget.part.name, breakForce);
-    UnlinkParts();
-  }
-
-  /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnLinkCreatedEvent(KASEvents.LinkInfo info) {
+  /// <para>Implements <see cref="ILinkEventListener"/>.</para>
+  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkInfo info) {
     // Lock this source if another source on the part made the link.
     if (!isLocked && !ReferenceEquals(info.source, this)) {
       isLocked = true;
@@ -222,12 +214,21 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
   }
 
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnLinkBrokenEvent(KASEvents.LinkInfo info) {
+  /// <para>Implements <see cref="ILinkEventListener"/>.</para>
+  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkInfo info) {
     // Unlock this source if link with another source one the part has broke.
     if (isLocked && !ReferenceEquals(info.source, this)) {
       isLocked = false;
     }
+  }
+
+  /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
+  /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
+  /// <param name="breakForce">Actual force that has been applied.</param>
+  protected virtual void OnJointBreak(float breakForce) {
+    Debug.LogWarningFormat("Connection between {0} and {1} has broken with force {2}",
+                           part.name, linkTarget.part.name, breakForce);
+    UnlinkParts();
   }
 
   /// <summary>Triggers when state has being assigned with a value.</summary>
@@ -253,7 +254,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
     KASEvents.OnLinkCreated.Fire(linkInfo);
-    SendMessage("OnLinkCreatedEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
+    SendMessage("OnKASLinkCreatedEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
@@ -264,7 +265,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
     linkTarget = null;
     linkState = LinkState.Available;
     KASEvents.OnLinkBroken.Fire(linkInfo);
-    SendMessage("OnLinkBrokenEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
+    SendMessage("OnKASLinkBrokenEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
   }
 
   /// <summary>Sets rejecting mode when some other source has started connection mode.</summary>
