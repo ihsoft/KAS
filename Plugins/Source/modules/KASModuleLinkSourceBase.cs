@@ -157,7 +157,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
 
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkSource"/>.</para>
-  public virtual void BreakCurrentLink() {
+  public virtual void BreakCurrentLink(bool moveFocusOnTarget = false) {
     //FIXME
     Debug.LogWarning("BreakCurrentLink");
     if (linkState != LinkState.Linked) {
@@ -165,7 +165,8 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
           "Cannot break connection: part {0} is not connected to anything", part.name);
       return;
     }
-    //FIXME: implement decoupling
+    DisconnectParts();
+    //FIXME: set active vessel as needed
     UnlinkParts();
   }
 
@@ -255,6 +256,12 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
   void ConnectParts(ILinkTarget target) {
     //FIXME: implement
     Debug.LogWarning("ConnectParts");
+  }
+
+  /// <summary>Separates connected parts into two different vessels.</summary>
+  void DisconnectParts() {
+    //FIXME: implement
+    Debug.LogWarning("DisconnectParts");
   }
 
   /// <summary>Logically links source and target.</summary>
