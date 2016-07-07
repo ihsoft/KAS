@@ -71,6 +71,14 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
   [KSPField]
   protected string type = string.Empty;
 
+  // Localizable GUI strings.
+  protected static string CannotLinkPartToItselfMsg = "Cannot link part to itself";
+  protected static string IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
+  protected static string CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
+  protected static string CannotLinkToTheSamePartMsg = "Cannot link to the same part";
+  protected static string SourceIsNotAvailableForLinkMsg = "Source is not available for link";
+  protected static string TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
+
   /// <summary>Initializes the object.</summary>
   /// <remarks>Defines link state tranistion matrix.
   /// <para>Overridden from <see cref="PartModule"/>.</para>
@@ -167,13 +175,17 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
                                      bool reportToGUI = false, bool reportToLog = true) {
     string errorMsg = null;
     if (part == linkTarget.part) {
-      errorMsg = "Cannot link part to itself";
+      errorMsg = CannotLinkPartToItselfMsg;
     } else if (linkType != linkTarget.linkType) {
-      errorMsg = "Incompatible target link type";
+      errorMsg = IncompatibleTargetLinkTypeMsg;
+    } else if (!allowSameVessel && part.vessel == linkTarget.part.vessel) {
+      errorMsg = CannotLinkToTheSameVesselMsg;
+    } else if (part == linkTarget.part) {
+      errorMsg = CannotLinkToTheSamePartMsg;
     } else if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
-      errorMsg = "Source is not available for link";
+      errorMsg = SourceIsNotAvailableForLinkMsg;
     } else if (linkTarget.linkState != LinkState.AcceptingLinks) {
-      errorMsg = "Target doesn't accept links";
+      errorMsg = TargetDoesntAcceptLinksMsg;
     }
     if (errorMsg != null) {
       if (reportToGUI || reportToLog) {
