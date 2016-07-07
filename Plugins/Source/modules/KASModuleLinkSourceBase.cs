@@ -238,8 +238,8 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkEventListen
   protected virtual void OnStateChange(LinkState oldState) {
   }
 
-  /// <summary>Creates logical link between two KSP parts.</summary>
-  /// <param name="target">Provides the target part setup.</param>
+  /// <summary>Joins this part and the target into one vessel.</summary>
+  /// <param name="target">Target link module.</param>
   void ConnectParts(ILinkTarget target) {
     //FIXME: implement
     Debug.LogWarning("ConnectParts");

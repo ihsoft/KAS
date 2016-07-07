@@ -57,7 +57,7 @@ public interface ILinkSource {
   /// <returns><c>true</c> if parts were linked successfully.</returns>
   bool LinkToTarget(ILinkTarget target);
 
-  /// <summary>Breaks a link between source and teh current target.</summary>
+  /// <summary>Breaks a link between source and the current target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
   void BreakCurrentLink();
 
