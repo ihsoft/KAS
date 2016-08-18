@@ -514,7 +514,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
 
   /// <summary>Logically links source and target.</summary>
-  /// <remarks>No actual connection is created in the game.</remarks>
+  /// <remarks>No actual joint or connection is created in the game.</remarks>
   /// <param name="target">Target to link with.</param>
   protected virtual void LinkParts(ILinkTarget target) {
     var linkInfo = new KASEvents.LinkEvent(this, target);
@@ -526,7 +526,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
-  /// <remarks>No actual connection is destroyed in the game.</remarks>
+  /// <remarks>No actual joint or connection is destroyed in the game.</remarks>
   /// <param name="isBrokenExternally">If <c>true</c> then link has been broken not by the source.
   /// It's usually physics engine (breaking force exceeded) or a parts manipulation mod (like KIS).
   /// </param>
@@ -542,7 +542,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
 
   #region New utility methods
   /// <summary>Checks if basic source and target states allows linking.</summary>
-  /// <param name="target">Target of the pipe to check link with.</param>
+  /// <param name="target">Target of the tube to check link with.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
   protected string CheckBasicLinkConditions(ILinkTarget target) {
     if (part == target.part) {
@@ -566,6 +566,10 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     return null;
   }
 
+  /// <summary>Check joints limits if there is a joint module on the source part.</summary>
+  /// <param name="targetTransform">Target of the link being checked.</param>
+  /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
+  //FIXME: may be accept ILinkTarget
   protected string CheckJointLimits(Transform targetTransform) {
     if (linkJoint == null) {
       return null;
