@@ -4,9 +4,8 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
-using KSPDev.Processing;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
 /// <summary>Defines currect state of the link.</summary>
 /// <remarks>Each implementation defines own state tranistion model. E.g.

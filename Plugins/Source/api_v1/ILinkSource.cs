@@ -4,8 +4,9 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
+using UnityEngine;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
 /// <remarks>Source is the initiator of the link to another part. It holds all the logic on making
@@ -20,7 +21,17 @@ public interface ILinkSource {
   /// <summary>A source link type identifier.</summary>
   /// <remarks>This type is used to match with compatible targets. Targets of different types will
   /// not be able to connect with the source. Type can be any string, including empty.</remarks>
-  string linkType { get; }
+  string cfgLinkType { get; }
+  
+  string cfgAttachNodeName { get; }
+  bool cfgAllowSameVesselTarget { get;}
+  bool cfgAllowOtherVesselTarget { get;}
+  string cfgTubeRendererName { get; }
+//  float cfgMaxLength { get; }
+//  float cfgMaxAngle { get; }
+  //float cfgLinkBreakForce { get; }
+  
+  AttachNode attachNode { get; }
 
   /// <summary>Linked target or <c>null</c> if nothing is linked.</summary>
   ILinkTarget linkTarget { get; }
@@ -36,12 +47,17 @@ public interface ILinkSource {
   /// do internal state adjustments (e.g. changing UI items visibility).</remarks>
   bool isLocked { get; set; }
 
+  Transform nodeTransform { get; }
+  GUILinkMode guiLinkMode { get; }
+  ILinkTubeRenderer linkRenderer { get; }
+
   /// <summary>Starts linking mode of this source.</summary>
   /// <remarks>Only one source at time can be linking on the part. If part has more sources or
   /// targets they all will get <see cref="LinkState.Locked"/>.</remarks>
-  /// <param name="mode">Defines how pending link should be displayed. See <see cref="LinkMode"/>
+  /// <param name="mode">Defines how pending link should be displayed. See <see cref="GUILinkMode"/>
   /// for more details.</param>
-  void StartLinking(GUILinkMode mode);
+  /// <returns><c>true</c> if mode successfully started.</returns>
+  bool StartLinking(GUILinkMode mode);
 
   /// <summary>Cancels linking mode without creating a link.</summary>
   /// <remarks>All sources and targets that were locked on mode start will be unlocked.</remarks>
@@ -59,7 +75,10 @@ public interface ILinkSource {
 
   /// <summary>Breaks a link between source and the current target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
-  void BreakCurrentLink();
+  /// <param name="moveFocusOnTarget">If <c>true</c> then upon decoupling current vessel focus will
+  /// be set on the vessel that owns the link's <i>target</i>. Otherwise, the focus will be set on
+  /// the source part vessel.</param>
+  void BreakCurrentLink(bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if link between the parts can be successful.</summary>
   /// <param name="target">Target to connect with.</param>

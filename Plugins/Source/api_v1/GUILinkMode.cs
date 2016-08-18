@@ -5,10 +5,12 @@
 
 using System;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
 /// <summary>Specifies how the linking mode is displayed in GUI.</summary>
 public enum GUILinkMode {
+  /// <summary>Uninitialized or no GUI mode pending.</summary>
+  None = 0,
   /// <summary>The ending part of the link will be bound to the EVA kerbonaut until the link is
   /// completed or cancelled.</summary>
   Eva,

@@ -5,28 +5,36 @@
 
 using System;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
 /// <summary>Defines global events that are triggered by KAS.</summary>
 /// <remarks>Try to keep subscriptions to these evnets at the bare minimum. To many listeners may
 /// impact performance at the moment of actual event triggering.</remarks>
 public static class KASEvents {
   /// <summary>A holder for simple source-to-target event.</summary>
-  public struct LinkInfo {
+  public struct LinkEvent {
     /// <summary>Link source.</summary>
     public readonly ILinkSource source;
-    /// <summary>Link traget.</summary>
+    /// <summary>Link target.</summary>
     public readonly ILinkTarget target;
 
     /// <summary>Creates an event info.</summary>
     /// <param name="source">Source that initiated the link.</param>
     /// <param name="target">Target that accepted the link.</param>
-    public LinkInfo(ILinkSource source, ILinkTarget target) {
+    public LinkEvent(ILinkSource source, ILinkTarget target) {
       this.source = source;
       this.target = target;
     }
   }
-  
+
+  //FIXME give docs
+  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+  public const string LinkCreatedEventName = "OnKASLinkCreatedEvent";
+  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+  public const string LinkBrokenEventName = "OnKASLinkBrokenEvent";
+  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+  public const string LinkNodesMovedEventName = "OnKASLinkNodesMovedEvent";
+
   /// <summary>Triggers when a source has initiated linking mode.</summary>
   public static EventData<ILinkSource> OnStartLinking =
       new EventData<ILinkSource>("KASOnStartLinking");
@@ -37,13 +45,13 @@ public static class KASEvents {
   public static EventData<ILinkTarget> OnLinkAccepted =
       new EventData<ILinkTarget>("KASOnLinkAccepted");
   /// <summary>Triggers when link between two parts has been successfully established.</summary>
-  /// <remarks>Consider using <see cref="ILinkEventListener.OnLinkCreatedEvent"/> when this state
-  /// change is needed in scope of just one part.</remarks>
-  public static EventData<LinkInfo> OnLinkCreated = new EventData<LinkInfo>("KASOnLinkCreated");
+  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkCreatedEvent"/> when this
+  /// state change is needed in scope of just one part.</remarks>
+  public static EventData<LinkEvent> OnLinkCreated = new EventData<LinkEvent>("KASOnLinkCreated");
   /// <summary>Triggers when link between two parts has been broken.</summary>
-  /// <remarks>Consider using <see cref="ILinkEventListener.OnLinkBrokenEvent"/> when this state
-  /// change is needed in scope of just one part.</remarks>
-  public static EventData<LinkInfo> OnLinkBroken = new EventData<LinkInfo>("KASOnLinkBroken");
+  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkBrokenEvent"/> when this
+  /// state change is needed in scope of just one part.</remarks>
+  public static EventData<LinkEvent> OnLinkBroken = new EventData<LinkEvent>("KASOnLinkBroken");
 }
 
 }  // namespace

@@ -4,8 +4,9 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
+using UnityEngine;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
 /// <summary>A generic target of a KAS link between two parts.</summary>
 /// <remarks>Target is a sink for the link initiated by another part's <see cref="ILinkSource"/>.
@@ -20,7 +21,7 @@ public interface ILinkTarget {
   /// <summary>A target link type identifier.</summary>
   /// <remarks>This type is used to match with compatible sources. Sources of different types will
   /// not be able to connect with the target. Type can be any string, including empty.</remarks>
-  string linkType { get; }
+  string cfgLinkType { get; }
 
   /// <summary>Source that maintains the link or <c>null</c> if nothing is linked.</summary>
   ILinkSource linkSource { get; set; }
@@ -35,6 +36,11 @@ public interface ILinkTarget {
   /// <remarks>Setting of this property changes target state. Decendants can react on this action to
   /// do internal state adjustments (e.g. changing GUI items).</remarks>
   bool isLocked { get; set; }
+  
+  string cfgAttachNodeName { get; }
+
+  Transform nodeTransform { get; }
+  AttachNode attachNode { get; }
 }
 
 }  // namespace

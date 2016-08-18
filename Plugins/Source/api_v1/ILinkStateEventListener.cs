@@ -5,9 +5,9 @@
 
 using System;
 
-namespace KAS_API {
+namespace KASAPIv1 {
 
-/// <summary>An interface that defines part scope events.</summary>
+/// <summary>Interface that defines part scope events for links state changes.</summary>
 /// <remarks>All these events are called for every module on the part when the relevant event has
 /// triggered. Events are sent via Unity messaging mechanism, so it's not required to implement the
 /// interface in the component to start listenening. Though, explicit interface declaration will
@@ -17,18 +17,28 @@ namespace KAS_API {
 /// </para>
 /// </remarks>
 //TODO(ihsoft): Add code samples.
-public interface ILinkEventListener {
+public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
-  /// <remarks>Sent by either source or target link implementation when a new link has been
-  /// esatblished.</remarks>
+  /// <remarks>Sent by the link source implementation when a new link has been established.
+  /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
-  void OnKASLinkCreatedEvent(KASEvents.LinkInfo info);
+  void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
 
   /// <summary>Triggers when a source on the part has broke the link.</summary>
-  /// <remarks>Sent by either source or target link implementation when a link has been
-  /// broken.</remarks>
+  /// <remarks>Sent by the link source implementation when an existing link has been broken.
+  /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
-  void OnKASLinkBrokenEvent(KASEvents.LinkInfo info);
+  void OnKASLinkBrokenEvent(KASEvents.LinkEvent info);
+}
+
+public interface ILinkNodesEventListener {
+  /// <summary>Triggers when either source or target node has changed position.</summary>
+  /// <remarks>Sent by the link source implementation when the nodes have significantly changed
+  /// their positions. It's up to the implementation how to define what is a "significant change"
+  /// but the rule of thumb is not sending this event due to normal physics calculation errors.
+  /// Though, listeners must be prepered to get this event several times per a frame.</remarks>
+  /// <param name="info">Source and target information about the link.</param>
+  void OnKASLinkNodesMovedEvent(KASEvents.LinkEvent info);
 }
 
 }  // namespace
