@@ -47,6 +47,8 @@ public interface ILinkTubeRenderer {
   void StartRenderer(Transform source, Transform target);
   void StopRenderer();
   void UpdateLink();
+  // Checks for sphere hit.
+  string CheckColliderHits(Transform source, Transform target);
 }
 
 }  // namespace

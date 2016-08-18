@@ -253,6 +253,27 @@ public class KASModuleTubeRenderer : PartModule, ILinkTubeRenderer {
       }
     }
   }
+
+  /// <inheritdoc/>
+  /// <remarks>It does a very simple check by moving a sphere along the link direction. Sphere
+  /// radius matches tube's radius. If link's mesh is more complex than a plain tube than this
+  /// method may produce both false positives and false negatives.</remarks>
+  public virtual string CheckColliderHits(Transform source, Transform target) {
+    if (colliderType != LinkCollider.None) {
+      RaycastHit hit;
+      var direction = (target.position - source.position).normalized;
+      // To not hit the source part shift raycast sphere by one radius towards the target. 
+      var origin = source.position + direction * tubeDiameter / 2;
+      // To not hit the target part reduce max distance by TWO radiuses (origin is already shifted).
+      var maxDistance = direction.magnitude - tubeDiameter; 
+      if (Physics.SphereCast(origin, tubeDiameter, direction, out hit, maxDistance)) {
+        var hitPart = hit.rigidbody.gameObject.GetComponent<Part>();
+        return string.Format("Link would collide with {0} ({1:F2}m from source)",
+                             hitPart.name, hit.distance);
+      }
+    }
+    return null;
+  }
   #endregion
 
   #region New inheritable methods

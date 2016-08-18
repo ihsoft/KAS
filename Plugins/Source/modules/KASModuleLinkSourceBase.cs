@@ -329,7 +329,9 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   public virtual bool CheckCanLinkTo(
       ILinkTarget target, bool reportToGUI = false, bool reportToLog = true) {
     string errorMsg =
-        CheckBasicLinkConditions(target) ?? CheckJointLimits(target.nodeTransform);
+        CheckBasicLinkConditions(target)
+        ?? CheckJointLimits(target.nodeTransform)
+        ?? CheckLinkColliderHits(target.nodeTransform);
     if (errorMsg != null) {
       if (reportToGUI || reportToLog) {
         Debug.LogWarningFormat(
@@ -579,6 +581,13 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
         linkJoint.CheckLengthLimit(this, targetTransform)
         ?? linkJoint.CheckAngleLimitAtSource(this, targetTransform)
         ?? linkJoint.CheckAngleLimitAtTarget(this, targetTransform);
+  }
+
+  //FIXME: docs
+  protected string CheckLinkColliderHits(Transform targetTransform) {
+    return linkRenderer != null
+        ? linkRenderer.CheckColliderHits(nodeTransform, targetTransform)
+        : null;
   }
   #endregion
 
