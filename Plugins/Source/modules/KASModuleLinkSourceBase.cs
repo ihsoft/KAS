@@ -332,8 +332,9 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
         CheckBasicLinkConditions(target) ?? CheckJointLimits(target.nodeTransform);
     if (errorMsg != null) {
       if (reportToGUI || reportToLog) {
-        Debug.LogWarningFormat("Cannot link {0} (type={1}) and {2} (type={3}): {4}",
-                               part.name, cfgLinkType, target.part.name, target.cfgLinkType, errorMsg);
+        Debug.LogWarningFormat(
+            "Cannot link {0} (type={1}) and {2} (type={3}): {4}",
+            part.name, cfgLinkType, target.part.name, target.cfgLinkType, errorMsg);
       }
       if (reportToGUI) {
         ScreenMessages.PostScreenMessage(errorMsg, 5f, ScreenMessageStyle.UPPER_CENTER);
