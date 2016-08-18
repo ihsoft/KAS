@@ -51,12 +51,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="api\ILinkEventListener.cs" />
-    <Compile Include="api\ILinkSource.cs" />
-    <Compile Include="api\ILinkTarget.cs" />
-    <Compile Include="api\KASEvents.cs" />
-    <Compile Include="api\GUILinkMode.cs" />
-    <Compile Include="api\LinkState.cs" />
+    <Compile Include="api_v1\IAttachNodesUtils.cs" />
+    <Compile Include="api_v1\IJointUtils.cs" />
+    <Compile Include="api_v1\ILinkJoint.cs" />
+    <Compile Include="api_v1\ILinkStateEventListener.cs" />
+    <Compile Include="api_v1\ILinkSource.cs" />
+    <Compile Include="api_v1\ILinkTarget.cs" />
+    <Compile Include="api_v1\ILinkTubeRenderer.cs" />
+    <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
+    <Compile Include="api_impl\JointUtilsImpl.cs" />
+    <Compile Include="api_impl\KASAPILauncher.cs" />
+    <Compile Include="api_v1\KASAPI.cs" />
+    <Compile Include="api_v1\KASEvents.cs" />
+    <Compile Include="api_v1\GUILinkMode.cs" />
+    <Compile Include="api_v1\LinkState.cs" />
     <Compile Include="DependancyChecker.cs" />
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
@@ -73,12 +81,22 @@
     <Compile Include="KASModulePhysicChild.cs" />
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KAS_Shared.cs" />
+    <Compile Include="modules\KASModuleLinkSourceBase.cs" />
+    <Compile Include="modules\KASModuleLinkTargetBase.cs" />
+    <Compile Include="modules\KASModuleFlexibleConnectionSource.cs" />
+    <Compile Include="modules\KASModuleFlexibleConnectionTarget.cs" />
+    <Compile Include="modules\KASModuleTelescopicTubeRenderer.cs" />
+    <Compile Include="modules\KASModuleTubeRenderer.cs" />
+    <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
+    <Compile Include="modules\KSPDev.cs" />
+    <Compile Include="modules\KSPDevImpl.cs" />
+    <Compile Include="modules\UISoundPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UtilsMethods.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="api_impl" />
     <Folder Include="modules" />
-    <Folder Include="api" />
+    <Folder Include="api_v1" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
