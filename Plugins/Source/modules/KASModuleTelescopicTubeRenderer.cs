@@ -41,7 +41,7 @@ public class KASModuleTelescopicTubeRenderer : KASModuleTubeRenderer {
   
   void CreatePistons() {
     pistons = new GameObject[pistonsCount];
-    var startScale = pipeDiameter;
+    var startScale = tubeDiameter;
     for (var i = 0; i < pistonsCount; ++i) {
       var piston = CreatePrimitive(PrimitiveType.Cylinder, startScale, part.transform);
       piston.transform.localScale = new Vector3(startScale, startScale, pistonLength);

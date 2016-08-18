@@ -97,7 +97,7 @@ public class KASModuleTubeRenderer : PartModule, ILinkTubeRenderer {
   Color _color;
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkTubeRenderer"/>.</para>
-  public float cfgPipeScale { get { return pipeDiameter; } }
+  public float cfgPipeScale { get { return tubeDiameter; } }
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkTubeRenderer"/>.</para>
   public float cfgSphereScale { get { return sphereDiameter; } }
@@ -168,7 +168,7 @@ public class KASModuleTubeRenderer : PartModule, ILinkTubeRenderer {
   [KSPField]
   public Color color = Color.white;
   [KSPField]
-  public float pipeDiameter = 0.15f;
+  public float tubeDiameter = 0.15f;
   [KSPField]
   public float sphereDiameter = 0.15f;
   #endregion
@@ -221,9 +221,7 @@ public class KASModuleTubeRenderer : PartModule, ILinkTubeRenderer {
 
     sourceJointNode = CreateJointNode(sourceJointType, source, sourceJointOffset);
     targetJointNode = CreateJointNode(targetJointType, target, targetJointOffset);
-    //FIXME
-    //linkPipe = CreatePrimitive(PrimitiveType.Cylinder, pipeScale, part.transform);
-    linkPipe = CreatePrimitive(PrimitiveType.Cylinder, pipeDiameter, part.transform,
+    linkPipe = CreatePrimitive(PrimitiveType.Cylinder, tubeDiameter, part.transform,
                                colliderType: colliderType);
     linkPipeMR = linkPipe.GetComponent<MeshRenderer>();  // To speedup OnUpdate() handling.
     SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
