@@ -6,8 +6,8 @@
 using System;
 using System.Linq;
 using UnityEngine;
-using KAS_API;
 using KSPDev.Processing;
+using KASAPIv1;
 
 namespace KAS {
 
@@ -23,10 +23,14 @@ namespace KAS {
 /// usage to the interfaces and virtuals only.</para>
 /// </remarks>
 // TODO(ihsoft): Add code samples.
-public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListener {
+public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventListener {
+  #region ILinkTarget properties implementation
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkTarget"/>.</para>
-  public string linkType { get { return type; } }
+  public string cfgLinkType { get { return type; } }
+  /// <inheritdoc/>
+  /// <para>Implements <see cref="ILinkTarget"/>.</para>
+  public string cfgAttachNodeName { get { return attachNodeName; } }
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkTarget"/>.</para>
   public virtual bool isLocked {
@@ -40,6 +44,7 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
     private set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
+      persistedLinkState = value;
       OnStateChange(oldState);
     }
   }
@@ -55,11 +60,56 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
     }
   }
   ILinkSource _linkSource;
+  /// <inheritdoc/>
+  /// <para>Implements <see cref="ILinkTarget"/>.</para>
+  public Transform nodeTransform {
+    get {
+      if (_nodeTransform == null) {
+        _nodeTransform = KASAPI.AttachNodesUtils.GetOrCreateNodeTransform(part, attachNodeName);
+      }
+      return _nodeTransform;
+    }
+  }
+  Transform _nodeTransform;
+  /// <inheritdoc/>
+  /// <para>Implements <see cref="ILinkTarget"/>.</para>
+  public AttachNode attachNode {
+    get {
+      if (_attachNode == null) {
+        var node = KASAPI.AttachNodesUtils.GetAttachNode(part, attachNodeName);
+        if (node == null) {
+          throw new InvalidOperationException(string.Format(
+              "Cannot find attach nodes in the part: {0} (node={1})", part.name, attachNodeName));
+        }
+        if (node.nodeType != AttachNode.NodeType.Stack) {
+          throw new InvalidOperationException(string.Format(
+              "Attach node must be of type 'stack': {0} (type={1})", part.name, node.nodeType));
+        }
+        _attachNode = node;
+      }
+      return _attachNode;
+    }
+  }
+  AttachNode _attachNode;
+  #endregion
 
+  // These fileds must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
+  #region Persistent fields
+  [KSPField(isPersistant = true)]
+  public LinkState persistedLinkState = LinkState.Available;
+  #endregion
+
+  #region Part's config fields
   // Here go settings from the part config. They must be of at least "protected" visiblity level for
   // the game to handle them properly.
   [KSPField]
-  protected string type = string.Empty;
+  public string type = "";
+  [KSPField]
+  public string attachNodeName = "";
+  #endregion
 
   /// <summary>State machine that controls event reaction in different states.</summary>
   /// <remarks>Primary usage of the machine is managing subscriptions to the different game events. 
@@ -71,15 +121,17 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
   /// <summary>Initalizes moulde state on part start.</summary>
   /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnStart(PartModule.StartState state) {
-    Debug.LogWarning("*** TARGET: ON START");
-    linkStateMachine.Start(LinkState.Available);
+    //FIXME
+    //Debug.LogWarning("*** TARGET: ON START");
+    linkStateMachine.Start(persistedLinkState);
     linkState = linkState;  // Trigger updates.
   }
 
   /// <summary>Initalizes moulde state on part start.</summary>
   /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnLoad(ConfigNode node) {
-    Debug.LogWarning("*** TARGET: ON LOAD");
+//    //FIXME
+//    Debug.LogWarningFormat("*** TARGET: ON LOAD");
   }
 
   /// <summary>Initializes the object. An alternative to constructor.</summary>
@@ -116,9 +168,9 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
 
     //FIXME
-    linkStateMachine.OnDebugStateChange = (from, to) =>
-        Debug.LogWarningFormat("TARGET: Part {0} (id={1}), module {2}: {3}=>{4}",
-                               part.name, part.craftID, moduleName, from, to);
+//    linkStateMachine.OnDebugStateChange = (from, to) =>
+//        Debug.LogWarningFormat("TARGET: Part {0} (id={1}), module {2}: {3}=>{4}",
+//                               part.name, part.craftID, moduleName, from, to);
   }
 
   /// <summary>Destroys the object. An alternative to destructor.</summary>
@@ -127,9 +179,10 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
     linkStateMachine.Stop();
   }
 
+  #region ILinkEventListener implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkInfo info) {
+  /// <para>Implements <see cref="ILinkStateEventListener"/></para>
+  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     // Lock this target if another target on the part has accepted the link.
     if (!isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = true;
@@ -137,19 +190,46 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
   }
 
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkEventListener"/></para>
-  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkInfo info) {
+  /// <para>Implements <see cref="ILinkStateEventListener"/></para>
+  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
     // Unlock this target if link with another target on the part has broke.
     if (isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = false;
     }
   }
+  #endregion
 
   /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
   /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
   /// <param name="breakForce">Actual force that has been applied.</param>
   protected virtual void OnJointBreak(float breakForce) {
     // Do nothing. The source will handle all the work.
+  }
+
+  public virtual void OnPartUnpack() {
+    //FIXME: may be turn on/off unbreakable
+    if (linkState == LinkState.Linked && linkSource == null) {
+      //Debug.LogWarningFormat("TRG: OnPartUnpack: {0} (id={1})", part.name, part.flightID);
+      var an = part.findAttachNode(attachNodeName);
+//      Debug.LogWarningFormat("TRG: node: {0} (id={1})",
+//                             an.attachedPart, an.attachedPart.flightID);
+      // Restore the link on part load.
+      var source = an.attachedPart.FindModulesImplementing<ILinkSource>()
+          .FirstOrDefault(x => x.cfgLinkType == cfgLinkType);
+      if (source != null) {
+        RestoreLink(an, source);
+      } else {
+        Debug.LogErrorFormat(
+            "Target cannot restore link to source: {0} (id={1}) => {2} (id={3})",
+            part.name, part.flightID,
+            an.attachedPart.name, an.attachedPart.flightID);
+        linkState = LinkState.Available;
+      }
+    }
+  }
+  
+  protected virtual void RestoreLink(AttachNode an, ILinkSource source) {
+    _linkSource = source;
   }
 
   /// <summary>Triggers when state has being assigned with a value.</summary>
@@ -163,7 +243,7 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   void OnStartConnecting(ILinkSource source) {
-    linkState = (part != source.part && linkType == source.linkType)
+    linkState = (part != source.part && cfgLinkType == source.cfgLinkType)
         ? LinkState.AcceptingLinks
         : LinkState.RejectingLinks;
   }
@@ -180,11 +260,13 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkEventListen
   void TriggerSourceChangeEvents(ILinkSource oldSource) {
     if (oldSource != _linkSource) {
       if (_linkSource != null) {
-        var linkInfo = new KASEvents.LinkInfo(_linkSource, this);
-        SendMessage("OnLinkCreatedEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
+        var linkInfo = new KASEvents.LinkEvent(_linkSource, this);
+        SendMessage(
+            KASEvents.LinkCreatedEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
       } else {
-        var linkInfo = new KASEvents.LinkInfo(oldSource, this);
-        SendMessage("OnLinkBrokenEvent", linkInfo, SendMessageOptions.DontRequireReceiver);
+        var linkInfo = new KASEvents.LinkEvent(oldSource, this);
+        SendMessage(
+            KASEvents.LinkBrokenEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
       }
     }
   }
