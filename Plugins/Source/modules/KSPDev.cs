@@ -181,3 +181,24 @@ public static class PartContextMenu {
 }
 
 }  // namespace
+
+namespace KSPDev.VesselUtils {
+
+public interface IParts {
+  Part GetPartById(string vesselID, uint partID);
+  Part GetPartById(Vessel searchVessel, uint partID);
+}
+
+}  // namespace
+
+namespace KSPDevAPI {
+
+public static class Checker {
+  public static bool isLoaded { get; internal set; }
+}
+
+public static class VesselUtils {
+  public static KSPDev.VesselUtils.IParts Parts { get; internal set; }
+}
+
+}  // namespace
