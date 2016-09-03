@@ -33,11 +33,14 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   /// <inheritdoc/>
   public Transform GetOrCreateNodeTransform(AttachNode attachNode) {
     if (attachNode.nodeTransform != null) {
-      return attachNode.nodeTransform;
+      attachNode.nodeTransform.gameObject.DestroyGameObject();
     }
     var nodeTransform = new GameObject().transform;
-    nodeTransform.parent = attachNode.owner.transform;
+    attachNode.nodeTransform = nodeTransform;
+    //nodeTransform.parent = attachNode.owner.transform;
+    nodeTransform.parent = attachNode.owner.FindModelTransform("model");
     nodeTransform.localPosition = attachNode.position;
+    nodeTransform.localScale = Vector3.one;
     nodeTransform.localRotation = Quaternion.LookRotation(attachNode.orientation);
     return nodeTransform;
   }

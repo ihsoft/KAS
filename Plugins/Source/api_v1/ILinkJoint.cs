@@ -10,6 +10,8 @@ namespace KASAPIv1 {
 
 //FIXME: docs and samples
 public interface ILinkJoint {
+  float cfgMinLinkLength { get; }
+
   /// <summary>Sets up a physical link between source and target.</summary>
   /// <remarks>If parts are docked then there is a <see cref="PartJoint"/> created by the KSP core.
   /// The implementation must either adjust it or drop it alltogether. Note, that in the either case

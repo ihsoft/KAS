@@ -25,31 +25,19 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
                                        IActivateOnDecouple {
   #region ILinkSource config properties implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public string cfgLinkType { get { return type; } }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public bool cfgAllowSameVesselTarget { get { return allowSameVesselTarget; } }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
-  public string cfgTubeRendererName { get { return linkRendererName; } }
-//  /// <inheritdoc/>
-//  /// <para>Implements <see cref="ILinkSource"/>.</para>
-//  public float cfgMaxLength { get { return maxLength; } }
-//  /// <inheritdoc/>
-//  /// <para>Implements <see cref="ILinkSource"/>.</para>
-//  public float cfgMaxAngle { get { return maxAngle; } }
+  public string cfgLinkRendererName { get { return linkRendererName; } }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public bool cfgAllowOtherVesselTarget { get { return allowOtherVesselTarget; } }
   #endregion
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public ILinkTarget linkTarget { get; private set; }
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkSource"/>.</para>
@@ -63,13 +51,11 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     }
   }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
     set { linkState = value ? LinkState.Locked : LinkState.Available; }
   }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public Transform nodeTransform {
     get {
       if (_nodeTransform == null) {
@@ -80,7 +66,6 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
   Transform _nodeTransform;
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public AttachNode attachNode {
     get {
       if (_attachNode == null) {
@@ -100,20 +85,9 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
   AttachNode _attachNode;
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
   public GUILinkMode guiLinkMode { get; private set; }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkSource"/>.</para>
-  public ILinkTubeRenderer linkRenderer {
-    get {
-      if (_tubeRenderer == null && cfgTubeRendererName != "") {
-        _tubeRenderer = part.FindModulesImplementing<ILinkTubeRenderer>()
-            .FirstOrDefault(x => x.cfgRendererName == cfgTubeRendererName);
-      }
-      return _tubeRenderer;
-    }
-  }
-  ILinkTubeRenderer _tubeRenderer;
+  public ILinkPipeRenderer linkRenderer { get; private set; }
   #endregion
 
   // These fileds must not be accessed outside of the module. They are declared public only
@@ -216,18 +190,16 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
+    //FIXME: no need for name, make it singletone
+    //FIXME: check places that expect rendered to be bull - it cannto be null anymore
+    linkRenderer = part.FindModulesImplementing<ILinkPipeRenderer>()
+        .First(x => x.cfgRendererName == cfgLinkRendererName);
     if (persistedLinkState == LinkState.Linked && attachNode.attachedPart != null) {
       var target = FindLinkedTarget();
       if (target != null) {
-        //FIXME
-        Debug.LogWarning("fire on link load");
         OnLinkLoaded(target);
-        
-        //FIXME drop
-        Debug.LogWarning("OnStart");
       }
     }
-
     //FIXME
     Debug.LogWarningFormat("START: Attached part id={0}, part={1}",
                            attachNode.attachedPartId, attachNode.attachedPart);

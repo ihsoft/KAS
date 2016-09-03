@@ -120,10 +120,6 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
   }
   /// <inheritdoc/>
   public bool isStarted { get { return linkPipe != null; } }
-
-
-  public Transform startSocketTransfrom { get; private set; }
-  public Transform endSocketTransfrom { get; private set; }
   #endregion
 
   void SetCurrentColor(Color newColor) {
@@ -153,7 +149,6 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
   public float pipeTextureSamplesPerMeter = 2f;
   [KSPField]
   public string pipeTexturePath = "KAS/Textures/pipe";
-  //public string pipeTexturePath = "KAS/Textures/piston180";
   [KSPField]
   public string shaderName = "Diffuse";
   [KSPField]
@@ -167,35 +162,14 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
   public float pipeDiameter = 0.15f;
   [KSPField]
   public float sphereDiameter = 0.15f;
-
-  // FIXME: calculate piston postions with respect to sphere radius
-  [KSPField]
-  public float prefabPipeLength = 0.2f + 0.02f*2 + 0.15f/2;
-  [KSPField]
-  public Vector3 prefabPipeStartPosition = Vector3.zero;
-  [KSPField]
-  public Vector3 prefabPipeStartDirection = Vector3.forward;
-
-  // FIXME: drop
-  [KSPField]
-  public float[] testArray = new float[0];
-  
-  
   #endregion
-
+    
   // FIXME: everyting is RO
 
   //Internal or protected
   protected Texture2D tubeTexture { get; private set; }
-  protected GameObject linkPipe {
-    get { return _linkPipe; }
-    private set {
-      _linkPipe = value;
-      linkPipeMR = _linkPipe != null ? _linkPipe.GetComponent<Renderer>() : null;
-    }
-  }
-  GameObject _linkPipe;
-  protected Renderer linkPipeMR { get; private set; }
+  protected GameObject linkPipe { get; private set; }
+  protected MeshRenderer linkPipeMR { get; private set; }
   protected JointNode sourceJointNode { get; private set; }
   protected JointNode targetJointNode { get; private set; }
 
@@ -203,78 +177,13 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
   const string KspPartShaderName = "KSP/Bumped Specular";
 
   #region PartModule overrides
-  protected Transform partModelTransform {
-    get {
-      if (_partModelTransform == null) {
-        _partModelTransform = part.FindModelTransform("model");
-      }
-      return _partModelTransform;
-    }
-  }
-  Transform _partModelTransform;
-
-  const string StartSocketObjName = "PipeStart";
-  const string EndSocketObjName = "PipeEnd";
-  const string PipeMeshName = "PipeMesh";
-
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
+  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
+  public override void OnAwake() {
+    base.OnAwake();
     LoadTexture();
-    Debug.LogWarningFormat("** ON LOAD: {0}", part.name);
-    if (HighLogic.LoadedScene == GameScenes.LOADING) {
-      //FIXME
-      Debug.LogWarningFormat("*** LOADING PART: {0}, texture {1}", part.name, pipeTexturePath);
-
-      var nodeTransfrom = new GameObject("SourceAttachNode").transform;
-      nodeTransfrom.parent = partModelTransform;
-      nodeTransfrom.localPosition = prefabPipeStartPosition;
-      //FIXME: SetLookRotation
-      nodeTransfrom.localRotation = Quaternion.LookRotation(prefabPipeStartDirection);
-      
-      startSocketTransfrom = new GameObject(StartSocketObjName).transform;
-      startSocketTransfrom.parent = nodeTransfrom;
-      endSocketTransfrom = new GameObject(EndSocketObjName).transform;
-      endSocketTransfrom.parent = startSocketTransfrom;
-      endSocketTransfrom.localPosition = new Vector3(0, 0, prefabPipeLength);
-      endSocketTransfrom.localRotation.SetLookRotation(-prefabPipeStartDirection);
-      CreateModelMeshes();
-    }
   }
 
-  public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
-    //FIXME: check for prefab mode
-    Debug.LogWarningFormat("** ON START: {0}", part.name);
-    startSocketTransfrom = part.FindModelTransform(StartSocketObjName);
-    endSocketTransfrom = part.FindModelTransform(EndSocketObjName);
-    linkPipe = part.FindModelTransform(PipeMeshName).gameObject;
-    Debug.LogWarningFormat("** Loaded socket objects: {0} / {1}",
-                           startSocketTransfrom, endSocketTransfrom);
-
-    //FIXME
-    var pipe = partModelTransform.Find(PipeMeshName).gameObject;
-    Debug.LogWarningFormat("** GET scale on {0}: {1}",
-                           pipe, pipe.GetComponent<Renderer>().material.mainTextureScale);
-  }
-
-  // FIMXE: probably is not needed as a function
-  void CreatePipe() {
-    linkPipe = CreatePrimitive(PrimitiveType.Cylinder, pipeDiameter, colliderType: colliderType);
-    linkPipe.name = PipeMeshName;
-  }
-
-  protected virtual void CreateModelMeshes() {
-    sourceJointNode = CreateJointNode(sourceJointType, startSocketTransfrom, sourceJointOffset);
-    targetJointNode = CreateJointNode(targetJointType, endSocketTransfrom, targetJointOffset);
-    linkPipe = CreatePrimitive(PrimitiveType.Cylinder, pipeDiameter, colliderType: colliderType);
-    linkPipe.name = PipeMeshName;
-    //FIXME
-    Debug.LogWarningFormat("**** park length: {0}", (endSocketTransfrom.position - startSocketTransfrom.position).magnitude);
-    Debug.LogWarningFormat("**** joint node length: {0}", (targetJointNode.position - sourceJointNode.position).magnitude);
-    SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
-    RescaleTextureToLength(linkPipe, renderer: linkPipeMR);
-  }
-
+  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnUpdate() {
     base.OnUpdate();
     UpdateLink();
@@ -301,10 +210,15 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
     targetJointNode = CreateJointNode(targetJointType, target, targetJointOffset);
     linkPipe = CreatePrimitive(PrimitiveType.Cylinder, pipeDiameter, part.transform,
                                colliderType: colliderType);
+    linkPipeMR = linkPipe.GetComponent<MeshRenderer>();  // To speedup OnUpdate() handling.
     SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
     RescaleTextureToLength(linkPipe, renderer: linkPipeMR);
+    
+    // FIMXE: drop debug logging.
+    Debug.LogWarningFormat("*** had highliters: {0}", part.HighlightRendererCount);
     part.HighlightRenderers = null;
     part.SetHighlightDefault();  // Force renderes list recreated.
+    Debug.LogWarningFormat("*** now highliters: {0}", part.HighlightRendererCount);
   }
   
   /// <inheritdoc/>
@@ -315,21 +229,20 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
       if (linkPipe != null) {
         linkPipe.DestroyGameObject();
         linkPipe = null;
+        linkPipeMR = null;
       }
     }
   }
 
   /// <inheritdoc/>
   public virtual void UpdateLink() {
-    //if (isStarted) {
-      //FIXME
-      Debug.LogWarningFormat("Update link");
+    if (isStarted) {
       SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
       //FIXME: support target and center modes
       if (pipeTextureRescaleMode != LinkTextureRescaleMode.None) {
         RescaleTextureToLength(linkPipe, renderer: linkPipeMR);
       }
-    //}
+    }
   }
 
   /// <inheritdoc/>
@@ -352,7 +265,6 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
       if (Physics.SphereCast(origin, pipeDiameter, direction, out hit, maxDistance)
           && (hit.rigidbody.gameObject == target.gameObject
               || hit.rigidbody.gameObject == source.gameObject)) {
-        //FIXME
         Debug.LogWarningFormat("OOOOOOOOOPS! Hit vessel {0}",
                                hit.rigidbody.gameObject.GetComponent<Part>().vessel);
       }
@@ -363,6 +275,7 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
         //var evaModule = hitPart.GetComponent<KerbalEVA>();
         //FIXME: move to constant
         return string.Format("Link would collide with {0} ({1:F2}m from source)",
+                             //evaModule == null ? hitPart.name : evaModule.moduleName,
                              hitPart.partInfo.title,
                              hit.distance);
       }
@@ -387,14 +300,6 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
         RescaleTextureToLength(res.pipe);
       }
     }
-    return res;
-  }
-
-  protected virtual JointNode LoadJointNode(Transform node) {
-    var res = new JointNode(node);
-    res.sphere = node.Find("Sphere").gameObject;
-    var cylinder = node.Find("Cylinder");
-    res.pipe = cylinder != null ? cylinder.gameObject : null;
     return res;
   }
   #endregion
@@ -492,18 +397,14 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
     return primitive;
   }
 
-  protected void RescaleTextureToLength(GameObject obj, Renderer renderer = null) {
-    //var newScale = obj.transform.localScale.z * pipeTextureSamplesPerMeter;
-    var newScale = 1.0f;
-    var mr = renderer ?? obj.GetComponent<Renderer>();
+  protected void RescaleTextureToLength(GameObject obj, MeshRenderer renderer = null) {
+    var newScale = obj.transform.localScale.z * pipeTextureSamplesPerMeter;
+    var mr = renderer ?? obj.GetComponent<MeshRenderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
-    // FIXME: drop
-    Debug.LogWarningFormat("** set scale on {0}: {1}", obj, mr.material.mainTextureScale);
   }
 
   protected Material CreateMaterial() {
     var material = new Material(Shader.Find(shaderNameOverride ?? KspPartShaderName));
-    //FIXME: set emissive flags to black.
     material.mainTexture = tubeTexture;
     material.color = colorOverride ?? color;
     return material;

@@ -27,6 +27,13 @@ public class KASModuleTelescopicTubeRenderer : KASModuleTubeRenderer {
   public int pistonsCount = 3;
   [KSPField]
   public float pistonWallThickness = 0.01f;
+  // FIXME: calculate piston postions with respect to sphere radius
+  [KSPField]
+  public float prefabLength = 0.2f + 0.02f*2 + 0.15f/2;
+  [KSPField]
+  public Vector3 prefabPosition = Vector3.zero;
+  [KSPField]
+  public Vector3 prefabDirection = Vector3.forward;
   #endregion
 
   /// <inheritdoc/>
@@ -50,30 +57,49 @@ public class KASModuleTelescopicTubeRenderer : KASModuleTubeRenderer {
   }
 
   protected GameObject[] pistons;
+  protected Transform pipeEndTransform { get; private set; }
+  protected Transform pipeBeginTransform { get; private set; }
 
-  protected override void CreateModelMeshes() {
-    base.CreateModelMeshes();
-//    linkPipeMR.enabled = false;
-//    CreatePistons(parent: pipeBeginTransform);
-    Debug.LogWarningFormat("*** LOADING PART: create meshes telescopic {0}", part.name);
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    if (HighLogic.LoadedScene == GameScenes.LOADING) {
+      //FIXME
+      Debug.LogWarningFormat("*** LOADING PART: {0}", part.name);
+      pipeBeginTransform = new GameObject("PipeBegin").transform;
+      pipeBeginTransform.parent = part.FindModelTransform("model");
+      pipeBeginTransform.localPosition = prefabPosition;
+      pipeEndTransform = new GameObject("PipeEnd").transform;
+      pipeEndTransform.parent = pipeBeginTransform;
+      pipeEndTransform.localPosition = prefabDirection.normalized * prefabLength;
+      pipeEndTransform.localRotation.SetLookRotation(-prefabDirection);
+      StartRenderer(pipeBeginTransform, pipeEndTransform);
+      
+      Debug.LogWarningFormat("** length: {0}", prefabLength);
+
+//      var modelTransform = part.FindModelTransform("model");
+//      Debug.LogWarningFormat("*** found model: {0}", modelTransform);
+//      if (modelTransform != null) {
+//        var piston = CreatePrimitive(PrimitiveType.Cylinder, 0.5f);
+//        DontDestroyOnLoad(piston);
+//        RescaleTextureToLength(piston);
+//      }
+    }
   }
 
   #region ILinkTubeRenderer implementation
   /// <inheritdoc/>
   public override void StartRenderer(Transform source, Transform target) {
-    Debug.LogWarningFormat("******** UNEXPECTED! {0}", part.name);
     base.StartRenderer(source, target);
     linkPipeMR.enabled = false;
     CreatePistons();
   }
 
-  void CreatePistons(Transform parent = null) {
-    DeletePistons();
+  void CreatePistons() {
     pistons = new GameObject[pistonsCount];
     var startDiameter = pipeDiameter;
     for (var i = 0; i < pistonsCount; ++i) {
-      var piston = CreatePrimitive(PrimitiveType.Cylinder, startDiameter, parent: parent);
-      piston.name = "piston" + i;
+      var piston = CreatePrimitive(PrimitiveType.Cylinder, startDiameter);
+      //piston.name = "piston" + i;
       piston.transform.localScale = new Vector3(startDiameter, startDiameter, pistonLength);
       startDiameter -= 2 * pistonWallThickness;
       RescaleTextureToLength(piston);
@@ -85,46 +111,48 @@ public class KASModuleTelescopicTubeRenderer : KASModuleTubeRenderer {
   }
 
   void SetupCylinderPrimitive(GameObject obj, Vector3 pos, Vector3 dir) {
-    //FIXME: work in local source transfrom space
-//    obj.transform.position = pos + dir * (obj.transform.localScale.z / 2);
-//    obj.transform.LookAt(obj.transform.position + dir);
+    obj.transform.position = pos + dir * (obj.transform.localScale.z / 2);
+    obj.transform.LookAt(obj.transform.position + dir);
   }
 
   void UpdatePistons() {
     var fromPos = sourceJointNode.position;
     var toPos = targetJointNode.position;
-    var link = toPos - fromPos;
-    var linkLength = link.magnitude;
+    var linkDirection = (toPos - fromPos).normalized;
+    var lookAtPos = toPos + linkDirection;
+
     // First piston has fixed position due to it's attached to the source.
-    pistons[0].transform.localPosition = new Vector3(0, 0, pistonLength / 2);
+    SetupCylinderPrimitive(pistons[0], fromPos, linkDirection);
     // Last piston has fixed position due to it's atatched to the target.
-    pistons[pistons.Length - 1].transform.localPosition =
-        new Vector3(0, 0, linkLength - pistonLength / 2);
+    SetupCylinderPrimitive(
+        pistons[pistons.Length - 1], toPos - linkDirection * pistonLength, linkDirection);
     // Pistions between first and last monotonically fill the link.
     if (pistons.Length > 2) {
-      // FIXME: back off for the sphere radius
-      // FIXME: OR virtually extend last piston by the sphere radius.
-      // FIXME: AND may be do the same with the first piston      
-      var linkStep = (linkLength - sphereDiameter / 2 - pistonLength) / (pistonsCount - 2);
+      var linkFillStart = fromPos + linkDirection * pistonLength;
+      var linkFillEnd = targetJointNode.position - linkDirection * pistonLength;
+      var linkStep = (linkFillEnd - linkFillStart) / (pistonsCount - 2);
       for (var i = 1; i < pistons.Length - 1; ++i) {
-        pistons[0].transform.localPosition = new Vector3(0, 0, pistonLength / 2 + i * linkStep);
+        var piston = pistons[i];
+        piston.transform.position = linkFillStart + linkStep / 2;
+        piston.transform.LookAt(lookAtPos);
+        linkFillStart += linkStep;
       }
     }
   }
 
   void DeletePistons() {
-    if (pistons != null) {
-      foreach (var piston in pistons) {
-        piston.DestroyGameObject();
-      }
-      pistons = null;
+    foreach (var piston in pistons) {
+      piston.DestroyGameObject();
     }
+    pistons = null;
   }
 
   /// <inheritdoc/>
   public override void StopRenderer() {
     base.StopRenderer();
-    DeletePistons();
+    if (pistons != null) {
+      DeletePistons();
+    }
   }
 
   /// <inheritdoc/>

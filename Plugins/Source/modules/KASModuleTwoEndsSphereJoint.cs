@@ -29,6 +29,8 @@ public class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint {
     }
   }
 
+  public float cfgMinLinkLength { get { return 0; } }
+
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted

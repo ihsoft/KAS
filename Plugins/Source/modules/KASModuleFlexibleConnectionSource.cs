@@ -25,16 +25,16 @@ public sealed class KASModuleFlexibleConnectionSource : KASModuleLinkSourceBase 
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
   readonly static Color BadLinkColor = new Color(1, 0, 0, 0.5f);
 
-  ILinkTubeRenderer evaRenderer {
+  ILinkPipeRenderer evaRenderer {
     get {
       if (_evaRenderer == null && evaLinkRendererName != "") {
-        _evaRenderer = part.FindModulesImplementing<ILinkTubeRenderer>()
+        _evaRenderer = part.FindModulesImplementing<ILinkPipeRenderer>()
             .FirstOrDefault(x => x.cfgRendererName == evaLinkRendererName);
       }
       return _evaRenderer;
     }
   }
-  ILinkTubeRenderer _evaRenderer;
+  ILinkPipeRenderer _evaRenderer;
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via

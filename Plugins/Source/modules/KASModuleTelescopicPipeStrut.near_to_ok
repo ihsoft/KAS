@@ -1,0 +1,120 @@
+﻿// Kerbal Attachment System
+// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Module author: igor.zavoychinskiy@gmail.com
+// License: https://github.com/KospY/KAS/blob/master/LICENSE.md
+
+using System;
+using System.Linq;
+using TestScripts;
+using UnityEngine;
+using KASAPIv1;
+using HighlightingSystem;
+
+namespace KAS {
+
+// FIXME: docs
+public class KASModuleTelescopicPipeStrut : AbstractJointPart {
+  // These fileds must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
+  #region Part's config fields
+  [KSPField]
+  public int pistonsCount = 3;
+  [KSPField]
+  public float outerPistonDiameter = 0.15f;
+  [KSPField]
+  public float pistonLength = 0.2f;
+  [KSPField]
+  public float pistonWallThickness = 0.01f;
+  [KSPField]
+  public string pistonTexturePath = "";
+  
+  [KSPField]
+  public float pistonMinShift = 0.02f;
+  #endregion
+
+  // FIXME: docs for all below
+  protected GameObject[] pistons;
+  protected const string PartJointObjName = "partJoint";
+  protected const string SrcStrutJointObjName = "srcStrutJoint";
+  protected const string TrgStrutJointObjName = "trgStrutJoint";
+  protected Transform srcPivotTransform { get; private set;}
+  protected Transform trgPivotTransform { get; private set;}
+  protected float linkStartOffset { get; private set;}
+  protected float linkEndOffset { get; private set;}
+  
+  /// <inheritdoc/>
+  protected override void CreatePartModel() {
+    //FIXME
+    Debug.LogWarning("** CreatePartModel");
+    var attachNode = CreateAttachNodeTransform();
+
+    // Joint model to the part.
+    var partJoint = CreateStrutJointModel(PartJointObjName);
+    MoveToParent(partJoint, attachNode);
+    srcPivotTransform = FindTransfromInChildren(partJoint, PivotAxileObjName);
+    srcPivotTransform.localRotation = Quaternion.LookRotation(Vector3.up);
+
+    // Joint model from part to the pistons.
+    var srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
+    var srcStrutPivot = FindTransfromInChildren(srcStrutJoint, PivotAxileObjName);
+    MoveToParent(srcStrutJoint, srcPivotTransform,
+                 newPosition: srcStrutPivot.position - srcStrutJoint.position, 
+                 newRotation: Quaternion.LookRotation(Vector3.back));
+
+    // Pistons.
+    linkStartOffset = Vector3.Distance(srcStrutPivot.position, srcStrutJoint.position);
+    CreatePistons();
+
+    // Joint model from pistons to the outer world's part (target joint pivot).
+//    var trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
+//    var trgStrutPivot = FindTransfromInChildren(trgStrutJoint, PivotAxileObjName);
+//    MoveToParent(trgStrutJoint, srcPivotTransform);
+//    trgPivotTransform = trgStrutJoint.transform;
+    
+    linkEndOffset = linkStartOffset + pistonLength + pistonMinShift * (pistonsCount - 1);
+    UpdatePistons();
+  }
+
+  void CreatePistons() {
+    DeletePistons();
+    pistons = new GameObject[pistonsCount];
+    var startDiameter = outerPistonDiameter;
+    var material = CreateMaterial(GetTexture(pistonTexturePath));
+    for (var i = 0; i < pistonsCount; ++i) {
+      var piston = CreateCylinder(startDiameter, pistonLength, material, parent: srcPivotTransform);
+      piston.name = "piston" + i;
+      startDiameter -= 2 * pistonWallThickness;
+      pistons[i] = piston;
+    }
+  }
+
+  void UpdatePistons() {
+    // First piston has fixed position since it's attached to the source joint.
+    pistons[0].transform.localPosition = new Vector3(0, 0, linkStartOffset + pistonLength / 2);
+    // Last piston has fixed position due to it's atatched to the target joint.
+    pistons[pistons.Length - 1].transform.localPosition =
+        new Vector3(0, 0, linkEndOffset - pistonLength / 2);
+    // Pistions between first and last monotonically fill the link's length.
+    if (pistons.Length > 2) {
+      var offset = linkStartOffset + pistonLength / 2;
+      var step = (linkEndOffset - linkStartOffset - pistonLength) / (pistons.Length - 1);
+      for (var i = 1; i < pistons.Length - 1; ++i) {
+        offset += step;
+        pistons[i].transform.localPosition = new Vector3(0, 0, offset);
+      }
+    }
+  }
+
+  void DeletePistons() {
+    if (pistons != null) {
+      foreach (var piston in pistons) {
+        piston.DestroyGameObject();
+      }
+      pistons = null;
+    }
+  }
+}
+
+}  // namespace

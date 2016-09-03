@@ -34,9 +34,10 @@ public interface ILinkStateEventListener {
 public interface ILinkNodesEventListener {
   /// <summary>Triggers when either source or target node has changed position.</summary>
   /// <remarks>Sent by the link source implementation when the nodes have significantly changed
-  /// their positions. It's up to the implementation how to define what is a "significant change"
-  /// but the rule of thumb is not sending this event due to normal physics calculation errors.
-  /// Though, listeners must be prepered to get this event several times per a frame.</remarks>
+  /// their positions. It's up to the sender's implementation to decide how to define what is a
+  /// "significant change" but the rule of thumb is not sending this event due to normal physics
+  /// calculation errors. Though, listeners must be prepared to get this event several times per a
+  /// frame.</remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkNodesMovedEvent(KASEvents.LinkEvent info);
 }

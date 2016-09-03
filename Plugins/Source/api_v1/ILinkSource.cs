@@ -26,7 +26,7 @@ public interface ILinkSource {
   string cfgAttachNodeName { get; }
   bool cfgAllowSameVesselTarget { get;}
   bool cfgAllowOtherVesselTarget { get;}
-  string cfgTubeRendererName { get; }
+  string cfgLinkRendererName { get; }
 //  float cfgMaxLength { get; }
 //  float cfgMaxAngle { get; }
   //float cfgLinkBreakForce { get; }
@@ -49,7 +49,7 @@ public interface ILinkSource {
 
   Transform nodeTransform { get; }
   GUILinkMode guiLinkMode { get; }
-  ILinkTubeRenderer linkRenderer { get; }
+  ILinkPipeRenderer linkRenderer { get; }
 
   /// <summary>Starts linking mode of this source.</summary>
   /// <remarks>Only one source at time can be linking on the part. If part has more sources or
@@ -64,13 +64,14 @@ public interface ILinkSource {
   void CancelLinking();
 
   /// <summary>Establishes a link between two parts.</summary>
-  /// <remarks>Depending on the implementation the link can be logical, physical, or both. Use the
-  /// right implementation when calling this method to get the right output.
+  /// <remarks>Source and target parts become tied with a joint but are not required to be joined
+  /// into a single vessel.
   /// <para>Conditions for the link are checked via <see cref="CheckCanLinkTo"/>, and all errors
   /// are reported to the GUI.</para>
   /// </remarks>
   /// <param name="target">Target to link with.</param>
   /// <returns><c>true</c> if parts were linked successfully.</returns>
+  /// FIXME: Clarify design: should it be docked mode only or it can support struts?
   bool LinkToTarget(ILinkTarget target);
 
   /// <summary>Breaks a link between source and the current target.</summary>

@@ -35,16 +35,14 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="KSPUtil">
       <HintPath>Q:\KSP_Data\Managed\KSPUtil.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Q:\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
@@ -81,11 +79,16 @@
     <Compile Include="KASModulePhysicChild.cs" />
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KAS_Shared.cs" />
+    <Compile Include="modules\AbstractJointPart.cs" />
+    <Compile Include="modules\KASModuleDynamicPart.cs" />
+    <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModuleFlexibleConnectionSource.cs" />
     <Compile Include="modules\KASModuleFlexibleConnectionTarget.cs" />
+    <Compile Include="modules\KASModuleStockJoint.cs" />
     <Compile Include="modules\KASModuleTelescopicTubeRenderer.cs" />
+    <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
     <Compile Include="modules\KASModuleTubeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
     <Compile Include="modules\KSPDev.cs" />

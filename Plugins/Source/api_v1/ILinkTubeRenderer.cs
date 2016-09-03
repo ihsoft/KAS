@@ -21,13 +21,24 @@ public enum LinkTextureRescaleMode {
   Center
 }
 
+/// <summary>Defines how link collisions should be checked.</summary>
 public enum LinkCollider {
+  /// <summary>No collisions check.</summary>
   None,
+  /// <summary>Check collisions basing on the mesh. It's performance expensive.</summary>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/MeshCollider.html"/>
   Mesh,
+  /// <summary>Simple collider which fits the primitive type. It's performance optimized.</summary>
+  Shape,
+  /// <summary>Simple collider which wraps all mesh vertexes. It's performance optimized.</summary>
+  Bounds,
+  /// <summary>Create a simple capsule collider which is performance optimized.</summary>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/CapsuleCollider.html"/>
+  //FIXME: drop
   Capsule
 }
 
-public interface ILinkTubeRenderer {
+public interface ILinkPipeRenderer {
   string cfgRendererName { get; }
   LinkJointType cfgSourceJointType { get; }
   float cfgSourceJointOffset { get; }
@@ -37,12 +48,15 @@ public interface ILinkTubeRenderer {
   string cfgPipeTexturePath { get; }
   string cfgShaderName { get; }
   LinkTextureRescaleMode cfgPipeRescaleMode { get; }
-  float cfgPipeScale { get; }
-  float cfgSphereScale { get; }
-
+  float cfgPipeDiameter { get; }
+  float cfgSphereDiameter { get; }
   Color cfgColor { get; set; }
+
   Color? colorOverride { get; set; }
   string shaderNameOverride { get; set; }
+  bool isPhysicalCollider { get; set; }
+  Transform startSocketTransfrom { get; }
+  Transform endSocketTransfrom { get; }
 
   void StartRenderer(Transform source, Transform target);
   void StopRenderer();
