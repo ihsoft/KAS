@@ -32,8 +32,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
   
   [KSPField]
   public float pistonMinShift = 0.02f;
-  [KSPField(isPersistant = true)]
-  public Vector3 parkedOrientation = Vector3.up;
   [KSPField]
   public string parkedOrientationMenu0 = "";
   [KSPField]
@@ -42,6 +40,17 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
   public string parkedOrientationMenu2 = "";
   #endregion
 
+  // These fileds must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
+  #region Part's config fields
+  [KSPField(isPersistant = true)]
+  public Vector3 parkedOrientation = Vector3.zero;
+  [KSPField(isPersistant = true)]
+  //FIXME not valid to have 0
+  public float parkedLength = 0; // If 0 then minimum link length will be used.
+  #endregion
 
   protected const string parkedOrientationMenuAction0 = "ParkedOrientationMenuAction0";
   protected const string parkedOrientationMenuAction1 = "ParkedOrientationMenuAction1";
@@ -54,47 +63,64 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
     Events[parkedOrientationMenuAction0].guiName = ExtractPositionName(parkedOrientationMenu0);
     Events[parkedOrientationMenuAction1].guiName = ExtractPositionName(parkedOrientationMenu1);
     Events[parkedOrientationMenuAction2].guiName = ExtractPositionName(parkedOrientationMenu2);
-    //FIXME: update on load and start
+    UpdateMenuItems();
+    if (parkedOrientation == Vector3.zero) {
+      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    //parkedOrientation = 
+    linkSource = part.FindModuleImplementing<ILinkSource>();
+    if (linkSource == null) {
+      Debug.LogErrorFormat("Wring setup of: {0}", part.name);
+    }
     UpdateMenuItems();
   }
   #endregion
 
-  bool isConnected = false;
-  void UpdateMenuItems() {
-    Events[parkedOrientationMenuAction0].active =
-        ExtractPositionName(parkedOrientationMenu0) != "" && !isConnected;
-    Events[parkedOrientationMenuAction0].guiActiveEditor =
-        Events[parkedOrientationMenuAction0].active;
-    Events[parkedOrientationMenuAction1].active =
-        ExtractPositionName(parkedOrientationMenu1) != "" && !isConnected;
-    Events[parkedOrientationMenuAction1].guiActiveEditor =
-        Events[parkedOrientationMenuAction1].active;
-    Events[parkedOrientationMenuAction2].active =
-        ExtractPositionName(parkedOrientationMenu2) != "" && !isConnected;
-    Events[parkedOrientationMenuAction2].guiActiveEditor =
-        Events[parkedOrientationMenuAction2].active;
+  protected ILinkSource linkSource { get; private set; }
+  protected bool isLinked {
+    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
 
+  // FIXME: check colliders.
   #region Action handlers
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction0() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    UpdatePistons();
+    UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction1() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
-    UpdatePistons();
+    UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction2() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
-    UpdatePistons();
+    UpdateLinkLengthAndOrientation();
+  }
+
+  [KSPEvent(guiName = "Extend to max", guiActiveEditor = true, active = true)]
+  public void ExtendAtMaxMenuAction() {
+    var trgJoint = FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
+    trgJoint.localPosition = new Vector3(0, 0, maxLinkLength - trgJointHandleLength);
+    UpdateLinkLengthAndOrientation();
+  }
+
+  [KSPEvent(guiName = "Retract to min", guiActiveEditor = true, active = true)]
+  public void RetractToMinMenuAction() {
+    var trgJoint = FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
+    trgJoint.localPosition = new Vector3(0, 0, minLinkLength - trgJointHandleLength);
+    UpdateLinkLengthAndOrientation();
   }
   #endregion
 
@@ -108,12 +134,35 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
 //  protected Transform srcStrutJoint { get; private set; }
 //  protected Transform trgStrutJoint { get; private set; }
 //  protected Transform trgStrutPivot { get; private set;}
+  protected float srcJointHandleLength { get; private set; }
+  protected float trgJointHandleLength { get; private set; }
+  /// <summary>Maximum possible link length with this part.</summary>
+  protected float maxLinkLength {
+    get {
+      return
+          srcJointHandleLength
+          + pistonsCount * (pistonLength - pistonMinShift)
+          + trgJointHandleLength;
+    }
+  }
+  /// <summary>Minimum possible link length with this part.</summary>
+  protected float minLinkLength {
+    get {
+      return
+          srcJointHandleLength
+          + pistonLength + (pistonsCount - 1) * pistonMinShift
+          + trgJointHandleLength;
+    }
+  }
   
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    //FIXME
-    Debug.LogWarning("** CreatePartModel");
     var attachNode = CreateAttachNodeTransform();
+
+    // Set init state.
+    if (Mathf.Approximately(parkedLength, float.Epsilon)) {
+      parkedLength = pistonLength + pistonMinShift * (pistonsCount - 1);
+    }
 
     // Part's joint model.
     var partJoint = CreateStrutJointModel(PartJointObjName);
@@ -123,18 +172,18 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
 
     // Source strut joint model.
     var srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
-    var srcStrutJointPivot = FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    var srcStrutPivot = FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     MoveToParent(srcStrutJoint, partJointPivot,
-                 newPosition: srcStrutJointPivot.position - srcStrutJoint.position, 
+                 newPosition: srcStrutPivot.position - srcStrutJoint.position, 
                  newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Target strut joint model.
     var trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
     var trgStrutPivot = FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
-    var minLength = pistonLength + pistonMinShift * (pistonsCount - 1);
+    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
     MoveToParent(trgStrutJoint, partJointPivot,
-                 newPosition: srcStrutJoint.localPosition + new Vector3(0, 0, minLength));
-    trgStrutPivot = trgStrutJoint.transform;
+                 newPosition: new Vector3(0, 0, srcJointHandleLength + parkedLength));
 
     // Pistons.
     pistons = new GameObject[pistonsCount];
@@ -155,52 +204,43 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
                  newPosition: new Vector3(0, 0, -pistonLength / 2),
                  newRotation: Quaternion.LookRotation(Vector3.forward));
 
-    //FIXME
-    var test = FindTransformByPath(
-        partModelTransform,
-        AttachNodeObjName + "/" + PartJointObjName + "/**/" + PivotAxileObjName);
-    Debug.LogWarningFormat("** FOUND expected for [{1}]: {0}",
-                           test == partJointPivot,
-                           AttachNodeObjName + "/" + PartJointObjName + "/**/" + PivotAxileObjName);
-
-    UpdatePistons();
+    UpdateLinkLengthAndOrientation();
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    //FIXME
-    Debug.LogWarning("** LoadPartModel");
+    // Main pivot.
     partJointPivot = FindTransformByPath(
         partModelTransform,
         AttachNodeObjName + "/" + PartJointObjName + "/**/" + PivotAxileObjName);
-    Debug.LogWarningFormat("** loaded joint pivot: {0}", partJointPivot);
+    // Source joint.
+    var srcStrutJoint = FindTransformInChildren(partJointPivot, SrcStrutJointObjName);
+    var srcStrutPivot = FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
+    // Target joint.
+    var trgStrutJoint = FindTransformInChildren(partJointPivot, TrgStrutJointObjName);
+    var trgStrutPivot = FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
+    // Pistons.
     pistons = new GameObject[pistonsCount];
     for (var i = 0; i < pistonsCount; ++i) {
       pistons[i] = FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
   }
 
-  void UpdatePistons() {
+  /// <summary>Adjusts link models to the changed target position.</summary>
+  /// FIXME: pass target as argument
+  protected virtual void UpdateLinkLengthAndOrientation() {
+    // FIXME: only use parked orientation when is not connected. 
     partJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
     if (pistons.Length > 2) {
       var offset = pistons[0].transform.localPosition.z;
       var step = Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position)
           / (pistonsCount - 1);
-      //FIXME
-      Debug.LogWarningFormat("** pistons Step: {0}", step);
       for (var i = 1; i < pistons.Length - 1; ++i) {
         offset -= step;  // Pistons are distributed to -Z direction of the pviot.
         pistons[i].transform.localPosition = new Vector3(0, 0, offset);
       }
-    }
-  }
-
-  void DeletePistons() {
-    if (pistons != null) {
-      foreach (var piston in pistons) {
-        piston.DestroyGameObject();
-      }
-      pistons = null;
     }
   }
 
@@ -218,6 +258,21 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
       return Vector3.forward;
     }
     return ConfigNode.ParseVector3(cfgDirectionString.Substring(0, lastCommaPos));
+  }
+
+  void UpdateMenuItems() {
+    Events[parkedOrientationMenuAction0].active =
+        ExtractPositionName(parkedOrientationMenu0) != "" && !isLinked;
+    Events[parkedOrientationMenuAction0].guiActiveEditor =
+        Events[parkedOrientationMenuAction0].active;
+    Events[parkedOrientationMenuAction1].active =
+        ExtractPositionName(parkedOrientationMenu1) != "" && !isLinked;
+    Events[parkedOrientationMenuAction1].guiActiveEditor =
+        Events[parkedOrientationMenuAction1].active;
+    Events[parkedOrientationMenuAction2].active =
+        ExtractPositionName(parkedOrientationMenu2) != "" && !isLinked;
+    Events[parkedOrientationMenuAction2].guiActiveEditor =
+        Events[parkedOrientationMenuAction2].active;
   }
 }
 

@@ -179,6 +179,7 @@ public abstract class KASModuleDynamicPart : PartModule, IDynamicPart {
   #endregion
 
   #region Utility methods for the descendants
+  //FIXME docs  
   protected GameObject CreateCylinder(float diameter, float length, Material material,
                                       Transform parent = null,
                                       LinkCollider colliderType = LinkCollider.None) {
@@ -188,7 +189,8 @@ public abstract class KASModuleDynamicPart : PartModule, IDynamicPart {
         parent: parent);
   }
 
-  // Width is measured along X axis. Height is measured along Y axis. Length is aligned to Z axis. 
+  // Width is measured along X axis. Height is measured along Y axis. Length is aligned to Z axis.
+  //FIXME docs  
   protected GameObject CreateBox(float width, float height, float length, Material material,
                                  Transform parent = null,
                                  LinkCollider colliderType = LinkCollider.None) {
