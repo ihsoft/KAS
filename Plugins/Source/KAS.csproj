@@ -79,6 +79,10 @@
     <Compile Include="KASModulePhysicChild.cs" />
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KAS_Shared.cs" />
+    <Compile Include="KSPDev\Extensions\Dictionaries.cs" />
+    <Compile Include="KSPDev\GUIUtils\PartContextMenu.cs" />
+    <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
+    <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
     <Compile Include="modules\KASModuleDynamicPart.cs" />
     <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
@@ -91,15 +95,20 @@
     <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
     <Compile Include="modules\KASModuleTubeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
-    <Compile Include="modules\KSPDev.cs" />
-    <Compile Include="modules\KSPDevImpl.cs" />
-    <Compile Include="modules\UISoundPlayer.cs" />
+    <Compile Include="KSPDev\ModelUtils\Colliders.cs" />
+    <Compile Include="KSPDev\ModelUtils\Hierarchy.cs" />
+    <Compile Include="KSPDev\ModelUtils\Meshes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="api_impl" />
+    <Folder Include="KSPDev\GUIUtils" />
+    <Folder Include="KSPDev\Extensions" />
+    <Folder Include="KSPDev\ProcessingUtils" />
     <Folder Include="modules" />
     <Folder Include="api_v1" />
+    <Folder Include="KSPDev\ModelUtils" />
+    <Folder Include="KSPDev" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

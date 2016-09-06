@@ -1,32 +1,13 @@
 ﻿// Kerbal Development tools.
 // Author: igor.zavoychinskiy@gmail.com
 // This software is distributed under Public domain license.
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using KSPDev.Extensions;
 
-namespace KSPDev.Extensions {
+namespace KSPDev.ProcessingUtils {
 
-public static class Dictionaries {
-  public static V SetDefault<K, V>(this Dictionary<K, V> dict, K key) where V : new() {
-    V value;
-    if (dict.ContainsKey(key)) {
-      value = dict[key];
-    } else {
-      value = new V();
-      dict.Add(key, value);
-    }
-    return value;
-  }
-}
-
-}  // namespace
-
-namespace KSPDev.Processing {
-
+//FIXME docs
 public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   public T currentState {
     get { return _currentState; }
@@ -163,42 +144,6 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
       @event.Invoke(trigerringEvent);
     }
   }
-}
-
-}  // namespace
-
-namespace KSPDev.GUIUtils {
-
-public static class PartContextMenu {
-  public static void InvalidateContextMenu(Part part) {
-    var windows = GameObject.FindObjectsOfType(typeof(UIPartActionWindow))
-        .Cast<UIPartActionWindow>()
-        .Where(w => w.part == part);
-    foreach (var window in windows) {
-      window.displayDirty = true;
-    }
-  }
-}
-
-}  // namespace
-
-namespace KSPDev.VesselUtils {
-
-public interface IParts {
-  Part GetPartById(string vesselID, uint partID);
-  Part GetPartById(Vessel searchVessel, uint partID);
-}
-
-}  // namespace
-
-namespace KSPDevAPI {
-
-public static class Checker {
-  public static bool isLoaded { get; internal set; }
-}
-
-public static class VesselUtils {
-  public static KSPDev.VesselUtils.IParts Parts { get; internal set; }
 }
 
 }  // namespace

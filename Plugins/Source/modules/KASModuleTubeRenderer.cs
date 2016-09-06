@@ -9,7 +9,7 @@ using KASAPIv1;
 
 namespace KAS {
 
-public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
+public class KASModuleTubeRenderer : PartModule, ILinkRenderer {
   // FIXME: docstring and class comments
   protected struct JointNode {
     public GameObject sphere;
@@ -275,6 +275,7 @@ public class KASModuleTubeRenderer : PartModule, ILinkPipeRenderer {
     RescaleTextureToLength(linkPipe, renderer: linkPipeMR);
   }
 
+  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     UpdateLink();

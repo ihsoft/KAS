@@ -177,8 +177,9 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
           //FIXME: make the code better
 //          idleLinkTargetTransform.position = target.nodeTransform.position;
 //          idleLinkTargetTransform.LookAt(nodeTransform);
-          linkRenderer.endSocketTransfrom.position = target.nodeTransform.position;
-          linkRenderer.endSocketTransfrom.LookAt(nodeTransform);
+
+//          linkRenderer.endSocketTransfrom.position = target.nodeTransform.position;
+//          linkRenderer.endSocketTransfrom.LookAt(nodeTransform);
           
           //FIXME: check it in right way so what all the modifiers are honored
           if (Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -332,7 +333,9 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
 //    idleLinkTargetTransform.localPosition =
 //        idlePipeDirection.normalized * linkJoint.cfgMinLinkLength;
 //    idleLinkTargetTransform.localRotation.SetLookRotation(-idlePipeDirection);
-    linkRenderer.startSocketTransfrom.localRotation = Quaternion.LookRotation(idlePipeDirection);
+
+    //FIXME
+    //linkRenderer.startSocketTransfrom.localRotation = Quaternion.LookRotation(idlePipeDirection);
 
     // In editor OnUpdate() events are not fired. Kick the renderer update via interface. 
     if (HighLogic.LoadedSceneIsEditor) {

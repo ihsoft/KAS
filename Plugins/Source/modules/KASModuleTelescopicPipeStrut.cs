@@ -9,11 +9,13 @@ using TestScripts;
 using UnityEngine;
 using KASAPIv1;
 using HighlightingSystem;
+using KSPDev.ModelUtils;
 
 namespace KAS {
 
 // FIXME: docs
-public class KASModuleTelescopicPipeStrut : AbstractJointPart {
+public class KASModuleTelescopicPipeStrut
+    : AbstractJointPart, ILinkRenderer, ILinkStateEventListener {
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
@@ -81,6 +83,44 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
   }
   #endregion
 
+  #region ILinkRenderer implemetation
+  public string cfgRendererName { get { return rendererName; } }
+  [KSPField]
+  public string rendererName = "";
+
+  public virtual Color? colorOverride { get; set; }
+  public virtual string shaderNameOverride { get; set; }
+  public virtual bool isPhysicalCollider { get; set; }
+
+  /// <inheritdoc/>
+  public virtual void StartRenderer(Transform source, Transform target) {
+    // Source pivot is fixed for the part. Do a safe check to verify if requestor asked for the
+    // right coordinates.
+    if (Mathf.Approximately(Vector3.SqrMagnitude(source.position - partJointPivot.position),
+                            Mathf.Epsilon)) {
+      Debug.LogErrorFormat("Render source doesn't match pivot point: pivot={0}, source={1}",
+                           partJointPivot.position, source.position);
+    }
+    //FIXME
+    Debug.LogWarning("Draw to the target");
+  }
+
+  /// <inheritdoc/>
+  public virtual void StopRenderer() {
+    
+  }
+
+  /// <inheritdoc/>
+  public virtual void UpdateLink() {
+    
+  }
+
+  /// <inheritdoc/>
+  public virtual string CheckColliderHits(Transform source, Transform target) {
+    return "TEST ERROR";
+  }
+  #endregion
+
   protected ILinkSource linkSource { get; private set; }
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
@@ -111,14 +151,14 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
 
   [KSPEvent(guiName = "Extend to max", guiActiveEditor = true, active = true)]
   public void ExtendAtMaxMenuAction() {
-    var trgJoint = FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
+    var trgJoint = Hierarchy.FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
     trgJoint.localPosition = new Vector3(0, 0, maxLinkLength - trgJointHandleLength);
     UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Retract to min", guiActiveEditor = true, active = true)]
   public void RetractToMinMenuAction() {
-    var trgJoint = FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
+    var trgJoint = Hierarchy.FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
     trgJoint.localPosition = new Vector3(0, 0, minLinkLength - trgJointHandleLength);
     UpdateLinkLengthAndOrientation();
   }
@@ -166,24 +206,24 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
 
     // Part's joint model.
     var partJoint = CreateStrutJointModel(PartJointObjName);
-    MoveToParent(partJoint, attachNode);
-    partJointPivot = FindTransformInChildren(partJoint, PivotAxileObjName);
+    Hierarchy.MoveToParent(partJoint, attachNode);
+    partJointPivot = Hierarchy.FindTransformInChildren(partJoint, PivotAxileObjName);
     partJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
 
     // Source strut joint model.
     var srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
-    var srcStrutPivot = FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    MoveToParent(srcStrutJoint, partJointPivot,
-                 newPosition: srcStrutPivot.position - srcStrutJoint.position, 
-                 newRotation: Quaternion.LookRotation(Vector3.back));
+    Hierarchy.MoveToParent(srcStrutJoint, partJointPivot,
+                            newPosition: srcStrutPivot.position - srcStrutJoint.position,
+                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Target strut joint model.
     var trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
-    var trgStrutPivot = FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    var trgStrutPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
-    MoveToParent(trgStrutJoint, partJointPivot,
-                 newPosition: new Vector3(0, 0, srcJointHandleLength + parkedLength));
+    Hierarchy.MoveToParent(trgStrutJoint, partJointPivot,
+                            newPosition: new Vector3(0, 0, srcJointHandleLength + parkedLength));
 
     // Pistons.
     pistons = new GameObject[pistonsCount];
@@ -200,9 +240,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
     // First piston rigidly attached at the bottom of the source joint model.
     pistons[0].transform.localPosition = new Vector3(0, 0, -pistonLength / 2);
     // Last piston rigidly attached at the bottom of the target joint model.
-    MoveToParent(pistons.Last().transform, trgStrutJoint,
-                 newPosition: new Vector3(0, 0, -pistonLength / 2),
-                 newRotation: Quaternion.LookRotation(Vector3.forward));
+    Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
+                            newPosition: new Vector3(0, 0, -pistonLength / 2),
+                            newRotation: Quaternion.LookRotation(Vector3.forward));
 
     UpdateLinkLengthAndOrientation();
   }
@@ -210,21 +250,21 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
   /// <inheritdoc/>
   protected override void LoadPartModel() {
     // Main pivot.
-    partJointPivot = FindTransformByPath(
+    partJointPivot = Hierarchy.FindTransformByPath(
         partModelTransform,
         AttachNodeObjName + "/" + PartJointObjName + "/**/" + PivotAxileObjName);
     // Source joint.
-    var srcStrutJoint = FindTransformInChildren(partJointPivot, SrcStrutJointObjName);
-    var srcStrutPivot = FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    var srcStrutJoint = Hierarchy.FindTransformInChildren(partJointPivot, SrcStrutJointObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     // Target joint.
-    var trgStrutJoint = FindTransformInChildren(partJointPivot, TrgStrutJointObjName);
-    var trgStrutPivot = FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    var trgStrutJoint = Hierarchy.FindTransformInChildren(partJointPivot, TrgStrutJointObjName);
+    var trgStrutPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
     // Pistons.
     pistons = new GameObject[pistonsCount];
     for (var i = 0; i < pistonsCount; ++i) {
-      pistons[i] = FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
+      pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
   }
 
@@ -244,6 +284,19 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
     }
   }
 
+  #region ILinkStateEventListener implementation
+  /// <inheritdoc/>
+  public void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
+    Debug.LogWarningFormat("** LINKED!");
+  }
+
+  /// <inheritdoc/>
+  public void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
+    Debug.LogWarningFormat("** UNLINKED!");
+  }
+  #endregion
+
+  #region Privat utility methods
   string ExtractPositionName(string cfgDirectionString) {
     var lastCommaPos = cfgDirectionString.LastIndexOf(',');
     return lastCommaPos != -1
@@ -274,6 +327,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart {
     Events[parkedOrientationMenuAction2].guiActiveEditor =
         Events[parkedOrientationMenuAction2].active;
   }
+  #endregion
 }
 
 }  // namespace

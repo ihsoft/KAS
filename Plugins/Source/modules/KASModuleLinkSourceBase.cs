@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using UnityEngine;
-using KSPDev.Processing;
+using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
 namespace KAS {
@@ -87,7 +87,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   /// <inheritdoc/>
   public GUILinkMode guiLinkMode { get; private set; }
   /// <inheritdoc/>
-  public ILinkPipeRenderer linkRenderer { get; private set; }
+  public ILinkRenderer linkRenderer { get; private set; }
   #endregion
 
   // These fileds must not be accessed outside of the module. They are declared public only
@@ -192,8 +192,8 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
     //FIXME: no need for name, make it singletone
     //FIXME: check places that expect rendered to be bull - it cannto be null anymore
-    linkRenderer = part.FindModulesImplementing<ILinkPipeRenderer>()
-        .First(x => x.cfgRendererName == cfgLinkRendererName);
+    linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
+        .First(x => x.cfgRendererName == linkRendererName);
     if (persistedLinkState == LinkState.Linked && attachNode.attachedPart != null) {
       var target = FindLinkedTarget();
       if (target != null) {
@@ -349,8 +349,12 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
                              part.name, linkTarget.part.name);
       UnlinkParts(isBrokenExternally: true);
     }
+    if (linkJoint != null) {
+      linkJoint.CleanupJoint();
+    }
     //FIXME: fire forced unlink event
     //FIXME: unlink before diconnecting
+    //FIXME: fire KAS joint event
   }
   #endregion
 
@@ -497,7 +501,10 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
     KASEvents.OnLinkCreated.Fire(linkInfo);
-    SendMessage(KASEvents.LinkCreatedEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+    //FIXME
+    //SendMessage(KASEvents.LinkCreatedEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+    part.FindModulesImplementing<ILinkStateEventListener>()
+        .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
@@ -511,7 +518,10 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkTarget = null;
     linkState = LinkState.Available;
     KASEvents.OnLinkBroken.Fire(linkInfo);
-    SendMessage(KASEvents.LinkBrokenEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+    //FIXME
+    //SendMessage(KASEvents.LinkBrokenEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+    part.FindModulesImplementing<ILinkStateEventListener>()
+        .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
   }
   #endregion
 
@@ -601,7 +611,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
 
   /// <summary>
-  /// Detects moment when KSP core initializes the part' joint, and fires KAS event. 
+  /// Detects moment when KSP core initializes the part's joint, and fires KAS event. 
   /// </summary>
   /// <returns><c>null</c> until the condition is met.</returns>
   IEnumerator WaitAndFireOnSetupJoint() {

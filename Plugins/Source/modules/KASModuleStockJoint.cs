@@ -11,6 +11,7 @@ using KASAPIv1;
 
 namespace KAS {
 
+// FIXME: start handling jointBreakForce
 public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
   public float cfgMinLinkLength { get { return minLinkLength; } }
 
@@ -30,9 +31,9 @@ public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
   public float linkAngleLimit = 0f;
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   [KSPField]
-  public float jointBreakForce = Mathf.Infinity;
+  public float jointBreakForce = -1f;  // Negative value means using game's setting.
   [KSPField]
-  public float jointDamperRatio = Mathf.Infinity;
+  public float jointDamperRatio = -1f;  // Negative value means using game's setting.
   #endregion
 
   //FIXME: move to super class

@@ -6,7 +6,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
-using KSPDev.Processing;
+using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
 namespace KAS {

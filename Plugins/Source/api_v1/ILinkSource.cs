@@ -49,7 +49,7 @@ public interface ILinkSource {
 
   Transform nodeTransform { get; }
   GUILinkMode guiLinkMode { get; }
-  ILinkPipeRenderer linkRenderer { get; }
+  ILinkRenderer linkRenderer { get; }
 
   /// <summary>Starts linking mode of this source.</summary>
   /// <remarks>Only one source at time can be linking on the part. If part has more sources or

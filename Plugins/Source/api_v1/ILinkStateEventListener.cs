@@ -17,6 +17,7 @@ namespace KASAPIv1 {
 /// </para>
 /// </remarks>
 //TODO(ihsoft): Add code samples.
+//FIXME: change doc to not mentioning unity message 
 public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
   /// <remarks>Sent by the link source implementation when a new link has been established.
