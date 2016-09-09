@@ -127,13 +127,6 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
     linkState = linkState;  // Trigger updates.
   }
 
-  /// <summary>Initalizes moulde state on part start.</summary>
-  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
-  public override void OnLoad(ConfigNode node) {
-//    //FIXME
-//    Debug.LogWarningFormat("*** TARGET: ON LOAD");
-  }
-
   /// <summary>Initializes the object. An alternative to constructor.</summary>
   /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnAwake() {
@@ -207,6 +200,7 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   }
 
   public virtual void OnPartUnpack() {
+    //FIXME: maybe use initialize
     //FIXME: may be turn on/off unbreakable
     if (linkState == LinkState.Linked && linkSource == null) {
       //Debug.LogWarningFormat("TRG: OnPartUnpack: {0} (id={1})", part.name, part.flightID);
@@ -259,14 +253,13 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// <param name="oldSource">Link source before the change.</param>
   void TriggerSourceChangeEvents(ILinkSource oldSource) {
     if (oldSource != _linkSource) {
+      var linkInfo = new KASEvents.LinkEvent(_linkSource ?? oldSource, this);
       if (_linkSource != null) {
-        var linkInfo = new KASEvents.LinkEvent(_linkSource, this);
-        SendMessage(
-            KASEvents.LinkCreatedEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+        part.FindModulesImplementing<ILinkStateEventListener>()
+            .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
       } else {
-        var linkInfo = new KASEvents.LinkEvent(oldSource, this);
-        SendMessage(
-            KASEvents.LinkBrokenEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
+        part.FindModulesImplementing<ILinkStateEventListener>()
+            .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
       }
     }
   }

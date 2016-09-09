@@ -88,7 +88,7 @@ public abstract class AbstractJointPart : AbstractDynamicPartModule {
     clutchHolder.transform.localPosition = new Vector3(
         ClutchHolderThikness / 2 + (ClutchThikness - ClutchHolderThikness),
         0,
-        ClutchHolderLength / 2);
+        (ClutchHolderLength + JointBaseHeigth) / 2);
 
     // The clutch.
     var clutch = Meshes.CreateCylinder(
@@ -98,10 +98,8 @@ public abstract class AbstractJointPart : AbstractDynamicPartModule {
     clutch.transform.localPosition =
         new Vector3(-(ClutchThikness - ClutchHolderThikness) / 2, 0, ClutchHolderLength / 2);
 
-    // Axile inside the clutch to join with the opposite part clutch.
-    //FIXME
+    // Axile inside the clutch to join with the opposite joint clutch.
     var pivotTransform = new GameObject(PivotAxileObjName).transform;
-    //var pivotTransform = new GameObject(pivotName).transform;
     pivotTransform.parent = jointTransform.transform;
     if (createAxile) {
       var clutchAxile = Meshes.CreateCylinder(
@@ -113,15 +111,6 @@ public abstract class AbstractJointPart : AbstractDynamicPartModule {
       pivotTransform.localPosition =
           pivotTransform.InverseTransformPoint(clutchAxile.transform.position);
     } else {
-//      const float stubAxileLength = ClutchThikness + 2 * ClutchAxleExtent;
-//      var clutchAxile = CreateCylinder(
-//          ClutchAxileDiameter, stubAxileLength, material, parent: clutchHolder.transform);
-//      clutchAxile.name = "axile";
-//      clutchAxile.transform.localRotation = Quaternion.LookRotation(Vector3.left);
-//      clutchAxile.transform.localPosition =
-//          new Vector3(-clutchHolder.transform.localPosition.x, 0, stubAxileLength / 2);
-//      pivotTransform.localPosition =
-//          pivotTransform.InverseTransformPoint(clutchAxile.transform.position);
       pivotTransform.localPosition = pivotTransform.InverseTransformPoint(
           clutchHolder.transform.TransformPoint(
               new Vector3(-clutchHolder.transform.localPosition.x, 0, ClutchHolderLength / 2)));

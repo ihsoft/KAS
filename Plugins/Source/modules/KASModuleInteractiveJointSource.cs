@@ -91,11 +91,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     //FIXME: add color highlight
     cannotLinkStatusMessage =
         new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
-
-    // FIXME: check for the link state
-    if (linkState == LinkState.Available) {
-      //SetupUnlinkedState();
-    }
   }
 
 
@@ -180,10 +175,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
         linkRenderer.colorOverride = BadLinkColor;
         linkRenderer.StopRenderer();
       }
-      //FIXME
-      Debug.LogWarningFormat("Focused: {0}, isTarget {1}, isGood: {2}",
-                             lastHoveredPart != null ? lastHoveredPart.name : "NOTHING",
-                             targetCandidate != null, targetCandidateIsGood);
     }
 
     // Handle link action (mouse click).
@@ -214,15 +205,17 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
   IEnumerator WaitAndLink(ILinkTarget target) {
     Debug.LogWarning("Link requested! Waiting...");
     yield return new WaitForEndOfFrame();
+    //FIXME
+    Debug.LogWarningFormat("** Linking to target with state: {0}", target.linkState);
     LinkToTarget(target);
   }
 
   /// <inheritdoc/>
   protected override void StopLinkGUIMode() {
+    linkRenderer.StopRenderer();
     linkRenderer.shaderNameOverride = null;
     linkRenderer.colorOverride = null;
     linkRenderer.isPhysicalCollider = true;
-    linkRenderer.StopRenderer();
     ScreenMessages.RemoveMessage(linkingMessage);
     ScreenMessages.RemoveMessage(canLinkStatusMessage);
     ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
@@ -238,6 +231,16 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
     //FIXME: figure out if still needed
     PartContextMenu.InvalidateContextMenu(part);
+
+    // Adjust renderer state.
+    if (linkState == LinkState.Linked && !linkRenderer.isStarted) {
+      //FIXME
+      Debug.LogWarning("** START linked mode");
+      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+    }
+    if (linkState != LinkState.Linked && linkRenderer.isStarted) {
+      linkRenderer.StopRenderer();
+    }
   }
 
   /// <inheritdoc/>

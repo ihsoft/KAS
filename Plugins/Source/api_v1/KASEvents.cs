@@ -28,12 +28,12 @@ public static class KASEvents {
   }
 
   //FIXME give docs
-  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
-  public const string LinkCreatedEventName = "OnKASLinkCreatedEvent";
-  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
-  public const string LinkBrokenEventName = "OnKASLinkBrokenEvent";
-  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
-  public const string LinkNodesMovedEventName = "OnKASLinkNodesMovedEvent";
+//  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+//  public const string LinkCreatedEventName = "OnKASLinkCreatedEvent";
+//  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+//  public const string LinkBrokenEventName = "OnKASLinkBrokenEvent";
+//  /// <remarks>Keep in sync with <see cref="ILinkStateEventListener"/>.</remarks>
+//  public const string LinkNodesMovedEventName = "OnKASLinkNodesMovedEvent";
 
   /// <summary>Triggers when a source has initiated linking mode.</summary>
   public static EventData<ILinkSource> OnStartLinking =

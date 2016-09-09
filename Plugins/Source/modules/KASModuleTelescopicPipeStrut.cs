@@ -150,7 +150,7 @@ public class KASModuleTelescopicPipeStrut
     }
   }
   Transform _targetTransform;
-  //FIXME: hide or make part of interface
+  /// <inheritdoc/>
   public bool isStarted {
     get { return targetTransform != null; }
   }
@@ -161,8 +161,11 @@ public class KASModuleTelescopicPipeStrut
     // right coordinates.
     if (!Mathf.Approximately(Vector3.SqrMagnitude(source.position - sourceTransform.position),
                              Mathf.Epsilon)) {
-      Debug.LogErrorFormat("Part's source doesn't match renderer source: pivot={0}, source={1}",
-                           sourceTransform.position, source.position);
+      Debug.LogErrorFormat(
+          "Part's source doesn't match renderer source: pivot={0}, source={1}, err={2}",
+          sourceTransform.position,
+          source.position,
+          Vector3.SqrMagnitude(source.position - sourceTransform.position));
     }
     targetTransform = target;
     //FIXME
@@ -284,7 +287,7 @@ public class KASModuleTelescopicPipeStrut
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
-                           newPosition: srcStrutPivot.position - srcStrutJoint.position,
+                           newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Target strut joint model.
@@ -297,7 +300,7 @@ public class KASModuleTelescopicPipeStrut
     var trgPartJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
     var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
-                           newPosition: trgPartJointPivot.position - trgPartJoint.position,
+                           newPosition: new Vector3(0, 0, trgJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
       
     // Pistons.
@@ -322,8 +325,6 @@ public class KASModuleTelescopicPipeStrut
 
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    //FIXME
-    Debug.LogWarningFormat("** parked length on create: {0}", parkedLength);
     if (Mathf.Approximately(parkedLength, 0)) {
       parkedLength = minLinkLength;
     }
@@ -357,15 +358,14 @@ public class KASModuleTelescopicPipeStrut
   }
 
   /// <summary>Adjusts link models to the changed target position.</summary>
-  /// FIXME: pass target as argument
   protected virtual void UpdateLinkLengthAndOrientation() {
     if (!isStarted) {
+      // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
       srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
       trgStrutJoint.localPosition = new Vector3(0, 0, parkedLength - trgJointHandleLength);
       trgStrutJoint.localRotation = Quaternion.identity;
       trgStrutJointPivot.localRotation = Quaternion.identity;
-      //FIXME: ajust trgStrutJoint with the parked length
     } else {
       var linkVector = targetTransform.position - sourceTransform.position;
       // Here is the link model hierarchy:

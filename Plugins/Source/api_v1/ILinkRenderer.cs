@@ -64,8 +64,8 @@ public interface ILinkRenderer {
   /// </seealso>
   bool isPhysicalCollider { get; set; }
 
-//  /// <summary>Tells if renderer is started and active.</summary>
-//  bool isStarted { get; }
+  /// <summary>Tells if renderer is started and active.</summary>
+  bool isStarted { get; }
 //  Transform sourceTransform { get; set; }
 //  Transform targetTransform { get; set; }
 

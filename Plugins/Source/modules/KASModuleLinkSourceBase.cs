@@ -274,9 +274,9 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     if (!CheckCanLinkTo(target)) {
       return false;
     }
+    StopLinkGUIMode();  // FIXME: palce first or add a comment why not
     ConnectParts(target);
     LinkParts(target);
-    StopLinkGUIMode();  // FIXME: palce first or add a comment why not
     return true;
   }
 
@@ -435,9 +435,12 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
 
   /// <summary>Stops any pending GUI mode that displays linking process.</summary>
+  /// <remarks>Does nothing if no GUI mode started.</remarks>
   protected virtual void StopLinkGUIMode() {
-    KASEvents.OnStopLinking.Fire(this);
-    guiLinkMode = GUILinkMode.None;
+    if (guiLinkMode != GUILinkMode.None) {
+      KASEvents.OnStopLinking.Fire(this);
+      guiLinkMode = GUILinkMode.None;
+    }
   }
 
   /// <summary>Joins this part and the target into one vessel.</summary>
