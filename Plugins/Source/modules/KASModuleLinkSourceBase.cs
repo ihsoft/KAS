@@ -274,9 +274,11 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     if (!CheckCanLinkTo(target)) {
       return false;
     }
-    StopLinkGUIMode();  // FIXME: palce first or add a comment why not
     ConnectParts(target);
     LinkParts(target);
+    // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
+    // must not be stopped before the link is created.
+    StopLinkGUIMode();
     return true;
   }
 
@@ -435,7 +437,10 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   }
 
   /// <summary>Stops any pending GUI mode that displays linking process.</summary>
-  /// <remarks>Does nothing if no GUI mode started.</remarks>
+  /// <remarks>Does nothing if no GUI mode started.
+  /// <para>If link is created then this method is called <i>after</i> <see cref="ConnectParts"/>
+  /// and <see cref="LinkParts"/> callbacks get fired.</para>
+  /// </remarks>
   protected virtual void StopLinkGUIMode() {
     if (guiLinkMode != GUILinkMode.None) {
       KASEvents.OnStopLinking.Fire(this);

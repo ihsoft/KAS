@@ -222,6 +222,11 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     InputLockManager.RemoveControlLock(TotalControlLock);
     lastHoveredPart = null;
     base.StopLinkGUIMode();
+
+    // Start renderer if link has been established.
+    if (linkState == LinkState.Linked) {
+      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+    }
   }
 
   /// <inheritdoc/>
