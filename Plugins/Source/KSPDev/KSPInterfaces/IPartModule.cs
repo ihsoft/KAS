@@ -1,0 +1,124 @@
+﻿// Kerbal Development tools.
+// Author: igor.zavoychinskiy@gmail.com
+// This software is distributed under Public domain license.
+
+using System;
+
+namespace KSPDev.KSPInterfaces {
+
+/// <summary>Interface for KSP part module.</summary>
+/// <remarks>Naturally, KSP doesn't declare any part module interface (unfortunately), and all
+/// modder's modules just inherit from <see cref="PartModule"/>. This interface is introduced for
+/// the better OOP approach. It reveals methods that a regular module can override, and provides
+/// documentation for each of them.
+/// <para>Some methods of the module interface look familiar to the ones from Unity but they are not
+/// behaving in the same way in every scene. Moreover, not all methods get called in every scene.
+/// </para>
+/// <para>In the <see cref="GameScenes.LOADING">loading scene</see> the callbacks are executed in
+/// the following order:</para>
+/// <list>
+/// <item><see cref="OnAwake"/>. At this moment all fields annotated with
+/// <see cref="KSPField">[KSPField]</see> attribute are already loaded, and are safe to use.
+/// </item>
+/// <item><see cref="OnLoad"/>. The provided config node is the original configuration from the
+/// part's definition. Since all the annotated fields are already loaded this method is only useful
+/// to handle extra settings that are not handled via normal KSP means. This callback is called only
+/// once per module type: game logic may create multiple instances of the module but only the first
+/// instance will get this callback called.</item>
+/// <item><see cref="OnStart"/> is <b>not called</b> since the parts being created are prefabs and
+/// icon models. They are not real parts that behave on a vessel.
+/// </item>
+/// </list>
+/// <para>In the <i>editor</i> the callbacks are executed in the following order:</para>
+/// <list>
+/// <item><see cref="OnAwake"/> is <b>not called</b>. Modules are get copied from the prefab
+/// created during the loading scene.</item>
+/// <item><see cref="OnLoad"/>. The provided config node is either the
+/// original configuration from the part's definition (when a new part is created) <b>OR</b> a
+/// config from the vessel (when a vessel's proto was loaded). The code must expect values annotated
+/// by <see cref="KSPField">[KSPField]</see> to change.</item>
+/// <item><see cref="OnStart"/>. The code must check if the current
+/// scene is editor, and do the behavior changes as needed.</item>
+/// </list>
+/// <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
+/// <list>
+/// <item><see cref="OnAwake"/>. At this moment all fields annotated
+/// with <see cref="KSPField">[KSPField]</see> are already loaded with the default values from the
+/// part's config.</item>
+/// <item><see cref="OnLoad"/>. The provided config node is the config
+/// from the save file.</item>
+/// <item><see cref="OnStart"/>. The code must check if the current
+/// scene is flight, and do the behavior changes as needed.</item>
+/// <item><see cref="OnInitialize"/>. Indicates that part should start handling physics if any.
+/// </item>
+/// </list>
+/// </remarks>
+// FIXME: verify each scenario for the correctness.
+public interface IPartModule {
+  /// <summary>Initializes a new instance of the module on the part.</summary>
+  /// <remarks>Called on a newly created part. Note, that this method is a bad place to interact
+  /// with the other modules on the part since module initialization order is not defined.
+  /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
+  /// </remarks>
+  void OnAwake();
+
+  /// <summary>Notifies that the part's config is loaded.</summary>
+  /// <remarks>All the fields annotated by <see cref="KSPField">[KSPField]</see> are already loaded
+  /// at this moment. Use the node from this method to handle special values that are not supported
+  /// by KSP.
+  /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
+  /// </remarks>
+  /// <param name="node">Either the part's config node or a configuration from a save file.</param>
+  void OnLoad(ConfigNode node);
+
+  /// <summary>Initializes module's state after all other modules have been created.</summary>
+  /// <remarks>Note, that this is not the right place to start physics on the part. This callback
+  /// is good to establish connections between the other modules on the part.</remarks>
+  /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
+  /// <param name="state">State that specifies the situation of the vessel.</param>
+  void OnStart(PartModule.StartState state);
+
+  //FIXME check and doc
+  // Called on vessel go off rails. Basically, every time the vessel becomes physics.
+  void OnInitialize();
+
+  //FIXME doc
+  void OnActive();
+
+  //FIXME doc
+  void OnInactive();
+
+  /// <summary>Notifies about a frame update.</summary>
+  /// <remarks>Be very careful about placing functionality into this callback even if it's bare
+  /// "if/else" statement. This callback is called on <b>every</b> frame update. It means that even
+  /// a simple piece of code will be called for every part that implements the module. Too many
+  /// parts with such modules may significantly drop FPS.</remarks>
+  void OnUpdate();
+
+  /// <summary>Notifies about a physics frame update.</summary>
+  /// <remarks>Physics in Unity is updated every <c>20ms</c> which gives 50 calls per a second. Be
+  /// <i>extremly</i> careful about placing functionality into this callback. All fixed updates are
+  /// required to complete, so if 50 updates take longer than one second then the game's speed will
+  /// degrade.
+  /// <para>In general, don't even override this callback unless it's absolutely required.</para>
+  /// </remarks>
+  void OnFixedUpdate();
+
+  // FIXME: check if saveing to the file is the only scenario.
+  void OnSave(ConfigNode node);
+
+  //FIXME: figure out the text markup. 
+  string GetInfo();
+  
+  // Move to IsStageable. maybe
+//  bool IsStageable();
+//  bool StagingEnabled();
+//  void UpdateStagingToggle();
+//  void SetStaging(bool newValue);
+//  bool StagingToggleEnabledEditor();
+//  bool StagingToggleEnabledFlight();
+//  string GetStagingEnableText();
+//  string GetStagingDisableText();
+}
+
+}  // namespace

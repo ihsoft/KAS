@@ -64,18 +64,40 @@ public interface ILinkRenderer {
   /// </seealso>
   bool isPhysicalCollider { get; set; }
 
+//  /// <summary>Tells if renderer is started and active.</summary>
+//  bool isStarted { get; }
+//  Transform sourceTransform { get; set; }
+//  Transform targetTransform { get; set; }
+
   /// <summary>Starts rendering link between the points.</summary>
+  /// <remarks>This method only indicates that the link is to be drawn between the specified points.
+  /// The renderer is allowed to draw meshes even when not started. E.g. if there are constants
+  /// parts of the link like joint pivots.
+  /// <para>It's OK to call this method multiple times with different or same source/target
+  /// arguments. Renderer must accept the values and update accordingly. Though, this operation is
+  /// rated as performance expensive, so callers are discouraged to invoke this method too
+  /// frequently (e.g. from on every frame update).</para>
+  /// </remarks>
   /// <param name="source">Source node.</param>
   /// <param name="target">Target node.</param>
   void StartRenderer(Transform source, Transform target);
 
   /// <summary>Cancells rendering the link.</summary>
+  /// <remarks>Stopped renderers are not required to not render anything. Stopped state only affects
+  /// the link started by <see cref="StartRenderer"/>.
+  /// <para>It's OK to call this method multiple time. If renderer is already stopped the call must
+  /// be treated as NO-OP with a little or no performance cost.</para></remarks>
   void StopRenderer();
 
   /// <summary>Called when link representation update is required.</summary>
+  /// <remarks>Performance cost of this method is rated as moderate. Callers should consider
+  /// optimization techniques to avoid calling this method on every frame update.
+  /// <para>The interface implementation may implement own optimization algorithm when call becomes
+  /// too heavy and slow.</para>
+  /// </remarks>
   void UpdateLink();
 
-  /// <summary>Verifies that there are no osbtacles beween the points.</summary>
+  /// <summary>Verifies that there are no obstacles beween the points.</summary>
   /// <param name="source">Source node.</param>
   /// <param name="target">Target node.</param>
   /// <returns><c>null</c> if nothing collides with the link. Otherwise, a short user friendly

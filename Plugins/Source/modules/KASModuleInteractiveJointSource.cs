@@ -18,8 +18,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
   ScreenMessage linkingMessage;
   ScreenMessage canLinkStatusMessage;
   ScreenMessage cannotLinkStatusMessage;
-  const string CanBeConnectedMsg = "Can be connected: link length {0:F2} m";
-  const string LinkingInProgressMsg = "Select compatible socket or press ESC";
+  const string CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  const string LinkingInProgressMsg = "Select a compatible socket or press ESC";
 
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
@@ -45,27 +45,15 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
   [KSPField]
   public string brokeSndPath = "KAS/Sounds/broke";
   [KSPField]
-  public string pipeDirection0Menu = "";
-  [KSPField]
-  public string pipeDirection1Menu = "";
-  [KSPField]
-  public string pipeDirection2Menu = "";
-  [KSPField]
   public string startLinkMenu = "Start a link";
   [KSPField]
   public string breakLinkMenu = "Break the link";
-  [KSPField(isPersistant = true)]
-  public Vector3 idlePipeDirection = Vector3.forward;
   #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    Debug.LogWarningFormat("*************** ONAWAKE! {0}", part.name);
     base.OnAwake();
-    Events["PipeDirection0ContextMenuAction"].guiName = ExtractPositionName(pipeDirection0Menu);
-    Events["PipeDirection1ContextMenuAction"].guiName = ExtractPositionName(pipeDirection1Menu);
-    Events["PipeDirection2ContextMenuAction"].guiName = ExtractPositionName(pipeDirection2Menu);
     Events["StartLinkContextMenuAction"].guiName = startLinkMenu;
     Events["BreakLinkContextMenuAction"].guiName = breakLinkMenu;
     // FIXME: deal with the attach node. No node from the part should be used.
@@ -84,7 +72,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
-    Debug.LogWarning("*************** ONSTART!");
     base.OnStart(state);
     //FIXME: Create dummy modules when required ones missing. And don't fail.
     if (linkJoint == null) {
@@ -148,62 +135,79 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     //FIXME
     Debug.LogWarning("Start GUI");
     linkRenderer.shaderNameOverride = InteractiveShaderName;
+    linkRenderer.colorOverride = BadLinkColor;
     linkRenderer.isPhysicalCollider = false;
   }
 
+
+  bool targetCandidateIsGood;
+  ILinkTarget targetCandidate;
+  Part lastHoveredPart;
+
   /// <summary>Displays linking status in real time.</summary>
   void UpdateLinkingState() {
-    ScreenMessages.PostScreenMessage(linkingMessage);
-
-    // Figure out if link can be established and what is the target.
-    var canLink = false;
-    string linkStatusError = null;
-    if (Mouse.HoveredPart != null) {
-      var target = Mouse.HoveredPart.FindModulesImplementing<ILinkTarget>()
-          .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
-                          && x.linkState == LinkState.AcceptingLinks);
-      if (target != null) {
-        linkStatusError =
-            linkJoint.CheckAngleLimitAtSource(this, target.nodeTransform)
-            ?? linkJoint.CheckAngleLimitAtTarget(this, target.nodeTransform)
-            ?? linkJoint.CheckLengthLimit(this, target.nodeTransform)
-            ?? linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform);
-        canLink = linkStatusError == null;
-        if (canLink) {
-          canLinkStatusMessage.message = string.Format(
-              CanBeConnectedMsg,
-              Vector3.Distance(nodeTransform.position, target.nodeTransform.position));
-
-          //FIXME: make the code better
-//          idleLinkTargetTransform.position = target.nodeTransform.position;
-//          idleLinkTargetTransform.LookAt(nodeTransform);
-
-//          linkRenderer.endSocketTransfrom.position = target.nodeTransform.position;
-//          linkRenderer.endSocketTransfrom.LookAt(nodeTransform);
-          
-          //FIXME: check it in right way so what all the modifiers are honored
-          if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            StartCoroutine(WaitAndLink(target));
+    // Catch the hovered part, a possible target on it, and the link feasibility.
+    if (Mouse.HoveredPart != lastHoveredPart) {
+      lastHoveredPart = Mouse.HoveredPart;
+      targetCandidateIsGood = false;
+      if (lastHoveredPart == null ) {
+        targetCandidate = null;
+      } else {
+        targetCandidate = lastHoveredPart.FindModulesImplementing<ILinkTarget>()
+            .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
+                            && x.linkState == LinkState.AcceptingLinks);
+        if (targetCandidate != null) {
+          var linkStatusError =
+              linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform)
+              ?? linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform)
+              ?? linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
+              ?? linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform);
+          if (linkStatusError == null) {
+            targetCandidateIsGood = true;
+            canLinkStatusMessage.message = string.Format(
+                CanBeConnectedMsg,
+                Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
+          } else {
+            cannotLinkStatusMessage.message = linkStatusError;
           }
         }
       }
+      // Show the possible link or indicate the error.
+      if (targetCandidate != null && targetCandidateIsGood) {
+        linkRenderer.colorOverride = GoodLinkColor;
+        linkRenderer.StartRenderer(nodeTransform, targetCandidate.nodeTransform);
+      } else {
+        linkRenderer.colorOverride = BadLinkColor;
+        linkRenderer.StopRenderer();
+      }
+      //FIXME
+      Debug.LogWarningFormat("Focused: {0}, isTarget {1}, isGood: {2}",
+                             lastHoveredPart != null ? lastHoveredPart.name : "NOTHING",
+                             targetCandidate != null, targetCandidateIsGood);
     }
 
-    // Update linking messages and set good/bad color on the pipe.
-    if (canLink) {
-      linkRenderer.colorOverride = GoodLinkColor;
+    // Handle link action (mouse click).
+    //FIXME: check it in right way so what all the modifiers are honored
+    if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
+      StartCoroutine(WaitAndLink(targetCandidate));
+    }
+
+    // Update linking messages (they need to be refreshed to not go out by a timeout).
+    if (targetCandidateIsGood) {
       ScreenMessages.PostScreenMessage(canLinkStatusMessage);
       ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
+      ScreenMessages.RemoveMessage(linkingMessage);
     } else {
-      linkRenderer.colorOverride = BadLinkColor;
-      if (linkStatusError != null) {
-        cannotLinkStatusMessage.message = linkStatusError;
-        ScreenMessages.PostScreenMessage(cannotLinkStatusMessage);
-      } else {
-        ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
-        RotatePipeToDefaultDirection();
-      }
       ScreenMessages.RemoveMessage(canLinkStatusMessage);
+      if (targetCandidate != null) {
+        // There is a target but it's not good for a link. Refresh an error message.
+        ScreenMessages.PostScreenMessage(cannotLinkStatusMessage);
+        ScreenMessages.RemoveMessage(linkingMessage);
+      } else {
+        // No target is found. Show status message and hide errors if any.
+        ScreenMessages.PostScreenMessage(linkingMessage);
+        ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
+      }
     }
   }
 
@@ -218,22 +222,18 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     linkRenderer.shaderNameOverride = null;
     linkRenderer.colorOverride = null;
     linkRenderer.isPhysicalCollider = true;
+    linkRenderer.StopRenderer();
     ScreenMessages.RemoveMessage(linkingMessage);
     ScreenMessages.RemoveMessage(canLinkStatusMessage);
     ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
     InputLockManager.RemoveControlLock(TotalControlLock);
+    lastHoveredPart = null;
     base.StopLinkGUIMode();
   }
 
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState oldState) {
     base.OnStateChange(oldState);
-    Events["PipeDirection0ContextMenuAction"].active =
-        ExtractPositionName(pipeDirection0Menu) != "" && linkState == LinkState.Available;
-    Events["PipeDirection1ContextMenuAction"].active =
-        ExtractPositionName(pipeDirection1Menu) != "" && linkState == LinkState.Available;
-    Events["PipeDirection2ContextMenuAction"].active =
-        ExtractPositionName(pipeDirection2Menu) != "" && linkState == LinkState.Available;
     Events["StartLinkContextMenuAction"].active = linkState == LinkState.Available;
     Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
     //FIXME: figure out if still needed
@@ -289,28 +289,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
   #endregion
 
   #region Action handlers
-  //FIXME: allow editor access
-  [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
-  public void PipeDirection0ContextMenuAction() {
-    idlePipeDirection = ExtractDirectionVector(pipeDirection0Menu);
-    RotatePipeToDefaultDirection();
-  }
-
-  [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
-  public void PipeDirection1ContextMenuAction() {
-    idlePipeDirection = ExtractDirectionVector(pipeDirection1Menu);
-    RotatePipeToDefaultDirection();
-  }
-
-  [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
-  public void PipeDirection2ContextMenuAction() {
-    idlePipeDirection = ExtractDirectionVector(pipeDirection2Menu);
-    RotatePipeToDefaultDirection();
-  }
-
   //FIXME: disallow non-eva control
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
   public void StartLinkContextMenuAction() {

@@ -191,7 +191,7 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     base.OnStart(state);
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
     //FIXME: no need for name, make it singletone
-    //FIXME: check places that expect rendered to be bull - it cannto be null anymore
+    //FIXME: check places that expect rendered to be bull - it cannot be null anymore.
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
         .First(x => x.cfgRendererName == linkRendererName);
     if (persistedLinkState == LinkState.Linked && attachNode.attachedPart != null) {

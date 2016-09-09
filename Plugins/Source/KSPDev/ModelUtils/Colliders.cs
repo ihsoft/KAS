@@ -92,14 +92,14 @@ public static class Colliders {
         collider.size = meshSize;
       } else {
         Debug.LogWarningFormat("Unknown primitive type {0}. Droppping collider.", type);
-        primitive.GetComponent<Collider>().gameObject.DestroyGameObjectImmediate();
+        UnityEngine.Object.DestroyImmediate(primitive.GetComponent<Collider>());
       }
     }
     Debug.LogWarningFormat(
         "Unsupported collider type {0}. Droppping whatever collider part had: {1}",
         colliderType, existingCollider);
     if (existingCollider != null) {
-      existingCollider.gameObject.DestroyGameObjectImmediate();
+      UnityEngine.Object.DestroyImmediate(existingCollider);
     }
   }
 }

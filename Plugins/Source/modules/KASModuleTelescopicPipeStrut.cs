@@ -14,6 +14,7 @@ using KSPDev.ModelUtils;
 namespace KAS {
 
 // FIXME: docs
+// FIXME: move model logic into a base class. maybe
 public class KASModuleTelescopicPipeStrut
     : AbstractJointPart, ILinkRenderer, ILinkStateEventListener {
   // These fileds must not be accessed outside of the module. They are declared public only
@@ -50,13 +51,20 @@ public class KASModuleTelescopicPipeStrut
   [KSPField(isPersistant = true)]
   public Vector3 parkedOrientation = Vector3.zero;
   [KSPField(isPersistant = true)]
-  //FIXME not valid to have 0
   public float parkedLength = 0; // If 0 then minimum link length will be used.
+  [KSPField]
+  public string rendererName = "";
   #endregion
 
+  // These constants must be in sync with action handler methods names.
   protected const string parkedOrientationMenuAction0 = "ParkedOrientationMenuAction0";
   protected const string parkedOrientationMenuAction1 = "ParkedOrientationMenuAction1";
   protected const string parkedOrientationMenuAction2 = "ParkedOrientationMenuAction2";
+
+  protected ILinkSource linkSource { get; private set; }
+  protected bool isLinked {
+    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
+  }
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -65,118 +73,183 @@ public class KASModuleTelescopicPipeStrut
     Events[parkedOrientationMenuAction0].guiName = ExtractPositionName(parkedOrientationMenu0);
     Events[parkedOrientationMenuAction1].guiName = ExtractPositionName(parkedOrientationMenu1);
     Events[parkedOrientationMenuAction2].guiName = ExtractPositionName(parkedOrientationMenu2);
-    UpdateMenuItems();
-    if (parkedOrientation == Vector3.zero) {
-      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    }
+    UpdateMenuItems();  // For editor mode.
   }
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    //parkedOrientation = 
+    //FIXME
+    Debug.LogWarningFormat("** onstart, orientation: {0}", parkedOrientation);
     linkSource = part.FindModuleImplementing<ILinkSource>();
     if (linkSource == null) {
-      Debug.LogErrorFormat("Wring setup of: {0}", part.name);
+      Debug.LogErrorFormat("Wrong setup! Part {0} must have a link source", part.name);
     }
     UpdateMenuItems();
+    UpdateLinkLengthAndOrientation();
+  }
+
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    Debug.LogWarningFormat("** onload, orientation: {0}", parkedOrientation);
+  }
+
+  public override void OnUpdate() {
+    base.OnUpdate();
+    //FIXME: check if constant updates needed, and add a threshold.
+    if (isStarted) {
+      UpdateLink();
+    }
   }
   #endregion
 
   #region ILinkRenderer implemetation
+  /// <inheritdoc/>
   public string cfgRendererName { get { return rendererName; } }
-  [KSPField]
-  public string rendererName = "";
-
-  public virtual Color? colorOverride { get; set; }
-  public virtual string shaderNameOverride { get; set; }
+  /// <inheritdoc/>
+  public virtual Color? colorOverride {
+    get { return _colorOverride; }
+    set {
+      _colorOverride = value;
+//      Meshes.UpdateMaterials(srcPartJointPivot.gameObject,
+//                             newColor: _colorOverride ?? Color.white);
+      Meshes.UpdateMaterials(srcPartJoint.gameObject,
+                             newColor: _colorOverride ?? Color.white);
+    }
+  }
+  Color? _colorOverride;
+  /// <inheritdoc/>
+  public virtual string shaderNameOverride {
+    get { return _shaderNameOverride; }
+    set {
+      _shaderNameOverride = value;
+//      Meshes.UpdateMaterials(srcPartJointPivot.gameObject,
+//                             newShaderName: _shaderNameOverride ?? KspPartShaderName);
+      Meshes.UpdateMaterials(srcPartJoint.gameObject,
+                             newShaderName: _shaderNameOverride ?? KspPartShaderName);
+    }
+  }
+  string _shaderNameOverride;
+  //FIXME
+  /// <inheritdoc/>
   public virtual bool isPhysicalCollider { get; set; }
+
+  /// <inheritdoc/>
+  public override Transform sourceTransform {
+    get { return srcPartJointPivot; }
+    set {
+      Debug.LogErrorFormat("Dynamic part has a fixed source transform. Cannot set to: {0}", value);
+    }
+  }
+  //FIXME: hide or make part of interface
+  public Transform targetTransform {
+    get { return _targetTransform; }
+    set {
+      _targetTransform = value;
+      UpdateLinkLengthAndOrientation();
+    }
+  }
+  Transform _targetTransform;
+  //FIXME: hide or make part of interface
+  public bool isStarted {
+    get { return targetTransform != null; }
+  }
 
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
     // Source pivot is fixed for the part. Do a safe check to verify if requestor asked for the
     // right coordinates.
-    if (Mathf.Approximately(Vector3.SqrMagnitude(source.position - partJointPivot.position),
-                            Mathf.Epsilon)) {
-      Debug.LogErrorFormat("Render source doesn't match pivot point: pivot={0}, source={1}",
-                           partJointPivot.position, source.position);
+    if (!Mathf.Approximately(Vector3.SqrMagnitude(source.position - sourceTransform.position),
+                             Mathf.Epsilon)) {
+      Debug.LogErrorFormat("Part's source doesn't match renderer source: pivot={0}, source={1}",
+                           sourceTransform.position, source.position);
     }
+    targetTransform = target;
     //FIXME
     Debug.LogWarning("Draw to the target");
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
-    
+    //FIXME
+    Debug.LogWarning("STOP Drawing to the target");
+    targetTransform = null;
   }
 
   /// <inheritdoc/>
   public virtual void UpdateLink() {
-    
+    UpdateLinkLengthAndOrientation();
   }
 
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
-    return "TEST ERROR";
+    //return "TEST ERROR";
+    return null;
   }
   #endregion
-
-  protected ILinkSource linkSource { get; private set; }
-  protected bool isLinked {
-    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
-  }
 
   // FIXME: check colliders.
   #region Action handlers
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction0() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    UpdateLinkLengthAndOrientation();
+    if (!isLinked) {
+      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+      UpdateLinkLengthAndOrientation();
+    }
   }
 
   [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction1() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
-    UpdateLinkLengthAndOrientation();
+    if (!isLinked) {
+      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
+      UpdateLinkLengthAndOrientation();
+    }
   }
 
   [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = false, active = false)]
   public void ParkedOrientationMenuAction2() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
-    UpdateLinkLengthAndOrientation();
+    if (!isLinked) {
+      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
+      UpdateLinkLengthAndOrientation();
+    }
   }
 
   [KSPEvent(guiName = "Extend to max", guiActiveEditor = true, active = true)]
   public void ExtendAtMaxMenuAction() {
-    var trgJoint = Hierarchy.FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
-    trgJoint.localPosition = new Vector3(0, 0, maxLinkLength - trgJointHandleLength);
-    UpdateLinkLengthAndOrientation();
+    if (!isLinked) {
+      parkedLength = maxLinkLength;
+      UpdateLinkLengthAndOrientation();
+    }
   }
 
   [KSPEvent(guiName = "Retract to min", guiActiveEditor = true, active = true)]
   public void RetractToMinMenuAction() {
-    var trgJoint = Hierarchy.FindTransformByPath(partJointPivot, "**/" + TrgStrutJointObjName);
-    trgJoint.localPosition = new Vector3(0, 0, minLinkLength - trgJointHandleLength);
-    UpdateLinkLengthAndOrientation();
+    if (!isLinked) {
+      parkedLength = minLinkLength;
+      UpdateLinkLengthAndOrientation();
+    }
   }
   #endregion
 
   // FIXME: docs for all below
   protected GameObject[] pistons;
-  protected const string PartJointObjName = "partJoint";
+  protected const string SrcPartJointObjName = "srcPartJoint";
   protected const string SrcStrutJointObjName = "srcStrutJoint";
   protected const string TrgStrutJointObjName = "trgStrutJoint";
+  protected const string TrgPartJointObjName = "trgPartJoint";
 
-  protected Transform partJointPivot { get; private set;}
-//  protected Transform srcStrutJoint { get; private set; }
-//  protected Transform trgStrutJoint { get; private set; }
-//  protected Transform trgStrutPivot { get; private set;}
+  protected Transform srcPartJoint { get; private set; }
+  protected Transform srcPartJointPivot { get; private set; }
+  protected Transform srcStrutJoint { get; private set; }
+  protected Transform trgStrutJoint { get; private set; }
+  protected Transform trgStrutJointPivot { get; private set; }
   protected float srcJointHandleLength { get; private set; }
   protected float trgJointHandleLength { get; private set; }
   /// <summary>Maximum possible link length with this part.</summary>
+  /// FIXME: populate it on model load/create
   protected float maxLinkLength {
     get {
       return
@@ -186,6 +259,7 @@ public class KASModuleTelescopicPipeStrut
     }
   }
   /// <summary>Minimum possible link length with this part.</summary>
+  /// FIXME: populate it on model load/create
   protected float minLinkLength {
     get {
       return
@@ -197,40 +271,42 @@ public class KASModuleTelescopicPipeStrut
   
   /// <inheritdoc/>
   protected override void CreatePartModel() {
+    //FIXME: figure out attach node form joint piviot and its holder length  
     var attachNode = CreateAttachNodeTransform();
 
-    // Set init state.
-    if (Mathf.Approximately(parkedLength, float.Epsilon)) {
-      parkedLength = pistonLength + pistonMinShift * (pistonsCount - 1);
-    }
-
-    // Part's joint model.
-    var partJoint = CreateStrutJointModel(PartJointObjName);
-    Hierarchy.MoveToParent(partJoint, attachNode);
-    partJointPivot = Hierarchy.FindTransformInChildren(partJoint, PivotAxileObjName);
-    partJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
+    // Source part joint model.
+    srcPartJoint = CreateStrutJointModel(SrcPartJointObjName);
+    Hierarchy.MoveToParent(srcPartJoint, attachNode);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
 
     // Source strut joint model.
-    var srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
+    srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    Hierarchy.MoveToParent(srcStrutJoint, partJointPivot,
-                            newPosition: srcStrutPivot.position - srcStrutJoint.position,
-                            newRotation: Quaternion.LookRotation(Vector3.back));
+    Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
+                           newPosition: srcStrutPivot.position - srcStrutJoint.position,
+                           newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Target strut joint model.
-    var trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
-    var trgStrutPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
-    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
-    Hierarchy.MoveToParent(trgStrutJoint, partJointPivot,
-                            newPosition: new Vector3(0, 0, srcJointHandleLength + parkedLength));
+    trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName);
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
+    Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
+    // Target part joint model.
+    var trgPartJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
+    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
+    Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
+                           newPosition: trgPartJointPivot.position - trgPartJoint.position,
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+      
     // Pistons.
     pistons = new GameObject[pistonsCount];
     var startDiameter = outerPistonDiameter;
     var material = CreateMaterial(GetTexture(pistonTexturePath));
     for (var i = 0; i < pistonsCount; ++i) {
-      var piston = CreateCylinder(startDiameter, pistonLength, material, parent: srcStrutJoint);
+      var piston =
+          Meshes.CreateCylinder(startDiameter, pistonLength, material, parent: srcStrutJoint);
       piston.name = "piston" + i;
       // Source strut joint rotation is reversed.
       piston.transform.localRotation = Quaternion.LookRotation(Vector3.back);
@@ -241,38 +317,83 @@ public class KASModuleTelescopicPipeStrut
     pistons[0].transform.localPosition = new Vector3(0, 0, -pistonLength / 2);
     // Last piston rigidly attached at the bottom of the target joint model.
     Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
-                            newPosition: new Vector3(0, 0, -pistonLength / 2),
-                            newRotation: Quaternion.LookRotation(Vector3.forward));
+                           newPosition: new Vector3(0, 0, -pistonLength / 2),
+                           newRotation: Quaternion.LookRotation(Vector3.forward));
 
+    // Init parked state. It must go after all the models are created.
+    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+    //FIXME
+    Debug.LogWarningFormat("** parked length on create: {0}", parkedLength);
+    if (Mathf.Approximately(parkedLength, 0)) {
+      parkedLength = minLinkLength;
+    }
     UpdateLinkLengthAndOrientation();
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    // Main pivot.
-    partJointPivot = Hierarchy.FindTransformByPath(
-        partModelTransform,
-        AttachNodeObjName + "/" + PartJointObjName + "/**/" + PivotAxileObjName);
-    // Source joint.
-    var srcStrutJoint = Hierarchy.FindTransformInChildren(partJointPivot, SrcStrutJointObjName);
+    // Source pivot.
+    srcPartJoint = Hierarchy.FindTransformByPath(
+        partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
+
+    // Source strut joint.
+    srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    // Target joint.
-    var trgStrutJoint = Hierarchy.FindTransformInChildren(partJointPivot, TrgStrutJointObjName);
-    var trgStrutPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
-    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutPivot.position);
+
+    // Target strut joint.
+    trgStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TrgStrutJointObjName);
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
+
     // Pistons.
     pistons = new GameObject[pistonsCount];
     for (var i = 0; i < pistonsCount; ++i) {
       pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
+
+    UpdateLinkLengthAndOrientation();
   }
 
   /// <summary>Adjusts link models to the changed target position.</summary>
   /// FIXME: pass target as argument
   protected virtual void UpdateLinkLengthAndOrientation() {
-    // FIXME: only use parked orientation when is not connected. 
-    partJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
+    if (!isStarted) {
+      srcPartJoint.localRotation = Quaternion.identity;
+      srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
+      trgStrutJoint.localPosition = new Vector3(0, 0, parkedLength - trgJointHandleLength);
+      trgStrutJoint.localRotation = Quaternion.identity;
+      trgStrutJointPivot.localRotation = Quaternion.identity;
+      //FIXME: ajust trgStrutJoint with the parked length
+    } else {
+      var linkVector = targetTransform.position - sourceTransform.position;
+      // Here is the link model hierarchy:
+      // srcPartJoint => srcPivot => srcStrutJoint => trgStrutJoint => trgPivot => trgPartJoint.
+      // Joints attached via a pivot should be properly aligned againts each other since they are
+      // connected with a common pivot axile which is parallel to their X axis.
+      // 1. Rotate srcPartJoint around Z axis so what its pivot axile (X) is perpendicular to
+      //    the link vector.
+      //FIXME: handle edge case with foward being almost same as link
+      srcPartJoint.rotation = Quaternion.LookRotation(srcPartJoint.forward, linkVector);
+      // 2. Rotate srcPivot around X axis (pivot axile) so what its forward vector points to the
+      //    target part attach node.
+      srcPartJointPivot.rotation = Quaternion.LookRotation(linkVector, srcPartJoint.up);
+      // 3. Shift trgStrutJoint along Z axis so what it touches target joint node with the trgPivot
+      //    pivot axile. Don't forget that link length includes srcStrutJoint and trgStrutJoint
+      //    model lengths.
+      trgStrutJoint.localPosition = new Vector3(0, 0, linkVector.magnitude - trgJointHandleLength);
+      // 4. Rotate trgStrutJoint around Z axis so what its pivot axile (X) is perpendicular to
+      //    the target part attach node.       
+      trgStrutJoint.rotation =
+          Quaternion.LookRotation(trgStrutJoint.forward, targetTransform.forward);
+      // 5. Rotate trgPivot around X axis (pivot axile) so what its forward vector points along
+      //    target attach node direction.
+      trgStrutJointPivot.rotation = 
+          Quaternion.LookRotation(-targetTransform.forward, trgStrutJoint.up);
+    }
+
+    // Distribute pistons between the first and the last while keepin the direction.
     if (pistons.Length > 2) {
       var offset = pistons[0].transform.localPosition.z;
       var step = Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position)

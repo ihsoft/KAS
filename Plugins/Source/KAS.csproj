@@ -55,7 +55,7 @@
     <Compile Include="api_v1\ILinkStateEventListener.cs" />
     <Compile Include="api_v1\ILinkSource.cs" />
     <Compile Include="api_v1\ILinkTarget.cs" />
-    <Compile Include="api_v1\ILinkTubeRenderer.cs" />
+    <Compile Include="api_v1\ILinkRenderer.cs" />
     <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
     <Compile Include="api_impl\JointUtilsImpl.cs" />
     <Compile Include="api_impl\KASAPILauncher.cs" />
@@ -82,9 +82,10 @@
     <Compile Include="KSPDev\Extensions\Dictionaries.cs" />
     <Compile Include="KSPDev\GUIUtils\PartContextMenu.cs" />
     <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IPartModule.cs" />
     <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
-    <Compile Include="modules\KASModuleDynamicPart.cs" />
+    <Compile Include="modules\AbstractDynamicPartModule.cs" />
     <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
@@ -104,6 +105,7 @@
     <Folder Include="api_impl" />
     <Folder Include="KSPDev\GUIUtils" />
     <Folder Include="KSPDev\Extensions" />
+    <Folder Include="KSPDev\KSPInterfaces" />
     <Folder Include="KSPDev\ProcessingUtils" />
     <Folder Include="modules" />
     <Folder Include="api_v1" />

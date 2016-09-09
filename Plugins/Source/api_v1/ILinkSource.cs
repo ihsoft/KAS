@@ -47,8 +47,14 @@ public interface ILinkSource {
   /// do internal state adjustments (e.g. changing UI items visibility).</remarks>
   bool isLocked { get; set; }
 
+  /// <summary>Transform of the attach node on the source part. Link mesh source will be set to
+  /// here.</summary>
   Transform nodeTransform { get; }
+
   GUILinkMode guiLinkMode { get; }
+
+  /// <summary>Renderer of the link meshes. It cannot be <c>null</c>.</summary>
+  /// <seealso cref="cfgLinkRendererName"/>
   ILinkRenderer linkRenderer { get; }
 
   /// <summary>Starts linking mode of this source.</summary>

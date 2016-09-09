@@ -150,7 +150,7 @@ public static class Meshes {
   public static GameObject CreatePrimitive(
       PrimitiveType type, Vector3 meshScale, Material material, Transform parent) {
     var primitive = GameObject.CreatePrimitive(type);
-    primitive.GetComponent<Collider>().gameObject.DestroyGameObjectImmediate();
+    UnityEngine.Object.DestroyImmediate(primitive.GetComponent<Collider>());
     Hierarchy.MoveToParent(primitive.transform, parent);
     primitive.GetComponent<Renderer>().material = material;
 

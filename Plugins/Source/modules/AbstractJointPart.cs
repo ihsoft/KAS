@@ -6,11 +6,12 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using KSPDev.ModelUtils;
 
 namespace KAS {
 
 // FIXME: docs
-public abstract class AbstractJointPart : KASModuleDynamicPart {
+public abstract class AbstractJointPart : AbstractDynamicPartModule {
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
@@ -23,6 +24,11 @@ public abstract class AbstractJointPart : KASModuleDynamicPart {
   [KSPField]
   public Vector3 attachNodeOrientation = new Vector3(0, 1, 0);
   #endregion
+
+  /// <summary>Returns transform of the actual joint model.</summary>
+  /// <remarks>It's not just a position anchor. It's a transform of the real object that represents
+  /// the joint model. Its rotation will be adjusted when establishing/updating the link.</remarks>
+  public abstract Transform sourceTransform { get; set; }
 
   // FIXME: docs
   protected const string PivotAxileObjName = "PivotAxile";
@@ -62,21 +68,20 @@ public abstract class AbstractJointPart : KASModuleDynamicPart {
   }
 
   // FIXME: docs
-  protected Transform CreateStrutJointModel(string transformName, bool createAxile = true,
-                                            string pivotName = PivotAxileObjName) {
+  protected Transform CreateStrutJointModel(string transformName, bool createAxile = true) {
     // FIXME: use different materials.
     // FIXME: deal with collider
     var material = CreateMaterial(GetTexture(jointTexturePath));
     var jointTransform = new GameObject(transformName).transform;
 
     // Socket cap.
-    var jointBase = CreateBox(
+    var jointBase = Meshes.CreateBox(
         JointBaseDiameter, JointBaseDiameter, JointBaseHeigth, material, parent: jointTransform);
     jointBase.name = "base";
     jointBase.transform.localPosition = new Vector3(0, 0, JointBaseHeigth / 2);
 
     // Holding bar for the clutcth.
-    var clutchHolder = CreateBox(
+    var clutchHolder = Meshes.CreateBox(
         ClutchHolderThikness, ClutchHolderWidth, ClutchHolderLength, material,
         parent: jointBase.transform);
     clutchHolder.name = "clutchHolder";
@@ -86,7 +91,7 @@ public abstract class AbstractJointPart : KASModuleDynamicPart {
         ClutchHolderLength / 2);
 
     // The clutch.
-    var clutch = CreateCylinder(
+    var clutch = Meshes.CreateCylinder(
         ClutchHolderWidth, ClutchThikness, material, parent: clutchHolder.transform);
     clutch.name = "clutch";
     clutch.transform.localRotation = Quaternion.LookRotation(Vector3.left);
@@ -94,11 +99,12 @@ public abstract class AbstractJointPart : KASModuleDynamicPart {
         new Vector3(-(ClutchThikness - ClutchHolderThikness) / 2, 0, ClutchHolderLength / 2);
 
     // Axile inside the clutch to join with the opposite part clutch.
-    //var pivotTransform = new GameObject(PivotAxileObjName).transform;
-    var pivotTransform = new GameObject(pivotName).transform;
+    //FIXME
+    var pivotTransform = new GameObject(PivotAxileObjName).transform;
+    //var pivotTransform = new GameObject(pivotName).transform;
     pivotTransform.parent = jointTransform.transform;
     if (createAxile) {
-      var clutchAxile = CreateCylinder(
+      var clutchAxile = Meshes.CreateCylinder(
           ClutchAxileDiameter, ClutchAxileLength, material, parent: clutchHolder.transform);
       clutchAxile.name = "axile";
       clutchAxile.transform.localRotation = Quaternion.LookRotation(Vector3.left);

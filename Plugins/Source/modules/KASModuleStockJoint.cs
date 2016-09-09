@@ -25,7 +25,7 @@ public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
   public float minLinkLength = 0;
   [KSPField]
   public float maxLinkLength = Mathf.Infinity;
-  //FIXME: separate to src & trg angle limits
+  //FIXME: separate to src & trg angle limits, get hthem from source and target
   //FIXME: BETTER: get target limits from the target. it sounds cool
   [KSPField]
   public float linkAngleLimit = 0f;
@@ -53,10 +53,6 @@ public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
   #endregion
 
   #region ILinkJoint implementation
-  public override void OnAwake() {
-    Debug.LogWarningFormat("*************** ONAWAKE! {0}", part.name);
-    base.OnAwake();
-  }
 
   //FIXME: make it virtual from the super class
   /// <inheritdoc/>
