@@ -111,10 +111,7 @@ public class KASModuleTelescopicPipeStrut
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-//      Meshes.UpdateMaterials(srcPartJointPivot.gameObject,
-//                             newColor: _colorOverride ?? Color.white);
-      Meshes.UpdateMaterials(srcPartJoint.gameObject,
-                             newColor: _colorOverride ?? Color.white);
+      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? color);
     }
   }
   Color? _colorOverride;
@@ -123,10 +120,8 @@ public class KASModuleTelescopicPipeStrut
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
-//      Meshes.UpdateMaterials(srcPartJointPivot.gameObject,
-//                             newShaderName: _shaderNameOverride ?? KspPartShaderName);
-      Meshes.UpdateMaterials(srcPartJoint.gameObject,
-                             newShaderName: _shaderNameOverride ?? KspPartShaderName);
+      Meshes.UpdateMaterials(
+          srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
     }
   }
   string _shaderNameOverride;

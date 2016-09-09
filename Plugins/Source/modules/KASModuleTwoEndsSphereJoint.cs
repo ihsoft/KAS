@@ -8,6 +8,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using KASAPIv1;
+using KSPDev.KSPInterfaces;
 
 namespace KAS {
 
