@@ -369,23 +369,23 @@ public class KASModuleTelescopicPipeStrut
       // connected with a common pivot axile which is parallel to their X axis.
       // 1. Rotate srcPartJoint around Z axis so what its pivot axile (X) is perpendicular to
       //    the link vector.
-      //FIXME: handle edge case with foward being almost same as link
-      srcPartJoint.rotation = Quaternion.LookRotation(srcPartJoint.forward, linkVector);
+      srcPartJoint.rotation = Quaternion.LookRotation(srcPartJoint.forward, -linkVector);
       // 2. Rotate srcPivot around X axis (pivot axile) so what its forward vector points to the
       //    target part attach node.
-      srcPartJointPivot.rotation = Quaternion.LookRotation(linkVector, srcPartJoint.up);
+      srcPartJointPivot.localRotation =
+          Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
       // 3. Shift trgStrutJoint along Z axis so what it touches target joint node with the trgPivot
-      //    pivot axile. Don't forget that link length includes srcStrutJoint and trgStrutJoint
-      //    model lengths.
+      //    pivot axile. Link length consists of srcStrutJoint and trgStrutJoint model lengths but
+      //    the former points backwards, so it doesn't add to the positive Z value.
       trgStrutJoint.localPosition = new Vector3(0, 0, linkVector.magnitude - trgJointHandleLength);
       // 4. Rotate trgStrutJoint around Z axis so what its pivot axile (X) is perpendicular to
-      //    the target part attach node.       
+      //    the target part attach node.
       trgStrutJoint.rotation =
           Quaternion.LookRotation(trgStrutJoint.forward, targetTransform.forward);
       // 5. Rotate trgPivot around X axis (pivot axile) so what its forward vector points along
       //    target attach node direction.
-      trgStrutJointPivot.rotation = 
-          Quaternion.LookRotation(-targetTransform.forward, trgStrutJoint.up);
+      trgStrutJointPivot.localRotation = 
+        Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
     }
 
     // Distribute pistons between the first and the last while keepin the direction.
