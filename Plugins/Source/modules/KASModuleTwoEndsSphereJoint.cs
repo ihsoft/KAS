@@ -24,7 +24,7 @@ public class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint {
     /// <param name="breakForce">Actual force that broke the joint.</param>
     void OnJointBreak(float breakForce) {
       if (host.parent != null) {
-        Debug.LogFormat("Joint broken with force: {0}", breakForce);
+        Debug.LogFormat("Joint {0} broken with force: {1}", this.gameObject.name, breakForce);
         host.OnPartJointBreak(breakForce);
       }
     }
@@ -95,21 +95,17 @@ public class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint {
     CleanupJoint();
     linkSource = source;
     linkTarget = target;
-    srcJoint = CreateKinematicJointEnd(source.attachNode);
-    trgJoint = CreateKinematicJointEnd(target.attachNode);
+    srcJoint = CreateKinematicJointEnd(source.attachNode, "KASJointSrc");
+    trgJoint = CreateKinematicJointEnd(target.attachNode, "KASJointTrg");
     StartCoroutine(WaitAndConnectJointEnds());
   }
 
   /// <inheritdoc/>
   public void CleanupJoint() {
-    if (srcJoint != null) {
-      srcJoint.gameObject.DestroyGameObjectImmediate();
-      srcJoint = null;
-    }
-    if (trgJoint != null) {
-      trgJoint.gameObject.DestroyGameObjectImmediate();
-      trgJoint = null;
-    }
+    UnityEngine.Object.Destroy(srcJoint);
+    srcJoint = null;
+    UnityEngine.Object.Destroy(trgJoint);
+    trgJoint = null;
     strutJoint = null;
     linkSource = null;
     linkTarget = null;
@@ -201,12 +197,13 @@ public class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint {
   /// node's owner. This opbject must be promoted to physical once PhysX received the configuration.
   /// </remarks>
   /// <param name="an">Node to attach a new spheric joint to.</param>
+  /// <param name="objName">Name of the game object for the new joint.</param>
   /// <returns>Object that owns the joint.</returns>
-  ConfigurableJoint CreateKinematicJointEnd(AttachNode an) {
+  ConfigurableJoint CreateKinematicJointEnd(AttachNode an, string objName) {
     //FIXME
     Debug.LogWarningFormat("Make joint for: {0} (id={1}), {2}",
                            an.owner.name, an.owner.flightID, an.id);
-    var objJoint = new GameObject("KASJoint");
+    var objJoint = new GameObject(objName);
     objJoint.AddComponent<BrokenJointListener>().host = part;
     var jointRb = objJoint.AddComponent<Rigidbody>();
     jointRb.isKinematic = true;
@@ -241,6 +238,7 @@ public class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint {
     trgJoint.transform.LookAt(srcJoint.transform);
     strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(strutJoint);
+    //FIXME: setup max distance limit. not trivial
     KASAPI.JointUtils.SetupPrismaticJoint(strutJoint, springForce: strutStretchSpring);
     originalLength = Vector3.Distance(srcJoint.transform.position, trgJoint.transform.position);
     strutJoint.enablePreprocessing = true;
