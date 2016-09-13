@@ -274,11 +274,13 @@ public class KASModuleTelescopicPipeStrut
 
     // Source part joint model.
     srcPartJoint = CreateStrutJointModel(SrcPartJointObjName);
+    Colliders.SetSimpleCollider(srcPartJoint.gameObject, PrimitiveType.Cube);
     Hierarchy.MoveToParent(srcPartJoint, attachNode);
     srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
 
     // Source strut joint model.
     srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
+    Colliders.SetSimpleCollider(srcStrutJoint.gameObject, PrimitiveType.Cube);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
@@ -287,12 +289,14 @@ public class KASModuleTelescopicPipeStrut
 
     // Target strut joint model.
     trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName);
+    Colliders.SetSimpleCollider(trgStrutJoint.gameObject, PrimitiveType.Cube);
     trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
     var trgPartJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
+    Colliders.SetSimpleCollider(trgPartJoint.gameObject, PrimitiveType.Cube);
     var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
                            newPosition: new Vector3(0, 0, trgJointHandleLength),
@@ -306,7 +310,9 @@ public class KASModuleTelescopicPipeStrut
       var piston =
           Meshes.CreateCylinder(startDiameter, pistonLength, material, parent: srcStrutJoint);
       piston.name = "piston" + i;
-      // Source strut joint rotation is reversed.
+      Colliders.SetSimpleCollider(piston, PrimitiveType.Capsule);
+      // Source strut joint rotation is reversed. All pistons but the last one are relative to the
+      // source joint.
       piston.transform.localRotation = Quaternion.LookRotation(Vector3.back);
       startDiameter -= 2 * pistonWallThickness;
       pistons[i] = piston;
@@ -354,6 +360,7 @@ public class KASModuleTelescopicPipeStrut
 
   /// <summary>Adjusts link models to the changed target position.</summary>
   protected virtual void UpdateLinkLengthAndOrientation() {
+    // FIXME adjust colliders as well.
     if (!isStarted) {
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
@@ -384,7 +391,7 @@ public class KASModuleTelescopicPipeStrut
           Quaternion.LookRotation(trgStrutJoint.forward, targetTransform.forward);
       // 5. Rotate trgPivot around X axis (pivot axile) so what its forward vector points along
       //    target attach node direction.
-      trgStrutJointPivot.localRotation = 
+      trgStrutJointPivot.localRotation =
         Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
     }
 

@@ -2,6 +2,7 @@
 // Author: igor.zavoychinskiy@gmail.com
 // This software is distributed under Public domain license.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -27,20 +28,58 @@ public static class Colliders {
   /// <summary>Drops colliders in all children objects, and adds one big collider to the parent.
   /// </summary>
   /// <remarks>Intended to create one fast collider at the cost of precision. All the meshes in the
-  /// objects are processed to obtain a boundary box. Then, this box applied to the requested
-  /// primitive type that specifies the shape of the collider.
-  /// <para>Note, that sphere collider is always an ideal sphere. If combined boundary box has any
-  /// of the dimensions significantly different then it makes sense to choose different type.</para>
+  /// parent childs (including the parent) are processed to produce a boundary box. Then, this box
+  /// is applied to the requested primitive type that defines the shape of the collider.
+  /// <para>Note, that rdaius if sphere and capsule is the same in both X and Y axis. If combined
+  /// boundary box has any of the dimensions significantly different then it makes sense to choose a
+  /// different collider type. Or break down the hirearchy into more colliders.</para>
   /// </remarks>
   /// <param name="parent">Parent object.</param>
   /// <param name="type">Type of the primitive mesh which is the best for wrapping all the meshes of
-  /// the object.</param>
+  /// the object. Only <see cref="PrimitiveType.Cube"/>, <see cref="PrimitiveType.Capsule"/>, and
+  /// <see cref="PrimitiveType.Sphere"/> are supported.</param>
   /// <param name="inscribeBoundaryIntoCollider">If <c>true</c> then collider will define the outer
   /// boundaries so what all the meshes are inside the volume. Otherwise, the combined meshes box
-  /// will define the outer boundary of the collider.</param>
+  /// will define the outer boundary of the collider. It only makes sense for the colliders other
+  /// than <see cref="PrimitiveType.Cube"/>.</param>
   public static void SetSimpleCollider(GameObject parent, PrimitiveType type,
                                        bool inscribeBoundaryIntoCollider = true) {
-    // FIXME: implement.
+    parent.GetComponentsInChildren<Collider>().ToList()
+        .ForEach(UnityEngine.Object.Destroy);
+
+    // Get bounds of all renderers in the parent. The bounds come in world's coordinates, so
+    // translate them into parent's local space before encapsulating. 
+    var renderers = parent.GetComponentsInChildren<Renderer>();
+    var combinedBounds = default(Bounds);
+    foreach (var renderer in renderers) {
+      var bounds = renderer.bounds;
+      bounds.center = parent.transform.InverseTransformPoint(bounds.center);
+      bounds.size = parent.transform.rotation.Inverse() * bounds.size;
+      combinedBounds.Encapsulate(bounds);
+    }
+
+    // Add collider basing on the requested type.
+    if (type == PrimitiveType.Cube) {
+      var collider = parent.AddComponent<BoxCollider>();
+      collider.center = combinedBounds.center;
+      collider.size = combinedBounds.size;
+    } else if (type == PrimitiveType.Capsule) {
+      var collider = parent.AddComponent<CapsuleCollider>();
+      collider.center = combinedBounds.center;
+      collider.direction = 2;  // Z axis
+      collider.height = combinedBounds.size.z;
+      collider.radius = inscribeBoundaryIntoCollider
+          ? Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.y)
+          : Mathf.Min(combinedBounds.extents.x, combinedBounds.extents.y);
+    } else if (type == PrimitiveType.Sphere) {
+      var collider = parent.AddComponent<SphereCollider>();
+      collider.center = combinedBounds.center;
+      collider.radius = inscribeBoundaryIntoCollider
+          ? Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.y)
+          : Mathf.Min(combinedBounds.extents.x, combinedBounds.extents.y);
+    } else {
+      Debug.LogErrorFormat("Unsupported collider: {0}. Ignoring", type);
+    }
   }
 
   /// <summary>Sets the specified values to colliders of all the objects in the part's model.
@@ -59,25 +98,11 @@ public static class Colliders {
   //FIXME: docs
   public static void AdjustCollider(
       GameObject primitive, PrimitiveType type, Vector3 meshSize, PrimitiveCollider colliderType) {
-    var existingCollider = primitive.GetComponent<Collider>();
-    if (colliderType == PrimitiveCollider.None) {
-      if (existingCollider != null) {
-        existingCollider.gameObject.DestroyGameObjectImmediate();
-      }
-      return;
-    }
+    UnityEngine.Object.Destroy(primitive.GetComponent<Collider>());
     if (colliderType == PrimitiveCollider.Mesh) {
-      if (existingCollider != null && existingCollider.GetType() != typeof(MeshCollider)) {
-        existingCollider.gameObject.DestroyGameObjectImmediate();
-        existingCollider = null;
-      }
-      if (existingCollider == null) {
-        var collider = primitive.AddComponent<MeshCollider>();
-        collider.convex = true;
-      }
-      return;
-    }
-    if (colliderType == PrimitiveCollider.Shape) {
+      var collider =   primitive.AddComponent<MeshCollider>();
+      collider.convex = true;
+    } else if (colliderType == PrimitiveCollider.Shape) {
       // FIXME: non tirival scales does't fit simple colliders. Fix it.
       if (type == PrimitiveType.Cylinder) {
         var collider = primitive.AddComponent<CapsuleCollider>();
@@ -92,14 +117,10 @@ public static class Colliders {
         collider.size = meshSize;
       } else {
         Debug.LogWarningFormat("Unknown primitive type {0}. Droppping collider.", type);
-        UnityEngine.Object.DestroyImmediate(primitive.GetComponent<Collider>());
       }
-    }
-    Debug.LogWarningFormat(
-        "Unsupported collider type {0}. Droppping whatever collider part had: {1}",
-        colliderType, existingCollider);
-    if (existingCollider != null) {
-      UnityEngine.Object.DestroyImmediate(existingCollider);
+    } else {
+      Debug.LogWarningFormat(
+          "Unsupported collider type {0}. Droppping whatever collider part had", colliderType);
     }
   }
 }
