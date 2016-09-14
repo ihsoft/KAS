@@ -42,6 +42,10 @@ public static class Colliders {
   /// boundaries so what all the meshes are inside the volume. Otherwise, the combined meshes box
   /// will define the outer boundary of the collider. It only makes sense for the colliders other
   /// than <see cref="PrimitiveType.Cube"/>.</param>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">
+  /// Unity 3D: GameObject</seealso>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/PrimitiveType.html">
+  /// Unity 3D: PrimitiveType</seealso>
   public static void SetSimpleCollider(GameObject parent, PrimitiveType type,
                                        bool inscribeBoundaryIntoCollider = true) {
     parent.GetComponentsInChildren<Collider>().ToList()
