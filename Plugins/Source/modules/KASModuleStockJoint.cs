@@ -13,7 +13,20 @@ namespace KAS {
 
 // FIXME: start handling jointBreakForce
 public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
-  public float cfgMinLinkLength { get { return minLinkLength; } }
+  #region ILinkJoint properties.
+  /// <inheritdoc/>
+  public float cfgMinLinkLength {
+    get { return minLinkLength; }
+    // FIXME: check if new value can be set
+    set { minLinkLength = value; }
+  }
+  /// <inheritdoc/>
+  public float cfgMaxLinkLength {
+    get { return maxLinkLength; }
+    // FIXME: check if new value can be set
+    set { maxLinkLength = value; }
+  }
+  #endregion
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via

@@ -11,7 +11,7 @@ using KSPDev.ModelUtils;
 namespace KAS {
 
 // FIXME: docs
-public abstract class AbstractJointPart : AbstractDynamicPartModule {
+public abstract class AbstractJointPart : AbstractProceduralModel {
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
@@ -30,10 +30,10 @@ public abstract class AbstractJointPart : AbstractDynamicPartModule {
   /// the joint model. Its rotation will be adjusted when establishing/updating the link.</remarks>
   public abstract Transform sourceTransform { get; set; }
 
-  // FIXME: docs
+  /// <summary>
+  /// Name of the transform that is used to conenct two levers to form a complete joint. 
+  /// </summary>
   protected const string PivotAxileObjName = "PivotAxile";
-  // FIXME: docs
-  protected const string AttachNodeObjName = "AttachNode";
 
   #region Model sizes. Be CAREFUL modifying them!
   // These constants make joint model looking solid. Do NOT change them unless you fully understand
@@ -50,27 +50,24 @@ public abstract class AbstractJointPart : AbstractDynamicPartModule {
   const float ClutchAxileLength = 2 * (ClutchThikness + ClutchAxleExtent);
   #endregion
 
-  //FIXME implement
-  public void MakeJointAttachNode() {
-  }
-  // FIXME: docs
-  public void DestroyJointAttachNode() {
-  }
-
-  // FIXME: docs
-  protected Transform CreateAttachNodeTransform() {
-    var node = new GameObject(AttachNodeObjName).transform;
-    node.parent = partModelTransform;
-    node.localPosition = attachNodePosition;
-    node.localScale = Vector3.one;
-    node.localRotation = Quaternion.LookRotation(attachNodeOrientation);
-    return node;
-  }
-
-  // FIXME: docs
+  /// <summary>Dynamically creates model for a joint lever.</summary>
+  /// <remarks>Transfrom where two levers can connect is named <see cref="PivotAxileObjName"/>. To
+  /// make a complete joint model align pivot axiles of the levers, and rotate one of the levers 180
+  /// degrees around Z axis to match the clutches.
+  /// <para>All details of the model get populated with main texure <see cref="jointTexturePath"/>.
+  /// </para>
+  /// <para>Model won't have any colliders setup. Consider using
+  /// <see cref="Colliders.SetSimpleCollider"/> on the newly created model to enable collider.
+  /// </para>
+  /// </remarks>
+  /// <param name="transformName">Trasnfrom name of the new lever. Use different names for the
+  /// levers to be able loading them on part model load.</param>
+  /// <param name="createAxile">If <c>true</c> then axile model will be created, and it will be the
+  /// axile tansfrom. Otherwise, the axile transfrom will be an emopty object. Only one lever in the
+  /// connection should have axile model.</param>
+  /// <returns>Newly created joint lever model. In order to be visible and accessible on the part
+  /// the models must be attached to <see cref="partModelTransform"/>.</returns>
   protected Transform CreateStrutJointModel(string transformName, bool createAxile = true) {
-    // FIXME: use different materials.
-    // FIXME: deal with collider
     var material = CreateMaterial(GetTexture(jointTexturePath));
     var jointTransform = new GameObject(transformName).transform;
 

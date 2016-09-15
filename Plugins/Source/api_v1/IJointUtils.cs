@@ -49,7 +49,7 @@ public interface IJointUtils {
   /// except the main axis linear motion). Consider setting
   /// <see cref="ConfigurableJoint.enablePreprocessing"/> to <c>true</c> since it may improve PhysX
   /// performance.</para>
-  /// <para>For performance reasons some parameters combindations may result in different angular
+  /// <para>For performance reasons some parameters combindations may result in different motion
   /// modes:
   /// <list>
   /// <item>When <paramref name="springForce"/> is <c>Infinite</c> or
@@ -59,7 +59,7 @@ public interface IJointUtils {
   /// <item>When <paramref name="springForce"/> is <c>0</c> and <paramref name="distanceLimit"/> is
   /// <c>Infinite</c> the main axis linear movement mode is set to
   /// <see cref="ConfigurableJointMotion.Free"/>. If you plan to change either of the parameters
-  /// don't forget to update the modes as well.</item>
+  /// don't forget to update the mode as well.</item>
   /// </list>
   /// </para>
   /// <para>Regardless to the modes set all the other parameters are also applied. I.e. you don't
@@ -67,12 +67,13 @@ public interface IJointUtils {
   /// </remarks>
   /// <param name="joint">Joint to setup.</param>
   /// <param name="springForce">Force to apply per unit of linear stretching to return the joined
-  /// bodies back to the original distance.</param>
+  /// bodies back to the original distance. Also, see remarks to the method.</param>
   /// <param name="springDamperRatio">Percentage of the spring force to use for dampering
   /// oscillation effect.</param>
   /// <param name="maxSpringForce">Maximum spring force to apply when joint distance deviates from
   /// the original.</param>
-  /// <param name = "distanceLimit">Maximum allowed distance relative to the original value.</param>
+  /// <param name = "distanceLimit">Maximum allowed distance relative to the original value.  Also,
+  /// see remarks to the method.</param>
   /// <param name = "distanceLimitForce">Force to apply to keep distance in limits. If it's <c>0</c>
   /// then the limit is impassible.</param>
   /// <param name = "distanceLimitDamperRatio">Percentage of the limit force to use for dampering

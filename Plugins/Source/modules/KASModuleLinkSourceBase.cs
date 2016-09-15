@@ -509,8 +509,6 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
     KASEvents.OnLinkCreated.Fire(linkInfo);
-    //FIXME
-    //SendMessage(KASEvents.LinkCreatedEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
   }
@@ -526,8 +524,6 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkTarget = null;
     linkState = LinkState.Available;
     KASEvents.OnLinkBroken.Fire(linkInfo);
-    //FIXME
-    //SendMessage(KASEvents.LinkBrokenEventName, linkInfo, SendMessageOptions.DontRequireReceiver);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
   }

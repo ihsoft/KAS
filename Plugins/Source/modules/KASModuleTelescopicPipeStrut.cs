@@ -15,9 +15,8 @@ namespace KAS {
 
 // FIXME: docs
 // FIXME: move model logic into a base class. maybe
-public class KASModuleTelescopicPipeStrut
-    : AbstractJointPart, ILinkRenderer, ILinkStateEventListener {
-  // These fileds must not be accessed outside of the module. They are declared public only
+public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
+  // These fields must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
@@ -32,7 +31,6 @@ public class KASModuleTelescopicPipeStrut
   public float pistonWallThickness = 0.01f;
   [KSPField]
   public string pistonTexturePath = "";
-  
   [KSPField]
   public float pistonMinShift = 0.02f;
   [KSPField]
@@ -43,7 +41,7 @@ public class KASModuleTelescopicPipeStrut
   public string parkedOrientationMenu2 = "";
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
+  // These fields must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
@@ -266,7 +264,21 @@ public class KASModuleTelescopicPipeStrut
           + trgJointHandleLength;
     }
   }
-  
+
+  /// <summary>
+  /// 
+  /// </summary>
+  protected const string AttachNodeObjName = "AttachNode";
+  // FIXME: docs
+  protected Transform CreateAttachNodeTransform() {
+    var node = new GameObject(AttachNodeObjName).transform;
+    node.parent = partModelTransform;
+    node.localPosition = attachNodePosition;
+    node.localScale = Vector3.one;
+    node.localRotation = Quaternion.LookRotation(attachNodeOrientation);
+    return node;
+  }
+
   /// <inheritdoc/>
   protected override void CreatePartModel() {
     //FIXME: figure out attach node form joint piviot and its holder length  
@@ -360,7 +372,6 @@ public class KASModuleTelescopicPipeStrut
 
   /// <summary>Adjusts link models to the changed target position.</summary>
   protected virtual void UpdateLinkLengthAndOrientation() {
-    // FIXME adjust colliders as well.
     if (!isStarted) {
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
@@ -407,19 +418,7 @@ public class KASModuleTelescopicPipeStrut
     }
   }
 
-  #region ILinkStateEventListener implementation
-  /// <inheritdoc/>
-  public void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    Debug.LogWarningFormat("** LINKED!");
-  }
-
-  /// <inheritdoc/>
-  public void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    Debug.LogWarningFormat("** UNLINKED!");
-  }
-  #endregion
-
-  #region Privat utility methods
+  #region Private utility methods
   string ExtractPositionName(string cfgDirectionString) {
     var lastCommaPos = cfgDirectionString.LastIndexOf(',');
     return lastCommaPos != -1
