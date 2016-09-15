@@ -80,12 +80,13 @@
     <Compile Include="KAS_Tube.cs" />
     <Compile Include="KAS_Shared.cs" />
     <Compile Include="KSPDev\Extensions\Dictionaries.cs" />
+    <Compile Include="KSPDev\GUIUtils\Formatter.cs" />
     <Compile Include="KSPDev\GUIUtils\PartContextMenu.cs" />
     <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IModuleInfo.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IPartModule.cs" />
     <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
-    <Compile Include="modules\AbstractJoint.cs" />
+    <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\KASModuleInteractiveJointSource.cs" />

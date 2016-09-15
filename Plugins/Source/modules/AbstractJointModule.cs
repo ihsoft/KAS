@@ -3,22 +3,24 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 using System;
-using System.Linq;
-using System.Collections;
+//using System.Linq;
 using System.Text;
 using UnityEngine;
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.GUIUtils;
 
 namespace KAS {
 
 //FIXME docs
-public abstract class AbstractJoint : ILinkJoint {
+public abstract class AbstractJointModule : PartModule, IPartModule,
+                                            IModuleInfo, IKSPDevModuleInfo,
+                                            ILinkJoint {
   #region ILinkJoint properties.
   /// <inheritdoc/>
-  public virtual float cfgMinLinkLength {set; get; }
+  public virtual float cfgMinLinkLength { set; get; }
   /// <inheritdoc/>
-  public virtual float cfgMaxLinkLength {set; get; }
+  public virtual float cfgMaxLinkLength { set; get; }
   #endregion
 
   // These fields must not be accessed outside of the module. They are declared public only
@@ -26,6 +28,7 @@ public abstract class AbstractJoint : ILinkJoint {
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
   #region Part's config fields
+  //FIXME: move all settings into interface
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   /// <remarks>If <c>0</c> then joint is unbreakable. Note, that this force is measured in any
   /// direction of the joint ends movement. E.g. if limit is <c>10</c> then the joint will break
@@ -33,17 +36,14 @@ public abstract class AbstractJoint : ILinkJoint {
   /// is not important, i.e. this limit is <i>not</i> a link stretch force limit.</remarks>
   /// FIXME: investigate
   [KSPField]
-  public float strutBreakForce = 0f;
-  /// <summary>Breaking torque for the strut connecting the two parts.</summary>
-  /// <remarks>If <c>0</c> then joint is unbreakable by the torque.</remarks>
+  public float linkBreakForce = 0f;
+  /// <summary>Breaking torque for the link connecting the two parts.</summary>
   [KSPField]
-  public float strutBreakTorque = 0f;
-  /// <summary>Degree of freedom for the sphere joint at the source part.</summary>
-  /// <remarks>If <c>0</c> then joint becomes locked.</remarks>
+  public float linkBreakTorque = 0f;
+  /// <summary>Degree of freedom at the source part.</summary>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
-  /// <summary>Degree of freedom for the sphere joint at the target part.</summary>
-  /// <remarks>If <c>0</c> then joint becomes locked.</remarks>
+  /// <summary>Degree of freedom at the target part.</summary>
   [KSPField]
   public int targetLinkAngleLimit = 0;
   [KSPField]
@@ -59,6 +59,17 @@ public abstract class AbstractJoint : ILinkJoint {
       "Source angle limit reached: {0:F0} deg > {1} deg";
   protected const string TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0} deg > {1} deg";
+  protected const string ModuleTitle = "KAS Joint";
+  protected const string InfoLinkLinearStrength = "Link break force: {0}\n";
+  protected const string InfoLinkBreakStrength = "Link torque force: {0}\n";
+  protected const string InfoMinimumLinkLength = "Minimum link length: {0:F1} m\n";
+  protected const string InfoMaximumLinkLength = "Maximum link length: {0:F1} m\n";
+  protected const string InfoSourceJointFreedom = "Source joint freedom: {0}\n";
+  protected const string InfoTargetJointFreedom = "Target joint freedom: {0}\n";
+  protected const string InfoUnbreakableValue = "UNBREAKABLE";
+  protected const string InfoLockedValue = "LOCKED";
+  protected const string InfoForceFmt = "{0:F1} N";
+  protected const string InfoDegreesFmt = "{0} deg";
   #endregion
 
   #region ILinkJoint implementation
@@ -92,6 +103,43 @@ public abstract class AbstractJoint : ILinkJoint {
     return angle > targetLinkAngleLimit
         ? string.Format(TargetNodeAngleLimitReachedMsg, angle, targetLinkAngleLimit)
         : null;
+  }
+  #endregion
+
+  #region IModuleInfo implementation
+  /// <inheritdoc/>
+  public override string GetInfo() {
+    var sb = new StringBuilder();
+    sb.AppendFormat(
+        InfoLinkLinearStrength,
+        Formatter.SpecialValue(linkBreakForce, InfoForceFmt, 0, InfoUnbreakableValue));
+    sb.AppendFormat(
+        InfoLinkBreakStrength,
+        Formatter.SpecialValue(linkBreakTorque, InfoForceFmt, 0, InfoUnbreakableValue));
+    sb.AppendFormat(InfoMinimumLinkLength, minLinkLength);
+    sb.AppendFormat(InfoMaximumLinkLength, maxLinkLength);
+    sb.AppendFormat(
+        InfoSourceJointFreedom,
+        Formatter.SpecialValue(sourceLinkAngleLimit, InfoDegreesFmt, 0, InfoLockedValue));
+    sb.AppendFormat(
+        InfoTargetJointFreedom,
+        Formatter.SpecialValue(targetLinkAngleLimit, InfoDegreesFmt, 0, InfoLockedValue));
+    return sb.ToString();
+  }
+
+  /// <inheritdoc/>
+  public string GetModuleTitle() {
+    return ModuleTitle;
+  }
+
+  /// <inheritdoc/>
+  public Callback<Rect> GetDrawModulePanelCallback() {
+    return null;
+  }
+
+  /// <inheritdoc/>
+  public string GetPrimaryField() {
+    return null;
   }
   #endregion
 

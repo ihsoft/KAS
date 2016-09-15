@@ -9,11 +9,12 @@ using System.Text;
 using UnityEngine;
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.GUIUtils;
 
 namespace KAS {
 
 //FIXME docs
-public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILinkJoint,
+public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleInfo, ILinkJoint,
                                                   IKSPDevModuleInfo {
   #region Helper class to detect joint breakage
   /// <summary>Helper class to detect sphere joint ends breakage.</summary>
@@ -34,50 +35,11 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
   }
   #endregion
 
-  #region ILinkJoint properties.
-  /// <inheritdoc/>
-  public float cfgMinLinkLength {
-    get { return minLinkLength; }
-    // FIXME: check if new value can be set
-    set { minLinkLength = value; }
-  }
-  /// <inheritdoc/>
-  public float cfgMaxLinkLength {
-    get { return maxLinkLength; }
-    // FIXME: check if new value can be set
-    set { maxLinkLength = value; }
-  }
-  #endregion
-
   // These fields must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
   #region Part's config fields
-  /// <summary>Breaking force for the strut connecting the two parts.</summary>
-  /// <remarks>If <c>0</c> then joint is unbreakable. Note, that this force is measured in any
-  /// direction of the joint ends movement. E.g. if limit is <c>10</c> then the joint will break
-  /// when either source or target object get affected by a force of 10+. The direction of the force
-  /// is not important, i.e. this limit is <i>not</i> a link stretch force limit.</remarks>
-  /// FIXME: investigate
-  [KSPField]
-  public float strutBreakForce = 0f;
-  /// <summary>Breaking torque for the strut connecting the two parts.</summary>
-  /// <remarks>If <c>0</c> then joint is unbreakable by the torque.</remarks>
-  [KSPField]
-  public float strutBreakTorque = 0f;
-  /// <summary>Degree of freedom for the sphere joint at the source part.</summary>
-  /// <remarks>If <c>0</c> then joint becomes locked.</remarks>
-  [KSPField]
-  public int sourceLinkAngleLimit = 0;
-  /// <summary>Degree of freedom for the sphere joint at the target part.</summary>
-  /// <remarks>If <c>0</c> then joint becomes locked.</remarks>
-  [KSPField]
-  public int targetLinkAngleLimit = 0;
-  [KSPField]
-  public float minLinkLength = 0f;
-  [KSPField]
-  public float maxLinkLength = Mathf.Infinity;
   #endregion
 
   /// <summary>Source sphere joint.</summary>
@@ -96,18 +58,9 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
   ILinkTarget linkTarget;
   float originalLength;
 
-  #region Localizable GUI strings
-  static string MinLengthLimitReachedMsg = "Link is too short: {0:F2} m < {1:F2} m";
-  static string MaxLengthLimitReachedMsg = "Link is too long: {0:F2} m > {1:F2} m";
-  static string SourceNodeAngleLimitReachedMsg =
-      "Source angle limit reached: {0:F0} deg > {1} deg";
-  static string TargetNodeAngleLimitReachedMsg =
-      "Target angle limit reached: {0:F0} deg > {1} deg";
-  #endregion
-
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public void SetupJoint(ILinkSource source, ILinkTarget target) {
+  public override void SetupJoint(ILinkSource source, ILinkTarget target) {
     //FIXME: check for limits
     CleanupJoint();
     linkSource = source;
@@ -118,7 +71,7 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
   }
 
   /// <inheritdoc/>
-  public void CleanupJoint() {
+  public override void CleanupJoint() {
     UnityEngine.Object.Destroy(srcJoint);
     srcJoint = null;
     UnityEngine.Object.Destroy(trgJoint);
@@ -127,32 +80,6 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
     linkSource = null;
     linkTarget = null;
   }
-
-  /// <inheritdoc/>
-  public string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
-    var length = Vector3.Distance(source.nodeTransform.position, targetTransform.position);
-    return length > maxLinkLength
-        ? string.Format(MaxLengthLimitReachedMsg, length, maxLinkLength)
-        : null;
-  }
-
-  /// <inheritdoc/>
-  public string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
-    var linkVector = targetTransform.position - source.nodeTransform.position;
-    var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
-    return angle > sourceLinkAngleLimit
-        ? string.Format(SourceNodeAngleLimitReachedMsg, angle, sourceLinkAngleLimit)
-        : null;
-  }
-
-  /// <inheritdoc/>
-  public string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
-    var linkVector = source.nodeTransform.position - targetTransform.position;
-    var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
-    return angle > targetLinkAngleLimit
-        ? string.Format(TargetNodeAngleLimitReachedMsg, angle, targetLinkAngleLimit)
-        : null;
-  }
   #endregion
 
   /// <summary>Destroys child objects when joint is destroyed.</summary>
@@ -160,49 +87,6 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
   void OnDestroy() {
     CleanupJoint();
   }
-
-  #region IModuleInfo implementation
-  /// <inheritdoc/>
-  public override string GetInfo() {
-    var sb = new StringBuilder();
-    sb.AppendFormat("Link linear strength: {0}\n",
-                    FormatCappedFloat(strutBreakForce, "{0:F1} N", 0, "UNBREAKABLE"));
-    sb.AppendFormat("Link break strength: {0}\n",
-                    FormatCappedFloat(strutBreakTorque, "{0:F1} N", 0, "UNBREAKABLE"));
-    sb.AppendFormat("Minimum link length: {0:F1} m\n", minLinkLength);
-    sb.AppendFormat("Maximum link length: {0:F1} m\n", maxLinkLength);
-    sb.AppendFormat("Soucre joint freedom: {0}\n",
-                    FormatCappedInt(sourceLinkAngleLimit, "{0} deg", 0, "LOCKED"));
-    sb.AppendFormat("Target joint freedom: {0}\n",
-                    FormatCappedInt(targetLinkAngleLimit, "{0} deg", 0, "LOCKED"));
-    return sb.ToString();
-  }
-
-  //FIXME
-  string FormatCappedFloat(float value, string fmt, float capValue, string capStr) {
-    return Mathf.Approximately(value, capValue) ? capStr : string.Format(fmt, value);
-  }
-
-  //FIXME
-  string FormatCappedInt(int value, string fmt, int capValue, string capStr) {
-    return value == capValue ? capStr : string.Format(fmt, value);
-  }
-
-  /// <inheritdoc/>
-  public string GetModuleTitle() {
-    return "KAS Joint";
-  }
-
-  /// <inheritdoc/>
-  public Callback<Rect> GetDrawModulePanelCallback() {
-    return null;
-  }
-
-  /// <inheritdoc/>
-  public string GetPrimaryField() {
-    return null;
-  }
-  #endregion
 
   #region Private utility methods
   /// <summary>Creates a game object joined with the attach node.</summary>
@@ -268,9 +152,9 @@ public sealed class KASModuleTwoEndsSphereJoint : PartModule, IModuleInfo, ILink
     //   I.e. the joint will break even if there is no actualy stretching, but the part's ends got
     //   an impulse.
     var breakTorque =
-        Mathf.Approximately(strutBreakTorque, 0) ? Mathf.Infinity : strutBreakTorque;
+        Mathf.Approximately(linkBreakTorque, 0) ? Mathf.Infinity : linkBreakTorque;
     strutJoint.breakForce =
-        Mathf.Approximately(strutBreakForce, 0) ? Mathf.Infinity : strutBreakForce;
+        Mathf.Approximately(linkBreakForce, 0) ? Mathf.Infinity : linkBreakForce;
     strutJoint.breakTorque = Mathf.Infinity;
     srcJoint.gameObject.AddComponent<BrokenJointListener>().host = part;
     srcJoint.breakForce = Mathf.Infinity;
