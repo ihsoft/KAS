@@ -13,52 +13,36 @@ internal class DependancyChecker : MonoBehaviour {
   const int minimalVersionMajor = 1;
   const int minimalVersionMinor = 2;
   const int minimalVersionBuild = 1;
-  const bool checkPresence = false;
 
   public void Start() {
     string minimalVersion = minimalVersionMajor + "." + minimalVersionMinor + "." + minimalVersionBuild;
-    Assembly dependancyAssembly = null;
-    foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-      if (assembly.GetName().Name == assemblyName) {
-        dependancyAssembly = assembly;
-        break;
-      }
-    }
+    Assembly dependancyAssembly = AppDomain.CurrentDomain.GetAssemblies()
+        .FirstOrDefault(x => x.GetName().Name == assemblyName);
     if (dependancyAssembly != null) {
-      Debug.Log("Assembly : " + dependancyAssembly.GetName().Name + " | Version : "
-                + dependancyAssembly.GetName().Version + " found !");
-      Debug.Log("Minimal version needed is : " + minimalVersion);
+      Debug.LogFormat("Assembly : {0} | Version : {1} found !",
+                      dependancyAssembly.GetName().Name, dependancyAssembly.GetName().Version);
+      Debug.LogFormat("Minimal version needed is : {0}", minimalVersion);
       int dependancyAssemblyVersion =
           (dependancyAssembly.GetName().Version.Major * 100)
           + (dependancyAssembly.GetName().Version.Minor * 10)
           + (dependancyAssembly.GetName().Version.Build);
-      int minimalAssemblyVersion =
+      const int minimalAssemblyVersion =
           (minimalVersionMajor * 100) + (minimalVersionMinor * 10) + (minimalVersionBuild);
       Debug.Log("INT : " + dependancyAssemblyVersion + "/" + minimalAssemblyVersion);
       if (dependancyAssemblyVersion < minimalAssemblyVersion) {
-        Debug.LogError(assemblyName + " version " + dependancyAssembly.GetName().Version
-                       + "is not compatible with " + currentModName + "!");
+        Debug.LogErrorFormat("{0} version {1}is not compatible with {2}!",
+                             assemblyName, dependancyAssembly.GetName().Version, currentModName);
         var sb = new StringBuilder();
-        sb.AppendFormat(assemblyName + " version must be " + minimalVersion
-                        + " or greater for this version of " + currentModName + ".");
+        sb.AppendFormat("{0} version must be {1} or greater for this version of {2}.",
+                        assemblyName, minimalVersion, currentModName);
         sb.AppendLine();
-        sb.AppendFormat("Please update " + assemblyName + " to the latest version.");
+        sb.AppendFormat("Please update {0} to the latest version.", assemblyName);
         sb.AppendLine();
         PopupDialog.SpawnPopupDialog(
-          new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-          currentModName + "/" + assemblyName + " Version mismatch", sb.ToString(),
-          "OK", false, HighLogic.UISkin);
+            new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            currentModName + "/" + assemblyName + " Version mismatch", sb.ToString(),
+            "OK", false, HighLogic.UISkin);
       }
-    } else if (checkPresence) {
-      Debug.LogError(assemblyName + " not found !");
-      var sb = new StringBuilder();
-      sb.AppendFormat(assemblyName + " is required for " + currentModName + ".");
-      sb.AppendLine();
-      sb.AppendFormat("Please install " + assemblyName + " before using " + currentModName + ".");
-      sb.AppendLine();
-      PopupDialog.SpawnPopupDialog(
-        new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-        assemblyName + " not found !", sb.ToString(), "OK", false, HighLogic.UISkin);
     }
   }
 }
