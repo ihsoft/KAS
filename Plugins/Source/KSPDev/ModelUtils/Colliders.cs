@@ -90,12 +90,21 @@ public static class Colliders {
   /// </summary>
   /// <param name="parent">Game object to start searching for renderers from.</param>
   /// <param name="isPhysical">If <c>true</c> then collider will trigger physical effects. If
-  /// <c>false</c> then it will only trigger collision events.</param>
+  /// <c>false</c> then it will only trigger collision events. When it's <c>null</c> the collider
+  /// setting won't be changed.</param>
+  /// <param name="isEnabled">Defines if colliders should be enabled or disabled. When it's
+  /// <c>null</c> the collider setting won't be changed.</param>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">Unity3D: Collider
   /// </seealso>
-  public static void UpdateColliders(GameObject parent, bool isPhysical) {
+  public static void UpdateColliders(GameObject parent,
+                                     bool? isPhysical = null, bool? isEnabled = true) {
     foreach (var collider in parent.GetComponentsInChildren<Collider>()) {
-      collider.isTrigger = !isPhysical;
+      if (isPhysical.HasValue) {
+        collider.isTrigger = !isPhysical.Value;
+      }
+      if (isEnabled.HasValue) {
+        collider.enabled = isEnabled.Value;
+      }
     }
   }
 
