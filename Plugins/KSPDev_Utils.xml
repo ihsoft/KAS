@@ -1,0 +1,1518 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KSPDev_Utils</name>
+    </assembly>
+    <members>
+        <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
+             <summary>A base class for a proto of a collection of values.</summary>
+             <remarks>Collection of collections is not supported. Though, descendands may use own
+             (de)serialization approach to handle nested collections.
+             <para>All descendants of this class must implement a constructor which accepts a single
+             argument: the type of the collection. Constructor can throw <see cref="T:System.ArgumentException"/>
+             if passed type is unacceptable.</para>
+             </remarks>
+             <example>As a good example of overriding of this class see
+             <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. Though, it tries to be universal and, hence, works
+             via reflection. You don't need to deal with reflections as long as your custom proto used for
+             the fields of known types only.
+             <code>
+             class MyBooleanCollection {
+               public void AddItem(bool itemValue) {
+                 // ...some custom code...
+               }
+               public IEnumerable GetMyVeryCustomIterator() {
+                 // ...some custom code...
+                 return res;
+               }
+             }
+            
+             class MyBooleanCollectionProto : AbstractCollectionTypeProto {
+               public MyBooleanCollectionProto() : base(typeof(bool)) {}
+            
+               public override Type GetItemType() {
+                 return typeof(bool);
+               }
+               public override IEnumerable GetEnumerator(object instance) {
+                 return (instance as MyBooleanCollection).GetMyVeryCustomIterator(); 
+               }
+               public override void AddItem(object instance, object item) {
+                 (instance as MyBooleanCollection).AddItem((bool) item);
+               }
+             }
+             </code>
+             </example>
+             <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+             <seealso cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.#ctor(System.Type)">
+            <param name="containerType">A type of the collection (i.e. an immediate field's type).</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetItemType">
+            <summary>Returns type of items in the collection.</summary>
+            <returns>An item type.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetEnumerator(System.Object)">
+            <summary>Returns enumerable object for the collection.</summary>
+            <param name="instance">An instance to get the enumerable for.</param>
+            <returns>An enumerable of objects. Type of the items is determined by the relevant
+            <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.AddItem(System.Object,System.Object)">
+            <summary>Adds an item into the collection.</summary>
+            <param name="instance">A collection instance to add item into.</param>
+            <param name="item">An item to add. The item must be of the same type as
+            <see cref="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetItemType"/> specifies.</param>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto">
+            <summary>A base class for a proto of a single value.</summary>
+            <remarks>All descendands of this class must implement a default constructor.</remarks>
+            <example>See real overrides in <see cref="T:KSPDev.ConfigUtils.PrimitiveTypesProto"/> and
+            <see cref="T:KSPDev.ConfigUtils.KspTypesProto"/>.
+            <para>Here is how you could implement your own proto to persist string array as a string.</para>
+            <code>
+            class StringArrayProto : AbstractOrdinaryValueTypeProto {
+              public override bool CanHandle(Type type) {
+                return typeof(string[]) == type;
+              }
+              public override string SerializeToString(object value) {
+                return string.Join(",", (value as string[]));
+              }
+              public override object ParseFromString(string value, Type type) {
+                // Due to check in CanHandle we know the type is string[].
+                return value.Split(',');
+              }
+            }
+            </code>
+            </example>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            <seealso cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.#ctor">
+            <summary>Default constructor must be the only constructor of the proto.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.CanHandle(System.Type)">
+            <summary>Tells if proto can handle the specified type.</summary>
+            <param name="type">A type in question.</param>
+            <returns><c>true</c> if proto can (de)serialize values of the type.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.SerializeToString(System.Object)">
+            <summary>Serializes value into a string.</summary>
+            <remarks>In general avoid using <c>ToString()</c> methods to produce the serialized value.
+            Such methods are not designed to be unambiguous.</remarks>
+            <param name="value">A value to serialize.</param>
+            <returns>A string representation of the value. It doesn't need to be human readable.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.ParseFromString(System.String,System.Type)">
+            <summary>Makes a value from the string representation.</summary>
+            <param name="value">A string produced by <see cref="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.SerializeToString(System.Object)"/>.</param>
+            <param name="type">A type to convert the value into.</param>
+            <returns>A new and initialized instance of the requested type.</returns>
+            <exception cref="T:System.ArgumentException">If value cannot be parsed.</exception>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute">
+             <summary>A base for any persitent field annotation.</summary>
+             <remarks>Descendands must initialize at least <see cref="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._ordinaryTypeProto"/> field. If
+             <see cref="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._collectionTypeProto"/> is set then the field is considered a persistent
+             collection of values.
+             <para>See more examples in <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>.</para>
+             </remarks>
+             <example>A "shortcut" attributes could be declared like this: 
+             <code>
+             class MyTypeAttribute : AbstractPersistentFieldAttribute {
+               public MyTypeAttribute(string cfgPath) : base(cfgPath) {
+                 _ordinaryTypeProto = typeof(PrimitiveTypesProto);
+               }
+             }
+            
+             class MyTypesCollectionAttribute : AbstractPersistentFieldAttribute {
+               public MyTypesCollectionAttribute(string cfgPath) : base(cfgPath) {
+                 _ordinaryTypeProto = typeof(PrimitiveTypesProto);
+                 _collectionTypeProto = typeof(GenericCollectionTypeProto);
+               }
+             }
+             </code>
+             </example>
+             <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
+             <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
+             <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.path">
+            <summary>Relative path to the value or node. Case-insensitive.</summary>
+            <remarks>Absolute path depends on the context.</remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.group">
+            <summary>A tag for a group of fields.</summary>
+            <remarks>Group can be used when reading/writing values via <see cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            to process only a subset of the persistent fields of the class. It's case-insensitive.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._ordinaryTypeProto">
+            <summary>A proto that (de)serializes field's value as a simple string.</summary>
+            <remarks>This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._collectionTypeProto">
+            <summary>A proto that handles field's value as a collection of persistent values.</summary>
+            <remarks>If it's <c>null</c> then field is assumed to be not a collection.</remarks>
+            <para>This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
+            </para>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.#ctor(System.String)">
+            <param name="cfgPath">A path to the fields's value in the config. Components must be separated
+            by symbol '/'. The path is relative, the absolute path is determined when doing actual
+            (de)serialization. The path is case-insensitive.</param>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute">
+            <summary>A base for any persistent fields file annotation.</summary>
+            <remarks>This attribute doesn't assume much logic so, you basically override it only to create
+            "shortcuts".</remarks>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)"/>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsFromType(System.Type,System.Object,System.String)"/>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.group">
+            <summary>A group tag which is handled by this annotation.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.nodePath">
+            <summary>A path to the node which will be the root for the fields in the group.</summary>
+            <remarks>By setting different root for every group and/or type you may combine multiple
+            settings in the same config file. When <see cref="F:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.configFilePath"/> is empty this value is an
+            absolute path on the game's database.</remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.configFilePath">
+            <summary>An optional relative path to the config file.</summary>
+            <remarks>Absolute name is resolved via <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>. If left
+            empty then data is read from the game's database. Note, that database access is read-only.  
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.#ctor(System.String,System.String,System.String)">
+            <param name="configFilePath">A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>. If empty then data is read from database.
+            </param>
+            <param name="nodePath">A root for the persistent fields when saving or loading via this
+            annotation. If empty then root node of the file is used. Cannot be <c>null</c></param>
+            <param name="group">A group of the annotation. When saving or loading persistent fields only
+            the fields of this group will be considered. Must not be <c>null</c>.</param>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute">
+            <summary>
+            A simple annotation to associate a persistent group with a game's database key.
+            </summary>
+            <remarks>
+            <para>This annotation is basically a shortcut to <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>.
+            You may use the latter with an empty config file path if you find it more convinient.</para>
+            <para>Each <c>.cfg</c> file in the mod's folders is scanned and indexed by the game on start. The
+            data is stored in the database where it can be accessed from the game. The access is read-only,
+            any changes to the node returned from the database won't affect the database state.</para>
+            <para>Config file in the database is indentified by a key which is made of three major parts:
+            <list type="">
+            <item>A file path relative to <c>GameData</c>.</item>
+            <item>The config filename without extension.</item>
+            <item>Node path inside the file starting from the root. I.e. the root node should have name as
+            well.</item>
+            </list>
+            </para>
+            <para>E.g. key <c>KIS/settings/KISConfig/Global</c> addresses a node <c>KISConfig/Global</c> in file
+            stored at <c>GameData/KIS/settings.cfg</c>.
+            </para>
+            <para>Special case is subfolders <c>PluginData</c>, they are ignored during database scan. Put
+            there configs that can change during the gameplay. Remember, that even a tiny change in the
+            config will trigger database re-compilation on the next start which may significantly impact
+            game loading time.</para>
+            <para>Database is actively used by
+            <see href="https://github.com/sarbian/ModuleManager">ModuleManager</see> (a.k.a. MM). Be wise
+            when choosing if fields should be read from a file or from the database. Module manager
+            patches are only applied on the database, they don't affect the config files. E.g. part configs
+            are frequently updated by the patches but never updated from the gameplay so, reading them via
+            database is the best choice. Various mod's settings, on the other hand, can change during the
+            game but will unlikely be a target for a MM patch, put them into <c>PluginData</c> folder and
+            read/write via file methods.</para>
+            </remarks>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)"/>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsFromType(System.Type,System.Object,System.String)"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute.#ctor(System.String,System.String)">
+            <param name="nodePath">An absolute path to the node in the game's database.</param>
+            <param name="group">A group of the annotation. When saving or loading persistent fields only
+            the fields of this group will be considered. Must not be <c>null</c>.</param>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute">
+             <summary>
+             A simple annotation to associate a persistent group with a configuration file.
+             </summary>
+             <remarks>Multiple annotations are allowed on the class. It's not required to have unique
+             filename/nodePath/group set in every annontation but it's highly recommended.  
+             <para>This assignment is ignored in the nested classes. Though, when using nested class as an
+             immediate target of the call the annotation will be handled just fine.</para>
+             </remarks>
+             <example>
+             <code>
+             [PersistentFieldsFile("settings.cfg", "Root/Default")]
+             [PersistentFieldsFile("settings-other.cfg", "", "abc")]
+             [PersistentFieldsFile("settings-nested-bad.cfg", "", "nevermind")]
+             class ClassWithPersistentFields {
+               [PersistentField("field1")]
+               private int intField = 0;
+             
+               [PersistentFieldsFile("settings-nested-good.cfg", "Root/Nested", "nevermind")]
+               internal struct ComplexType {
+                 [PersistentField("val1", group = "nevermind")]
+                 public bool boolVal;
+                 [PersistentField("val2", group = "nevermind")]
+                 public Color colorVal;
+               }
+             
+               [PersistentField("complexField1", group = "abc")]
+               private ComplexType complexField;
+             
+               void SaveFields() {
+                 // Save a default group of fields. 
+                 ConfigAccessor.WriteFieldsFromType(instance: this);
+                 /* File will be created at "GameData/settings.cfg":
+                  * Root
+                  * {
+                  *   Default
+                  *   {
+                  *     field1: 0
+                  *   }
+                  * }
+                  */
+             
+                 // Save group "abc". Note that the complex type only defines fields for group "nevermind"
+                 // but it's ignored. The group is only honored on the immediate type, i.e.
+                 // ClassWithPersistentFields in this case. 
+                 ConfigAccessor.WriteFieldsFromType(instance: this, group: "abc");
+                 /* File will be created at "GameData/settings-other.cfg".
+                  * {
+                  *   complexField1
+                  *   {
+                  *     val1: False
+                  *     val2: 0,0,0,1
+                  *   }
+                  * }
+                  */
+             
+                 // Try to use incorrect setup and save group "nevermind" for "this". 
+                 // File will be created at "GameData/settings-nested-bad.cfg". And it will be empty since
+                 // no fields for this group is defined in class ClassWithPersistentFields.
+                 ConfigAccessor.WriteFieldsFromType(instance: this, group: "nevermind");
+             
+                 // Proper use of the nested complex type would be like this.
+                 var test = new ComplexType() {
+                     boolVal = true,
+                     colorVal = Color.white
+                 };
+                 ConfigAccessor.WriteFieldsFromType(instance: test, group: "nevermind");
+                 /* File will be created at "GameData/settings-nested-good.cfg".
+                  * Root
+                  * {
+                  *   Nested
+                  *   {
+                  *     complexField1
+                  *     {
+                  *       val1: True
+                  *       val2: 1,1,1,1
+                  *     }
+                  *   }
+                  * }
+                  */
+            
+                 // The following call makes the similar output but with different values.    
+                 ConfigAccessor.WriteFieldsFromType(instance: complexField, group: "nevermind");
+               }
+             }
+             </code>
+             Note that this annotation only adds or re-creates the node specified by <c>nodePath</c>. If
+             target file had other nodes they will not be overwritten. Though, you may expect the file
+             structure to be re-ordered and comments (if any) lost. The file is actualy changed, it's read,
+             updated, and saved.
+             </example>
+             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)"/>
+             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsFromType(System.Type,System.Object,System.String)"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldsFileAttribute.#ctor(System.String,System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.GenericCollectionTypeProto">
+            <summary>A proto handler for a simple generic collection.</summary>
+            <remarks>Generic must have exactly one arguent, implement method <c>Add</c> for adding new
+            items, and implement <see cref="T:System.Collections.IEnumerable"/>.</remarks>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.#ctor(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.GetItemType">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.GetEnumerator(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.AddItem(System.Object,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.OrdinaryFieldHandler">
+            <summary>
+            A handler that manages ordinary fields. All type specific handling is done via a proto.
+            </summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.#ctor(KSPDev.ConfigUtils.PersistentField,System.Type,System.Type)">
+            <param name="persistentField">A persitent field descriptor.</param>
+            <param name="valueType">A type to handle. If field is a collection then this type is a type of
+            the collection's item.</param>
+            <param name="simpleTypeProtoType">A proto that handles (de)serializing (in)to a simple string.
+            if this proto cannot handle <paramref name="valueType"/> then the type will be attempted to be
+            handled as a complex type.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.SerializeValue(System.Object)">
+            <summary>Converts field value into a form suitable for storing into config file.</summary>
+            <remarks>Values that can be handled by the proto are transformed into simple strings, and
+            saved as string values into the config. Structs and classes are considred "compound types"
+            (see <see cref="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.IsCompound"/>), i.e. types that have nested fields in them. Such types are
+            converted into a config node.</remarks>
+            <param name="value">A field's value to convert.</param>
+            <returns>String or <see cref="T:ConfigNode"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.DeserializeValue(System.Object)">
+            <summary>Converts a value from config into an actual fiel's value.</summary>
+            <param name="cfgValue">A string if value can be handled by the proto or
+            <see cref="T:ConfigNode"/> if type is compound.</param>
+            <returns>Field's value.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.IsCompound">
+            <summary>Determines if the field is complex type consiting of more fields.</summary>
+            <returns><c>true</c> if type can have nested persitent fields.</returns>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PrimitiveTypesProto">
+            <summary>A proto for handling C# primitive types.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.CanHandle(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.SerializeToString(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.ParseFromString(System.String,System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto">
+            <summary>Proto to handle all primitive C# types and common Unity/KSP types.</summary>
+            <seealso cref="T:KSPDev.ConfigUtils.PrimitiveTypesProto"/>
+            <seealso cref="T:KSPDev.ConfigUtils.KspTypesProto"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.CanHandle(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.SerializeToString(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.ParseFromString(System.String,System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.StdPersistentGroups">
+            <summary>Group names that have special meaning.</summary>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.StdPersistentGroups.Default">
+            <summary>A public group that can be saved/loaded on every game scene.</summary>
+            <remarks>By the contract any caller can save/load this group at any time. If class declares
+            persistent fields with specific save/load logic then they need to have a group different from
+            the default.</remarks>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigAccessor">
+            <summary>A service class that simplifies accessing configuration files.</summary>
+            <remarks>This class provides a lot of useful methods to deal with values in game's configuration
+            files. There are low level methods that deal with nodes and values, and there are high level
+            methods that use metadata from the annotated fields.</remarks>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromFile(System.String,System.Type,System.Object,System.String,System.String)">
+            <summary>Reads values of the annotated persistent fields from a config file.</summary>
+            <param name="filePath">A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>.</param>
+            <param name="type">A type to load fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be loaded.</param>
+            <param name="nodePath">An optional path in the file. All type's field will be read relative
+            to this part.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromDatabase(System.String,System.Type,System.Object,System.String)">
+            <summary>Reads values of the annotated persistent fields from a config file.</summary>
+            <param name="nodePath">An absolute path in the database. No leading "/".</param>
+            <param name="type">A type to load fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be loaded.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromNode(ConfigNode,System.Type,System.Object,System.String)">
+            <summary>Reads values of the annotated persistent fields from a config node.</summary>
+            <param name="node">A config node to read data from.</param>
+            <param name="type">A type to load fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be loaded.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)">
+            <summary>
+            Reads persistent fields from the config files specified by the class annotation.
+            </summary>
+            <param name="type">A type to load fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be loaded.</param>
+            <param name="group">A group to load fields for. If <c>null</c> then all groups that are
+            defined in the class annotation via <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/> will be
+            loaded.</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsIntoFile(System.String,System.Type,System.Object,System.String,System.Boolean,System.String)">
+            <summary>Writes values of the annotated persistent fields into a file.</summary>
+            <remarks>All persitent values are <b>added</b> into the file provided. I.e. if node had
+            already had a value being persited then it either overwritten (ordinary fields) or extended
+            (collection fields).</remarks>
+            <param name="filePath">A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>.</param>
+            <param name="rootNodePath">A path to the node in the file where the data should be
+            written. If the node already exsist it will be deleted.</param>
+            <param name="type">A type to write fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be written.</param>
+            <paramref name="rootNodePath"/> node will be updated in that file. Otherwise, a new file
+            <param name="mergeMode">If <c>true</c> and the file already exists then only
+            will be created.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsIntoNode(ConfigNode,System.Type,System.Object,System.String)">
+            <summary>Writes values of the annotated persistent fields into a config node.</summary>
+            <remarks>All persitent values are <b>added</b> into the node provided. I.e. if node had
+            already had a value being persited then it either overwritten (ordinary fields) or extended
+            (collection fields).</remarks>
+            <param name="node">A config node to write data into.</param>
+            <param name="type">A type to write fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be written.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsFromType(System.Type,System.Object,System.String)">
+            <summary>
+            Writes persistent fields into the config files specified by the class annotation.
+            </summary>
+            <remarks>Method updates the config file(s) by preserving top level nodes that are not
+            specified as targets for the requested group.
+            <para>Note, that fields cannot be writtent into database. Such annotations will be skipped
+            during the save.</para>
+            </remarks>
+            <param name="type">A type to write fields for.</param>
+            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be written.</param>
+            <param name="group">A group to write fields for. If <c>null</c> then all groups that are
+            defined in the class annotation via <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/> will be
+            written.</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath(ConfigNode,System.String)">
+            <summary>Reads a value from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="path">A string path to the value. Path components should be separated by '/'
+            symbol.</param>
+            <returns>String value or <c>null</c> if path or value is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath(ConfigNode,System.String[])">
+            <summary>Reads a value from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <returns>String value or <c>null</c> if path or value is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValuesByPath(ConfigNode,System.String)">
+            <summary>Reads repeated values from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="path">A string path to the values. Path components should be separated by '/'
+            symbol.</param>
+            <returns>Array of string values or <c>null</c> if path is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValuesByPath(ConfigNode,System.String[])">
+            <summary>Reads repeated values from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <returns>Array of string values or <c>null</c> if path is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetNodeByPath(ConfigNode,System.String,System.Boolean)">
+            <summary>Reads a node from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="path">A string path to the node. Path components should be separated by '/'
+            symbol.</param>
+            <param name="createIfMissing">If <c>true</c> than unknown nodes in the path will be
+            created.</param>
+            <returns>Config node or <c>null</c> if path or node is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetNodeByPath(ConfigNode,System.String[],System.Boolean)">
+            <summary>Reads a node from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="createIfMissing">If <c>true</c> than unknown nodes in the path will be
+            created.</param>
+            <returns>Config node or <c>null</c> if path or node is not present in the
+            <paramref name="node"/>. Returns <paramref name="node"/> if path is empty array.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetNodesByPath(ConfigNode,System.String)">
+            <summary>Reads repeated nodes from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="path">A string path to the nodes. Path components should be separated by '/'
+            symbol.</param>
+            <returns>Array of nodes or <c>null</c> if path is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetNodesByPath(ConfigNode,System.String[])">
+            <summary>Reads repeated nodes from config node by a path.</summary>
+            <param name="node">A node to read data from.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <returns>Array of nodes or <c>null</c> if path is not present in the
+            <paramref name="node"/>.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath(ConfigNode,System.String,System.String)">
+            <summary>Sets a value in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="path">A string path to the node. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A string value to store.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath(ConfigNode,System.String[],System.String)">
+            <summary>Sets a value in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A string value to store.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetNodeByPath(ConfigNode,System.String,ConfigNode)">
+            <summary>Sets a node in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="path">A string path to the node. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A config node to store.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetNodeByPath(ConfigNode,System.String[],ConfigNode)">
+            <summary>Sets a node in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A config node to store.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.AddValueByPath(ConfigNode,System.String,System.String)">
+            <summary>Adds a repeated value in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="path">A string path to the nodes. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A string value to add into the node.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.AddValueByPath(ConfigNode,System.String[],System.String)">
+            <summary>Adds a repeated value in config node by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A string value to add into the node.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.AddNodeByPath(ConfigNode,System.String,ConfigNode)">
+            <summary>Adds a repeated node in the config by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="path">A string path to the nodes. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A config node to add.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.AddNodeByPath(ConfigNode,System.String[],ConfigNode)">
+            <summary>Adds a repeated node in the config by a path.</summary>
+            <param name="node">A node to set data in.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A config node to add.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath``1(ConfigNode,System.String,``0,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Stores a value of arbitrary type <typeparamref name="T"/> into a config node.
+            </summary>
+            <param name="node">A node to set data in.</param>
+            <param name="path">A string path to the node. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A value to store. The <paramref name="typeProto"/> handler must know how
+            to convert the value into string.</param>
+            <param name="typeProto">A proto capable to handle the type of <paramref name="value"/>. If not
+            set then <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.</param>
+            <typeparam name="T">The value type to store. Type proto must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath``1(ConfigNode,System.String[],``0,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Stores a value of arbitrary type <typeparamref name="T"/> into a config node.
+            </summary>
+            <param name="node">A node to set data in.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A value to store. The <paramref name="typeProto"/> handler must know how
+            to convert value's type into string.</param>
+            <param name="typeProto">A proto capable to handle the type of <paramref name="value"/>. If not
+            set then <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.</param>
+            <typeparam name="T">The value type to store. Type proto must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath``1(ConfigNode,System.String,``0@,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Reads a value of arbitrary type <typeparamref name="T"/> from a config node.
+            </summary>
+            <param name="node">A node to read data from.</param>
+            <param name="path">A string path to the node. Path components should be separated by '/'
+            symbol.</param>
+            <param name="value">A variable to read value into. The <paramref name="typeProto"/> handler
+            must know how to convert value's type from string.</param>
+            <param name="typeProto">A proto capable to handle the type of <paramref name="value"/>. If not
+            set then <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.</param>
+            <returns><c>true</c> if value was successfully read and stored.</returns>
+            <typeparam name="T">The value type to read. Type proto must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath``1(ConfigNode,System.String[],``0@,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Reads a value of arbitrary type <typeparamref name="T"/> from a config node.
+            </summary>
+            <param name="node">A node to read data from.</param>
+            <param name="pathKeys">An array of values that makes the full path. First node in the array is
+            the top most component of the path.</param>
+            <param name="value">A variable to read value into. The <paramref name="typeProto"/> handler
+            must know how to convert value's type from string.</param>
+            <param name="typeProto">A proto capable to handle the type of <paramref name="value"/>. If not
+            set then <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.</param>
+            <returns><c>true</c> if value was successfully read and stored.</returns>
+            <typeparam name="T">The value type to read. Type proto must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetPersistentFieldsFiles(System.Type,System.String)">
+            <summary>Gathers and returns persistent field fields annotations.</summary>
+            <param name="type">A type to lookup for the field annotations.</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>). If
+            <c>null</c> then all files defined in the type are returned.</param>
+            <returns>Array of persistent fields.</returns>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.CollectionFieldHandler">
+            <summary>A handler that manages collections in persitent fields.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.#ctor(KSPDev.ConfigUtils.PersistentField,System.Type,System.Type)">
+            <param name="persistentField">A descriptor of persistent field which holds the value.</param>
+            <param name="collectionType">A type of the collection this handler will be handling.</param>
+            <param name="collectionProtoType">A proto type that can work with the collection.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.SerializeValues(ConfigNode,System.Object)">
+            <summary>Stores collection values into a config node.</summary>
+            <param name="node">A node to add values into.</param>
+            <param name="value">A collection instance to get values from.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.DeserializeValues(ConfigNode)">
+            <summary>Creates a collection from the config node.</summary>
+            <param name="node">A node to read data from.</param>
+            <returns>Сollection instance.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.GetItemType">
+            <summary>Returns type of an item in the colelction.</summary>
+            <returns>Item's type.</returns>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentFieldsFactory">
+            <summary>A helper class to gather persistent field attributes.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldsFactory.GetPersistentFields(System.Type,System.Boolean,System.Boolean,System.String)">
+            <summary>Gathers persitent fields for a type.</summary>
+            <param name="type">A type of to gather persistent fields for.</param>
+            <param name="needStatic">Specifies if static fields need to be returned.</param>
+            <param name="needInstance">Specifies if non-static fields need to be returned.</param>
+            <param name="group">A filter group for the persitent fields. Note that group is ignored for
+            the inner fields of a compound type.</param>
+            <returns>List of persitent fields.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldsFactory.FindAnnotatedFields(System.Reflection.IReflect,System.Boolean,System.Boolean,System.String)">
+            <summary>Finds and returns peristent fields of the requested group.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldsFactory.FieldFilter(System.Reflection.ICustomAttributeProvider,System.String)">
+            <summary>Filters only persitent fields of the required group.</summary>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentField">
+            <summary>Descriptor of a persitent field.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.PersistentField.fieldInfo">
+            <summary>Annotated fields metadata.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.PersistentField.cfgPath">
+            <summary>Parsed configuration paths. The first </summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.PersistentField.ordinaryFieldHandler">
+            <summary>An instance of ordianl field proto as specified in the annotation.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.PersistentField.collectionFieldHandler">
+            <summary>An instance of collection fiel proto as specified in the annotation.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.#ctor(System.Reflection.FieldInfo,KSPDev.ConfigUtils.PersistentFieldAttribute)">
+            <param name="fieldInfo">An annotated field metadata.</param>
+            <param name="fieldAttr">An annotation of the field.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.WriteToConfig(ConfigNode,System.Object)">
+            <summary>Writes field into a config node.</summary>
+            <param name="node">A node to write state to.</param>
+            <param name="instance">An owner of the field. Can be <c>null</c> for static fields.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.ReadFromConfig(ConfigNode,System.Object)">
+            <summary>Reads field from a config node.</summary>
+            <param name="node">A node to read state from.</param>
+            <param name="instance">An owner of the field. Can be <c>null</c> for static fields.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.SerializeCompoundFieldsToNode(System.Object)">
+            <summary>Makes a config node from the compound type fields.</summary>
+            <param name="instance">An owner ofthe fields. Can be <c>null</c> for static fields.</param>
+            <returns>New configuration node with the data.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.DeserializeCompoundFieldsFromNode(ConfigNode,System.Object)">
+            <summary>Sets compound type field values from the config node.</summary>
+            <param name="node">A node to read values from.</param>
+            <param name="instance">An owner ofthe fields. Can be <c>null</c> for static fields.</param>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
+            <summary>A simple attribute for fields that need (de)serialization.</summary>
+            <remarks>
+            This form allows adjusting any <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/> property
+            in the annotation, and has a shortcut to mark field as collection
+            (<c><see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection"/> = true</c>).
+            <para> By default ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
+            and collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
+            be changed in the annotation by assigning values to properties
+            <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto"/> and/or <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto"/>.</para>
+            </remarks>
+            <example>
+            Below is a simple usage of the attribute.
+            <code>
+            class ClassWithPersistentFields {
+              [PersistentField("my/listField", isCollection = true)]
+              private List&lt;string&gt; sampleList = new List&lt;string&gt;();
+            
+              internal struct ComplexType {
+                [PersistentField("val1", group = "nevermind")]
+                public bool boolVal;
+                [PersistentField("val2")]
+                public Color colorVal;
+              }
+            
+              [PersistentField("my/setField", isCollection = true, group = "abc")]
+              private HashSet&lt;ComplexType&gt; sampleSet = new HashSet&lt;ComplexType&gt;();
+            
+              void SaveConfigs() {
+                // Save a default group of fields: only field "sampleList" qualifies.
+                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
+                /* The following structure in the file will be created:
+                 * {
+                 *   my
+                 *   {
+                 *     listField: string1
+                 *     listField: string2
+                 *   }
+                 * }
+                 */
+            
+                // Save a specific group of fields: only field "sampleSet" belongs to group "abc".
+                sampleSet.Add(new ComplexType() { boolVal = true, colorVal = Color.black });
+                sampleSet.Add(new ComplexType() { boolVal = false, colorVal = Color.white });
+                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this, group: "abc");
+                /* The following structure in the file will be created:
+                 * {
+                 *     setField
+                 *     {
+                 *       val1: True
+                 *       val2: 0,0,0,1
+                 *     }
+                 *     setField
+                 *     {
+                 *       val1: false
+                 *       val2: 1,1,1,1
+                 *     }
+                 *   }
+                 * }
+                 */
+              }
+            }
+            </code>
+            <para>Note that group is ignored in the nested types. I.e. in <c>ComplexType</c> in this case.
+            Though, if <c>ComplexType</c> was an immediate target of the <c>WriteFieldsIntoFile</c> call
+            then the group would be considered.</para>
+            <para>Visibility of the annotated field is also important. Persistent field attributes are
+            only visible in the child class if they were public or protected in the parent. Private field
+            annotations are not inherited and need to be handled at the level of the declaring class.
+            </para>
+            <code>
+            class Parent {
+              [PersistentField("parent_private")]
+              private int field1 = 1;
+            
+              [PersistentField("parent_protected")]
+              protected int field2 = 2;
+            
+              [PersistentField("parent_public")]
+              public int field3 = 3;
+            }
+            
+            class Child : Parent {
+              [PersistentField("child_private")]
+              private int field1 = 10;
+            
+              void SaveConfig() {
+                // Save all fields in the inherited type. 
+                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
+                /* The following structure in the file will be created:
+                 * {
+                 *     parent_protected: 2
+                 *     parent_public: 3
+                 *     child_private: 10
+                 * }
+                 */
+            
+                // Save all fields in the base type. 
+                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: (Parent) this);
+                /* The following structure in the file will be created:
+                 * {
+                 *     parent_private: 1
+                 *     parent_protected: 2
+                 *     parent_public: 3
+                 * }
+                 */
+              }
+            }
+            </code>
+            <para>The code above implies that in a common case unsealed class should put private fields in
+            a group other than default to avoid settings collision.</para> 
+            <para>When type of the field is different from primitive C# type or common Unity 4 type you
+            may need provide custom value handlers to deal with (de)serializing. E.g. for an ordinary type
+            it may look like this:</para>
+            <code>
+            class CustomTypes {
+              [PersistentField("my/custom/type", ordinaryTypeProto = typeof(MyTypeProto))]
+              private MyType field1;
+            }
+            </code>
+            <para>If your custom type is a collection that cannot be handled by the standard proto you can
+            provide your own collection proto handler. Note that if you do the annotated field will be
+            treated as a collection. In fact, when you set <c>isCollection = true</c> what actually
+            happens is just assigning <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/> as a collection proto
+            handler.</para>
+            <code>
+            class CustomTypes {
+              [PersistentField("my/custom/type", collectionTypeProto = typeof(MyCollectionProto))]
+              private MyCollection field1;
+            }
+            </code>
+            For more examples on custom proto handlers see <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/> and
+            <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
+            </example>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
+            <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentFieldAttribute.#ctor(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto">
+            <summary>A proto for handling the annotated field.</summary>
+            <remarks>If field is a collection then this proto will be used to handle values of the
+            collection items.</remarks>
+        </member>
+        <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto">
+            <summary>A proto for handling collection fields.</summary>
+            <remarks>If this property is not <c>null</c> than the annotated field is trreated as a
+            collection of values.</remarks>
+        </member>
+        <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection">
+            <summary>Specifies if the annotated field is a collection of values.</summary>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.KspTypesProto">
+            <summary>A proto for handling all KSP specific types.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.KspTypesProto.CanHandle(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.KspTypesProto.SerializeToString(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.KspTypesProto.ParseFromString(System.String,System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:KSPDev.FSUtils.KspPaths">
+            <summary>A helper class to deal with plugins file structure.</summary>
+        </member>
+        <member name="F:KSPDev.FSUtils.KspPaths.pluginsRootFolder">
+            <summary>Standard plug-ins folder.</summary>
+        </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)">
+            <summary>Makes an absolute file path given a relative one.</summary>
+            <param name="path">A relative or an absolute part. If the first case the path is translated
+            from the game's plugin root folder ("GameData" as of KSP 1.0.5). If argument is an absolute
+            path then it's returned as is.</param>
+            <returns>Absolute file path.</returns>
+        </member>
+        <member name="P:KSPDev.FSUtils.KspPaths.pluginsRoot">
+            <summary>Returns full path to the plugins root folder.</summary>
+        </member>
+        <member name="T:KSPDev.GUIUtils.ScreenMessaging">
+            <summary>Helper class to present global UI messages.</summary>
+            <remarks>The actual representation of the different priority messages depends on the KSP
+            version. As a rule of thumb use the following reasons when deciding how to show a message:
+            <list>
+            <item>Important messages should be show as "priority". It's assumed that UI layout is build so
+                what that such messages won't be missed.</item>
+            <item>Messages that only give status update and can be safely ignored by the player should be
+                reported as "info". They will show up in UI but not necessarily bring user's attention.
+                </item>
+            </list>
+            </remarks>
+            <example>
+            <code>
+            class MyMod : MonoBehavior {
+              void Update() {
+                if (Input.GetKeyDown("1")) {
+                  ScreenMessaging.ShowPriorityScreenMessage("Key pressed in frame #{0}", Time.frameCount);
+                }
+              }
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowScreenMessage(ScreenMessageStyle,System.Single,System.String,System.Object[])">
+            <summary>Shows a formatted message with the specified location and timeout.</summary>
+            <param name="style">A <c>ScreenMessageStyle</c> specifier.</param>
+            <param name="duration">Delay before hiding the message in seconds.</param>
+            <param name="fmt"><c>string.Format()</c> formatting string.</param>
+            <param name="args">Arguments for the formattign string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowPriorityScreenMessageWithTimeout(System.Single,System.String,System.Object[])">
+            <summary>Shows an important message with the specified timeout.</summary>
+            <remarks>It's no defined how exactly the message is shown. The only thing required is that
+            player won't miss it.</remarks>
+            <param name="duration">Delay before hiding the message in seconds.</param>
+            <param name="fmt">A formatting string.</param>
+            <param name="args">Arguments for the formatting string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowPriorityScreenMessage(System.String,System.Object[])">
+            <summary>Shows an important message with a default timeout.</summary>
+            <remarks>It's no defined how exactly the message is shown. The only thing required is that
+            player won't miss it.</remarks>
+            <param name="fmt">A formatting string.</param>
+            <param name="args">Arguments for the formatting string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowInfoScreenMessageWithTimeout(System.Single,System.String,System.Object[])">
+            <summary>Shows an info message with the specified timeout.</summary>
+            <remarks>It's no defined how exactly the message is shown.</remarks>
+            <param name="duration">Delay before hiding the message in seconds.</param>
+            <param name="fmt"><c>string.Format()</c> formatting string.</param>
+            <param name="args">Arguments for the formattign string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowInfoScreenMessage(System.String,System.Object[])">
+            <summary>Shows an info message with a default timeout.</summary>
+            <remarks>It's no defined how exactly the message is shown.</remarks>
+            <param name="fmt"><c>string.Format()</c> formatting string.</param>
+            <param name="args">Arguments for the formattign string.</param>
+        </member>
+        <member name="T:KSPDev.GUIUtils.HintOverlay">
+             <summary>A wrapper class to present simple overlay window with text.</summary>
+             <remarks>
+             <para>Overlay windows doesn't have border or title. Main purpose of such windows is "hints".
+             I.e. short lived piece of information presented for the current context. The hint won't be shown
+             in UI until explicitly requsted via call to a <c>ShowAt*</c> method.</para>
+             <para>Keep in mind that this window contains graphics objects that will be destroyed on scene
+             re-loading. I.e. it must be re-created on every scene change.</para>
+             </remarks>
+             <example>
+             In a common case initialization of the hint window is done on the game object awakening, and
+             it's either shown or hidden in <c>OnGUI</c> method.
+             <code>
+             class MyMod : MonoBehavior {
+               HintOverlay hint;
+            
+               void Awake() {
+                 hint = new HintOverlay(12, 3, Color.white, new Color(0f, 0f, 0f, 0.5f));
+               }
+            
+               void OnGUI() {
+                 hint.text = string.Format("Current frame is: {0}", Time.frameCount);
+                 hint.ShowAtCursor();
+               }
+             }
+             </code>
+             <para>In the example above text of the hint is set on every frame update since frame count is updated
+             this frequently. Though, if your data is updated less frequently you may save some performance
+             by updating text in the methods different from <c>OnGUI</c>.</para>
+             </example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.BackgroundTextureSize">
+            <summary>Size of the sample texture that fills hint window backgroud.</summary>
+            <remarks>Small values may impact rendering performance. Large values will increase memory
+            footpring. Choose it wise.</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.RightSideMousePadding">
+            <summary>Padding when showing hint on the right side of the mouse cursor.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.LeftSideMousePadding">
+            <summary>Padding when showing hint on the left side of the mouse cursor.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.textSize">
+            <summary>Precalculated UI text size for the currently assigned text.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.hintWindowStyle">
+            <summary>Precalculated style for the hint overlay window.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.HintOverlay.#ctor(System.Int32,System.Int32,UnityEngine.Color,UnityEngine.Color)">
+            <summary>Constructs an overaly.</summary>
+            <param name="fontSize">A size of the text font in the hint.</param>
+            <param name="padding">A padding between the text and the window boundaries.</param>
+            <param name="textColor">A color of the hint text.</param>
+            <param name="backgroundColor">A color of the hint backtround. If alpha component is different
+            from <c>1.0</c> then background will be semi-transparent.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.HintOverlay.ShowAtCursor">
+            <summary>Shows hint text at the current mouse pointer.</summary>
+            <remarks>When possible the window is shown on the right side of the cursor. Though, if part of
+            the window goes out of the screen then it will be shown on the left side. If bottom boundary
+            of the window hits bottom boundary of the screen then hint is aligned vertically so what the
+            full content is visible. </remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.HintOverlay.ShowAtPosition(System.Single,System.Single)">
+            <summary>Shows hint at the absolute screen position.</summary>
+            <remarks>If hint content goes out of the screen it's clipped.</remarks>
+            <param name="x">X position is screen coordinates.</param>
+            <param name="y">Y position is screen coordinates.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.HintOverlay.CreateSampleTextureFromColor(UnityEngine.Color)">
+            <summary>Creates a clear color texture to fill background with.</summary>
+            <param name="color">A background color.</param>
+            <returns>Texture of a default size.</returns>
+        </member>
+        <member name="P:KSPDev.GUIUtils.HintOverlay.text">
+            <summary>The hint overlay text.</summary>
+            <remarks>Linefeed symbols are correctly handled. Use them to make multiline content. Setting
+            text is an expensive operation since it results in window size recalculation. Don't update it
+            more frequently than the underlaying data does.</remarks>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message">
+             <summary>A class to wrap a simple UI string.</summary>
+             <remarks>
+             <para>Messages of this type don't have parameters and can be just casted to a string.</para> 
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
+             localization.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message MyMessage = "This is a message without parameters";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage);
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="messageString">A message string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message.op_Implicit(System.String)~KSPDev.GUIUtils.Message">
+            <summary>Allows casting string to message.</summary>
+            <remarks>Instead of creating new insatnce for every string just do the cast as it was a
+            regular literal constant.</remarks>
+            <param name="messageString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message.op_Implicit(KSPDev.GUIUtils.Message)~System.String">
+            <summary>Allows casting messages to string.</summary>
+            <param name="msg">A message to cast.</param>
+            <returns>Message value.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message`1">
+             <summary>A class to wrap a UI string with one parameter.</summary>
+             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
+             <remarks>
+             <para>Define parameter type via generic argument. When string needs to be presented use
+             <see cref="M:KSPDev.GUIUtils.Message`1.Format(`0)"/> to make the parameter substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
+             localization.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message<string> MyMessage = "Param: {0}";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!"));
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`1.Format(`0)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`1.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0}">
+            <summary>Allows casting strings to message.</summary>
+            <param name="fmtString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message`2">
+             <summary>A class to wrap a UI string with two parameters.</summary>
+             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
+             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
+             <remarks>
+             <para>Define parameter types via generic argument. When string needs to be presented use
+             <see cref="M:KSPDev.GUIUtils.Message`2.Format(`0,`1)"/> to make parameters substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
+             localization.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message<string, int> MyMessage = "Params: {0}, {1}";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123));
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`2.Format(`0,`1)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <param name="arg2">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`2.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1}">
+            <summary>Allows casting strings to message.</summary>
+            <param name="fmtString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message`3">
+             <summary>A class to wrap a UI string with three parameters.</summary>
+             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
+             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
+             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
+             <remarks>
+             <para>Define parameter types via generic argument. When string needs to be presented use
+             <see cref="M:KSPDev.GUIUtils.Message`3.Format(`0,`1,`2)"/> to make parameters substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message<string, int, float> MyMessage = "Params: {0}, {1}, {2}";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f));
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`3.Format(`0,`1,`2)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <param name="arg2">An argument to substitute.</param>
+            <param name="arg3">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`3.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2}">
+            <summary>Allows casting strings to message.</summary>
+            <param name="fmtString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message`4">
+             <summary>A class to wrap a UI string with four parameters.</summary>
+             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
+             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
+             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
+             <typeparam name="T4">Type of the fourth substitute argument in the string.</typeparam>
+             <remarks>
+             <para>Define parameter types via generic argument. When string needs to be presented use
+             <see cref="M:KSPDev.GUIUtils.Message`4.Format(`0,`1,`2,`3)"/> to make parameters substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message<string, int, float, int> MyMessage = "Params: {0}, {1}, {2}, {3}";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456));
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`4.Format(`0,`1,`2,`3)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <param name="arg2">An argument to substitute.</param>
+            <param name="arg3">An argument to substitute.</param>
+            <param name="arg4">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`4.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2,`3}">
+            <summary>Allows casting strings to message.</summary>
+            <param name="fmtString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Message`5">
+             <summary>A class to wrap a UI string with five parameters.</summary>
+             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
+             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
+             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
+             <typeparam name="T4">Type of the fourth substitute argument in the string.</typeparam>
+             <typeparam name="T5">Type of the fifth substitute argument in the string.</typeparam>
+             <remarks>
+             <para>Define parameter types via generic argument. When string needs to be presented use
+             <see cref="M:KSPDev.GUIUtils.Message`5.Format(`0,`1,`2,`3,`4)"/> to make parameters substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               Message<string, int, float, int, float> MyMessage = "Params: {0}, {1}, {2}, {3}, {4}";
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456, 456f));
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`5.Format(`0,`1,`2,`3,`4)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <param name="arg2">An argument to substitute.</param>
+            <param name="arg3">An argument to substitute.</param>
+            <param name="arg4">An argument to substitute.</param>
+            <param name="arg5">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message`5.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2,`3,`4}">
+            <summary>Allows casting strings to message.</summary>
+            <param name="fmtString">A string value to assign.</param>
+            <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.KeyModifiers">
+            <summary>Flags to specify key modifiers combination.</summary>
+            <remarks>Modifiers can be joined to get a combination. E.g. <c>AnyAlt | AnyShift</c>.</remarks>
+            <seealso cref="M:KSPDev.GUIUtils.EventChecker.IsModifierCombinationPressed(KSPDev.GUIUtils.KeyModifiers)"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.KeyModifiers.None">
+            <summary>No modifier keys are pressed.</summary>
+            <remarks>This value only makes sense when used alone. Combining it with any other value
+            will result in ignoring value <c>None</c>.</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyAlt">
+            <summary>Left or right ALT key pressed.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyShift">
+            <summary>Left or right SHIFT key pressed.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyControl">
+            <summary>Left or right CONTROL key pressed.</summary>
+        </member>
+        <member name="T:KSPDev.GUIUtils.EventChecker">
+            <summary>A helper to verify various event handling conditions.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.EventChecker.IsModifierCombinationPressed(KSPDev.GUIUtils.KeyModifiers)">
+            <summary>Verifies that the requested key modifiers are pressed.</summary>
+            <remarks>The check will succeed only if the exact set of modifier keys is pressed. If there
+            are more or less modifiers pressed the check will fail. E.g. if there are <c>LeftAlt</c> and
+            <c>LeftShift</c> pressed but the check is executed against
+            <c>AnyShift</c> then it will fail. Though, checking for <c>AnyShift | AnyAlt</c> will succeed.
+            <para>In case of checking for <c>None</c> the check will require no modifier keys to be
+            pressed. If you deal with mouse button events it's a good idea to verify if no modifiers are
+            pressed even if you don't care about other combinations. It will let other modders to use
+            mouse buttons and not to interfere with your mod.</para>
+            </remarks>
+            <param name="modifiers">A combination of key modifiers to verify.</param>
+            <returns><c>true</c> when exactly the requested combination is pressed.</returns>
+            <seealso cref="T:KSPDev.GUIUtils.KeyModifiers"/>
+        </member>
+        <member name="T:KSPDev.GUIUtils.GuiActionsList">
+             <summary>A helper to accumulate GUI actions.</summary>
+             <remarks>Unity may issue multiple GUI passes during a frame, and it requires number of UI
+             elements not to change between the passes. Unity expects the number of UI
+             controls in every pass to be exactly the same as in the very first one:
+             <see href="http://docs.unity3d.com/ScriptReference/EventType.Layout.html">EventType.Layout</see>.
+             When UI interactions affect representation all the changes must be postponed till the frame
+             rendering is ended. This helper can be used to store actions that will be executed at the
+             beginning of the next frame.</remarks>
+             <example>
+             <code>
+             public class MyUI : MonoBehaviour {
+               private readonly GuiActionsList guiActions = new GuiActionsList();
+               private bool showLabel = false;
+            
+               void OnGUI() {
+                 if (guiActions.ExecutePendingGuiActions()) {
+                   // ...do other stuff that affects UI... 
+                 }
+            
+                 if (GUILayout.Button(new GUIContent("Test Button"))) {
+                   // If "showLabel" is changed right here then Unity GUI will complain saying the number
+                   // of UI controls has changed. So, postpone the change until current frame is ended.
+                   guiActions.Add(() => {
+                     showLabel = !showLabel;  // This will be done at the beginning of the next frame.
+                   });
+                 }
+                 
+                 if (showLabel) {
+                   GUILayout.Label("Test label");
+                 }
+               }
+             }
+             </code>
+             <para>If you were using simple approach and updated <c>showLabel</c> right away Unity would
+             likely thrown an error like this:</para>
+             <para><c>[EXCEPTION] ArgumentException: Getting control 1's position in a group with only 1
+             controls when doing Repaint</c></para>
+             <seealso href="http://docs.unity3d.com/Manual/GUIScriptingGuide.html"/>
+             <seealso href="http://docs.unity3d.com/ScriptReference/EventType.html"/>
+             </example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiActionsList.guiActions">
+            <summary>A list of pending actions.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiActionsList.Add(KSPDev.GUIUtils.GuiActionsList.GuiAction)">
+            <summary>Adds an action to the pending list.</summary>
+            <param name="actionFn">An action callback.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiActionsList.ExecutePendingGuiActions">
+            <summary>Executes actions when it's safe to do the changes.</summary>
+            <remarks>It's safe to call this method in every pass. It will detect when it's safe to apply
+            the changes and apply the changes only once per a frame.</remarks>
+            <returns><c>true</c> if actions have been applied.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.GuiActionsList.GuiAction">
+            <summary>GUI action type.</summary>
+        </member>
+        <member name="T:KSPDev.LogUtils.Logger">
+            <summary>A set of convenience logging methods.</summary>
+        </member>
+        <member name="M:KSPDev.LogUtils.Logger.logInfo(System.String,System.Object[])">
+            <summary>Logs a formatted message as INFO record.</summary>
+            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
+            <param name="fmt">A standard C# format string.</param>
+            <param name="args">Arguments for the format string.</param>
+        </member>
+        <member name="M:KSPDev.LogUtils.Logger.logWarning(System.String,System.Object[])">
+            <summary>Logs a formatted message as WARNING record.</summary>
+            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
+            <param name="fmt">A standard C# format string.</param>
+            <param name="args">Arguments for the format string.</param>
+        </member>
+        <member name="M:KSPDev.LogUtils.Logger.logError(System.String,System.Object[])">
+            <summary>Logs a formatted message as ERROR record.</summary>
+            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
+            <param name="fmt">A standard C# format string.</param>
+            <param name="args">Arguments for the format string.</param>
+        </member>
+        <member name="M:KSPDev.LogUtils.Logger.logException(System.Exception)">
+            <summary>Logs an exception stack trace as EXCEPTION record.</summary>
+            <param name="ex">An exception to log.</param>
+        </member>
+        <member name="M:KSPDev.LogUtils.Logger.C2S``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String})">
+            <summary>Flatterns collection items into a comma separated string.</summary>
+            <remarks>This method's name is a shorthand for "Collection-To-String". Given a collection
+            (e.g. list, set, or anything else implementing <c>IEnumarable</c>) this method transforms it
+            into a human readable string.</remarks>
+            <param name="collection">A collection to represent as a string.</param>
+            <param name="predicate">A predicate to use to extract string representation of an item. If
+            <c>null</c> then standard <c>ToString()</c> is used.</param>
+            <returns>Human readable form of the collection.</returns>
+            <typeparam name="TSource">Collection's item type.</typeparam>
+        </member>
+    </members>
+</doc>
