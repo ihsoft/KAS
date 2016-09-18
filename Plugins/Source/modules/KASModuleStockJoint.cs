@@ -127,7 +127,6 @@ public class KASModuleStockJoint : PartModule, IModuleInfo, ILinkJoint {
   /// Though, it's also a part of <see cref="IModuleInfo"/>.</remarks>
   /// <returns>HTML formatted text to show the in GUI.</returns>
   /// FIXME: move strings to constants.
-  /// FIXME: is it HTML?
   /// FIXME: move to the super class
   public override string GetInfo() {
     //FIXME: get super class strings first

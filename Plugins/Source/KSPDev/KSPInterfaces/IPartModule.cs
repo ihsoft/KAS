@@ -89,7 +89,6 @@ public interface IPartModule {
   /// <param name="state">State that specifies the situation of the vessel.</param>
   void OnStart(PartModule.StartState state);
 
-  //FIXME check and doc
   /// <summary>
   /// Called on vessel go off rails. Basically, every time the vessel becomes physics.
   /// </summary>
@@ -112,7 +111,8 @@ public interface IPartModule {
   /// </remarks>
   void OnFixedUpdate();
 
-  // FIXME: check if saveing to the file is the only scenario.
+  //FIXME doc
+  // FIXME: check if saving to the file is the only scenario.
   void OnSave(ConfigNode node);
 
   //FIXME doc

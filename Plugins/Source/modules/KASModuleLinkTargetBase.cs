@@ -3,11 +3,12 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
+using HighlightingSystem;
 using System;
 using System.Linq;
-using UnityEngine;
-using KSPDev.ProcessingUtils;
 using KASAPIv1;
+using KSPDev.ProcessingUtils;
+using UnityEngine;
 
 namespace KAS {
 
@@ -109,6 +110,10 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   public string type = "";
   [KSPField]
   public string attachNodeName = "";
+  [KSPField]
+  public bool highlightCompatibleTargets = true;
+  [KSPField]
+  public Color highlightColor = Color.green;
   #endregion
 
   /// <summary>State machine that controls event reaction in different states.</summary>
@@ -121,8 +126,6 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// <summary>Initalizes moulde state on part start.</summary>
   /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnStart(PartModule.StartState state) {
-    //FIXME
-    //Debug.LogWarning("*** TARGET: ON START");
     linkStateMachine.Start(persistedLinkState);
     linkState = linkState;  // Trigger updates.
   }
@@ -231,6 +234,14 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
+    if (highlightCompatibleTargets
+        && (linkState == LinkState.AcceptingLinks || oldState == LinkState.AcceptingLinks)) {
+      if (linkState == LinkState.AcceptingLinks) {
+        part.highlighter.ConstantOn(highlightColor);
+      } else {
+        part.highlighter.ConstantOff();
+      }
+    }
   }
 
   /// <summary>Reacts on source link mode change.</summary>
