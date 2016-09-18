@@ -11,14 +11,14 @@ namespace KSPDev.KSPInterfaces {
 /// the editor. <see cref="IKSPDevModuleInfo"/> is a full equivalent except it's documented.
 /// Inheriting modules from both interfaces gives better code documentation.
 /// <example>
-/// <code>
+/// <code><![CDATA[
 /// public class MyModule : PartModule, IPartModule, IModuleInfo, IKSPDevModuleInfo {
-///   /// &lt;inheritdoc/&gt;
+///   /// <inheritdoc/>
 ///   public override string GetInfo() {
-///     return "&lt;size=20>&lt;color=#ff0000ff>&lt;b>BLAH!&lt;/b>&lt;/color>&lt;/size>";
+///     return "<size=20><color=#ff0000ff><b>BLAH!</b></color></size>";
 ///   }
 /// }
-/// </code>
+/// ]]></code>
 /// </example>
 /// </remarks>
 public interface IKSPDevModuleInfo {
