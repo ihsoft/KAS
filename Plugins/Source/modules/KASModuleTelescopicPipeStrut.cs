@@ -56,9 +56,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #endregion
 
   // These constants must be in sync with action handler methods names.
-  protected const string parkedOrientationMenuAction0 = "ParkedOrientationMenuAction0";
-  protected const string parkedOrientationMenuAction1 = "ParkedOrientationMenuAction1";
-  protected const string parkedOrientationMenuAction2 = "ParkedOrientationMenuAction2";
+  protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
+  protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
+  protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
 
   protected ILinkSource linkSource { get; private set; }
   protected bool isLinked {
@@ -78,9 +78,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
                            pistonsCount, part.name,
                            pistons != null ? "" + pistons.Length : "NULL");
     base.OnAwake();
-    Events[parkedOrientationMenuAction0].guiName = ExtractPositionName(parkedOrientationMenu0);
-    Events[parkedOrientationMenuAction1].guiName = ExtractPositionName(parkedOrientationMenu1);
-    Events[parkedOrientationMenuAction2].guiName = ExtractPositionName(parkedOrientationMenu2);
+    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
+    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
+    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
     UpdateMenuItems();  // For editor mode.
   }
 
@@ -467,13 +467,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
       var scalablePistons = pistons.Length - 1;
       var step = Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position)
           / scalablePistons;
-//      //FIXME
-//      Debug.LogWarningFormat("** piston step {0}, piston[0] pos {1}, piston[last] pos {2}, dist {3}, pistons {4}",
-//                             step,
-//                             pistons[0].transform.position,
-//                             pistons.Last().transform.position,
-//                             Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position),
-//                             pistons.Length);
       for (var i = 1; i < scalablePistons; ++i) {
         offset -= step;  // Pistons are distributed to -Z direction of the pviot.
         pistons[i].transform.localPosition = new Vector3(0, 0, offset);
@@ -499,18 +492,12 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
 
   void UpdateMenuItems() {
-    Events[parkedOrientationMenuAction0].active =
-        ExtractPositionName(parkedOrientationMenu0) != "" && !isLinked;
-    Events[parkedOrientationMenuAction0].guiActiveEditor =
-        Events[parkedOrientationMenuAction0].active;
-    Events[parkedOrientationMenuAction1].active =
-        ExtractPositionName(parkedOrientationMenu1) != "" && !isLinked;
-    Events[parkedOrientationMenuAction1].guiActiveEditor =
-        Events[parkedOrientationMenuAction1].active;
-    Events[parkedOrientationMenuAction2].active =
-        ExtractPositionName(parkedOrientationMenu2) != "" && !isLinked;
-    Events[parkedOrientationMenuAction2].guiActiveEditor =
-        Events[parkedOrientationMenuAction2].active;
+    Events[MenuAction0Name].active = ExtractPositionName(parkedOrientationMenu0) != "" && !isLinked;
+    Events[MenuAction0Name].guiActiveEditor = Events[MenuAction0Name].active;
+    Events[MenuAction1Name].active = ExtractPositionName(parkedOrientationMenu1) != "" && !isLinked;
+    Events[MenuAction1Name].guiActiveEditor = Events[MenuAction1Name].active;
+    Events[MenuAction2Name].active = ExtractPositionName(parkedOrientationMenu2) != "" && !isLinked;
+    Events[MenuAction2Name].guiActiveEditor = Events[MenuAction2Name].active;
   }
   #endregion
 }

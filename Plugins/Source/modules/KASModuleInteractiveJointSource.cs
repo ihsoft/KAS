@@ -15,14 +15,16 @@ using KASAPIv1;
 namespace KAS {
 
 // FIXME: docs
-public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
-                                                      IModuleInfo, IKSPDevModuleInfo {
+public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
+  #region Localizable strings
+  static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  #endregion
+
+  //FIXME: use single message object
   ScreenMessage linkingMessage;
   ScreenMessage canLinkStatusMessage;
   ScreenMessage cannotLinkStatusMessage;
-  static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
-  static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
-  static Message<string> linksWithSocketType = "Links with socket type: {0}";
 
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
@@ -32,9 +34,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
   const string TotalControlLock = "KASInteractiveJointUberLock";
   /// <summary>Shader that reders pipe during linking.</summary>
   const string InteractiveShaderName = "Transparent/Diffuse";  
-
-  //FIXME: move to the parent
-  const string ModuleTitle = "KAS Joint Source";
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
@@ -94,13 +93,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
     //FIXME: add color highlight
     cannotLinkStatusMessage =
         new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
-  }
-
-
-  void SetupUnlinkedState() {
-    RotatePipeToDefaultDirection();
-    //FIXME
-    //linkRenderer.StartRenderer(nodeTransform, idleLinkTargetTransform);
   }
   #endregion
 
@@ -269,30 +261,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region IModuleInfo implementation
-  /// <inheritdoc/>
-  public override string GetInfo() {
-    var sb = new StringBuilder();
-    sb.Append(linksWithSocketType.Format(type));
-    return sb.ToString();
-  }
-
-  /// <inheritdoc/>
-  public string GetModuleTitle() {
-    return ModuleTitle;
-  }
-
-  /// <inheritdoc/>
-  public Callback<Rect> GetDrawModulePanelCallback() {
-    return null;
-  }
-
-  /// <inheritdoc/>
-  public string GetPrimaryField() {
-    return null;
-  }
-  #endregion
-
   #region Action handlers
   //FIXME: disallow non-eva control
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
@@ -304,27 +272,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
   [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink();
-    // FIXME: ovveride BreakCurrentLink 
-    SetupUnlinkedState();
   }
   #endregion
-
-  //FIXME: depreacte in favor of update
-  void RotatePipeToDefaultDirection() {
-    Debug.LogWarning("Rotate to the limit");
-    //FIXME: adjust for anchors
-//    idleLinkTargetTransform.localPosition =
-//        idlePipeDirection.normalized * linkJoint.cfgMinLinkLength;
-//    idleLinkTargetTransform.localRotation.SetLookRotation(-idlePipeDirection);
-
-    //FIXME
-    //linkRenderer.startSocketTransfrom.localRotation = Quaternion.LookRotation(idlePipeDirection);
-
-    // In editor OnUpdate() events are not fired. Kick the renderer update via interface. 
-    if (HighLogic.LoadedSceneIsEditor) {
-      linkRenderer.UpdateLink();
-    }
-  }
 }
 
 }  // namespace

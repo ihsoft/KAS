@@ -4,9 +4,12 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
-using System.Linq;
 using System.Collections;
+using System.Linq;
+using System.Text;
 using UnityEngine;
+using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
@@ -21,8 +24,9 @@ namespace KAS {
 /// <para>Decendand classes may use any members and methods but good practice is restricting the
 /// usage to the interfaces and virtuals only.</para>
 /// </remarks>
-public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventListener,
-                                       IActivateOnDecouple {
+public class KASModuleLinkSourceBase
+    : PartModule, IPartModule, IModuleInfo, IKSPDevModuleInfo, IActivateOnDecouple,
+      ILinkSource, ILinkStateEventListener {
   #region ILinkSource config properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return type; } }
@@ -127,26 +131,18 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
   protected ILinkJoint linkJoint { get; private set; }
 
   #region Localizable GUI strings
-  protected static string CannotLinkPartToItselfMsg = "Cannot link part to itself";
-  protected static string IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
-  protected static string CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
-  protected static string CannotLinkToTheSamePartMsg = "Cannot link to the same part";
-  protected static string SourceIsNotAvailableForLinkMsg = "Source is not available for link";
-  protected static string TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
-  protected static string LengthLimitReachedMsg = "Link length limit reached: {0:F2}m > {1:F2}m";
-  protected static string TargetNodeAngleLimitReachedMsg =
-      "Target angle limit reached: {0:F0}deg > {1:F0}deg";
-  protected static string SourceNodeAngleLimitReachedMsg =
-      "Source angle limit reached: {0:F0}deg > {1:F0}deg";
-  //FIXME
-  protected static string LinkingStatusTextMsg = "Link length {0:F2}m, mass {1:F0}kg";
+  protected static Message CannotLinkPartToItselfMsg = "Cannot link part to itself";
+  protected static Message IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
+  protected static Message CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
+  protected static Message CannotLinkToTheSamePartMsg = "Cannot link to the same part";
+  protected static Message SourceIsNotAvailableForLinkMsg = "Source is not available for link";
+  protected static Message TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
+  protected static Message<string> linksWithSocketType = "Links with socket type: {0}";
+  protected static Message ModuleTitle = "KAS Joint Source";
   #endregion
 
   #region PartModule overrides
-  /// <summary>Initializes the object.</summary>
-  /// <remarks>Defines link state tranistion matrix.
-  /// <para>Overridden from <see cref="PartModule"/>.</para>
-  /// </remarks>
+  /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
@@ -178,20 +174,12 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
         LinkState.Linking,
         enterHandler: x => KASEvents.OnLinkAccepted.Add(OnLinkActionAccepted),
         leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAccepted));
-
-    //FIXME
-//    linkStateMachine.OnDebugStateChange = (from, to) =>
-//        Debug.LogWarningFormat("SOURCE: Part {0} (id={1}), module {2}: {3}=>{4}",
-//                               part.name, part.craftID, moduleName, from, to);
   }
 
-  /// <summary>Initalizes module state on scene start.</summary>
-  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
+  /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
-    //FIXME: no need for name, make it singletone
-    //FIXME: check places that expect rendered to be bull - it cannot be null anymore.
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
         .First(x => x.cfgRendererName == linkRendererName);
     if (persistedLinkState == LinkState.Linked && attachNode.attachedPart != null) {
@@ -207,14 +195,12 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
     linkStateMachine.Start(persistedLinkState);
     linkState = linkState;  // Trigger state updates.
   }
+  #endregion
 
+  //FIXME
   public virtual void OnPartPack() {
     Debug.LogWarning("OnPartPack");
   }
-
-  // Set an insane force that will be overriden anyways. This is how we detect it's time to
-  // adjust the joint.
-  const float TempBreakingForceForDetection = 777000;
 
   public virtual void OnPartUnpack() {
     //FIXME: check joint
@@ -232,6 +218,29 @@ public class KASModuleLinkSourceBase : PartModule, ILinkSource, ILinkStateEventL
         linkState = LinkState.Available;
       }
     }
+  }
+
+  #region IModuleInfo implementation
+  /// <inheritdoc/>
+  public override string GetInfo() {
+    var sb = new StringBuilder();
+    sb.Append(linksWithSocketType.Format(type));
+    return sb.ToString();
+  }
+
+  /// <inheritdoc/>
+  public string GetModuleTitle() {
+    return ModuleTitle;
+  }
+
+  /// <inheritdoc/>
+  public Callback<Rect> GetDrawModulePanelCallback() {
+    return null;
+  }
+
+  /// <inheritdoc/>
+  public string GetPrimaryField() {
+    return null;
   }
   #endregion
 

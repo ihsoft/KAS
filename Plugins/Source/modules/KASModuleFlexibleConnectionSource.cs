@@ -186,9 +186,9 @@ public sealed class KASModuleFlexibleConnectionSource : KASModuleLinkSourceBase 
       //FIXME: move to DisplayLinkingStatus(bool hide = false);
       var linkLength = Vector3.Distance(nodeTransform.position, evaTransform.position);
       //FIXME: localizeable string
-      float linkMass = 0;
-      linkStatusMessage.message = string.Format(LinkingStatusTextMsg, linkLength, linkMass);
-      ScreenMessages.PostScreenMessage(linkStatusMessage);
+      //float linkMass = 0;
+      //linkStatusMessage.message = string.Format(LinkingStatusTextMsg, linkLength, linkMass);
+      //ScreenMessages.PostScreenMessage(linkStatusMessage);
 
       // When part defines custom joint there may be constraints on the link.
       if (linkJoint != null) {

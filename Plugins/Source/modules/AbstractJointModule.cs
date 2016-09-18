@@ -17,6 +17,7 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
                                             IModuleInfo, IKSPDevModuleInfo,
                                             ILinkJoint {
   #region ILinkJoint properties.
+  //FIXME drop it, move limits into source joint
   /// <inheritdoc/>
   public virtual float cfgMinLinkLength {
       set { minLinkLength = value; }
