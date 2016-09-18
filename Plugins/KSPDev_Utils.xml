@@ -1084,10 +1084,10 @@
         </member>
         <member name="M:KSPDev.GUIUtils.HintOverlay.#ctor(System.Int32,System.Int32,UnityEngine.Color,UnityEngine.Color)">
             <summary>Constructs an overaly.</summary>
-            <param name="fontSize">A size of the text font in the hint.</param>
-            <param name="padding">A padding between the text and the window boundaries.</param>
-            <param name="textColor">A color of the hint text.</param>
-            <param name="backgroundColor">A color of the hint backtround. If alpha component is different
+            <param name="fontSize">Size of the text font in the hint.</param>
+            <param name="padding">Padding between the text and the window boundaries.</param>
+            <param name="textColor">Color of the hint text.</param>
+            <param name="backgroundColor">Color of the hint background. If alpha component is different
             from <c>1.0</c> then background will be semi-transparent.</param>
         </member>
         <member name="M:KSPDev.GUIUtils.HintOverlay.ShowAtCursor">
@@ -1197,6 +1197,48 @@
             <summary>Allows casting strings to message.</summary>
             <param name="fmtString">A string value to assign.</param>
             <returns>Message instance.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.MessageSpecialFloatValue">
+             <summary>
+             A class to wrap a UI string with one parameter which may have special meaning.
+             </summary>
+             <remarks>
+             <para>When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)"/> to make the parameter
+             substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
+             localization.
+             <code><![CDATA[
+             class MyMod : MonoBehavior {
+               MessageSpecialFloatValue MyMessage =
+                   new MessageSpecialFloatValue("Param: {0}", 0, "Param is ZERO");
+            
+               void Awake() {
+                 Logger.logInfo("Localized: {0}", MyMessage.Format(1));  // Param: 1
+                 Logger.logInfo("Localized: {0}", MyMessage.Format(0));  // Param is ZERO
+               }
+             }
+             ]]></code>
+             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
+             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
+             highlight the fact it won't (and must not) change from the code.</para>  
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.#ctor(System.String,System.Single,System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+            <param name="specialValue">Value to use a special message string for.</param>
+            <param name="specialString">Special message string for the value.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`2">
              <summary>A class to wrap a UI string with two parameters.</summary>
