@@ -10,6 +10,7 @@ using UnityEngine;
 using KASAPIv1;
 using HighlightingSystem;
 using KSPDev.ModelUtils;
+using KSPDev.GUIUtils;
 
 namespace KAS {
 
@@ -64,9 +65,18 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
 
+  #region Localizable messages
+  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
+  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
+  #endregion
+
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
+    //FIXME
+    Debug.LogWarningFormat("**** ONAWAKE: pistons {0}, name={1}, pistons={2}",
+                           pistonsCount, part.name,
+                           pistons != null ? "" + pistons.Length : "NULL");
     base.OnAwake();
     Events[parkedOrientationMenuAction0].guiName = ExtractPositionName(parkedOrientationMenu0);
     Events[parkedOrientationMenuAction1].guiName = ExtractPositionName(parkedOrientationMenu1);
@@ -76,22 +86,36 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
     //FIXME
-    Debug.LogWarningFormat("** onstart, orientation: {0}", parkedOrientation);
+    Debug.LogWarningFormat("**** OnStart: name={0}", part.name);
+    base.OnStart(state);
     linkSource = part.FindModuleImplementing<ILinkSource>();
-    if (linkSource == null) {
-      Debug.LogErrorFormat("Wrong setup! Part {0} must have a link source", part.name);
-    }
+
+    var linkJoint = part.FindModuleImplementing<ILinkJoint>();
+    linkJoint.cfgMinLinkLength = minLinkLength;
+    linkJoint.cfgMaxLinkLength = maxLinkLength;
+    //FIXME
+    Debug.LogWarningFormat("*** Set length: min={0}, max={1}",
+                           linkJoint.cfgMinLinkLength,
+                           linkJoint.cfgMaxLinkLength);
+
     UpdateMenuItems();
     UpdateLinkLengthAndOrientation();
   }
 
+  /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    //FIXME
+    Debug.LogWarningFormat("**** ONLOAD: pistons {0}, name={1}", pistonsCount, part.name);
     base.OnLoad(node);
-    Debug.LogWarningFormat("** onload, orientation: {0}", parkedOrientation);
+  }
+  
+  public override void OnInitialize() {
+    Debug.LogWarningFormat("**** OnInitialize: name={0}", part.name);
+    base.OnInitialize();
   }
 
+  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     //FIXME: check if constant updates needed, and add a threshold.
@@ -123,9 +147,20 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     }
   }
   string _shaderNameOverride;
-  //FIXME
+
+  //FIXME change to isColliderEnabled.
   /// <inheritdoc/>
-  public virtual bool isPhysicalCollider { get; set; }
+  public virtual bool isPhysicalCollider {
+    get { return _isPhysicalCollider; }
+    set {
+      _isPhysicalCollider = value;
+      //FIXME
+      Debug.LogWarningFormat("Setting collider mode to {0}", value);
+      //Colliders.UpdateColliders(srcPartJoint.gameObject, isPhysical: value);
+      Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
+    }
+  }
+  bool _isPhysicalCollider;
 
   /// <inheritdoc/>
   public override Transform sourceTransform {
@@ -150,10 +185,10 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
-    // Source pivot is fixed for the part. Do a safe check to verify if requestor asked for the
+    // Source pivot is fixed for this part. Do a safe check to verify if requestor asked for the
     // right coordinates.
-    if (!Mathf.Approximately(Vector3.SqrMagnitude(source.position - sourceTransform.position),
-                             Mathf.Epsilon)) {
+    //FIXME make threshold a constant
+    if (Vector3.SqrMagnitude(source.position - sourceTransform.position) > 0.0005f) {
       Debug.LogErrorFormat(
           "Part's source doesn't match renderer source: pivot={0}, source={1}, err={2}",
           sourceTransform.position,
@@ -161,14 +196,10 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
           Vector3.SqrMagnitude(source.position - sourceTransform.position));
     }
     targetTransform = target;
-    //FIXME
-    Debug.LogWarning("Draw to the target");
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
-    //FIXME
-    Debug.LogWarning("STOP Drawing to the target");
     targetTransform = null;
   }
 
@@ -179,7 +210,26 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
-    //return "TEST ERROR";
+    var direction = target.position - source.position;
+    var hits = Physics.SphereCastAll(
+        source.position, outerPistonDiameter, direction, direction.magnitude,
+        //FIXME
+        //Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
+        QueryTriggerInteraction.Ignore);
+    foreach (var hit in hits) {
+//      Debug.LogWarningFormat("** trace0-1: layer={0}", hit.collider.gameObject.layer);
+//      Debug.LogWarningFormat("** trace0-2: {0}", hit.transform);
+//      Debug.LogWarningFormat("** trace0-3: {0}", hit.transform.root);
+//      Debug.LogWarningFormat("** trace0-6: {0}", hit.rigidbody);
+      if (hit.transform.root != source.root && hit.transform.root != target.root) {
+        var hitPart = hit.transform.root.GetComponent<Part>();
+        // Use partInfo.title to properly display kerbal names.
+        return hitPart != null
+            ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
+            : LinkCollidesWithSurfaceMsg.ToString();
+      }
+    }
     return null;
   }
   #endregion
@@ -279,6 +329,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     return node;
   }
 
+  #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
     //FIXME: figure out attach node form joint piviot and its holder length  
@@ -346,6 +397,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
+    //FIXME
+    Debug.LogWarningFormat("** Load model: pistons={0}, name={1}", pistonsCount, part.name);
+
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
@@ -369,6 +423,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
     UpdateLinkLengthAndOrientation();
   }
+  #endregion
 
   /// <summary>Adjusts link models to the changed target position.</summary>
   protected virtual void UpdateLinkLengthAndOrientation() {
@@ -409,9 +464,17 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     // Distribute pistons between the first and the last while keepin the direction.
     if (pistons.Length > 2) {
       var offset = pistons[0].transform.localPosition.z;
+      var scalablePistons = pistons.Length - 1;
       var step = Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position)
-          / (pistonsCount - 1);
-      for (var i = 1; i < pistons.Length - 1; ++i) {
+          / scalablePistons;
+//      //FIXME
+//      Debug.LogWarningFormat("** piston step {0}, piston[0] pos {1}, piston[last] pos {2}, dist {3}, pistons {4}",
+//                             step,
+//                             pistons[0].transform.position,
+//                             pistons.Last().transform.position,
+//                             Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position),
+//                             pistons.Length);
+      for (var i = 1; i < scalablePistons; ++i) {
         offset -= step;  // Pistons are distributed to -Z direction of the pviot.
         pistons[i].transform.localPosition = new Vector3(0, 0, offset);
       }

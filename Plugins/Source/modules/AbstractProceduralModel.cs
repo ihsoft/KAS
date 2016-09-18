@@ -48,11 +48,9 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
 
   #region PartModule overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    if (HighLogic.LoadedScene != GameScenes.LOADING) {
-      LoadPartModel();
-    }
+  public override void OnStart(PartModule.StartState state) {
+    LoadPartModel();
+    base.OnStart(state);
   }
 
   /// <inheritdoc/>

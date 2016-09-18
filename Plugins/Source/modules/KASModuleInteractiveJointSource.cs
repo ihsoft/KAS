@@ -153,9 +153,9 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
           var linkStatusError =
-              linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform)
+              linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
+              ?? linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform)
               ?? linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform)
-              ?? linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
               ?? linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform);
           if (linkStatusError == null) {
             targetCandidateIsGood = true;
@@ -168,8 +168,10 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
         }
       }
       // Show the possible link or indicate the error.
-      if (targetCandidate != null && targetCandidateIsGood) {
-        linkRenderer.colorOverride = GoodLinkColor;
+      if (targetCandidate != null
+          && (targetCandidateIsGood
+              || linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform) == null)) {
+        linkRenderer.colorOverride = targetCandidateIsGood ? GoodLinkColor : BadLinkColor;
         linkRenderer.StartRenderer(nodeTransform, targetCandidate.nodeTransform);
       } else {
         linkRenderer.colorOverride = BadLinkColor;

@@ -17,39 +17,50 @@ namespace KSPDev.KSPInterfaces {
 /// <para>In the <see cref="GameScenes.LOADING">loading scene</see> the callbacks are executed in
 /// the following order:</para>
 /// <list>
-/// <item><see cref="OnAwake"/>. At this moment all fields annotated with
-/// <see cref="KSPField">[KSPField]</see> attribute are already loaded, and are safe to use.
-/// </item>
+/// <item><see cref="OnAwake"/>. Notifies about creating new module. If it's a clone operation then
+/// all <see cref="KSPField">[KSPField]</see> annotated fields have values from the part's config.
+/// Otherwise, all the fields are in the initial states.</item>
 /// <item><see cref="OnLoad"/>. The provided config node is the original configuration from the
-/// part's definition. Since all the annotated fields are already loaded this method is only useful
-/// to handle extra settings that are not handled via normal KSP means. This callback is called only
-/// once per module type: game logic may create multiple instances of the module but only the first
-/// instance will get this callback called.</item>
+/// part's definition. All the annotated fields are populated before this method gets control.
+/// </item>
 /// <item><see cref="OnStart"/> is <b>not called</b> since the parts being created are prefabs and
 /// icon models. They are not real parts that behave on a vessel.
 /// </item>
 /// </list>
 /// <para>In the <i>editor</i> the callbacks are executed in the following order:</para>
 /// <list>
-/// <item><see cref="OnAwake"/> is <b>not called</b>. Modules are get copied from the prefab
-/// created during the loading scene.</item>
-/// <item><see cref="OnLoad"/>. The provided config node is either the
-/// original configuration from the part's definition (when a new part is created) <b>OR</b> a
-/// config from the vessel (when a vessel's proto was loaded). The code must expect values annotated
-/// by <see cref="KSPField">[KSPField]</see> to change.</item>
-/// <item><see cref="OnStart"/>. The code must check if the current
-/// scene is editor, and do the behavior changes as needed.</item>
+/// <item><see cref="OnAwake"/>. Notifies about creating new module. If it's a clone operation then
+/// all <see cref="KSPField">[KSPField]</see> annotated fields have values from the part's config.
+/// Otherwise, all the fields are in the initial states.
+/// <para>New parts in the editor are created via the clone operation. I.e. each time a part is
+/// dragged from the toolbar it's get cloned from the prefab.</para>
+/// </item>
+/// <item><see cref="OnLoad"/>. Is <b>not called</b> for the new parts since they are clonned.
+/// When a saved vessel is loaded in the editor every part on the vessel gets this method called
+/// with the values from the save file. The annotated fields are populated from the file
+/// <i>before</i> this method gets control, so it's safe to use them.</item>
+/// <item><see cref="OnInitialize"/>. Hard to say what it means for the edtior, but imnportant
+/// difference from the flight scenes is that this method is called <i>before</i> <c>Start()</c>.
+/// </item>
+/// <item><see cref="OnStart"/>. The code must check if the current scene is editor, and do the
+/// behavior changes as needed. In the editor parts must not have active behavior.</item>
 /// </list>
 /// <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
 /// <list>
-/// <item><see cref="OnAwake"/>. At this moment all fields annotated
-/// with <see cref="KSPField">[KSPField]</see> are already loaded with the default values from the
-/// part's config.</item>
-/// <item><see cref="OnLoad"/>. The provided config node is the config
-/// from the save file.</item>
-/// <item><see cref="OnStart"/>. The code must check if the current
-/// scene is flight, and do the behavior changes as needed.</item>
-/// <item><see cref="OnInitialize"/>. Indicates that part should start handling physics if any.
+/// <item><see cref="OnAwake"/>. Notifies about creating new module. All
+/// <see cref="KSPField">[KSPField]</see> annotated fields have initial values.</item>
+/// <item><see cref="OnLoad"/>. The provided config node is the config from the save file. The
+/// annotated fields are populated from the file <i>before</i> this method gets control, so it's
+/// safe to use them.</item>
+/// <item><see cref="OnStart"/>. This method is called when all parts in the vessel are created and
+/// loaded. The code must check if the current scene is flight, and do the behavior changes as
+/// needed.</item>
+/// <item><see cref="OnInitialize"/>. Indicates that part should start handling physics if any. It
+/// may be called multiple times during the part's life. First time it's called when vessel is
+/// completely loaded in the secene, and all parts are started. Other calls may happen when game
+/// returns from a physics suspend state (e.g. from warp mode back to x1 time speed).
+/// <para>Code must check if editor scene is loaded since this method is called differently in the
+/// editor.</para>
 /// </item>
 /// </list>
 /// </remarks>
@@ -79,14 +90,11 @@ public interface IPartModule {
   void OnStart(PartModule.StartState state);
 
   //FIXME check and doc
-  // Called on vessel go off rails. Basically, every time the vessel becomes physics.
+  /// <summary>
+  /// Called on vessel go off rails. Basically, every time the vessel becomes physics.
+  /// </summary>
+  /// <remarks>Can be called multiple times during the part's life.</remarks>
   void OnInitialize();
-
-  //FIXME doc
-  void OnActive();
-
-  //FIXME doc
-  void OnInactive();
 
   /// <summary>Notifies about a frame update.</summary>
   /// <remarks>Be very careful about placing functionality into this callback even if it's bare
@@ -107,9 +115,12 @@ public interface IPartModule {
   // FIXME: check if saveing to the file is the only scenario.
   void OnSave(ConfigNode node);
 
-  //FIXME: figure out the text markup. 
-  string GetInfo();
-  
+  //FIXME doc
+  void OnActive();
+
+  //FIXME doc
+  void OnInactive();
+
   // Move to IsStageable. maybe
 //  bool IsStageable();
 //  bool StagingEnabled();

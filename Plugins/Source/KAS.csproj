@@ -88,6 +88,7 @@
     <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IModuleInfo.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IPartModule.cs" />
+    <Compile Include="KSPDev\ModelUtils\KspLayer.cs" />
     <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />

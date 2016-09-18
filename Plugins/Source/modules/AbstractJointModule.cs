@@ -18,9 +18,15 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
                                             ILinkJoint {
   #region ILinkJoint properties.
   /// <inheritdoc/>
-  public virtual float cfgMinLinkLength { set; get; }
+  public virtual float cfgMinLinkLength {
+      set { minLinkLength = value; }
+      get { return minLinkLength; }
+  }
   /// <inheritdoc/>
-  public virtual float cfgMaxLinkLength { set; get; }
+  public virtual float cfgMaxLinkLength {
+      set { maxLinkLength = value; }
+      get { return maxLinkLength; }
+  }
   #endregion
 
   // These fields must not be accessed outside of the module. They are declared public only
@@ -53,23 +59,25 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   #endregion
 
   #region Localizable GUI strings
-  protected const string MinLengthLimitReachedMsg = "Link is too short: {0:F2} m < {1:F2} m";
-  protected const string MaxLengthLimitReachedMsg = "Link is too long: {0:F2} m > {1:F2} m";
+  protected static Message<float, float> MinLengthLimitReachedMsg =
+      "Link is too short: {0:F2}m < {1:F2}m";
+  protected static Message<float, float> MaxLengthLimitReachedMsg =
+      "Link is too long: {0:F2}m > {1:F2}m";
   protected const string SourceNodeAngleLimitReachedMsg =
-      "Source angle limit reached: {0:F0} deg > {1} deg";
+      "Source angle limit reached: {0:F0}deg > {1}deg";
   protected const string TargetNodeAngleLimitReachedMsg =
-      "Target angle limit reached: {0:F0} deg > {1} deg";
+      "Target angle limit reached: {0:F0}deg > {1}deg";
   protected const string ModuleTitle = "KAS Joint";
   protected const string InfoLinkLinearStrength = "Link break force: {0}\n";
   protected const string InfoLinkBreakStrength = "Link torque force: {0}\n";
-  protected const string InfoMinimumLinkLength = "Minimum link length: {0:F1} m\n";
-  protected const string InfoMaximumLinkLength = "Maximum link length: {0:F1} m\n";
+  protected const string InfoMinimumLinkLength = "Minimum link length: {0:F1}m\n";
+  protected const string InfoMaximumLinkLength = "Maximum link length: {0:F1}m\n";
   protected const string InfoSourceJointFreedom = "Source joint freedom: {0}\n";
   protected const string InfoTargetJointFreedom = "Target joint freedom: {0}\n";
   protected const string InfoUnbreakableValue = "UNBREAKABLE";
   protected const string InfoLockedValue = "LOCKED";
-  protected const string InfoForceFmt = "{0:F1} N";
-  protected const string InfoDegreesFmt = "{0} deg";
+  protected const string InfoForceFmt = "{0:F1}N";
+  protected const string InfoDegreesFmt = "{0}deg";
   #endregion
 
   #region ILinkJoint implementation
@@ -82,9 +90,13 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   /// <inheritdoc/>
   public virtual string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
     var length = Vector3.Distance(source.nodeTransform.position, targetTransform.position);
-    return length > maxLinkLength
-        ? string.Format(MaxLengthLimitReachedMsg, length, maxLinkLength)
-        : null;
+    if (length > maxLinkLength) {
+      return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
+    }
+    if (length < minLinkLength) {
+      return MinLengthLimitReachedMsg.Format(length, minLinkLength);
+    }
+    return null;
   }
 
   /// <inheritdoc/>
