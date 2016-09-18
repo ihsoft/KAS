@@ -9,17 +9,20 @@ using System.Text;
 using System.Collections;
 using UnityEngine;
 using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
 using KASAPIv1;
 
 namespace KAS {
 
 // FIXME: docs
-public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, IModuleInfo {
+public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase,
+                                                      IModuleInfo, IKSPDevModuleInfo {
   ScreenMessage linkingMessage;
   ScreenMessage canLinkStatusMessage;
   ScreenMessage cannotLinkStatusMessage;
-  const string CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
-  const string LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  static Message<string> linksWithSocketType = "Links with socket type: {0}";
 
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
@@ -75,12 +78,12 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     base.OnStart(state);
     //FIXME: Create dummy modules when required ones missing. And don't fail.
     if (linkJoint == null) {
-      Debug.LogErrorFormat("Dynamic KAS part {0} misses joint module. It won't work properly",
-                           part.name);
+      Debug.LogErrorFormat(
+          "KAS part {0} misses joint module. It won't work properly", part.name);
     }
     if (linkRenderer == null) {
-      Debug.LogErrorFormat("Dynamic KAS part {0} misses renderer module. It won't work properly",
-                           part.name);
+      Debug.LogErrorFormat(
+          "KAS part {0} misses renderer module. It won't work properly", part.name);
     }
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
@@ -98,17 +101,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     RotatePipeToDefaultDirection();
     //FIXME
     //linkRenderer.StartRenderer(nodeTransform, idleLinkTargetTransform);
-  }
-
-  /// <summary>Returns description for the editor part's browser.</summary>
-  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
-  /// <returns>HTML formatted text to show the in GUI.</returns>
-  /// <para>Overridden from <see cref="PartModule"/>.</para>
-  public override string GetInfo() {
-    var sb = new StringBuilder();
-    sb.Append("Requires socket type: ");
-    sb.AppendLine(type);
-    return sb.ToString();
   }
   #endregion
 
@@ -159,8 +151,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
               ?? linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform);
           if (linkStatusError == null) {
             targetCandidateIsGood = true;
-            canLinkStatusMessage.message = string.Format(
-                CanBeConnectedMsg,
+            canLinkStatusMessage.message = CanBeConnectedMsg.Format(
                 Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
           } else {
             cannotLinkStatusMessage.message = linkStatusError;
@@ -279,20 +270,24 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
   #endregion
 
   #region IModuleInfo implementation
-  /// <summary>Returns module title to show in the editor part's details panel.</summary>
-  /// <returns>Title of the module.</returns>
+  /// <inheritdoc/>
+  public override string GetInfo() {
+    var sb = new StringBuilder();
+    sb.Append(linksWithSocketType.Format(type));
+    return sb.ToString();
+  }
+
+  /// <inheritdoc/>
   public string GetModuleTitle() {
     return ModuleTitle;
   }
 
-  /// <summary>Unused.</summary>
-  /// <returns>Always <c>null</c>.</returns>
+  /// <inheritdoc/>
   public Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
-  /// <summary>Unused.</summary>
-  /// <returns>Always <c>null</c>.</returns>
+  /// <inheritdoc/>
   public string GetPrimaryField() {
     return null;
   }
@@ -329,22 +324,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase, I
     if (HighLogic.LoadedSceneIsEditor) {
       linkRenderer.UpdateLink();
     }
-  }
-
-  string ExtractPositionName(string cfgDirectionString) {
-    var lastCommaPos = cfgDirectionString.LastIndexOf(',');
-    return lastCommaPos != -1
-        ? cfgDirectionString.Substring(lastCommaPos + 1)
-        : cfgDirectionString;
-  }
-
-  Vector3 ExtractDirectionVector(string cfgDirectionString) {
-    var lastCommaPos = cfgDirectionString.LastIndexOf(',');
-    if (lastCommaPos == -1) {
-      Debug.LogWarningFormat("Cannot extract direction from string: {0}", cfgDirectionString);
-      return Vector3.forward;
-    }
-    return ConfigNode.ParseVector3(cfgDirectionString.Substring(0, lastCommaPos));
   }
 }
 

@@ -63,21 +63,21 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
       "Link is too short: {0:F2}m < {1:F2}m";
   protected static Message<float, float> MaxLengthLimitReachedMsg =
       "Link is too long: {0:F2}m > {1:F2}m";
-  protected const string SourceNodeAngleLimitReachedMsg =
+  protected static Message<float, int> SourceNodeAngleLimitReachedMsg =
       "Source angle limit reached: {0:F0}deg > {1}deg";
-  protected const string TargetNodeAngleLimitReachedMsg =
+  protected static Message<float, int> TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0}deg > {1}deg";
-  protected const string ModuleTitle = "KAS Joint";
-  protected const string InfoLinkLinearStrength = "Link break force: {0}\n";
-  protected const string InfoLinkBreakStrength = "Link torque force: {0}\n";
-  protected const string InfoMinimumLinkLength = "Minimum link length: {0:F1}m\n";
-  protected const string InfoMaximumLinkLength = "Maximum link length: {0:F1}m\n";
-  protected const string InfoSourceJointFreedom = "Source joint freedom: {0}\n";
-  protected const string InfoTargetJointFreedom = "Target joint freedom: {0}\n";
-  protected const string InfoUnbreakableValue = "UNBREAKABLE";
-  protected const string InfoLockedValue = "LOCKED";
-  protected const string InfoForceFmt = "{0:F1}N";
-  protected const string InfoDegreesFmt = "{0}deg";
+  protected static Message ModuleTitle = "KAS Joint";
+  protected static MessageSpecialFloatValue InfoLinkLinearStrength = new MessageSpecialFloatValue(
+      "Link break force: {0:F1}N", 0, "Link break force: UNBREAKABLE");
+  protected static MessageSpecialFloatValue InfoLinkBreakStrength =new MessageSpecialFloatValue(
+      "Link torque force: {0:F1}N", 0, "Link torque force: UNBREAKABLE");
+  protected static Message<float> InfoMinimumLinkLength = "Minimum link length: {0:F1}m";
+  protected static Message<float> InfoMaximumLinkLength = "Maximum link length: {0:F1}m";
+  protected static MessageSpecialFloatValue InfoSourceJointFreedom = new MessageSpecialFloatValue(
+      "Source joint freedom: {0}deg", 0, "Source joint freedom: LOCKED");
+  protected static MessageSpecialFloatValue InfoTargetJointFreedom = new MessageSpecialFloatValue(
+      "Target joint freedom: {0}deg", 0, "Target joint freedom: LOCKED");
   #endregion
 
   #region ILinkJoint implementation
@@ -104,7 +104,7 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
     var linkVector = targetTransform.position - source.nodeTransform.position;
     var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
     return angle > sourceLinkAngleLimit
-        ? string.Format(SourceNodeAngleLimitReachedMsg, angle, sourceLinkAngleLimit)
+        ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
         : null;
   }
 
@@ -113,7 +113,7 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
     var linkVector = source.nodeTransform.position - targetTransform.position;
     var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
     return angle > targetLinkAngleLimit
-        ? string.Format(TargetNodeAngleLimitReachedMsg, angle, targetLinkAngleLimit)
+        ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
         : null;
   }
   #endregion
@@ -122,20 +122,12 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder();
-    sb.AppendFormat(
-        InfoLinkLinearStrength,
-        Formatter.SpecialValue(linkBreakForce, InfoForceFmt, 0, InfoUnbreakableValue));
-    sb.AppendFormat(
-        InfoLinkBreakStrength,
-        Formatter.SpecialValue(linkBreakTorque, InfoForceFmt, 0, InfoUnbreakableValue));
-    sb.AppendFormat(InfoMinimumLinkLength, minLinkLength);
-    sb.AppendFormat(InfoMaximumLinkLength, maxLinkLength);
-    sb.AppendFormat(
-        InfoSourceJointFreedom,
-        Formatter.SpecialValue(sourceLinkAngleLimit, InfoDegreesFmt, 0, InfoLockedValue));
-    sb.AppendFormat(
-        InfoTargetJointFreedom,
-        Formatter.SpecialValue(targetLinkAngleLimit, InfoDegreesFmt, 0, InfoLockedValue));
+    sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
+    sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
+    sb.AppendLine(InfoMinimumLinkLength.Format(minLinkLength));
+    sb.AppendLine(InfoMaximumLinkLength.Format(maxLinkLength));
+    sb.AppendLine(InfoSourceJointFreedom.Format(sourceLinkAngleLimit));
+    sb.AppendLine(InfoTargetJointFreedom.Format(targetLinkAngleLimit));
     return sb.ToString();
   }
 
