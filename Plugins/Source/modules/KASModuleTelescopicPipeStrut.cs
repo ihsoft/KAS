@@ -4,11 +4,10 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
+using System.Collections;
 using System.Linq;
-using TestScripts;
 using UnityEngine;
 using KASAPIv1;
-using HighlightingSystem;
 using KSPDev.ModelUtils;
 using KSPDev.GUIUtils;
 
@@ -55,20 +54,22 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public string rendererName = "";
   #endregion
 
+  #region Localizable messages
+  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
+  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
+  #endregion
+
   // These constants must be in sync with action handler methods names.
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
   protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
   protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
+  protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
+  protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
 
   protected ILinkSource linkSource { get; private set; }
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
-
-  #region Localizable messages
-  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
-  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
-  #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -90,15 +91,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     Debug.LogWarningFormat("**** OnStart: name={0}", part.name);
     base.OnStart(state);
     linkSource = part.FindModuleImplementing<ILinkSource>();
-
-    var linkJoint = part.FindModuleImplementing<ILinkJoint>();
-    linkJoint.cfgMinLinkLength = minLinkLength;
-    linkJoint.cfgMaxLinkLength = maxLinkLength;
-    //FIXME
-    Debug.LogWarningFormat("*** Set length: min={0}, max={1}",
-                           linkJoint.cfgMinLinkLength,
-                           linkJoint.cfgMaxLinkLength);
-
     UpdateMenuItems();
     UpdateLinkLengthAndOrientation();
   }
@@ -113,6 +105,25 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public override void OnInitialize() {
     Debug.LogWarningFormat("**** OnInitialize: name={0}", part.name);
     base.OnInitialize();
+  }
+
+  public override string GetInfo() {
+    Debug.LogWarningFormat("**** GetInfo: name={0}, text={1}", part.name, base.GetInfo());
+    return base.GetInfo();
+  }
+
+  public override void OnActive() {
+    Debug.LogWarningFormat("**** OnActive: name={0}", part.name);
+    base.OnActive();
+  }
+
+  public override void OnInactive() {
+    Debug.LogWarningFormat("**** OnInactive: name={0}", part.name);
+    base.OnInactive();
+  }
+
+  void Start() {
+    Debug.LogWarningFormat("**** MONO Start: name={0}", part.name);
   }
 
   /// <inheritdoc/>
@@ -205,6 +216,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public virtual void UpdateLink() {
+    // FIXME: update only when diff is big enough
     UpdateLinkLengthAndOrientation();
   }
 
@@ -213,15 +225,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     var direction = target.position - source.position;
     var hits = Physics.SphereCastAll(
         source.position, outerPistonDiameter, direction, direction.magnitude,
-        //FIXME
-        //Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
-//      Debug.LogWarningFormat("** trace0-1: layer={0}", hit.collider.gameObject.layer);
-//      Debug.LogWarningFormat("** trace0-2: {0}", hit.transform);
-//      Debug.LogWarningFormat("** trace0-3: {0}", hit.transform.root);
-//      Debug.LogWarningFormat("** trace0-6: {0}", hit.rigidbody);
       if (hit.transform.root != source.root && hit.transform.root != target.root) {
         var hitPart = hit.transform.root.GetComponent<Part>();
         // Use partInfo.title to properly display kerbal names.
@@ -237,46 +243,38 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   // FIXME: check colliders.
   #region Action handlers
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = false, active = false)]
+            guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction0() {
-    if (!isLinked) {
-      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-      UpdateLinkLengthAndOrientation();
-    }
+    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+    UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = false, active = false)]
+            guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction1() {
-    if (!isLinked) {
-      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
-      UpdateLinkLengthAndOrientation();
-    }
+    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
+    UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = false, active = false)]
+            guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction2() {
-    if (!isLinked) {
-      parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
-      UpdateLinkLengthAndOrientation();
-    }
+    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
+    UpdateLinkLengthAndOrientation();
   }
 
-  [KSPEvent(guiName = "Extend to max", guiActiveEditor = true, active = true)]
+  [KSPEvent(guiName = "Extend to max", guiActive = true, guiActiveUnfocused = true,
+            guiActiveEditor = true, active = false)]
   public void ExtendAtMaxMenuAction() {
-    if (!isLinked) {
-      parkedLength = maxLinkLength;
-      UpdateLinkLengthAndOrientation();
-    }
+    parkedLength = part.FindModuleImplementing<ILinkJoint>().cfgMaxLinkLength;
+    UpdateLinkLengthAndOrientation();
   }
 
-  [KSPEvent(guiName = "Retract to min", guiActiveEditor = true, active = true)]
+  [KSPEvent(guiName = "Retract to min", guiActive = true, guiActiveUnfocused = true,
+            guiActiveEditor = true, active = false)]
   public void RetractToMinMenuAction() {
-    if (!isLinked) {
-      parkedLength = minLinkLength;
-      UpdateLinkLengthAndOrientation();
-    }
+    parkedLength = part.FindModuleImplementing<ILinkJoint>().cfgMinLinkLength;
+    UpdateLinkLengthAndOrientation();
   }
   #endregion
 
@@ -294,30 +292,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected Transform trgStrutJointPivot { get; private set; }
   protected float srcJointHandleLength { get; private set; }
   protected float trgJointHandleLength { get; private set; }
-  /// <summary>Maximum possible link length with this part.</summary>
-  /// FIXME: populate it on model load/create
-  protected float maxLinkLength {
-    get {
-      return
-          srcJointHandleLength
-          + pistonsCount * (pistonLength - pistonMinShift)
-          + trgJointHandleLength;
-    }
-  }
-  /// <summary>Minimum possible link length with this part.</summary>
-  /// FIXME: populate it on model load/create
-  protected float minLinkLength {
-    get {
-      return
-          srcJointHandleLength
-          + pistonLength + (pistonsCount - 1) * pistonMinShift
-          + trgJointHandleLength;
-    }
-  }
 
-  /// <summary>
-  /// 
-  /// </summary>
+  // FIXME: docs
   protected const string AttachNodeObjName = "AttachNode";
   // FIXME: docs
   protected Transform CreateAttachNodeTransform() {
@@ -390,16 +366,16 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     if (Mathf.Approximately(parkedLength, 0)) {
-      parkedLength = minLinkLength;
+      // Cannot get length from the joint module since it may not be existing at the moment.
+      parkedLength = srcJointHandleLength
+          + pistonLength + (pistonsCount - 1) * pistonMinShift
+          + trgJointHandleLength;
     }
     UpdateLinkLengthAndOrientation();
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    //FIXME
-    Debug.LogWarningFormat("** Load model: pistons={0}, name={1}", pistonsCount, part.name);
-
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
@@ -492,12 +468,11 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
 
   void UpdateMenuItems() {
-    Events[MenuAction0Name].active = ExtractPositionName(parkedOrientationMenu0) != "" && !isLinked;
-    Events[MenuAction0Name].guiActiveEditor = Events[MenuAction0Name].active;
-    Events[MenuAction1Name].active = ExtractPositionName(parkedOrientationMenu1) != "" && !isLinked;
-    Events[MenuAction1Name].guiActiveEditor = Events[MenuAction1Name].active;
-    Events[MenuAction2Name].active = ExtractPositionName(parkedOrientationMenu2) != "" && !isLinked;
-    Events[MenuAction2Name].guiActiveEditor = Events[MenuAction2Name].active;
+    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
+    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
+    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
+    Events[ExtendAtMaxMenuActionName].active = !isLinked;
+    Events[RetractToMinMenuActionName].active = !isLinked;
   }
   #endregion
 }

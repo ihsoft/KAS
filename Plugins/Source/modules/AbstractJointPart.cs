@@ -43,7 +43,7 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   const float JointBaseHeigth = 0.02f;
   const float ClutchHolderThikness = 0.02f;
   const float ClutchHolderWidth = 0.10f;
-  const float ClutchHolderLength = JointBaseHeigth + 0.05f + 0.01f;  // For max pipe 0.15f.
+  const float ClutchHolderLength = 0.05f + 0.01f;
   const float ClutchThikness = 0.03f;
   const float ClutchAxileDiameter = 0.03f;
   const float ClutchAxleExtent = 0.005f;

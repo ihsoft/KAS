@@ -122,6 +122,7 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   #region IModuleInfo implementation
   /// <inheritdoc/>
   public override string GetInfo() {
+    //FIXME use string from the parent
     var sb = new StringBuilder();
     sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
     sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
