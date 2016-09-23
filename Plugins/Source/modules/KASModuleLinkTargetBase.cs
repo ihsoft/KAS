@@ -41,8 +41,10 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// <inheritdoc/>
   /// <para>Implements <see cref="ILinkTarget"/>.</para>
   public LinkState linkState {
-    get { return linkStateMachine.currentState; }
-    private set {
+    get {
+      return linkStateMachine.isStarted ? linkStateMachine.currentState : persistedLinkState;
+    }
+    protected set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -126,8 +128,36 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// <summary>Initalizes moulde state on part start.</summary>
   /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
   public override void OnStart(PartModule.StartState state) {
-    linkStateMachine.Start(persistedLinkState);
+    var newState = persistedLinkState;
+    if (persistedLinkState == LinkState.Linked) {
+      
+      if (attachNode != null) {
+        Debug.LogWarningFormat("attach node is not null, part is = {0}", attachNode.attachedPart);
+      } else {
+        Debug.LogWarningFormat("attach node is NULL");
+      }
+      
+      var source = FindLinkedSource();
+      if (source != null) {
+        RestoreLink(attachNode, source);
+      } else {
+        Debug.LogErrorFormat(
+            "Target {0} (id={1}) cannot restore link to source", part.name, part.flightID);
+        newState = LinkState.Available;
+      }
+    }
+    linkStateMachine.Start(newState);
     linkState = linkState;  // Trigger updates.
+  }
+
+  /// <summary>Finds this source link target.</summary>
+  /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
+  ILinkSource FindLinkedSource() {
+    if (attachNode != null && attachNode.attachedPart != null) {
+      return attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
+          .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+    }
+    return null;
   }
 
   /// <summary>Initializes the object. An alternative to constructor.</summary>
@@ -205,24 +235,24 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   public virtual void OnPartUnpack() {
     //FIXME: maybe use initialize
     //FIXME: may be turn on/off unbreakable
-    if (linkState == LinkState.Linked && linkSource == null) {
-      //Debug.LogWarningFormat("TRG: OnPartUnpack: {0} (id={1})", part.name, part.flightID);
-      var an = part.findAttachNode(attachNodeName);
-//      Debug.LogWarningFormat("TRG: node: {0} (id={1})",
-//                             an.attachedPart, an.attachedPart.flightID);
-      // Restore the link on part load.
-      var source = an.attachedPart.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(x => x.cfgLinkType == cfgLinkType);
-      if (source != null) {
-        RestoreLink(an, source);
-      } else {
-        Debug.LogErrorFormat(
-            "Target cannot restore link to source: {0} (id={1}) => {2} (id={3})",
-            part.name, part.flightID,
-            an.attachedPart.name, an.attachedPart.flightID);
-        linkState = LinkState.Available;
-      }
-    }
+//    if (linkState == LinkState.Linked && linkSource == null) {
+//      //Debug.LogWarningFormat("TRG: OnPartUnpack: {0} (id={1})", part.name, part.flightID);
+//      var an = part.findAttachNode(attachNodeName);
+////      Debug.LogWarningFormat("TRG: node: {0} (id={1})",
+////                             an.attachedPart, an.attachedPart.flightID);
+//      // Restore the link on part load.
+//      var source = an.attachedPart.FindModulesImplementing<ILinkSource>()
+//          .FirstOrDefault(x => x.cfgLinkType == cfgLinkType);
+//      if (source != null) {
+//        RestoreLink(an, source);
+//      } else {
+//        Debug.LogErrorFormat(
+//            "Target cannot restore link to source: {0} (id={1}) => {2} (id={3})",
+//            part.name, part.flightID,
+//            an.attachedPart.name, an.attachedPart.flightID);
+//        linkState = LinkState.Available;
+//      }
+//    }
   }
   
   protected virtual void RestoreLink(AttachNode an, ILinkSource source) {

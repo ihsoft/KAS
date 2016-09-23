@@ -122,10 +122,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     base.OnInactive();
   }
 
-  void Start() {
-    Debug.LogWarningFormat("**** MONO Start: name={0}", part.name);
-  }
-
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
@@ -207,11 +203,13 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
           Vector3.SqrMagnitude(source.position - sourceTransform.position));
     }
     targetTransform = target;
+    UpdateMenuItems();
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
     targetTransform = null;
+    UpdateMenuItems();
   }
 
   /// <inheritdoc/>

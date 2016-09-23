@@ -27,7 +27,10 @@ public interface ILinkSource {
   bool cfgAllowSameVesselTarget { get;}
   bool cfgAllowOtherVesselTarget { get;}
   string cfgLinkRendererName { get; }
-  
+
+  /// <summary>Attach node used for linking with target. If source is not linked then attach node is
+  /// <c>null</c>.</summary>
+  /// <seealso cref="cfgAttachNodeName"/>
   AttachNode attachNode { get; }
 
   /// <summary>Linked target or <c>null</c> if nothing is linked.</summary>
@@ -35,7 +38,8 @@ public interface ILinkSource {
 
   /// <summary>Current state of the source.</summary>
   /// <remarks>The state cannot be affected directly. Different methods change it to different
-  /// values. Though, there is strict model of state tranistioning for the source.</remarks>
+  /// values. Though, there is strict model of state tranistioning for the source.
+  /// <para>If module is not started yet then the persisted state is returned.</para></remarks>
   /// FIXME(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
@@ -44,21 +48,27 @@ public interface ILinkSource {
   /// do internal state adjustments (e.g. changing UI items visibility).</remarks>
   bool isLocked { get; set; }
 
-  /// <summary>Transform of the attach node on the source part. Link mesh source will be set to
-  /// here.</summary>
+  /// <summary>Transform of the attach node on the source part. This is not a real node transform.
+  /// </summary>
+  /// <remarks><list>
+  /// <item>When connecting parts this transform will used to create part's attach node.</item>
+  /// <item>Renderer uses this transform to align meshes.</item>
+  /// <item>Joint module uses node transfrom as source anchor for PhysX joint.</item>
+  /// </list></remarks>
   Transform nodeTransform { get; }
 
+  /// <summary>Mode in which a link between soucre and target is being created.</summary>
+  /// <remarks></remarks>
   GUILinkMode guiLinkMode { get; }
-
-  /// <summary>Renderer of the link meshes. It cannot be <c>null</c>.</summary>
-  /// <seealso cref="cfgLinkRendererName"/>
-  ILinkRenderer linkRenderer { get; }
 
   /// <summary>Starts linking mode of this source.</summary>
   /// <remarks>Only one source at time can be linking on the part. If part has more sources or
   /// targets they all will get <see cref="LinkState.Locked"/>.</remarks>
   /// <param name="mode">Defines how pending link should be displayed. See <see cref="GUILinkMode"/>
   /// for more details.</param>
+  /// <para>Module can refuse the mode by returning <c>false</c>. Refusing mode
+  /// <see cref="GUILinkMode.API"/> is allowed but strongly discouraged. Only refuse this mode when
+  /// all other modes are refused too (i.e. source cannot be linked at all).</para>
   /// <returns><c>true</c> if mode successfully started.</returns>
   bool StartLinking(GUILinkMode mode);
 
@@ -74,7 +84,6 @@ public interface ILinkSource {
   /// </remarks>
   /// <param name="target">Target to link with.</param>
   /// <returns><c>true</c> if parts were linked successfully.</returns>
-  /// FIXME: Clarify design: should it be docked mode only or it can support struts?
   bool LinkToTarget(ILinkTarget target);
 
   /// <summary>Breaks a link between source and the current target.</summary>

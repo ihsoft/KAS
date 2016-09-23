@@ -86,8 +86,12 @@
     <Compile Include="KSPDev\GUIUtils\Formatter.cs" />
     <Compile Include="KSPDev\GUIUtils\PartContextMenu.cs" />
     <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IModuleInfo.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IJointEventsListener.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IKSPActivateOnDecouple.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IKSPDevModuleInfo.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IPartModule.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IsDestroyable.cs" />
+    <Compile Include="KSPDev\KSPInterfaces\IsPackable.cs" />
     <Compile Include="KSPDev\ModelUtils\KspLayer.cs" />
     <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
