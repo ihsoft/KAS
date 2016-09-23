@@ -27,9 +27,6 @@ public interface ILinkSource {
   bool cfgAllowSameVesselTarget { get;}
   bool cfgAllowOtherVesselTarget { get;}
   string cfgLinkRendererName { get; }
-//  float cfgMaxLength { get; }
-//  float cfgMaxAngle { get; }
-  //float cfgLinkBreakForce { get; }
   
   AttachNode attachNode { get; }
 

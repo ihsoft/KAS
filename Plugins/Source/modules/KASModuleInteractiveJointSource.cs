@@ -225,7 +225,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     // Adjust renderer state.
     if (linkState == LinkState.Linked && !linkRenderer.isStarted) {
       //FIXME
-      Debug.LogWarning("** START linked mode");
+      Debug.LogWarningFormat("** START linked mode: target={0}", linkTarget);
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     }
     if (linkState != LinkState.Linked && linkRenderer.isStarted) {
