@@ -2,62 +2,30 @@
 // Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
-using System;
-//using System.Linq;
-using System.Text;
-using UnityEngine;
+
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
+using System;
+using System.Collections;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace KAS {
 
 //FIXME docs
-public abstract class AbstractJointModule : PartModule, IPartModule,
-                                            IModuleInfo, IKSPDevModuleInfo,
-                                            ILinkJoint {
-  #region ILinkJoint properties.
-  //FIXME drop it, move limits into source joint
-  /// <inheritdoc/>
-  public virtual float cfgMinLinkLength {
-      set { minLinkLength = value; }
-      get { return minLinkLength; }
-  }
-  /// <inheritdoc/>
-  public virtual float cfgMaxLinkLength {
-      set { maxLinkLength = value; }
-      get { return maxLinkLength; }
-  }
-  #endregion
-
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
-  #region Part's config fields
-  //FIXME: move all settings into interface
-  /// <summary>Breaking force for the strut connecting the two parts.</summary>
-  /// <remarks>If <c>0</c> then joint is unbreakable. Note, that this force is measured in any
-  /// direction of the joint ends movement. E.g. if limit is <c>10</c> then the joint will break
-  /// when either source or target object get affected by a force of 10+. The direction of the force
-  /// is not important, i.e. this limit is <i>not</i> a link stretch force limit.</remarks>
-  /// FIXME: investigate
-  [KSPField]
-  public float linkBreakForce = 0f;
-  /// <summary>Breaking torque for the link connecting the two parts.</summary>
-  [KSPField]
-  public float linkBreakTorque = 0f;
-  /// <summary>Degree of freedom at the source part.</summary>
-  [KSPField]
-  public int sourceLinkAngleLimit = 0;
-  /// <summary>Degree of freedom at the target part.</summary>
-  [KSPField]
-  public int targetLinkAngleLimit = 0;
-  [KSPField]
-  public float minLinkLength = 0f;
-  [KSPField]
-  public float maxLinkLength = Mathf.Infinity;
-  #endregion
+// Callbacks:
+// In-flight load: RestoreJoint => AdjustJoint
+// In-flight new: CreateJoint => X * (AdjustJoint(false) => AdjustJoint(true)) on time warp.
+// In-flight drop: DropJoint
+public abstract class AbstractJointModule :
+    // KSP parents.
+    PartModule, IModuleInfo, IActivateOnDecouple,
+    // KAS parents.
+    ILinkJoint,
+    // Syntax sugar parents.
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   protected static Message<float, float> MinLengthLimitReachedMsg =
@@ -81,12 +49,74 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
       "Target joint freedom: {0}deg", 0, "Target joint freedom: LOCKED");
   #endregion
 
+  #region ILinkJoint properties.
+  /// <inheritdoc/>
+  public float cfgMinLinkLength { get { return minLinkLength; } }
+  /// <inheritdoc/>
+  public float cfgMaxLinkLength { get { return maxLinkLength; } }
+  /// <inheritdoc/>
+  public float cfgLinkBreakForce { get { return linkBreakForce; } }
+  /// <inheritdoc/>
+  public float cfgLinkBreakTorque { get { return linkBreakTorque; } }
+  /// <inheritdoc/>
+  public int cfgSourceLinkAngleLimit { get { return sourceLinkAngleLimit; } }
+  /// <inheritdoc/>
+  public int cfgTargetLinkAngleLimit { get { return targetLinkAngleLimit; } }
+  #endregion
+
+  // These fields must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
+  #region Part's config fields
+  [KSPField]
+  public float linkBreakForce = 0f;
+  [KSPField]
+  public float linkBreakTorque = 0f;
+  [KSPField]
+  public int sourceLinkAngleLimit = 0;
+  [KSPField]
+  public int targetLinkAngleLimit = 0;
+  [KSPField]
+  public float minLinkLength = 0f;
+  [KSPField]
+  public float maxLinkLength = Mathf.Infinity;
+  #endregion
+
+  //FIXME docs
+  protected ILinkSource linkSource { get; private set; }
+  protected ILinkTarget linkTarget { get; private set; }
+  protected float originalLength { get; private set; }
+  protected bool isLinked { get; private set; }
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public abstract void SetupJoint(ILinkSource source, ILinkTarget target);
+  public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
+    //FIXME
+    Debug.LogWarningFormat("** CreateJoint: {0} => {1}", source.part.name, target.part.name);
+    DropJoint();
+    linkSource = source;
+    linkTarget = target;
+    originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
+    isLinked = true;
+    part.attachJoint = null;  // Prevent stock game logic to behave on the joint.
+  }
 
   /// <inheritdoc/>
-  public abstract void CleanupJoint();
+  public virtual void DropJoint() {
+    //FIXME
+    if (isLinked) {
+      Debug.LogWarningFormat("** DropJoint: {0} => {1}", linkSource.part.name, linkTarget.part.name);
+    } else {
+      Debug.LogWarningFormat("** DropJoint: UNLINKED");
+    }
+    linkSource = null;
+    linkTarget = null;
+    isLinked = false;
+  }
+
+  /// <inheritdoc/>
+  public abstract void AdjustJoint(bool isIndestructible = false);
 
   /// <inheritdoc/>
   public virtual string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
@@ -122,8 +152,7 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   #region IModuleInfo implementation
   /// <inheritdoc/>
   public override string GetInfo() {
-    //FIXME use string from the parent
-    var sb = new StringBuilder();
+    var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
     sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
     sb.AppendLine(InfoMinimumLinkLength.Format(minLinkLength));
@@ -149,10 +178,59 @@ public abstract class AbstractJointModule : PartModule, IPartModule,
   }
   #endregion
 
-  /// <summary>Destroys child objects when joint is destroyed.</summary>
-  /// <para>Overridden from <see cref="MonoBehaviour"/>.</para>
-  void OnDestroy() {
-    CleanupJoint();
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
+  public virtual void OnDestroy() {
+    DropJoint();
+  }
+  #endregion
+
+  #region IsPackable implementation
+  /// <inheritdoc/>
+  public virtual void OnPartUnpack() {
+    //FIXME: make joints normal
+    Debug.LogWarningFormat("** JOINT UNPACK: joint={0}", part.attachJoint);
+    if (part.attachJoint != null) {
+      var source = part.FindModulesImplementing<ILinkSource>()
+          .FirstOrDefault(x => x.linkState == LinkState.Linked);
+      if (source != null) {
+        //RestoreJoint(source, source.linkTarget);
+        CreateJoint(source, source.linkTarget);
+      } else {
+        // Disconnect parts if joint cannot be restored.
+        StartCoroutine(WaitAndDisconnectPart());
+      }
+    }
+    if (isLinked) {
+      AdjustJoint();
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnPartPack() {
+    //FIXME: make joints undestructable
+    Debug.LogWarning("** JOINT PACK");
+    if (isLinked) {
+      AdjustJoint(isIndestructible: true);
+    }
+  }
+  #endregion
+
+  #region IActivateOnDecouple implementation
+  /// <inheritdoc/>
+  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+    if (weDecouple) {
+      DropJoint();
+    }
+  }
+  #endregion
+
+  /// <summary>Disconnects part at the end of the frame.</summary>
+  /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
+  IEnumerator WaitAndDisconnectPart() {
+    yield return new WaitForEndOfFrame();
+    Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
+    part.decouple();
   }
 }
 

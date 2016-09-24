@@ -2,20 +2,16 @@
 // Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
-using System;
-using System.Linq;
-using System.Collections;
-using System.Text;
-using UnityEngine;
+
 using KASAPIv1;
-using KSPDev.KSPInterfaces;
-using KSPDev.GUIUtils;
+using System;
+using System.Collections;
+using UnityEngine;
 
 namespace KAS {
 
 //FIXME docs
-public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleInfo, ILinkJoint,
-                                                  IKSPDevModuleInfo {
+public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region Helper class to detect joint breakage
   /// <summary>Helper class to detect sphere joint ends breakage.</summary>
   /// <remarks>When joint breaks the source part is get decoupled from the parent.</remarks>
@@ -54,59 +50,51 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleIn
   ConfigurableJoint trgJoint;
   //FIXME
   ConfigurableJoint strutJoint;
-  ILinkSource linkSource;
-  ILinkTarget linkTarget;
-  float originalLength;
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public override void SetupJoint(ILinkSource source, ILinkTarget target) {
+  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
+    var stockJoint = part.attachJoint;
+    base.CreateJoint(source, target);
     //FIXME: check for limits
-    CleanupJoint();
-    linkSource = source;
-    linkTarget = target;
     srcJoint = CreateKinematicJointEnd(source.attachNode, "KASJointSrc");
     trgJoint = CreateKinematicJointEnd(target.attachNode, "KASJointTrg");
-    StartCoroutine(WaitAndConnectJointEnds());
+    StartCoroutine(WaitAndConnectJointEnds(stockJoint));
   }
 
   /// <inheritdoc/>
-  public override void CleanupJoint() {
+  public override void DropJoint() {
+    base.DropJoint();
     UnityEngine.Object.Destroy(srcJoint);
     srcJoint = null;
     UnityEngine.Object.Destroy(trgJoint);
     trgJoint = null;
     strutJoint = null;
-    linkSource = null;
-    linkTarget = null;
+  }
+
+  /// <inheritdoc/>
+  public override void AdjustJoint(bool isUnbreakable = false) {
+    //FIXME
+    Debug.LogWarningFormat("** ON AdjustJoint: isIndestructible = {0}", isUnbreakable);
   }
   #endregion
-
-  /// <summary>Destroys child objects when joint is destroyed.</summary>
-  /// <para>Overridden from <see cref="MonoBehaviour"/>.</para>
-  void OnDestroy() {
-    CleanupJoint();
-  }
 
   #region Private utility methods
   /// <summary>Creates a game object joined with the attach node.</summary>
   /// <remarks>The created object has kinematic rigidbody and its transform is parented to the
-  /// node's owner. This opbject must be promoted to physical once PhysX received the configuration.
+  /// node. This object must be promoted to physical once PhysX received the configuration.
   /// </remarks>
   /// <param name="an">Node to attach a new spheric joint to.</param>
   /// <param name="objName">Name of the game object for the new joint.</param>
   /// <returns>Object that owns the joint.</returns>
   ConfigurableJoint CreateKinematicJointEnd(AttachNode an, string objName) {
-    //FIXME
-    Debug.LogWarningFormat("Make joint for: {0} (id={1}), {2}",
-                           an.owner.name, an.owner.flightID, an.id);
     var objJoint = new GameObject(objName);
     objJoint.AddComponent<BrokenJointListener>().host = part;
     var jointRb = objJoint.AddComponent<Rigidbody>();
     jointRb.isKinematic = true;
-    objJoint.transform.parent = an.owner.transform;
-    objJoint.transform.localPosition = an.position;
-    objJoint.transform.localRotation = Quaternion.LookRotation(an.orientation, an.secondaryAxis);
+    objJoint.transform.parent = an.nodeTransform;
+    objJoint.transform.localPosition = Vector3.zero;
+    objJoint.transform.localRotation = Quaternion.identity;
     var joint = objJoint.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: sourceLinkAngleLimit);
@@ -121,22 +109,34 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleIn
   /// initial angles. Once it's done it's time to rotate the ends so what they look at each other,
   /// and attach them with a fixed or prismatic joint.</remarks>
   /// <returns><c>null</c> when it's time to terminate.</returns>
-  IEnumerator WaitAndConnectJointEnds() {
+  /// FIXME don't create prismatic joint when spring is infinite
+  /// FIXME when spring is set init prismatic joitn from the zero length
+  IEnumerator WaitAndConnectJointEnds(PartJoint partAttachJoint) {
+    // We'll spend several fixed update cycles to setup the joints, so make stock joint absolutely
+    // rigid to avoid parts moving during the process.
+    var stockJoint = partAttachJoint.Joint;
+    stockJoint.angularXMotion = ConfigurableJointMotion.Locked;
+    stockJoint.angularYMotion = ConfigurableJointMotion.Locked;
+    stockJoint.angularZMotion = ConfigurableJointMotion.Locked;
+    stockJoint.xMotion = ConfigurableJointMotion.Locked;
+    stockJoint.yMotion = ConfigurableJointMotion.Locked;
+    stockJoint.zMotion = ConfigurableJointMotion.Locked;
+  
     // Allow fixed update to have the joint info sent to PhysX. This will capture initial sphere
     // joints rotations.
-    //FIXME
-    Debug.LogWarning("Wait for sphere joints to populate");
     yield return new WaitForFixedUpdate();
 
     // Now rotate both sphere joints towards each other, and connect them with a prismatic joint.
     var srcRb = srcJoint.gameObject.GetComponent<Rigidbody>();
+    //FIXME
+    Debug.LogWarningFormat("** RB MASS: {0}", srcRb.mass);
     var trgRb = trgJoint.gameObject.GetComponent<Rigidbody>();
     srcJoint.transform.LookAt(trgJoint.transform);
     trgJoint.transform.LookAt(srcJoint.transform);
     strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(strutJoint);
+    //FIXME use spring force from teh settings
     KASAPI.JointUtils.SetupPrismaticJoint(strutJoint, springForce: Mathf.Infinity);
-    originalLength = Vector3.Distance(srcJoint.transform.position, trgJoint.transform.position);
     strutJoint.enablePreprocessing = true;
     strutJoint.connectedBody = trgRb;
     
@@ -163,13 +163,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleIn
     trgJoint.breakForce = Mathf.Infinity;
     trgJoint.breakTorque = breakTorque;
 
-    // Re-align the ends in case of parent objects have moved in the last physics frame. Here
-    // physics effects may show up.
-    srcJoint.transform.LookAt(trgJoint.transform);
-    trgJoint.transform.LookAt(srcJoint.transform);
-
-    // Promote source and target rigid bodies to physical. From now on they live in a system of
-    // three joints.
+    // Promote source and target rigid bodies to independent physical objects. From now on they live
+    // in a system of three joints.
+    //FIXME: for non spring strut target should be child of source. 
     srcRb.isKinematic = false;
     srcJoint.transform.parent = null;
     trgRb.isKinematic = false;
@@ -177,19 +173,8 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IModuleIn
     
     //FIXME
     Debug.LogWarning("Joint promoted to physics");
-    DestroyStockJoint();
-  }
-
-  /// <summary>Destroys the joint created by KSP to tie the parts together.</summary>
-  /// <remarks>To eliminate the side effects drop the joint only when the alternative is ready for
-  /// use.</remarks>
-  void DestroyStockJoint() {
-    if (linkSource.part.attachJoint != null) {
-      //FIXME
-      Debug.LogWarning("drop src-to-trg joint");
-      linkSource.part.attachJoint.DestroyJoint();
-      linkSource.part.attachJoint = null;
-    }
+    // Note, that this will trigger GameEvents.onPartJointBreak event.
+    partAttachJoint.DestroyJoint();
   }
   #endregion
 }

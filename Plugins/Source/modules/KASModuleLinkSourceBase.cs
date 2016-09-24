@@ -225,11 +225,12 @@ public class KASModuleLinkSourceBase :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    // Safety check for broken source/target. If logic state cannot be restored but source is
-    // attached to something then just detach.
-    if (linkState == LinkState.Available && part.attachJoint != null) {
-      StartCoroutine(WaitAndDisconnectPart());
-    }
+//    // Safety check for broken source/target. If logic state cannot be restored but source is
+//    // attached to something then just detach.
+//    if (linkState == LinkState.Available && part.attachJoint != null) {
+//      // FIXME move to joint
+//      StartCoroutine(WaitAndDisconnectPart());
+//    }
   }
 
   /// <inheritdoc/>
@@ -366,15 +367,11 @@ public class KASModuleLinkSourceBase :
     //FIXME
     Debug.LogWarningFormat("SOURCE: ** DecoupleAction: {0} (id={3}, weDecouple={1}, linkState={2}",
                            nodeName, weDecouple, linkState, part.flightID);
-    if (weDecouple && linkState == LinkState.Linked) {
+    if (nodeName == attachNodeName && linkState == LinkState.Linked) {
       Debug.LogWarningFormat(
           "Connection between {0} (id={1}) and {2} (id={3}) has been broken externally!",
           part.name, part.flightID, linkTarget.part.name, linkTarget.part.flightID);
       UnlinkParts(isBrokenExternally: true);
-    }
-    //FIXME: move to joint module
-    if (linkJoint != null) {
-      linkJoint.CleanupJoint();
     }
   }
   #endregion
@@ -405,18 +402,6 @@ public class KASModuleLinkSourceBase :
   /// <param name="target">Linked part target module.</param>
   protected virtual void OnLinkRestore(ILinkTarget target) {
     linkRenderer.StartRenderer(nodeTransform, target.nodeTransform);
-  }
-
-  /// <summary>Triggers when a physical joint between the two parts is created.</summary>
-  /// FIXME: move to joint base
-  protected virtual void OnSetupJoint() {
-    linkJoint.SetupJoint(this, linkTarget);
-  }
-
-  /// <summary>Triggers when physical joint between the two parts is destroyed.</summary>
-  /// FIXME: move to joint base
-  protected virtual void OnCleanupJoint() {
-    linkJoint.CleanupJoint();
   }
 
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
@@ -460,9 +445,9 @@ public class KASModuleLinkSourceBase :
     //FIXME
     Debug.LogWarningFormat("Coupled {0} with {1}", part.vessel, target.part.vessel);
     
-    
     //FIXME
-    StartCoroutine(WaitAndFireOnSetupJoint());
+    //StopCoroutine("ResetJoints");
+    linkJoint.CreateJoint(this, target);
 
     return true;
   }
@@ -487,7 +472,6 @@ public class KASModuleLinkSourceBase :
                              part.name, part.flightID, target.part.name, target.part.flightID);
       return null;
     }
-    OnCleanupJoint();
     return target.part.vessel;
   }
 
@@ -610,31 +594,6 @@ public class KASModuleLinkSourceBase :
     attachNode.owner = part;
     attachNode.nodeTransform = nodeTransform;
     part.attachNodes.Add(attachNode);
-  }
-
-  /// <summary>
-  /// Detects moment when KSP core initializes the part's joint, and fires KAS event. 
-  /// </summary>
-  /// <returns><c>null</c> until the condition is met.</returns>
-  /// FIXME move it into joint base
-  IEnumerator WaitAndFireOnSetupJoint() {
-    // Set an arbitary breaking force. The moment of KSP joint initialization is when this value
-    // get overwritten. It's not important what exact value is set for this purpose since all this
-    // stuff happens before physics start.
-    while (part.attachJoint == null) {
-      //FIXME
-      Debug.LogWarning("Waiting for joint create...");
-      yield return new WaitForFixedUpdate();
-    }
-    part.attachJoint.Joint.breakForce = 123456;
-    while (Mathf.Approximately(part.attachJoint.Joint.breakForce, 123456)) {
-      //FIXME
-      Debug.LogWarning("Waiting for joint update...");
-      yield return new WaitForFixedUpdate();
-    }
-    //FIXME
-    Debug.LogWarning("Setup joint");
-    OnSetupJoint();
   }
 
   /// <summary>Disconnects part at the end of the frame.</summary>

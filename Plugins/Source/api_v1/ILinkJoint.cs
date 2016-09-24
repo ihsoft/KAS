@@ -11,24 +11,52 @@ namespace KASAPIv1 {
 //FIXME: docs and samples
 public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
-  float cfgMinLinkLength { get; set; }
+  float cfgMinLinkLength { get; }
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
-  float cfgMaxLinkLength { get; set; }
+  float cfgMaxLinkLength { get; }
+  /// <summary>Breaking force for the strut connecting the two parts.</summary>
+  /// <remarks>If <c>0</c> then stock joint settings defines the value. If it's a positive number
+  /// then it defines a maximum possible strength of the link. Actual strength is a minimum of three
+  /// values:
+  /// <list>
+  /// <item>This setting.</item>
+  /// <item>Source part attach strength.</item>
+  /// <item>target part attach strength.</item>
+  /// </list>
+  /// <para>With this approach link will break before the linked parts get ripped off the vessels.
+  /// </para>
+  /// </remarks>
+  float cfgLinkBreakForce { get; }
+  /// <summary>Breaking torque for the link connecting the two parts.</summary>
+  /// <remarks><see cref="cfgLinkBreakForce"/></remarks>
+  float cfgLinkBreakTorque { get; }
+  /// <summary>Degree of freedom at the source part.</summary>
+  int cfgSourceLinkAngleLimit { get; }
+  /// <summary>Degree of freedom at the target part.</summary>
+  int cfgTargetLinkAngleLimit { get; }
 
   /// <summary>Sets up a physical link between source and target.</summary>
   /// <remarks>If parts are docked then there is a <see cref="PartJoint"/> created by the KSP core.
-  /// The implementation must either adjust it or drop it alltogether. Note, that in the either case
-  /// pack/unpack events must be handled to keep the joint setup at the specified values.
-  /// <para>For the docked parts source is always a child to the target. That said,
+  /// The implementation must either adjust it or drop it alltogether.
+  /// <para>For the docked parts "source" is always a child to the "target". That said,
   /// <c>source.part.attachJoint</c> is the KSP managed joint which the implementation may want to
   /// adjust.</para>
+  /// <para><paramref name="source"/> and <paramref name="target"/> may be not linked at this 
+  /// moment. Do <b>not</b> expect them be aware about each other.</para>
   /// </remarks>
   /// <param name="source">Link source. This part owns the joint.</param>
   /// <param name="target">Link target.</param>
-  void SetupJoint(ILinkSource source, ILinkTarget target);
+  void CreateJoint(ILinkSource source, ILinkTarget target);
 
   /// <summary>Destroys a physical link between source and target.</summary>
-  void CleanupJoint();
+  void DropJoint();
+
+  /// <summary>Requests joint to become unbreakable or normal.</summary>
+  /// <remarks>Normally, joint is set to unbreakable on time warp, but in general callers may do it
+  /// at any moment. In unbreakable state joint must behave as a hard connection that cannot be
+  /// change or destructed by any force.</remarks>
+  /// <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
+  void AdjustJoint(bool isUnbreakable = false);
 
   /// <summary>Checks if link length is within the limits.</summary>
   /// <param name="source">Source that probes the link.</param>
