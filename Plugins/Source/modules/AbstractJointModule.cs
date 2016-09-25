@@ -49,7 +49,7 @@ public abstract class AbstractJointModule :
       "Target joint freedom: {0}deg", 0, "Target joint freedom: LOCKED");
   #endregion
 
-  #region ILinkJoint properties.
+  #region ILinkJoint CFG properties.
   /// <inheritdoc/>
   public float cfgMinLinkLength { get { return minLinkLength; } }
   /// <inheritdoc/>
@@ -89,11 +89,18 @@ public abstract class AbstractJointModule :
   protected float originalLength { get; private set; }
   protected bool isLinked { get; private set; }
 
+  // Configurable joint settings used by the KSP stock joints as of KSP 1.1.3.  
+  protected const float StockJointBreakingForce = 9600;
+  protected const float StockJointBreakingTorque = 16000;
+  protected const float StockJointAngleLimit = 177;
+  protected const float StockJointLinearLimit = 1;
+  protected const float StockJointSpring = 30000;
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
     //FIXME
-    Debug.LogWarningFormat("** CreateJoint: {0} => {1}", source.part.name, target.part.name);
+    Debug.LogWarningFormat("** CreateJoint: {0}", DumpLink(source, target));
     DropJoint();
     linkSource = source;
     linkTarget = target;
@@ -106,7 +113,7 @@ public abstract class AbstractJointModule :
   public virtual void DropJoint() {
     //FIXME
     if (isLinked) {
-      Debug.LogWarningFormat("** DropJoint: {0} => {1}", linkSource.part.name, linkTarget.part.name);
+      Debug.LogWarningFormat("** DropJoint: {0}", DumpLink(linkSource, linkTarget));
     } else {
       Debug.LogWarningFormat("** DropJoint: UNLINKED");
     }
@@ -116,7 +123,7 @@ public abstract class AbstractJointModule :
   }
 
   /// <inheritdoc/>
-  public abstract void AdjustJoint(bool isIndestructible = false);
+  public abstract void AdjustJoint(bool isUnbreakable = false);
 
   /// <inheritdoc/>
   public virtual string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
@@ -191,14 +198,27 @@ public abstract class AbstractJointModule :
     //FIXME: make joints normal
     Debug.LogWarningFormat("** JOINT UNPACK: joint={0}", part.attachJoint);
     if (part.attachJoint != null) {
+      // The source is already initialized at this moment. Its state can be used to determine the
+      // link state.
       var source = part.FindModulesImplementing<ILinkSource>()
           .FirstOrDefault(x => x.linkState == LinkState.Linked);
+      var target = source != null ? source.linkTarget : null;
+      var linkIsOk = source != null;
       if (source != null) {
-        //RestoreJoint(source, source.linkTarget);
-        CreateJoint(source, source.linkTarget);
+        var limitError =
+            CheckAngleLimitAtSource(source, target.nodeTransform)
+            ?? CheckAngleLimitAtTarget(source, target.nodeTransform)
+            ?? CheckLengthLimit(source, target.nodeTransform);
+        if (limitError != null) {
+          Debug.LogErrorFormat("Cannot restore link: {0}", DumpLink(source, target));
+          linkIsOk = false;
+        }
+      }
+      if (linkIsOk) {
+        CreateJoint(source, source.linkTarget);  // This will clear attachJoint.
       } else {
-        // Disconnect parts if joint cannot be restored.
-        StartCoroutine(WaitAndDisconnectPart());
+        isLinked = false;
+        StartCoroutine(WaitAndDisconnectPart());  // Cannot restore. Disconnect.
       }
     }
     if (isLinked) {
@@ -211,7 +231,7 @@ public abstract class AbstractJointModule :
     //FIXME: make joints undestructable
     Debug.LogWarning("** JOINT PACK");
     if (isLinked) {
-      AdjustJoint(isIndestructible: true);
+      AdjustJoint(isUnbreakable: true);
     }
   }
   #endregion
@@ -225,12 +245,37 @@ public abstract class AbstractJointModule :
   }
   #endregion
 
+  /// <summary>Returns a logs friendly string description of the link.</summary>
+  protected static string DumpLink(ILinkSource source, ILinkTarget target) {
+    return string.Format("{0} at {1} (id={2}) => {3} at {4} (id={5})",
+                         source.part.name, source.cfgAttachNodeName, source.part.flightID,
+                         target.part.name, target.cfgAttachNodeName, target.part.flightID);
+  }
+
+  /// <summary>
+  /// Setups joint break force and torque while handling special values from config.
+  /// </summary>
+  /// <param name="joint">Joint to set forces for.</param>
+  /// <param name="forceFromConfig">Break force from the config. If it's <c>0</c> then force will be
+  /// the same as for the stock joints.</param>
+  /// <param name="torqueFromConfig">Break torque from the config. If it's <c>0</c> then torque will
+  /// be the same as for the stock joints.</param>
+  /// <seealso cref="StockJointBreakingForce"/>
+  /// <seealso cref="StockJointBreakingTorque"/>
+  protected static void SetBreakForces(
+      ConfigurableJoint joint, float forceFromConfig, float torqueFromConfig) {
+    joint.breakForce =
+        Mathf.Approximately(forceFromConfig, 0) ? StockJointBreakingForce : forceFromConfig;
+    joint.breakTorque =
+        Mathf.Approximately(torqueFromConfig, 0) ? StockJointBreakingTorque : torqueFromConfig;
+  }
+
   /// <summary>Disconnects part at the end of the frame.</summary>
   /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
   IEnumerator WaitAndDisconnectPart() {
     yield return new WaitForEndOfFrame();
     Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
-    part.decouple();
+    part.decouple();  // Link source is expected to react on decouple event.
   }
 }
 

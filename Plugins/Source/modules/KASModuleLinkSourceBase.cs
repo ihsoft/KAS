@@ -30,7 +30,7 @@ public class KASModuleLinkSourceBase :
     // KAS parents.
     ILinkSource, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsDestroyable, IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   protected static Message CannotLinkPartToItselfMsg = "Cannot link part to itself";
@@ -219,22 +219,6 @@ public class KASModuleLinkSourceBase :
     if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
       CreateAttachNode();
     }
-  }
-  #endregion
-
-  #region IsPackable implementation
-  /// <inheritdoc/>
-  public virtual void OnPartUnpack() {
-//    // Safety check for broken source/target. If logic state cannot be restored but source is
-//    // attached to something then just detach.
-//    if (linkState == LinkState.Available && part.attachJoint != null) {
-//      // FIXME move to joint
-//      StartCoroutine(WaitAndDisconnectPart());
-//    }
-  }
-
-  /// <inheritdoc/>
-  public virtual void OnPartPack() {
   }
   #endregion
 
@@ -456,6 +440,7 @@ public class KASModuleLinkSourceBase :
   /// <param name="target">Target to disconnect from.</param>
   /// <returns>Vessel created from the target part or <c>null</c> if no decoupling happen.</returns>
   /// FIXME: always detach from target, adjust the code
+  /// FIXME deprecate the method, just decouple and that's it
   protected virtual Vessel DisconnectTargetPart(ILinkTarget target) {
     if (part.parent == target.part) {
       //FIXME
@@ -576,8 +561,11 @@ public class KASModuleLinkSourceBase :
   /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
   ILinkTarget FindLinkedTarget() {
     if (attachNode != null && attachNode.attachedPart != null) {
+      var targetNode = attachNode.attachedPart.findAttachNodeByPart(part);
       return attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-          .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+          .FirstOrDefault(x => (x.cfgAttachNodeName == targetNode.id
+                                && x.linkState == LinkState.Linked
+                                && x.cfgLinkType == cfgLinkType));
     }
     return null;
   }
