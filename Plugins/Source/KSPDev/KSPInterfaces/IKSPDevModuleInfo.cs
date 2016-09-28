@@ -23,12 +23,10 @@ namespace KSPDev.KSPInterfaces {
 /// </remarks>
 public interface IKSPDevModuleInfo {
   /// <summary>Returns description for the editor part's browser.</summary>
-  /// <remarks>Declared as virtual in <see cref="PartModule"/> and, hence, needs to be overridden.
-  /// Though, it's also a part of <see cref="IModuleInfo"/>.
+  /// <remarks>Declared as virtual in <see cref="PartModule"/> and, hence, almost always needs to be
+  /// overridden. Though, it's also a part of <see cref="IModuleInfo"/>.
   /// </remarks>
-  /// <returns>Rich text to show the in GUI. Regular
-  /// <see href="https://docs.unity3d.com/Manual/StyledText.html">Unity rich text styles</see> are
-  /// supported.
+  /// <returns>Rich text to show the in GUI. Regular Unity rich text styles are supported.
   /// <para>Be careful when using &lt;size&gt;. It specifies size of the font in pixels which is an
   /// absolute value. As of KSP v1.1.3 normal info font size is 11px but in the future versions it
   /// may change.</para>
@@ -40,12 +38,12 @@ public interface IKSPDevModuleInfo {
   /// <returns>Title of the module.</returns>
   string GetModuleTitle();
 
-  /// <summary>Unused.</summary>
-  /// <returns>Always <c>null</c>.</returns>
+  /// <summary>Returns a method delegate to draw a custom panel.</summary>
+  /// <returns>Delegate or <c>null</c> if not necessary.</returns>
   Callback<UnityEngine.Rect> GetDrawModulePanelCallback();
 
-  /// <summary>Unused.</summary>
-  /// <returns>Always <c>null</c>.</returns>
+  /// <summary>Return a string to be displayed in the main information box on the tooltip.</summary>
+  /// <returns>String or <c>null</c> if nothing is that important to be up there.</returns>
   string GetPrimaryField();
 }
 

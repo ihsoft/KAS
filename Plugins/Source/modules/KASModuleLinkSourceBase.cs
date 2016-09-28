@@ -24,13 +24,19 @@ namespace KAS {
 /// <para>Decendand classes may use any members and methods but good practice is restricting the
 /// usage to the interfaces and virtuals only.</para>
 /// </remarks>
+/// <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule
+/// </seealso>
+/// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
+/// KSP: IActivateOnDecouple</seealso>
+/// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
+/// </seealso>
 public class KASModuleLinkSourceBase :
     // KSP parents.
     PartModule, IModuleInfo, IActivateOnDecouple,
     // KAS parents.
     ILinkSource, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   protected static Message CannotLinkPartToItselfMsg = "Cannot link part to itself";
@@ -179,21 +185,18 @@ public class KASModuleLinkSourceBase :
     // FIXME: create dummy renderer and joint if nothing is found.
 
     // Try to restore link to the target.
-    var newState = persistedLinkState;
     if (persistedLinkState == LinkState.Linked) {
       linkTarget = FindLinkedTarget();
       if (linkTarget != null) {
         OnLinkRestore(linkTarget);
-        //FIXME: UNCOMMENT! or move to joint module
-        //StartCoroutine(WaitAndFireOnSetupJoint());
       } else {
-        Debug.LogErrorFormat("Cannot restore link for part: {0} (id={1})",
-                             part.name, part.flightID);
-        newState = LinkState.Available;
+        Debug.LogErrorFormat(
+            "Source {0} (id={1}) cannot restore link to target on attach node {2}",
+            part.name, part.flightID, attachNodeName);
       }
     }
 
-    linkStateMachine.Start(newState);
+    linkStateMachine.Start(persistedLinkState);
     linkState = linkState;  // Trigger state updates.
   }
 
@@ -219,6 +222,23 @@ public class KASModuleLinkSourceBase :
     if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
       CreateAttachNode();
     }
+  }
+  #endregion
+
+  #region IsPackable implementation
+  /// <inheritdoc/>
+  public virtual void OnPartUnpack() {
+    //FIXME
+    Debug.LogWarningFormat("** SOURCE UNPACK: joint={0}", part.attachJoint);
+    // Disconnect from the target if linking info cannot be restored.
+    if (linkState == LinkState.Linked && linkTarget == null) {
+      linkState = LinkState.Available;
+      StartCoroutine(WaitAndDisconnectPart());  // Cannot restore. Disconnect.
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnPartPack() {
   }
   #endregion
 
@@ -358,10 +378,11 @@ public class KASModuleLinkSourceBase :
           part.name, part.flightID, linkTarget.part.name, linkTarget.part.flightID);
       UnlinkParts(isBrokenExternally: true);
     }
+    DropAttachNode();
   }
   #endregion
 
-  #region New inheritable methods
+  #region Inheritable methods
   /// <summary>Triggers when state has been assigned with a value.</summary>
   /// <remarks>This method triggers even when new state doesn't differ from the old one. When it's
   /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
@@ -370,23 +391,17 @@ public class KASModuleLinkSourceBase :
     if (oldState == linkState) {
       return;
     }
-    //FIXME move to renderer
-    if (linkRenderer != null) {
-      if (linkState == LinkState.Linked) {
-        linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-      } else if (oldState == LinkState.Linked) {
-        linkRenderer.StopRenderer();
-      }
+    // Adjust renderer state.
+    if (linkState == LinkState.Linked) {
+      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+    } else if (oldState == LinkState.Linked) {
+      linkRenderer.StopRenderer();
     }
+    // Create attach node before possible linking, and drop it if link wasn't made.
     if (linkState == LinkState.Linking) {
-      // Prepare attach node for a possible connection.
       CreateAttachNode();
-    } else if (linkState != LinkState.Linked && attachNode != null) {
-      // Cleanup attach node.
-      //FIXME
-      Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
-      part.attachNodes.Remove(attachNode);
-      attachNode = null;
+    } else if (oldState == LinkState.Linking && linkState != LinkState.Linked) {
+      DropAttachNode();
     }
   }
 
@@ -452,15 +467,10 @@ public class KASModuleLinkSourceBase :
       Debug.LogWarning("Detach src from target");
       part.decouple();
       //FIXME: restore source vessel info
-    } else if (target.part.parent == part) {
-      //FIXME
-      Debug.LogWarning("Detach trg from source");
-      target.part.decouple();
-      //FIXME: restore target vessel info
     } else {
       Debug.LogWarningFormat("Source {0} (id={1}) is not linked with target {2} (id={3})",
                              part.name, part.flightID, target.part.name, target.part.flightID);
-      return null;
+      return part.vessel;
     }
     return target.part.vessel;
   }
@@ -523,7 +533,6 @@ public class KASModuleLinkSourceBase :
   /// <summary>Checks if joint module would allow linking with the specified transform.</summary>
   /// <param name="targetTransform">Target transform of the link being checked.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
-  //FIXME: may be accept ILinkTarget
   protected string CheckJointLimits(Transform targetTransform) {
     return
         linkJoint.CheckLengthLimit(this, targetTransform)
@@ -562,17 +571,25 @@ public class KASModuleLinkSourceBase :
   }
   #endregion 
 
+  #region Local utility methods
   /// <summary>Finds this source link target.</summary>
+  /// <remarks><see cref="attachNode"/> must be populated with the attached part (if any).
+  /// Otherwise, the result will be <c>null</c>.</remarks>
   /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
   ILinkTarget FindLinkedTarget() {
-    if (attachNode != null && attachNode.attachedPart != null) {
-      var targetNode = attachNode.attachedPart.findAttachNodeByPart(part);
-      return attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-          .FirstOrDefault(x => (x.cfgAttachNodeName == targetNode.id
-                                && x.linkState == LinkState.Linked
-                                && x.cfgLinkType == cfgLinkType));
-    }
-    return null;
+    
+    //FIXME use simplier approach with attached part == source
+    
+    
+    var targetNode = attachNode != null && attachNode.attachedPart != null
+        ? attachNode.attachedPart.findAttachNodeByPart(part)
+        : null;
+    return targetNode != null
+        ? attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
+            .FirstOrDefault(x => (x.cfgAttachNodeName == targetNode.id
+                                  && x.linkState == LinkState.Linked
+                                  && x.cfgLinkType == cfgLinkType))
+        : null;
   }
 
   /// <summary>Creates actual attach node on the part.</summary>
@@ -589,14 +606,27 @@ public class KASModuleLinkSourceBase :
     part.attachNodes.Add(attachNode);
   }
 
+  /// <summary>Drops actual attach node on the part.</summary>
+  /// <remarks>Don't drop the node until parts is decoupled from the vessel. Otherwise, decouple
+  /// callback won't be called on the part.</remarks>
+  /// <seealso cref="attachNode"/>
+  /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
+  /// KSP: IActivateOnDecouple</seealso>
+  void DropAttachNode() {
+    //FIXME
+    Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
+    part.attachNodes.Remove(attachNode);
+    attachNode = null;
+  }
+
   /// <summary>Disconnects part at the end of the frame.</summary>
   /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
   IEnumerator WaitAndDisconnectPart() {
     yield return new WaitForEndOfFrame();
     Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
-    // FIXME: restore vessel info if any.
-    part.decouple();
+    part.decouple();  // Link source is expected to react on decouple event.
   }
+  #endregion
 }
 
 }  // namespace

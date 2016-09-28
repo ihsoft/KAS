@@ -3,10 +3,10 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
-using HighlightingSystem;
 using System;
 using System.Linq;
 using KASAPIv1;
+using KSPDev.KSPInterfaces;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -24,22 +24,34 @@ namespace KAS {
 /// usage to the interfaces and virtuals only.</para>
 /// </remarks>
 // TODO(ihsoft): Add code samples.
-public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventListener {
-  #region ILinkTarget properties implementation
+public class KASModuleLinkTargetBase :
+    // KSP parents.
+    PartModule, IActivateOnDecouple,
+    // KAS parents.
+    ILinkTarget, ILinkStateEventListener,
+    // Syntax sugar parents.
+    IPartModule, IsDestroyable, IKSPActivateOnDecouple {
+
+  #region ILinkTarget config properties implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
   public string cfgLinkType { get { return type; } }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
   public string cfgAttachNodeName { get { return attachNodeName; } }
+  #endregion
+  
+  #region ILinkTarget properties implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
-  public virtual bool isLocked {
-    get { return linkState == LinkState.Locked; }
-    set { linkState = value ? LinkState.Locked : LinkState.Available; }
+  public virtual ILinkSource linkSource {
+    get { return _linkSource; }
+    set {
+      var oldSource = _linkSource;
+      _linkSource = value;
+      linkState = value != null ? LinkState.Linked : LinkState.Available;
+      TriggerSourceChangeEvents(oldSource);
+    }
   }
+  ILinkSource _linkSource;
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
   public LinkState linkState {
     get {
       return linkStateMachine.isStarted ? linkStateMachine.currentState : persistedLinkState;
@@ -52,48 +64,14 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
     }
   }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
-  public virtual ILinkSource linkSource {
-    get { return _linkSource; }
-    set {
-      var oldSource = _linkSource;
-      _linkSource = value;
-      linkState = value != null ? LinkState.Linked : LinkState.Available;
-      TriggerSourceChangeEvents(oldSource);
-    }
+  public virtual bool isLocked {
+    get { return linkState == LinkState.Locked; }
+    set { linkState = value ? LinkState.Locked : LinkState.Available; }
   }
-  ILinkSource _linkSource;
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
-  public Transform nodeTransform {
-    get {
-      if (_nodeTransform == null) {
-        _nodeTransform = KASAPI.AttachNodesUtils.GetOrCreateNodeTransform(part, attachNodeName);
-      }
-      return _nodeTransform;
-    }
-  }
-  Transform _nodeTransform;
+  public Transform nodeTransform { get; private set; }
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkTarget"/>.</para>
-  public AttachNode attachNode {
-    get {
-      if (_attachNode == null) {
-        var node = KASAPI.AttachNodesUtils.GetAttachNode(part, attachNodeName);
-        if (node == null) {
-          throw new InvalidOperationException(string.Format(
-              "Cannot find attach nodes in the part: {0} (node={1})", part.name, attachNodeName));
-        }
-        if (node.nodeType != AttachNode.NodeType.Stack) {
-          throw new InvalidOperationException(string.Format(
-              "Attach node must be of type 'stack': {0} (type={1})", part.name, node.nodeType));
-        }
-        _attachNode = node;
-      }
-      return _attachNode;
-    }
-  }
-  AttachNode _attachNode;
+  public AttachNode attachNode { get; private set; }
   #endregion
 
   // These fileds must not be accessed outside of the module. They are declared public only
@@ -105,13 +83,19 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   public LinkState persistedLinkState = LinkState.Available;
   #endregion
 
+  // These fileds must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
   #region Part's config fields
-  // Here go settings from the part config. They must be of at least "protected" visiblity level for
-  // the game to handle them properly.
   [KSPField]
   public string type = "";
   [KSPField]
   public string attachNodeName = "";
+  [KSPField]
+  public Vector3 attachNodePosition = Vector3.zero;
+  [KSPField]
+  public Vector3 attachNodeOrientation = Vector3.up;
   [KSPField]
   public bool highlightCompatibleTargets = true;
   [KSPField]
@@ -125,43 +109,8 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   /// at the inappropriate moment.</remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
 
-  /// <summary>Initalizes moulde state on part start.</summary>
-  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
-  public override void OnStart(PartModule.StartState state) {
-    var newState = persistedLinkState;
-    if (persistedLinkState == LinkState.Linked) {
-      
-      if (attachNode != null) {
-        Debug.LogWarningFormat("attach node is not null, part is = {0}", attachNode.attachedPart);
-      } else {
-        Debug.LogWarningFormat("attach node is NULL");
-      }
-      
-      var source = FindLinkedSource();
-      if (source != null) {
-        RestoreLink(attachNode, source);
-      } else {
-        Debug.LogErrorFormat(
-            "Target {0} (id={1}) cannot restore link to source", part.name, part.flightID);
-        newState = LinkState.Available;
-      }
-    }
-    linkStateMachine.Start(newState);
-    linkState = linkState;  // Trigger updates.
-  }
-
-  /// <summary>Finds this source link target.</summary>
-  /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
-  ILinkSource FindLinkedSource() {
-    if (attachNode != null && attachNode.attachedPart != null) {
-      return attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
-    }
-    return null;
-  }
-
-  /// <summary>Initializes the object. An alternative to constructor.</summary>
-  /// <remarks>Overridden from <see cref="PartModule"/>.</remarks>
+  #region PartModule overrides
+  /// <inheritdoc/>
   public override void OnAwake() {
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     linkStateMachine.SetTransitionConstraint(
@@ -192,22 +141,67 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
-
-    //FIXME
-//    linkStateMachine.OnDebugStateChange = (from, to) =>
-//        Debug.LogWarningFormat("TARGET: Part {0} (id={1}), module {2}: {3}=>{4}",
-//                               part.name, part.craftID, moduleName, from, to);
   }
 
-  /// <summary>Destroys the object. An alternative to destructor.</summary>
-  /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
+  /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    var newState = persistedLinkState;
+    if (persistedLinkState == LinkState.Linked) {
+      //FIXME
+      if (attachNode != null) {
+        Debug.LogWarningFormat("attach node is not null, part is = {0}", attachNode.attachedPart);
+      } else {
+        Debug.LogWarningFormat("attach node is NULL");
+      }
+      
+      var source = FindLinkedSource();
+      if (source != null) {
+        OnLinkRestore(source);
+      } else {
+        Debug.LogErrorFormat(
+            "Target {0} (id={1}) cannot restore link to source on attach node {2}",
+            part.name, part.flightID, attachNodeName);
+        newState = LinkState.Available;
+      }
+    }
+    linkStateMachine.Start(newState);
+    linkState = linkState;  // Trigger updates.
+  }
+
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+
+    //FIXME
+    Debug.LogWarningFormat("** ON LOAD");
+
+    // Create attach node transform. It will become a part of the model.
+    if (HighLogic.LoadedScene == GameScenes.LOADING) {
+      nodeTransform = new GameObject(attachNodeName + "-node").transform;
+      nodeTransform.parent = part.FindModelTransform("model");
+      nodeTransform.localPosition = attachNodePosition;
+      nodeTransform.localScale = Vector3.one;
+      nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
+    } else {
+      nodeTransform = part.FindModelTransform(attachNodeName + "-node");
+    }
+
+    // If source is linked then we need actual attach node. Create it.
+    if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
+      CreateAttachNode();
+    }
+  }
+  #endregion
+
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
   public virtual void OnDestroy() {
     linkStateMachine.Stop();
   }
+  #endregion
 
   #region ILinkEventListener implementation
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkStateEventListener"/></para>
   public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     // Lock this target if another target on the part has accepted the link.
     if (!isLocked && !ReferenceEquals(info.target, this)) {
@@ -216,7 +210,6 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   }
 
   /// <inheritdoc/>
-  /// <para>Implements <see cref="ILinkStateEventListener"/></para>
   public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
     // Unlock this target if link with another target on the part has broke.
     if (isLocked && !ReferenceEquals(info.target, this)) {
@@ -225,55 +218,7 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   }
   #endregion
 
-  /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
-  /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
-  /// <param name="breakForce">Actual force that has been applied.</param>
-  protected virtual void OnJointBreak(float breakForce) {
-    // Do nothing. The source will handle all the work.
-  }
-
-  public virtual void OnPartUnpack() {
-    //FIXME: maybe use initialize
-    //FIXME: may be turn on/off unbreakable
-//    if (linkState == LinkState.Linked && linkSource == null) {
-//      //Debug.LogWarningFormat("TRG: OnPartUnpack: {0} (id={1})", part.name, part.flightID);
-//      var an = part.findAttachNode(attachNodeName);
-////      Debug.LogWarningFormat("TRG: node: {0} (id={1})",
-////                             an.attachedPart, an.attachedPart.flightID);
-//      // Restore the link on part load.
-//      var source = an.attachedPart.FindModulesImplementing<ILinkSource>()
-//          .FirstOrDefault(x => x.cfgLinkType == cfgLinkType);
-//      if (source != null) {
-//        RestoreLink(an, source);
-//      } else {
-//        Debug.LogErrorFormat(
-//            "Target cannot restore link to source: {0} (id={1}) => {2} (id={3})",
-//            part.name, part.flightID,
-//            an.attachedPart.name, an.attachedPart.flightID);
-//        linkState = LinkState.Available;
-//      }
-//    }
-  }
-  
-  protected virtual void RestoreLink(AttachNode an, ILinkSource source) {
-    _linkSource = source;
-  }
-
-  /// <summary>Triggers when state has being assigned with a value.</summary>
-  /// <remarks>This method triggers even when new state doesn't differ from the old one. When it's
-  /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
-  /// <param name="oldState">State prior to the change.</param>
-  protected virtual void OnStateChange(LinkState oldState) {
-    if (highlightCompatibleTargets
-        && (linkState == LinkState.AcceptingLinks || oldState == LinkState.AcceptingLinks)) {
-      if (linkState == LinkState.AcceptingLinks) {
-        part.highlighter.ConstantOn(highlightColor);
-      } else {
-        part.highlighter.ConstantOff();
-      }
-    }
-  }
-
+  #region KASEvents listeners
   /// <summary>Reacts on source link mode change.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
@@ -289,7 +234,51 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
   void OnStopConnecting(ILinkSource connectionSource) {
     linkState = LinkState.Available;
   }
+  #endregion
 
+  #region IActivateOnDecouple implementation
+  /// <inheritdoc/>
+  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+    //FIXME
+    Debug.LogWarningFormat("TARGET: ** DecoupleAction: {0} (id={3}, weDecouple={1}, linkState={2}",
+                           nodeName, weDecouple, linkState, part.flightID);
+    DropAttachNode();
+  }
+  #endregion
+
+  #region New inheritable methods
+  /// <summary>Triggers when state has being assigned with a value.</summary>
+  /// <remarks>This method triggers even when new state doesn't differ from the old one. When it's
+  /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
+  /// <param name="oldState">State prior to the change.</param>
+  protected virtual void OnStateChange(LinkState oldState) {
+    if (oldState == linkState) {
+      return;
+    }
+    // Adjust compatible part highlight. 
+    if (highlightCompatibleTargets) {
+      if (linkState == LinkState.AcceptingLinks) {
+        part.highlighter.ConstantOn(highlightColor);
+      } else if (oldState == LinkState.AcceptingLinks) {
+        part.highlighter.ConstantOff();
+      }
+    }
+    // Create attach node before possible linking, and drop it if link to the target wasn't made.
+    if (linkState == LinkState.AcceptingLinks) {
+      CreateAttachNode();
+    } else if (oldState == LinkState.AcceptingLinks && linkState != LinkState.Linked) {
+      DropAttachNode();
+    }
+  }
+
+  /// <summary>Triggers when link is restored from the save file.</summary>
+  /// <param name="source">Linked part source module.</param>
+  protected virtual void OnLinkRestore(ILinkSource source) {
+    _linkSource = source;
+  }
+  #endregion
+
+  #region Local untility methods
   /// <summary>Triggesr link/unlink events when needed.</summary>
   /// <param name="oldSource">Link source before the change.</param>
   void TriggerSourceChangeEvents(ILinkSource oldSource) {
@@ -304,6 +293,44 @@ public class KASModuleLinkTargetBase : PartModule, ILinkTarget, ILinkStateEventL
       }
     }
   }
+
+  /// <summary>Finds this source link target.</summary>
+  /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
+  ILinkSource FindLinkedSource() {
+    if (attachNode != null && attachNode.attachedPart != null) {
+      return attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
+          .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+    }
+    return null;
+  }
+
+  /// <summary>Creates actual attach node on the part.</summary>
+  /// <remarks>Size of the node is always "small", and type is "stack".</remarks>
+  /// <seealso cref="cfgAttachNodeName"/>
+  /// <seealso cref="attachNode"/>
+  void CreateAttachNode() {
+    //FIXME
+    Debug.LogWarningFormat("** TARGET: Create AN {0} for {1}", attachNodeName, part.name);
+    attachNode = new AttachNode(attachNodeName, nodeTransform, 0, AttachNodeMethod.FIXED_JOINT);
+    attachNode.nodeType = AttachNode.NodeType.Stack;
+    attachNode.owner = part;
+    attachNode.nodeTransform = nodeTransform;
+    part.attachNodes.Add(attachNode);
+  }
+
+  /// <summary>Drops actual attach node on the part.</summary>
+  /// <remarks>Don't drop the node until parts is decoupled from the vessel. Otherwise, decouple
+  /// callback won't be called on the part.</remarks>
+  /// <seealso cref="attachNode"/>
+  /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
+  /// KSP: IActivateOnDecouple</seealso>
+  void DropAttachNode() {
+    //FIXME
+    Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
+    part.attachNodes.Remove(attachNode);
+    attachNode = null;
+  }
+  #endregion
 }
 
 }  // namespace

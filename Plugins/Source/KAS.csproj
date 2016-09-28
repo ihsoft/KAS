@@ -100,10 +100,7 @@
     <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
-    <Compile Include="modules\KASModuleFlexibleConnectionSource.cs" />
-    <Compile Include="modules\KASModuleFlexibleConnectionTarget.cs" />
     <Compile Include="modules\KASModuleStockJoint.cs" />
-    <Compile Include="modules\KASModuleTelescopicTubeRenderer.cs" />
     <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
     <Compile Include="modules\KASModuleTubeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />

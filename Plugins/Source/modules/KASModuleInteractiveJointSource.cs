@@ -221,16 +221,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
     //FIXME: figure out if still needed
     PartContextMenu.InvalidateContextMenu(part);
-
-    // Adjust renderer state.
-    if (linkState == LinkState.Linked && !linkRenderer.isStarted) {
-      //FIXME
-      Debug.LogWarningFormat("** START linked mode: target={0}", linkTarget);
-      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    }
-    if (linkState != LinkState.Linked && linkRenderer.isStarted) {
-      linkRenderer.StopRenderer();
-    }
   }
 
   /// <inheritdoc/>

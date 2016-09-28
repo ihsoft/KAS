@@ -139,7 +139,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   IEnumerator WaitAndConnectJointEnds(PartJoint partAttachJoint) {
     // We'll spend several fixed update cycles to setup the joints, so make stock joint absolutely
     // rigid to avoid parts moving during the process.
-    SetupUnbreakableJoint(partAttachJoint.Joint);
+    if (partAttachJoint != null && partAttachJoint.Target == linkTarget.part) {
+      SetupUnbreakableJoint(partAttachJoint.Joint);
+    }
   
     // Allow fixed update to have the joint info sent to PhysX. This will capture initial sphere
     // joints rotations.
@@ -177,7 +179,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     //FIXME
     Debug.LogWarning("Joint promoted to physics");
     // Note, that this will trigger GameEvents.onPartJointBreak event.
-    partAttachJoint.DestroyJoint();
+    if (partAttachJoint != null && partAttachJoint.Target == linkTarget.part) {
+      partAttachJoint.DestroyJoint();
+    }
   }
 
   /// <summary>Makes the joint unbreakable and locked.</summary>

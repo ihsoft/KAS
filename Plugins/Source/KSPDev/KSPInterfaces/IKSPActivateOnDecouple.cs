@@ -23,8 +23,11 @@ namespace KSPDev.KSPInterfaces {
 /// </remarks>
 public interface IKSPActivateOnDecouple {
   /// <summary>Called when two parts decouple.</summary>
+  /// <remarks>Callback is only called on the part if it has an attach node that connects it to the
+  /// other part. Just removing from the vessel hierarchy won't trigger the event.</remarks>
   /// <param name="nodeName">Attach node name that has been detached.</param>
-  /// <param name="weDecouple">If <c>true</c> then owner part was child of the other part.</param>
+  /// <param name="weDecouple">If <c>true</c> then the part being notified was a child in the
+  /// relation of the detached part.</param>
   void DecoupleAction(string nodeName, bool weDecouple);
 }
 

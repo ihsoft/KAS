@@ -92,27 +92,61 @@ public abstract class AbstractJointModule :
   protected const float StockJointLinearLimit = 1;
   protected const float StockJointSpring = 30000;
 
+  #region PartModule overrides
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    // Source & target modules may not be started at this moment yet but they are loaded.
+    ILinkSource source;
+    ILinkTarget target;
+    if (FindLinkEnds(part, out source, out target)) {
+      CreateJoint(source, target);  // Restore joint state.
+    }
+  }
+  #endregion
+
+  public static bool FindLinkEnds(Part p, out ILinkSource source, out ILinkTarget target) {
+    // Only one source on the part can be linked.
+    source = p.FindModulesImplementing<ILinkSource>()
+        .FirstOrDefault(x => x.linkState == LinkState.Linked);
+    if (source == null || source.attachNode == null || source.attachNode.attachedPart == null) {
+      target = null;
+      return false;
+    }
+    // Any number of targets can be linked but only one is linked with this part.
+    target = source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
+        .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == p);
+    return target != null;
+  }
+
+
+  public static bool IsPartLinked(Part p) {
+    ILinkSource source;
+    ILinkTarget target;
+    return FindLinkEnds(p, out source, out target);
+  }
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
     //FIXME
-    Debug.LogWarningFormat("** CreateJoint: {0}", DumpLink(source, target));
+    Debug.LogWarningFormat("** CreateJoint: {0}", DumpJoint(source, target));
     DropJoint();
     linkSource = source;
     linkTarget = target;
     originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
     isLinked = true;
-    part.attachJoint = null;  // Prevent stock game logic to behave on the joint.
+    // Prevent stock game logic to behave on the joint if there is any.
+    if (part.attachJoint != null && part.attachJoint.Target == target.part) {
+      //FIXME
+      Debug.LogWarningFormat("** DROP stock joint");
+      part.attachJoint = null;
+    }
   }
 
   /// <inheritdoc/>
   public virtual void DropJoint() {
     //FIXME
-    if (isLinked) {
-      Debug.LogWarningFormat("** DropJoint: {0}", DumpLink(linkSource, linkTarget));
-    } else {
-      Debug.LogWarningFormat("** DropJoint: UNLINKED");
-    }
+    Debug.LogWarningFormat("** DropJoint: {0}", DumpJoint(linkSource, linkTarget));
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -201,30 +235,28 @@ public abstract class AbstractJointModule :
   public virtual void OnPartUnpack() {
     //FIXME: make joints normal
     Debug.LogWarningFormat("** JOINT UNPACK: joint={0}", part.attachJoint);
-    if (part.attachJoint != null) {
-      // The source is already initialized at this moment. Its state can be used to determine the
-      // link state.
-      var source = part.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(x => x.linkState == LinkState.Linked);
-      var target = source != null ? source.linkTarget : null;
-      var linkIsOk = source != null;
-      if (source != null) {
-        var limitError =
-            CheckAngleLimitAtSource(source, target.nodeTransform)
-            ?? CheckAngleLimitAtTarget(source, target.nodeTransform)
-            ?? CheckLengthLimit(source, target.nodeTransform);
-        if (limitError != null) {
-          Debug.LogErrorFormat("Cannot restore link: {0}", DumpLink(source, target));
-          linkIsOk = false;
-        }
-      }
-      if (linkIsOk) {
-        CreateJoint(source, source.linkTarget);  // This will clear attachJoint.
-      } else {
-        isLinked = false;
-        StartCoroutine(WaitAndDisconnectPart());  // Cannot restore. Disconnect.
-      }
-    }
+    // Check 
+//    if (!isLinked) {
+//      // The source is already initialized at this moment. Its state can be used to determine the
+//      // link state.
+//      var source = part.FindModulesImplementing<ILinkSource>()
+//          .FirstOrDefault(x => x.linkState == LinkState.Linked);
+//      var target = source != null ? source.linkTarget : null;
+//      if (isLinked && source != null && target != null) {
+//        var limitError =
+//            CheckAngleLimitAtSource(source, target.nodeTransform)
+//            ?? CheckAngleLimitAtTarget(source, target.nodeTransform)
+//            ?? CheckLengthLimit(source, target.nodeTransform);
+//        if (limitError != null) {
+//          Debug.LogErrorFormat(
+//              "Cannot restore joint {0}: {1}", DumpJoint(source, target), limitError);
+//          StartCoroutine(WaitAndDisconnectPart());  // Cannot restore. Disconnect.
+//          isLinked = false;
+//        } else {
+//          CreateJoint(source, target);  // Restore joint state.
+//        }
+//      }
+//    }
     if (isLinked) {
       AdjustJoint();
     }
@@ -243,17 +275,26 @@ public abstract class AbstractJointModule :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+    //FIXME
+    Debug.LogWarningFormat("** ON DECOUPLE: nodename={0}, weDcouple={1}", nodeName, weDecouple);
     if (weDecouple) {
       DropJoint();
     }
   }
   #endregion
 
+  #region Utility methods
   /// <summary>Returns a logs friendly string description of the link.</summary>
-  protected static string DumpLink(ILinkSource source, ILinkTarget target) {
-    return string.Format("{0} at {1} (id={2}) => {3} at {4} (id={5})",
-                         source.part.name, source.cfgAttachNodeName, source.part.flightID,
-                         target.part.name, target.cfgAttachNodeName, target.part.flightID);
+  protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
+    var src = source != null
+        ? string.Format("{0} at {1} (id={2})",
+                        source.part.name, source.cfgAttachNodeName, source.part.flightID)
+        : "NOTHING";
+    var trg = source != null
+        ? string.Format("{0} at {1} (id={2})",
+                        target.part.name, target.cfgAttachNodeName, target.part.flightID)
+        : "NOTHING";
+    return src + " => " + trg;
   }
 
   /// <summary>
@@ -273,14 +314,17 @@ public abstract class AbstractJointModule :
     joint.breakTorque =
         Mathf.Approximately(torqueFromConfig, 0) ? StockJointBreakingTorque : torqueFromConfig;
   }
+  #endregion
 
+  #region Local utility methods
   /// <summary>Disconnects part at the end of the frame.</summary>
   /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
   IEnumerator WaitAndDisconnectPart() {
     yield return new WaitForEndOfFrame();
-    Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
+    Debug.LogErrorFormat("Detach part {0} from the parent since the link is invalid.", part.name);
     part.decouple();  // Link source is expected to react on decouple event.
   }
+  #endregion
 }
 
 }  // namespace

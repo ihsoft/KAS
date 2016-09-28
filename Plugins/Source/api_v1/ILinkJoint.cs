@@ -54,6 +54,7 @@ public interface ILinkJoint {
   /// </remarks>
   /// <param name="source">Link source. This part owns the joint.</param>
   /// <param name="target">Link target.</param>
+  /// FIXME: fix desc, require valid joint to exist. maybe
   void CreateJoint(ILinkSource source, ILinkTarget target);
 
   /// <summary>Destroys a physical link between source and target.</summary>
