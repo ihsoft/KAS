@@ -281,9 +281,10 @@ public class KASModuleLinkSourceBase :
 
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
-    if (!CheckCanLinkTo(target) || !ConnectParts(target)) {
+    if (!CheckCanLinkTo(target)) {
       return false;
     }
+    ConnectParts(target);
     LinkParts(target);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
     // must not be stopped before the link is created.
@@ -366,15 +367,22 @@ public class KASModuleLinkSourceBase :
   /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
-    if (linkRenderer != null && oldState != linkState) {
+    if (oldState == linkState) {
+      return;
+    }
+    //FIXME move to renderer
+    if (linkRenderer != null) {
       if (linkState == LinkState.Linked) {
         linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
       } else if (oldState == LinkState.Linked) {
         linkRenderer.StopRenderer();
       }
     }
-    // Cleanup attach node.
-    if (oldState != linkState && oldState == LinkState.Linked) {
+    if (linkState == LinkState.Linking) {
+      // Prepare attach node for a possible connection.
+      CreateAttachNode();
+    } else if (linkState != LinkState.Linked && attachNode != null) {
+      // Cleanup attach node.
       //FIXME
       Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
       part.attachNodes.Remove(attachNode);
@@ -413,10 +421,9 @@ public class KASModuleLinkSourceBase :
   /// <summary>Joins this part and the target into one vessel.</summary>
   /// <param name="target">Target link module.</param>
   /// FIXME: no need to be bool
-  protected virtual bool ConnectParts(ILinkTarget target) {
+  protected virtual void ConnectParts(ILinkTarget target) {
     //FIXME: implement
     Debug.LogWarning("ConnectParts");
-    CreateAttachNode();
     // FIXME: fromn here move to KIS/KAS common
     GameEvents.onActiveJointNeedUpdate.Fire(part.vessel);
     GameEvents.onActiveJointNeedUpdate.Fire(target.part.vessel);
@@ -429,11 +436,9 @@ public class KASModuleLinkSourceBase :
     //FIXME
     Debug.LogWarningFormat("Coupled {0} with {1}", part.vessel, target.part.vessel);
     
-    //FIXME
-    //StopCoroutine("ResetJoints");
+    //FIXME move to joint event handler.
+    Debug.LogWarningFormat("** PartJoint after couple: {0}", part.attachJoint);
     linkJoint.CreateJoint(this, target);
-
-    return true;
   }
 
   /// <summary>Separates connected parts into two different vessels.</summary>

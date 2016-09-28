@@ -11,8 +11,10 @@ namespace KASAPIv1 {
 //FIXME: docs and samples
 public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
+  /// <remarks>If <c>0</c> then no limit for minimum value is applied.</remarks>
   float cfgMinLinkLength { get; }
-  /// <summary>Minimum allowed distance between parts to establish a link.</summary>
+  /// <summary>Maximum allowed distance between parts to establish a link.</summary>
+  /// <remarks>If <c>0</c> then no limit for maximum value is applied.</remarks>
   float cfgMaxLinkLength { get; }
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   /// <remarks>If <c>0</c> then stock joint settings defines the value. If it's a positive number
@@ -30,9 +32,15 @@ public interface ILinkJoint {
   /// <summary>Breaking torque for the link connecting the two parts.</summary>
   /// <remarks><see cref="cfgLinkBreakForce"/></remarks>
   float cfgLinkBreakTorque { get; }
-  /// <summary>Degree of freedom at the source part.</summary>
+  /// <summary>
+  /// Maximum allowed angle between attach node normal and the link at the source part.
+  /// </summary>
+  /// <remarks>If <c>0</c> then angle is not checked.</remarks>
   int cfgSourceLinkAngleLimit { get; }
-  /// <summary>Degree of freedom at the target part.</summary>
+  /// <summary>
+  /// Maximum allowed angle between attach node normal and the link at the target part.
+  /// </summary>
+  /// <remarks>If <c>0</c> then angle is not checked.</remarks>
   int cfgTargetLinkAngleLimit { get; }
 
   /// <summary>Sets up a physical link between source and target.</summary>
@@ -49,6 +57,7 @@ public interface ILinkJoint {
   void CreateJoint(ILinkSource source, ILinkTarget target);
 
   /// <summary>Destroys a physical link between source and target.</summary>
+  /// <remarks>If there is no joint created then this call is NO-OP.</remarks>
   void DropJoint();
 
   /// <summary>Requests joint to become unbreakable or normal.</summary>

@@ -4,7 +4,6 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
-using System.Collections;
 using System.Linq;
 using UnityEngine;
 using KASAPIv1;
@@ -16,6 +15,23 @@ namespace KAS {
 // FIXME: docs
 // FIXME: move model logic into a base class. maybe
 public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
+
+  #region Localizable GUI strings
+  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
+  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
+  #endregion
+
+  // These fields must not be accessed outside of the module. They are declared public only
+  // because KSP won't work otherwise. Ancenstors and external callers must access values via
+  // interface properties. If property is not there then it means it's *intentionally* restricted
+  // for the non-internal consumers.
+  #region Persistent fields
+  [KSPField(isPersistant = true)]
+  public Vector3 parkedOrientation = Vector3.zero;
+  [KSPField(isPersistant = true)]
+  public float parkedLength = 0;  // If 0 then minimum link length will be used.
+  #endregion
+
   // These fields must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
@@ -39,24 +55,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public string parkedOrientationMenu1 = "";
   [KSPField]
   public string parkedOrientationMenu2 = "";
-  #endregion
-
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
-  #region Part's config fields
-  [KSPField(isPersistant = true)]
-  public Vector3 parkedOrientation = Vector3.zero;
-  [KSPField(isPersistant = true)]
-  public float parkedLength = 0; // If 0 then minimum link length will be used.
   [KSPField]
   public string rendererName = "";
-  #endregion
-
-  #region Localizable messages
-  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
-  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
   #endregion
 
   // These constants must be in sync with action handler methods names.
@@ -66,6 +66,13 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
   protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
 
+  // FIXME: docs for all below
+  protected const string SrcPartJointObjName = "srcPartJoint";
+  protected const string SrcStrutJointObjName = "srcStrutJoint";
+  protected const string TrgStrutJointObjName = "trgStrutJoint";
+  protected const string TrgPartJointObjName = "trgPartJoint";
+  protected const string AttachNodeObjName = "AttachNode";
+
   protected ILinkSource linkSource { get; private set; }
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
@@ -74,10 +81,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    //FIXME
-    Debug.LogWarningFormat("**** ONAWAKE: pistons {0}, name={1}, pistons={2}",
-                           pistonsCount, part.name,
-                           pistons != null ? "" + pistons.Length : "NULL");
     base.OnAwake();
     Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
     Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
@@ -87,39 +90,10 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
-    //FIXME
-    Debug.LogWarningFormat("**** OnStart: name={0}", part.name);
     base.OnStart(state);
     linkSource = part.FindModuleImplementing<ILinkSource>();
     UpdateMenuItems();
     UpdateLinkLengthAndOrientation();
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    //FIXME
-    Debug.LogWarningFormat("**** ONLOAD: pistons {0}, name={1}", pistonsCount, part.name);
-    base.OnLoad(node);
-  }
-  
-  public override void OnInitialize() {
-    Debug.LogWarningFormat("**** OnInitialize: name={0}", part.name);
-    base.OnInitialize();
-  }
-
-  public override string GetInfo() {
-    Debug.LogWarningFormat("**** GetInfo: name={0}, text={1}", part.name, base.GetInfo());
-    return base.GetInfo();
-  }
-
-  public override void OnActive() {
-    Debug.LogWarningFormat("**** OnActive: name={0}", part.name);
-    base.OnActive();
-  }
-
-  public override void OnInactive() {
-    Debug.LogWarningFormat("**** OnInactive: name={0}", part.name);
-    base.OnInactive();
   }
 
   /// <inheritdoc/>
@@ -239,7 +213,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #endregion
 
   // FIXME: check colliders.
-  #region Action handlers
+  #region GUI menu action handlers
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction0() {
@@ -276,13 +250,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
   #endregion
 
-  // FIXME: docs for all below
-  protected GameObject[] pistons;
-  protected const string SrcPartJointObjName = "srcPartJoint";
-  protected const string SrcStrutJointObjName = "srcStrutJoint";
-  protected const string TrgStrutJointObjName = "trgStrutJoint";
-  protected const string TrgPartJointObjName = "trgPartJoint";
-
   protected Transform srcPartJoint { get; private set; }
   protected Transform srcPartJointPivot { get; private set; }
   protected Transform srcStrutJoint { get; private set; }
@@ -290,24 +257,17 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected Transform trgStrutJointPivot { get; private set; }
   protected float srcJointHandleLength { get; private set; }
   protected float trgJointHandleLength { get; private set; }
-
-  // FIXME: docs
-  protected const string AttachNodeObjName = "AttachNode";
-  // FIXME: docs
-  protected Transform CreateAttachNodeTransform() {
-    var node = new GameObject(AttachNodeObjName).transform;
-    node.parent = partModelTransform;
-    node.localPosition = attachNodePosition;
-    node.localScale = Vector3.one;
-    node.localRotation = Quaternion.LookRotation(attachNodeOrientation);
-    return node;
-  }
+  protected GameObject[] pistons { get; private set; }
 
   #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    //FIXME: figure out attach node form joint piviot and its holder length  
-    var attachNode = CreateAttachNodeTransform();
+    // Root for all the links meshes.
+    var attachNode = new GameObject(AttachNodeObjName).transform;
+    attachNode.parent = partModelTransform;
+    attachNode.localPosition = attachNodePosition;
+    attachNode.localScale = Vector3.one;
+    attachNode.localRotation = Quaternion.LookRotation(attachNodeOrientation);
 
     // Source part joint model.
     srcPartJoint = CreateStrutJointModel(SrcPartJointObjName);
@@ -449,22 +409,33 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
 
   #region Private utility methods
-  string ExtractPositionName(string cfgDirectionString) {
-    var lastCommaPos = cfgDirectionString.LastIndexOf(',');
+  /// <summary>Returns parked menu item name.</summary>
+  /// <param name="cfgSetting">String from config of the following format:
+  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines direction in node's local
+  /// coordinates, and <c>menu text</c> is a string to show in context menu.</param>
+  /// <returns></returns>
+  string ExtractPositionName(string cfgSetting) {
+    var lastCommaPos = cfgSetting.LastIndexOf(',');
     return lastCommaPos != -1
-        ? cfgDirectionString.Substring(lastCommaPos + 1)
-        : cfgDirectionString;
+        ? cfgSetting.Substring(lastCommaPos + 1)
+        : cfgSetting;
   }
 
-  Vector3 ExtractOrientationVector(string cfgDirectionString) {
-    var lastCommaPos = cfgDirectionString.LastIndexOf(',');
+  /// <summary>Returns direction vector for a parked menu item.</summary>
+  /// <param name="cfgSetting">String from config of the following format:
+  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines direction in node's local
+  /// coordinates, and <c>menu text</c> is a string to show in context menu.</param>
+  /// <returns></returns>
+  Vector3 ExtractOrientationVector(string cfgSetting) {
+    var lastCommaPos = cfgSetting.LastIndexOf(',');
     if (lastCommaPos == -1) {
-      Debug.LogWarningFormat("Cannot extract direction from string: {0}", cfgDirectionString);
+      Debug.LogWarningFormat("Cannot extract direction from string: {0}", cfgSetting);
       return Vector3.forward;
     }
-    return ConfigNode.ParseVector3(cfgDirectionString.Substring(0, lastCommaPos));
+    return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
   }
 
+  /// <summary>Updates menu item visibility states.</summary>
   void UpdateMenuItems() {
     Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
     Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;

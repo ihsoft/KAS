@@ -37,19 +37,15 @@ public abstract class AbstractJointModule :
   protected static Message<float, int> TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0}deg > {1}deg";
   protected static Message ModuleTitle = "KAS Joint";
-  protected static MessageSpecialFloatValue InfoLinkLinearStrength = new MessageSpecialFloatValue(
-      "Link break force: {0:F1}N", 0, "Link break force: UNBREAKABLE");
-  protected static MessageSpecialFloatValue InfoLinkBreakStrength =new MessageSpecialFloatValue(
-      "Link torque force: {0:F1}N", 0, "Link torque force: UNBREAKABLE");
+  protected static Message<float> InfoLinkLinearStrength = "Link break force: {0:F1}N";
+  protected static Message<float> InfoLinkBreakStrength = "Link torque force: {0:F1}N";
   protected static Message<float> InfoMinimumLinkLength = "Minimum link length: {0:F1}m";
   protected static Message<float> InfoMaximumLinkLength = "Maximum link length: {0:F1}m";
-  protected static MessageSpecialFloatValue InfoSourceJointFreedom = new MessageSpecialFloatValue(
-      "Source joint freedom: {0}deg", 0, "Source joint freedom: LOCKED");
-  protected static MessageSpecialFloatValue InfoTargetJointFreedom = new MessageSpecialFloatValue(
-      "Target joint freedom: {0}deg", 0, "Target joint freedom: LOCKED");
+  protected static Message<float> InfoSourceJointFreedom = "Source angle limit: {0}deg";
+  protected static Message<float> InfoTargetJointFreedom = "Target angle limit: {0}deg";
   #endregion
 
-  #region ILinkJoint CFG properties.
+  #region ILinkJoint CFG properties
   /// <inheritdoc/>
   public float cfgMinLinkLength { get { return minLinkLength; } }
   /// <inheritdoc/>
@@ -70,17 +66,17 @@ public abstract class AbstractJointModule :
   // for the non-internal consumers.
   #region Part's config fields
   [KSPField]
-  public float linkBreakForce = 0f;
+  public float linkBreakForce = 0;
   [KSPField]
-  public float linkBreakTorque = 0f;
+  public float linkBreakTorque = 0;
   [KSPField]
   public int sourceLinkAngleLimit = 0;
   [KSPField]
   public int targetLinkAngleLimit = 0;
   [KSPField]
-  public float minLinkLength = 0f;
+  public float minLinkLength = 0;
   [KSPField]
-  public float maxLinkLength = Mathf.Infinity;
+  public float maxLinkLength = 0;
   #endregion
 
   //FIXME docs
@@ -128,10 +124,10 @@ public abstract class AbstractJointModule :
   /// <inheritdoc/>
   public virtual string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
     var length = Vector3.Distance(source.nodeTransform.position, targetTransform.position);
-    if (length > maxLinkLength) {
+    if (maxLinkLength > 0 && length > maxLinkLength) {
       return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
     }
-    if (length < minLinkLength) {
+    if (minLinkLength > 0 && length < minLinkLength) {
       return MinLengthLimitReachedMsg.Format(length, minLinkLength);
     }
     return null;
@@ -141,7 +137,7 @@ public abstract class AbstractJointModule :
   public virtual string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
     var linkVector = targetTransform.position - source.nodeTransform.position;
     var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
-    return angle > sourceLinkAngleLimit
+    return sourceLinkAngleLimit > 0 && angle > sourceLinkAngleLimit
         ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
         : null;
   }
@@ -150,7 +146,7 @@ public abstract class AbstractJointModule :
   public virtual string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
     var linkVector = source.nodeTransform.position - targetTransform.position;
     var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
-    return angle > targetLinkAngleLimit
+    return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
         ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
         : null;
   }
@@ -160,10 +156,18 @@ public abstract class AbstractJointModule :
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
-    sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
-    sb.AppendLine(InfoMinimumLinkLength.Format(minLinkLength));
-    sb.AppendLine(InfoMaximumLinkLength.Format(maxLinkLength));
+    if (linkBreakForce > 0) {
+      sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
+    }
+    if (linkBreakTorque > 0) {
+      sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
+    }
+    if (minLinkLength > 0) {
+      sb.AppendLine(InfoMinimumLinkLength.Format(minLinkLength));
+    }
+    if (maxLinkLength > 0) {
+      sb.AppendLine(InfoMaximumLinkLength.Format(maxLinkLength));
+    }
     sb.AppendLine(InfoSourceJointFreedom.Format(sourceLinkAngleLimit));
     sb.AppendLine(InfoTargetJointFreedom.Format(targetLinkAngleLimit));
     return sb.ToString();

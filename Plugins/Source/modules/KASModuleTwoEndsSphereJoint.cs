@@ -73,6 +73,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     base.CreateJoint(source, target);
     srcJoint = CreateKinematicJointEnd(source.attachNode, SrcJointName, sourceLinkAngleLimit);
     trgJoint = CreateKinematicJointEnd(target.attachNode, TargetJointName, targetLinkAngleLimit);
+    if (!float.IsInfinity(strutSpringForce)) {
+      strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
+    }
     StartCoroutine(WaitAndConnectJointEnds(stockJoint));
   }
 

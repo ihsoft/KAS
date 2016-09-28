@@ -148,12 +148,9 @@ public sealed class KASModuleFlexibleConnectionSource : KASModuleLinkSourceBase 
 
   /// <inheritdoc/>
   /// <para>Overrides <see cref="KASModuleLinkSourceBase"/>.</para>
-  protected override bool ConnectParts(ILinkTarget target) {
-    var res = base.ConnectParts(target);
-    if (res) {
-      UISoundPlayer.instance.Play(plugSndPath);
-    }
-    return res;
+  protected override void ConnectParts(ILinkTarget target) {
+    base.ConnectParts(target);
+    UISoundPlayer.instance.Play(plugSndPath);
   }
 
   /// <inheritdoc/>
