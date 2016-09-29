@@ -44,10 +44,12 @@ public class KASModuleLinkTargetBase :
   public virtual ILinkSource linkSource {
     get { return _linkSource; }
     set {
-      var oldSource = _linkSource;
-      _linkSource = value;
-      linkState = value != null ? LinkState.Linked : LinkState.Available;
-      TriggerSourceChangeEvents(oldSource);
+      if (_linkSource != value) {
+        var oldSource = _linkSource;
+        _linkSource = value;
+        linkState = value != null ? LinkState.Linked : LinkState.Available;
+        TriggerSourceChangeEvents(oldSource);
+      }
     }
   }
   ILinkSource _linkSource;
@@ -66,7 +68,11 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
-    set { linkState = value ? LinkState.Locked : LinkState.Available; }
+    set {
+      if (value != isLocked) {
+        linkState = value ? LinkState.Locked : LinkState.Available;
+      }
+    }
   }
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }

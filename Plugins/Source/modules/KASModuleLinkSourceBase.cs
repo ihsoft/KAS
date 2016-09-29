@@ -39,14 +39,12 @@ public class KASModuleLinkSourceBase :
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  protected static Message CannotLinkPartToItselfMsg = "Cannot link part to itself";
   protected static Message IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
   protected static Message CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
-  protected static Message CannotLinkToTheSamePartMsg = "Cannot link to the same part";
   protected static Message SourceIsNotAvailableForLinkMsg = "Source is not available for link";
   protected static Message TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
-  protected static Message<string> linksWithSocketType = "Links with socket type: {0}";
-  protected static Message ModuleTitle = "KAS Joint Source";
+  protected static Message<string> LinksWithSocketTypeInfo = "Links with socket type: {0}";
+  protected static Message ModuleTitleInfo = "KAS Joint Source";
   #endregion
 
   #region ILinkSource config properties implementation
@@ -55,11 +53,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   /// <inheritdoc/>
-  public bool cfgAllowSameVesselTarget { get { return allowSameVesselTarget; } }
-  /// <inheritdoc/>
   public string cfgLinkRendererName { get { return linkRendererName; } }
-  /// <inheritdoc/>
-  public bool cfgAllowOtherVesselTarget { get { return allowOtherVesselTarget; } }
   #endregion
 
   #region ILinkSource properties implementation
@@ -80,7 +74,11 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
-    set { linkState = value ? LinkState.Locked : LinkState.Available; }
+    set {
+      if (value != isLocked) {  // Don't trigger state change events when value hasn't changed.
+        linkState = value ? LinkState.Locked : LinkState.Available;
+      }
+    }
   }
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
@@ -114,23 +112,31 @@ public class KASModuleLinkSourceBase :
   public Vector3 attachNodePosition = Vector3.zero;
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
-  [KSPField]
-  public bool allowSameVesselTarget;
-  [KSPField]
-  public bool allowOtherVesselTarget;
   #endregion
 
   /// <summary>Joint module that manages source &lt;=&gt; target physical connection.</summary>
+  /// <remarks>
+  /// This module must always exist on the part. If there is no such module then on start a simple
+  /// <see cref="KASModuleStockJoint"/> will be added with all the default settings. Proper part
+  /// design must always specify a joint module (exactly one).
+  /// </remarks>
   protected ILinkJoint linkJoint { get; private set; }
   /// <summary>Renderer of the link meshes. It cannot be <c>null</c>.</summary>
+  /// <remarks>
+  /// This module must always exist on the part. If there is no such module then on start a NO-OP
+  /// renderer will be added. This renderer doesn't draw anything. Proper part design must always
+  /// specify a renderer module that draws linked state.
+  /// </remarks>
   /// <seealso cref="cfgLinkRendererName"/>
   protected ILinkRenderer linkRenderer { get; private set; }
 
   /// <summary>State machine that controls event reaction in different states.</summary>
-  /// <remarks>Primary usage of the machine is managing subscriptions to the different game events. 
-  /// It's highly discouraged to use it for firing events or taking actions. Initial state can be
-  /// setup under different circumstances, and the associated events and actions may get triggered
-  /// at the inappropriate moment.</remarks>
+  /// <remarks>
+  /// Primary usage of the machine is managing subscriptions to the different game events. It's
+  /// highly discouraged to use it for firing events or taking actions. Initial state can be setup
+  /// under different circumstances, and the associated events and actions may get triggered at the
+  /// inappropriate moment.
+  /// </remarks>
   SimpleStateMachine<LinkState> linkStateMachine;
 
   // FIXME: Handle KIS actions.
@@ -253,13 +259,13 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.Append(linksWithSocketType.Format(type));
+    sb.Append(LinksWithSocketTypeInfo.Format(type));
     return sb.ToString();
   }
 
   /// <inheritdoc/>
   public string GetModuleTitle() {
-    return ModuleTitle;
+    return ModuleTitleInfo;
   }
 
   /// <inheritdoc/>
@@ -509,17 +515,11 @@ public class KASModuleLinkSourceBase :
   /// <param name="target">Target of the tube to check link with.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
   protected string CheckBasicLinkConditions(ILinkTarget target) {
-    if (part == target.part) {
-      return CannotLinkPartToItselfMsg;
-    }
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
-    if (!allowSameVesselTarget && part.vessel == target.part.vessel) {
+    if (part.vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
-    }
-    if (part == target.part) {
-      return CannotLinkToTheSamePartMsg;
     }
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
       return SourceIsNotAvailableForLinkMsg;
