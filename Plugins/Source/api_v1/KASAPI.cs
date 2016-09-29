@@ -28,6 +28,9 @@ public static class KASAPI {
 
   /// <summary>KAS attach nodes utils.</summary>
   public static IAttachNodesUtils AttachNodesUtils;
+
+  /// <summary>KAS link utils.</summary>
+  public static ILinkUtils LinkUtils;
 }
 
 }  // namespace

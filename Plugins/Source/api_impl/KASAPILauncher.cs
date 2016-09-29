@@ -14,6 +14,7 @@ class KASAPILauncher : MonoBehaviour {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();
       KASAPI.AttachNodesUtils = new KASImpl.AttachNodesUtilsImpl();
+      KASAPI.LinkUtils = new KASImpl.LinkUtilsImpl();
       KASAPI.isLoaded = true;
       Debug.LogWarning("KAS API v1 LOADED");
     }
