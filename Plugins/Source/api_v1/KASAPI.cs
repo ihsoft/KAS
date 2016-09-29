@@ -24,11 +24,9 @@ public static class KASAPI {
   public static bool isLoaded;
 
   /// <summary>KAS joints untils.</summary>
-  /// <remarks>For more details see <see cref="IJointUtils"/>.</remarks>
   public static IJointUtils JointUtils;
 
   /// <summary>KAS attach nodes utils.</summary>
-  /// <remarks>For more details see <see cref="IAttachNodesUtils"/>.</remarks>
   public static IAttachNodesUtils AttachNodesUtils;
 }
 
