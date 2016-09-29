@@ -465,7 +465,6 @@ public class KASModuleLinkSourceBase :
   /// <summary>Separates connected parts into two different vessels.</summary>
   /// <param name="target">Target to disconnect from.</param>
   /// <returns>Vessel created from the target part or <c>null</c> if no decoupling happen.</returns>
-  /// FIXME: always detach from target, adjust the code
   /// FIXME deprecate the method, just decouple and that's it
   protected virtual Vessel DisconnectTargetPart(ILinkTarget target) {
     if (part.parent == target.part) {
@@ -572,10 +571,11 @@ public class KASModuleLinkSourceBase :
   #endregion 
 
   #region Local utility methods
-  /// <summary>Finds this source link target.</summary>
+  /// <summary>Finds and sets link target of this source.</summary>
   /// <remarks><see cref="attachNode"/> must be populated with the attached part (if any).
   /// Otherwise, the result will be <c>null</c>.</remarks>
   /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
+  /// FIXME move to load, no need anywhere else.
   ILinkTarget FindLinkedTarget() {
     
     //FIXME use simplier approach with attached part == source
