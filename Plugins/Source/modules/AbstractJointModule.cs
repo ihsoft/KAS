@@ -96,34 +96,15 @@ public abstract class AbstractJointModule :
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     // Source & target modules may not be started at this moment yet but they are loaded.
-    ILinkSource source;
-    ILinkTarget target;
-    if (FindLinkEnds(part, out source, out target)) {
-      CreateJoint(source, target);  // Restore joint state.
+    ILinkSource source = KASAPI.LinkUtils.FindLinkSourceFromPart(part);
+    if (source != null) {
+      ILinkTarget target = KASAPI.LinkUtils.FindLinkTargetFromSource(source);
+      if (target != null) {
+        CreateJoint(source, target);  // Restore joint state.
+      }
     }
   }
   #endregion
-
-  public static bool FindLinkEnds(Part p, out ILinkSource source, out ILinkTarget target) {
-    // Only one source on the part can be linked.
-    source = p.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(x => x.linkState == LinkState.Linked);
-    if (source == null || source.attachNode == null || source.attachNode.attachedPart == null) {
-      target = null;
-      return false;
-    }
-    // Any number of targets can be linked but only one is linked with this part.
-    target = source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == p);
-    return target != null;
-  }
-
-
-  public static bool IsPartLinked(Part p) {
-    ILinkSource source;
-    ILinkTarget target;
-    return FindLinkEnds(p, out source, out target);
-  }
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
