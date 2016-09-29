@@ -487,9 +487,14 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
-  /// <remarks>No actual joint or connection is destroyed in the game.</remarks>
-  /// <param name="isBrokenExternally">If <c>true</c> then link has been broken not by the source.
-  /// It's usually physics engine (breaking force exceeded) or a parts manipulation mod (like KIS).
+  /// <remarks>
+  /// Ovrrides must not expect any particular state of the physics connection state at this moment
+  /// since it depends on a variety of factors. Such a connection may or may not exist at the
+  /// moment of this method call.
+  /// </remarks>
+  /// <param name="isBrokenExternally">
+  /// If <c>true</c> then link has been broken not by the source. It's usually physics engine
+  /// (e.g. breaking force exceeded case) or a parts manipulation mod (e.g. KIS).
   /// </param>
   protected virtual void UnlinkParts(bool isBrokenExternally = false) {
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget);

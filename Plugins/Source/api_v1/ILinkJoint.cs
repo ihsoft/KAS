@@ -13,30 +13,36 @@ public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
   /// <remarks>If <c>0</c> then no limit for minimum value is applied.</remarks>
   float cfgMinLinkLength { get; }
+
   /// <summary>Maximum allowed distance between parts to establish a link.</summary>
   /// <remarks>If <c>0</c> then no limit for maximum value is applied.</remarks>
   float cfgMaxLinkLength { get; }
+
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
-  /// <remarks>If <c>0</c> then stock joint settings defines the value. If it's a positive number
-  /// then it defines a maximum possible strength of the link. Actual strength is a minimum of three
-  /// values:
+  /// <remarks>
+  /// If <c>0</c> then stock joint settings defines the value. If it's a positive number then it
+  /// defines a maximum possible strength of the link. Actual strength is a minimum of three values:
   /// <list>
   /// <item>This setting.</item>
   /// <item>Source part attach strength.</item>
   /// <item>target part attach strength.</item>
   /// </list>
-  /// <para>With this approach link will break before the linked parts get ripped off the vessels.
+  /// <para>
+  /// With this approach link will break before the linked parts get ripped off the vessels.
   /// </para>
   /// </remarks>
   float cfgLinkBreakForce { get; }
+
   /// <summary>Breaking torque for the link connecting the two parts.</summary>
   /// <remarks><see cref="cfgLinkBreakForce"/></remarks>
   float cfgLinkBreakTorque { get; }
+
   /// <summary>
   /// Maximum allowed angle between attach node normal and the link at the source part.
   /// </summary>
   /// <remarks>If <c>0</c> then angle is not checked.</remarks>
   int cfgSourceLinkAngleLimit { get; }
+
   /// <summary>
   /// Maximum allowed angle between attach node normal and the link at the target part.
   /// </summary>
@@ -44,27 +50,34 @@ public interface ILinkJoint {
   int cfgTargetLinkAngleLimit { get; }
 
   /// <summary>Sets up a physical link between source and target.</summary>
-  /// <remarks>If parts are docked then there is a <see cref="PartJoint"/> created by the KSP core.
-  /// The implementation must either adjust it or drop it alltogether.
-  /// <para>For the docked parts "source" is always a child to the "target". That said,
-  /// <c>source.part.attachJoint</c> is the KSP managed joint which the implementation may want to
-  /// adjust.</para>
-  /// <para><paramref name="source"/> and <paramref name="target"/> may be not linked at this 
-  /// moment. Do <b>not</b> expect them be aware about each other.</para>
+  /// <remarks>
+  /// If parts are docked then there is a <c>attachJoint</c> created by the KSP core for the source
+  /// part. The implementation must either adjust it or drop it altogether.
+  /// <para>
+  /// <paramref name="source"/> and <paramref name="target"/> may be not linked at this moment.
+  /// Do <b>not</b> expect them to be aware about each other.
+  /// </para>
   /// </remarks>
   /// <param name="source">Link source. This part owns the joint.</param>
   /// <param name="target">Link target.</param>
-  /// FIXME: fix desc, require valid joint to exist. maybe
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
+  /// KSP: PartJoint</seealso>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html">
+  /// KSP: Part</seealso>
   void CreateJoint(ILinkSource source, ILinkTarget target);
 
   /// <summary>Destroys a physical link between source and target.</summary>
-  /// <remarks>If there is no joint created then this call is NO-OP.</remarks>
+  /// <remarks>
+  /// This is a cleanup method. It must be safe to execute in any joint state, and should not throw
+  /// any errors.
+  /// </remarks>
   void DropJoint();
 
   /// <summary>Requests joint to become unbreakable or normal.</summary>
-  /// <remarks>Normally, joint is set to unbreakable on time warp, but in general callers may do it
-  /// at any moment. In unbreakable state joint must behave as a hard connection that cannot be
-  /// changed or destructed by any force.</remarks>
+  /// <remarks>
+  /// Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
+  /// moment. In unbreakable state joint must behave as a hard connection that cannot be changed or
+  /// destructed by any force.</remarks>
   /// <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
   void AdjustJoint(bool isUnbreakable = false);
 

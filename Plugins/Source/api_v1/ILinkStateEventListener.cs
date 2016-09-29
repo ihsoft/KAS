@@ -7,31 +7,21 @@ using System;
 
 namespace KASAPIv1 {
 
-/// <summary>Interface that defines part scope events for links state changes.</summary>
-/// <remarks>All these events are called for every module on the part when the relevant event has
-/// triggered. Events are sent via Unity messaging mechanism, so it's not required to implement the
-/// interface in the component to start listenening. Though, explicit interface declaration will
-/// help maintaining the module.
-/// <para>It's required for non-sealed classes to implement the methods as <c>virtual</c>.
-/// Otherwise, only the sub-class will be notified, and all the parents won't have ability to react.
-/// </para>
-/// </remarks>
+/// <summary>Part module interface that defines events for link state changes.</summary>
+/// <remarks>Both source and target parts can recieve these events. To receive events in the module
+/// just implement this interface.</remarks>
 //TODO(ihsoft): Add code samples.
-//FIXME: change doc to not mentioning unity message 
 public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
-  /// <remarks>Sent by the link source implementation when a new link has been established.
-  /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
 
   /// <summary>Triggers when a source on the part has broke the link.</summary>
-  /// <remarks>Sent by the link source implementation when an existing link has been broken.
-  /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkBrokenEvent(KASEvents.LinkEvent info);
 }
 
+// FIXME send it from source with a threshold
 public interface ILinkNodesEventListener {
   /// <summary>Triggers when either source or target node has changed position.</summary>
   /// <remarks>Sent by the link source implementation when the nodes have significantly changed
