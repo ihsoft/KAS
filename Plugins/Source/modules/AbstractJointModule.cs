@@ -267,11 +267,11 @@ public abstract class AbstractJointModule :
   #region Utility methods
   /// <summary>Returns a logs friendly string description of the link.</summary>
   protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
-    var srcTitle = source != null
+    var srcTitle = source != null && source.part != null 
         ? string.Format("{0} at {1} (id={2})",
                         source.part.name, source.cfgAttachNodeName, source.part.flightID)
         : "NOTHING";
-    var trgTitle = target != null
+    var trgTitle = target != null && target.part != null
         ? string.Format("{0} at {1} (id={2})",
                         target.part.name, target.cfgAttachNodeName, target.part.flightID)
         : "NOTHING";
