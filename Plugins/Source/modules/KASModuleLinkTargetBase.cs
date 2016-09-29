@@ -13,15 +13,15 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Base link target module. Only controls target link state.</summary>
-/// <remarks>This module only deals with logic part of the linking. It remembers the source and
-/// notifies other modules on the part about the link state. The actual work to make the link
-/// significant in the game engine must be done by the link source, an implementation of
-/// <see cref="ILinkSource"/>.
-/// <para>External callers must access methods and properties declared in base classes or interfaces
+/// <remarks>
+/// This module only deals with logic part of the linking. It remembers the source and notifies
+/// other modules on the part about the link state. The actual work to make the link significant in
+/// the game engine must be done by the link source, an implementation of <see cref="ILinkSource"/>.
+/// <para>
+/// External callers must access methods and properties declared in KSP base classes or interfaces
 /// only. Members and methods that are not part of these declarations are not intended for the
-/// public use <b>regardless</b> to their visibility level.</para>
-/// <para>Decendand classes may use any members and methods but good practice is restricting the
-/// usage to the interfaces and virtuals only.</para>
+/// public use <b>regardless</b> to their visibility level.
+/// </para>
 /// </remarks>
 // TODO(ihsoft): Add code samples.
 public class KASModuleLinkTargetBase :
