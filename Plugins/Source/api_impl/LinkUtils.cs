@@ -12,8 +12,11 @@ namespace KASImpl {
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
-    return source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == source.part);
+    if (source != null && source.attachNode != null && source.attachNode.attachedPart != null) {
+      return source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
+          .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == source.part);
+    }
+    return null;
   }
 
   /// <inheritdoc/>
