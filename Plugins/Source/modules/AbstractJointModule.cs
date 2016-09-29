@@ -286,25 +286,29 @@ public abstract class AbstractJointModule :
   #region Utility methods
   /// <summary>Returns a logs friendly string description of the link.</summary>
   protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
-    var src = source != null
+    var srcTitle = source != null
         ? string.Format("{0} at {1} (id={2})",
                         source.part.name, source.cfgAttachNodeName, source.part.flightID)
         : "NOTHING";
-    var trg = source != null
+    var trgTitle = target != null
         ? string.Format("{0} at {1} (id={2})",
                         target.part.name, target.cfgAttachNodeName, target.part.flightID)
         : "NOTHING";
-    return src + " => " + trg;
+    return srcTitle + " => " + trgTitle;
   }
 
   /// <summary>
   /// Setups joint break force and torque while handling special values from config.
   /// </summary>
   /// <param name="joint">Joint to set forces for.</param>
-  /// <param name="forceFromConfig">Break force from the config. If it's <c>0</c> then force will be
-  /// the same as for the stock joints.</param>
-  /// <param name="torqueFromConfig">Break torque from the config. If it's <c>0</c> then torque will
-  /// be the same as for the stock joints.</param>
+  /// <param name="forceFromConfig">
+  /// Break force from the config. If it's <c>0</c> then force will be the same as for the stock
+  /// joints.
+  /// </param>
+  /// <param name="torqueFromConfig">
+  /// Break torque from the config. If it's <c>0</c> then torque will be the same as for the stock
+  /// joints.
+  /// </param>
   /// <seealso cref="StockJointBreakingForce"/>
   /// <seealso cref="StockJointBreakingTorque"/>
   protected static void SetBreakForces(
