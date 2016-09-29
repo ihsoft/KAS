@@ -392,19 +392,20 @@ public class KASModuleLinkSourceBase :
   /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
-    if (oldState == linkState) {
-      return;
-    }
-    // Adjust renderer state.
-    if (linkState == LinkState.Linked) {
+    // Start renderer in a linked state with a valid target, and stop it in all other states.
+    if (linkState == LinkState.Linked && !linkRenderer.isStarted && linkTarget != null) {
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    } else if (oldState == LinkState.Linked) {
+    }
+    if (linkState != LinkState.Linked && linkRenderer.isStarted) {
       linkRenderer.StopRenderer();
     }
-    // Create attach node before possible linking, and drop it if link wasn't made.
-    if (linkState == LinkState.Linking) {
+    // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
+    // over and link hasn't been established.
+    if (linkState == LinkState.Linking && attachNode == null) {
       CreateAttachNode();
-    } else if (oldState == LinkState.Linking && linkState != LinkState.Linked) {
+    }
+    if (oldState == LinkState.Linking && linkState != LinkState.Linked
+        && attachNode != null) {
       DropAttachNode();
     }
   }
