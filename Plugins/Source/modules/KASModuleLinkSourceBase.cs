@@ -192,10 +192,8 @@ public class KASModuleLinkSourceBase :
 
     // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {
-      linkTarget = FindLinkedTarget();
-      if (linkTarget != null) {
-        OnLinkRestore(linkTarget);
-      } else {
+      linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
+      if (linkTarget == null) {
         Debug.LogErrorFormat(
             "Source {0} (id={1}) cannot restore link to target on attach node {2}",
             part.name, part.flightID, attachNodeName);
@@ -411,12 +409,6 @@ public class KASModuleLinkSourceBase :
     }
   }
 
-  /// <summary>Triggers when link is restored from the save file.</summary>
-  /// <param name="target">Linked part target module.</param>
-  protected virtual void OnLinkRestore(ILinkTarget target) {
-    linkRenderer.StartRenderer(nodeTransform, target.nodeTransform);
-  }
-
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
   /// <remarks>Displays current mode via <see cref="KASModuleTubeRenderer"/> if one assigned to the
   /// part. Mode <see cref="GUILinkMode.API"/> is not reflected in GUI.</remarks>
@@ -571,27 +563,6 @@ public class KASModuleLinkSourceBase :
   #endregion 
 
   #region Local utility methods
-  /// <summary>Finds and sets link target of this source.</summary>
-  /// <remarks><see cref="attachNode"/> must be populated with the attached part (if any).
-  /// Otherwise, the result will be <c>null</c>.</remarks>
-  /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
-  /// FIXME move to load, no need anywhere else.
-  ILinkTarget FindLinkedTarget() {
-    
-    //FIXME use simplier approach with attached part == source
-    
-    
-    var targetNode = attachNode != null && attachNode.attachedPart != null
-        ? attachNode.attachedPart.findAttachNodeByPart(part)
-        : null;
-    return targetNode != null
-        ? attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-            .FirstOrDefault(x => (x.cfgAttachNodeName == targetNode.id
-                                  && x.linkState == LinkState.Linked
-                                  && x.cfgLinkType == cfgLinkType))
-        : null;
-  }
-
   /// <summary>Creates actual attach node on the part.</summary>
   /// <remarks>Size of the node is always "small", and type is "stack".</remarks>
   /// <seealso cref="cfgAttachNodeName"/>
