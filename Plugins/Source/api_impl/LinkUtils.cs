@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace KASImpl {
 
-class LinkUtilsImpl : ILinkUtils {
+class LinkUtilsImpl : IAPILinkUtils {
   /// <inheritdoc/>
   public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
     if (source != null && source.attachNode != null && source.attachNode.attachedPart != null) {

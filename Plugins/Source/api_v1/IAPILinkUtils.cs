@@ -9,7 +9,7 @@ using System;
 namespace KASAPIv1 {
 
 //FIXME: give doc with samples
-public interface ILinkUtils {
+public interface IAPILinkUtils {
   /// <summary>Finds link target given its source.</summary>
   /// <remarks>
   /// Any number of targets can be linked on the part but only one is linked with a particular
@@ -27,7 +27,7 @@ public interface ILinkUtils {
   /// <summary>Finds link source given a part.</summary>
   /// <remarks>
   /// Only one source on the part can be linked. This method goes over all sources on the source
-  /// part, and returns the one that is linked and has a valid attach node.
+  /// part, and returns the one that is linked, and the link is valid.
   /// <para>
   /// It's discouraged to implement this logic in own code since linking approach may change in the
   /// future versions.
