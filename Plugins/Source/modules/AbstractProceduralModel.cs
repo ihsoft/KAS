@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using KSPDev.KSPInterfaces;
+using KSPDev.ModelUtils;
 using UnityEngine;
 
 namespace KAS {
@@ -23,7 +24,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   protected Transform partModelTransform {
     get {
       if (_partModelTransform == null) {
-        _partModelTransform = part.FindModelTransform("model");
+        _partModelTransform = Hierarchy.GetPartModelTransform(part);
       }
       return _partModelTransform;
     }

@@ -10,6 +10,7 @@ using System.Text;
 using UnityEngine;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.ModelUtils;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
@@ -214,7 +215,7 @@ public class KASModuleLinkSourceBase :
     // Create attach node transform. It will become a part of the model.
     if (HighLogic.LoadedScene == GameScenes.LOADING) {
       nodeTransform = new GameObject(attachNodeName + "-node").transform;
-      nodeTransform.parent = part.FindModelTransform("model");
+      nodeTransform.parent = Hierarchy.GetPartModelTransform(part);
       nodeTransform.localPosition = attachNodePosition;
       nodeTransform.localScale = Vector3.one;
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);

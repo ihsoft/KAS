@@ -3,6 +3,7 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
+using KSPDev.ModelUtils;
 using System;
 using UnityEngine;
 
@@ -38,7 +39,7 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     var nodeTransform = new GameObject().transform;
     attachNode.nodeTransform = nodeTransform;
     //nodeTransform.parent = attachNode.owner.transform;
-    nodeTransform.parent = attachNode.owner.FindModelTransform("model");
+    nodeTransform.parent = Hierarchy.GetPartModelTransform(attachNode.owner);
     nodeTransform.localPosition = attachNode.position;
     nodeTransform.localScale = Vector3.one;
     nodeTransform.localRotation = Quaternion.LookRotation(attachNode.orientation);
