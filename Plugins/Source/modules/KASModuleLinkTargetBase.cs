@@ -170,9 +170,6 @@ public class KASModuleLinkTargetBase :
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
 
-    //FIXME
-    Debug.LogWarningFormat("** ON LOAD");
-
     // Create attach node transform. It will become a part of the model.
     if (HighLogic.LoadedScene == GameScenes.LOADING) {
       nodeTransform = new GameObject(attachNodeName + "-node").transform;
@@ -237,9 +234,6 @@ public class KASModuleLinkTargetBase :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    //FIXME
-    Debug.LogWarningFormat("TARGET: ** DecoupleAction: {0} (id={3}, weDecouple={1}, linkState={2}",
-                           nodeName, weDecouple, linkState, part.flightID);
     KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
     attachNode = null;
   }

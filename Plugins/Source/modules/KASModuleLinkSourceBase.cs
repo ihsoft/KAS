@@ -187,9 +187,6 @@ public class KASModuleLinkSourceBase :
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
 
-    //FIXME
-    Debug.LogWarningFormat("** ON START");
-
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
         .First(x => x.cfgRendererName == linkRendererName);
@@ -213,9 +210,6 @@ public class KASModuleLinkSourceBase :
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
 
-    //FIXME
-    Debug.LogWarningFormat("** ON LOAD");
-
     // Create attach node transform. It will become a part of the model.
     if (HighLogic.LoadedScene == GameScenes.LOADING) {
       nodeTransform = new GameObject(attachNodeName + "-node").transform;
@@ -237,8 +231,6 @@ public class KASModuleLinkSourceBase :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    //FIXME
-    Debug.LogWarningFormat("** SOURCE UNPACK: joint={0}", part.attachJoint);
     // Disconnect from the target if linking info cannot be restored.
     if (linkState == LinkState.Linked && linkTarget == null) {
       linkState = LinkState.Available;
@@ -382,9 +374,6 @@ public class KASModuleLinkSourceBase :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    //FIXME
-    Debug.LogWarningFormat("SOURCE: ** DecoupleAction: {0} (id={3}, weDecouple={1}, linkState={2}",
-                           nodeName, weDecouple, linkState, part.flightID);
     if (nodeName == attachNodeName && linkState == LinkState.Linked) {
       Debug.LogWarningFormat(
           "Connection between {0} (id={1}) and {2} (id={3}) has been broken externally!",
