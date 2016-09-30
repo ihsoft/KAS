@@ -21,11 +21,11 @@ namespace KAS {
 // In-flight drop: DropJoint
 public abstract class AbstractJointModule :
     // KSP parents.
-    PartModule, IModuleInfo, IActivateOnDecouple,
+    PartModule, IModuleInfo,
     // KAS parents.
-    ILinkJoint,
+    ILinkJoint, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   protected static Message<float, float> MinLengthLimitReachedMsg =
@@ -93,6 +93,7 @@ public abstract class AbstractJointModule :
   protected const float StockJointSpring = 30000;
 
   #region PartModule overrides
+  // FIXME attachJoint doesn't exist at start. only at unpack
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     // Source & target modules may not be started at this moment yet but they are loaded.
@@ -253,14 +254,19 @@ public abstract class AbstractJointModule :
   }
   #endregion
 
-  #region IActivateOnDecouple implementation
+  #region ILinkEventListener implementation
   /// <inheritdoc/>
-  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     //FIXME
-    Debug.LogWarningFormat("** ON DECOUPLE: nodename={0}, weDcouple={1}", nodeName, weDecouple);
-    if (weDecouple) {
-      DropJoint();
-    }
+    Debug.LogWarningFormat("** JOINT: created event");
+    CreateJoint(info.source, info.target);
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
+    //FIXME
+    Debug.LogWarningFormat("** JOINT: broken event, DROPPING!");
+    DropJoint();
   }
   #endregion
 

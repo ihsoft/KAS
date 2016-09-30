@@ -449,10 +449,6 @@ public class KASModuleLinkSourceBase :
     part.Couple(target.part);
     //FIXME
     Debug.LogWarningFormat("Coupled {0} with {1}", part.vessel, target.part.vessel);
-    
-    //FIXME move to joint event handler.
-    Debug.LogWarningFormat("** PartJoint after couple: {0}", part.attachJoint);
-    linkJoint.CreateJoint(this, target);
   }
 
   /// <summary>Separates connected parts into two different vessels.</summary>
