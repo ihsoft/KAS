@@ -10,7 +10,7 @@ namespace KASAPIv1 {
 
 //FIXME: give doc with samples
 public interface ILinkUtils {
-  /// <summary>Finds link target given its source.</summary>
+  /// <summary>Finds linked target given the link source.</summary>
   /// <remarks>
   /// Any number of targets can be linked on the part but only one is linked with a particular
   /// source. This method goes over all targets on the target part, and returns the one that is

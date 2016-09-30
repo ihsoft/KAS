@@ -48,8 +48,6 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform) {
-    //FIXME
-    Debug.LogWarningFormat("** Create AN {0} for {1}", nodeName, part.name);
     var attachNode = part.findAttachNode(nodeName);
     if (attachNode != null) {
       Debug.LogWarningFormat(
@@ -67,8 +65,6 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public void DropAttachNode(Part part, string nodeName) {
-    //FIXME
-    Debug.LogWarningFormat("** Drop attach node {0} in {1}", nodeName, part.name);
     var attachNode = part.findAttachNode(nodeName);
     if (attachNode == null) {
       Debug.LogWarningFormat(
