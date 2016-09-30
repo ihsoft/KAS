@@ -108,6 +108,18 @@ public static class Hierarchy {
     }
     return null;
   }
+
+  /// <summary>Returns part's model transform.</summary>
+  /// <param name="part">Part to get model for.</param>
+  /// <returns>PartModel's transform if it was found. Part's trasnfrom otherwise.</returns>
+  public static Transform GetPartModelTransform(Part part) {
+    var modelTransform = part.FindModelTransform("model");
+    if (modelTransform == null) {
+      Debug.LogErrorFormat("Cannot find model on part {0}", part.name);
+      return part.transform;
+    }
+    return modelTransform;
+  }
 }
 
 }  // namespace
