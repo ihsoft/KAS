@@ -20,10 +20,12 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public ILinkSource FindLinkSourceFromPart(Part sourcePart) {
-    return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
-        x => (x.linkState == LinkState.Linked
-              && x.attachNode != null && x.attachNode.attachedPart != null));
+  public ILinkSource FindLinkSourceFromTarget(ILinkTarget target) {
+    if (target != null && target.attachNode != null && target.attachNode.attachedPart != null) {
+      return target.attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
+        .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == target.part);
+    }
+    return null;
   }
 }
 

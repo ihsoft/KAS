@@ -24,18 +24,18 @@ public interface ILinkUtils {
   /// <returns>Target or <c>null</c> if no valid target was found.</returns>
   ILinkTarget FindLinkTargetFromSource(ILinkSource source);
 
-  /// <summary>Finds link source given a part.</summary>
+  /// <summary>Finds linked source given the link target.</summary>
   /// <remarks>
   /// Only one source on the part can be linked. This method goes over all sources on the source
-  /// part, and returns the one that is linked, and the link is valid.
+  /// part, and returns the one that is linked with the provided target.
   /// <para>
   /// It's discouraged to implement this logic in own code since linking approach may change in the
   /// future versions.
   /// </para>
   /// </remarks>
-  /// <param name="sourcePart">Part to check source on.</param>
+  /// <param name="target">target to get source for.</param>
   /// <returns>Source or <c>null</c> if no valid source was found.</returns>
-  ILinkSource FindLinkSourceFromPart(Part sourcePart);
+  ILinkSource FindLinkSourceFromTarget(ILinkTarget target);
 }
 
 }  // namespace

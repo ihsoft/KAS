@@ -154,17 +154,8 @@ public class KASModuleLinkTargetBase :
   public override void OnStart(PartModule.StartState state) {
     var newState = persistedLinkState;
     if (persistedLinkState == LinkState.Linked) {
-      //FIXME
-      if (attachNode != null) {
-        Debug.LogWarningFormat("attach node is not null, part is = {0}", attachNode.attachedPart);
-      } else {
-        Debug.LogWarningFormat("attach node is NULL");
-      }
-      
-      var source = FindLinkedSource();
-      if (source != null) {
-        OnLinkRestore(source);
-      } else {
+      _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
+      if (_linkSource == null) {
         Debug.LogErrorFormat(
             "Target {0} (id={1}) cannot restore link to source on attach node {2}",
             part.name, part.flightID, attachNodeName);
@@ -277,12 +268,6 @@ public class KASModuleLinkTargetBase :
       DropAttachNode();
     }
   }
-
-  /// <summary>Triggers when link is restored from the save file.</summary>
-  /// <param name="source">Linked part source module.</param>
-  protected virtual void OnLinkRestore(ILinkSource source) {
-    _linkSource = source;
-  }
   #endregion
 
   #region Local untility methods
@@ -299,16 +284,6 @@ public class KASModuleLinkTargetBase :
             .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
       }
     }
-  }
-
-  /// <summary>Finds this source link target.</summary>
-  /// <returns>Target or <c>null</c> if nothing found or there is no attached part.</returns>
-  ILinkSource FindLinkedSource() {
-    if (attachNode != null && attachNode.attachedPart != null) {
-      return attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
-    }
-    return null;
   }
 
   /// <summary>Creates actual attach node on the part.</summary>

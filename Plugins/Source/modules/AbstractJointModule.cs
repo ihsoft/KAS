@@ -97,7 +97,8 @@ public abstract class AbstractJointModule :
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     // Source & target modules may not be started at this moment yet but they are loaded.
-    ILinkSource source = KASAPI.LinkUtils.FindLinkSourceFromPart(part);
+    ILinkSource source = part.FindModulesImplementing<ILinkSource>()
+        .FirstOrDefault(x => x.linkState == LinkState.Linked);
     if (source != null) {
       ILinkTarget target = KASAPI.LinkUtils.FindLinkTargetFromSource(source);
       if (target != null) {
