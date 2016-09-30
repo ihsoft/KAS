@@ -44,6 +44,7 @@ public class KASModuleLinkSourceBase :
   protected static Message CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
   protected static Message SourceIsNotAvailableForLinkMsg = "Source is not available for link";
   protected static Message TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
+  protected static Message<string> CannotRestoreLinkMsg = "Cannot restore link for: {0}";
   protected static Message<string> LinksWithSocketTypeInfo = "Links with socket type: {0}";
   protected static Message ModuleTitleInfo = "KAS Joint Source";
   #endregion
@@ -130,6 +131,9 @@ public class KASModuleLinkSourceBase :
   /// </remarks>
   /// <seealso cref="cfgLinkRendererName"/>
   protected ILinkRenderer linkRenderer { get; private set; }
+
+  /// <summary>Timeout to show various onload errors. Seconds.</summary>
+  protected const float BadLinkStatusTimeout = 10f;
 
   /// <summary>State machine that controls event reaction in different states.</summary>
   /// <remarks>
@@ -573,6 +577,8 @@ public class KASModuleLinkSourceBase :
   IEnumerator WaitAndDisconnectPart() {
     yield return new WaitForEndOfFrame();
     Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
+    ScreenMessaging.ShowPriorityScreenMessageWithTimeout(
+        BadLinkStatusTimeout, CannotRestoreLinkMsg.Format(part.name));
     part.decouple();  // Link source is expected to react on decouple event.
   }
   #endregion
