@@ -225,7 +225,7 @@ public class KASModuleLinkSourceBase :
 
     // If source is linked then we need actual attach node. Create it.
     if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
-      CreateAttachNode();
+      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
   }
   #endregion
@@ -383,7 +383,8 @@ public class KASModuleLinkSourceBase :
           part.name, part.flightID, linkTarget.part.name, linkTarget.part.flightID);
       UnlinkParts(isBrokenExternally: true);
     }
-    DropAttachNode();
+    KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+    attachNode = null;
   }
   #endregion
 
@@ -403,11 +404,12 @@ public class KASModuleLinkSourceBase :
     // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
     // over and link hasn't been established.
     if (linkState == LinkState.Linking && attachNode == null) {
-      CreateAttachNode();
+      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
     if (oldState == LinkState.Linking && linkState != LinkState.Linked
         && attachNode != null) {
-      DropAttachNode();
+      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+      attachNode = null;
     }
   }
 
@@ -566,33 +568,6 @@ public class KASModuleLinkSourceBase :
   #endregion 
 
   #region Local utility methods
-  /// <summary>Creates actual attach node on the part.</summary>
-  /// <remarks>Size of the node is always "small", and type is "stack".</remarks>
-  /// <seealso cref="cfgAttachNodeName"/>
-  /// <seealso cref="attachNode"/>
-  void CreateAttachNode() {
-    //FIXME
-    Debug.LogWarningFormat("** Create AN {0} for {1}", attachNodeName, part.name);
-    attachNode = new AttachNode(attachNodeName, nodeTransform, 0, AttachNodeMethod.FIXED_JOINT);
-    attachNode.nodeType = AttachNode.NodeType.Stack;
-    attachNode.owner = part;
-    attachNode.nodeTransform = nodeTransform;
-    part.attachNodes.Add(attachNode);
-  }
-
-  /// <summary>Drops actual attach node on the part.</summary>
-  /// <remarks>Don't drop the node until parts is decoupled from the vessel. Otherwise, decouple
-  /// callback won't be called on the part.</remarks>
-  /// <seealso cref="attachNode"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
-  /// KSP: IActivateOnDecouple</seealso>
-  void DropAttachNode() {
-    //FIXME
-    Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
-    part.attachNodes.Remove(attachNode);
-    attachNode = null;
-  }
-
   /// <summary>Disconnects part at the end of the frame.</summary>
   /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
   IEnumerator WaitAndDisconnectPart() {

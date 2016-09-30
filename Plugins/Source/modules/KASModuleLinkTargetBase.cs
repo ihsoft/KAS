@@ -186,7 +186,7 @@ public class KASModuleLinkTargetBase :
 
     // If source is linked then we need actual attach node. Create it.
     if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
-      CreateAttachNode();
+      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
   }
   #endregion
@@ -240,7 +240,8 @@ public class KASModuleLinkTargetBase :
     //FIXME
     Debug.LogWarningFormat("TARGET: ** DecoupleAction: {0} (id={3}, weDecouple={1}, linkState={2}",
                            nodeName, weDecouple, linkState, part.flightID);
-    DropAttachNode();
+    KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+    attachNode = null;
   }
   #endregion
 
@@ -263,9 +264,10 @@ public class KASModuleLinkTargetBase :
     }
     // Create attach node before possible linking, and drop it if link to the target wasn't made.
     if (linkState == LinkState.AcceptingLinks) {
-      CreateAttachNode();
+      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     } else if (oldState == LinkState.AcceptingLinks && linkState != LinkState.Linked) {
-      DropAttachNode();
+      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+      attachNode = null;
     }
   }
   #endregion
@@ -284,33 +286,6 @@ public class KASModuleLinkTargetBase :
             .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
       }
     }
-  }
-
-  /// <summary>Creates actual attach node on the part.</summary>
-  /// <remarks>Size of the node is always "small", and type is "stack".</remarks>
-  /// <seealso cref="cfgAttachNodeName"/>
-  /// <seealso cref="attachNode"/>
-  void CreateAttachNode() {
-    //FIXME
-    Debug.LogWarningFormat("** TARGET: Create AN {0} for {1}", attachNodeName, part.name);
-    attachNode = new AttachNode(attachNodeName, nodeTransform, 0, AttachNodeMethod.FIXED_JOINT);
-    attachNode.nodeType = AttachNode.NodeType.Stack;
-    attachNode.owner = part;
-    attachNode.nodeTransform = nodeTransform;
-    part.attachNodes.Add(attachNode);
-  }
-
-  /// <summary>Drops actual attach node on the part.</summary>
-  /// <remarks>Don't drop the node until parts is decoupled from the vessel. Otherwise, decouple
-  /// callback won't be called on the part.</remarks>
-  /// <seealso cref="attachNode"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
-  /// KSP: IActivateOnDecouple</seealso>
-  void DropAttachNode() {
-    //FIXME
-    Debug.LogWarningFormat("** Drop attach node {0} in {1}", attachNode.id, part.name);
-    part.attachNodes.Remove(attachNode);
-    attachNode = null;
   }
   #endregion
 }
