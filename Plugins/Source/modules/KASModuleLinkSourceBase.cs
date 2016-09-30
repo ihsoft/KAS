@@ -577,8 +577,7 @@ public class KASModuleLinkSourceBase :
   IEnumerator WaitAndDisconnectPart() {
     yield return new WaitForEndOfFrame();
     Debug.LogWarningFormat("Detach part {0} from the parent since the link is invalid.", part.name);
-    ScreenMessaging.ShowPriorityScreenMessageWithTimeout(
-        BadLinkStatusTimeout, CannotRestoreLinkMsg.Format(part.name));
+    ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
     part.decouple();  // Link source is expected to react on decouple event.
   }
   #endregion
