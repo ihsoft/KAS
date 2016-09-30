@@ -398,8 +398,10 @@ public class KASModuleLinkSourceBase :
 
   #region Inheritable methods
   /// <summary>Triggers when state has been assigned with a value.</summary>
-  /// <remarks>This method triggers even when new state doesn't differ from the old one. When it's
-  /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
+  /// <remarks>
+  /// This method triggers even when new state doesn't differ from the old one. When it's important
+  /// to catch the transition check for <paramref name="oldState"/>.
+  /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
     // Start renderer in a linked state with a valid target, and stop it in all other states.
@@ -422,10 +424,11 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
-  /// <remarks>Displays current mode via <see cref="KASModuleTubeRenderer"/> if one assigned to the
-  /// part. Mode <see cref="GUILinkMode.API"/> is not reflected in GUI.</remarks>
+  /// <remarks>
+  /// Displays current mode via <see cref="KASModuleTubeRenderer"/> if one assigned to the part.
+  /// Mode <see cref="GUILinkMode.API"/> is not reflected in GUI.
+  /// </remarks>
   /// <param name="mode">Mode to start with.</param>
-  /// FIXME: deprecate, it duplicates main interface method
   protected virtual void StartLinkGUIMode(GUILinkMode mode) {
     guiLinkMode = mode;
     KASEvents.OnStartLinking.Fire(this);
@@ -433,8 +436,10 @@ public class KASModuleLinkSourceBase :
 
   /// <summary>Stops any pending GUI mode that displays linking process.</summary>
   /// <remarks>Does nothing if no GUI mode started.
-  /// <para>If link is created then this method is called <i>after</i> <see cref="ConnectParts"/>
-  /// and <see cref="LinkParts"/> callbacks get fired.</para>
+  /// <para>
+  /// If link is created then this method is called <i>after</i> <see cref="ConnectParts"/> and
+  /// <see cref="LinkParts"/> callbacks get fired.
+  /// </para>
   /// </remarks>
   protected virtual void StopLinkGUIMode() {
     if (guiLinkMode != GUILinkMode.None) {
@@ -445,11 +450,8 @@ public class KASModuleLinkSourceBase :
 
   /// <summary>Joins this part and the target into one vessel.</summary>
   /// <param name="target">Target link module.</param>
-  /// FIXME: no need to be bool
   protected virtual void ConnectParts(ILinkTarget target) {
-    //FIXME: implement
-    Debug.LogWarning("ConnectParts");
-    // FIXME: fromn here move to KIS/KAS common
+    // FIXME: from here move to KIS/KAS common
     GameEvents.onActiveJointNeedUpdate.Fire(part.vessel);
     GameEvents.onActiveJointNeedUpdate.Fire(target.part.vessel);
     attachNode.attachedPart = target.part;
@@ -565,8 +567,10 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>Establishes a link if target has accepted connection from this source.</summary>
-  /// <remarks>Any problems that prevent from a successful creation will be logged to the user. The
-  /// accepting party must ensure the link can be done.</remarks>
+  /// <remarks>
+  /// Any problems that prevent from a successful creation will be logged to the user. The accepting
+  /// party must ensure the link can be done.
+  /// </remarks>
   /// <param name="target">Target that has accepted connetion.</param>
   void OnLinkActionAccepted(ILinkTarget target) {
     if (CheckCanLinkTo(target, reportToGUI: true)) {

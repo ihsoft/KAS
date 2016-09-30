@@ -85,7 +85,6 @@ public interface ILinkJoint {
   /// <param name="source">Source that probes the link.</param>
   /// <param name="targetTransform">Target of the link to check the length of.</param>
   /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
-  /// FIXME: use ILinkTarget once kerbal gets it.
   string CheckLengthLimit(ILinkSource source, Transform targetTransform);
 
   /// <summary>Checks if link angle at the source joint is within the limits.</summary>

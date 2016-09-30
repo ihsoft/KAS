@@ -21,6 +21,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <summary>Returns cached part's model root transform.</summary>
   /// <remarks>Attach all your meshes to this transform (directly or via parents). Otherwise, the
   /// new meshes will be ignored by the part's model!</remarks>
+  /// FIXME: deprecate, use KAS utils where needed
   protected Transform partModelTransform {
     get {
       if (_partModelTransform == null) {
