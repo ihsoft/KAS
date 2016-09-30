@@ -104,7 +104,6 @@
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModuleStockJoint.cs" />
     <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
-    <Compile Include="modules\KASModuleTubeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
     <Compile Include="KSPDev\ModelUtils\Colliders.cs" />
     <Compile Include="KSPDev\ModelUtils\Hierarchy.cs" />
