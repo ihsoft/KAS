@@ -350,7 +350,11 @@ public class KASModuleLinkSourceBase :
             part.name, cfgLinkType, target.part.name, target.cfgLinkType, errorMsg);
       }
       if (reportToGUI) {
-        ScreenMessages.PostScreenMessage(errorMsg, 5f, ScreenMessageStyle.UPPER_CENTER);
+        ScreenMessaging.ShowScreenMessage(
+            ScreenMessageStyle.UPPER_CENTER,
+            ScreenMessaging.DefaultMessageTimeout,
+            ScreenMessaging.ErrorColor,
+            errorMsg);
       }
     }
     return errorMsg == null;

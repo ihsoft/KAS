@@ -146,7 +146,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
             canLinkStatusMessage.message = CanBeConnectedMsg.Format(
                 Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
           } else {
-            cannotLinkStatusMessage.message = linkStatusError;
+            cannotLinkStatusMessage.message = ScreenMessaging.SetColorToRichText(
+                linkStatusError, ScreenMessaging.ErrorColor);
           }
         }
       }
