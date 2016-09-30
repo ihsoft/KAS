@@ -30,7 +30,7 @@ public static class KASAPI {
   public static IAttachNodesUtils AttachNodesUtils;
 
   /// <summary>KAS link utils.</summary>
-  public static IAPILinkUtils LinkUtils;
+  public static ILinkUtils LinkUtils;
 }
 
 }  // namespace

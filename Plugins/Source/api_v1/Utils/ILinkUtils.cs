@@ -9,7 +9,7 @@ using System;
 namespace KASAPIv1 {
 
 //FIXME: give doc with samples
-public interface IAPILinkUtils {
+public interface ILinkUtils {
   /// <summary>Finds link target given its source.</summary>
   /// <remarks>
   /// Any number of targets can be linked on the part but only one is linked with a particular
