@@ -13,7 +13,6 @@ using KSPDev.GUIUtils;
 namespace KAS {
 
 // FIXME: docs
-// FIXME: move model logic into a base class. maybe
 public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   #region Localizable GUI strings
@@ -60,34 +59,52 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #endregion
 
   // These constants must be in sync with action handler method names.
+  #region Event names
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
   protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
   protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
   protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
   protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
+  #endregion
 
+  #region Model name constants
   /// <summary>A transform that is a root for the whole pipe modelset.</summary>
   /// <remarks>It doesn't have to match part's atatch node transform.</remarks>
   protected const string AttachNodeObjName = "AttachNode";
-  /// <summary>Model that connects pipe with the source part.</summary>
+  /// <summary>Name of model that connects pipe with the source part.</summary>
   protected const string SrcPartJointObjName = "srcPartJoint";
-  /// <summary>Model at the pipe start.</summary>
+  /// <summary>Name of model at the pipe start.</summary>
   protected const string SrcStrutJointObjName = "srcStrutJoint";
-  /// <summary>Model at the pipe end.</summary>
+  /// <summary>Name of model at the pipe end.</summary>
   protected const string TrgStrutJointObjName = "trgStrutJoint";
-  /// <summary>Model that connects pipe with the target part.</summary>
+  /// <summary>Name of model that connects pipe with the target part.</summary>
   protected const string TrgPartJointObjName = "trgPartJoint";
+  #endregion
 
   protected ILinkSource linkSource { get; private set; }
+  #region Model transforms
+  /// <summary>Model that connects pipe assembly with the source part.</summary> 
   protected Transform srcPartJoint { get; private set; }
+  /// <summary>Pivot axis model at the source part.</summary>
   protected Transform srcPartJointPivot { get; private set; }
+  /// <summary>Model at the pipe start.</summary>
+  /// <remarks>It's orientation is reversed, and it's positioned so what its pivot axis matches
+  /// <see cref="srcPartJointPivot"/>. I.e. forward direction in the local space is
+  /// <see cref="Vector3.back"/>.</remarks>
   protected Transform srcStrutJoint { get; private set; }
+  /// <summary>Model at the pipe end.</summary>
   protected Transform trgStrutJoint { get; private set; }
+  /// <summary>Pivot axis model at the pipe end.</summary>
   protected Transform trgStrutJointPivot { get; private set; }
+  /// <summary>Distance of source part joint pivot from it's base.</summary>
   protected float srcJointHandleLength { get; private set; }
+  /// <summary>Distance of target part joint pivot from it's base.</summary>
   protected float trgJointHandleLength { get; private set; }
+  /// <summary>Pistons that form the strut.</summary>
   protected GameObject[] pistons { get; private set; }
+  #endregion
 
+  /// <summary>Tells if source on the part is linked.</summary>
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
