@@ -61,6 +61,56 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public string rendererName = "";
   #endregion
 
+  #region ILinkRenderer properties
+  /// <inheritdoc/>
+  public string cfgRendererName { get { return rendererName; } }
+  /// <inheritdoc/>
+  public virtual Color? colorOverride {
+    get { return _colorOverride; }
+    set {
+      _colorOverride = value;
+      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? color);
+    }
+  }
+  Color? _colorOverride;
+  /// <inheritdoc/>
+  public virtual string shaderNameOverride {
+    get { return _shaderNameOverride; }
+    set {
+      _shaderNameOverride = value;
+      Meshes.UpdateMaterials(
+          srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
+    }
+  }
+  string _shaderNameOverride;
+  //FIXME change to isColliderEnabled.
+  /// <inheritdoc/>
+  public virtual bool isPhysicalCollider {
+    get { return _isPhysicalCollider; }
+    set {
+      _isPhysicalCollider = value;
+      //FIXME
+      Debug.LogWarningFormat("Setting collider mode to {0}", value);
+      //Colliders.UpdateColliders(srcPartJoint.gameObject, isPhysical: value);
+      Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
+    }
+  }
+  bool _isPhysicalCollider;
+
+  /// <inheritdoc/>
+  public override Transform sourceTransform {
+    get { return srcPartJointPivot; }
+    set {
+      Debug.LogErrorFormat(
+          "Telescopic pipe part has a fixed source transform. Cannot set to: {0}", value);
+    }
+  }
+  /// <inheritdoc/>
+  public bool isStarted {
+    get { return targetTransform != null; }
+  }
+  #endregion
+
   // These constants must be in sync with action handler method names.
   #region Event names
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
@@ -84,8 +134,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected const string TrgPartJointObjName = "trgPartJoint";
   #endregion
 
-  protected ILinkSource linkSource { get; private set; }
-  #region Model transforms
+  #region Model transforms & properties
   /// <summary>Model that connects pipe assembly with the source part.</summary> 
   protected Transform srcPartJoint { get; private set; }
   /// <summary>Pivot axis model at the source part.</summary>
@@ -105,16 +154,21 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected float trgJointHandleLength { get; private set; }
   /// <summary>Pistons that form the strut.</summary>
   protected GameObject[] pistons { get; private set; }
-  #endregion
-
-  /// <summary>Tells if source on the part is linked.</summary>
-  protected bool isLinked {
-    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
-  }
   /// <summary>Minmum link length that doesn't break telescopic pipe renderer.</summary>
   protected float minLinkLength { get; private set; }
   /// <summary>Maximum link length that doesn't break telescopic pipe renderer.</summary>
   protected float maxLinkLength { get; private set; }
+  #endregion
+
+  #region Inheritable properties 
+  /// <summary>Tells if source on the part is linked.</summary>
+  protected bool isLinked {
+    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
+  }
+  /// <summary>Link source module that operates on this part. There can be only one.</summary>
+  /// <remarks>It's get populated in the <see cref="OnStart"/> method.</remarks>
+  protected ILinkSource linkSource { get; private set; }
+  #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -145,63 +199,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #endregion
 
   #region ILinkRenderer implemetation
-  /// <inheritdoc/>
-  public string cfgRendererName { get { return rendererName; } }
-  /// <inheritdoc/>
-  public virtual Color? colorOverride {
-    get { return _colorOverride; }
-    set {
-      _colorOverride = value;
-      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? color);
-    }
-  }
-  Color? _colorOverride;
-  /// <inheritdoc/>
-  public virtual string shaderNameOverride {
-    get { return _shaderNameOverride; }
-    set {
-      _shaderNameOverride = value;
-      Meshes.UpdateMaterials(
-          srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
-    }
-  }
-  string _shaderNameOverride;
-
-  //FIXME change to isColliderEnabled.
-  /// <inheritdoc/>
-  public virtual bool isPhysicalCollider {
-    get { return _isPhysicalCollider; }
-    set {
-      _isPhysicalCollider = value;
-      //FIXME
-      Debug.LogWarningFormat("Setting collider mode to {0}", value);
-      //Colliders.UpdateColliders(srcPartJoint.gameObject, isPhysical: value);
-      Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
-    }
-  }
-  bool _isPhysicalCollider;
-
-  /// <inheritdoc/>
-  public override Transform sourceTransform {
-    get { return srcPartJointPivot; }
-    set {
-      Debug.LogErrorFormat("Dynamic part has a fixed source transform. Cannot set to: {0}", value);
-    }
-  }
-  //FIXME: hide or make part of interface
-  public Transform targetTransform {
-    get { return _targetTransform; }
-    set {
-      _targetTransform = value;
-      UpdateLinkLengthAndOrientation();
-    }
-  }
-  Transform _targetTransform;
-  /// <inheritdoc/>
-  public bool isStarted {
-    get { return targetTransform != null; }
-  }
-
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
     // Source pivot is fixed for this part. Do a safe check to verify if requestor asked for the
@@ -248,6 +245,16 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     return null;
   }
   #endregion
+
+  //FIXME: hide or make part of interface
+  public Transform targetTransform {
+    get { return _targetTransform; }
+    set {
+      _targetTransform = value;
+      UpdateLinkLengthAndOrientation();
+    }
+  }
+  Transform _targetTransform;
 
   // FIXME: check colliders.
   #region GUI menu action handlers
