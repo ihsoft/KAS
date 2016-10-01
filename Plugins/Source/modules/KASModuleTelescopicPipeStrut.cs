@@ -16,8 +16,8 @@ namespace KAS {
 public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   #region Localizable GUI strings
-  protected static Message<string> LinkCollidesWithObjectMsg = "Link would collide with {0}";
-  protected static Message LinkCollidesWithSurfaceMsg = "Link would collide with surface";
+  protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+  protected static Message LinkCollidesWithSurfaceMsg = "Link collides with surface";
   #endregion
 
   // These fields must not be accessed outside of the module. They are declared public only
