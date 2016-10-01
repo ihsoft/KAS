@@ -69,14 +69,13 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    var stockJoint = part.attachJoint;
     base.CreateJoint(source, target);
     srcJoint = CreateKinematicJointEnd(source.attachNode, SrcJointName, sourceLinkAngleLimit);
     trgJoint = CreateKinematicJointEnd(target.attachNode, TargetJointName, targetLinkAngleLimit);
     if (!float.IsInfinity(strutSpringForce)) {
       strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
     }
-    StartCoroutine(WaitAndConnectJointEnds(stockJoint));
+    StartCoroutine(WaitAndConnectJointEnds());
   }
 
   /// <inheritdoc/>
@@ -136,11 +135,11 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   /// <returns><c>null</c> when it's time to terminate.</returns>
   /// FIXME don't create prismatic joint when spring is infinite
   /// FIXME when spring is set init prismatic joitn from the zero length
-  IEnumerator WaitAndConnectJointEnds(PartJoint partAttachJoint) {
+  IEnumerator WaitAndConnectJointEnds() {
     // We'll spend several fixed update cycles to setup the joints, so make stock joint absolutely
     // rigid to avoid parts moving during the process.
-    if (partAttachJoint != null && partAttachJoint.Target == linkTarget.part) {
-      SetupUnbreakableJoint(partAttachJoint.Joint);
+    if (stockJoint != null) {
+      SetupUnbreakableJoint(stockJoint.Joint);
     }
   
     // Allow fixed update to have the joint info sent to PhysX. This will capture initial sphere
@@ -179,8 +178,13 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     //FIXME
     Debug.LogWarning("Joint promoted to physics");
     // Note, that this will trigger GameEvents.onPartJointBreak event.
-    if (partAttachJoint != null && partAttachJoint.Target == linkTarget.part) {
-      partAttachJoint.DestroyJoint();
+    if (stockJoint != null) {
+      //FIXME
+      Debug.LogWarningFormat("DROP stock joint");
+      stockJoint.DestroyJoint();
+    } else {
+      //FIXME
+      Debug.LogWarningFormat("NOT DROP stock joint");
     }
   }
 
