@@ -245,23 +245,24 @@ public class KASModuleLinkTargetBase :
   /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
-    if (oldState == linkState) {
-      return;
+    // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
+    // over and link hasn't been established.
+    if (linkState == LinkState.AcceptingLinks && attachNode == null) {
+      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
+    if (oldState == LinkState.AcceptingLinks && linkState != LinkState.Linked
+        && attachNode != null) {
+      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+      attachNode = null;
+    }
+
     // Adjust compatible part highlight. 
-    if (highlightCompatibleTargets) {
+    if (highlightCompatibleTargets && oldState != linkState) {
       if (linkState == LinkState.AcceptingLinks) {
         part.highlighter.ConstantOn(highlightColor);
       } else if (oldState == LinkState.AcceptingLinks) {
         part.highlighter.ConstantOff();
       }
-    }
-    // Create attach node before possible linking, and drop it if link to the target wasn't made.
-    if (linkState == LinkState.AcceptingLinks) {
-      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
-    } else if (oldState == LinkState.AcceptingLinks && linkState != LinkState.Linked) {
-      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-      attachNode = null;
     }
   }
   #endregion
