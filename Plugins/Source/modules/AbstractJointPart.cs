@@ -21,9 +21,9 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   [KSPField]
   public string jointTexturePath = "";
   [KSPField]
-  public Vector3 attachNodePosition = new Vector3(0, 0.0362f, 0);
+  public Vector3 attachNodePosition = Vector3.zero;
   [KSPField]
-  public Vector3 attachNodeOrientation = new Vector3(0, 1, 0);
+  public Vector3 attachNodeOrientation = Vector3.up;
   #endregion
 
   /// <summary>Returns transform of the actual joint model.</summary>
