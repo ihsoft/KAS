@@ -79,6 +79,15 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected const string TrgPartJointObjName = "trgPartJoint";
 
   protected ILinkSource linkSource { get; private set; }
+  protected Transform srcPartJoint { get; private set; }
+  protected Transform srcPartJointPivot { get; private set; }
+  protected Transform srcStrutJoint { get; private set; }
+  protected Transform trgStrutJoint { get; private set; }
+  protected Transform trgStrutJointPivot { get; private set; }
+  protected float srcJointHandleLength { get; private set; }
+  protected float trgJointHandleLength { get; private set; }
+  protected GameObject[] pistons { get; private set; }
+
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
@@ -254,15 +263,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     UpdateLinkLengthAndOrientation();
   }
   #endregion
-
-  protected Transform srcPartJoint { get; private set; }
-  protected Transform srcPartJointPivot { get; private set; }
-  protected Transform srcStrutJoint { get; private set; }
-  protected Transform trgStrutJoint { get; private set; }
-  protected Transform trgStrutJointPivot { get; private set; }
-  protected float srcJointHandleLength { get; private set; }
-  protected float trgJointHandleLength { get; private set; }
-  protected GameObject[] pistons { get; private set; }
 
   #region AbstractProceduralModel implementation
   /// <inheritdoc/>
