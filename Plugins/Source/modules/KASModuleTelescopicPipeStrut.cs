@@ -108,6 +108,10 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
+  /// <summary>Minmum link length that doesn't break telescopic pipe renderer.</summary>
+  protected float minLinkLength { get; private set; }
+  /// <summary>Maximum link length that doesn't break telescopic pipe renderer.</summary>
+  protected float maxLinkLength { get; private set; }
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -269,14 +273,14 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   [KSPEvent(guiName = "Extend to max", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ExtendAtMaxMenuAction() {
-    parkedLength = part.FindModuleImplementing<ILinkJoint>().cfgMaxLinkLength;
+    parkedLength = maxLinkLength;
     UpdateLinkLengthAndOrientation();
   }
 
   [KSPEvent(guiName = "Retract to min", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void RetractToMinMenuAction() {
-    parkedLength = part.FindModuleImplementing<ILinkJoint>().cfgMinLinkLength;
+    parkedLength = minLinkLength;
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -342,15 +346,16 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
                            newPosition: new Vector3(0, 0, -pistonLength / 2),
                            newRotation: Quaternion.LookRotation(Vector3.forward));
+    
+    CalculateLengthLimits();
 
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     if (Mathf.Approximately(parkedLength, 0)) {
       // Cannot get length from the joint module since it may not be existing at the moment.
-      parkedLength = srcJointHandleLength
-          + pistonLength + (pistonsCount - 1) * pistonMinShift
-          + trgJointHandleLength;
+      parkedLength = minLinkLength;
     }
+
     UpdateLinkLengthAndOrientation();
   }
 
@@ -377,6 +382,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
       pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
 
+    CalculateLengthLimits();
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -464,6 +470,18 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
     Events[ExtendAtMaxMenuActionName].active = !isLinked;
     Events[RetractToMinMenuActionName].active = !isLinked;
+  }
+
+  /// <summary>Calculates and populates min/max link lengths from the model.</summary>
+  void CalculateLengthLimits() {
+    minLinkLength =
+        srcJointHandleLength
+        + pistonLength + (pistonsCount - 1) * pistonMinShift
+        + trgJointHandleLength;
+    maxLinkLength =
+        srcJointHandleLength
+        + pistonsCount * (pistonLength - pistonMinShift)
+        + trgJointHandleLength;
   }
   #endregion
 }
