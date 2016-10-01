@@ -8,19 +8,6 @@ using UnityEngine;
 
 namespace KASAPIv1 {
 
-public enum LinkJointType {
-  None,
-  Rounded,
-  RoundedWithOffset,
-}
-
-public enum LinkTextureRescaleMode {
-  None,
-  Source,
-  Target,
-  Center
-}
-
 /// <summary>Defines how link collisions should be checked.</summary>
 public enum LinkCollider {
   /// <summary>No collisions check.</summary>
@@ -103,20 +90,6 @@ public interface ILinkRenderer {
   /// <returns><c>null</c> if nothing collides with the link. Otherwise, a short user friendly
   /// message.</returns>
   string CheckColliderHits(Transform source, Transform target);
-}
-
-public interface ILinkPipeRendererModule : ILinkRenderer {
-  LinkJointType cfgSourceJointType { get; }
-  float cfgSourceJointOffset { get; }
-  LinkJointType cfgTargetJointType { get; }
-  float cfgTargetJointOffset { get; }
-  float cfgPipeTextureSamplesPerMeter { get; }
-  string cfgPipeTexturePath { get; }
-  string cfgShaderName { get; }
-  LinkTextureRescaleMode cfgPipeRescaleMode { get; }
-  float cfgPipeDiameter { get; }
-  float cfgSphereDiameter { get; }
-  Color cfgColor { get; set; }
 }
 
 }  // namespace
