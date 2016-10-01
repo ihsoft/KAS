@@ -12,7 +12,10 @@ using KSPDev.GUIUtils;
 
 namespace KAS {
 
-// FIXME: docs
+/// <summary>
+/// Module that keeps all pieces of the link in the model. I.e. it's a physical representation of
+/// the part that can link to another part.
+/// </summary>
 public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   #region Localizable GUI strings
@@ -203,7 +206,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public virtual void StartRenderer(Transform source, Transform target) {
     // Source pivot is fixed for this part. Do a safe check to verify if requestor asked for the
     // right coordinates.
-    //FIXME make threshold a constant
     if (Vector3.SqrMagnitude(source.position - sourceTransform.position) > 0.0005f) {
       Debug.LogErrorFormat(
           "Part's source doesn't match renderer source: pivot={0}, source={1}, err={2}",

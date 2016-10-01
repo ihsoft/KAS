@@ -75,22 +75,12 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    //FIXME: Create dummy modules when required ones missing. And don't fail.
-    if (linkJoint == null) {
-      Debug.LogErrorFormat(
-          "KAS part {0} misses joint module. It won't work properly", part.name);
-    }
-    if (linkRenderer == null) {
-      Debug.LogErrorFormat(
-          "KAS part {0} misses renderer module. It won't work properly", part.name);
-    }
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
     linkingMessage =
         new ScreenMessage(LinkingInProgressMsg, Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
     canLinkStatusMessage =
         new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
-    //FIXME: add color highlight
     cannotLinkStatusMessage =
         new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
   }
@@ -231,7 +221,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  /// <para>Overrides <see cref="KASModuleLinkSourceBase"/>.</para>
   protected override Vessel DisconnectTargetPart(ILinkTarget target) {
     var res = base.DisconnectTargetPart(target);
     if (res != null) {

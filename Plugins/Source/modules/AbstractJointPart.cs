@@ -16,6 +16,7 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
+  //FIXME drop atatch node fields, move to descendats, and rename
   #region Part's config fields
   [KSPField]
   public string jointTexturePath = "";
@@ -28,6 +29,7 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   /// <summary>Returns transform of the actual joint model.</summary>
   /// <remarks>It's not just a position anchor. It's a transform of the real object that represents
   /// the joint model. Its rotation will be adjusted when establishing/updating the link.</remarks>
+  /// FIXME: dones't seem we use it. DROP!
   public abstract Transform sourceTransform { get; set; }
 
   /// <summary>

@@ -190,7 +190,14 @@ public class KASModuleLinkSourceBase :
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
         .First(x => x.cfgRendererName == linkRendererName);
-    // FIXME: create dummy renderer and joint if nothing is found.
+    if (linkJoint == null) {
+      Debug.LogErrorFormat(
+          "KAS part {0} misses joint module. It won't work properly", part.name);
+    }
+    if (linkRenderer == null) {
+      Debug.LogErrorFormat(
+          "KAS part {0} misses renderer module. It won't work properly", part.name);
+    }
 
     // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {

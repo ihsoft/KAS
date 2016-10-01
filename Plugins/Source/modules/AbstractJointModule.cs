@@ -247,15 +247,11 @@ public abstract class AbstractJointModule :
   #region ILinkEventListener implementation
   /// <inheritdoc/>
   public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    //FIXME
-    Debug.LogWarningFormat("** JOINT: created event");
     CreateJoint(info.source, info.target);
   }
 
   /// <inheritdoc/>
   public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    //FIXME
-    Debug.LogWarningFormat("** JOINT: broken event, DROPPING!");
     DropJoint();
   }
   #endregion
