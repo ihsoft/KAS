@@ -229,9 +229,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
-    var direction = target.position - source.position;
+    var linkVector = target.position - source.position;
     var hits = Physics.SphereCastAll(
-        source.position, outerPistonDiameter, direction, direction.magnitude,
+        source.position, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
         (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
@@ -412,7 +412,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
       // 3. Shift trgStrutJoint along Z axis so what it touches target joint node with the trgPivot
       //    pivot axile. Link length consists of srcStrutJoint and trgStrutJoint model lengths but
       //    the former points backwards, so it doesn't add to the positive Z value.
-      trgStrutJoint.localPosition = new Vector3(0, 0, linkVector.magnitude - trgJointHandleLength);
+      trgStrutJoint.localPosition =
+          new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength);
       // 4. Rotate trgStrutJoint around Z axis so what its pivot axile (X) is perpendicular to
       //    the target part attach node.
       trgStrutJoint.rotation =
@@ -434,6 +435,22 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
         pistons[i].transform.localPosition = new Vector3(0, 0, offset);
       }
     }
+  }
+
+  /// <summary>Returns link length. Adjusts it to min/max length.</summary>
+  /// <param name="linkVector">Link vector.</param>
+  /// <returns>Clamped link length</returns>
+  /// <seealso cref="minLinkLength"/>
+  /// <seealso cref="maxLinkLength"/>
+  protected float GetClampedLinkLength(Vector3 linkVector) {
+    var linkLength = linkVector.magnitude;
+    if (linkLength < minLinkLength) {
+      return minLinkLength;
+    }
+    if (linkLength > maxLinkLength) {
+      return maxLinkLength;
+    }
+    return linkLength;
   }
 
   #region Private utility methods
