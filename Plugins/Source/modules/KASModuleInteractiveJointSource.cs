@@ -126,18 +126,19 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
-          var linkStatusError =
+          var linkStatusErrors = new[] {
+              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform),
+              linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform),
+              linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform),
               linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
-              ?? linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform)
-              ?? linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform)
-              ?? linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform);
-          if (linkStatusError == null) {
+          }.Where(x => x != null).ToArray();
+          if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
             canLinkStatusMessage.message = CanBeConnectedMsg.Format(
                 Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
           } else {
             cannotLinkStatusMessage.message = ScreenMessaging.SetColorToRichText(
-                linkStatusError, ScreenMessaging.ErrorColor);
+                String.Join("\n", linkStatusErrors), ScreenMessaging.ErrorColor);
           }
         }
       }
