@@ -16,6 +16,7 @@ namespace KAS {
 
 // FIXME: docs
 public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
+
   #region Localizable strings
   static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
   static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
@@ -58,7 +59,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     base.OnAwake();
     Events["StartLinkContextMenuAction"].guiName = startLinkMenu;
     Events["BreakLinkContextMenuAction"].guiName = breakLinkMenu;
-    // FIXME: deal with the attach node. No node from the part should be used.
   }
   
   /// <inheritdoc/>
@@ -89,6 +89,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
   public override bool StartLinking(GUILinkMode mode) {
+    // Don't allow EVA linking mode.
     if (mode != GUILinkMode.Interactive && mode != GUILinkMode.API) {
       return false;
     }
@@ -101,8 +102,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     ScreenMessages.PostScreenMessage(linkingMessage);
     InputLockManager.SetControlLock(
         ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
-    //FIXME
-    Debug.LogWarning("Start GUI");
     linkRenderer.shaderNameOverride = InteractiveShaderName;
     linkRenderer.colorOverride = BadLinkColor;
     linkRenderer.isPhysicalCollider = false;

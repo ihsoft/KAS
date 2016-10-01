@@ -31,6 +31,9 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
 /// </seealso>
+/// TODO: Handle KIS actions.
+/// FIXME: Handle part destroyed action.
+/// FIXME: Handle part staged action.
 public class KASModuleLinkSourceBase :
     // KSP parents.
     PartModule, IModuleInfo, IActivateOnDecouple,
@@ -143,10 +146,6 @@ public class KASModuleLinkSourceBase :
   /// inappropriate moment.
   /// </remarks>
   SimpleStateMachine<LinkState> linkStateMachine;
-
-  // FIXME: Handle KIS actions.
-  // FIXME: Handle part destroyed action.
-  // FIXME: Handle part staged action.
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -452,8 +451,7 @@ public class KASModuleLinkSourceBase :
     GameEvents.onActiveJointNeedUpdate.Fire(target.part.vessel);
     attachNode.attachedPart = target.part;
     target.attachNode.attachedPart = part;
-    //FIXME: looks unneeded
-    part.attachMode = AttachModes.STACK;
+    part.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
     //FIXME: store source vessel info. needs to be restored on decouple.
     part.Couple(target.part);
     //FIXME

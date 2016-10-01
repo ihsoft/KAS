@@ -14,8 +14,8 @@ namespace KASAPIv1 {
 public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the actual coupling has happen. Modules can expect the the
-  /// joints are setup but their physics may not kicked in yet.
+  /// This event triggers <b>after</b> the actual coupling has happen. Modules can expect the joints
+  /// setup but their physics may not have kicked in yet.
   /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);

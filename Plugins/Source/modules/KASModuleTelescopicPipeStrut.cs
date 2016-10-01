@@ -192,7 +192,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
-    //FIXME: check if constant updates needed, and add a threshold.
     if (isStarted) {
       UpdateLink();
     }

@@ -63,7 +63,7 @@ public interface ILinkRenderer {
   /// <para>It's OK to call this method multiple times with different or same source/target
   /// arguments. Renderer must accept the values and update accordingly. Though, this operation is
   /// rated as performance expensive, so callers are discouraged to invoke this method too
-  /// frequently (e.g. from on every frame update).</para>
+  /// frequently (e.g. on every frame update).</para>
   /// </remarks>
   /// <param name="source">Source node.</param>
   /// <param name="target">Target node.</param>
