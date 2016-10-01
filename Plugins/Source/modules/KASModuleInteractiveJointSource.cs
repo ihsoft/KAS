@@ -143,9 +143,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
         }
       }
       // Show the possible link or indicate the error.
-      if (targetCandidate != null
-          && (targetCandidateIsGood
-              || linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform) == null)) {
+      if (targetCandidate != null) {
         linkRenderer.colorOverride = targetCandidateIsGood ? GoodLinkColor : BadLinkColor;
         linkRenderer.StartRenderer(nodeTransform, targetCandidate.nodeTransform);
       } else {
