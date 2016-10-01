@@ -183,7 +183,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    linkSource = part.FindModuleImplementing<ILinkSource>();
+    linkSource = part.FindModulesImplementing<ILinkSource>()
+        .FirstOrDefault(x => x.cfgLinkRendererName == rendererName);
     UpdateMenuItems();
     UpdateLinkLengthAndOrientation();
   }
