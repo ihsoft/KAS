@@ -59,19 +59,24 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   public string rendererName = "";
   #endregion
 
-  // These constants must be in sync with action handler methods names.
+  // These constants must be in sync with action handler method names.
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
   protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
   protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
   protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
   protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
 
-  // FIXME: docs for all below
-  protected const string SrcPartJointObjName = "srcPartJoint";
-  protected const string SrcStrutJointObjName = "srcStrutJoint";
-  protected const string TrgStrutJointObjName = "trgStrutJoint";
-  protected const string TrgPartJointObjName = "trgPartJoint";
+  /// <summary>A transform that is a root for the whole pipe modelset.</summary>
+  /// <remarks>It doesn't have to match part's atatch node transform.</remarks>
   protected const string AttachNodeObjName = "AttachNode";
+  /// <summary>Model that connects pipe with the source part.</summary>
+  protected const string SrcPartJointObjName = "srcPartJoint";
+  /// <summary>Model at the pipe start.</summary>
+  protected const string SrcStrutJointObjName = "srcStrutJoint";
+  /// <summary>Model at the pipe end.</summary>
+  protected const string TrgStrutJointObjName = "trgStrutJoint";
+  /// <summary>Model that connects pipe with the target part.</summary>
+  protected const string TrgPartJointObjName = "trgPartJoint";
 
   protected ILinkSource linkSource { get; private set; }
   protected bool isLinked {
