@@ -123,8 +123,7 @@ public abstract class AbstractJointModule :
   #region IJointEventsListener implemetation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    Debug.LogWarningFormat("Joint {0} broken by physics with force={1}",
-                           DumpJoint(linkSource, linkTarget), breakForce);
+    Debug.LogFormat("Joint on {0} broken by physics with force={1}", part.name, breakForce);
     DropJoint();
     part.OnPartJointBreak(breakForce);
   }
