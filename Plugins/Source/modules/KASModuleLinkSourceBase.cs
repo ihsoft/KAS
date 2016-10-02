@@ -343,12 +343,16 @@ public class KASModuleLinkSourceBase :
           "Cannot break link: part {0} is not linked to anything", part.name);
       return;
     }
-    var targetRootPart = linkTarget.part;
     // Logical unlink must be done first before doing actual decouple.
+    var targetRootPart = linkTarget.part;
     UnlinkParts(actorType);
     part.decouple();
+    // If either source or target part after the separation belong to the active vessel then adjust
+    // the focus. Otherwise, actor was external (e.g. EVA).
     if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
       FlightGlobals.ForceSetActiveVessel(targetRootPart.vessel);
+    } else if (!moveFocusOnTarget && FlightGlobals.ActiveVessel == targetRootPart.vessel) {
+      FlightGlobals.ForceSetActiveVessel(vessel);
     }
   }
 
