@@ -170,16 +170,16 @@ public class KASModuleLinkSourceBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartLinking),
-        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartLinking));
+        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
+        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopLinking),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopLinking));
+        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
+        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.Linking,
-        enterHandler: x => KASEvents.OnLinkAccepted.Add(OnLinkActionAccepted),
-        leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAccepted));
+        enterHandler: x => KASEvents.OnLinkAccepted.Add(OnLinkActionAcceptedKASEvent),
+        leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAcceptedKASEvent));
   }
 
   /// <inheritdoc/>
@@ -547,7 +547,7 @@ public class KASModuleLinkSourceBase :
   /// <para>Event handler for <see cref="KASEvents.OnStopLinking"/>.</para>
   /// </remarks>
   /// <param name="source">Source module that started connecting mode.</param>
-  void OnStartLinking(ILinkSource source) {
+  void OnStartLinkingKASEvent(ILinkSource source) {
     linkState = LinkState.RejectingLinks;
   }
 
@@ -556,7 +556,7 @@ public class KASModuleLinkSourceBase :
   /// <para>Event handler for <see cref="KASEvents.OnStopLinking"/>.</para>
   /// </remarks>
   /// <param name="source">Source module that started the mode.</param>
-  void OnStopLinking(ILinkSource source) {
+  void OnStopLinkingKASEvent(ILinkSource source) {
     linkState = LinkState.Available;
   }
 
@@ -566,7 +566,7 @@ public class KASModuleLinkSourceBase :
   /// party must ensure the link can be done.
   /// </remarks>
   /// <param name="target">Target that has accepted connetion.</param>
-  void OnLinkActionAccepted(ILinkTarget target) {
+  void OnLinkActionAcceptedKASEvent(ILinkTarget target) {
     if (CheckCanLinkTo(target, reportToGUI: true)) {
       LinkToTarget(target);
     }
