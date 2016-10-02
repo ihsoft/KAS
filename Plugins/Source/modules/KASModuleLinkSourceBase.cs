@@ -395,26 +395,19 @@ public class KASModuleLinkSourceBase :
   }
   #endregion
 
+  #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-  //void OnJointBreak(float breakForce) {
-    //FIXME
-    Debug.LogWarningFormat("** PHYSICS");
     if (linkState == LinkState.Linked) {
-      //FIXME
-      Debug.LogWarningFormat("** PHYSICS break - Physics");
       UnlinkParts(LinkActorType.Physics);
     }
   }
+  #endregion
 
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    //FIXME
-    Debug.LogWarningFormat("** DECOUPLE");
     if (nodeName == attachNodeName && linkState == LinkState.Linked) {
-      //FIXME
-      Debug.LogWarningFormat("** DECOUPLE break - API");
       UnlinkParts(LinkActorType.API);
     }
     KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
