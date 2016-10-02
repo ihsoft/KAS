@@ -390,6 +390,18 @@ public class KASModuleLinkSourceBase :
   }
   #endregion
 
+  /// <inheritdoc/>
+  public virtual void OnJointBreak(float breakForce) {
+  //void OnJointBreak(float breakForce) {
+    //FIXME
+    Debug.LogWarningFormat("** PHYSICS");
+    if (linkState == LinkState.Linked) {
+      //FIXME
+      Debug.LogWarningFormat("** PHYSICS break - Physics");
+      UnlinkParts(LinkActorType.Physics);
+    }
+  }
+
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {

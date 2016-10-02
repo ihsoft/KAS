@@ -24,8 +24,12 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     /// <param name="breakForce">Actual force that broke the joint.</param>
     void OnJointBreak(float breakForce) {
       if (host.parent != null) {
-        Debug.LogFormat("Joint {0} broken with force: {1}", this.gameObject.name, breakForce);
-        host.OnPartJointBreak(breakForce);
+        if (gameObject != host.gameObject) {
+          host.gameObject.SendMessage(
+              "OnJointBreak", breakForce, SendMessageOptions.DontRequireReceiver);
+        } else {
+          Debug.LogWarning("Owner and host of the joint break listener are the same!");
+        }
       }
     }
   }
