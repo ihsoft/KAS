@@ -86,6 +86,7 @@ public abstract class AbstractJointModule :
   protected bool isLinked { get; private set; }
   protected PartJoint stockJoint { get; private set; }
 
+  //FIXME: grab PartJoint logic
   #region Configurable joint settings used by the KSP stock joints as of KSP 1.1.3.  
   protected const float StockJointBreakingForce = 9600;
   protected const float StockJointBreakingTorque = 16000;
@@ -99,14 +100,10 @@ public abstract class AbstractJointModule :
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
-    //FIXME
-    Debug.LogWarningFormat("** CreateJoint: {0}", DumpJoint(source, target));
     DropJoint();
     linkSource = source;
     linkTarget = target;
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
-      //FIXME
-      Debug.LogWarningFormat("** DROP stock joint");
       stockJoint = part.attachJoint;
       part.attachJoint = null;
     }
@@ -116,8 +113,6 @@ public abstract class AbstractJointModule :
 
   /// <inheritdoc/>
   public virtual void DropJoint() {
-    //FIXME
-    Debug.LogWarningFormat("** DropJoint: {0}", DumpJoint(linkSource, linkTarget));
     linkSource = null;
     linkTarget = null;
     stockJoint = null;
@@ -205,8 +200,6 @@ public abstract class AbstractJointModule :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    //FIXME: make joints normal
-    Debug.LogWarningFormat("** JOINT UNPACK: joint={0}", part.attachJoint);
     // Restore joint state. Don't do it in OnStart since we need partJoint created. 
     if (!isRestored) {
       var source = part.FindModulesImplementing<ILinkSource>()
@@ -236,8 +229,6 @@ public abstract class AbstractJointModule :
 
   /// <inheritdoc/>
   public virtual void OnPartPack() {
-    //FIXME: make joints undestructable
-    Debug.LogWarning("** JOINT PACK");
     if (isLinked) {
       AdjustJoint(isUnbreakable: true);
     }

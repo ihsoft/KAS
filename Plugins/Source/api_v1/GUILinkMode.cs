@@ -11,11 +11,15 @@ namespace KASAPIv1 {
 public enum GUILinkMode {
   /// <summary>Uninitialized or no GUI mode pending.</summary>
   None = 0,
-  /// <summary>The ending part of the link will be bound to the EVA kerbonaut until the link is
-  /// completed or cancelled.</summary>
+  /// <summary>
+  /// The ending part of the link will be bound to the EVA kerbonaut until the link is completed or
+  /// cancelled.
+  /// </summary>
   Eva,
-  /// <summary>The ending part of the link will be bound to the current mouse position until the
-  /// link is completed or cancelled.</summary>
+  /// <summary>
+  /// The ending part of the link will be bound to the current mouse position until the link is
+  /// completed or cancelled.
+  /// </summary>
   Interactive,
   /// <summary>No GUI appearence is made for the linking.</summary>
   API,

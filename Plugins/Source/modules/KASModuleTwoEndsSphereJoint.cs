@@ -13,14 +13,14 @@ namespace KAS {
 //FIXME docs
 public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region Helper class to detect joint breakage
-  /// <summary>Helper class to detect sphere joint ends breakage.</summary>
-  /// <remarks>When joint breaks the source part is get decoupled from the parent.</remarks>
+  /// <summary>
+  /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
+  /// </summary>
   class BrokenJointListener : MonoBehaviour {
     /// <summary>Part to decouple on joint break.</summary>
     public Part host;
 
     /// <summary>Triggers when joint break force if exceeded.</summary>
-    /// <remarks>Overridden from <see cref="MonoBehaviour"/>.</remarks>
     /// <param name="breakForce">Actual force that broke the joint.</param>
     void OnJointBreak(float breakForce) {
       if (host.parent != null) {
