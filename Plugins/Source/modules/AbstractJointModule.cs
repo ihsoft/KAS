@@ -147,7 +147,7 @@ public abstract class AbstractJointModule :
   public virtual void DropJoint() {
     linkSource = null;
     linkTarget = null;
-    stockJoint = null;
+    DropStockJoint();
     isLinked = false;
   }
 
@@ -280,6 +280,14 @@ public abstract class AbstractJointModule :
   #endregion
 
   #region Utility methods
+  /// <summary>Destroys stock joint on the part if one exists.</summary>
+  protected void DropStockJoint() {
+    if (stockJoint != null) {
+      stockJoint.DestroyJoint();
+    }
+    stockJoint = null;
+  }
+
   /// <summary>Returns a logs friendly string description of the link.</summary>
   protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
     var srcTitle = source != null && source.part != null 

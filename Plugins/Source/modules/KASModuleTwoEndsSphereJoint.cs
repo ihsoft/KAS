@@ -182,7 +182,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     if (stockJoint != null) {
       //FIXME
       Debug.LogWarningFormat("DROP stock joint");
-      stockJoint.DestroyJoint();
+      DropStockJoint();
     } else {
       //FIXME
       Debug.LogWarningFormat("NOT DROP stock joint");
