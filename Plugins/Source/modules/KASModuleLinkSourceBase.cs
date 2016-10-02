@@ -471,14 +471,26 @@ public class KASModuleLinkSourceBase :
   /// <summary>Joins this part and the target into one vessel.</summary>
   /// <param name="target">Target link module.</param>
   protected virtual void ConnectParts(ILinkTarget target) {
+    // FIXME: store source vessel info. needs to be restored on decouple.
     // FIXME: from here move to KIS/KAS common
     GameEvents.onActiveJointNeedUpdate.Fire(part.vessel);
     GameEvents.onActiveJointNeedUpdate.Fire(target.part.vessel);
     attachNode.attachedPart = target.part;
     target.attachNode.attachedPart = part;
     part.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
-    //FIXME: store source vessel info. needs to be restored on decouple.
+    var oldVessel = vessel;
     part.Couple(target.part);
+    // Depending on how active vessel has updated do either force active or make active. Note, that
+    // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
+    // FYI: This logic was taken from ModuleDockingNode.DockToVessel.
+    if (oldVessel == FlightGlobals.ActiveVessel) {
+      FlightGlobals.ForceSetActiveVessel(vessel);
+      FlightInputHandler.SetNeutralControls();
+    } else if (vessel == FlightGlobals.ActiveVessel) {
+      vessel.MakeActive();
+      FlightInputHandler.SetNeutralControls();
+    }
+    GameEvents.onVesselWasModified.Fire(vessel);
   }
 
   /// <summary>Logically links source and target.</summary>
