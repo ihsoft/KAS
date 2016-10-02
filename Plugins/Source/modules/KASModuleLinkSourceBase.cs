@@ -240,7 +240,19 @@ public class KASModuleLinkSourceBase :
     // Disconnect from the target if linking info cannot be restored.
     if (linkState == LinkState.Linked && linkTarget == null) {
       linkState = LinkState.Available;
-      StartCoroutine(WaitAndDisconnectPart(part.parent));  // Cannot restore. Disconnect.
+      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
+      // To not interfere with the vessel initalization do decoupling at the end of the frame.
+      var oldParent = part.parent;
+      AsyncCall.CallOnEndOfFrame(this, x => {
+        // Ensure part's state hasn't been changed by the other modules.
+        if (part.parent == oldParent) {
+          Debug.LogWarningFormat(
+              "Detach part {0} from the parent since the link is invalid.", part.name);
+          part.decouple();
+        } else {
+          Debug.LogWarningFormat("Skip detaching {0} since it's already detached", part.name);
+        }
+      });
     }
   }
 
@@ -572,24 +584,6 @@ public class KASModuleLinkSourceBase :
     }
   }
   #endregion 
-
-  #region Local utility methods
-  /// <summary>Disconnects part at the end of the frame.</summary>
-  /// <remarks>It's not a normal unlinking action. Only part's connection is broken.</remarks>
-  /// <param name="oldParent">
-  /// Parent of the part at the moment of making decouple decision. A safety measure to not trigger
-  /// NRE if part got disconnected before end of frame.
-  /// </param>
-  IEnumerator WaitAndDisconnectPart(Part oldParent) {
-    yield return new WaitForEndOfFrame();
-    if (part.parent == oldParent) {
-      Debug.LogWarningFormat(
-          "Detach part {0} from the parent since the link is invalid.", part.name);
-      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
-      part.decouple();  // Link source is expected to react on decouple event.
-    }
-  }
-  #endregion
 }
 
 }  // namespace
