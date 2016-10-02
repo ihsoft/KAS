@@ -96,6 +96,7 @@
     <Compile Include="KSPDev\KSPInterfaces\IsDestroyable.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IsPackable.cs" />
     <Compile Include="KSPDev\ModelUtils\KspLayer.cs" />
+    <Compile Include="KSPDev\ProcessingUtils\AsyncCall.cs" />
     <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
