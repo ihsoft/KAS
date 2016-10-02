@@ -20,11 +20,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
   #endregion
 
-  //FIXME: use single message object
-  ScreenMessage linkingMessage;
-  ScreenMessage canLinkStatusMessage;
-  ScreenMessage cannotLinkStatusMessage;
-
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
   /// <summary>Color of pipe in the linking mode when link cannot be established.</summary>
@@ -39,6 +34,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   bool targetCandidateIsGood;
   /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
   Part lastHoveredPart;
+  /// <summary>Displayed during interactive linking.</summary>
+  ScreenMessage statusMessage;
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
@@ -81,12 +78,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     base.OnStart(state);
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
-    linkingMessage =
-        new ScreenMessage(LinkingInProgressMsg, Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
-    canLinkStatusMessage =
-        new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
-    cannotLinkStatusMessage =
-        new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
+    statusMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
   }
   #endregion
 
@@ -103,7 +95,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   protected override void StartLinkGUIMode(GUILinkMode mode) {
     base.StartLinkGUIMode(mode);
-    ScreenMessages.PostScreenMessage(linkingMessage);
     InputLockManager.SetControlLock(
         ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
     linkRenderer.shaderNameOverride = InteractiveShaderName;
@@ -117,9 +108,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     linkRenderer.shaderNameOverride = null;
     linkRenderer.colorOverride = null;
     linkRenderer.isPhysicalCollider = true;
-    ScreenMessages.RemoveMessage(linkingMessage);
-    ScreenMessages.RemoveMessage(canLinkStatusMessage);
-    ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
+    ScreenMessages.RemoveMessage(statusMessage);
     InputLockManager.RemoveControlLock(TotalControlLock);
     lastHoveredPart = null;
     base.StopLinkGUIMode();
@@ -191,10 +180,10 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
           }.Where(x => x != null).ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
-            canLinkStatusMessage.message = CanBeConnectedMsg.Format(
+            statusMessage.message = CanBeConnectedMsg.Format(
                 Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
           } else {
-            cannotLinkStatusMessage.message = ScreenMessaging.SetColorToRichText(
+            statusMessage.message = ScreenMessaging.SetColorToRichText(
                 String.Join("\n", linkStatusErrors), ScreenMessaging.ErrorColor);
           }
         }
@@ -215,23 +204,11 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
       AsyncCall.CallOnEndOfFrame(this, x => LinkToTarget(targetCandidate));
     }
 
-    // Update linking messages (they need to be refreshed to not go out by a timeout).
-    if (targetCandidateIsGood) {
-      ScreenMessages.PostScreenMessage(canLinkStatusMessage);
-      ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
-      ScreenMessages.RemoveMessage(linkingMessage);
-    } else {
-      ScreenMessages.RemoveMessage(canLinkStatusMessage);
-      if (targetCandidate != null) {
-        // There is a target but it's not good for a link. Refresh an error message.
-        ScreenMessages.PostScreenMessage(cannotLinkStatusMessage);
-        ScreenMessages.RemoveMessage(linkingMessage);
-      } else {
-        // No target is found. Show status message and hide errors if any.
-        ScreenMessages.PostScreenMessage(linkingMessage);
-        ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
-      }
+    // Update linking messages (it needs to be refreshed to not go out by timeout).
+    if (targetCandidate == null) {
+      statusMessage.message = LinkingInProgressMsg;
     }
+    ScreenMessages.PostScreenMessage(statusMessage);
   }
   #endregion
 }
