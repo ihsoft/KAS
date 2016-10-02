@@ -40,7 +40,8 @@ public class KASModuleLinkSourceBase :
     // KAS parents.
     ILinkSource, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IJointEventsListener,
+    IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   protected static Message IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
