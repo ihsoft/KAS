@@ -4,10 +4,9 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using KASAPIv1;
-using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
 using System;
-using System.Collections;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -25,7 +24,7 @@ public abstract class AbstractJointModule :
     // KAS parents.
     ILinkJoint, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
+    IPartModule, IJointEventsListener, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   protected static Message<float, float> MinLengthLimitReachedMsg =
@@ -96,6 +95,16 @@ public abstract class AbstractJointModule :
   #endregion
 
   bool isRestored;
+
+  #region IJointEventsListener implemetation
+  /// <inheritdoc/>
+  public virtual void OnJointBreak(float breakForce) {
+    Debug.LogWarningFormat("Joint {0} broken by physics with force={1}",
+                           DumpJoint(linkSource, linkTarget), breakForce);
+    DropJoint();
+    part.OnPartJointBreak(breakForce);
+  }
+  #endregion
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
