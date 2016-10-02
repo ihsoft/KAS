@@ -163,9 +163,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     Debug.LogWarning("Wait for strut joints to populate");
     yield return new WaitForFixedUpdate();
 
-    // Setup breaking forces and handlers.
-    srcJoint.gameObject.AddComponent<BrokenJointListener>().host = part;
-    trgJoint.gameObject.AddComponent<BrokenJointListener>().host = part;
+    // Setup breaking forces.
     AdjustJoint();
 
     // Promote source and target rigid bodies to independent physical objects. From now on they live
