@@ -78,12 +78,35 @@ public abstract class AbstractJointModule :
   public float maxLinkLength = 0;
   #endregion
 
-  //FIXME docs
+  #region Inheritable properties
+  /// <summary>Source of the link. It's populated in <see cref="CreateJoint"/>.</summary>
+  /// <remarks>
+  /// When loading vessel the joint is restored in the "physics" method <see cref="OnPartUnpack"/>.
+  /// Before it happen the source will be <c>null</c>.
+  /// </remarks>
   protected ILinkSource linkSource { get; private set; }
+  /// <summary>Target of the link. It's populated in <see cref="CreateJoint"/>.</summary>
+  /// <remarks>
+  /// When loading vessel the joint is restored in the "physics" method <see cref="OnPartUnpack"/>.
+  /// Before it happen the target will be <c>null</c>.
+  /// </remarks>
   protected ILinkTarget linkTarget { get; private set; }
+  /// <summary>Length at the moment of creating joint.</summary>
+  /// <remarks>Elastic joints may allow length deviation. Use thi svalue as the base.</remarks>
   protected float originalLength { get; private set; }
+  /// <summary>Tells if there is joint created.</summary>
   protected bool isLinked { get; private set; }
+  /// <summary>Joint that was created by KSP core to connect two parts.</summary>
+  /// <remarks>
+  /// Once physics starts on the KSP core creates a joint on the part, and assigns it to
+  /// <see cref="Part.attachJoint"/>. This module resets the joint to <c>null</c> to prevent KSP
+  /// logic on it but <i>does not</i> change joint component on the part. Descendants must take care
+  /// of the stock joint either by delegating relevant events to it or by destroying altogether.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html#aa5a1e018fa5b47c5723aa0879e23c647">
+  /// KSP: Part.attachJoint</seealso>
   protected PartJoint stockJoint { get; private set; }
+  #endregion
 
   //FIXME: grab PartJoint logic
   #region Configurable joint settings used by the KSP stock joints as of KSP 1.1.3.  
