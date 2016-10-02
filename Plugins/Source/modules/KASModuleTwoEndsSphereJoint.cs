@@ -113,6 +113,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   /// <param name="objName">Name of the game object for the new joint.</param>
   /// <param name="angleLimit">Degree of freedom for the joint.</param>
   /// <returns>Object that owns the joint.</returns>
+  /// FIXME: revise approach to not have two joints on one end (+strut joint)
   ConfigurableJoint CreateKinematicJointEnd(AttachNode an, string objName, float angleLimit) {
     var objJoint = new GameObject(objName);
     objJoint.AddComponent<BrokenJointListener>().host = part;

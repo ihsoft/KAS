@@ -323,6 +323,7 @@ public class KASModuleLinkSourceBase :
     if (!CheckCanLinkTo(target)) {
       return false;
     }
+    //FIXME drop method and do coupling here via KAS utils
     ConnectParts(target);
     LinkParts(target);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
@@ -335,7 +336,7 @@ public class KASModuleLinkSourceBase :
   public virtual void BreakCurrentLink(bool moveFocusOnTarget = false) {
     if (linkState != LinkState.Linked) {
       Debug.LogWarningFormat(
-          "Cannot break connection: part {0} is not connected to anything", part.name);
+          "Cannot break link: part {0} is not linked to anything", part.name);
       return;
     }
     var target = linkTarget;
@@ -392,6 +393,8 @@ public class KASModuleLinkSourceBase :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+    //FIXME
+    Debug.LogWarningFormat("** DECOUPLE");
     if (nodeName == attachNodeName && linkState == LinkState.Linked) {
       Debug.LogWarningFormat(
           "Connection between {0} (id={1}) and {2} (id={3}) has been broken externally!",
@@ -400,6 +403,7 @@ public class KASModuleLinkSourceBase :
     }
     KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
     attachNode = null;
+    //FIXME: restore source vessel info
   }
   #endregion
 
@@ -431,10 +435,6 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
-  /// <remarks>
-  /// Displays current mode via <see cref="KASModuleTubeRenderer"/> if one assigned to the part.
-  /// Mode <see cref="GUILinkMode.API"/> is not reflected in GUI.
-  /// </remarks>
   /// <param name="mode">Mode to start with.</param>
   protected virtual void StartLinkGUIMode(GUILinkMode mode) {
     guiLinkMode = mode;
@@ -444,8 +444,8 @@ public class KASModuleLinkSourceBase :
   /// <summary>Stops any pending GUI mode that displays linking process.</summary>
   /// <remarks>Does nothing if no GUI mode started.
   /// <para>
-  /// If link is created then this method is called <i>after</i> <see cref="ConnectParts"/> and
-  /// <see cref="LinkParts"/> callbacks get fired.
+  /// If link is created then this method is called <i>after</i> <see cref="LinkParts"/> callback
+  /// gets fired.
   /// </para>
   /// </remarks>
   protected virtual void StopLinkGUIMode() {
@@ -466,8 +466,6 @@ public class KASModuleLinkSourceBase :
     part.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
     //FIXME: store source vessel info. needs to be restored on decouple.
     part.Couple(target.part);
-    //FIXME
-    Debug.LogWarningFormat("Coupled {0} with {1}", part.vessel, target.part.vessel);
   }
 
   /// <summary>Separates connected parts into two different vessels.</summary>
@@ -496,6 +494,7 @@ public class KASModuleLinkSourceBase :
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
+    //FIXME do stuff from on state change
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
@@ -516,6 +515,7 @@ public class KASModuleLinkSourceBase :
     linkTarget.linkSource = null;
     linkTarget = null;
     linkState = LinkState.Available;
+    //FIXME do stuff from on state change
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
