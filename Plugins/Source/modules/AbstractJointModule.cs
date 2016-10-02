@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
+using KSPDev.ProcessingUtils;
 using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
@@ -243,10 +244,19 @@ public abstract class AbstractJointModule :
             ?? CheckAngleLimitAtTarget(source, target.nodeTransform)
             ?? CheckLengthLimit(source, target.nodeTransform);
         if (limitError != null) {
-          Debug.LogErrorFormat(
-              "Cannot restore joint {0}: {1}", DumpJoint(source, target), limitError);
-          // Cannot restore. Disconnect.
-          StartCoroutine(WaitAndDisconnectPart(limitError, part.parent));
+          ScreenMessaging.ShowErrorScreenMessage(limitError);
+          var oldParent = part.parent;
+          AsyncCall.CallOnEndOfFrame(this, x => {
+            // Ensure part's state hasn't been changed by the other modules.
+            if (part.parent == oldParent) {
+              Debug.LogWarningFormat(
+                  "Detach part {0} from the parent since joint limits are not met: {1}",
+                  part.name, limitError);
+              source.BreakCurrentLink(LinkActorType.Physics);
+            } else {
+              Debug.LogWarningFormat("Skip detaching {0} since it's already detached", part.name);
+            }
+          });
         } else {
           CreateJoint(source, target);  // Restore joint state.
         }
@@ -321,25 +331,6 @@ public abstract class AbstractJointModule :
         Mathf.Approximately(forceFromConfig, 0) ? StockJointBreakingForce : forceFromConfig;
     joint.breakTorque =
         Mathf.Approximately(torqueFromConfig, 0) ? StockJointBreakingTorque : torqueFromConfig;
-  }
-  #endregion
-
-  #region Local utility methods
-  /// <summary>Disconnects part at the end of the frame.</summary>
-  /// <remarks>It triggers external link breaking.</remarks>
-  /// <param name="reason">Error string to report on UI.</param>
-  /// <param name="oldParent">
-  /// Parent of the part at the moment of making decouple decision. A safety measure to not trigger
-  /// NRE if part got disconnected before end of frame.
-  /// </param>
-  IEnumerator WaitAndDisconnectPart(string reason, Part oldParent) {
-    yield return new WaitForEndOfFrame();
-    if (part.parent == oldParent) {
-      Debug.LogWarningFormat(
-          "Detach part {0} from the parent since the link is invalid.", part.name);
-      ScreenMessaging.ShowErrorScreenMessage(reason);
-      part.decouple();  // Link source is expected to react on decouple event.
-    }
   }
   #endregion
 }

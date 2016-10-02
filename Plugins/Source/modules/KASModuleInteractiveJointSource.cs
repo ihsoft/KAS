@@ -5,11 +5,9 @@
 
 using System;
 using System.Linq;
-using System.Text;
-using System.Collections;
 using UnityEngine;
 using KSPDev.GUIUtils;
-using KSPDev.KSPInterfaces;
+using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
 namespace KAS {
@@ -35,6 +33,12 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   const string TotalControlLock = "KASInteractiveJointUberLock";
   /// <summary>Shader that reders pipe during linking.</summary>
   const string InteractiveShaderName = "Transparent/Diffuse";  
+  /// <summary>Compativle target under mouse cursor.</summary>
+  ILinkTarget targetCandidate;
+  /// <summary>Tells if connection with teh candidate will be sucessfull.</summary>
+  bool targetCandidateIsGood;
+  /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
+  Part lastHoveredPart;
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
@@ -107,11 +111,65 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     linkRenderer.isPhysicalCollider = false;
   }
 
+  /// <inheritdoc/>
+  protected override void StopLinkGUIMode() {
+    linkRenderer.StopRenderer();
+    linkRenderer.shaderNameOverride = null;
+    linkRenderer.colorOverride = null;
+    linkRenderer.isPhysicalCollider = true;
+    ScreenMessages.RemoveMessage(linkingMessage);
+    ScreenMessages.RemoveMessage(canLinkStatusMessage);
+    ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
+    InputLockManager.RemoveControlLock(TotalControlLock);
+    lastHoveredPart = null;
+    base.StopLinkGUIMode();
 
-  bool targetCandidateIsGood;
-  ILinkTarget targetCandidate;
-  Part lastHoveredPart;
+    // Start renderer if link has been established.
+    if (linkState == LinkState.Linked) {
+      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+    }
+  }
 
+  /// <inheritdoc/>
+  protected override void OnStateChange(LinkState oldState) {
+    base.OnStateChange(oldState);
+    Events["StartLinkContextMenuAction"].active = linkState == LinkState.Available;
+    Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
+  }
+
+  /// <inheritdoc/>
+  public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
+    base.OnKASLinkCreatedEvent(info);
+    if (info.actor == LinkActorType.Player || info.actor == LinkActorType.Physics) {
+      UISoundPlayer.instance.Play(plugSndPath);
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
+    base.OnKASLinkBrokenEvent(info);
+    if (info.actor == LinkActorType.Player) {
+      UISoundPlayer.instance.Play(unplugSndPath);
+    } else if (info.actor == LinkActorType.Physics) {
+      UISoundPlayer.instance.Play(brokeSndPath);
+    }
+  }
+  #endregion
+
+  //FIXME: disallow non-eva control
+  #region Action handlers
+  [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
+  public void StartLinkContextMenuAction() {
+    StartLinking(GUILinkMode.Interactive);
+  }
+
+  [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
+  public void BreakLinkContextMenuAction() {
+    BreakCurrentLink(LinkActorType.Player);
+  }
+  #endregion
+
+  #region Local utilities
   /// <summary>Displays linking status in real time.</summary>
   void UpdateLinkingState() {
     // Catch the hovered part, a possible target on it, and the link feasibility.
@@ -154,7 +212,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     // Handle link action (mouse click).
     //FIXME: check it in right way so what all the modifiers are honored
     if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
-      StartCoroutine(WaitAndLink(targetCandidate));
+      AsyncCall.CallOnEndOfFrame(this, x => LinkToTarget(targetCandidate));
     }
 
     // Update linking messages (they need to be refreshed to not go out by a timeout).
@@ -174,79 +232,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
         ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
       }
     }
-  }
-
-  IEnumerator WaitAndLink(ILinkTarget target) {
-    Debug.LogWarning("Link requested! Waiting...");
-    yield return new WaitForEndOfFrame();
-    //FIXME
-    Debug.LogWarningFormat("** Linking to target with state: {0}", target.linkState);
-    LinkToTarget(target);
-  }
-
-  /// <inheritdoc/>
-  protected override void StopLinkGUIMode() {
-    linkRenderer.StopRenderer();
-    linkRenderer.shaderNameOverride = null;
-    linkRenderer.colorOverride = null;
-    linkRenderer.isPhysicalCollider = true;
-    ScreenMessages.RemoveMessage(linkingMessage);
-    ScreenMessages.RemoveMessage(canLinkStatusMessage);
-    ScreenMessages.RemoveMessage(cannotLinkStatusMessage);
-    InputLockManager.RemoveControlLock(TotalControlLock);
-    lastHoveredPart = null;
-    base.StopLinkGUIMode();
-
-    // Start renderer if link has been established.
-    if (linkState == LinkState.Linked) {
-      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void OnStateChange(LinkState oldState) {
-    base.OnStateChange(oldState);
-    Events["StartLinkContextMenuAction"].active = linkState == LinkState.Available;
-    Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
-    //FIXME: figure out if still needed
-    PartContextMenu.InvalidateContextMenu(part);
-  }
-
-  /// <inheritdoc/>
-  protected override void ConnectParts(ILinkTarget target) {
-    base.ConnectParts(target);
-    UISoundPlayer.instance.Play(plugSndPath);
-  }
-
-  /// <inheritdoc/>
-  protected override Vessel DisconnectTargetPart(ILinkTarget target) {
-    var res = base.DisconnectTargetPart(target);
-    if (res != null) {
-      UISoundPlayer.instance.Play(unplugSndPath);
-    }
-    return res;
-  }
-
-  /// <inheritdoc/>
-  protected override void UnlinkParts(bool isBrokenExternally = false) {
-    base.UnlinkParts(isBrokenExternally);
-    if (isBrokenExternally) {
-      UISoundPlayer.instance.Play(brokeSndPath);
-    }
-  }
-  #endregion
-
-  #region Action handlers
-  //FIXME: disallow non-eva control
-  [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
-  public void StartLinkContextMenuAction() {
-    StartLinking(GUILinkMode.Interactive);
-  }
-
-  //FIXME: disallow non-eva control
-  [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
-  public void BreakLinkContextMenuAction() {
-    BreakCurrentLink();
   }
   #endregion
 }

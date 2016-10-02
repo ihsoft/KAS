@@ -325,7 +325,10 @@ public class KASModuleLinkSourceBase :
     }
     //FIXME drop method and do coupling here via KAS utils
     ConnectParts(target);
-    LinkParts(target);
+    var actorType = guiLinkMode == GUILinkMode.Eva || guiLinkMode == GUILinkMode.Interactive
+        ? LinkActorType.Player
+        : LinkActorType.API;
+    LinkParts(target, actorType);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
     // must not be stopped before the link is created.
     StopLinkGUIMode();
@@ -333,17 +336,18 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <inheritdoc/>
-  public virtual void BreakCurrentLink(bool moveFocusOnTarget = false) {
+  public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (linkState != LinkState.Linked) {
       Debug.LogWarningFormat(
           "Cannot break link: part {0} is not linked to anything", part.name);
       return;
     }
-    var target = linkTarget;
-    UnlinkParts();
-    var targetVessel = DisconnectTargetPart(target);
+    var targetRootPart = linkTarget.part;
+    // Logical unlink must be done first before doing actual decouple.
+    UnlinkParts(actorType);
+    part.decouple();
     if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
-      FlightGlobals.ForceSetActiveVessel(targetVessel);
+      FlightGlobals.ForceSetActiveVessel(targetRootPart.vessel);
     }
   }
 
@@ -408,10 +412,9 @@ public class KASModuleLinkSourceBase :
     //FIXME
     Debug.LogWarningFormat("** DECOUPLE");
     if (nodeName == attachNodeName && linkState == LinkState.Linked) {
-      Debug.LogWarningFormat(
-          "Connection between {0} (id={1}) and {2} (id={3}) has been broken externally!",
-          part.name, part.flightID, linkTarget.part.name, linkTarget.part.flightID);
-      UnlinkParts(isBrokenExternally: true);
+      //FIXME
+      Debug.LogWarningFormat("** DECOUPLE break - API");
+      UnlinkParts(LinkActorType.API);
     }
     KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
     attachNode = null;
@@ -480,29 +483,12 @@ public class KASModuleLinkSourceBase :
     part.Couple(target.part);
   }
 
-  /// <summary>Separates connected parts into two different vessels.</summary>
-  /// <param name="target">Target to disconnect from.</param>
-  /// <returns>Vessel created from the target part or <c>null</c> if no decoupling happen.</returns>
-  /// FIXME deprecate the method, just decouple and that's it
-  protected virtual Vessel DisconnectTargetPart(ILinkTarget target) {
-    if (part.parent == target.part) {
-      //FIXME
-      Debug.LogWarning("Detach src from target");
-      part.decouple();
-      //FIXME: restore source vessel info
-    } else {
-      Debug.LogWarningFormat("Source {0} (id={1}) is not linked with target {2} (id={3})",
-                             part.name, part.flightID, target.part.name, target.part.flightID);
-      return part.vessel;
-    }
-    return target.part.vessel;
-  }
-
   /// <summary>Logically links source and target.</summary>
   /// <remarks>No actual joint or connection is created in the game.</remarks>
   /// <param name="target">Target to link with.</param>
-  protected virtual void LinkParts(ILinkTarget target) {
-    var linkInfo = new KASEvents.LinkEvent(this, target);
+  /// <param name="actorType">Initator of the link.</param>
+  protected virtual void LinkParts(ILinkTarget target, LinkActorType actorType) {
+    var linkInfo = new KASEvents.LinkEvent(this, target, actorType);
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
@@ -518,12 +504,9 @@ public class KASModuleLinkSourceBase :
   /// since it depends on a variety of factors. Such a connection may or may not exist at the
   /// moment of this method call.
   /// </remarks>
-  /// <param name="isBrokenExternally">
-  /// If <c>true</c> then link has been broken not by the source. It's usually physics engine
-  /// (e.g. breaking force exceeded case) or a parts manipulation mod (e.g. KIS).
-  /// </param>
-  protected virtual void UnlinkParts(bool isBrokenExternally = false) {
-    var linkInfo = new KASEvents.LinkEvent(this, linkTarget);
+  /// <param name="actorType">Actor who intiated the unlinking.</param>
+  protected virtual void UnlinkParts(LinkActorType actorType) {
+    var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     linkTarget.linkSource = null;
     linkTarget = null;
     linkState = LinkState.Available;
