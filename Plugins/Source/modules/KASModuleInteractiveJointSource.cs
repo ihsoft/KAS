@@ -20,6 +20,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
   #endregion
 
+  #region Local members
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
   readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
   /// <summary>Color of pipe in the linking mode when link cannot be established.</summary>
@@ -36,6 +37,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   Part lastHoveredPart;
   /// <summary>Displayed during interactive linking.</summary>
   ScreenMessage statusMessage;
+  #endregion
 
   // These fileds must not be accessed outside of the module. They are declared public only
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
@@ -145,7 +147,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   }
   #endregion
 
-  //FIXME: disallow non-eva control
+  // TODO(ihsoft): Disallow non-eva control.
   #region Action handlers
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
   public void StartLinkContextMenuAction() {
@@ -199,7 +201,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     }
 
     // Handle link action (mouse click).
-    //FIXME: check it in right way so what all the modifiers are honored
     if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
       AsyncCall.CallOnEndOfFrame(this, x => LinkToTarget(targetCandidate));
     }
