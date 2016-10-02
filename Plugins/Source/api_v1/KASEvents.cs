@@ -17,13 +17,20 @@ public static class KASEvents {
     public readonly ILinkSource source;
     /// <summary>Link target.</summary>
     public readonly ILinkTarget target;
+    /// <summary>Actor who changed the links tate.</summary>
+    public LinkActorType actor;
 
     /// <summary>Creates an event info.</summary>
     /// <param name="source">Source that initiated the link.</param>
     /// <param name="target">Target that accepted the link.</param>
-    public LinkEvent(ILinkSource source, ILinkTarget target) {
+    /// <param name="actorType">
+    /// Actor that did the change. <see cref="LinkActorType.API"/> by default.
+    /// </param>
+    public LinkEvent(ILinkSource source, ILinkTarget target,
+                     LinkActorType actorType = LinkActorType.API) {
       this.source = source;
       this.target = target;
+      this.actor = actorType;
     }
   }
 

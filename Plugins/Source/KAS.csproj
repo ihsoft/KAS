@@ -64,6 +64,7 @@
     <Compile Include="api_v1\KASAPI.cs" />
     <Compile Include="api_v1\KASEvents.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
+    <Compile Include="api_v1\LinkActorType.cs" />
     <Compile Include="api_v1\LinkState.cs" />
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
     <Compile Include="api_v1\Utils\IJointUtils.cs" />

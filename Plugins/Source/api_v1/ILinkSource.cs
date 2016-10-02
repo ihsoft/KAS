@@ -121,11 +121,15 @@ public interface ILinkSource {
 
   /// <summary>Breaks a link between source and the current target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
+  /// <param name="actorType">
+  /// Specifies what initiates the action. Final result of teh action doesn't depend on it but
+  /// visual and sound representation may differ for different actors.
+  /// </param>
   /// <param name="moveFocusOnTarget">
   /// If <c>true</c> then upon decoupling current vessel focus will be set on the vessel that owns
   /// the link's <i>target</i>. Otherwise, the focus will stay at the source part vessel.
   /// </param>
-  void BreakCurrentLink(bool moveFocusOnTarget = false);
+  void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if link between the parts can be successful.</summary>
   /// <param name="target">Target to connect with.</param>
