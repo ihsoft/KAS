@@ -26,7 +26,6 @@ class KASAddonDebugTools : MonoBehaviour {
   private KASModulePort modulePort = null;
   private KASModuleAnchor moduleAnchor = null;
   private KASModuleStrut moduleStrut = null;
-  private KASModuleRotor moduleRotor = null;
 
   //Config menu tab
   Part clickedPart;
@@ -43,7 +42,6 @@ class KASAddonDebugTools : MonoBehaviour {
     PORT = 7,
     ANCHOR = 8,
     STRUT = 9,
-    ROTOR = 10,
   }
 
   public void Update() {
@@ -68,7 +66,6 @@ class KASAddonDebugTools : MonoBehaviour {
           modulePort = null;
           moduleAnchor = null;
           moduleStrut = null;
-          moduleRotor = null;
 
           moduleWinch = clickedPart.GetComponent<KASModuleWinch>();
           moduleMagnet = clickedPart.GetComponent<KASModuleMagnet>();
@@ -76,7 +73,6 @@ class KASAddonDebugTools : MonoBehaviour {
           modulePort = clickedPart.GetComponent<KASModulePort>();
           moduleAnchor = clickedPart.GetComponent<KASModuleAnchor>();
           moduleStrut = clickedPart.GetComponent<KASModuleStrut>();
-          moduleRotor = clickedPart.GetComponent<KASModuleRotor>();
         }     
       }
     }
@@ -206,14 +202,9 @@ class KASAddonDebugTools : MonoBehaviour {
         menu = KASGuiConfigMenu.STRUT;
       }
     }
-    if (moduleRotor) {
-      if (GUILayout.Button("Rotor", guiButtonStyle)) {
-        menu = KASGuiConfigMenu.ROTOR;
-      }
-    }
 
     if (!moduleMagnet && !moduleWinch && !modulePort
-        && !moduleGrapple && !moduleAnchor && !moduleRotor) {
+        && !moduleGrapple && !moduleAnchor) {
       GUILayout.Label("No supported module found !", guiMagentaStyle);
     }
 
@@ -236,9 +227,6 @@ class KASAddonDebugTools : MonoBehaviour {
     }
     if (menu == KASGuiConfigMenu.STRUT) {
       GuiConfigStrutTab();
-    }
-    if (menu == KASGuiConfigMenu.ROTOR) {
-      GuiConfigRotorTab();
     }
           
     if (GUILayout.Button("Close", guiButtonStyle)) {
@@ -572,36 +560,6 @@ class KASAddonDebugTools : MonoBehaviour {
 
     GUILayout.Space(25);
     GUILayout.EndVertical();
-  }
-
-  private void GuiConfigRotorTab() {
-    scrollPos = GUILayout.BeginScrollView(
-        scrollPos, guiDataboxStyle, GUILayout.Width(500f), GUILayout.Height(400f));
-
-    EditField("rotor powerDrain", ref moduleRotor.powerDrain);
-    EditField("rotor breakForce", ref moduleRotor.breakForce);
-    EditField("rotor rotorTransformName", ref moduleRotor.rotorTransformName);
-    //EditField("rotor axis", ref moduleRotor.axis);
-    EditField("rotor speed", ref moduleRotor.speed);
-    EditField("rotor spring", ref moduleRotor.spring);
-    EditField("rotor damper", ref moduleRotor.damper);
-    EditField("rotor force", ref moduleRotor.force);
-    EditField("rotor rotorMass", ref moduleRotor.rotorMass);
-    EditField("rotor hasLimit", ref moduleRotor.hasLimit);
-    EditField("rotor limitMin", ref moduleRotor.limitMin);
-    EditField("rotor limitMinBounce", ref moduleRotor.limitMinBounce);
-    EditField("rotor limitMax", ref moduleRotor.limitMax);
-    EditField("rotor limitMaxBounce", ref moduleRotor.limitMaxBounce);
-    EditField("rotor stopOffset", ref moduleRotor.stopOffset);
-    EditField("rotor goToMinAngle", ref moduleRotor.goToMinAngle);
-    EditField("rotor goToMinSpeed", ref moduleRotor.goToMinSpeed);
-    EditField("rotor freeSpin", ref moduleRotor.freeSpin);
-    EditField("rotor negativeWayText", ref moduleRotor.negativeWayText);
-    EditField("rotor positiveWayText", ref moduleRotor.positiveWayText);
-    EditField("rotor limitMin", ref moduleRotor.limitMin);
-    EditField("rotor limitMin", ref moduleRotor.limitMin);
-
-    GUILayout.EndScrollView();
   }
 
   private void EditField(string label, ref bool value, int maxLenght = 10) {

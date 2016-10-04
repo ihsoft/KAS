@@ -41,8 +41,6 @@ public class KASAddonControlKey : MonoBehaviour {
     UpdateWinchMouseGrab();
     UpdateWinchKeyGrab();
     UpdateWinchCableControl();
-    UpdateRotorControl();
-    UpdateTelescopicArmControl();
     UpdateGUIControl();
   }
 
@@ -310,52 +308,6 @@ public class KASAddonControlKey : MonoBehaviour {
         if (grabbedWinchModule) {
           grabbedWinchModule.EventWinchRetract(false);
         }
-      }
-    }
-  }
-
-  private void UpdateRotorControl() {
-    //negative key pressed
-    if (rotorNegativeKey != "") {
-      if (Input.GetKeyDown(rotorNegativeKey.ToLower())) {
-        KAS_Shared.SendMsgToRotor("EventRotorNegative", true, vess: FlightGlobals.ActiveVessel);
-      }
-      if (Input.GetKeyUp(rotorNegativeKey.ToLower())) {
-        KAS_Shared.SendMsgToRotor("EventRotorNegative", false, vess: FlightGlobals.ActiveVessel);
-      }
-    }
-    //positive key pressed
-    if (rotorPositiveKey != "") {
-      if (Input.GetKeyDown(rotorPositiveKey.ToLower())) {
-        KAS_Shared.SendMsgToRotor("EventRotorPositive", true, vess: FlightGlobals.ActiveVessel);
-      }
-      if (Input.GetKeyUp(rotorPositiveKey.ToLower())) {
-        KAS_Shared.SendMsgToRotor("EventRotorPositive", false, vess: FlightGlobals.ActiveVessel);
-      }
-    }
-  }
-
-  private void UpdateTelescopicArmControl() {
-    //extend key pressed
-    if (telescopicExtendKey != "") {
-      if (Input.GetKeyDown(telescopicExtendKey.ToLower())) {
-        KAS_Shared.SendMsgToTelescopicArm(
-            "EventTelescopicExtend", true, vess: FlightGlobals.ActiveVessel);
-      }
-      if (Input.GetKeyUp(telescopicExtendKey.ToLower())) {
-        KAS_Shared.SendMsgToTelescopicArm(
-            "EventTelescopicExtend", false, vess: FlightGlobals.ActiveVessel);
-      }
-    }
-    //retract key pressed
-    if (telescopicRetractKey != "") {
-      if (Input.GetKeyDown(telescopicRetractKey.ToLower())) {
-        KAS_Shared.SendMsgToTelescopicArm(
-            "EventTelescopicRetract", true, vess: FlightGlobals.ActiveVessel);
-      }
-      if (Input.GetKeyUp(telescopicRetractKey.ToLower())) {
-        KAS_Shared.SendMsgToTelescopicArm(
-            "EventTelescopicRetract", false, vess: FlightGlobals.ActiveVessel);
       }
     }
   }

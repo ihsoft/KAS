@@ -55,9 +55,7 @@
     <Compile Include="KASAddonWinchGUI.cs" />
     <Compile Include="KASAddonDebugTools.cs" />
     <Compile Include="KASModuleHarpoon.cs" />
-    <Compile Include="KASModuleRotor.cs" />
     <Compile Include="KASModulePort.cs" />
-    <Compile Include="KASModuleTelescopicArm.cs" />
     <Compile Include="KASModuleWinch.cs" />
     <Compile Include="KASModuleAnchor.cs" />
     <Compile Include="KASModuleMagnet.cs" />
