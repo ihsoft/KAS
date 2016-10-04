@@ -39,14 +39,14 @@ public class KASModulePort : KASModuleAttachCore {
 
   public Part nodeConnectedPart {
     get {
-      AttachNode an = this.part.findAttachNode(attachNode);
+      AttachNode an = this.part.FindAttachNode(attachNode);
       if (an != null) {
         return an.attachedPart;
       }
       return null;
     }
     set {
-      AttachNode an = this.part.findAttachNode(attachNode);
+      AttachNode an = this.part.FindAttachNode(attachNode);
       if (an != null) {
         an.attachedPart = value;
       } else {

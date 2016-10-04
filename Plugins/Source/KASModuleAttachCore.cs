@@ -453,12 +453,12 @@ public class KASModuleAttachCore : PartModule {
 
   private void UndockVessel() {
     if (part.parent != null) {
-      var my_node = part.findAttachNodeByPart(part.parent);
+      var my_node = part.FindAttachNodeByPart(part.parent);
       if (my_node != null) {
         my_node.attachedPart = null;
       }
 
-      var other_node = part.parent.findAttachNodeByPart(part);
+      var other_node = part.parent.FindAttachNodeByPart(part);
       if (other_node != null) {
         other_node.attachedPart = null;
       }
