@@ -85,10 +85,11 @@ public static class Meshes {
   public static GameObject CreateCylinder(
       float diameter, float length, Material material,Transform parent,
       Colliders.PrimitiveCollider colliderType = Colliders.PrimitiveCollider.None) {
-    // Default length is 2m.
-    return CreatePrimitive(
-        PrimitiveType.Cylinder, new Vector3(diameter, diameter, length / 2), material,
-        parent: parent);
+    // Default length scale is 2.0.
+    var scale = new Vector3(diameter, diameter, length / 2);
+    var obj = CreatePrimitive(PrimitiveType.Cylinder, scale, material, parent: parent);
+    Colliders.AdjustCollider(obj, PrimitiveType.Cylinder, scale, colliderType);
+    return obj;
   }
 
   /// <summary>Creates a box.</summary>
