@@ -6,6 +6,7 @@ using System;
 
 namespace KSPDev.GUIUtils {
 
+/// <summary>Helper to format various values.</summary>
 public static class Formatter {
   /// <summary>Formats a number that has special meaning for a predefined value.</summary>
   /// <param name="number">Number to format.</param>

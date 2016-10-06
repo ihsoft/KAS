@@ -9,6 +9,31 @@ using UnityEngine;
 
 namespace KSPDev.GUIUtils {
 
+/// <summary>Helper class to play sounds in game GUI. Such sounds are not 3D aligned.</summary>
+/// <remarks>
+/// Use this player when soucre of the sound is player keyboard actions or a mouse pointer. This
+/// class implements all the boilerplate to load and play sound resources.
+/// </remarks>
+/// <example>
+/// Here is an example of playing two different sounds on pressing "O" or "P" keys.
+/// <code><![CDATA[
+/// class MyModule : PartModule {
+///   public override OnAwake() {
+///     // We don't want to loose latency on "ooo.ogg" playing.
+///     UISoundPlayer.instance.CacheSound("ooo.ogg");
+///   }
+///
+///   public override OnUpdate() {
+///     if (Input.GetKeyDown("O")) {
+///       UISoundPlayer.instance.Play("ooo.ogg");  // Played from cache. No delay.
+///     }
+///     if (Input.GetKeyDown("P")) {
+///       UISoundPlayer.instance.Play("ppp.ogg");  // May delay game while loading the resource.
+///     }
+///   }
+/// }
+/// ]]></code>
+/// </example>
 [KSPAddon(KSPAddon.Startup.EveryScene, false /*once*/)]
 public sealed class UISoundPlayer : MonoBehaviour {
   /// <summary>Returns instance for the current scene.</summary>
@@ -19,22 +44,26 @@ public sealed class UISoundPlayer : MonoBehaviour {
       new Dictionary<string, AudioSource>();
 
   /// <summary>Plays the specified sound.</summary>
-  /// <remarks>Every request is cached unless requested otherwise. Subsequent calls to the play
-  /// method won't require audio clip loading.</remarks>
-  /// <param name="soundPath"></param>
+  /// <remarks>
+  /// Every request is cached unless requested otherwise. Subsequent calls to the play method won't
+  /// require audio clip loading.
+  /// </remarks>
+  /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   /// <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
-  public void Play(string soundPath, bool dontCache = false) {
-    if (!audioCache.ContainsKey(soundPath)) {
-      LoadAndPlayAudio(soundPath, dontCache: dontCache, dontPlay: false);
+  public void Play(string audioPath, bool dontCache = false) {
+    if (!audioCache.ContainsKey(audioPath)) {
+      LoadAndPlayAudio(audioPath, dontCache: dontCache, dontPlay: false);
       return;
     }
-    audioCache[soundPath].Play();
+    audioCache[audioPath].Play();
   }
 
   /// <summary>Loads the sound into cache but doesn't play it.</summary>
-  /// <remarks>Use this method when sound is expected to frequently played in the scene. If it worth
-  /// spending a bit more time in the loading to win some latency during the play time then it
-  /// pre-caching sounds is a good idea.</remarks>
+  /// <remarks>
+  /// Use this method when sound is expected to frequently played in the scene. If it worth spending
+  /// a bit more time in the loading to win some latency during the play time then it pre-caching
+  /// sounds is a good idea.
+  /// </remarks>
   /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   public void CacheSound(string audioPath) {
     if (!audioCache.ContainsKey(audioPath)) {
@@ -43,7 +72,6 @@ public sealed class UISoundPlayer : MonoBehaviour {
   }
 
   /// <summary>Initializes <see cref="instance"/>.</summary>
-  /// <remarks>Overridden from <see cref="MonoBehaviour"/></remarks>
   void Awake() {
     instance = this;
     audioCache.Clear();
@@ -53,6 +81,7 @@ public sealed class UISoundPlayer : MonoBehaviour {
   /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   /// <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
   /// <param name="dontPlay">If <c>true</c> then audio will not be played.</param>
+  /// FIXME: refactor to return loaded/cached resource
   void LoadAndPlayAudio(string audioPath, bool dontCache, bool dontPlay) {
     if (!GameDatabase.Instance.ExistsAudioClip(audioPath)) {
       Debug.LogErrorFormat("Cannot locate audio clip: {0}", audioPath);
@@ -61,7 +90,7 @@ public sealed class UISoundPlayer : MonoBehaviour {
     Debug.LogFormat("Loading sound audio clip: {0}", audioPath);
     var audio = gameObject.AddComponent<AudioSource>();
     audio.volume = GameSettings.UI_VOLUME;
-    audio.spatialBlend = 0;  //set as 2D audiosource
+    audio.spatialBlend = 0;  // Set as 2D audiosource
     audio.clip = GameDatabase.Instance.GetAudioClip(audioPath);
     if (!dontCache) {
       audioCache[audioPath] = audio;
