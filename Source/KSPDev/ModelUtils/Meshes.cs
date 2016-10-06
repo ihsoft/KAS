@@ -107,11 +107,9 @@ public static class Meshes {
   public static GameObject CreateBox(
       float width, float height, float length, Material material, Transform parent,
       Colliders.PrimitiveCollider colliderType = Colliders.PrimitiveCollider.None) {
-    var obj = CreatePrimitive(
-        PrimitiveType.Cube, new Vector3(width, height, length), material,
-        parent: parent);
-    Colliders.AdjustCollider(
-        obj, PrimitiveType.Cube, new Vector3(width, height, length), colliderType);
+    var scale = new Vector3(width, height, length);
+    var obj = CreatePrimitive(PrimitiveType.Cube, scale, material, parent: parent);
+    Colliders.AdjustCollider(obj, PrimitiveType.Cube, scale, colliderType);
     return obj;
   }
 
@@ -128,11 +126,9 @@ public static class Meshes {
   public static GameObject CreateSphere(
       float diameter, Material material, Transform parent,
       Colliders.PrimitiveCollider colliderType = Colliders.PrimitiveCollider.None) {
-    var obj = CreatePrimitive(
-        PrimitiveType.Sphere, new Vector3(diameter, diameter, diameter), material,
-        parent: parent);
-    Colliders.AdjustCollider(
-        obj, PrimitiveType.Sphere, new Vector3(diameter, diameter, diameter), colliderType);
+    var scale =  new Vector3(diameter, diameter, diameter);
+    var obj = CreatePrimitive(PrimitiveType.Sphere, scale, material, parent: parent);
+    Colliders.AdjustCollider(obj, PrimitiveType.Sphere, scale, colliderType);
     return obj;
   }
 
