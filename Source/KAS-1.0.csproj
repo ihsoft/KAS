@@ -105,7 +105,6 @@
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
     <Compile Include="KSPDev\Extensions\Dictionaries.cs" />
     <Compile Include="KSPDev\GUIUtils\Formatter.cs" />
-    <Compile Include="KSPDev\GUIUtils\PartContextMenu.cs" />
     <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IJointEventsListener.cs" />
     <Compile Include="KSPDev\KSPInterfaces\IKSPActivateOnDecouple.cs" />
