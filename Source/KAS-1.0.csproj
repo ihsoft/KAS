@@ -14,7 +14,6 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
-    <DocumentationFile>bin\Release\KAS.xml</DocumentationFile>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
@@ -50,27 +49,27 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KSPDev_Utils">
       <HintPath>..\Binaries\KSPDev_Utils.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KSPUtil">
       <HintPath>Q:\KSP_Data\Managed\KSPUtil.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -132,4 +131,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
+IF EXIST "Q:\GameData\KAS" xcopy "$(ProjectDir)..\Binaries\KSPDev_Utils.dll" "Q:\GameData\KAS\Plugins\" /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
