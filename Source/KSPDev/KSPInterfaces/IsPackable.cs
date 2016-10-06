@@ -6,7 +6,7 @@ using System;
 
 namespace KSPDev.KSPInterfaces {
 
-/// <summary>Interface to track physics sate changes in the part's module.</summary>
+/// <summary>Interface to track physics state changes in the part's module.</summary>
 public interface IsPackable {
   /// <summary>Triggers when physics starts on the part.</summary>
   void OnPartUnpack();

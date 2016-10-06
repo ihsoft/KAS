@@ -1,13 +1,14 @@
 ﻿// Kerbal Development tools.
 // Author: igor.zavoychinskiy@gmail.com
 // This software is distributed under Public domain license.
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace KSPDev.ModelUtils {
 
+/// <summary>Various tools to deal with procedural colliders.</summary>
 public static class Colliders {
   /// <summary>Defines how collisions should be checked on a primitive.</summary>
   public enum PrimitiveCollider {
@@ -27,21 +28,27 @@ public static class Colliders {
 
   /// <summary>Drops colliders in all children objects, and adds one big collider to the parent.
   /// </summary>
-  /// <remarks>Intended to create one fast collider at the cost of precision. All the meshes in the
-  /// parent childs (including the parent) are processed to produce a boundary box. Then, this box
-  /// is applied to the requested primitive type that defines the shape of the collider.
-  /// <para>Note, that rdaius if sphere and capsule is the same in both X and Y axis. If combined
-  /// boundary box has any of the dimensions significantly different then it makes sense to choose a
-  /// different collider type. Or break down the hirearchy into more colliders.</para>
+  /// <remarks>
+  /// Intended to create one fast collider at the cost of precision. All the meshes in the parent
+  /// childs (including the parent) are processed to produce a boundary box. Then, this box is
+  /// applied to the requested primitive type that defines the shape of the collider.
+  /// <para>
+  /// Note, that rdaius if sphere and capsule is the same in both X and Y axis. If combined boundary
+  /// box has any of the dimensions significantly different then it makes sense to choose a
+  /// different collider type. Or break down the hirearchy into more colliders.
+  /// </para>
   /// </remarks>
   /// <param name="parent">Parent object.</param>
-  /// <param name="type">Type of the primitive mesh which is the best for wrapping all the meshes of
-  /// the object. Only <see cref="PrimitiveType.Cube"/>, <see cref="PrimitiveType.Capsule"/>, and
-  /// <see cref="PrimitiveType.Sphere"/> are supported.</param>
-  /// <param name="inscribeBoundaryIntoCollider">If <c>true</c> then collider will define the outer
-  /// boundaries so what all the meshes are inside the volume. Otherwise, the combined meshes box
-  /// will define the outer boundary of the collider. It only makes sense for the colliders other
-  /// than <see cref="PrimitiveType.Cube"/>.</param>
+  /// <param name="type">
+  /// Type of the primitive mesh which is the best for wrapping all the meshes of the object. Only
+  /// <see cref="PrimitiveType.Cube"/>, <see cref="PrimitiveType.Capsule"/>, and
+  /// <see cref="PrimitiveType.Sphere"/> are supported.
+  /// </param>
+  /// <param name="inscribeBoundaryIntoCollider">
+  /// If <c>true</c> then collider will define the outer boundaries so what all the meshes are
+  /// inside the volume. Otherwise, the combined meshes box will define the outer boundary of the
+  /// collider. It only makes sense for the colliders other than <see cref="PrimitiveType.Cube"/>.
+  /// </param>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">
   /// Unity 3D: GameObject</seealso>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/PrimitiveType.html">
@@ -89,11 +96,14 @@ public static class Colliders {
   /// <summary>Sets the specified values to colliders of all the objects in the part's model.
   /// </summary>
   /// <param name="parent">Game object to start searching for renderers from.</param>
-  /// <param name="isPhysical">If <c>true</c> then collider will trigger physical effects. If
-  /// <c>false</c> then it will only trigger collision events. When it's <c>null</c> the collider
-  /// setting won't be changed.</param>
-  /// <param name="isEnabled">Defines if colliders should be enabled or disabled. When it's
-  /// <c>null</c> the collider setting won't be changed.</param>
+  /// <param name="isPhysical">
+  /// If <c>true</c> then collider will trigger physical effects. If <c>false</c> then it will only
+  /// trigger collision events. When it's <c>null</c> the collider setting won't be changed.
+  /// </param>
+  /// <param name="isEnabled">
+  /// Defines if colliders should be enabled or disabled. When it's <c>null</c> the collider setting
+  /// won't be changed.
+  /// </param>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">Unity3D: Collider
   /// </seealso>
   public static void UpdateColliders(GameObject parent,
@@ -108,12 +118,22 @@ public static class Colliders {
     }
   }
 
-  //FIXME: docs
+  /// <summary>Adds or adjusts a primitive collider on the mesh.</summary>
+  /// <remarks>
+  /// Type of the primitive collider is chosen basing on the primitive type.
+  /// </remarks>
+  /// <param name="primitive">Primitive game object to adjust.</param>
+  /// <param name="type">
+  /// Type of the primitive. It will determine the type of the collider.
+  /// FIXME: make it optional and rename. Only used for Shape
+  /// </param>
+  /// <param name="meshSize">Size of the collider in local units.</param>
+  /// <param name="colliderType">Determines how a collider type should be selected.</param>
   public static void AdjustCollider(
       GameObject primitive, PrimitiveType type, Vector3 meshSize, PrimitiveCollider colliderType) {
     UnityEngine.Object.Destroy(primitive.GetComponent<Collider>());
     if (colliderType == PrimitiveCollider.Mesh) {
-      var collider =   primitive.AddComponent<MeshCollider>();
+      var collider = primitive.AddComponent<MeshCollider>();
       collider.convex = true;
     } else if (colliderType == PrimitiveCollider.Shape) {
       // FIXME: non tirival scales does't fit simple colliders. Fix it.

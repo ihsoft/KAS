@@ -3,7 +3,8 @@
 namespace KSPDev.ModelUtils {
 
 /// <summary>Flags for the collision layers in KSP.</summary>
-/// <remarks>It's not a full set of the layers. More investigation is needed to reveal all of them.
+/// <remarks>
+/// It's not a full set of the layers. More investigation is needed to reveal all of them.
 /// </remarks>
 [Flags]
 public enum KspLayerMask {
@@ -13,15 +14,16 @@ public enum KspLayerMask {
   PARTS = 1 << 0,
   
   /// <summary>Layer to set bounds of a celestial body.</summary>
-  /// <remarks>A very rough boundary of a planet, moon or asteroid. Used for macro objects
-  /// detection.</remarks>
+  /// <remarks>
+  /// A very rough boundary of a planet, moon or asteroid. Used for macro objects detection.
+  /// </remarks>
   SERVICE_LAYER = 1 << 10, 
 
   /// <summary>"Zero" level of a static structure on the surface.</summary>
   /// <remarks>E.g. a launchpad.</remarks>
   SURFACE = 1 << 15,
 
-  /// <summary>Layer of kerbal models.</summary>
+  /// <summary>Layer of kerbonaut models.</summary>
   KERBALS = 1 << 17,
 
   /// <summary>A layer for FX.</summary>
