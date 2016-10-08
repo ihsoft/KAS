@@ -1,6 +1,7 @@
 ﻿// Kerbal Development tools.
 // Author: igor.zavoychinskiy@gmail.com
 // This software is distributed under Public domain license.
+
 using System;
 using System.Collections.Generic;
 using KSPDev.Extensions;
