@@ -32,14 +32,13 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   }
 
   public void Start(T startState) {
-    if (!isStarted) {
-      isStarted = true;
-      _currentState = startState;
-      if (OnDebugStateChange != null) {
-        OnDebugStateChange(_currentState, _currentState);
-      }
-      FireEnterState();
+    CheckIsNotStarted();
+    isStarted = true;
+    _currentState = startState;
+    if (OnDebugStateChange != null) {
+      OnDebugStateChange(_currentState, _currentState);
     }
+    FireEnterState();
   }
 
   public void Stop() {
@@ -53,15 +52,18 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   }
 
   public void SetTransitionConstraint(T fromState, T[] toStates) {
+    CheckIsNotStarted();
     transitionContstraints.Remove(fromState);
     transitionContstraints.Add(fromState, toStates);
   }
 
   public void ResetTransitionConstraint(T fromState) {
+    CheckIsNotStarted();
     transitionContstraints.Remove(fromState);
   }
 
   public void ForceSetState(T newState) {
+    CheckIsStarted();
     if (OnDebugStateChange != null) {
       OnDebugStateChange(_currentState, newState);
     }
@@ -74,6 +76,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
 
   public void AddStateHandlers(
       T state, OnChange enterHandler = null, OnChange leaveHandler = null) {
+    CheckIsNotStarted();
     if (enterHandler != null) {
       enterHandlers.SetDefault(state).Add(enterHandler);
     }
@@ -88,6 +91,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   /// <param name="enterHandler">Enter state handler to delete.</param>
   /// <param name="leaveHandler">Leave state handler to delete.</param>
   public void RemoveHandlers(T state, OnChange enterHandler = null, OnChange leaveHandler = null) {
+    CheckIsNotStarted();
     if (enterHandler != null && enterHandlers.ContainsKey(state)) {
       enterHandlers[state].Remove(enterHandler);
     }
@@ -105,11 +109,21 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
         || transitionContstraints[_currentState].IndexOf(newState) != -1;
   }
 
-  void SetState(T newState) {
+  #region Local utility methods
+  void CheckIsStarted() {
     if (!isStarted) {
-      throw new InvalidOperationException(string.Format(
-          "State machine is not started. Transition to state {0} is impossible", newState));
+      throw new InvalidOperationException("Not allowed in STOPPED state");
     }
+  }
+
+  void CheckIsNotStarted() {
+    if (!isStarted) {
+      throw new InvalidOperationException("Not allowed in STARTED state");
+    }
+  }
+
+  void SetState(T newState) {
+    CheckIsStarted();
     if (!_currentState.Equals(newState)) {
       if (!CheckCanSwitchTo(newState)) {
         throw new InvalidOperationException(string.Format(
