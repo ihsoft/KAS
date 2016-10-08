@@ -22,6 +22,8 @@ namespace KSPDev.KSPInterfaces {
 /// ]]></code>
 /// </example>
 /// </remarks>
+/// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
+/// KSP: IActivateOnDecouple</seealso>
 public interface IKSPActivateOnDecouple {
   /// <summary>Called when two parts decouple.</summary>
   /// <remarks>
