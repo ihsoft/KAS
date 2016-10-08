@@ -23,8 +23,8 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   public delegate void OnDebugChange(T fromState, T toState);
   public OnDebugChange OnDebugStateChange;
 
-  Dictionary<T, List<OnChange>> enterHandlers = new Dictionary<T, List<OnChange>>();
-  Dictionary<T, List<OnChange>> leaveHandlers = new Dictionary<T, List<OnChange>>();
+  Dictionary<T, HashSet<OnChange>> enterHandlers = new Dictionary<T, HashSet<OnChange>>();
+  Dictionary<T, HashSet<OnChange>> leaveHandlers = new Dictionary<T, HashSet<OnChange>>();
   Dictionary<T, T[]> transitionContstraints = new Dictionary<T, T[]>();
 
   public SimpleStateMachine(bool strict) {
@@ -72,28 +72,6 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
     FireEnterState();
   }
 
-  //FIXME: drop
-  public void AddEnterHandler(T state, OnChange handler) {
-    enterHandlers.SetDefault(state).Add(handler);
-  }
-
-  //FIXME: drop
-  public void AddLeaveHandler(T state, OnChange handler) {
-    leaveHandlers.SetDefault(state).Add(handler);
-  }
-
-  public void RemoveEnterHandler(T state, OnChange handler) {
-    if (enterHandlers.ContainsKey(state)) {
-      enterHandlers[state].Remove(handler);
-    }
-  }
-
-  public void RemoveLeaveHandler(T state, OnChange handler) {
-    if (leaveHandlers.ContainsKey(state)) {
-      leaveHandlers[state].Remove(handler);
-    }
-  }
-
   public void AddStateHandlers(
       T state, OnChange enterHandler = null, OnChange leaveHandler = null) {
     if (enterHandler != null) {
@@ -101,6 +79,20 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
     }
     if (leaveHandler != null) {
       leaveHandlers.SetDefault(state).Add(leaveHandler);
+    }
+  }
+
+  /// <summary>Removes enter state change event handler.</summary>
+  /// <remarks>It's safe to call it for non-existing handler.</remarks>
+  /// <param name="state">State to delete handler for.</param>
+  /// <param name="enterHandler">Enter state handler to delete.</param>
+  /// <param name="leaveHandler">Leave state handler to delete.</param>
+  public void RemoveHandlers(T state, OnChange enterHandler = null, OnChange leaveHandler = null) {
+    if (enterHandler != null && enterHandlers.ContainsKey(state)) {
+      enterHandlers[state].Remove(enterHandler);
+    }
+    if (leaveHandler != null && leaveHandlers.ContainsKey(state)) {
+      leaveHandlers[state].Remove(leaveHandler);
     }
   }
 
@@ -139,7 +131,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
     }
   }
 
-  void FireEvents(List<OnChange> events, T trigerringEvent) {
+  void FireEvents(HashSet<OnChange> events, T trigerringEvent) {
     foreach (var @event in events) {
       @event.Invoke(trigerringEvent);
     }
