@@ -16,76 +16,96 @@ namespace KSPDev.KSPInterfaces {
 /// Some methods of the module interface look familiar to the ones from Unity but they are not
 /// behaving in the same way in every scene. Moreover, not all methods get called in every scene.
 /// </para>
-/// <para>
-/// In the <see cref="GameScenes.LOADING">loading scene</see> the callbacks are executed in the
-/// following order:
-/// </para>
+/// <para>In the <i>loading scene</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
-/// <see cref="OnAwake"/>. Notifies about creating new module. If it's a clone operation then all
-/// <see cref="KSPField">[KSPField]</see> annotated fields have values from the part's config.
-/// Otherwise, all the fields are in the initial states.
+/// <term><see cref="OnAwake"/></term>
+/// <description>
+/// Notifies about creating new module. If it's a clone operation then all <see cref="KSPField"/>
+/// annotated fields have values from the part's config. Otherwise, all the fields are in the
+/// initial states.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnLoad"/>. The provided config node is the original configuration from the part's
-/// definition. All the annotated fields are populated before this method gets control.
+/// <term><see cref="OnLoad"/></term>
+/// <description>
+/// The provided config node is the original configuration from the part's definition. All the
+/// annotated fields are populated before this method gets control.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnStart"/> is <b>not called</b> since the parts being created are prefabs and icon
-/// models. They are not real parts that behave on a vessel.
+/// <term><see cref="OnStart"/></term>
+/// <description>
+/// Is <b>not called</b> since the parts being created are prefabs and icon models. They are not
+/// real parts that behave on a vessel.
+/// </description>
 /// </item>
 /// </list>
 /// <para>In the <i>editor</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
-/// <see cref="OnAwake"/>. Notifies about creating new module. If it's a clone operation then all
-/// <see cref="KSPField">[KSPField]</see> annotated fields have values from the part's config.
-/// Otherwise, all the fields are in the initial states.
+/// <term><see cref="OnAwake"/></term>
+/// <description>
+/// Notifies about creating new module. If it's a clone operation then all <see cref="KSPField"/>
+/// annotated fields have values from the part's config. Otherwise, all the fields are in the
+/// initial states.
 /// <para>
 /// New parts in the editor are created via the clone operation. I.e. each time a part is dragged
 /// from the toolbar it's get cloned from the prefab.
 /// </para>
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnLoad"/>. Is <b>not called</b> for the new parts since they are clonned. When a
-/// saved vessel is loaded in the editor every part on the vessel gets this method called
-/// with the values from the save file. The annotated fields are populated from the file
-/// <i>before</i> this method gets control, so it's safe to use them.
+/// <term><see cref="OnLoad"/></term>
+/// <description>Is <b>not called</b> for the new parts since they are clonned. When a saved vessel
+/// is loaded in the editor every part on the vessel gets this method called with the values from
+/// the save file. The annotated fields are populated from the file <i>before</i> this method gets
+/// control, so it's safe to use them.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnInitialize"/>. Hard to say what it means for the edtior, but imnportant difference
-/// from the flight scenes is that this method is called <i>before</i> <c>Start()</c>.
+/// <term><see cref="OnInitialize"/></term>
+/// <description>Hard to say what it means for the edtior, but important difference from the flight
+/// scenes is that this method is called <i>before</i> &nbsp; <see cref="OnStart"/>.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnStart"/>. The code must check if the current scene is editor, and do the behavior
-/// changes as needed. In the editor parts must not have active behavior.
+/// <term><see cref="OnStart"/></term>
+/// <description>The code must check if the current scene is editor, and do the behavior changes as
+/// needed. In the editor parts must not have active behavior.
+/// </description>
 /// </item>
 /// </list>
 /// <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
-/// <see cref="OnAwake"/>. Notifies about creating new module. All
-/// <see cref="KSPField">[KSPField]</see> annotated fields have initial values.
+/// <term><see cref="OnAwake"/></term>
+/// <description>Notifies about creating new module. All <see cref="KSPField"/> annotated fields
+/// have initial values.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnLoad"/>. The provided config node is the config from the save file. The annotated
-/// fields are populated from the file <i>before</i> this method gets control, so it's safe to use
-/// them.
+/// <term><see cref="OnLoad"/></term>
+/// <description>The provided config node is the config from the save file. The annotated fields are
+/// populated from the file <i>before</i> this method gets control, so it's safe to use them.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnStart"/>. This method is called when all parts in the vessel are created and
-/// loaded. The code must check if the current scene is flight, and do the behavior changes as
-/// needed.
+/// <term><see cref="OnStart"/></term>
+/// <description>This method is called when all parts in the vessel are created andloaded. The code
+/// must check if the current scene is flight, and do the behavior changes as needed.
+/// </description>
 /// </item>
 /// <item>
-/// <see cref="OnInitialize"/>. Indicates that part should start handling physics if any. It may be
-/// called multiple times during the part's life. First time it's called when vessel is completely
-/// loaded in the secene, and all parts are started. Other calls may happen when game returns from a
-/// physics suspend state (e.g. from warp mode back to x1 time speed).
+/// <term><see cref="OnInitialize"/></term>
+/// <description>Indicates that part should start handling physics if any. It may becalled multiple
+/// times during the part's life. First time it's called when vessel is completely loaded in the
+/// secene, and all parts are started. Other calls may happen when game returns from a physics
+/// suspend state (e.g. from warp mode back to x1 time speed).
 /// <para>
-/// Code must check if editor scene is loaded since this method is called differently in the
-/// editor.
+/// Code must check if editor scene is loaded since this method is called differently in theeditor.
 /// </para>
+/// </description>
 /// </item>
 /// </list>
 /// </remarks>
@@ -100,6 +120,8 @@ namespace KSPDev.KSPInterfaces {
 /// </example>
 /// <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">
 /// KSP: PartModule</seealso>
+/// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+/// KSP: KSPField</seealso>
 public interface IPartModule {
   /// <summary>Initializes a new instance of the module on the part.</summary>
   /// <remarks>
@@ -127,7 +149,7 @@ public interface IPartModule {
   /// </remarks>
   /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
   /// <param name="state">State that specifies the situation of the vessel.</param>
-  /// <seealso cref="https://kerbalspaceprogram.com/api/class_part_module.html#ac6597127392e002b92f7427cf50244d3">
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html#ac6597127392e002b92f7427cf50244d3">
   /// KSP: PartModule.StartState</seealso>
   void OnStart(PartModule.StartState state);
 
