@@ -8,7 +8,112 @@ using KSPDev.Extensions;
 
 namespace KSPDev.ProcessingUtils {
 
-//FIXME docs
+/// <summary>
+/// Simple state machine that allows tracking state and checking basic conditions.
+/// </summary>
+/// <remarks>
+/// If module has more that two modes (which can be controlled by a simple boolean) in makes sense
+/// to define each mode as a state, and intorduce a definite state transition diagram. Once it's
+/// done most of the mode changes logic can be mvoed in state transition callbacks. Such approach
+/// significantly simplifies the code and makes it less error prone.
+/// </remarks>
+/// <typeparam name="T">
+/// Enum to use as state constants. Note, that state machine won't consider any value of the enum as
+/// a valid state. Valid states must be defined via <see cref="SetTransitionConstraint"/>.
+/// </typeparam>
+/// <example>
+/// Here is an example of a module with three states with the following logic:
+/// <list type="bullet">
+/// <item>State <c>One</c> can be transitioned into both <c>Two</c> and <c>Three</c>.</item>
+/// <item>States <c>Two</c> and <c>Three</c> can only return back to <c>One</c>.</item>
+/// <item>In states <c>Two</c> and <c>Three</c> different menu options are available.</item>
+/// <item>In state <c>One</c> no menu options are available.</item>
+/// </list>
+/// <code><![CDATA[
+/// class MyModule : PartModule {
+///   enum MyState {
+///     One, Two, Three
+///   }
+///
+///   [KSPField(isPersistant = true)]
+///   public MyState persistedState = MyState.One;  // ALWAYS provide a default value!
+///
+///   SimpleStateMachine<MyState> linkStateMachine;
+///
+///   [KSPEvent(guiName = "State: TWO")]
+///   public void StateTwoMenuAction() {
+///     Debug.LogInfo("StateTwoMenuAction()");
+///   }
+///
+///   [KSPEvent(guiName = "State: THREE")]
+///   public void StateThreeMenuAction() {
+///     Debug.LogInfo("StateThreeMenuAction()");
+///   }
+///
+///   public override OnAwake() {
+///     linkStateMachine = new SimpleStateMachine<MyState>(true /* strict */);
+///     linkStateMachine.SetTransitionConstraint(
+///         MyState.One,
+///         new[] {MyState.Two, MyState.Three});
+///     linkStateMachine.SetTransitionConstraint(
+///         MyState.Two,
+///         new[] {MyState.One});
+///     linkStateMachine.SetTransitionConstraint(
+///         MyState.Three,
+///         new[] {MyState.One});
+///     linkStateMachine.AddStateHandlers(
+///         MyState.One,
+///         enterHandler: x => {
+///           Events["StateTwoMenuAction"].active = false;
+///           Events["StateThreeMenuAction"].active = false;
+///         });
+///     linkStateMachine.AddStateHandlers(
+///         MyState.Two,
+///         enterHandler: x => {
+///           Events["StateTwoMenuAction"].active = true;
+///           Events["StateThreeMenuAction"].active = false;
+///         });
+///     linkStateMachine.AddStateHandlers(
+///         MyState.Three,
+///         enterHandler: x => {
+///           Events["StateTwoMenuAction"].active = false;
+///           Events["StateThreeMenuAction"].active = true;
+///         });
+///   }
+///
+///   public override void OnStart(PartModule.StartState state) {
+///     linkStateMachine.Start(persistedState);  // Restore state from the save file.
+///   }
+///
+///   void OnDestory() {
+///     // Usually, this isn't needed. But if code needs to do a cleanup job it makes sense to wrap
+///     // it into a handler, and stop the machine in Unity destructor.
+///     linkStateMachine.Stop();
+///   }
+///
+///   public override OnUpdate() {
+///     if (Input.GetKeyDown("1")) {
+///       // This transition will always succceed. 
+///       stateMachine.currentState = MyState.One;
+///     }
+///     if (Input.GetKeyDown("2")) {
+///       // This transition will only succceed if current state is MyState.One. 
+///       stateMachine.currentState = MyState.Two;
+///     }
+///     if (Input.GetKeyDown("3")) {
+///       // This transition will only succceed if current state is MyState.One. 
+///       stateMachine.currentState = MyState.Three;
+///     }
+///   }
+/// }
+/// ]]></code>
+/// <para>
+/// The same logic could be achivied in a different way. Instead of enabling/disabling all the menu
+/// items in every "enter" handler the code could define "leave" handlers that would disable the
+/// related menu item. This way every state handler would control own menu item without interacting
+/// with any existing or future items.
+/// </para>
+/// </example>
 public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   /// <summary>Current state of the machine.</summary>
   /// <remarks>

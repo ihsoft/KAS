@@ -89,7 +89,17 @@ namespace KSPDev.KSPInterfaces {
 /// </item>
 /// </list>
 /// </remarks>
-// FIXME: verify each scenario for the correctness.
+/// <example>
+/// <code><![CDATA[
+/// public class MyModule : PartModule, IPartModule {
+///   /// <inheritdoc/>
+///   public override void OnAwake() {
+///   }
+/// }
+/// ]]></code>
+/// </example>
+/// <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">
+/// KSP: PartModule</seealso>
 public interface IPartModule {
   /// <summary>Initializes a new instance of the module on the part.</summary>
   /// <remarks>
@@ -106,6 +116,8 @@ public interface IPartModule {
   /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
   /// </remarks>
   /// <param name="node">Either the part's config node or a configuration from a save file.</param>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_config_node.html">
+  /// KSP: ConfigNode</seealso>
   void OnLoad(ConfigNode node);
 
   /// <summary>Initializes module's state after all other modules have been created.</summary>
@@ -115,6 +127,8 @@ public interface IPartModule {
   /// </remarks>
   /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
   /// <param name="state">State that specifies the situation of the vessel.</param>
+  /// <seealso cref="https://kerbalspaceprogram.com/api/class_part_module.html#ac6597127392e002b92f7427cf50244d3">
+  /// KSP: PartModule.StartState</seealso>
   void OnStart(PartModule.StartState state);
 
   /// <summary>
@@ -130,6 +144,8 @@ public interface IPartModule {
   /// piece of code will be called for every part that implements the module. Too many parts with
   /// such modules may significantly drop FPS.
   /// </remarks>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html">
+  /// Unity 3D: Update</seealso>
   void OnUpdate();
 
   /// <summary>Notifies about a physics frame update.</summary>
@@ -140,6 +156,8 @@ public interface IPartModule {
   /// degrade.
   /// <para>In general, don't even override this callback unless it's absolutely required.</para>
   /// </remarks>
+  /// <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">
+  /// Unity 3D: FixedUpdate</seealso>
   void OnFixedUpdate();
 
   //FIXME doc

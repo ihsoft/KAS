@@ -11,6 +11,7 @@ namespace KSPDev.KSPInterfaces {
 /// Inherit from <see cref="IActivateOnDecouple"/> to be able reacting on parts decoupling.
 /// <see cref="IKSPDevModuleInfo"/> is a full equivalent except it's documented.
 /// Inheriting modules from both interfaces gives better code documentation.
+/// </remarks>
 /// <example>
 /// <code><![CDATA[
 /// public class MyModule : PartModule, IActivateOnDecouple, IKSPActivateOnDecouple {
@@ -21,7 +22,6 @@ namespace KSPDev.KSPInterfaces {
 /// }
 /// ]]></code>
 /// </example>
-/// </remarks>
 /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
 /// KSP: IActivateOnDecouple</seealso>
 public interface IKSPActivateOnDecouple {

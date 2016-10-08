@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Kerbal Development tools.
+// Author: igor.zavoychinskiy@gmail.com
+// This software is distributed under Public domain license.
+
+using System;
 
 namespace KSPDev.ModelUtils {
 

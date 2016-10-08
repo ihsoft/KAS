@@ -11,6 +11,7 @@ namespace KSPDev.KSPInterfaces {
 /// Inherit from <see cref="IModuleInfo"/> to be able customizing module descriptions for the
 /// editor. <see cref="IKSPDevModuleInfo"/> is a full equivalent except it's documented. Inheriting
 /// modules from both interfaces gives better code documentation.
+/// </remarks>
 /// <example>
 /// <code><![CDATA[
 /// public class MyModule : PartModule, IPartModule, IModuleInfo, IKSPDevModuleInfo {
@@ -21,7 +22,6 @@ namespace KSPDev.KSPInterfaces {
 /// }
 /// ]]></code>
 /// </example>
-/// </remarks>
 public interface IKSPDevModuleInfo {
   /// <summary>Returns description for the editor part's browser.</summary>
   /// <remarks>
