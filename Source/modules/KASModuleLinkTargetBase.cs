@@ -35,7 +35,7 @@ public class KASModuleLinkTargetBase :
 
   #region ILinkTarget config properties implementation
   /// <inheritdoc/>
-  public string cfgLinkType { get { return type; } }
+  public string cfgLinkType { get { return linkType; } }
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   #endregion
@@ -96,7 +96,7 @@ public class KASModuleLinkTargetBase :
   // for the non-internal consumers.
   #region Part's config fields
   [KSPField]
-  public string type = "";
+  public string linkType = "";
   [KSPField]
   public string attachNodeName = "";
   [KSPField]

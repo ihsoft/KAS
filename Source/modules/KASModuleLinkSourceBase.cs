@@ -55,7 +55,7 @@ public class KASModuleLinkSourceBase :
 
   #region ILinkSource config properties implementation
   /// <inheritdoc/>
-  public string cfgLinkType { get { return type; } }
+  public string cfgLinkType { get { return linkType; } }
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   /// <inheritdoc/>
@@ -109,7 +109,7 @@ public class KASModuleLinkSourceBase :
   // for the non-internal consumers.
   #region Part's config fields
   [KSPField]
-  public string type = "";
+  public string linkType = "";
   [KSPField]
   public string linkRendererName = "";
   [KSPField]
@@ -273,7 +273,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.Append(LinksWithSocketTypeInfo.Format(type));
+    sb.Append(LinksWithSocketTypeInfo.Format(linkType));
     return sb.ToString();
   }
 
