@@ -114,6 +114,10 @@ namespace KSPDev.ProcessingUtils {
 /// with any existing or future items.
 /// </para>
 /// </example>
+/// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+/// KSP: KSPField</seealso>
+/// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_event.html">
+/// KSP: KSPEvent</seealso>
 public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   /// <summary>Current state of the machine.</summary>
   /// <remarks>

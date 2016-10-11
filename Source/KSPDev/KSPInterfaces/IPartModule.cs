@@ -137,13 +137,15 @@ public interface IPartModule {
 
   /// <summary>Notifies that the part's config is loaded.</summary>
   /// <remarks>
-  /// All the fields annotated by <see cref="KSPField">[KSPField]</see> are already loaded at this
-  /// moment. Use the node from this method to handle special values that are not supported by KSP.
+  /// All the fields annotated by <see cref="KSPField"/> are already loaded at this moment. Use the
+  /// node from this method to handle special values that are not supported by KSP.
   /// <para>See more details on the calling sequence in <see cref="IPartModule"/>.</para>
   /// </remarks>
   /// <param name="node">Either the part's config node or a configuration from a save file.</param>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_config_node.html">
   /// KSP: ConfigNode</seealso>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   void OnLoad(ConfigNode node);
 
   /// <summary>Initializes module's state after all other modules have been created.</summary>
@@ -186,8 +188,21 @@ public interface IPartModule {
   /// Unity 3D: FixedUpdate</seealso>
   void OnFixedUpdate();
 
-  //FIXME doc
-  // FIXME: check if saving to the file is the only scenario.
+  /// <summary>Notifies about saving module state.</summary>
+  /// <remarks>
+  /// This isn't required to be saving into a real file. This method is a generic way to save module
+  /// state when it's needed. Note, that saving <c>null</c> is usually a problem for KSP, so always
+  /// give default non-null values to every persisted field.
+  /// <para>
+  /// Persistent fields annotated woth <see cref="KSPField"/> are saved before this callback is
+  /// called. Only save values that need special handling. 
+  /// </para>
+  /// </remarks>
+  /// <param name="node">Config node to save data into.</param>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_config_node.html">
+  /// KSP: ConfigNode</seealso>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   void OnSave(ConfigNode node);
 }
 

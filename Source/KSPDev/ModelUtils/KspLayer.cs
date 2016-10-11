@@ -12,6 +12,7 @@ namespace KSPDev.ModelUtils {
 /// </remarks>
 [Flags]
 public enum KspLayerMask {
+  /// <summary>Just a default value that doesn't match any layer.</summary>
   NONE = 0,
   
   /// <summary>Layer for a regular part.</summary>

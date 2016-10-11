@@ -12,11 +12,25 @@ using KASAPIv1;
 
 namespace KAS {
 
-// FIXME: docs
+/// <summary>Module that allows connecting parts by mouse via GUI.</summary>
+/// <remarks>
+/// When player starts linking mode he must either complete it by clicking on a compatible target
+/// part or abort the mode altogether.
+/// <para>
+/// EVA kerbal movement is locked when linking mode is active, so both source and target parts
+/// must be in the range from the kerbal.
+/// </para>
+/// </remarks>
 public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
 
   #region Localizable strings
+  /// <summary>
+  /// Message to display when a compatible target part is hevred over.
+  /// </summary>
   static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  /// <summary>
+  /// Message to dsiplay as a help string when interactive linking mode is started.
+  /// </summary>
   static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
   #endregion
 
@@ -39,21 +53,74 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   ScreenMessage statusMessage;
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
+  #region Event names. Keep them in sync with the event names!
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
+  /// <seealso cref="StartLinkContextMenuAction"/>
   const string StartLinkMenuActionName = "StartLinkContextMenuAction";  
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
+  /// <seealso cref="BreakLinkContextMenuAction"/>
   const string BreakLinkMenuActionName = "BreakLinkContextMenuAction";
+  #endregion
+
   #region Part's config fields
+  /// <summary>Config setting. Audio sample to play when parts are docked by the player.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string plugSndPath = "KAS/Sounds/plugdocked";
+  /// <summary>Config setting. Audio sample to play when parts are undocked by the player.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string unplugSndPath = "KAS/Sounds/unplugdocked";
+  /// <summary>Config setting. Audio sample to play when parts are undocked by physics.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string brokeSndPath = "KAS/Sounds/broke";
+  /// <summary>Config setting. Name of the menu item to start linking mode.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string startLinkMenu = "Start a link";
+  /// <summary>Config setting. Name of the menu item to break currently established link.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string breakLinkMenu = "Break the link";
   #endregion
@@ -151,11 +218,15 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
 
   // TODO(ihsoft): Disallow non-eva control.
   #region Action handlers
+  /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
+  /// <seealso cref="StartLinkMenuActionName"/>
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
   public void StartLinkContextMenuAction() {
     StartLinking(GUILinkMode.Interactive);
   }
 
+  /// <summary>Event handler. Breaks current link between source and target.</summary>
+  /// <seealso cref="BreakLinkMenuActionName"/>
   [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink(LinkActorType.Player);

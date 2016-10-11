@@ -44,12 +44,19 @@ public class KASModuleLinkSourceBase :
     IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
+  /// <summary>Message to display when target link type doesn't match source type.</summary>
   protected static Message IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
+  /// <summary>Message to display when target belongs to the same vessel as source.</summary>
   protected static Message CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
+  /// <summary>Message to display when source refuses to start the link.</summary>
   protected static Message SourceIsNotAvailableForLinkMsg = "Source is not available for link";
+  /// <summary>Message to display when target refuses to accept the link.</summary>
   protected static Message TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
+  /// <summary>Message to display when linked source and target cannot be matched on laod.</summary>
   protected static Message<string> CannotRestoreLinkMsg = "Cannot restore link for: {0}";
+  /// <summary>Info string in the editor for link type setting.</summary>
   protected static Message<string> LinksWithSocketTypeInfo = "Links with socket type: {0}";
+  /// <summary>Title of the module to present in the editor details window.</summary>
   protected static Message ModuleTitleInfo = "KAS Joint Source";
   #endregion
 
@@ -94,28 +101,80 @@ public class KASModuleLinkSourceBase :
   public GUILinkMode guiLinkMode { get; private set; }
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Persistent fields
+  /// <summary>Persistent config field. Source link state in the last save action.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Part's config fields
+  /// <summary>Config setting. See <see cref="cfgLinkType"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string linkType = "";
+  /// <summary>Config setting. See <see cref="cfgLinkRendererName"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string linkRendererName = "";
+  /// <summary>Config setting. See <see cref="cfgAttachNodeName"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string attachNodeName = "";
+  /// <summary>Config setting. Defines attach node position in the local units.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
+  /// <summary>Config setting. Defines attach node orientation in the local units.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
   #endregion

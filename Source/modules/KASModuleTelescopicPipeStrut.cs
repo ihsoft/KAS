@@ -13,50 +13,197 @@ using KSPDev.GUIUtils;
 namespace KAS {
 
 /// <summary>
-/// Module that keeps all pieces of the link in the model. I.e. it's a physical representation of
+/// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
 public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   #region Localizable GUI strings
+  /// <summary>
+  /// Message to display when link cannot be created due to an obstacle in the way. 
+  /// </summary>
   protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+  /// <summary>
+  /// Message to display when link strut orientation cannot be changed due to it would hit the
+  /// surface.
+  /// </summary>
   protected static Message LinkCollidesWithSurfaceMsg = "Link collides with surface";
   #endregion
 
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Persistent fields
+  /// <summary>Persistent config field. Orientation of the unlinked strut.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public Vector3 parkedOrientation = Vector3.zero;
+  /// <summary>Persistent config field. Extended length of the unlinked strut.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public float parkedLength = 0;  // If 0 then minimum link length will be used.
   #endregion
 
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Part's config fields
+  /// <summary>Config setting. Number of pistons in the link.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public int pistonsCount = 3;
+  /// <summary>Config setting. Diameter of the outer piston.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float outerPistonDiameter = 0.15f;
+  /// <summary>Config setting. Length of a single piston.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float pistonLength = 0.2f;
+  /// <summary>
+  /// Config setting. Thickness of pisont's wall. Diameter of a nested piston is less than parent's
+  /// diameter by 2x of this value.  
+  /// </summary>
+  /// <remarks>
+  /// E.g. if parent's diameter was <c>0.4m</c> and wall thickness is <c>0.01m</c> then nested
+  /// piston's diameter will be: <c>0.4 - 2*0.01 = 0.4 - 0.02 = 0.38m</c>.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float pistonWallThickness = 0.01f;
+  /// <summary>Config setting. Texture to cover pistons with.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string pistonTexturePath = "";
+  /// <summary>
+  /// Config setting. Minimum allowed overlap of the pistons in the extended state.
+  /// </summary>
+  /// <remarks>
+  /// Used to determine minimum and maximum length of the link in terms of visual representation.
+  /// Note, that renderer doesn't deal with joint limits. Length limits are only applied to the
+  /// meshes used for the link representation.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float pistonMinShift = 0.02f;
+  /// <summary>
+  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
+  /// </summary>
+  /// <remarks>
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  /// <seealso cref="ExtractOrientationVector"/>
+  /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu0 = "";
+  /// <summary>
+  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
+  /// </summary>
+  /// <remarks>
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  /// <seealso cref="ExtractOrientationVector"/>
+  /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu1 = "";
+  /// <summary>
+  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
+  /// </summary>
+  /// <remarks>
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  /// <seealso cref="ExtractOrientationVector"/>
+  /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu2 = "";
+  /// <summary>Config setting. Name of the renderer for this procedural part.</summary>
+  /// <remarks>
+  /// This setting is used to let link source know primary renderer for the linked state.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
   [KSPField]
   public string rendererName = "";
   #endregion
@@ -109,12 +256,22 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
   #endregion
 
-  // These constants must be in sync with action handler method names.
-  #region Event names
+  #region Event names. Keep them in sync with the event names!
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
+  /// <seealso cref="ParkedOrientationMenuAction0"/>
+  /// <seealso cref="parkedOrientationMenu0"/>
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
+  /// <seealso cref="ParkedOrientationMenuAction1"/>
+  /// <seealso cref="parkedOrientationMenu1"/>
   protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
+  /// <seealso cref="ParkedOrientationMenuAction2"/>
+  /// <seealso cref="parkedOrientationMenu2"/>
   protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
   protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
+  /// <summary>Name of the relevant event. It must match name of the method.</summary>
   protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
   #endregion
 
@@ -247,7 +404,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   //FIXME: hide or make part of interface
   public Transform targetTransform {
     get { return _targetTransform; }
-    set {
+    private set {
       _targetTransform = value;
       UpdateLinkLengthAndOrientation();
     }
@@ -256,6 +413,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   // FIXME: check colliders.
   #region GUI menu action handlers
+  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
+  /// <seealso cref="MenuAction0Name"/>
+  /// <seealso cref="parkedOrientationMenu0"/>
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction0() {
@@ -263,6 +423,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     UpdateLinkLengthAndOrientation();
   }
 
+  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
+  /// <seealso cref="MenuAction1Name"/>
+  /// <seealso cref="parkedOrientationMenu1"/>
   [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction1() {
@@ -270,6 +433,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     UpdateLinkLengthAndOrientation();
   }
 
+  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
+  /// <seealso cref="MenuAction2Name"/>
+  /// <seealso cref="parkedOrientationMenu2"/>
   [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ParkedOrientationMenuAction2() {
@@ -277,6 +443,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     UpdateLinkLengthAndOrientation();
   }
 
+  /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
+  /// <seealso cref="maxLinkLength"/>
   [KSPEvent(guiName = "Extend to max", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void ExtendAtMaxMenuAction() {
@@ -284,6 +452,8 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     UpdateLinkLengthAndOrientation();
   }
 
+  /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
+  /// <seealso cref="minLinkLength"/>
   [KSPEvent(guiName = "Retract to min", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
   public void RetractToMinMenuAction() {

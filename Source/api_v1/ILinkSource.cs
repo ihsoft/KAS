@@ -26,12 +26,25 @@ public interface ILinkSource {
   string cfgLinkType { get; }
   
   /// <summary>Name of the attach node to connect with.</summary>
-  /// <remarks>Name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any
-  /// string.</remarks>
+  /// <remarks>
+  /// Node with such name must not exist in the part config. It will be created right before
+  /// establishing a link, and will be destroyed after the link is broken.
+  /// <para>
+  /// Name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any string. In
+  /// fact, it's best to not use standard names to avoid possible conflicts if part config is
+  /// upgraded.
+  /// </para>
+  /// <para>It's up to the implementation to decide what attach node to create.</para>
+  /// </remarks>
+  /// <seealso cref="nodeTransform"/>
   string cfgAttachNodeName { get; }
 
   /// <summary>Name of the renderer that draws link in linked state.</summary>
-  /// <remarks>Source will notify this renderer about linking state change.</remarks>
+  /// <remarks>
+  /// Source will use this renderer to represent linked state. It's expected there is a
+  /// <see cref="ILinkRenderer"/> module defined on the part with the matching name. Behavior is
+  /// undefined if no such renderer exists on the part.
+  /// </remarks>
   string cfgLinkRendererName { get; }
 
   /// <summary>Attach node used for linking with the target part.</summary>

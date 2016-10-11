@@ -14,11 +14,12 @@ using UnityEngine;
 
 namespace KAS {
 
-//FIXME docs
-// Callbacks:
-// In-flight load: RestoreJoint => AdjustJoint
-// In-flight new: CreateJoint => X * (AdjustJoint(false) => AdjustJoint(true)) on time warp.
-// In-flight drop: DropJoint
+/// <summary>Module that controls joint on a KAS part.</summary>
+/// <remarks>
+/// This module reacts on KAS initated events to created/remove a physical joint between soucre and
+/// target. This module only deals with joining two parts together. It does not deal with
+/// collider(s) or rigid body masses (see <see cref="ILinkRenderer"/>).
+/// </remarks>
 public abstract class AbstractJointModule :
     // KSP parents.
     PartModule, IModuleInfo,
@@ -28,28 +29,41 @@ public abstract class AbstractJointModule :
     IPartModule, IJointEventsListener, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
+  /// <summary>Message to display when link cannot be established because it's too short.</summary>
   protected static Message<float, float> MinLengthLimitReachedMsg =
       "Link is too short: {0:F2}m < {1:F2}m";
+  /// <summary>Message to display when link cannot be established because it's too long.</summary>
   protected static Message<float, float> MaxLengthLimitReachedMsg =
       "Link is too long: {0:F2}m > {1:F2}m";
+  /// <summary>
+  /// Message to display when link cannot be established because maximum angle between link vector
+  /// and the joint normal at the source part is to big.
+  /// </summary>
   protected static Message<float, int> SourceNodeAngleLimitReachedMsg =
       "Source angle limit reached: {0:F0}deg > {1}deg";
+  /// <summary>
+  /// Message to display when link cannot be established because maximum angle between link vector
+  /// and the joint normal at the target part is to big.
+  /// </summary>
   protected static Message<float, int> TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0}deg > {1}deg";
+  /// <summary>Info string in the editor for link break force setting.</summary>
   protected static Message<float> LinkLinearStrengthInfo = "Link break force: {0:F1}N";
+  /// <summary>Info string in the editor for link break torque setting.</summary>
   protected static Message<float> LinkBreakStrengthInfo = "Link torque force: {0:F1}N";
+  /// <summary>Info string in the editor for minimum link length setting.</summary>
   protected static Message<float> MinimumLinkLengthInfo = "Minimum link length: {0:F1}m";
+  /// <summary>Info string in the editor for maximum link length setting.</summary>
   protected static Message<float> MaximumLinkLengthInfo = "Maximum link length: {0:F1}m";
+  /// <summary>Info string in the editor for maximum allowed angle at the source.</summary>
   protected static Message<float> SourceJointFreedomInfo = "Source angle limit: {0}deg";
+  /// <summary>Info string in the editor for maximum allowed angle at the target.</summary>
   protected static Message<float> TargetJointFreedomInfo = "Target angle limit: {0}deg";
+  /// <summary>Title of the module to present in the editor details window.</summary>
   protected static Message ModuleTitle = "KAS Joint";
   #endregion
 
   #region ILinkJoint CFG properties
-  /// <inheritdoc/>
-  public float cfgMinLinkLength { get { return minLinkLength; } }
-  /// <inheritdoc/>
-  public float cfgMaxLinkLength { get { return maxLinkLength; } }
   /// <inheritdoc/>
   public float cfgLinkBreakForce { get { return linkBreakForce; } }
   /// <inheritdoc/>
@@ -58,23 +72,83 @@ public abstract class AbstractJointModule :
   public int cfgSourceLinkAngleLimit { get { return sourceLinkAngleLimit; } }
   /// <inheritdoc/>
   public int cfgTargetLinkAngleLimit { get { return targetLinkAngleLimit; } }
+  /// <inheritdoc/>
+  public float cfgMinLinkLength { get { return minLinkLength; } }
+  /// <inheritdoc/>
+  public float cfgMaxLinkLength { get { return maxLinkLength; } }
   #endregion
 
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Part's config fields
+  /// <summary>Config setting. See <see cref="cfgLinkBreakForce"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float linkBreakForce = 0;
+  /// <summary>Config setting. See <see cref="cfgLinkBreakTorque"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float linkBreakTorque = 0;
+  /// <summary>Config setting. See <see cref="cfgSourceLinkAngleLimit"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
+  /// <summary>Config setting. See <see cref="cfgTargetLinkAngleLimit"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public int targetLinkAngleLimit = 0;
+  /// <summary>Config setting. See <see cref="cfgMinLinkLength"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float minLinkLength = 0;
+  /// <summary>Config setting. See <see cref="cfgMaxLinkLength"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float maxLinkLength = 0;
   #endregion
@@ -110,12 +184,19 @@ public abstract class AbstractJointModule :
   #endregion
 
   //FIXME: grab PartJoint logic
-  #region Configurable joint settings used by the KSP stock joints as of KSP 1.1.3.  
+  #region Configurable joint settings used by the KSP stock joints for small stach nodes as of KSP 1.1.3.
+  /// <summary>Default breaking force.</summary>  
   protected const float StockJointBreakingForce = 9600;
+  /// <summary>Default breaking torque.</summary>  
   protected const float StockJointBreakingTorque = 16000;
+  /// <summary>Default swing and twist angular limit.</summary>
   protected const float StockJointAngleLimit = 177;
+  /// <summary>Default limit for X movement (stretch).</summary>
   protected const float StockJointLinearLimit = 1;
+  /// <summary>Default strength of a linear spring.</summary>
   protected const float StockJointSpring = 30000;
+  /// <summary>Default damping strength of the linear spring.</summary>
+  protected const float StockJointSpringDamper = 0;
   #endregion
 
   bool isRestored;

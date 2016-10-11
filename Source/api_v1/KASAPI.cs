@@ -18,7 +18,7 @@ using System;
 // Name of the namespace denotes the API version.
 namespace KASAPIv1 {
 
-//FIXME give docs
+/// <summary>KAS API, version 1.</summary>
 public static class KASAPI {
   /// <summary>Tells if API V1 was loaded and ready to use.</summary>
   public static bool isLoaded;

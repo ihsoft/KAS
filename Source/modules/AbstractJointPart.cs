@@ -10,26 +10,66 @@ using KSPDev.ModelUtils;
 
 namespace KAS {
 
-// FIXME: docs
+/// <summary>Base module for a procedural part that simulates a flexible joint.</summary>
+/// <remarks>
+/// Use <see cref="CreateStrutJointModel"/> to create joint ends, then orient them so what they look
+/// connected at the pivot axile (<see cref="PivotAxileObjName"/>).
+/// </remarks>
 public abstract class AbstractJointPart : AbstractProceduralModel {
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
-  //FIXME drop atatch node fields, move to descendats, and rename
+  //FIXME drop attach node fields, move to descendats, and rename
   #region Part's config fields
+  /// <summary>Config setting. Texture to use for procedural joint model meshes.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string jointTexturePath = "";
+  /// <summary>
+  /// Config setting. Position of the root transform of the procedural joint model.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
+  /// <summary>
+  /// Config setting. Orientation of the root transform of the procedural joint model.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
   #endregion
 
   /// <summary>Returns transform of the actual joint model.</summary>
-  /// <remarks>It's not just a position anchor. It's a transform of the real object that represents
-  /// the joint model. Its rotation will be adjusted when establishing/updating the link.</remarks>
-  /// FIXME: dones't seem we use it. DROP!
+  /// <remarks>
+  /// It's not just a position anchor. It's a transform of the game object that represents the joint
+  /// root model. Its rotation will be adjusted when establishing/updating the link.
+  /// <para>
+  /// This transform is usually located at <see cref="attachNodePosition"/> and oriented as
+  /// <see cref="attachNodeOrientation"/>, but it's not the same transform as the attach node one
+  /// (due to it can be changed).
+  /// </para>
+  /// </remarks>
   public abstract Transform sourceTransform { get; set; }
 
   /// <summary>
