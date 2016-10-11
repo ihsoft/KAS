@@ -36,13 +36,13 @@ public abstract class AbstractJointModule :
       "Source angle limit reached: {0:F0}deg > {1}deg";
   protected static Message<float, int> TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0}deg > {1}deg";
+  protected static Message<float> LinkLinearStrengthInfo = "Link break force: {0:F1}N";
+  protected static Message<float> LinkBreakStrengthInfo = "Link torque force: {0:F1}N";
+  protected static Message<float> MinimumLinkLengthInfo = "Minimum link length: {0:F1}m";
+  protected static Message<float> MaximumLinkLengthInfo = "Maximum link length: {0:F1}m";
+  protected static Message<float> SourceJointFreedomInfo = "Source angle limit: {0}deg";
+  protected static Message<float> TargetJointFreedomInfo = "Target angle limit: {0}deg";
   protected static Message ModuleTitle = "KAS Joint";
-  protected static Message<float> InfoLinkLinearStrength = "Link break force: {0:F1}N";
-  protected static Message<float> InfoLinkBreakStrength = "Link torque force: {0:F1}N";
-  protected static Message<float> InfoMinimumLinkLength = "Minimum link length: {0:F1}m";
-  protected static Message<float> InfoMaximumLinkLength = "Maximum link length: {0:F1}m";
-  protected static Message<float> InfoSourceJointFreedom = "Source angle limit: {0}deg";
-  protected static Message<float> InfoTargetJointFreedom = "Target angle limit: {0}deg";
   #endregion
 
   #region ILinkJoint CFG properties
@@ -190,19 +190,19 @@ public abstract class AbstractJointModule :
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     if (linkBreakForce > 0) {
-      sb.AppendLine(InfoLinkLinearStrength.Format(linkBreakForce));
+      sb.AppendLine(LinkLinearStrengthInfo.Format(linkBreakForce));
     }
     if (linkBreakTorque > 0) {
-      sb.AppendLine(InfoLinkBreakStrength.Format(linkBreakTorque));
+      sb.AppendLine(LinkBreakStrengthInfo.Format(linkBreakTorque));
     }
     if (minLinkLength > 0) {
-      sb.AppendLine(InfoMinimumLinkLength.Format(minLinkLength));
+      sb.AppendLine(MinimumLinkLengthInfo.Format(minLinkLength));
     }
     if (maxLinkLength > 0) {
-      sb.AppendLine(InfoMaximumLinkLength.Format(maxLinkLength));
+      sb.AppendLine(MaximumLinkLengthInfo.Format(maxLinkLength));
     }
-    sb.AppendLine(InfoSourceJointFreedom.Format(sourceLinkAngleLimit));
-    sb.AppendLine(InfoTargetJointFreedom.Format(targetLinkAngleLimit));
+    sb.AppendLine(SourceJointFreedomInfo.Format(sourceLinkAngleLimit));
+    sb.AppendLine(TargetJointFreedomInfo.Format(targetLinkAngleLimit));
     return sb.ToString();
   }
 
