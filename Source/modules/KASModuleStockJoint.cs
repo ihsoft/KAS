@@ -4,10 +4,7 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 using System;
 using System.Linq;
-using System.Collections;
-using System.Text;
 using UnityEngine;
-using KASAPIv1;
 
 namespace KAS {
 
