@@ -189,12 +189,6 @@ public interface IPartModule {
   //FIXME doc
   // FIXME: check if saving to the file is the only scenario.
   void OnSave(ConfigNode node);
-
-  //FIXME doc
-  void OnActive();
-
-  //FIXME doc
-  void OnInactive();
 }
 
 }  // namespace
