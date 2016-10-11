@@ -8,27 +8,6 @@ using UnityEngine;
 
 namespace KASAPIv1 {
 
-/// <summary>Defines how link collisions should be checked.</summary>
-public enum LinkCollider {
-  /// <summary>No collisions check.</summary>
-  None,
-  /// <summary>Check collisions basing on the mesh. It's performance expensive.</summary>
-  /// <seealso href="https://docs.unity3d.com/ScriptReference/MeshCollider.html">
-  /// Unity3D: MeshCollider</seealso>
-  Mesh,
-  /// <summary>Simple collider which fits the primitive type. It's performance optimized.</summary>
-  /// <seealso href="https://docs.unity3d.com/ScriptReference/PrimitiveType.html">
-  /// Unity3D: PrimitiveType</seealso>
-  Shape,
-  /// <summary>Simple collider which wraps all mesh vertexes. It's performance optimized.</summary>
-  Bounds,
-  /// <summary>Create a simple capsule collider which is performance optimized.</summary>
-  /// <seealso href="https://docs.unity3d.com/ScriptReference/CapsuleCollider.html">
-  /// Unity3D: CapsuleCollider</seealso>
-  //FIXME: drop
-  Capsule
-}
-
 public interface ILinkRenderer {
   /// <summary>Renderer name from the config.</summary>
   string cfgRendererName { get; }
