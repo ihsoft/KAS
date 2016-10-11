@@ -8,7 +8,12 @@ using UnityEngine;
 
 namespace KASAPIv1 {
 
-//FIXME: docs and samples
+/// <summary>Base interface for a KAS joint.</summary>
+/// <remarks>
+/// Every KAS part <b>must</b> have a joint module that controls how KAS joints are maintained. If
+/// part doesn't implement any special joint logic then <see cref="KAS.KASModuleStockJoint"/> can be
+/// used.
+/// </remarks>
 public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
   /// <remarks>If <c>0</c> then no limit for minimum value is applied.</remarks>

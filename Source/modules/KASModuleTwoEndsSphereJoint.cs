@@ -47,8 +47,10 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #endregion
 
   /// <summary>Name of the source joint game object.</summary>
-  /// <remarks>This object is connected to the target counter part either by a joint (stretch link)
-  /// or as a parent (in case of rigid link).</remarks>
+  /// <remarks>
+  /// This object is connected to the target counter part either by a joint (stretch link) or as a
+  /// parent (in case of rigid link).
+  /// </remarks>
   const string SrcJointName = "KASJointSrc";
   /// <summary>Name of the target joint game object.</summary>
   /// <remarks>This object is connected to the source counter part either by a joint or as a
@@ -56,15 +58,19 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   const string TargetJointName = "KASJointTrg";
 
   /// <summary>Source sphere joint.</summary>
-  /// <remarks>It doesn't allow linear movements but does allow rotation around any axis. Rotation
-  /// can be limited via a configuration parameter <see cref="sourceLinkAngleLimit"/>. The joint is
-  /// unbreakable by the linear force but can be broken by torque when angle limit is exhausted.
+  /// <remarks>
+  /// It doesn't allow linear movements but does allow rotation around any axis. Rotation can be
+  /// limited via a configuration parameter
+  /// <see cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>. The joint is unbreakable by the
+  /// linear force but can be broken by torque when angle limit is exhausted.
   /// </remarks>
   ConfigurableJoint srcJoint;
   /// <summary>Target sphere joint.</summary>
-  /// <remarks>It doesn't allow linear movements but does allow rotation around any axis. Rotation
-  /// can be limited via a configuration parameter <see cref="targetLinkAngleLimit"/>. The joint is
-  /// unbreakable by the linear force but can be broken by torque when angle limit is exhausted.
+  /// <remarks>
+  /// It doesn't allow linear movements but does allow rotation around any axis. Rotation can be
+  /// limited via a configuration parameter
+  /// <see cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>. The joint is unbreakable by the
+  /// linear force but can be broken by torque when angle limit is exhausted.
   /// </remarks>
   ConfigurableJoint trgJoint;
   //FIXME
@@ -110,8 +116,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
 
   #region Private utility methods
   /// <summary>Creates a game object joined with the attach node.</summary>
-  /// <remarks>The created object has kinematic rigidbody and its transform is parented to the
-  /// node. This object must be promoted to physical once PhysX received the configuration.
+  /// <remarks>
+  /// The created object has kinematic rigidbody and its transform is parented to the node. This
+  /// object must be promoted to physical once PhysX received the configuration.
   /// </remarks>
   /// <param name="an">Node to attach a new spheric joint to.</param>
   /// <param name="objName">Name of the game object for the new joint.</param>
@@ -133,10 +140,12 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   }
 
   /// <summary>Waits for the next fixed update and connects the joint ends.</summary>
-  /// <remarks>Waiting is required to have the spherical joints info sent to the PhysX engine. This
-  /// must happen when both ends are at their "kinematic" positions to let engine capture the
-  /// initial angles. Once it's done it's time to rotate the ends so what they look at each other,
-  /// and attach them with a fixed or prismatic joint.</remarks>
+  /// <remarks>
+  /// Waiting is required to have the spherical joints info sent to the PhysX engine. This must
+  /// happen when both ends are at their "kinematic" positions to let engine capture the initial
+  /// angles. Once it's done it's time to rotate the ends so what they look at each other, and
+  /// attach them with a fixed or prismatic joint.
+  /// </remarks>
   /// <returns><c>null</c> when it's time to terminate.</returns>
   /// FIXME don't create prismatic joint when spring is infinite
   /// FIXME when spring is set init prismatic joitn from the zero length

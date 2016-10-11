@@ -8,7 +8,7 @@ using System;
 // Name of the namespace denotes the API version.
 namespace KASAPIv1 {
 
-//FIXME: give doc with samples
+/// <summary>Various tools to deal with KAS links.</summary>
 public interface ILinkUtils {
   /// <summary>Finds linked target given the link source.</summary>
   /// <remarks>

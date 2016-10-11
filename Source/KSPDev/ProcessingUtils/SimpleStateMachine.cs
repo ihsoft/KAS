@@ -9,7 +9,7 @@ using KSPDev.Extensions;
 namespace KSPDev.ProcessingUtils {
 
 /// <summary>
-/// Simple state machine that allows tracking state and checking basic conditions.
+/// Simple state machine that allows tracking states and checking basic conditions.
 /// </summary>
 /// <remarks>
 /// If module has more that two modes (which can be controlled by a simple boolean) in makes sense
@@ -202,8 +202,9 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
 
   /// <summary>Defines source state and, optionally, allowed trasitions.</summary>
   /// <remarks>
-  /// State machine figures out full of the allowed states from transitions. Even if transition mode
-  /// is not strict all the states must be defined via a tarnsition (as a source or target).
+  /// State machine figures out full set the allowed states from the transitions. Even if transition
+  /// mode is not strict all the states must be defined via tarnsitions (eitehr as a source or a
+  /// target).
   /// <para>In strict mode it's required that every transition is declared excplicitly.</para>
   /// <para>If called multiple times then only last call's setup will be stored.</para>
   /// <para>State machine must be in stopped state. Otherwise, an exception will thrown.</para>

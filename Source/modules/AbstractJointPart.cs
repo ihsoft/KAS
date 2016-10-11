@@ -68,7 +68,7 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   /// axile tansfrom. Otherwise, the axile transfrom will be an emopty object. Only one lever in the
   /// connection should have axile model.</param>
   /// <returns>Newly created joint lever model. In order to be visible and accessible on the part
-  /// the models must be attached to <see cref="partModelTransform"/>.</returns>
+  /// the model must be attached to the part's model transform.</returns>
   protected Transform CreateStrutJointModel(string transformName, bool createAxile = true) {
     var material = CreateMaterial(GetTexture(jointTexturePath));
     var jointTransform = new GameObject(transformName).transform;

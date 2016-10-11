@@ -9,7 +9,7 @@ using UnityEngine;
 // Name of the namespace denotes the API version.
 namespace KASAPIv1 {
 
-//FIXME: give doc with samples
+/// <summary>Various methods to deal with part's attach nodes.</summary>
 public interface IAttachNodesUtils {
   /// <summary>Returns attach node by name.</summary>
   /// <remarks>
@@ -50,7 +50,7 @@ public interface IAttachNodesUtils {
   /// Though, it's an unexpected situation, so a warning record will be logged.
   /// <para>
   /// The node will have the following properties:
-  /// <list>
+  /// <list type="bullet">
   /// <item>Size is "small".</item>
   /// <item>Attach method is <c>FIXED_JOINT</c>.</item>
   /// <item>Node type is <c>Stack</c>.</item>

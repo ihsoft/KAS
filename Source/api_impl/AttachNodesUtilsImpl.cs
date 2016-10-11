@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace KASImpl {
 
+/// <summary>Implements KASAPIv1.IAttachNodesUtils.</summary>
 class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   /// <inheritdoc/>
   public AttachNode GetAttachNode(Part part, string attachNodeName) {

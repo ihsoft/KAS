@@ -16,6 +16,7 @@ namespace KSPDev.KSPInterfaces {
 /// Some methods of the module interface look familiar to the ones from Unity but they are not
 /// behaving in the same way in every scene. Moreover, not all methods get called in every scene.
 /// </para>
+///
 /// <para>In the <i>loading scene</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
@@ -41,6 +42,7 @@ namespace KSPDev.KSPInterfaces {
 /// </description>
 /// </item>
 /// </list>
+///
 /// <para>In the <i>editor</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
@@ -66,7 +68,7 @@ namespace KSPDev.KSPInterfaces {
 /// <item>
 /// <term><see cref="OnInitialize"/></term>
 /// <description>Hard to say what it means for the edtior, but important difference from the flight
-/// scenes is that this method is called <i>before</i> &nbsp; <see cref="OnStart"/>.
+/// scenes is that this method is called before <see cref="OnStart"/>.
 /// </description>
 /// </item>
 /// <item>
@@ -76,6 +78,7 @@ namespace KSPDev.KSPInterfaces {
 /// </description>
 /// </item>
 /// </list>
+///
 /// <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
 /// <list type="table">
 /// <item>
@@ -92,22 +95,23 @@ namespace KSPDev.KSPInterfaces {
 /// </item>
 /// <item>
 /// <term><see cref="OnStart"/></term>
-/// <description>This method is called when all parts in the vessel are created andloaded. The code
+/// <description>This method is called when all parts in the vessel are created and loaded. The code
 /// must check if the current scene is flight, and do the behavior changes as needed.
 /// </description>
 /// </item>
 /// <item>
 /// <term><see cref="OnInitialize"/></term>
-/// <description>Indicates that part should start handling physics if any. It may becalled multiple
+/// <description>Indicates that part should start handling physics if any. It may be called multiple
 /// times during the part's life. First time it's called when vessel is completely loaded in the
-/// secene, and all parts are started. Other calls may happen when game returns from a physics
-/// suspend state (e.g. from warp mode back to x1 time speed).
+/// secene and all parts are started. Other calls may happen when game returns from a physics
+/// suspended state (e.g. from a warp mode back to x1 time speed).
 /// <para>
-/// Code must check if editor scene is loaded since this method is called differently in theeditor.
+/// Code must check if editor scene is loaded since this method is called differently in the editor.
 /// </para>
 /// </description>
 /// </item>
 /// </list>
+///
 /// </remarks>
 /// <example>
 /// <code><![CDATA[
