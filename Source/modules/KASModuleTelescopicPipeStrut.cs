@@ -83,7 +83,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     }
   }
   string _shaderNameOverride;
-  //FIXME change to isColliderEnabled.
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
@@ -91,7 +90,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
       _isPhysicalCollider = value;
       //FIXME
       Debug.LogWarningFormat("Setting collider mode to {0}", value);
-      //Colliders.UpdateColliders(srcPartJoint.gameObject, isPhysical: value);
       Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
     }
   }
