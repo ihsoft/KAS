@@ -43,6 +43,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   // because KSP won't work otherwise. Ancenstors and external callers must access values via
   // interface properties. If property is not there then it means it's *intentionally* restricted
   // for the non-internal consumers.
+  const string StartLinkMenuActionName = "StartLinkContextMenuAction";  
+  const string BreakLinkMenuActionName = "BreakLinkContextMenuAction";
   #region Part's config fields
   [KSPField]
   public string plugSndPath = "KAS/Sounds/plugdocked";
@@ -60,10 +62,10 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    Events["StartLinkContextMenuAction"].guiName = startLinkMenu;
-    Events["BreakLinkContextMenuAction"].guiName = breakLinkMenu;
+    Events[StartLinkMenuActionName].guiName = startLinkMenu;
+    Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
   }
-  
+
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
@@ -124,8 +126,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState oldState) {
     base.OnStateChange(oldState);
-    Events["StartLinkContextMenuAction"].active = linkState == LinkState.Available;
-    Events["BreakLinkContextMenuAction"].active = linkState == LinkState.Linked;
+    Events[StartLinkMenuActionName].active = linkState == LinkState.Available;
+    Events[BreakLinkMenuActionName].active = linkState == LinkState.Linked;
   }
 
   /// <inheritdoc/>
