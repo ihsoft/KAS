@@ -28,6 +28,41 @@ public abstract class AbstractJointModule :
     // Syntax sugar parents.
     IPartModule, IJointEventsListener, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
+  #region Helper class to save joint state
+  /// <summary>
+  /// Container class to store joint state when changing from breakable&lt;=&gt;unbreakable state.
+  /// </summary>
+  /// <remarks>
+  /// Field names match the related names in <see cref="ConfigurableJoint"/>. Not all settings are
+  /// saved. If caller needs more settings saved then it must extend this class, and save relevant
+  /// settings prior to call to any changing method.
+  /// </remarks>
+  /// <seealso href="https://docs.unity3d.com/356/Documentation/ScriptReference/ConfigurableJoint.html">
+  /// Unity 3D: ConfigurableJoint</seealso>
+  /// <seealso cref="SetupUnbreakableJoint"></seealso>
+  /// <seealso cref="RestoreJointState"></seealso>
+  protected class JointState {
+    /// <exlcude/>
+    public ConfigurableJointMotion angularXMotion;
+    /// <exlcude/>
+    public ConfigurableJointMotion angularYMotion;
+    /// <exlcude/>
+    public ConfigurableJointMotion angularZMotion;
+    /// <exlcude/>
+    public ConfigurableJointMotion xMotion;
+    /// <exlcude/>
+    public ConfigurableJointMotion yMotion;
+    /// <exlcude/>
+    public ConfigurableJointMotion zMotion;
+    /// <exlcude/>
+    public float breakForce;
+    /// <exlcude/>
+    public float breakTorque;
+    /// <exlcude/>
+    public bool enablePreprocessing;
+  }
+  #endregion
+  
   #region Localizable GUI strings
   /// <summary>Message to display when link cannot be established because it's too short.</summary>
   protected static Message<float, float> MinLengthLimitReachedMsg =
@@ -173,7 +208,7 @@ public abstract class AbstractJointModule :
   protected bool isLinked { get; private set; }
   /// <summary>Joint that was created by KSP core to connect two parts.</summary>
   /// <remarks>
-  /// Once physics starts on the KSP core creates a joint on the part, and assigns it to
+  /// Once physics starts on part the KSP core creates a joint, and assigns it to
   /// <see cref="Part.attachJoint"/>. This module resets the joint to <c>null</c> to prevent KSP
   /// logic on it but <i>does not</i> change joint component on the part. Descendants must take care
   /// of the stock joint either by delegating relevant events to it or by destroying altogether.
@@ -411,6 +446,70 @@ public abstract class AbstractJointModule :
         Mathf.Approximately(forceFromConfig, 0) ? StockJointBreakingForce : forceFromConfig;
     joint.breakTorque =
         Mathf.Approximately(torqueFromConfig, 0) ? StockJointBreakingTorque : torqueFromConfig;
+  }
+
+  /// <summary>Makes a regular joint unbreakable and locked.</summary>
+  /// <remarks>
+  /// Normal use-case for setting joint to unbreakable is switching to time warp mode. When time
+  /// warp mode is enabled it's undesirable to have joint moving or broken. Moreover, in this mode
+  /// performance reqirements become more improtant. 
+  /// <list type="bullet">
+  /// <item>All motions are set to <c>Locked</c>.</item>
+  /// <item>Breaking forces are set to infinite.</item>
+  /// <item>Joint preprocessing is set to <c>true</c> to improve performance.</item>
+  /// </list>
+  /// </remarks>
+  /// <param name="joint">Joint to configure.</param>
+  /// <param name="jointState">
+  /// State object to pesist original settings into. If <c>null</c> then state save is not needed.
+  /// </param>
+  /// <seealso cref="AdjustJoint"/>
+  protected static void SetupUnbreakableJoint(ConfigurableJoint joint,
+                                              JointState jointState = null) {
+    //FIXME
+    Debug.LogWarningFormat("** setup unbreakable: {0}", KASAPI.JointUtils.DumpJoint(joint));
+
+    if (jointState != null) {
+      // Save settings that are going to change.
+      jointState.angularXMotion = joint.angularXMotion;
+      jointState.angularYMotion = joint.angularYMotion;
+      jointState.angularZMotion = joint.angularZMotion;
+      jointState.xMotion = joint.xMotion;
+      jointState.yMotion = joint.yMotion;
+      jointState.zMotion = joint.zMotion;
+      jointState.breakForce = joint.breakForce;
+      jointState.breakTorque = joint.breakTorque;
+      jointState.enablePreprocessing = joint.enablePreprocessing;
+    }
+    // Make joint absolutly rigid. 
+    joint.angularXMotion = ConfigurableJointMotion.Locked;
+    joint.angularYMotion = ConfigurableJointMotion.Locked;
+    joint.angularZMotion = ConfigurableJointMotion.Locked;
+    joint.xMotion = ConfigurableJointMotion.Locked;
+    joint.yMotion = ConfigurableJointMotion.Locked;
+    joint.zMotion = ConfigurableJointMotion.Locked;
+    // Since no movements are allowed the preprocessing will give a performance boost.
+    joint.enablePreprocessing = true; 
+    SetBreakForces(joint, Mathf.Infinity, Mathf.Infinity);
+  }
+
+  /// <summary>Restores joint settings from a previosly saved state.</summary>
+  /// <param name="joint">Joint to restore settings for.</param>
+  /// <param name="jointState">Saved joint state.</param>
+  /// <see cref="SetupUnbreakableJoint"/>
+  protected static void RestoreJointState(ConfigurableJoint joint, JointState jointState) {
+    joint.angularXMotion = jointState.angularXMotion;
+    joint.angularYMotion = jointState.angularYMotion;
+    joint.angularZMotion = jointState.angularZMotion;
+    joint.xMotion = jointState.xMotion;
+    joint.yMotion = jointState.yMotion;
+    joint.zMotion = jointState.zMotion;
+    joint.breakForce = jointState.breakForce;
+    joint.breakTorque = jointState.breakTorque;
+    joint.enablePreprocessing = jointState.enablePreprocessing;
+
+    //FIXME
+    Debug.LogWarningFormat("** restored joint: {0}", KASAPI.JointUtils.DumpJoint(joint));
   }
   #endregion
 }

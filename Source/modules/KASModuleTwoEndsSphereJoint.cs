@@ -200,23 +200,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     }
   }
 
-  /// <summary>Makes the joint unbreakable and locked.</summary>
-  void SetupUnbreakableJoint(ConfigurableJoint joint) {
-    //FIXME
-    if (joint == null) {
-      Debug.LogWarning("set UNBREAKABLE: joint doesn't exist!");
-      return;
-    }
-    joint.angularXMotion = ConfigurableJointMotion.Locked;
-    joint.angularYMotion = ConfigurableJointMotion.Locked;
-    joint.angularZMotion = ConfigurableJointMotion.Locked;
-    joint.xMotion = ConfigurableJointMotion.Locked;
-    joint.yMotion = ConfigurableJointMotion.Locked;
-    joint.zMotion = ConfigurableJointMotion.Locked;
-    joint.enablePreprocessing = true;
-    SetBreakForces(joint, Mathf.Infinity, Mathf.Infinity);
-  }
-
   /// <summary>Sets sphere joint parameters.</summary>
   /// <param name="joint">Joint to setup.</param>
   /// <param name="angleLimit">Angle of freedom at the pivot.</param>
