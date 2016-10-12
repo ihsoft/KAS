@@ -10,19 +10,17 @@ namespace KAS {
 
 // FIXME: start handling jointBreakForce
 public class KASModuleStockJoint : AbstractJointModule {
+  /// <summary>Intermediate field to store joint settings in AdjustJoint.</summary>
+  protected JointState jointState = new JointState();
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public override void DropJoint() {
-    base.DropJoint();
-    var joint = part.GetComponent<ConfigurableJoint>();
-    UnityEngine.Object.Destroy(joint);
-  }
-
-  /// <inheritdoc/>
-  public override void AdjustJoint(bool isIndestructible = false) {
-    //FIXME
-    Debug.LogWarningFormat("** ON AdjustJoint: isIndestructible = {0}", isIndestructible);
+  public override void AdjustJoint(bool isUnbreakable = false) {
+    if (isUnbreakable) {
+      SetupUnbreakableJoint(stockJoint.Joint, jointState: jointState);
+    } else {
+      RestoreJointState(stockJoint.Joint, jointState);
+    }
   }
   #endregion
 }
