@@ -73,7 +73,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   /// linear force but can be broken by torque when angle limit is exhausted.
   /// </remarks>
   ConfigurableJoint trgJoint;
-  //FIXME
+  /// <summary>Joint that ties two sphere joints together.</summary>
+  /// <remarks>It only makes sense <see cref="strutSpringForce"/> is not <c>Infinite</c>.</remarks>
+  /// FIXME: Don't create it if spring is infinte
   ConfigurableJoint strutJoint;
 
   #region ILinkJoint implementation
