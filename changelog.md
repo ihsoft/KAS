@@ -1,3 +1,6 @@
+### 0.6.0 (October 12th, 2016)
+- [Enhancement] KSP 1.2 support
+
 ### 0.5.9 (June 27th, 2016)
 - [Fix] #171: KSP 1.1.3 compatibility.
 
