@@ -1,0 +1,1168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpKI>
+  <HelpKINode Title="AbstractJointModule class">
+    <HelpKINode Title="AbstractJointModule Class" Url="html/09761487-b192-161b-9272-866a0d9955c0.htm" />
+    <HelpKINode Title="about AbstractJointModule class" Url="html/09761487-b192-161b-9272-866a0d9955c0.htm" />
+    <HelpKINode Title="constructor" Url="html/c2c65c9d-fd09-ed84-25aa-265d479e4954.htm" />
+    <HelpKINode Title="fields" Url="html/e1c478a5-e617-cb08-1d44-822a94459814.htm" />
+    <HelpKINode Title="methods" Url="html/ed2c08b0-6a41-d9e3-d180-21d2dc45645b.htm" />
+    <HelpKINode Title="properties" Url="html/bb6212c7-e601-4851-c777-4d800cf3e3ec.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AbstractJointModule.AbstractJointModule constructor" Url="html/c2c65c9d-fd09-ed84-25aa-265d479e4954.htm" />
+  <HelpKINode Title="AbstractJointModule.AdjustJoint method" Url="html/c3fd229d-b695-3545-1e36-d6fcefd5e1ef.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgLinkBreakForce property" Url="html/02b12a2f-54b7-ef6c-8dc4-1d2f3a7b650c.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgLinkBreakTorque property" Url="html/555a5a91-230d-7246-dc5f-c98502b442b9.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgMaxLinkLength property" Url="html/997dfad0-1cac-781e-7f71-c2ad635c1830.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgMinLinkLength property" Url="html/e6da3314-40c5-57aa-db3f-91c3298acffb.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgSourceLinkAngleLimit property" Url="html/3bb7e49d-47cf-55f5-56f1-0b857ed5bc75.htm" />
+  <HelpKINode Title="AbstractJointModule.cfgTargetLinkAngleLimit property" Url="html/43685453-25dd-e8a3-2fef-9cf3a1a1581d.htm" />
+  <HelpKINode Title="AbstractJointModule.CheckAngleLimitAtSource method" Url="html/67ae1965-e1ed-af75-79bd-fc18c521905f.htm" />
+  <HelpKINode Title="AbstractJointModule.CheckAngleLimitAtTarget method" Url="html/5859bf0a-6bfd-e572-3b4f-3bf7e8ab79c0.htm" />
+  <HelpKINode Title="AbstractJointModule.CheckLengthLimit method" Url="html/56676a85-9234-100a-7950-f3bfe9b44d88.htm" />
+  <HelpKINode Title="AbstractJointModule.CreateJoint method" Url="html/7162e6dd-0696-3772-1584-66e5ee2e6d54.htm" />
+  <HelpKINode Title="AbstractJointModule.DropJoint method" Url="html/6540398d-35e2-661b-6035-7252f0b750b0.htm" />
+  <HelpKINode Title="AbstractJointModule.DropStockJoint method" Url="html/1e693ee8-9dcf-6b63-f939-62aed8b2c1a6.htm" />
+  <HelpKINode Title="AbstractJointModule.DumpJoint method" Url="html/9baf2020-31e1-9fe7-48bf-90fa6721debb.htm" />
+  <HelpKINode Title="AbstractJointModule.GetDrawModulePanelCallback method" Url="html/bd68d568-d695-b952-ce81-655171c42f2d.htm" />
+  <HelpKINode Title="AbstractJointModule.GetInfo method" Url="html/ba823e45-1953-a146-a3ef-ce718562a5a8.htm" />
+  <HelpKINode Title="AbstractJointModule.GetModuleTitle method" Url="html/2fbe7149-7ec2-75cc-4cf7-9464289738ae.htm" />
+  <HelpKINode Title="AbstractJointModule.GetPrimaryField method" Url="html/8da2d67f-51a1-10f0-da3f-6b22fa8d7d98.htm" />
+  <HelpKINode Title="AbstractJointModule.isLinked property" Url="html/7355bb4f-9352-7241-54af-675ccd531d28.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState class">
+    <HelpKINode Title="AbstractJointModule.JointState Class" Url="html/5efe8d86-920a-b723-09eb-c862f0a1e809.htm" />
+    <HelpKINode Title="about AbstractJointModule.JointState class" Url="html/5efe8d86-920a-b723-09eb-c862f0a1e809.htm" />
+    <HelpKINode Title="constructor" Url="html/d2f01711-53e4-b2e6-c8bb-121ea5dbbfc9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AbstractJointModule.JointState.angularXMotion field" Url="html/c8fb2c90-d95c-689f-f9ee-5ff224b30ce4.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.angularYMotion field" Url="html/03b982a1-7be3-ac96-4d9d-48301b051fa4.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.angularZMotion field" Url="html/c7945d34-10ca-193c-5cec-ef1d8875f777.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.breakForce field" Url="html/6617b99c-70cb-1ad5-9878-4eda8bc3021d.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.breakTorque field" Url="html/5bb56e0c-b836-251c-7398-0d65d0de968c.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.enablePreprocessing field" Url="html/03d9ca37-81e3-ee23-1369-d7f23c5b3522.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.JointState constructor" Url="html/d2f01711-53e4-b2e6-c8bb-121ea5dbbfc9.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.xMotion field" Url="html/3f90a8d9-1d84-728f-daa4-a79c7e383482.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.yMotion field" Url="html/380c0b92-9818-db1f-ab9c-6829fac79613.htm" />
+  <HelpKINode Title="AbstractJointModule.JointState.zMotion field" Url="html/7f043812-708c-3b83-c91a-938cca462cb8.htm" />
+  <HelpKINode Title="AbstractJointModule.linkBreakForce field" Url="html/e8ecba2c-f1be-373e-fe76-858fc6e557f7.htm" />
+  <HelpKINode Title="AbstractJointModule.LinkBreakStrengthInfo field" Url="html/33e7828f-afc4-fc21-8451-1f3a56433295.htm" />
+  <HelpKINode Title="AbstractJointModule.linkBreakTorque field" Url="html/9d9e3e01-0767-8693-ffeb-5c5ceab4c9b2.htm" />
+  <HelpKINode Title="AbstractJointModule.LinkLinearStrengthInfo field" Url="html/7f2f3c4e-8cb7-51c2-98a7-bec456d70a1d.htm" />
+  <HelpKINode Title="AbstractJointModule.linkSource property" Url="html/0a2f70c2-3f50-eda4-8431-21d88ea32830.htm" />
+  <HelpKINode Title="AbstractJointModule.linkTarget property" Url="html/efa9fb80-bde0-e0c0-5a15-3c37f37f2349.htm" />
+  <HelpKINode Title="AbstractJointModule.MaximumLinkLengthInfo field" Url="html/cd5207f6-215b-2ca1-6eed-005318ddea42.htm" />
+  <HelpKINode Title="AbstractJointModule.MaxLengthLimitReachedMsg field" Url="html/6af77c76-cbee-bc90-8580-03c56e4e35af.htm" />
+  <HelpKINode Title="AbstractJointModule.maxLinkLength field" Url="html/2f34cd85-ba54-8f12-80b9-a6287696e478.htm" />
+  <HelpKINode Title="AbstractJointModule.MinimumLinkLengthInfo field" Url="html/6ea2dbda-e9bf-8408-194d-cc03ff55a216.htm" />
+  <HelpKINode Title="AbstractJointModule.MinLengthLimitReachedMsg field" Url="html/a2992bdf-90d6-2a16-127a-b9feb45e713a.htm" />
+  <HelpKINode Title="AbstractJointModule.minLinkLength field" Url="html/c8e8ef3e-b6cf-ae02-f29e-6ed091afef67.htm" />
+  <HelpKINode Title="AbstractJointModule.ModuleTitle field" Url="html/b33d7543-bced-6556-cfc0-8ca945725786.htm" />
+  <HelpKINode Title="AbstractJointModule.OnDestroy method" Url="html/e6fe8b33-090a-da28-4ed7-4785cb450fd1.htm" />
+  <HelpKINode Title="AbstractJointModule.OnJointBreak method" Url="html/f967aac6-d3d3-6ce3-265f-f709ca3bb8a6.htm" />
+  <HelpKINode Title="AbstractJointModule.OnKASLinkBrokenEvent method" Url="html/64d86348-496f-06ec-434e-df1231c6b2a2.htm" />
+  <HelpKINode Title="AbstractJointModule.OnKASLinkCreatedEvent method" Url="html/72912490-11db-2e4b-4d0e-44164ae39434.htm" />
+  <HelpKINode Title="AbstractJointModule.OnPartPack method" Url="html/ecf1a939-a371-80b3-0b9d-660c032f0187.htm" />
+  <HelpKINode Title="AbstractJointModule.OnPartUnpack method" Url="html/d4b22d43-a164-6272-0721-b46719c081d0.htm" />
+  <HelpKINode Title="AbstractJointModule.originalLength property" Url="html/e2158c07-e664-b1b5-24dc-34bf5f238802.htm" />
+  <HelpKINode Title="AbstractJointModule.RestoreJointState method" Url="html/32295c5c-a1c1-cc46-891c-3702544d39aa.htm" />
+  <HelpKINode Title="AbstractJointModule.SetBreakForces method" Url="html/a154eea6-059b-2bb4-884b-eed9336a9a3e.htm" />
+  <HelpKINode Title="AbstractJointModule.SetupUnbreakableJoint method" Url="html/2e344eb1-710f-f865-5919-cadb08f25e14.htm" />
+  <HelpKINode Title="AbstractJointModule.SourceJointFreedomInfo field" Url="html/ad1b818a-78ab-f33f-3abe-71d7cd805201.htm" />
+  <HelpKINode Title="AbstractJointModule.sourceLinkAngleLimit field" Url="html/34ab5443-8943-eb76-158c-d5eb07fc0ef3.htm" />
+  <HelpKINode Title="AbstractJointModule.SourceNodeAngleLimitReachedMsg field" Url="html/54c36286-c55b-5e82-c390-2c125a57a463.htm" />
+  <HelpKINode Title="AbstractJointModule.stockJoint property" Url="html/7c1d6741-71af-ee8e-eef6-06f55aaa2129.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointAngleLimit field" Url="html/ae6fb8d0-618c-84bd-2b63-68e9ce506575.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointBreakingForce field" Url="html/b32cf80f-8a89-2ee9-9dce-d45583bfd24d.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointBreakingTorque field" Url="html/ec736b10-b2b1-a627-f6b8-d3ec3fb10c9e.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointLinearLimit field" Url="html/72ade89b-e741-9963-1a34-a4e9fefa4cee.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointSpring field" Url="html/ccada96c-f08f-de89-27ca-e6dd49a7e527.htm" />
+  <HelpKINode Title="AbstractJointModule.StockJointSpringDamper field" Url="html/3a24d3e6-7a2b-6548-88d7-1f7eb88e36b1.htm" />
+  <HelpKINode Title="AbstractJointModule.TargetJointFreedomInfo field" Url="html/413382ec-4e94-bccc-8d42-903f0facd6f8.htm" />
+  <HelpKINode Title="AbstractJointModule.targetLinkAngleLimit field" Url="html/d42529de-9811-7207-22f6-3f6a81d9d995.htm" />
+  <HelpKINode Title="AbstractJointModule.TargetNodeAngleLimitReachedMsg field" Url="html/9ee5c904-f7b8-2991-ef86-0e17a98a0952.htm" />
+  <HelpKINode Title="AbstractJointPart class">
+    <HelpKINode Title="AbstractJointPart Class" Url="html/7396402a-d63c-c84e-7e09-e4e38580cef5.htm" />
+    <HelpKINode Title="about AbstractJointPart class" Url="html/7396402a-d63c-c84e-7e09-e4e38580cef5.htm" />
+    <HelpKINode Title="constructor" Url="html/520e9003-63a4-b200-e042-b42398ef40a7.htm" />
+    <HelpKINode Title="fields" Url="html/41cc0e81-d5fc-8b53-09a7-e0e0d1adcc14.htm" />
+    <HelpKINode Title="methods" Url="html/23db486f-5699-7a56-bb97-c5c7d839f9b6.htm" />
+    <HelpKINode Title="properties" Url="html/edb4f8b7-1d36-9756-7f52-f0aaec70527d.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AbstractJointPart.AbstractJointPart constructor" Url="html/520e9003-63a4-b200-e042-b42398ef40a7.htm" />
+  <HelpKINode Title="AbstractJointPart.attachNodeOrientation field" Url="html/57a6b5b9-bd86-49a9-2dab-a0307af234cf.htm" />
+  <HelpKINode Title="AbstractJointPart.attachNodePosition field" Url="html/c88f6eaa-a743-1b06-4c15-7b50b15e2c6d.htm" />
+  <HelpKINode Title="AbstractJointPart.CreateStrutJointModel method" Url="html/901f6b46-f25a-93c3-6e24-545162e00f5f.htm" />
+  <HelpKINode Title="AbstractJointPart.jointTexturePath field" Url="html/1f8a14a4-6273-ede1-f054-117858008646.htm" />
+  <HelpKINode Title="AbstractJointPart.PivotAxileObjName field" Url="html/f100a453-22a4-0e52-8bf3-7f5c9606e9b0.htm" />
+  <HelpKINode Title="AbstractJointPart.sourceTransform property" Url="html/9f93e533-777d-7de3-2b6f-4ae8438a8d94.htm" />
+  <HelpKINode Title="AbstractProceduralModel class">
+    <HelpKINode Title="AbstractProceduralModel Class" Url="html/4608f060-ffe4-400f-7583-4d17165f1980.htm" />
+    <HelpKINode Title="about AbstractProceduralModel class" Url="html/4608f060-ffe4-400f-7583-4d17165f1980.htm" />
+    <HelpKINode Title="constructor" Url="html/5dcbba99-b9b0-598c-57c2-389908cefb4c.htm" />
+    <HelpKINode Title="fields" Url="html/69ff198b-72c7-0c1b-783c-0f8a8d41e920.htm" />
+    <HelpKINode Title="methods" Url="html/02ada8ab-b0d0-3dff-13c7-411017c7cd11.htm" />
+    <HelpKINode Title="properties" Url="html/428cb862-a315-e2c2-f217-8af9b6a863ec.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AbstractProceduralModel.AbstractProceduralModel constructor" Url="html/5dcbba99-b9b0-598c-57c2-389908cefb4c.htm" />
+  <HelpKINode Title="AbstractProceduralModel.color field" Url="html/5b5ef931-c717-e9ac-04a1-54256bacf07b.htm" />
+  <HelpKINode Title="AbstractProceduralModel.CreateMaterial method" Url="html/0b20ce92-e967-9cc9-ac70-fc85017ceb82.htm" />
+  <HelpKINode Title="AbstractProceduralModel.CreatePartModel method" Url="html/419c40b2-68c9-9384-8c56-e3f54d79e3a5.htm" />
+  <HelpKINode Title="AbstractProceduralModel.GetTexture method" Url="html/aaf2903b-065d-3cfa-18f1-15847cf428a2.htm" />
+  <HelpKINode Title="AbstractProceduralModel.KspPartShaderName field" Url="html/9db0639c-c79d-f00a-4867-eb76b132ba40.htm" />
+  <HelpKINode Title="AbstractProceduralModel.LoadPartModel method" Url="html/24afc6fd-4807-1f2f-92dd-5199d69a9d0f.htm" />
+  <HelpKINode Title="AbstractProceduralModel.OnLoad method" Url="html/59e781ae-c880-c94b-cb63-620ad5433136.htm" />
+  <HelpKINode Title="AbstractProceduralModel.OnStart method" Url="html/fc931aa4-311a-d38d-8eb1-41d63357fff8.htm" />
+  <HelpKINode Title="AbstractProceduralModel.partModelTransform property" Url="html/2a536253-3bf8-c1a8-b7b0-2445c318757f.htm" />
+  <HelpKINode Title="AbstractProceduralModel.shaderName field" Url="html/43afbcbd-07c5-70aa-3e65-fc24fbecdb2a.htm" />
+  <HelpKINode Title="AcceptingLinks enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="actor field" Url="html/5d1efdf9-9b34-ffc9-0bb9-4d36cd00d274.htm" />
+  <HelpKINode Title="AddStateHandlers method" Url="html/6dd53830-bb74-1335-0d1e-a9cc1be0ced9.htm" />
+  <HelpKINode Title="AdjustCollider method" Url="html/1fd0fc66-d014-7aa6-3bcc-496e84750a64.htm" />
+  <HelpKINode Title="AdjustJoint method">
+    <HelpKINode Title="AbstractJointModule.AdjustJoint Method " Url="html/c3fd229d-b695-3545-1e36-d6fcefd5e1ef.htm" />
+    <HelpKINode Title="ILinkJoint.AdjustJoint Method " Url="html/dc14ec70-3a71-d308-9c32-cb4b1f59edbb.htm" />
+    <HelpKINode Title="KASModuleStockJoint.AdjustJoint Method " Url="html/a9c26c0d-15e6-8320-86bb-ac3e6c506d5a.htm" />
+    <HelpKINode Title="KASModuleTwoEndsSphereJoint.AdjustJoint Method " Url="html/5388a656-ebd0-cbb0-e4c7-caad275e7ecf.htm" />
+  </HelpKINode>
+  <HelpKINode Title="angularXMotion field" Url="html/c8fb2c90-d95c-689f-f9ee-5ff224b30ce4.htm" />
+  <HelpKINode Title="angularYMotion field" Url="html/03b982a1-7be3-ac96-4d9d-48301b051fa4.htm" />
+  <HelpKINode Title="angularZMotion field" Url="html/c7945d34-10ca-193c-5cec-ef1d8875f777.htm" />
+  <HelpKINode Title="API enumeration member">
+    <HelpKINode Title="GUILinkMode Enumeration" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+    <HelpKINode Title="LinkActorType Enumeration" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AsyncCall class">
+    <HelpKINode Title="AsyncCall Class" Url="html/8a89caf5-dc4c-ac84-290a-7e6cf8acd825.htm" />
+    <HelpKINode Title="about AsyncCall class" Url="html/8a89caf5-dc4c-ac84-290a-7e6cf8acd825.htm" />
+    <HelpKINode Title="methods" Url="html/6f51cf9a-9fa2-4325-5e9d-0d4fc0fd29e0.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AsyncCall.Action0 delegate" Url="html/cf6a21f5-6ab9-cfdf-c47d-3d67ee176252.htm" />
+  <HelpKINode Title="AsyncCall.CallOnEndOfFrame method" Url="html/c2219b26-871a-8d58-0c9f-81f1421f14db.htm" />
+  <HelpKINode Title="AsyncCall.CallOnFixedUpdate method" Url="html/8a55e9a7-956d-bf61-52c3-30de9b088e1f.htm" />
+  <HelpKINode Title="AsyncCall.CallOnTimeout method" Url="html/e827dcfc-b7d4-2664-f8f7-07336245faa0.htm" />
+  <HelpKINode Title="attachNode property">
+    <HelpKINode Title="ILinkSource.attachNode Property " Url="html/05051421-f58f-02db-0c93-f4894cb3f91e.htm" />
+    <HelpKINode Title="ILinkTarget.attachNode Property " Url="html/a69947ad-2c61-c877-f712-701cacf3f95a.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.attachNode Property " Url="html/233d4aaf-ab0e-82f5-b93b-de4414081f28.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.attachNode Property " Url="html/18c4a2fd-2ad6-c604-7d88-5808d7d0739d.htm" />
+  </HelpKINode>
+  <HelpKINode Title="attachNodeName field">
+    <HelpKINode Title="KASModuleLinkSourceBase.attachNodeName Field" Url="html/ffa343e1-3934-43e8-f77e-96c4a73c3a43.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.attachNodeName Field" Url="html/082ef1a6-7faf-5908-c05e-b1780760a950.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AttachNodeObjName field" Url="html/d59f9b2b-f794-9ebf-e7ef-9fdc60721550.htm" />
+  <HelpKINode Title="attachNodeOrientation field">
+    <HelpKINode Title="AbstractJointPart.attachNodeOrientation Field" Url="html/57a6b5b9-bd86-49a9-2dab-a0307af234cf.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.attachNodeOrientation Field" Url="html/e2a35e5e-c18a-19b1-6b51-a973baa73eea.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.attachNodeOrientation Field" Url="html/531d7b65-beed-c4b6-7c45-318ede86ba8a.htm" />
+  </HelpKINode>
+  <HelpKINode Title="attachNodePosition field">
+    <HelpKINode Title="AbstractJointPart.attachNodePosition Field" Url="html/c88f6eaa-a743-1b06-4c15-7b50b15e2c6d.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.attachNodePosition Field" Url="html/0458313c-1281-2160-dd53-ddc15804150a.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.attachNodePosition Field" Url="html/97b273d4-e816-9639-760b-8e1c1d4d68e7.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AttachNodesUtils field" Url="html/7d04cafd-6967-dd3a-6c3a-1122c1904411.htm" />
+  <HelpKINode Title="Available enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="BadLinkStatusTimeout field" Url="html/6a2c08b0-063b-9859-38e8-50508353563c.htm" />
+  <HelpKINode Title="Bounds enumeration member" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+  <HelpKINode Title="BreakCurrentLink method">
+    <HelpKINode Title="ILinkSource.BreakCurrentLink Method " Url="html/b973acf3-4eb9-6b27-0d83-e724b6940ce7.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.BreakCurrentLink Method " Url="html/f28abd0e-f7dd-928b-ce9f-aaa3cae71705.htm" />
+  </HelpKINode>
+  <HelpKINode Title="breakForce field" Url="html/6617b99c-70cb-1ad5-9878-4eda8bc3021d.htm" />
+  <HelpKINode Title="BreakLinkContextMenuAction method" Url="html/2268d6e8-fb53-2e9a-b86a-456da8c693ab.htm" />
+  <HelpKINode Title="breakLinkMenu field" Url="html/f0334149-582d-9d7d-ebc9-6be88c5e127a.htm" />
+  <HelpKINode Title="breakTorque field" Url="html/5bb56e0c-b836-251c-7398-0d65d0de968c.htm" />
+  <HelpKINode Title="brokeSndPath field" Url="html/5c5de07e-dd06-7644-6ec2-6cc3c3fe9275.htm" />
+  <HelpKINode Title="CacheSound method" Url="html/5f8488e9-53d0-d03b-4edb-b864866c1771.htm" />
+  <HelpKINode Title="CallOnEndOfFrame method" Url="html/c2219b26-871a-8d58-0c9f-81f1421f14db.htm" />
+  <HelpKINode Title="CallOnFixedUpdate method" Url="html/8a55e9a7-956d-bf61-52c3-30de9b088e1f.htm" />
+  <HelpKINode Title="CallOnTimeout method" Url="html/e827dcfc-b7d4-2664-f8f7-07336245faa0.htm" />
+  <HelpKINode Title="CancelLinking method">
+    <HelpKINode Title="ILinkSource.CancelLinking Method " Url="html/f34c4feb-5b24-d73a-0cad-09804ae4fa01.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.CancelLinking Method " Url="html/ebd171c4-6a15-0394-d654-8a6b32b79f78.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CannotLinkToTheSameVesselMsg field" Url="html/327b288b-f96c-e638-b262-a906bea3d4c1.htm" />
+  <HelpKINode Title="CannotRestoreLinkMsg field" Url="html/2a637e8b-6bce-fb43-5544-557a75ad5be6.htm" />
+  <HelpKINode Title="cfgAttachNodeName property">
+    <HelpKINode Title="ILinkSource.cfgAttachNodeName Property " Url="html/2489048b-a99a-ccd3-6914-8f51748cc157.htm" />
+    <HelpKINode Title="ILinkTarget.cfgAttachNodeName Property " Url="html/07e3ad80-19a8-c177-ea3b-025ba5160783.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.cfgAttachNodeName Property " Url="html/24226860-5204-9382-2179-1933fe601e85.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.cfgAttachNodeName Property " Url="html/a616947d-ff3f-068c-aaa4-4d1a3e7fccaf.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgLinkBreakForce property">
+    <HelpKINode Title="AbstractJointModule.cfgLinkBreakForce Property " Url="html/02b12a2f-54b7-ef6c-8dc4-1d2f3a7b650c.htm" />
+    <HelpKINode Title="ILinkJoint.cfgLinkBreakForce Property " Url="html/f7f51bc5-77a3-4567-2cb8-43707c62985c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgLinkBreakTorque property">
+    <HelpKINode Title="AbstractJointModule.cfgLinkBreakTorque Property " Url="html/555a5a91-230d-7246-dc5f-c98502b442b9.htm" />
+    <HelpKINode Title="ILinkJoint.cfgLinkBreakTorque Property " Url="html/5b35ed4c-b770-5224-e0da-90fcfbf7925f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgLinkRendererName property">
+    <HelpKINode Title="ILinkSource.cfgLinkRendererName Property " Url="html/86b92e19-e430-3ee0-132a-e0a91c235d89.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.cfgLinkRendererName Property " Url="html/773901c1-9915-e25f-9e34-4da8a04e37d2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgLinkType property">
+    <HelpKINode Title="ILinkSource.cfgLinkType Property " Url="html/5d5e615b-1e88-9f46-27f8-6f6e703b3df4.htm" />
+    <HelpKINode Title="ILinkTarget.cfgLinkType Property " Url="html/3cd22012-2542-e9fd-96a3-4fc688cbf6fa.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.cfgLinkType Property " Url="html/7157eeb0-0bd6-6fab-19f8-3f5a7ee29645.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.cfgLinkType Property " Url="html/48648114-bb35-be82-bc00-0b1dbbfeb97d.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgMaxLinkLength property">
+    <HelpKINode Title="AbstractJointModule.cfgMaxLinkLength Property " Url="html/997dfad0-1cac-781e-7f71-c2ad635c1830.htm" />
+    <HelpKINode Title="ILinkJoint.cfgMaxLinkLength Property " Url="html/b6f3c52c-05fc-70ec-d4f0-744be1456525.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgMinLinkLength property">
+    <HelpKINode Title="AbstractJointModule.cfgMinLinkLength Property " Url="html/e6da3314-40c5-57aa-db3f-91c3298acffb.htm" />
+    <HelpKINode Title="ILinkJoint.cfgMinLinkLength Property " Url="html/19150c7c-8a16-5720-0653-a866f2e79fea.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgRendererName property">
+    <HelpKINode Title="ILinkRenderer.cfgRendererName Property " Url="html/e4f3de83-c7c8-101c-e9ab-30d44de3d3e4.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.cfgRendererName Property " Url="html/9f04de43-ae69-b626-7870-13062da3ccf3.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgSourceLinkAngleLimit property">
+    <HelpKINode Title="AbstractJointModule.cfgSourceLinkAngleLimit Property " Url="html/3bb7e49d-47cf-55f5-56f1-0b857ed5bc75.htm" />
+    <HelpKINode Title="ILinkJoint.cfgSourceLinkAngleLimit Property " Url="html/fac7f8df-bdfb-bfcb-ef37-9a72b62d41d2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="cfgTargetLinkAngleLimit property">
+    <HelpKINode Title="AbstractJointModule.cfgTargetLinkAngleLimit Property " Url="html/43685453-25dd-e8a3-2fef-9cf3a1a1581d.htm" />
+    <HelpKINode Title="ILinkJoint.cfgTargetLinkAngleLimit Property " Url="html/48e426d3-8d44-0d89-b03c-4030247960b6.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CheckAngleLimitAtSource method">
+    <HelpKINode Title="AbstractJointModule.CheckAngleLimitAtSource Method " Url="html/67ae1965-e1ed-af75-79bd-fc18c521905f.htm" />
+    <HelpKINode Title="ILinkJoint.CheckAngleLimitAtSource Method " Url="html/5ed287b2-de67-d426-703f-1a1e7a815586.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CheckAngleLimitAtTarget method">
+    <HelpKINode Title="AbstractJointModule.CheckAngleLimitAtTarget Method " Url="html/5859bf0a-6bfd-e572-3b4f-3bf7e8ab79c0.htm" />
+    <HelpKINode Title="ILinkJoint.CheckAngleLimitAtTarget Method " Url="html/24402732-ba48-de0e-03eb-bef8358a63f8.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CheckBasicLinkConditions method" Url="html/2397ed81-2c02-3b67-c2c9-f7593fed7bd7.htm" />
+  <HelpKINode Title="CheckCanLinkTo method">
+    <HelpKINode Title="ILinkSource.CheckCanLinkTo Method " Url="html/b8047d59-167a-63b9-64b6-592f873abaab.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.CheckCanLinkTo Method " Url="html/96d9ad42-d154-d1e1-bbf9-06b3b0274de7.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CheckCanSwitchTo method" Url="html/5c49eefa-9f00-a1c9-61e7-d51217deba83.htm" />
+  <HelpKINode Title="CheckColliderHits method">
+    <HelpKINode Title="ILinkRenderer.CheckColliderHits Method " Url="html/d493a151-e8f0-6010-006b-04ef0dc00588.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.CheckColliderHits Method " Url="html/d0159907-ce5c-e087-7266-61bc64f09336.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CheckJointLimits method" Url="html/161961a2-68ca-42d6-8a54-736c06bd973f.htm" />
+  <HelpKINode Title="CheckLengthLimit method">
+    <HelpKINode Title="AbstractJointModule.CheckLengthLimit Method " Url="html/56676a85-9234-100a-7950-f3bfe9b44d88.htm" />
+    <HelpKINode Title="ILinkJoint.CheckLengthLimit Method " Url="html/9fb8e847-91e4-230e-6e71-1dc3f59c1444.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Colliders class">
+    <HelpKINode Title="Colliders Class" Url="html/24f1d34d-38cf-29a7-ed42-aaf082dd7879.htm" />
+    <HelpKINode Title="about Colliders class" Url="html/24f1d34d-38cf-29a7-ed42-aaf082dd7879.htm" />
+    <HelpKINode Title="methods" Url="html/e731a159-bfd6-98fb-9b8c-ed179528271f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Colliders.AdjustCollider method" Url="html/1fd0fc66-d014-7aa6-3bcc-496e84750a64.htm" />
+  <HelpKINode Title="Colliders.PrimitiveCollider enumeration" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+  <HelpKINode Title="Colliders.SetSimpleCollider method" Url="html/15be5fa1-91b0-b5a0-3653-ac613cef763f.htm" />
+  <HelpKINode Title="Colliders.UpdateColliders method" Url="html/458a28c7-1e94-85dd-27b0-e47e259bb1cc.htm" />
+  <HelpKINode Title="color field" Url="html/5b5ef931-c717-e9ac-04a1-54256bacf07b.htm" />
+  <HelpKINode Title="colorOverride property">
+    <HelpKINode Title="ILinkRenderer.colorOverride Property " Url="html/ad9b3fde-5e77-fb1d-1cb4-c266dcec93c6.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.colorOverride Property " Url="html/b893fc7b-ab1d-d33b-587d-9da6e94bf8df.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ConnectParts method" Url="html/50d36cd0-0185-e40f-58fb-b046a7098722.htm" />
+  <HelpKINode Title="CreateAttachNode method" Url="html/dd93788f-4a06-b43f-7fb7-ecd9245d658b.htm" />
+  <HelpKINode Title="CreateBox method" Url="html/4ccbc79a-cde4-2b61-1aa2-709fefba84cd.htm" />
+  <HelpKINode Title="CreateCylinder method" Url="html/883c0c2d-4121-ac1d-8819-9668eafd7990.htm" />
+  <HelpKINode Title="CreateJoint method">
+    <HelpKINode Title="AbstractJointModule.CreateJoint Method " Url="html/7162e6dd-0696-3772-1584-66e5ee2e6d54.htm" />
+    <HelpKINode Title="ILinkJoint.CreateJoint Method " Url="html/3bf01c3e-cadd-17b1-8aec-9137acde35db.htm" />
+    <HelpKINode Title="KASModuleTwoEndsSphereJoint.CreateJoint Method " Url="html/051784c5-8d60-5cea-4057-84a8b7b962f1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CreateMaterial method" Url="html/0b20ce92-e967-9cc9-ac70-fc85017ceb82.htm" />
+  <HelpKINode Title="CreatePartModel method">
+    <HelpKINode Title="AbstractProceduralModel.CreatePartModel Method " Url="html/419c40b2-68c9-9384-8c56-e3f54d79e3a5.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.CreatePartModel Method " Url="html/b6ea65ff-a1ae-d093-c540-24c8ba8e2ab1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="CreatePrimitive method" Url="html/74a27fa7-f3f2-c5e6-b186-c7e54ce00334.htm" />
+  <HelpKINode Title="CreateSphere method" Url="html/04817e3f-1fd9-f27c-b1bc-4c38a6fdf0f7.htm" />
+  <HelpKINode Title="CreateStrutJointModel method" Url="html/901f6b46-f25a-93c3-6e24-545162e00f5f.htm" />
+  <HelpKINode Title="currentState property" Url="html/54bebe21-e223-9fcb-57e9-483d101ed0f7.htm" />
+  <HelpKINode Title="DecoupleAction method">
+    <HelpKINode Title="IKSPActivateOnDecouple.DecoupleAction Method " Url="html/3a0e6e79-6c2a-8498-94b0-b133d048fa1c.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.DecoupleAction Method " Url="html/d6fd7443-d021-00fa-2146-6e7f8de86283.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.DecoupleAction Method " Url="html/7b423f0b-aee6-39ca-67cd-43befc4a69be.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Dictionaries class">
+    <HelpKINode Title="Dictionaries Class" Url="html/33ba710f-84cc-d108-4c0a-f5301473f836.htm" />
+    <HelpKINode Title="about Dictionaries class" Url="html/33ba710f-84cc-d108-4c0a-f5301473f836.htm" />
+    <HelpKINode Title="methods" Url="html/402ccf83-defa-9568-adb6-1092e5c59f4f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Dictionaries.SetDefault(Of K, V) method" Url="html/a67ea419-18f9-15be-901b-6adf5cd619ff.htm" />
+  <HelpKINode Title="Dictionaries.SetDefault&lt;K, V&gt; method" Url="html/a67ea419-18f9-15be-901b-6adf5cd619ff.htm" />
+  <HelpKINode Title="DropAttachNode method" Url="html/29d9033b-d3b5-0987-8a51-a58b0c213264.htm" />
+  <HelpKINode Title="DropJoint method">
+    <HelpKINode Title="AbstractJointModule.DropJoint Method " Url="html/6540398d-35e2-661b-6035-7252f0b750b0.htm" />
+    <HelpKINode Title="ILinkJoint.DropJoint Method " Url="html/5531c51a-0850-9356-5003-50bfed6b3f16.htm" />
+    <HelpKINode Title="KASModuleTwoEndsSphereJoint.DropJoint Method " Url="html/9019b976-64c1-587e-345e-a1e81594a983.htm" />
+  </HelpKINode>
+  <HelpKINode Title="DropStockJoint method" Url="html/1e693ee8-9dcf-6b63-f939-62aed8b2c1a6.htm" />
+  <HelpKINode Title="DumpJoint method">
+    <HelpKINode Title="AbstractJointModule.DumpJoint Method " Url="html/9baf2020-31e1-9fe7-48bf-90fa6721debb.htm" />
+    <HelpKINode Title="IJointUtils.DumpJoint Method " Url="html/939a4e41-c247-9b09-d167-34bb8c5ee696.htm" />
+  </HelpKINode>
+  <HelpKINode Title="enablePreprocessing field" Url="html/03d9ca37-81e3-ee23-1369-d7f23c5b3522.htm" />
+  <HelpKINode Title="Eva enumeration member" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+  <HelpKINode Title="ExtendAtMaxMenuAction method" Url="html/59fa4a40-4718-7b11-f90d-6474f9a67ebf.htm" />
+  <HelpKINode Title="ExtendAtMaxMenuActionName field" Url="html/92aacd81-3660-5719-6410-31b5c3769c75.htm" />
+  <HelpKINode Title="FindLinkSourceFromTarget method" Url="html/5d7c5b9e-f108-f882-0d59-6d66f7664cad.htm" />
+  <HelpKINode Title="FindLinkTargetFromSource method" Url="html/c0d4c865-b30f-b1a1-0ded-5874330bece2.htm" />
+  <HelpKINode Title="FindTransformByPath method" Url="html/0bfb6e63-e4e7-4fed-e85c-5a1fef42e8f1.htm" />
+  <HelpKINode Title="FindTransformInChildren method" Url="html/a7cfe98e-43ec-313b-7f94-60cb49a2f30f.htm" />
+  <HelpKINode Title="ForceSetState method" Url="html/9b1cd5bd-f9de-d6fb-27ea-4270197d0b8e.htm" />
+  <HelpKINode Title="Formatter class">
+    <HelpKINode Title="Formatter Class" Url="html/0eb61a28-fcd5-2589-9a8b-cfe86b54fb0f.htm" />
+    <HelpKINode Title="about Formatter class" Url="html/0eb61a28-fcd5-2589-9a8b-cfe86b54fb0f.htm" />
+    <HelpKINode Title="methods" Url="html/f8e89521-0ce5-c4ff-58c3-dc69bd0b6293.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Formatter.SpecialValue method" Url="html/68c20032-3161-0d47-180e-3cd1d0b4b218.htm" />
+  <HelpKINode Title="FX enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="GetClampedLinkLength method" Url="html/e72c0db2-09df-8ae7-97e2-3ecafc08b26a.htm" />
+  <HelpKINode Title="GetDrawModulePanelCallback method">
+    <HelpKINode Title="AbstractJointModule.GetDrawModulePanelCallback Method " Url="html/bd68d568-d695-b952-ce81-655171c42f2d.htm" />
+    <HelpKINode Title="IKSPDevModuleInfo.GetDrawModulePanelCallback Method " Url="html/dae49e71-07a7-f919-a75a-58448380cdfb.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.GetDrawModulePanelCallback Method " Url="html/6f010c58-ad9d-bcae-f9cd-2e95678629d9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GetInfo method">
+    <HelpKINode Title="AbstractJointModule.GetInfo Method " Url="html/ba823e45-1953-a146-a3ef-ce718562a5a8.htm" />
+    <HelpKINode Title="IKSPDevModuleInfo.GetInfo Method " Url="html/f19391c0-c211-7f1a-0025-02667546efe3.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.GetInfo Method " Url="html/f24f8e78-3ebe-4069-3755-3831c2298bd6.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GetModuleTitle method">
+    <HelpKINode Title="AbstractJointModule.GetModuleTitle Method " Url="html/2fbe7149-7ec2-75cc-4cf7-9464289738ae.htm" />
+    <HelpKINode Title="IKSPDevModuleInfo.GetModuleTitle Method " Url="html/57b313a0-cf86-f959-7811-25905970db1e.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.GetModuleTitle Method " Url="html/73977a2c-26bd-4472-2433-ea7dcb987eac.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GetPartModelTransform method" Url="html/c72f1e4a-6734-b8b4-ef2e-1289831652ba.htm" />
+  <HelpKINode Title="GetPrimaryField method">
+    <HelpKINode Title="AbstractJointModule.GetPrimaryField Method " Url="html/8da2d67f-51a1-10f0-da3f-6b22fa8d7d98.htm" />
+    <HelpKINode Title="IKSPDevModuleInfo.GetPrimaryField Method " Url="html/468c3d4f-c41d-57f4-21b4-c843d7caf90a.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.GetPrimaryField Method " Url="html/9c836cef-49f4-c753-6742-1ce925815fd0.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GetTexture method" Url="html/aaf2903b-065d-3cfa-18f1-15847cf428a2.htm" />
+  <HelpKINode Title="GUILinkMode enumeration" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+  <HelpKINode Title="guiLinkMode property">
+    <HelpKINode Title="ILinkSource.guiLinkMode Property " Url="html/003b9d88-8046-be26-a797-624a56725a56.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.guiLinkMode Property " Url="html/a53920b5-9785-997e-a13a-1e3c897ed121.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Hierarchy class">
+    <HelpKINode Title="Hierarchy Class" Url="html/fe9c3d0b-759d-a684-fd02-2c4e654a9329.htm" />
+    <HelpKINode Title="about Hierarchy class" Url="html/fe9c3d0b-759d-a684-fd02-2c4e654a9329.htm" />
+    <HelpKINode Title="methods" Url="html/b42069dc-cc6f-17b6-4069-af4da7d9366c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Hierarchy.FindTransformByPath method" Url="html/0bfb6e63-e4e7-4fed-e85c-5a1fef42e8f1.htm" />
+  <HelpKINode Title="Hierarchy.FindTransformInChildren method" Url="html/a7cfe98e-43ec-313b-7f94-60cb49a2f30f.htm" />
+  <HelpKINode Title="Hierarchy.GetPartModelTransform method" Url="html/c72f1e4a-6734-b8b4-ef2e-1289831652ba.htm" />
+  <HelpKINode Title="Hierarchy.MoveToParent method" Url="html/3c3a534f-0ac7-5d90-f61b-f620725328f2.htm" />
+  <HelpKINode Title="highlightColor field" Url="html/d0dfa219-6f51-c5a6-2fe4-764f2c74aef7.htm" />
+  <HelpKINode Title="highlightCompatibleTargets field" Url="html/a0a1575f-2442-7814-5ed4-0acdab87cd6e.htm" />
+  <HelpKINode Title="IAttachNodesUtils interface">
+    <HelpKINode Title="IAttachNodesUtils Interface" Url="html/f5dc1257-0271-8f0e-67b0-ebfc8845c648.htm" />
+    <HelpKINode Title="about IAttachNodesUtils interface" Url="html/f5dc1257-0271-8f0e-67b0-ebfc8845c648.htm" />
+    <HelpKINode Title="methods" Url="html/91fb3595-cbd8-c933-0159-055105ccbdaa.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IAttachNodesUtils.CreateAttachNode method" Url="html/dd93788f-4a06-b43f-7fb7-ecd9245d658b.htm" />
+  <HelpKINode Title="IAttachNodesUtils.DropAttachNode method" Url="html/29d9033b-d3b5-0987-8a51-a58b0c213264.htm" />
+  <HelpKINode Title="IJointEventsListener interface">
+    <HelpKINode Title="IJointEventsListener Interface" Url="html/bf577f2d-a3f2-ceb9-c69c-8ca4ce5a08d4.htm" />
+    <HelpKINode Title="about IJointEventsListener interface" Url="html/bf577f2d-a3f2-ceb9-c69c-8ca4ce5a08d4.htm" />
+    <HelpKINode Title="methods" Url="html/c322b3e6-e498-6de1-303d-7fe8842e7d79.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IJointEventsListener.OnJointBreak method" Url="html/189349f4-dd98-d56b-218b-e72b47a51928.htm" />
+  <HelpKINode Title="IJointUtils interface">
+    <HelpKINode Title="IJointUtils Interface" Url="html/fc0e7651-b167-7c88-20b4-85e85ef95cf8.htm" />
+    <HelpKINode Title="about IJointUtils interface" Url="html/fc0e7651-b167-7c88-20b4-85e85ef95cf8.htm" />
+    <HelpKINode Title="methods" Url="html/f4087f45-050a-67e8-8f97-5a3f6edf8462.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IJointUtils.DumpJoint method" Url="html/939a4e41-c247-9b09-d167-34bb8c5ee696.htm" />
+  <HelpKINode Title="IJointUtils.ResetJoint method" Url="html/34d22f26-abbb-cf9f-2bc9-d6458656b803.htm" />
+  <HelpKINode Title="IJointUtils.SetupPrismaticJoint method" Url="html/c75fc5a0-259f-ca97-67f5-09bdbb19ec7d.htm" />
+  <HelpKINode Title="IJointUtils.SetupSphericalJoint method" Url="html/0aacee5b-4cbe-c428-6e91-9a804afa77a9.htm" />
+  <HelpKINode Title="IKSPActivateOnDecouple interface">
+    <HelpKINode Title="IKSPActivateOnDecouple Interface" Url="html/e6315e29-c384-a61e-6b54-689ff7a18a2c.htm" />
+    <HelpKINode Title="about IKSPActivateOnDecouple interface" Url="html/e6315e29-c384-a61e-6b54-689ff7a18a2c.htm" />
+    <HelpKINode Title="methods" Url="html/27ed7103-f7e1-3695-bd5c-ab4fcff3f46c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IKSPActivateOnDecouple.DecoupleAction method" Url="html/3a0e6e79-6c2a-8498-94b0-b133d048fa1c.htm" />
+  <HelpKINode Title="IKSPDevModuleInfo interface">
+    <HelpKINode Title="IKSPDevModuleInfo Interface" Url="html/1eebf4ae-aa39-188f-2c13-5c84029e9bd6.htm" />
+    <HelpKINode Title="about IKSPDevModuleInfo interface" Url="html/1eebf4ae-aa39-188f-2c13-5c84029e9bd6.htm" />
+    <HelpKINode Title="methods" Url="html/f02eb771-7c71-75f0-6a97-4ac7c62e5f53.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IKSPDevModuleInfo.GetDrawModulePanelCallback method" Url="html/dae49e71-07a7-f919-a75a-58448380cdfb.htm" />
+  <HelpKINode Title="IKSPDevModuleInfo.GetInfo method" Url="html/f19391c0-c211-7f1a-0025-02667546efe3.htm" />
+  <HelpKINode Title="IKSPDevModuleInfo.GetModuleTitle method" Url="html/57b313a0-cf86-f959-7811-25905970db1e.htm" />
+  <HelpKINode Title="IKSPDevModuleInfo.GetPrimaryField method" Url="html/468c3d4f-c41d-57f4-21b4-c843d7caf90a.htm" />
+  <HelpKINode Title="ILinkJoint interface">
+    <HelpKINode Title="ILinkJoint Interface" Url="html/3bb28523-f5b7-21f6-c133-427ca4a759fa.htm" />
+    <HelpKINode Title="about ILinkJoint interface" Url="html/3bb28523-f5b7-21f6-c133-427ca4a759fa.htm" />
+    <HelpKINode Title="methods" Url="html/21256580-d598-a073-2973-03b1a8362511.htm" />
+    <HelpKINode Title="properties" Url="html/5db93774-9d4a-6da8-1f7b-109d4683fbe2.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkJoint.AdjustJoint method" Url="html/dc14ec70-3a71-d308-9c32-cb4b1f59edbb.htm" />
+  <HelpKINode Title="ILinkJoint.cfgLinkBreakForce property" Url="html/f7f51bc5-77a3-4567-2cb8-43707c62985c.htm" />
+  <HelpKINode Title="ILinkJoint.cfgLinkBreakTorque property" Url="html/5b35ed4c-b770-5224-e0da-90fcfbf7925f.htm" />
+  <HelpKINode Title="ILinkJoint.cfgMaxLinkLength property" Url="html/b6f3c52c-05fc-70ec-d4f0-744be1456525.htm" />
+  <HelpKINode Title="ILinkJoint.cfgMinLinkLength property" Url="html/19150c7c-8a16-5720-0653-a866f2e79fea.htm" />
+  <HelpKINode Title="ILinkJoint.cfgSourceLinkAngleLimit property" Url="html/fac7f8df-bdfb-bfcb-ef37-9a72b62d41d2.htm" />
+  <HelpKINode Title="ILinkJoint.cfgTargetLinkAngleLimit property" Url="html/48e426d3-8d44-0d89-b03c-4030247960b6.htm" />
+  <HelpKINode Title="ILinkJoint.CheckAngleLimitAtSource method" Url="html/5ed287b2-de67-d426-703f-1a1e7a815586.htm" />
+  <HelpKINode Title="ILinkJoint.CheckAngleLimitAtTarget method" Url="html/24402732-ba48-de0e-03eb-bef8358a63f8.htm" />
+  <HelpKINode Title="ILinkJoint.CheckLengthLimit method" Url="html/9fb8e847-91e4-230e-6e71-1dc3f59c1444.htm" />
+  <HelpKINode Title="ILinkJoint.CreateJoint method" Url="html/3bf01c3e-cadd-17b1-8aec-9137acde35db.htm" />
+  <HelpKINode Title="ILinkJoint.DropJoint method" Url="html/5531c51a-0850-9356-5003-50bfed6b3f16.htm" />
+  <HelpKINode Title="ILinkRenderer interface">
+    <HelpKINode Title="ILinkRenderer Interface" Url="html/db9014ed-3c9e-ab0b-eae2-a0c6e7486435.htm" />
+    <HelpKINode Title="about ILinkRenderer interface" Url="html/db9014ed-3c9e-ab0b-eae2-a0c6e7486435.htm" />
+    <HelpKINode Title="methods" Url="html/baf22775-674a-1fff-2049-97a12feec806.htm" />
+    <HelpKINode Title="properties" Url="html/29ab9401-2615-82be-100e-037f479d79e4.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkRenderer.cfgRendererName property" Url="html/e4f3de83-c7c8-101c-e9ab-30d44de3d3e4.htm" />
+  <HelpKINode Title="ILinkRenderer.CheckColliderHits method" Url="html/d493a151-e8f0-6010-006b-04ef0dc00588.htm" />
+  <HelpKINode Title="ILinkRenderer.colorOverride property" Url="html/ad9b3fde-5e77-fb1d-1cb4-c266dcec93c6.htm" />
+  <HelpKINode Title="ILinkRenderer.isPhysicalCollider property" Url="html/a4f6302f-9020-7079-db62-9cca4a592b6a.htm" />
+  <HelpKINode Title="ILinkRenderer.isStarted property" Url="html/9a56c161-7e2a-c61d-a608-0f42d67f21b6.htm" />
+  <HelpKINode Title="ILinkRenderer.shaderNameOverride property" Url="html/39082dfe-a13e-e5e6-7bb7-143cf919e3fe.htm" />
+  <HelpKINode Title="ILinkRenderer.StartRenderer method" Url="html/6945081e-6bd4-2a22-af73-d15e8a59bff2.htm" />
+  <HelpKINode Title="ILinkRenderer.StopRenderer method" Url="html/201cbc42-4397-6610-b9b7-99a90e099366.htm" />
+  <HelpKINode Title="ILinkRenderer.UpdateLink method" Url="html/43f4d349-0465-bf5a-ef36-5ed4062818dd.htm" />
+  <HelpKINode Title="ILinkSource interface">
+    <HelpKINode Title="ILinkSource Interface" Url="html/f7608687-5965-7fb2-883e-e69cb6deff54.htm" />
+    <HelpKINode Title="about ILinkSource interface" Url="html/f7608687-5965-7fb2-883e-e69cb6deff54.htm" />
+    <HelpKINode Title="methods" Url="html/796a7c31-f233-09dd-2f86-93159b2eeced.htm" />
+    <HelpKINode Title="properties" Url="html/7ad2cbaa-d6d2-511b-358e-b23444d90a7e.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkSource.attachNode property" Url="html/05051421-f58f-02db-0c93-f4894cb3f91e.htm" />
+  <HelpKINode Title="ILinkSource.BreakCurrentLink method" Url="html/b973acf3-4eb9-6b27-0d83-e724b6940ce7.htm" />
+  <HelpKINode Title="ILinkSource.CancelLinking method" Url="html/f34c4feb-5b24-d73a-0cad-09804ae4fa01.htm" />
+  <HelpKINode Title="ILinkSource.cfgAttachNodeName property" Url="html/2489048b-a99a-ccd3-6914-8f51748cc157.htm" />
+  <HelpKINode Title="ILinkSource.cfgLinkRendererName property" Url="html/86b92e19-e430-3ee0-132a-e0a91c235d89.htm" />
+  <HelpKINode Title="ILinkSource.cfgLinkType property" Url="html/5d5e615b-1e88-9f46-27f8-6f6e703b3df4.htm" />
+  <HelpKINode Title="ILinkSource.CheckCanLinkTo method" Url="html/b8047d59-167a-63b9-64b6-592f873abaab.htm" />
+  <HelpKINode Title="ILinkSource.guiLinkMode property" Url="html/003b9d88-8046-be26-a797-624a56725a56.htm" />
+  <HelpKINode Title="ILinkSource.isLocked property" Url="html/73452b79-2a11-2882-e3dd-0d47cc5275f7.htm" />
+  <HelpKINode Title="ILinkSource.linkState property" Url="html/b37df465-a71d-442c-96b1-53d184919895.htm" />
+  <HelpKINode Title="ILinkSource.linkTarget property" Url="html/780e5114-735c-ff46-fbc3-30161dded8aa.htm" />
+  <HelpKINode Title="ILinkSource.LinkToTarget method" Url="html/885b7143-bb75-520a-a7a3-2209eaac3523.htm" />
+  <HelpKINode Title="ILinkSource.nodeTransform property" Url="html/3fc2bd30-8da9-270e-6c7d-e0deb815a258.htm" />
+  <HelpKINode Title="ILinkSource.part property" Url="html/3bb069fe-f52c-7da9-0efb-bd5ef6061eb0.htm" />
+  <HelpKINode Title="ILinkSource.StartLinking method" Url="html/ee5bd38e-b538-0fa6-8906-6ad5169eacd9.htm" />
+  <HelpKINode Title="ILinkStateEventListener interface">
+    <HelpKINode Title="ILinkStateEventListener Interface" Url="html/50597413-b277-ed76-2573-fa2e35d055ba.htm" />
+    <HelpKINode Title="about ILinkStateEventListener interface" Url="html/50597413-b277-ed76-2573-fa2e35d055ba.htm" />
+    <HelpKINode Title="methods" Url="html/a00cc5bd-3bab-e240-7ff9-93fe40632d50.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkStateEventListener.OnKASLinkBrokenEvent method" Url="html/8ec9aa83-99bb-6b21-cb98-6ffabe64eb15.htm" />
+  <HelpKINode Title="ILinkStateEventListener.OnKASLinkCreatedEvent method" Url="html/72838adc-8a46-2a77-7e00-fc621b5795ee.htm" />
+  <HelpKINode Title="ILinkTarget interface">
+    <HelpKINode Title="ILinkTarget Interface" Url="html/57208073-364c-33bb-1112-39a24ce48f40.htm" />
+    <HelpKINode Title="about ILinkTarget interface" Url="html/57208073-364c-33bb-1112-39a24ce48f40.htm" />
+    <HelpKINode Title="properties" Url="html/30815228-0ccd-59e8-bac3-c12e9daf3179.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkTarget.attachNode property" Url="html/a69947ad-2c61-c877-f712-701cacf3f95a.htm" />
+  <HelpKINode Title="ILinkTarget.cfgAttachNodeName property" Url="html/07e3ad80-19a8-c177-ea3b-025ba5160783.htm" />
+  <HelpKINode Title="ILinkTarget.cfgLinkType property" Url="html/3cd22012-2542-e9fd-96a3-4fc688cbf6fa.htm" />
+  <HelpKINode Title="ILinkTarget.isLocked property" Url="html/9c0e36ce-78ba-23c2-2a89-8c54722bccbd.htm" />
+  <HelpKINode Title="ILinkTarget.linkSource property" Url="html/334c5ada-3b69-62aa-2137-66dd7a205f28.htm" />
+  <HelpKINode Title="ILinkTarget.linkState property" Url="html/0efcf042-0f9a-26fc-534f-1fcf4dcaf676.htm" />
+  <HelpKINode Title="ILinkTarget.nodeTransform property" Url="html/84947776-f256-824f-15ca-8ed0d3b0d5da.htm" />
+  <HelpKINode Title="ILinkTarget.part property" Url="html/f72d132f-2bb6-4145-b16f-9ef743a30f60.htm" />
+  <HelpKINode Title="ILinkUtils interface">
+    <HelpKINode Title="ILinkUtils Interface" Url="html/775b2b2e-52a6-26db-c006-c7a87a36c88b.htm" />
+    <HelpKINode Title="about ILinkUtils interface" Url="html/775b2b2e-52a6-26db-c006-c7a87a36c88b.htm" />
+    <HelpKINode Title="methods" Url="html/e8655038-18bc-2428-5648-684d6324141a.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ILinkUtils.FindLinkSourceFromTarget method" Url="html/5d7c5b9e-f108-f882-0d59-6d66f7664cad.htm" />
+  <HelpKINode Title="ILinkUtils.FindLinkTargetFromSource method" Url="html/c0d4c865-b30f-b1a1-0ded-5874330bece2.htm" />
+  <HelpKINode Title="IncompatibleTargetLinkTypeMsg field" Url="html/eea84542-21f1-e867-78c3-1262697824b6.htm" />
+  <HelpKINode Title="instance field" Url="html/9815c298-5860-7a1b-b4ee-2953adc106f4.htm" />
+  <HelpKINode Title="Interactive enumeration member" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+  <HelpKINode Title="IPartModule interface">
+    <HelpKINode Title="IPartModule Interface" Url="html/ac03e75d-d6fd-19ce-e52e-d75851a0c8b7.htm" />
+    <HelpKINode Title="about IPartModule interface" Url="html/ac03e75d-d6fd-19ce-e52e-d75851a0c8b7.htm" />
+    <HelpKINode Title="methods" Url="html/bcd1b90f-6278-df8c-da01-f5da54138d41.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IPartModule.OnAwake method" Url="html/612ead8f-fd73-5f21-937b-aa1bf2561912.htm" />
+  <HelpKINode Title="IPartModule.OnFixedUpdate method" Url="html/79acf11e-480b-f63a-ae5f-681b6023bd72.htm" />
+  <HelpKINode Title="IPartModule.OnInitialize method" Url="html/99be7d0f-5576-8511-7dd8-ba00a2e53dd2.htm" />
+  <HelpKINode Title="IPartModule.OnLoad method" Url="html/703e9ce5-08fb-a553-08b2-7698f6e0f531.htm" />
+  <HelpKINode Title="IPartModule.OnSave method" Url="html/e5c1162f-5fab-4d2c-d61d-739574f2cd9f.htm" />
+  <HelpKINode Title="IPartModule.OnStart method" Url="html/3b756d43-ef92-cd72-cbe2-51c142bdf5c6.htm" />
+  <HelpKINode Title="IPartModule.OnUpdate method" Url="html/94a5dacd-d039-c7b3-3eac-2ffabfdc5c3a.htm" />
+  <HelpKINode Title="IsDestroyable interface">
+    <HelpKINode Title="IsDestroyable Interface" Url="html/a68b6158-0a07-47b5-1f13-98b72f44bb50.htm" />
+    <HelpKINode Title="about IsDestroyable interface" Url="html/a68b6158-0a07-47b5-1f13-98b72f44bb50.htm" />
+    <HelpKINode Title="methods" Url="html/6e0bfb58-873a-3a11-3c23-8d4835e8cdd9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IsDestroyable.OnDestroy method" Url="html/87169f3a-5bb4-0167-e52f-f71d954f18ea.htm" />
+  <HelpKINode Title="isLinked property">
+    <HelpKINode Title="AbstractJointModule.isLinked Property " Url="html/7355bb4f-9352-7241-54af-675ccd531d28.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.isLinked Property " Url="html/87ce1a38-c0b6-bf58-5313-cc7dba9367af.htm" />
+  </HelpKINode>
+  <HelpKINode Title="isLoaded field" Url="html/40cf75a0-f3d7-9ac7-8196-2aa5f2ef88db.htm" />
+  <HelpKINode Title="isLocked property">
+    <HelpKINode Title="ILinkSource.isLocked Property " Url="html/73452b79-2a11-2882-e3dd-0d47cc5275f7.htm" />
+    <HelpKINode Title="ILinkTarget.isLocked Property " Url="html/9c0e36ce-78ba-23c2-2a89-8c54722bccbd.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.isLocked Property " Url="html/7f4ff7d8-d9b3-2391-20ed-ef1a8e42f14c.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.isLocked Property " Url="html/aad661e0-1a1b-2c8a-91a7-55aa8e64a1bd.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IsPackable interface">
+    <HelpKINode Title="IsPackable Interface" Url="html/75154042-4182-c9ec-c897-0bd9a4435cfc.htm" />
+    <HelpKINode Title="about IsPackable interface" Url="html/75154042-4182-c9ec-c897-0bd9a4435cfc.htm" />
+    <HelpKINode Title="methods" Url="html/0d4db6c6-40a2-546c-c9be-dbcac1b52a04.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IsPackable.OnPartPack method" Url="html/6cb0dad9-a3aa-ba2a-4ff0-cda271c98caa.htm" />
+  <HelpKINode Title="IsPackable.OnPartUnpack method" Url="html/e962b503-8866-f088-9968-5e62d7f27cd2.htm" />
+  <HelpKINode Title="isPhysicalCollider property">
+    <HelpKINode Title="ILinkRenderer.isPhysicalCollider Property " Url="html/a4f6302f-9020-7079-db62-9cca4a592b6a.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.isPhysicalCollider Property " Url="html/7e0d26fd-abe1-e829-35ee-40b199b39410.htm" />
+  </HelpKINode>
+  <HelpKINode Title="isStarted property">
+    <HelpKINode Title="ILinkRenderer.isStarted Property " Url="html/9a56c161-7e2a-c61d-a608-0f42d67f21b6.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.isStarted Property " Url="html/f1cd745c-e4f8-aa54-7ff1-1c3073f5bd22.htm" />
+    <HelpKINode Title="SimpleStateMachine(T).isStarted Property " Url="html/f26f14bf-dc2b-bf14-6b38-c3bf6d1b679c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="isStrict property" Url="html/1eaf2bf6-169b-03c6-6678-935f527e390e.htm" />
+  <HelpKINode Title="JointState class">
+    <HelpKINode Title="fields" Url="html/14e71469-6bce-23a4-414a-16d1ab69b78c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="jointState field" Url="html/e40116f2-de0c-0135-f6d8-9ff42627ce84.htm" />
+  <HelpKINode Title="jointTexturePath field" Url="html/1f8a14a4-6273-ede1-f054-117858008646.htm" />
+  <HelpKINode Title="JointUtils field" Url="html/4e47a44d-b6a1-497d-b37f-4c98c468d542.htm" />
+  <HelpKINode Title="KAS namespace" Url="html/96b60bf7-548e-dbb8-7c6a-5ea716d46790.htm" />
+  <HelpKINode Title="KAS.AbstractJointModule class" Url="html/09761487-b192-161b-9272-866a0d9955c0.htm" />
+  <HelpKINode Title="KAS.AbstractJointModule.JointState class" Url="html/5efe8d86-920a-b723-09eb-c862f0a1e809.htm" />
+  <HelpKINode Title="KAS.AbstractJointPart class" Url="html/7396402a-d63c-c84e-7e09-e4e38580cef5.htm" />
+  <HelpKINode Title="KAS.AbstractProceduralModel class" Url="html/4608f060-ffe4-400f-7583-4d17165f1980.htm" />
+  <HelpKINode Title="KAS.KASModuleInteractiveJointSource class" Url="html/e381a058-d26e-8901-e950-b456ceddc636.htm" />
+  <HelpKINode Title="KAS.KASModuleLinkSourceBase class" Url="html/f993ba55-3d7e-5cbf-226d-12ddd6b815f4.htm" />
+  <HelpKINode Title="KAS.KASModuleLinkTargetBase class" Url="html/5e50c5bc-ed05-2b33-1e37-113841cd25bd.htm" />
+  <HelpKINode Title="KAS.KASModuleStockJoint class" Url="html/336a41dc-3be7-8c6c-3543-15ba3b07e43f.htm" />
+  <HelpKINode Title="KAS.KASModuleTelescopicPipeStrut class" Url="html/35c4799a-1258-000b-7c24-35db7883c8f8.htm" />
+  <HelpKINode Title="KAS.KASModuleTwoEndsSphereJoint class" Url="html/f9e7b6c3-e323-d300-9c08-400b29c74391.htm" />
+  <HelpKINode Title="KASAPI class">
+    <HelpKINode Title="KASAPI Class" Url="html/4cc9933d-0065-db48-d540-d1021b08fb3f.htm" />
+    <HelpKINode Title="about KASAPI class" Url="html/4cc9933d-0065-db48-d540-d1021b08fb3f.htm" />
+    <HelpKINode Title="fields" Url="html/2c2145e3-0ad4-adb3-12af-5b4df3b2912a.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASAPI.AttachNodesUtils field" Url="html/7d04cafd-6967-dd3a-6c3a-1122c1904411.htm" />
+  <HelpKINode Title="KASAPI.isLoaded field" Url="html/40cf75a0-f3d7-9ac7-8196-2aa5f2ef88db.htm" />
+  <HelpKINode Title="KASAPI.JointUtils field" Url="html/4e47a44d-b6a1-497d-b37f-4c98c468d542.htm" />
+  <HelpKINode Title="KASAPI.LinkUtils field" Url="html/1d5a4ef1-a0f9-d6dd-e45c-68cf00f59e1c.htm" />
+  <HelpKINode Title="KASAPIv1 namespace" Url="html/18015ce3-e3af-191c-f585-3fb0999bdb35.htm" />
+  <HelpKINode Title="KASAPIv1.GUILinkMode enumeration" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+  <HelpKINode Title="KASAPIv1.IAttachNodesUtils interface" Url="html/f5dc1257-0271-8f0e-67b0-ebfc8845c648.htm" />
+  <HelpKINode Title="KASAPIv1.IJointUtils interface" Url="html/fc0e7651-b167-7c88-20b4-85e85ef95cf8.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkJoint interface" Url="html/3bb28523-f5b7-21f6-c133-427ca4a759fa.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkRenderer interface" Url="html/db9014ed-3c9e-ab0b-eae2-a0c6e7486435.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkSource interface" Url="html/f7608687-5965-7fb2-883e-e69cb6deff54.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkStateEventListener interface" Url="html/50597413-b277-ed76-2573-fa2e35d055ba.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkTarget interface" Url="html/57208073-364c-33bb-1112-39a24ce48f40.htm" />
+  <HelpKINode Title="KASAPIv1.ILinkUtils interface" Url="html/775b2b2e-52a6-26db-c006-c7a87a36c88b.htm" />
+  <HelpKINode Title="KASAPIv1.KASAPI class" Url="html/4cc9933d-0065-db48-d540-d1021b08fb3f.htm" />
+  <HelpKINode Title="KASAPIv1.KASEvents class" Url="html/aae7fd41-1902-9b9b-9f0b-ece17e95c9e2.htm" />
+  <HelpKINode Title="KASAPIv1.KASEvents.LinkEvent structure" Url="html/61cea1a4-2571-75e2-a3e0-058645634c25.htm" />
+  <HelpKINode Title="KASAPIv1.LinkActorType enumeration" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  <HelpKINode Title="KASAPIv1.LinkState enumeration" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="KASEvents class">
+    <HelpKINode Title="KASEvents Class" Url="html/aae7fd41-1902-9b9b-9f0b-ece17e95c9e2.htm" />
+    <HelpKINode Title="about KASEvents class" Url="html/aae7fd41-1902-9b9b-9f0b-ece17e95c9e2.htm" />
+    <HelpKINode Title="fields" Url="html/581f8dc7-a037-f195-cc34-356a6552ca1f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASEvents.LinkEvent structure">
+    <HelpKINode Title="KASEvents.LinkEvent Structure" Url="html/61cea1a4-2571-75e2-a3e0-058645634c25.htm" />
+    <HelpKINode Title="about KASEvents.LinkEvent structure" Url="html/61cea1a4-2571-75e2-a3e0-058645634c25.htm" />
+    <HelpKINode Title="constructor" Url="html/95d08ab4-95b8-ae29-3290-add24cbb166f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASEvents.LinkEvent.actor field" Url="html/5d1efdf9-9b34-ffc9-0bb9-4d36cd00d274.htm" />
+  <HelpKINode Title="KASEvents.LinkEvent.LinkEvent constructor" Url="html/95d08ab4-95b8-ae29-3290-add24cbb166f.htm" />
+  <HelpKINode Title="KASEvents.LinkEvent.source field" Url="html/44ccf7ef-9337-2279-108e-5f1f09d70fa1.htm" />
+  <HelpKINode Title="KASEvents.LinkEvent.target field" Url="html/f189fec0-ce18-3e73-06c5-f273ea19e2be.htm" />
+  <HelpKINode Title="KASEvents.OnLinkAccepted field" Url="html/af6ffe4a-22f6-2f7a-d470-ed5370b62b4f.htm" />
+  <HelpKINode Title="KASEvents.OnLinkBroken field" Url="html/7777b933-d5e8-f1f3-f8bb-291879bb408e.htm" />
+  <HelpKINode Title="KASEvents.OnLinkCreated field" Url="html/8cb0d3ed-00a3-6d45-3c31-51a79242c333.htm" />
+  <HelpKINode Title="KASEvents.OnStartLinking field" Url="html/833cc012-483b-2beb-6597-bc63216fe360.htm" />
+  <HelpKINode Title="KASEvents.OnStopLinking field" Url="html/ea60e8d2-b0c8-0faf-7d1d-46b9bba9c862.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource class">
+    <HelpKINode Title="KASModuleInteractiveJointSource Class" Url="html/e381a058-d26e-8901-e950-b456ceddc636.htm" />
+    <HelpKINode Title="about KASModuleInteractiveJointSource class" Url="html/e381a058-d26e-8901-e950-b456ceddc636.htm" />
+    <HelpKINode Title="constructor" Url="html/89c3f378-0cb2-0cd8-215b-a35f31875e9f.htm" />
+    <HelpKINode Title="fields" Url="html/d7b1087a-5a54-34cd-19c4-23723bc8c20f.htm" />
+    <HelpKINode Title="methods" Url="html/de34e8c8-580b-fe7d-d0ef-700eef822ef3.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleInteractiveJointSource.BreakLinkContextMenuAction method" Url="html/2268d6e8-fb53-2e9a-b86a-456da8c693ab.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.breakLinkMenu field" Url="html/f0334149-582d-9d7d-ebc9-6be88c5e127a.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.brokeSndPath field" Url="html/5c5de07e-dd06-7644-6ec2-6cc3c3fe9275.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.KASModuleInteractiveJointSource constructor" Url="html/89c3f378-0cb2-0cd8-215b-a35f31875e9f.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.OnAwake method" Url="html/e207f22a-9d82-ae46-41a1-43ff721237bc.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.OnKASLinkBrokenEvent method" Url="html/0b4368e6-d072-494e-fd19-125e664a2dcb.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.OnKASLinkCreatedEvent method" Url="html/3425ea6c-9a86-8098-9c45-4d6eaae0b837.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.OnStart method" Url="html/c21e2874-9a20-c2f6-ea35-0cc82e77dc7b.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.OnUpdate method" Url="html/2f3675e1-0c2b-39c1-3913-6550172f3229.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.plugSndPath field" Url="html/be38fc5a-f4a0-feb8-f61a-ef46843e5585.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.StartLinkContextMenuAction method" Url="html/54fffd38-a94a-1efa-2775-64a439d2dca2.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.StartLinking method" Url="html/771eeaad-86e5-8455-4b60-afd71d28ae75.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.startLinkMenu field" Url="html/9ec512df-27df-f0b4-2ecb-60f314665de7.htm" />
+  <HelpKINode Title="KASModuleInteractiveJointSource.unplugSndPath field" Url="html/ea3be7c3-dc91-451e-3830-084746d6912d.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase class">
+    <HelpKINode Title="KASModuleLinkSourceBase Class" Url="html/f993ba55-3d7e-5cbf-226d-12ddd6b815f4.htm" />
+    <HelpKINode Title="about KASModuleLinkSourceBase class" Url="html/f993ba55-3d7e-5cbf-226d-12ddd6b815f4.htm" />
+    <HelpKINode Title="constructor" Url="html/53dc8f07-ddb2-f0d4-cd8f-7c0e7d2aef31.htm" />
+    <HelpKINode Title="fields" Url="html/cda24f84-c6ed-eb24-fd63-0457ac3fc7c0.htm" />
+    <HelpKINode Title="methods" Url="html/1850a22e-45f2-311e-201c-3aa2476066df.htm" />
+    <HelpKINode Title="properties" Url="html/ebc7f19e-034c-b6dd-9a9f-c2fdc6e8b7c8.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleLinkSourceBase.attachNode property" Url="html/233d4aaf-ab0e-82f5-b93b-de4414081f28.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.attachNodeName field" Url="html/ffa343e1-3934-43e8-f77e-96c4a73c3a43.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.attachNodeOrientation field" Url="html/e2a35e5e-c18a-19b1-6b51-a973baa73eea.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.attachNodePosition field" Url="html/0458313c-1281-2160-dd53-ddc15804150a.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.BadLinkStatusTimeout field" Url="html/6a2c08b0-063b-9859-38e8-50508353563c.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.BreakCurrentLink method" Url="html/f28abd0e-f7dd-928b-ce9f-aaa3cae71705.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CancelLinking method" Url="html/ebd171c4-6a15-0394-d654-8a6b32b79f78.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CannotLinkToTheSameVesselMsg field" Url="html/327b288b-f96c-e638-b262-a906bea3d4c1.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CannotRestoreLinkMsg field" Url="html/2a637e8b-6bce-fb43-5544-557a75ad5be6.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.cfgAttachNodeName property" Url="html/24226860-5204-9382-2179-1933fe601e85.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.cfgLinkRendererName property" Url="html/773901c1-9915-e25f-9e34-4da8a04e37d2.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.cfgLinkType property" Url="html/7157eeb0-0bd6-6fab-19f8-3f5a7ee29645.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CheckBasicLinkConditions method" Url="html/2397ed81-2c02-3b67-c2c9-f7593fed7bd7.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CheckCanLinkTo method" Url="html/96d9ad42-d154-d1e1-bbf9-06b3b0274de7.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.CheckJointLimits method" Url="html/161961a2-68ca-42d6-8a54-736c06bd973f.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.ConnectParts method" Url="html/50d36cd0-0185-e40f-58fb-b046a7098722.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.DecoupleAction method" Url="html/d6fd7443-d021-00fa-2146-6e7f8de86283.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.GetDrawModulePanelCallback method" Url="html/6f010c58-ad9d-bcae-f9cd-2e95678629d9.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.GetInfo method" Url="html/f24f8e78-3ebe-4069-3755-3831c2298bd6.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.GetModuleTitle method" Url="html/73977a2c-26bd-4472-2433-ea7dcb987eac.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.GetPrimaryField method" Url="html/9c836cef-49f4-c753-6742-1ce925815fd0.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.guiLinkMode property" Url="html/a53920b5-9785-997e-a13a-1e3c897ed121.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.IncompatibleTargetLinkTypeMsg field" Url="html/eea84542-21f1-e867-78c3-1262697824b6.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.isLocked property" Url="html/7f4ff7d8-d9b3-2391-20ed-ef1a8e42f14c.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.KASModuleLinkSourceBase constructor" Url="html/53dc8f07-ddb2-f0d4-cd8f-7c0e7d2aef31.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkJoint property" Url="html/d4ef3f93-2fed-f918-4927-6894997ed157.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.LinkParts method" Url="html/388e9f18-387e-3b1d-25b1-b6f9c69cc96e.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkRenderer property" Url="html/e6e9ea8a-c762-6a73-82fc-2a3bb9f5d26f.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkRendererName field" Url="html/f20346a8-f18e-4fe4-b2d1-d01e2d94e0a4.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkState property" Url="html/b91cf905-7a78-2b2e-e787-86b8431724eb.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.LinksWithSocketTypeInfo field" Url="html/b9e36239-1341-7e06-2835-8ae358c16f7c.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkTarget property" Url="html/f4380e32-9495-9d6f-f763-5d71737d379a.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.LinkToTarget method" Url="html/238f9fd7-1850-4557-4a4f-934030651d5c.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.linkType field" Url="html/c0d40cfd-2cac-f1a3-c9b3-4eaf492ef514.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.ModuleTitleInfo field" Url="html/a7975c9c-c269-5f21-0725-ee07eed69605.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.nodeTransform property" Url="html/3333f451-b962-5a96-cb07-dafe8287b714.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnAwake method" Url="html/687b203a-f227-9fab-fbab-f01f88c0f1cf.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnDestroy method" Url="html/c895bb23-c736-626d-bd10-61a1a3b902d6.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnJointBreak method" Url="html/397f8192-16f3-901f-7012-85eecba9d090.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnKASLinkBrokenEvent method" Url="html/a29390cf-d5ed-a571-109c-5bb84ac0668b.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnKASLinkCreatedEvent method" Url="html/61815dd8-f56f-f4b8-897e-2d94ff554971.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnLoad method" Url="html/4a08b51b-8662-6c57-bb70-c87ddc2d6840.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnPartPack method" Url="html/a7046592-8e8f-f269-324d-e7e033de268e.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnPartUnpack method" Url="html/d2560417-a712-f8cc-2aa1-a3139c797bba.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnStart method" Url="html/101edc0d-64c0-177d-4a63-06d1acc1495f.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.OnStateChange method" Url="html/af3783f3-2e8a-d8b0-c37d-23f3c64bd253.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.persistedLinkState field" Url="html/d2ec7fce-b125-619c-0c1b-7d01ff96a16a.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.SourceIsNotAvailableForLinkMsg field" Url="html/dc403323-0410-b24a-b77f-bc887b4b1f57.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.StartLinkGUIMode method" Url="html/f516dccd-6624-ade1-4645-527ef3f29616.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.StartLinking method" Url="html/15241173-e47c-d23b-4ee7-9a9e1f92c50f.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.StopLinkGUIMode method" Url="html/6786fd3f-baf8-0570-28e1-296acef86127.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.TargetDoesntAcceptLinksMsg field" Url="html/9d9092c6-755f-05f5-ae68-33cadf1ca31e.htm" />
+  <HelpKINode Title="KASModuleLinkSourceBase.UnlinkParts method" Url="html/7020439d-ce7e-d469-c6fa-9d002a81686d.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase class">
+    <HelpKINode Title="KASModuleLinkTargetBase Class" Url="html/5e50c5bc-ed05-2b33-1e37-113841cd25bd.htm" />
+    <HelpKINode Title="about KASModuleLinkTargetBase class" Url="html/5e50c5bc-ed05-2b33-1e37-113841cd25bd.htm" />
+    <HelpKINode Title="constructor" Url="html/11a5df32-6711-299e-4f72-e26e0be3030f.htm" />
+    <HelpKINode Title="fields" Url="html/9ef3dd1d-b305-0451-e595-f65272491ed4.htm" />
+    <HelpKINode Title="methods" Url="html/f63c0dea-9103-5da5-7f57-3fef9c12ba1b.htm" />
+    <HelpKINode Title="properties" Url="html/d76ec7c4-6c90-e0a2-3897-624903cc346b.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleLinkTargetBase.attachNode property" Url="html/18c4a2fd-2ad6-c604-7d88-5808d7d0739d.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.attachNodeName field" Url="html/082ef1a6-7faf-5908-c05e-b1780760a950.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.attachNodeOrientation field" Url="html/531d7b65-beed-c4b6-7c45-318ede86ba8a.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.attachNodePosition field" Url="html/97b273d4-e816-9639-760b-8e1c1d4d68e7.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.cfgAttachNodeName property" Url="html/a616947d-ff3f-068c-aaa4-4d1a3e7fccaf.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.cfgLinkType property" Url="html/48648114-bb35-be82-bc00-0b1dbbfeb97d.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.DecoupleAction method" Url="html/7b423f0b-aee6-39ca-67cd-43befc4a69be.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.highlightColor field" Url="html/d0dfa219-6f51-c5a6-2fe4-764f2c74aef7.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.highlightCompatibleTargets field" Url="html/a0a1575f-2442-7814-5ed4-0acdab87cd6e.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.isLocked property" Url="html/aad661e0-1a1b-2c8a-91a7-55aa8e64a1bd.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.KASModuleLinkTargetBase constructor" Url="html/11a5df32-6711-299e-4f72-e26e0be3030f.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.linkSource property" Url="html/2bd24414-6884-6e1f-8b2b-24fddac1e8ca.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.linkState property" Url="html/40ad5d13-1174-52ec-8425-6a04fbd69bd1.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.linkStateMachine field" Url="html/17c0efab-998a-d9d9-043d-057c6b6806d6.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.linkType field" Url="html/8986a10c-6c8a-582b-f796-116d9a4a8204.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.nodeTransform property" Url="html/dc98a2f0-e9f4-4e5b-4757-a70d1ee07550.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnAwake method" Url="html/5d148ba1-1fa4-87d4-8b45-b7c0f2c743e4.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnDestroy method" Url="html/3f2a96f4-89f1-8aa4-8036-d0b781f355d3.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnKASLinkBrokenEvent method" Url="html/b3dd0851-20cd-d609-816d-7c767aa31cee.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnKASLinkCreatedEvent method" Url="html/35678026-9b91-e13c-7de0-f535d2634c5c.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnLoad method" Url="html/1c4d7ab2-f3df-5844-374b-6adb5c49aef9.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnStart method" Url="html/47539c80-01ba-2c4f-4e4d-8e97638caf8f.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.OnStateChange method" Url="html/7f9387f6-1a97-4d7b-1f28-6d744c9dc07b.htm" />
+  <HelpKINode Title="KASModuleLinkTargetBase.persistedLinkState field" Url="html/e78b8f26-cfb7-9d7e-c47c-02dd4ee42cee.htm" />
+  <HelpKINode Title="KASModuleStockJoint class">
+    <HelpKINode Title="KASModuleStockJoint Class" Url="html/336a41dc-3be7-8c6c-3543-15ba3b07e43f.htm" />
+    <HelpKINode Title="about KASModuleStockJoint class" Url="html/336a41dc-3be7-8c6c-3543-15ba3b07e43f.htm" />
+    <HelpKINode Title="constructor" Url="html/ee15eb22-75eb-febc-ce9d-78dd708cf5ae.htm" />
+    <HelpKINode Title="fields" Url="html/f3cf20fb-7271-2143-d51d-980e5ae30436.htm" />
+    <HelpKINode Title="methods" Url="html/edf9e9e5-58b2-14d2-417f-55216c389564.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleStockJoint.AdjustJoint method" Url="html/a9c26c0d-15e6-8320-86bb-ac3e6c506d5a.htm" />
+  <HelpKINode Title="KASModuleStockJoint.jointState field" Url="html/e40116f2-de0c-0135-f6d8-9ff42627ce84.htm" />
+  <HelpKINode Title="KASModuleStockJoint.KASModuleStockJoint constructor" Url="html/ee15eb22-75eb-febc-ce9d-78dd708cf5ae.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut class">
+    <HelpKINode Title="KASModuleTelescopicPipeStrut Class" Url="html/35c4799a-1258-000b-7c24-35db7883c8f8.htm" />
+    <HelpKINode Title="about KASModuleTelescopicPipeStrut class" Url="html/35c4799a-1258-000b-7c24-35db7883c8f8.htm" />
+    <HelpKINode Title="constructor" Url="html/7eb59c54-e19b-b962-23a3-adf2a97c74a3.htm" />
+    <HelpKINode Title="fields" Url="html/e2ced996-502d-aadb-c94d-0a84291b1097.htm" />
+    <HelpKINode Title="methods" Url="html/a953c666-5417-3b44-d552-5c4be574ab59.htm" />
+    <HelpKINode Title="properties" Url="html/e0dbb8fe-8edd-4510-3abf-72d16a98c042.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.AttachNodeObjName field" Url="html/d59f9b2b-f794-9ebf-e7ef-9fdc60721550.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.cfgRendererName property" Url="html/9f04de43-ae69-b626-7870-13062da3ccf3.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.CheckColliderHits method" Url="html/d0159907-ce5c-e087-7266-61bc64f09336.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.colorOverride property" Url="html/b893fc7b-ab1d-d33b-587d-9da6e94bf8df.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.CreatePartModel method" Url="html/b6ea65ff-a1ae-d093-c540-24c8ba8e2ab1.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.ExtendAtMaxMenuAction method" Url="html/59fa4a40-4718-7b11-f90d-6474f9a67ebf.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.ExtendAtMaxMenuActionName field" Url="html/92aacd81-3660-5719-6410-31b5c3769c75.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.GetClampedLinkLength method" Url="html/e72c0db2-09df-8ae7-97e2-3ecafc08b26a.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.isLinked property" Url="html/87ce1a38-c0b6-bf58-5313-cc7dba9367af.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.isPhysicalCollider property" Url="html/7e0d26fd-abe1-e829-35ee-40b199b39410.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.isStarted property" Url="html/f1cd745c-e4f8-aa54-7ff1-1c3073f5bd22.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.KASModuleTelescopicPipeStrut constructor" Url="html/7eb59c54-e19b-b962-23a3-adf2a97c74a3.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.LinkCollidesWithObjectMsg field" Url="html/10904179-4724-0d00-4ef5-40256718f677.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.LinkCollidesWithSurfaceMsg field" Url="html/cbfc352a-4f51-bea2-4718-de054ccf61ee.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.linkSource property" Url="html/9298e590-e378-8dd9-7a93-99028bb978d1.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.LoadPartModel method" Url="html/cd016cf2-3df7-6e26-c8b8-362df60d2e91.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.maxLinkLength property" Url="html/67cee9ed-8ec3-15d5-0316-29e7ea62701c.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.MenuAction0Name field" Url="html/a7a1d227-0d24-16ec-2cbc-32b865367382.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.MenuAction1Name field" Url="html/2824f093-3474-bde4-5a81-c786bf6fb55a.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.MenuAction2Name field" Url="html/cdf570a9-547a-0272-10ca-59ff02f78feb.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.minLinkLength property" Url="html/ee8b5039-c544-d865-6225-593143505664.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.OnAwake method" Url="html/5390ee4e-7e21-7c45-c006-23c258dc01f7.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.OnStart method" Url="html/692de62c-1429-b0c7-1b8b-d9475b28fc4f.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.OnUpdate method" Url="html/174a5bd1-d4ce-ff55-a1e3-34e2ff0413b9.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.outerPistonDiameter field" Url="html/7693f0c6-a66d-3c53-3a7a-7f1afe5678b4.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.parkedLength field" Url="html/7dd127eb-65df-cfca-3615-d7295c4b2204.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.parkedOrientation field" Url="html/41833e3f-2cc7-a37a-a323-0a3e65ff059b.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.parkedOrientationMenu0 field" Url="html/9deb23c3-b67e-8f49-9158-5e9b7d37e265.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.parkedOrientationMenu1 field" Url="html/276dc011-b61b-eab4-eb42-4044b7122cdf.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.parkedOrientationMenu2 field" Url="html/a0d193ce-7cf7-656a-2e4a-c6ea907cdaef.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.ParkedOrientationMenuAction0 method" Url="html/063fee01-120e-f560-a1fa-3be8795e12b0.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.ParkedOrientationMenuAction1 method" Url="html/7b3f2b4b-36be-0bb5-ca83-469a59070337.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.ParkedOrientationMenuAction2 method" Url="html/ecd2b15c-7d5e-a8dc-133b-5414ca378a6a.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistonLength field" Url="html/f26ae75c-3ddd-fd0b-0476-c7370c515d59.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistonMinShift field" Url="html/d6df643b-151f-94bb-0801-b9388520a245.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistons property" Url="html/3106cab2-f888-8709-c438-36550f62194d.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistonsCount field" Url="html/9bc19b1a-b797-61fb-7ea3-4a23af25c288.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistonTexturePath field" Url="html/1dd4d632-d4bf-4193-f751-9fa73dd2b9b8.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.pistonWallThickness field" Url="html/34ac9010-92fe-2af9-63dc-e6306b6310a8.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.rendererName field" Url="html/9fc26fe1-d2be-5147-4975-25d4c28d3faa.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.RetractToMinMenuAction method" Url="html/b7a4fc85-fbe1-4450-1f63-1472a01e75ba.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.RetractToMinMenuActionName field" Url="html/5fd1704e-858e-5051-05eb-7f2e3c2d3511.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.shaderNameOverride property" Url="html/2910f3f4-88e6-9a6f-1970-42c3214a112e.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.sourceTransform property" Url="html/22c7cc45-0741-7b5a-b00a-647f83a5cd3b.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.srcJointHandleLength property" Url="html/62da179c-8ac0-e67b-7798-d8fe6583969c.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.srcPartJoint property" Url="html/814f806f-97cc-b31e-9aa2-7d8ac033117d.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.SrcPartJointObjName field" Url="html/1505b0fe-32d1-cc4b-b620-25ec775b5236.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.srcPartJointPivot property" Url="html/f99066ce-dc58-edbd-34f1-cedf57cdb7a2.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.srcStrutJoint property" Url="html/e9416d07-ce06-8571-0025-9e054b2c136a.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.SrcStrutJointObjName field" Url="html/3e0fe9cd-f1ee-29ef-c064-13d8dc1b514b.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.StartRenderer method" Url="html/6afeb61f-fee9-ace6-28d8-f22d5e86b54f.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.StopRenderer method" Url="html/cd0a3221-f34e-fab7-41a7-6ea09b697d54.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.targetTransform property" Url="html/139c9e1c-5608-7905-7f4c-06ddaef54f76.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.trgJointHandleLength property" Url="html/14d844bf-65a1-600e-18a8-fceb7885e4c2.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.TrgPartJointObjName field" Url="html/345a3f51-c2e2-b9c6-00e3-56b5cf9f6f83.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.trgStrutJoint property" Url="html/78ccc202-bab0-120d-425e-c5594721ca76.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.TrgStrutJointObjName field" Url="html/c94a56f8-969e-a3cc-4a0a-439455fc4cd2.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.trgStrutJointPivot property" Url="html/80d79d61-cb41-a8ab-9cb4-0472e1387d69.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.UpdateLink method" Url="html/795f257f-ec92-6d90-2ceb-0bc855a38477.htm" />
+  <HelpKINode Title="KASModuleTelescopicPipeStrut.UpdateLinkLengthAndOrientation method" Url="html/3ded9bfe-5c87-4b01-9e54-299a601767f3.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint class">
+    <HelpKINode Title="KASModuleTwoEndsSphereJoint Class" Url="html/f9e7b6c3-e323-d300-9c08-400b29c74391.htm" />
+    <HelpKINode Title="about KASModuleTwoEndsSphereJoint class" Url="html/f9e7b6c3-e323-d300-9c08-400b29c74391.htm" />
+    <HelpKINode Title="constructor" Url="html/b7670063-53b7-dfb1-2363-4823dd8de0b9.htm" />
+    <HelpKINode Title="fields" Url="html/a2263297-5d04-3dac-880c-b16ff34362dc.htm" />
+    <HelpKINode Title="methods" Url="html/d4ef8b67-60f1-2a0c-4d05-ad673c9f0875.htm" />
+  </HelpKINode>
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.AdjustJoint method" Url="html/5388a656-ebd0-cbb0-e4c7-caad275e7ecf.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.CreateJoint method" Url="html/051784c5-8d60-5cea-4057-84a8b7b962f1.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.DropJoint method" Url="html/9019b976-64c1-587e-345e-a1e81594a983.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.KASModuleTwoEndsSphereJoint constructor" Url="html/b7670063-53b7-dfb1-2363-4823dd8de0b9.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.strutSpringDamperRatio field" Url="html/edd92638-371b-2615-f2b2-08e4b1439145.htm" />
+  <HelpKINode Title="KASModuleTwoEndsSphereJoint.strutSpringForce field" Url="html/24509463-314e-b44b-ed35-fa0445f225dc.htm" />
+  <HelpKINode Title="KERBALS enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="KSPDev.Extensions namespace" Url="html/b1828e24-825b-9543-d43e-b3ab6383b000.htm" />
+  <HelpKINode Title="KSPDev.Extensions.Dictionaries class" Url="html/33ba710f-84cc-d108-4c0a-f5301473f836.htm" />
+  <HelpKINode Title="KSPDev.GUIUtils namespace" Url="html/b5e643c2-2586-a951-1115-6d26cf63d619.htm" />
+  <HelpKINode Title="KSPDev.GUIUtils.Formatter class" Url="html/0eb61a28-fcd5-2589-9a8b-cfe86b54fb0f.htm" />
+  <HelpKINode Title="KSPDev.GUIUtils.UISoundPlayer class" Url="html/5e9e04d3-23ea-763a-0dfb-af926bb31f36.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces namespace" Url="html/639399ba-fc81-b494-6aa7-b4129500b0a1.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IJointEventsListener interface" Url="html/bf577f2d-a3f2-ceb9-c69c-8ca4ce5a08d4.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IKSPActivateOnDecouple interface" Url="html/e6315e29-c384-a61e-6b54-689ff7a18a2c.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IKSPDevModuleInfo interface" Url="html/1eebf4ae-aa39-188f-2c13-5c84029e9bd6.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IPartModule interface" Url="html/ac03e75d-d6fd-19ce-e52e-d75851a0c8b7.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IsDestroyable interface" Url="html/a68b6158-0a07-47b5-1f13-98b72f44bb50.htm" />
+  <HelpKINode Title="KSPDev.KSPInterfaces.IsPackable interface" Url="html/75154042-4182-c9ec-c897-0bd9a4435cfc.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils namespace" Url="html/133feece-cce0-21d2-bfa6-b46eab175da8.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils.Colliders class" Url="html/24f1d34d-38cf-29a7-ed42-aaf082dd7879.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils.Colliders.PrimitiveCollider enumeration" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils.Hierarchy class" Url="html/fe9c3d0b-759d-a684-fd02-2c4e654a9329.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils.KspLayerMask enumeration" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="KSPDev.ModelUtils.Meshes class" Url="html/d32a5c07-d79d-fb91-5d44-c952cb194938.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils namespace" Url="html/5ea0a5e4-faf7-929b-fc7b-034b0bfa325d.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.AsyncCall class" Url="html/8a89caf5-dc4c-ac84-290a-7e6cf8acd825.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.AsyncCall.Action0 delegate" Url="html/cf6a21f5-6ab9-cfdf-c47d-3d67ee176252.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine(Of T) class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine(Of T).OnChange delegate" Url="html/2f3c3d14-116f-5805-fa3e-b02f4c68eb8f.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine(Of T).OnDebugChange delegate" Url="html/dedf0749-8c0d-251f-7724-8fa4b67c6291.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine&lt;T&gt; class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine&lt;T&gt;.OnChange delegate" Url="html/2f3c3d14-116f-5805-fa3e-b02f4c68eb8f.htm" />
+  <HelpKINode Title="KSPDev.ProcessingUtils.SimpleStateMachine&lt;T&gt;.OnDebugChange delegate" Url="html/dedf0749-8c0d-251f-7724-8fa4b67c6291.htm" />
+  <HelpKINode Title="KspLayerMask enumeration" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="KspPartShaderName field" Url="html/9db0639c-c79d-f00a-4867-eb76b132ba40.htm" />
+  <HelpKINode Title="LinkActorType enumeration" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  <HelpKINode Title="linkBreakForce field" Url="html/e8ecba2c-f1be-373e-fe76-858fc6e557f7.htm" />
+  <HelpKINode Title="LinkBreakStrengthInfo field" Url="html/33e7828f-afc4-fc21-8451-1f3a56433295.htm" />
+  <HelpKINode Title="linkBreakTorque field" Url="html/9d9e3e01-0767-8693-ffeb-5c5ceab4c9b2.htm" />
+  <HelpKINode Title="LinkCollidesWithObjectMsg field" Url="html/10904179-4724-0d00-4ef5-40256718f677.htm" />
+  <HelpKINode Title="LinkCollidesWithSurfaceMsg field" Url="html/cbfc352a-4f51-bea2-4718-de054ccf61ee.htm" />
+  <HelpKINode Title="Linked enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="LinkEvent structure">
+    <HelpKINode Title="fields" Url="html/65a7f089-0ef4-8c89-96f5-fcec80e9256f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Linking enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="linkJoint property" Url="html/d4ef3f93-2fed-f918-4927-6894997ed157.htm" />
+  <HelpKINode Title="LinkLinearStrengthInfo field" Url="html/7f2f3c4e-8cb7-51c2-98a7-bec456d70a1d.htm" />
+  <HelpKINode Title="LinkParts method" Url="html/388e9f18-387e-3b1d-25b1-b6f9c69cc96e.htm" />
+  <HelpKINode Title="linkRenderer property" Url="html/e6e9ea8a-c762-6a73-82fc-2a3bb9f5d26f.htm" />
+  <HelpKINode Title="linkRendererName field" Url="html/f20346a8-f18e-4fe4-b2d1-d01e2d94e0a4.htm" />
+  <HelpKINode Title="linkSource property">
+    <HelpKINode Title="AbstractJointModule.linkSource Property " Url="html/0a2f70c2-3f50-eda4-8431-21d88ea32830.htm" />
+    <HelpKINode Title="ILinkTarget.linkSource Property " Url="html/334c5ada-3b69-62aa-2137-66dd7a205f28.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.linkSource Property " Url="html/2bd24414-6884-6e1f-8b2b-24fddac1e8ca.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.linkSource Property " Url="html/9298e590-e378-8dd9-7a93-99028bb978d1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="LinkState enumeration" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="linkState property">
+    <HelpKINode Title="ILinkSource.linkState Property " Url="html/b37df465-a71d-442c-96b1-53d184919895.htm" />
+    <HelpKINode Title="ILinkTarget.linkState Property " Url="html/0efcf042-0f9a-26fc-534f-1fcf4dcaf676.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.linkState Property " Url="html/b91cf905-7a78-2b2e-e787-86b8431724eb.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.linkState Property " Url="html/40ad5d13-1174-52ec-8425-6a04fbd69bd1.htm" />
+  </HelpKINode>
+  <HelpKINode Title="linkStateMachine field" Url="html/17c0efab-998a-d9d9-043d-057c6b6806d6.htm" />
+  <HelpKINode Title="LinksWithSocketTypeInfo field" Url="html/b9e36239-1341-7e06-2835-8ae358c16f7c.htm" />
+  <HelpKINode Title="linkTarget property">
+    <HelpKINode Title="AbstractJointModule.linkTarget Property " Url="html/efa9fb80-bde0-e0c0-5a15-3c37f37f2349.htm" />
+    <HelpKINode Title="ILinkSource.linkTarget Property " Url="html/780e5114-735c-ff46-fbc3-30161dded8aa.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.linkTarget Property " Url="html/f4380e32-9495-9d6f-f763-5d71737d379a.htm" />
+  </HelpKINode>
+  <HelpKINode Title="LinkToTarget method">
+    <HelpKINode Title="ILinkSource.LinkToTarget Method " Url="html/885b7143-bb75-520a-a7a3-2209eaac3523.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.LinkToTarget Method " Url="html/238f9fd7-1850-4557-4a4f-934030651d5c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="linkType field">
+    <HelpKINode Title="KASModuleLinkSourceBase.linkType Field" Url="html/c0d40cfd-2cac-f1a3-c9b3-4eaf492ef514.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.linkType Field" Url="html/8986a10c-6c8a-582b-f796-116d9a4a8204.htm" />
+  </HelpKINode>
+  <HelpKINode Title="LinkUtils field" Url="html/1d5a4ef1-a0f9-d6dd-e45c-68cf00f59e1c.htm" />
+  <HelpKINode Title="LoadPartModel method">
+    <HelpKINode Title="AbstractProceduralModel.LoadPartModel Method " Url="html/24afc6fd-4807-1f2f-92dd-5199d69a9d0f.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.LoadPartModel Method " Url="html/cd016cf2-3df7-6e26-c8b8-362df60d2e91.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Locked enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="MaximumLinkLengthInfo field" Url="html/cd5207f6-215b-2ca1-6eed-005318ddea42.htm" />
+  <HelpKINode Title="MaxLengthLimitReachedMsg field" Url="html/6af77c76-cbee-bc90-8580-03c56e4e35af.htm" />
+  <HelpKINode Title="maxLinkLength field" Url="html/2f34cd85-ba54-8f12-80b9-a6287696e478.htm" />
+  <HelpKINode Title="maxLinkLength property" Url="html/67cee9ed-8ec3-15d5-0316-29e7ea62701c.htm" />
+  <HelpKINode Title="MenuAction0Name field" Url="html/a7a1d227-0d24-16ec-2cbc-32b865367382.htm" />
+  <HelpKINode Title="MenuAction1Name field" Url="html/2824f093-3474-bde4-5a81-c786bf6fb55a.htm" />
+  <HelpKINode Title="MenuAction2Name field" Url="html/cdf570a9-547a-0272-10ca-59ff02f78feb.htm" />
+  <HelpKINode Title="Mesh enumeration member" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+  <HelpKINode Title="Meshes class">
+    <HelpKINode Title="Meshes Class" Url="html/d32a5c07-d79d-fb91-5d44-c952cb194938.htm" />
+    <HelpKINode Title="about Meshes class" Url="html/d32a5c07-d79d-fb91-5d44-c952cb194938.htm" />
+    <HelpKINode Title="methods" Url="html/70dea87f-dea1-21e9-a50e-a6d062e14071.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Meshes.CreateBox method" Url="html/4ccbc79a-cde4-2b61-1aa2-709fefba84cd.htm" />
+  <HelpKINode Title="Meshes.CreateCylinder method" Url="html/883c0c2d-4121-ac1d-8819-9668eafd7990.htm" />
+  <HelpKINode Title="Meshes.CreatePrimitive method" Url="html/74a27fa7-f3f2-c5e6-b186-c7e54ce00334.htm" />
+  <HelpKINode Title="Meshes.CreateSphere method" Url="html/04817e3f-1fd9-f27c-b1bc-4c38a6fdf0f7.htm" />
+  <HelpKINode Title="Meshes.RescaleTextureToLength method" Url="html/e429a420-9af0-f584-aa59-984ba62fcdb3.htm" />
+  <HelpKINode Title="Meshes.UpdateMaterials method" Url="html/fff254b2-a5d0-a42f-09ba-f9fe6d4bee53.htm" />
+  <HelpKINode Title="MinimumLinkLengthInfo field" Url="html/6ea2dbda-e9bf-8408-194d-cc03ff55a216.htm" />
+  <HelpKINode Title="MinLengthLimitReachedMsg field" Url="html/a2992bdf-90d6-2a16-127a-b9feb45e713a.htm" />
+  <HelpKINode Title="minLinkLength field" Url="html/c8e8ef3e-b6cf-ae02-f29e-6ed091afef67.htm" />
+  <HelpKINode Title="minLinkLength property" Url="html/ee8b5039-c544-d865-6225-593143505664.htm" />
+  <HelpKINode Title="ModuleTitle field" Url="html/b33d7543-bced-6556-cfc0-8ca945725786.htm" />
+  <HelpKINode Title="ModuleTitleInfo field" Url="html/a7975c9c-c269-5f21-0725-ee07eed69605.htm" />
+  <HelpKINode Title="MoveToParent method" Url="html/3c3a534f-0ac7-5d90-f61b-f620725328f2.htm" />
+  <HelpKINode Title="nodeTransform property">
+    <HelpKINode Title="ILinkSource.nodeTransform Property " Url="html/3fc2bd30-8da9-270e-6c7d-e0deb815a258.htm" />
+    <HelpKINode Title="ILinkTarget.nodeTransform Property " Url="html/84947776-f256-824f-15ca-8ed0d3b0d5da.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.nodeTransform Property " Url="html/3333f451-b962-5a96-cb07-dafe8287b714.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.nodeTransform Property " Url="html/dc98a2f0-e9f4-4e5b-4757-a70d1ee07550.htm" />
+  </HelpKINode>
+  <HelpKINode Title="None enumeration member">
+    <HelpKINode Title="Colliders.PrimitiveCollider Enumeration" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+    <HelpKINode Title="GUILinkMode Enumeration" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+    <HelpKINode Title="LinkState Enumeration" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+    <HelpKINode Title="LinkActorType Enumeration" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  </HelpKINode>
+  <HelpKINode Title="NONE enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="OnAwake method">
+    <HelpKINode Title="IPartModule.OnAwake Method " Url="html/612ead8f-fd73-5f21-937b-aa1bf2561912.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.OnAwake Method " Url="html/e207f22a-9d82-ae46-41a1-43ff721237bc.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnAwake Method " Url="html/687b203a-f227-9fab-fbab-f01f88c0f1cf.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnAwake Method " Url="html/5d148ba1-1fa4-87d4-8b45-b7c0f2c743e4.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.OnAwake Method " Url="html/5390ee4e-7e21-7c45-c006-23c258dc01f7.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnDebugStateChange field" Url="html/0f39872f-9ed5-60cf-f182-9146d1df4e5a.htm" />
+  <HelpKINode Title="OnDestroy method">
+    <HelpKINode Title="AbstractJointModule.OnDestroy Method " Url="html/e6fe8b33-090a-da28-4ed7-4785cb450fd1.htm" />
+    <HelpKINode Title="IsDestroyable.OnDestroy Method " Url="html/87169f3a-5bb4-0167-e52f-f71d954f18ea.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnDestroy Method " Url="html/c895bb23-c736-626d-bd10-61a1a3b902d6.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnDestroy Method " Url="html/3f2a96f4-89f1-8aa4-8036-d0b781f355d3.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnFixedUpdate method" Url="html/79acf11e-480b-f63a-ae5f-681b6023bd72.htm" />
+  <HelpKINode Title="OnInitialize method" Url="html/99be7d0f-5576-8511-7dd8-ba00a2e53dd2.htm" />
+  <HelpKINode Title="OnJointBreak method">
+    <HelpKINode Title="AbstractJointModule.OnJointBreak Method " Url="html/f967aac6-d3d3-6ce3-265f-f709ca3bb8a6.htm" />
+    <HelpKINode Title="IJointEventsListener.OnJointBreak Method " Url="html/189349f4-dd98-d56b-218b-e72b47a51928.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnJointBreak Method " Url="html/397f8192-16f3-901f-7012-85eecba9d090.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnKASLinkBrokenEvent method">
+    <HelpKINode Title="AbstractJointModule.OnKASLinkBrokenEvent Method " Url="html/64d86348-496f-06ec-434e-df1231c6b2a2.htm" />
+    <HelpKINode Title="ILinkStateEventListener.OnKASLinkBrokenEvent Method " Url="html/8ec9aa83-99bb-6b21-cb98-6ffabe64eb15.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.OnKASLinkBrokenEvent Method " Url="html/0b4368e6-d072-494e-fd19-125e664a2dcb.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnKASLinkBrokenEvent Method " Url="html/a29390cf-d5ed-a571-109c-5bb84ac0668b.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnKASLinkBrokenEvent Method " Url="html/b3dd0851-20cd-d609-816d-7c767aa31cee.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnKASLinkCreatedEvent method">
+    <HelpKINode Title="AbstractJointModule.OnKASLinkCreatedEvent Method " Url="html/72912490-11db-2e4b-4d0e-44164ae39434.htm" />
+    <HelpKINode Title="ILinkStateEventListener.OnKASLinkCreatedEvent Method " Url="html/72838adc-8a46-2a77-7e00-fc621b5795ee.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.OnKASLinkCreatedEvent Method " Url="html/3425ea6c-9a86-8098-9c45-4d6eaae0b837.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnKASLinkCreatedEvent Method " Url="html/61815dd8-f56f-f4b8-897e-2d94ff554971.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnKASLinkCreatedEvent Method " Url="html/35678026-9b91-e13c-7de0-f535d2634c5c.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnLinkAccepted field" Url="html/af6ffe4a-22f6-2f7a-d470-ed5370b62b4f.htm" />
+  <HelpKINode Title="OnLinkBroken field" Url="html/7777b933-d5e8-f1f3-f8bb-291879bb408e.htm" />
+  <HelpKINode Title="OnLinkCreated field" Url="html/8cb0d3ed-00a3-6d45-3c31-51a79242c333.htm" />
+  <HelpKINode Title="OnLoad method">
+    <HelpKINode Title="AbstractProceduralModel.OnLoad Method " Url="html/59e781ae-c880-c94b-cb63-620ad5433136.htm" />
+    <HelpKINode Title="IPartModule.OnLoad Method " Url="html/703e9ce5-08fb-a553-08b2-7698f6e0f531.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnLoad Method " Url="html/4a08b51b-8662-6c57-bb70-c87ddc2d6840.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnLoad Method " Url="html/1c4d7ab2-f3df-5844-374b-6adb5c49aef9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnPartPack method">
+    <HelpKINode Title="AbstractJointModule.OnPartPack Method " Url="html/ecf1a939-a371-80b3-0b9d-660c032f0187.htm" />
+    <HelpKINode Title="IsPackable.OnPartPack Method " Url="html/6cb0dad9-a3aa-ba2a-4ff0-cda271c98caa.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnPartPack Method " Url="html/a7046592-8e8f-f269-324d-e7e033de268e.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnPartUnpack method">
+    <HelpKINode Title="AbstractJointModule.OnPartUnpack Method " Url="html/d4b22d43-a164-6272-0721-b46719c081d0.htm" />
+    <HelpKINode Title="IsPackable.OnPartUnpack Method " Url="html/e962b503-8866-f088-9968-5e62d7f27cd2.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnPartUnpack Method " Url="html/d2560417-a712-f8cc-2aa1-a3139c797bba.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnSave method" Url="html/e5c1162f-5fab-4d2c-d61d-739574f2cd9f.htm" />
+  <HelpKINode Title="OnStart method">
+    <HelpKINode Title="AbstractProceduralModel.OnStart Method " Url="html/fc931aa4-311a-d38d-8eb1-41d63357fff8.htm" />
+    <HelpKINode Title="IPartModule.OnStart Method " Url="html/3b756d43-ef92-cd72-cbe2-51c142bdf5c6.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.OnStart Method " Url="html/c21e2874-9a20-c2f6-ea35-0cc82e77dc7b.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.OnStart Method " Url="html/101edc0d-64c0-177d-4a63-06d1acc1495f.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnStart Method " Url="html/47539c80-01ba-2c4f-4e4d-8e97638caf8f.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.OnStart Method " Url="html/692de62c-1429-b0c7-1b8b-d9475b28fc4f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnStartLinking field" Url="html/833cc012-483b-2beb-6597-bc63216fe360.htm" />
+  <HelpKINode Title="OnStateChange method">
+    <HelpKINode Title="KASModuleLinkSourceBase.OnStateChange Method " Url="html/af3783f3-2e8a-d8b0-c37d-23f3c64bd253.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.OnStateChange Method " Url="html/7f9387f6-1a97-4d7b-1f28-6d744c9dc07b.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OnStopLinking field" Url="html/ea60e8d2-b0c8-0faf-7d1d-46b9bba9c862.htm" />
+  <HelpKINode Title="OnUpdate method">
+    <HelpKINode Title="IPartModule.OnUpdate Method " Url="html/94a5dacd-d039-c7b3-3eac-2ffabfdc5c3a.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.OnUpdate Method " Url="html/2f3675e1-0c2b-39c1-3913-6550172f3229.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.OnUpdate Method " Url="html/174a5bd1-d4ce-ff55-a1e3-34e2ff0413b9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="originalLength property" Url="html/e2158c07-e664-b1b5-24dc-34bf5f238802.htm" />
+  <HelpKINode Title="outerPistonDiameter field" Url="html/7693f0c6-a66d-3c53-3a7a-7f1afe5678b4.htm" />
+  <HelpKINode Title="parkedLength field" Url="html/7dd127eb-65df-cfca-3615-d7295c4b2204.htm" />
+  <HelpKINode Title="parkedOrientation field" Url="html/41833e3f-2cc7-a37a-a323-0a3e65ff059b.htm" />
+  <HelpKINode Title="parkedOrientationMenu0 field" Url="html/9deb23c3-b67e-8f49-9158-5e9b7d37e265.htm" />
+  <HelpKINode Title="parkedOrientationMenu1 field" Url="html/276dc011-b61b-eab4-eb42-4044b7122cdf.htm" />
+  <HelpKINode Title="parkedOrientationMenu2 field" Url="html/a0d193ce-7cf7-656a-2e4a-c6ea907cdaef.htm" />
+  <HelpKINode Title="ParkedOrientationMenuAction0 method" Url="html/063fee01-120e-f560-a1fa-3be8795e12b0.htm" />
+  <HelpKINode Title="ParkedOrientationMenuAction1 method" Url="html/7b3f2b4b-36be-0bb5-ca83-469a59070337.htm" />
+  <HelpKINode Title="ParkedOrientationMenuAction2 method" Url="html/ecd2b15c-7d5e-a8dc-133b-5414ca378a6a.htm" />
+  <HelpKINode Title="part property">
+    <HelpKINode Title="ILinkSource.part Property " Url="html/3bb069fe-f52c-7da9-0efb-bd5ef6061eb0.htm" />
+    <HelpKINode Title="ILinkTarget.part Property " Url="html/f72d132f-2bb6-4145-b16f-9ef743a30f60.htm" />
+  </HelpKINode>
+  <HelpKINode Title="partModelTransform property" Url="html/2a536253-3bf8-c1a8-b7b0-2445c318757f.htm" />
+  <HelpKINode Title="PARTS enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="persistedLinkState field">
+    <HelpKINode Title="KASModuleLinkSourceBase.persistedLinkState Field" Url="html/d2ec7fce-b125-619c-0c1b-7d01ff96a16a.htm" />
+    <HelpKINode Title="KASModuleLinkTargetBase.persistedLinkState Field" Url="html/e78b8f26-cfb7-9d7e-c47c-02dd4ee42cee.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Physics enumeration member" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  <HelpKINode Title="pistonLength field" Url="html/f26ae75c-3ddd-fd0b-0476-c7370c515d59.htm" />
+  <HelpKINode Title="pistonMinShift field" Url="html/d6df643b-151f-94bb-0801-b9388520a245.htm" />
+  <HelpKINode Title="pistons property" Url="html/3106cab2-f888-8709-c438-36550f62194d.htm" />
+  <HelpKINode Title="pistonsCount field" Url="html/9bc19b1a-b797-61fb-7ea3-4a23af25c288.htm" />
+  <HelpKINode Title="pistonTexturePath field" Url="html/1dd4d632-d4bf-4193-f751-9fa73dd2b9b8.htm" />
+  <HelpKINode Title="pistonWallThickness field" Url="html/34ac9010-92fe-2af9-63dc-e6306b6310a8.htm" />
+  <HelpKINode Title="PivotAxileObjName field" Url="html/f100a453-22a4-0e52-8bf3-7f5c9606e9b0.htm" />
+  <HelpKINode Title="Play method" Url="html/390cba4a-ec54-ee13-9bc1-3e89ceaa8498.htm" />
+  <HelpKINode Title="Player enumeration member" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+  <HelpKINode Title="plugSndPath field" Url="html/be38fc5a-f4a0-feb8-f61a-ef46843e5585.htm" />
+  <HelpKINode Title="RejectingLinks enumeration member" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  <HelpKINode Title="RemoveHandlers method" Url="html/2f5fbfa1-f388-b88c-2e33-e64b92c67428.htm" />
+  <HelpKINode Title="rendererName field" Url="html/9fc26fe1-d2be-5147-4975-25d4c28d3faa.htm" />
+  <HelpKINode Title="RescaleTextureToLength method" Url="html/e429a420-9af0-f584-aa59-984ba62fcdb3.htm" />
+  <HelpKINode Title="ResetJoint method" Url="html/34d22f26-abbb-cf9f-2bc9-d6458656b803.htm" />
+  <HelpKINode Title="ResetTransitionConstraint method" Url="html/6ee023a7-22f0-6ce8-8e7b-38069b284a66.htm" />
+  <HelpKINode Title="RestoreJointState method" Url="html/32295c5c-a1c1-cc46-891c-3702544d39aa.htm" />
+  <HelpKINode Title="RetractToMinMenuAction method" Url="html/b7a4fc85-fbe1-4450-1f63-1472a01e75ba.htm" />
+  <HelpKINode Title="RetractToMinMenuActionName field" Url="html/5fd1704e-858e-5051-05eb-7f2e3c2d3511.htm" />
+  <HelpKINode Title="SERVICE_LAYER enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="SetBreakForces method" Url="html/a154eea6-059b-2bb4-884b-eed9336a9a3e.htm" />
+  <HelpKINode Title="SetDefault(Of K, V) method" Url="html/a67ea419-18f9-15be-901b-6adf5cd619ff.htm" />
+  <HelpKINode Title="SetDefault&lt;K, V&gt; method" Url="html/a67ea419-18f9-15be-901b-6adf5cd619ff.htm" />
+  <HelpKINode Title="SetSimpleCollider method" Url="html/15be5fa1-91b0-b5a0-3653-ac613cef763f.htm" />
+  <HelpKINode Title="SetTransitionConstraint method" Url="html/828fb836-7e91-8048-b203-e5a77c20f902.htm" />
+  <HelpKINode Title="SetupPrismaticJoint method" Url="html/c75fc5a0-259f-ca97-67f5-09bdbb19ec7d.htm" />
+  <HelpKINode Title="SetupSphericalJoint method" Url="html/0aacee5b-4cbe-c428-6e91-9a804afa77a9.htm" />
+  <HelpKINode Title="SetupUnbreakableJoint method" Url="html/2e344eb1-710f-f865-5919-cadb08f25e14.htm" />
+  <HelpKINode Title="shaderName field" Url="html/43afbcbd-07c5-70aa-3e65-fc24fbecdb2a.htm" />
+  <HelpKINode Title="shaderNameOverride property">
+    <HelpKINode Title="ILinkRenderer.shaderNameOverride Property " Url="html/39082dfe-a13e-e5e6-7bb7-143cf919e3fe.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.shaderNameOverride Property " Url="html/2910f3f4-88e6-9a6f-1970-42c3214a112e.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Shape enumeration member" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T) class">
+    <HelpKINode Title="SimpleStateMachine(T) Class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+    <HelpKINode Title="about SimpleStateMachine(Of T) class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+    <HelpKINode Title="constructor" Url="html/fb6ce103-f236-e698-b43d-ba28c7da8aa4.htm" />
+    <HelpKINode Title="fields" Url="html/4a4fc80c-1b3d-4610-cdaf-936dd1781cc7.htm" />
+    <HelpKINode Title="methods" Url="html/5a3bdc8e-b160-7d0b-1125-8d67cf1bc603.htm" />
+    <HelpKINode Title="properties" Url="html/2e288d97-05b5-4669-4ea4-3b2243b56113.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SimpleStateMachine(Of T).AddStateHandlers method" Url="html/6dd53830-bb74-1335-0d1e-a9cc1be0ced9.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).CheckCanSwitchTo method" Url="html/5c49eefa-9f00-a1c9-61e7-d51217deba83.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).currentState property" Url="html/54bebe21-e223-9fcb-57e9-483d101ed0f7.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).ForceSetState method" Url="html/9b1cd5bd-f9de-d6fb-27ea-4270197d0b8e.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).isStarted property" Url="html/f26f14bf-dc2b-bf14-6b38-c3bf6d1b679c.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).isStrict property" Url="html/1eaf2bf6-169b-03c6-6678-935f527e390e.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).OnChange delegate" Url="html/2f3c3d14-116f-5805-fa3e-b02f4c68eb8f.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).OnDebugChange delegate" Url="html/dedf0749-8c0d-251f-7724-8fa4b67c6291.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).OnDebugStateChange field" Url="html/0f39872f-9ed5-60cf-f182-9146d1df4e5a.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).RemoveHandlers method" Url="html/2f5fbfa1-f388-b88c-2e33-e64b92c67428.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).ResetTransitionConstraint method" Url="html/6ee023a7-22f0-6ce8-8e7b-38069b284a66.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).SetTransitionConstraint method" Url="html/828fb836-7e91-8048-b203-e5a77c20f902.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).SimpleStateMachine constructor" Url="html/fb6ce103-f236-e698-b43d-ba28c7da8aa4.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).Start method" Url="html/f5d5c5a2-740a-ac43-1585-d79e1bf089cd.htm" />
+  <HelpKINode Title="SimpleStateMachine(Of T).Stop method" Url="html/2d9edccb-909e-bfcf-5fb4-998ad0be3935.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt; class">
+    <HelpKINode Title="SimpleStateMachine(T) Class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+    <HelpKINode Title="about SimpleStateMachine&lt;T&gt; class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm" />
+    <HelpKINode Title="constructor" Url="html/fb6ce103-f236-e698-b43d-ba28c7da8aa4.htm" />
+    <HelpKINode Title="fields" Url="html/4a4fc80c-1b3d-4610-cdaf-936dd1781cc7.htm" />
+    <HelpKINode Title="methods" Url="html/5a3bdc8e-b160-7d0b-1125-8d67cf1bc603.htm" />
+    <HelpKINode Title="properties" Url="html/2e288d97-05b5-4669-4ea4-3b2243b56113.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.AddStateHandlers method" Url="html/6dd53830-bb74-1335-0d1e-a9cc1be0ced9.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.CheckCanSwitchTo method" Url="html/5c49eefa-9f00-a1c9-61e7-d51217deba83.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.currentState property" Url="html/54bebe21-e223-9fcb-57e9-483d101ed0f7.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.ForceSetState method" Url="html/9b1cd5bd-f9de-d6fb-27ea-4270197d0b8e.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.isStarted property" Url="html/f26f14bf-dc2b-bf14-6b38-c3bf6d1b679c.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.isStrict property" Url="html/1eaf2bf6-169b-03c6-6678-935f527e390e.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.OnChange delegate" Url="html/2f3c3d14-116f-5805-fa3e-b02f4c68eb8f.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.OnDebugChange delegate" Url="html/dedf0749-8c0d-251f-7724-8fa4b67c6291.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.OnDebugStateChange field" Url="html/0f39872f-9ed5-60cf-f182-9146d1df4e5a.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.RemoveHandlers method" Url="html/2f5fbfa1-f388-b88c-2e33-e64b92c67428.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.ResetTransitionConstraint method" Url="html/6ee023a7-22f0-6ce8-8e7b-38069b284a66.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.SetTransitionConstraint method" Url="html/828fb836-7e91-8048-b203-e5a77c20f902.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.SimpleStateMachine constructor" Url="html/fb6ce103-f236-e698-b43d-ba28c7da8aa4.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.Start method" Url="html/f5d5c5a2-740a-ac43-1585-d79e1bf089cd.htm" />
+  <HelpKINode Title="SimpleStateMachine&lt;T&gt;.Stop method" Url="html/2d9edccb-909e-bfcf-5fb4-998ad0be3935.htm" />
+  <HelpKINode Title="source field" Url="html/44ccf7ef-9337-2279-108e-5f1f09d70fa1.htm" />
+  <HelpKINode Title="SourceIsNotAvailableForLinkMsg field" Url="html/dc403323-0410-b24a-b77f-bc887b4b1f57.htm" />
+  <HelpKINode Title="SourceJointFreedomInfo field" Url="html/ad1b818a-78ab-f33f-3abe-71d7cd805201.htm" />
+  <HelpKINode Title="sourceLinkAngleLimit field" Url="html/34ab5443-8943-eb76-158c-d5eb07fc0ef3.htm" />
+  <HelpKINode Title="SourceNodeAngleLimitReachedMsg field" Url="html/54c36286-c55b-5e82-c390-2c125a57a463.htm" />
+  <HelpKINode Title="sourceTransform property">
+    <HelpKINode Title="AbstractJointPart.sourceTransform Property " Url="html/9f93e533-777d-7de3-2b6f-4ae8438a8d94.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.sourceTransform Property " Url="html/22c7cc45-0741-7b5a-b00a-647f83a5cd3b.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SpecialValue method" Url="html/68c20032-3161-0d47-180e-3cd1d0b4b218.htm" />
+  <HelpKINode Title="srcJointHandleLength property" Url="html/62da179c-8ac0-e67b-7798-d8fe6583969c.htm" />
+  <HelpKINode Title="srcPartJoint property" Url="html/814f806f-97cc-b31e-9aa2-7d8ac033117d.htm" />
+  <HelpKINode Title="SrcPartJointObjName field" Url="html/1505b0fe-32d1-cc4b-b620-25ec775b5236.htm" />
+  <HelpKINode Title="srcPartJointPivot property" Url="html/f99066ce-dc58-edbd-34f1-cedf57cdb7a2.htm" />
+  <HelpKINode Title="srcStrutJoint property" Url="html/e9416d07-ce06-8571-0025-9e054b2c136a.htm" />
+  <HelpKINode Title="SrcStrutJointObjName field" Url="html/3e0fe9cd-f1ee-29ef-c064-13d8dc1b514b.htm" />
+  <HelpKINode Title="Start method" Url="html/f5d5c5a2-740a-ac43-1585-d79e1bf089cd.htm" />
+  <HelpKINode Title="StartLinkContextMenuAction method" Url="html/54fffd38-a94a-1efa-2775-64a439d2dca2.htm" />
+  <HelpKINode Title="StartLinkGUIMode method" Url="html/f516dccd-6624-ade1-4645-527ef3f29616.htm" />
+  <HelpKINode Title="StartLinking method">
+    <HelpKINode Title="ILinkSource.StartLinking Method " Url="html/ee5bd38e-b538-0fa6-8906-6ad5169eacd9.htm" />
+    <HelpKINode Title="KASModuleInteractiveJointSource.StartLinking Method " Url="html/771eeaad-86e5-8455-4b60-afd71d28ae75.htm" />
+    <HelpKINode Title="KASModuleLinkSourceBase.StartLinking Method " Url="html/15241173-e47c-d23b-4ee7-9a9e1f92c50f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="startLinkMenu field" Url="html/9ec512df-27df-f0b4-2ecb-60f314665de7.htm" />
+  <HelpKINode Title="StartRenderer method">
+    <HelpKINode Title="ILinkRenderer.StartRenderer Method " Url="html/6945081e-6bd4-2a22-af73-d15e8a59bff2.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.StartRenderer Method " Url="html/6afeb61f-fee9-ace6-28d8-f22d5e86b54f.htm" />
+  </HelpKINode>
+  <HelpKINode Title="stockJoint property" Url="html/7c1d6741-71af-ee8e-eef6-06f55aaa2129.htm" />
+  <HelpKINode Title="StockJointAngleLimit field" Url="html/ae6fb8d0-618c-84bd-2b63-68e9ce506575.htm" />
+  <HelpKINode Title="StockJointBreakingForce field" Url="html/b32cf80f-8a89-2ee9-9dce-d45583bfd24d.htm" />
+  <HelpKINode Title="StockJointBreakingTorque field" Url="html/ec736b10-b2b1-a627-f6b8-d3ec3fb10c9e.htm" />
+  <HelpKINode Title="StockJointLinearLimit field" Url="html/72ade89b-e741-9963-1a34-a4e9fefa4cee.htm" />
+  <HelpKINode Title="StockJointSpring field" Url="html/ccada96c-f08f-de89-27ca-e6dd49a7e527.htm" />
+  <HelpKINode Title="StockJointSpringDamper field" Url="html/3a24d3e6-7a2b-6548-88d7-1f7eb88e36b1.htm" />
+  <HelpKINode Title="Stop method" Url="html/2d9edccb-909e-bfcf-5fb4-998ad0be3935.htm" />
+  <HelpKINode Title="StopLinkGUIMode method" Url="html/6786fd3f-baf8-0570-28e1-296acef86127.htm" />
+  <HelpKINode Title="StopRenderer method">
+    <HelpKINode Title="ILinkRenderer.StopRenderer Method " Url="html/201cbc42-4397-6610-b9b7-99a90e099366.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.StopRenderer Method " Url="html/cd0a3221-f34e-fab7-41a7-6ea09b697d54.htm" />
+  </HelpKINode>
+  <HelpKINode Title="strutSpringDamperRatio field" Url="html/edd92638-371b-2615-f2b2-08e4b1439145.htm" />
+  <HelpKINode Title="strutSpringForce field" Url="html/24509463-314e-b44b-ed35-fa0445f225dc.htm" />
+  <HelpKINode Title="SURFACE enumeration member" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+  <HelpKINode Title="target field" Url="html/f189fec0-ce18-3e73-06c5-f273ea19e2be.htm" />
+  <HelpKINode Title="TargetDoesntAcceptLinksMsg field" Url="html/9d9092c6-755f-05f5-ae68-33cadf1ca31e.htm" />
+  <HelpKINode Title="TargetJointFreedomInfo field" Url="html/413382ec-4e94-bccc-8d42-903f0facd6f8.htm" />
+  <HelpKINode Title="targetLinkAngleLimit field" Url="html/d42529de-9811-7207-22f6-3f6a81d9d995.htm" />
+  <HelpKINode Title="TargetNodeAngleLimitReachedMsg field" Url="html/9ee5c904-f7b8-2991-ef86-0e17a98a0952.htm" />
+  <HelpKINode Title="targetTransform property" Url="html/139c9e1c-5608-7905-7f4c-06ddaef54f76.htm" />
+  <HelpKINode Title="trgJointHandleLength property" Url="html/14d844bf-65a1-600e-18a8-fceb7885e4c2.htm" />
+  <HelpKINode Title="TrgPartJointObjName field" Url="html/345a3f51-c2e2-b9c6-00e3-56b5cf9f6f83.htm" />
+  <HelpKINode Title="trgStrutJoint property" Url="html/78ccc202-bab0-120d-425e-c5594721ca76.htm" />
+  <HelpKINode Title="TrgStrutJointObjName field" Url="html/c94a56f8-969e-a3cc-4a0a-439455fc4cd2.htm" />
+  <HelpKINode Title="trgStrutJointPivot property" Url="html/80d79d61-cb41-a8ab-9cb4-0472e1387d69.htm" />
+  <HelpKINode Title="UISoundPlayer class">
+    <HelpKINode Title="UISoundPlayer Class" Url="html/5e9e04d3-23ea-763a-0dfb-af926bb31f36.htm" />
+    <HelpKINode Title="about UISoundPlayer class" Url="html/5e9e04d3-23ea-763a-0dfb-af926bb31f36.htm" />
+    <HelpKINode Title="constructor" Url="html/a4474eb6-ad85-9fb1-074f-caee752744fb.htm" />
+    <HelpKINode Title="fields" Url="html/3f2ac8a8-15ac-b1e7-6517-eb155759b712.htm" />
+    <HelpKINode Title="methods" Url="html/00c67f52-202c-eaf3-0db6-c6432e9020bb.htm" />
+  </HelpKINode>
+  <HelpKINode Title="UISoundPlayer.CacheSound method" Url="html/5f8488e9-53d0-d03b-4edb-b864866c1771.htm" />
+  <HelpKINode Title="UISoundPlayer.instance field" Url="html/9815c298-5860-7a1b-b4ee-2953adc106f4.htm" />
+  <HelpKINode Title="UISoundPlayer.Play method" Url="html/390cba4a-ec54-ee13-9bc1-3e89ceaa8498.htm" />
+  <HelpKINode Title="UISoundPlayer.UISoundPlayer constructor" Url="html/a4474eb6-ad85-9fb1-074f-caee752744fb.htm" />
+  <HelpKINode Title="UnlinkParts method" Url="html/7020439d-ce7e-d469-c6fa-9d002a81686d.htm" />
+  <HelpKINode Title="unplugSndPath field" Url="html/ea3be7c3-dc91-451e-3830-084746d6912d.htm" />
+  <HelpKINode Title="UpdateColliders method" Url="html/458a28c7-1e94-85dd-27b0-e47e259bb1cc.htm" />
+  <HelpKINode Title="UpdateLink method">
+    <HelpKINode Title="ILinkRenderer.UpdateLink Method " Url="html/43f4d349-0465-bf5a-ef36-5ed4062818dd.htm" />
+    <HelpKINode Title="KASModuleTelescopicPipeStrut.UpdateLink Method " Url="html/795f257f-ec92-6d90-2ceb-0bc855a38477.htm" />
+  </HelpKINode>
+  <HelpKINode Title="UpdateLinkLengthAndOrientation method" Url="html/3ded9bfe-5c87-4b01-9e54-299a601767f3.htm" />
+  <HelpKINode Title="UpdateMaterials method" Url="html/fff254b2-a5d0-a42f-09ba-f9fe6d4bee53.htm" />
+  <HelpKINode Title="xMotion field" Url="html/3f90a8d9-1d84-728f-daa4-a79c7e383482.htm" />
+  <HelpKINode Title="yMotion field" Url="html/380c0b92-9818-db1f-ab9c-6829fac79613.htm" />
+  <HelpKINode Title="zMotion field" Url="html/7f043812-708c-3b83-c91a-938cca462cb8.htm" />
+</HelpKI>

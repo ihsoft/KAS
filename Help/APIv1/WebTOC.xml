@@ -1,0 +1,576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpTOC>
+
+  <HelpTOCNode Id="0861befe-c060-44be-b0d0-db2ba6147345" Title="KAS" Url="html/96b60bf7-548e-dbb8-7c6a-5ea716d46790.htm">
+    <HelpTOCNode Id="d085c264-a243-4e9a-b983-872847e04432" Title="AbstractJointModule Class" Url="html/09761487-b192-161b-9272-866a0d9955c0.htm">
+      <HelpTOCNode Title="AbstractJointModule Constructor " Url="html/c2c65c9d-fd09-ed84-25aa-265d479e4954.htm" />
+      <HelpTOCNode Id="cee00917-6b29-4f0d-8955-c16f0388a8c2" Title="AbstractJointModule Properties" Url="html/bb6212c7-e601-4851-c777-4d800cf3e3ec.htm">
+        <HelpTOCNode Title="cfgLinkBreakForce Property " Url="html/02b12a2f-54b7-ef6c-8dc4-1d2f3a7b650c.htm" />
+        <HelpTOCNode Title="cfgLinkBreakTorque Property " Url="html/555a5a91-230d-7246-dc5f-c98502b442b9.htm" />
+        <HelpTOCNode Title="cfgMaxLinkLength Property " Url="html/997dfad0-1cac-781e-7f71-c2ad635c1830.htm" />
+        <HelpTOCNode Title="cfgMinLinkLength Property " Url="html/e6da3314-40c5-57aa-db3f-91c3298acffb.htm" />
+        <HelpTOCNode Title="cfgSourceLinkAngleLimit Property " Url="html/3bb7e49d-47cf-55f5-56f1-0b857ed5bc75.htm" />
+        <HelpTOCNode Title="cfgTargetLinkAngleLimit Property " Url="html/43685453-25dd-e8a3-2fef-9cf3a1a1581d.htm" />
+        <HelpTOCNode Title="isLinked Property " Url="html/7355bb4f-9352-7241-54af-675ccd531d28.htm" />
+        <HelpTOCNode Title="linkSource Property " Url="html/0a2f70c2-3f50-eda4-8431-21d88ea32830.htm" />
+        <HelpTOCNode Title="linkTarget Property " Url="html/efa9fb80-bde0-e0c0-5a15-3c37f37f2349.htm" />
+        <HelpTOCNode Title="originalLength Property " Url="html/e2158c07-e664-b1b5-24dc-34bf5f238802.htm" />
+        <HelpTOCNode Title="stockJoint Property " Url="html/7c1d6741-71af-ee8e-eef6-06f55aaa2129.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="01d552d0-84da-4090-add5-7d290634692a" Title="AbstractJointModule Methods" Url="html/ed2c08b0-6a41-d9e3-d180-21d2dc45645b.htm">
+        <HelpTOCNode Title="AdjustJoint Method " Url="html/c3fd229d-b695-3545-1e36-d6fcefd5e1ef.htm" />
+        <HelpTOCNode Title="CheckAngleLimitAtSource Method " Url="html/67ae1965-e1ed-af75-79bd-fc18c521905f.htm" />
+        <HelpTOCNode Title="CheckAngleLimitAtTarget Method " Url="html/5859bf0a-6bfd-e572-3b4f-3bf7e8ab79c0.htm" />
+        <HelpTOCNode Title="CheckLengthLimit Method " Url="html/56676a85-9234-100a-7950-f3bfe9b44d88.htm" />
+        <HelpTOCNode Title="CreateJoint Method " Url="html/7162e6dd-0696-3772-1584-66e5ee2e6d54.htm" />
+        <HelpTOCNode Title="DropJoint Method " Url="html/6540398d-35e2-661b-6035-7252f0b750b0.htm" />
+        <HelpTOCNode Title="DropStockJoint Method " Url="html/1e693ee8-9dcf-6b63-f939-62aed8b2c1a6.htm" />
+        <HelpTOCNode Title="DumpJoint Method " Url="html/9baf2020-31e1-9fe7-48bf-90fa6721debb.htm" />
+        <HelpTOCNode Title="GetDrawModulePanelCallback Method " Url="html/bd68d568-d695-b952-ce81-655171c42f2d.htm" />
+        <HelpTOCNode Title="GetInfo Method " Url="html/ba823e45-1953-a146-a3ef-ce718562a5a8.htm" />
+        <HelpTOCNode Title="GetModuleTitle Method " Url="html/2fbe7149-7ec2-75cc-4cf7-9464289738ae.htm" />
+        <HelpTOCNode Title="GetPrimaryField Method " Url="html/8da2d67f-51a1-10f0-da3f-6b22fa8d7d98.htm" />
+        <HelpTOCNode Title="OnDestroy Method " Url="html/e6fe8b33-090a-da28-4ed7-4785cb450fd1.htm" />
+        <HelpTOCNode Title="OnJointBreak Method " Url="html/f967aac6-d3d3-6ce3-265f-f709ca3bb8a6.htm" />
+        <HelpTOCNode Title="OnKASLinkBrokenEvent Method " Url="html/64d86348-496f-06ec-434e-df1231c6b2a2.htm" />
+        <HelpTOCNode Title="OnKASLinkCreatedEvent Method " Url="html/72912490-11db-2e4b-4d0e-44164ae39434.htm" />
+        <HelpTOCNode Title="OnPartPack Method " Url="html/ecf1a939-a371-80b3-0b9d-660c032f0187.htm" />
+        <HelpTOCNode Title="OnPartUnpack Method " Url="html/d4b22d43-a164-6272-0721-b46719c081d0.htm" />
+        <HelpTOCNode Title="RestoreJointState Method " Url="html/32295c5c-a1c1-cc46-891c-3702544d39aa.htm" />
+        <HelpTOCNode Title="SetBreakForces Method " Url="html/a154eea6-059b-2bb4-884b-eed9336a9a3e.htm" />
+        <HelpTOCNode Title="SetupUnbreakableJoint Method " Url="html/2e344eb1-710f-f865-5919-cadb08f25e14.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="8b8e3c2c-4129-4932-b1d0-ebfa9d6b8e72" Title="AbstractJointModule Fields" Url="html/e1c478a5-e617-cb08-1d44-822a94459814.htm">
+        <HelpTOCNode Title="linkBreakForce Field" Url="html/e8ecba2c-f1be-373e-fe76-858fc6e557f7.htm" />
+        <HelpTOCNode Title="LinkBreakStrengthInfo Field" Url="html/33e7828f-afc4-fc21-8451-1f3a56433295.htm" />
+        <HelpTOCNode Title="linkBreakTorque Field" Url="html/9d9e3e01-0767-8693-ffeb-5c5ceab4c9b2.htm" />
+        <HelpTOCNode Title="LinkLinearStrengthInfo Field" Url="html/7f2f3c4e-8cb7-51c2-98a7-bec456d70a1d.htm" />
+        <HelpTOCNode Title="MaximumLinkLengthInfo Field" Url="html/cd5207f6-215b-2ca1-6eed-005318ddea42.htm" />
+        <HelpTOCNode Title="MaxLengthLimitReachedMsg Field" Url="html/6af77c76-cbee-bc90-8580-03c56e4e35af.htm" />
+        <HelpTOCNode Title="maxLinkLength Field" Url="html/2f34cd85-ba54-8f12-80b9-a6287696e478.htm" />
+        <HelpTOCNode Title="MinimumLinkLengthInfo Field" Url="html/6ea2dbda-e9bf-8408-194d-cc03ff55a216.htm" />
+        <HelpTOCNode Title="MinLengthLimitReachedMsg Field" Url="html/a2992bdf-90d6-2a16-127a-b9feb45e713a.htm" />
+        <HelpTOCNode Title="minLinkLength Field" Url="html/c8e8ef3e-b6cf-ae02-f29e-6ed091afef67.htm" />
+        <HelpTOCNode Title="ModuleTitle Field" Url="html/b33d7543-bced-6556-cfc0-8ca945725786.htm" />
+        <HelpTOCNode Title="SourceJointFreedomInfo Field" Url="html/ad1b818a-78ab-f33f-3abe-71d7cd805201.htm" />
+        <HelpTOCNode Title="sourceLinkAngleLimit Field" Url="html/34ab5443-8943-eb76-158c-d5eb07fc0ef3.htm" />
+        <HelpTOCNode Title="SourceNodeAngleLimitReachedMsg Field" Url="html/54c36286-c55b-5e82-c390-2c125a57a463.htm" />
+        <HelpTOCNode Title="StockJointAngleLimit Field" Url="html/ae6fb8d0-618c-84bd-2b63-68e9ce506575.htm" />
+        <HelpTOCNode Title="StockJointBreakingForce Field" Url="html/b32cf80f-8a89-2ee9-9dce-d45583bfd24d.htm" />
+        <HelpTOCNode Title="StockJointBreakingTorque Field" Url="html/ec736b10-b2b1-a627-f6b8-d3ec3fb10c9e.htm" />
+        <HelpTOCNode Title="StockJointLinearLimit Field" Url="html/72ade89b-e741-9963-1a34-a4e9fefa4cee.htm" />
+        <HelpTOCNode Title="StockJointSpring Field" Url="html/ccada96c-f08f-de89-27ca-e6dd49a7e527.htm" />
+        <HelpTOCNode Title="StockJointSpringDamper Field" Url="html/3a24d3e6-7a2b-6548-88d7-1f7eb88e36b1.htm" />
+        <HelpTOCNode Title="TargetJointFreedomInfo Field" Url="html/413382ec-4e94-bccc-8d42-903f0facd6f8.htm" />
+        <HelpTOCNode Title="targetLinkAngleLimit Field" Url="html/d42529de-9811-7207-22f6-3f6a81d9d995.htm" />
+        <HelpTOCNode Title="TargetNodeAngleLimitReachedMsg Field" Url="html/9ee5c904-f7b8-2991-ef86-0e17a98a0952.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="d3ec3032-de29-4ddd-972d-f2fcd935120b" Title="AbstractJointModule.JointState Class" Url="html/5efe8d86-920a-b723-09eb-c862f0a1e809.htm">
+      <HelpTOCNode Title="AbstractJointModule.JointState Constructor " Url="html/d2f01711-53e4-b2e6-c8bb-121ea5dbbfc9.htm" />
+      <HelpTOCNode Id="bffaf828-5d67-4e15-8208-efe641b9e648" Title="JointState Fields" Url="html/14e71469-6bce-23a4-414a-16d1ab69b78c.htm">
+        <HelpTOCNode Title="angularXMotion Field" Url="html/c8fb2c90-d95c-689f-f9ee-5ff224b30ce4.htm" />
+        <HelpTOCNode Title="angularYMotion Field" Url="html/03b982a1-7be3-ac96-4d9d-48301b051fa4.htm" />
+        <HelpTOCNode Title="angularZMotion Field" Url="html/c7945d34-10ca-193c-5cec-ef1d8875f777.htm" />
+        <HelpTOCNode Title="breakForce Field" Url="html/6617b99c-70cb-1ad5-9878-4eda8bc3021d.htm" />
+        <HelpTOCNode Title="breakTorque Field" Url="html/5bb56e0c-b836-251c-7398-0d65d0de968c.htm" />
+        <HelpTOCNode Title="enablePreprocessing Field" Url="html/03d9ca37-81e3-ee23-1369-d7f23c5b3522.htm" />
+        <HelpTOCNode Title="xMotion Field" Url="html/3f90a8d9-1d84-728f-daa4-a79c7e383482.htm" />
+        <HelpTOCNode Title="yMotion Field" Url="html/380c0b92-9818-db1f-ab9c-6829fac79613.htm" />
+        <HelpTOCNode Title="zMotion Field" Url="html/7f043812-708c-3b83-c91a-938cca462cb8.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="5e2755fc-f5ad-4c0a-ba47-714964962c1d" Title="AbstractJointPart Class" Url="html/7396402a-d63c-c84e-7e09-e4e38580cef5.htm">
+      <HelpTOCNode Title="AbstractJointPart Constructor " Url="html/520e9003-63a4-b200-e042-b42398ef40a7.htm" />
+      <HelpTOCNode Id="a4e1a842-6ee3-43bc-8c00-1bec708923a6" Title="AbstractJointPart Properties" Url="html/edb4f8b7-1d36-9756-7f52-f0aaec70527d.htm">
+        <HelpTOCNode Title="sourceTransform Property " Url="html/9f93e533-777d-7de3-2b6f-4ae8438a8d94.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="406c1796-c55b-49d4-a243-8aeb99b639f6" Title="AbstractJointPart Methods" Url="html/23db486f-5699-7a56-bb97-c5c7d839f9b6.htm">
+        <HelpTOCNode Title="CreateStrutJointModel Method " Url="html/901f6b46-f25a-93c3-6e24-545162e00f5f.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="4bd7a8ac-3b3b-4918-8c79-44e88921e7cf" Title="AbstractJointPart Fields" Url="html/41cc0e81-d5fc-8b53-09a7-e0e0d1adcc14.htm">
+        <HelpTOCNode Title="attachNodeOrientation Field" Url="html/57a6b5b9-bd86-49a9-2dab-a0307af234cf.htm" />
+        <HelpTOCNode Title="attachNodePosition Field" Url="html/c88f6eaa-a743-1b06-4c15-7b50b15e2c6d.htm" />
+        <HelpTOCNode Title="jointTexturePath Field" Url="html/1f8a14a4-6273-ede1-f054-117858008646.htm" />
+        <HelpTOCNode Title="PivotAxileObjName Field" Url="html/f100a453-22a4-0e52-8bf3-7f5c9606e9b0.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="0c031060-4e1f-4665-b948-cfeffc185778" Title="AbstractProceduralModel Class" Url="html/4608f060-ffe4-400f-7583-4d17165f1980.htm">
+      <HelpTOCNode Title="AbstractProceduralModel Constructor " Url="html/5dcbba99-b9b0-598c-57c2-389908cefb4c.htm" />
+      <HelpTOCNode Id="cbb3759c-63e0-4344-8cc1-5e0f88423efc" Title="AbstractProceduralModel Properties" Url="html/428cb862-a315-e2c2-f217-8af9b6a863ec.htm">
+        <HelpTOCNode Title="partModelTransform Property " Url="html/2a536253-3bf8-c1a8-b7b0-2445c318757f.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="9b0f4a99-416f-40f7-8386-f4f81b492eae" Title="AbstractProceduralModel Methods" Url="html/02ada8ab-b0d0-3dff-13c7-411017c7cd11.htm">
+        <HelpTOCNode Title="CreateMaterial Method " Url="html/0b20ce92-e967-9cc9-ac70-fc85017ceb82.htm" />
+        <HelpTOCNode Title="CreatePartModel Method " Url="html/419c40b2-68c9-9384-8c56-e3f54d79e3a5.htm" />
+        <HelpTOCNode Title="GetTexture Method " Url="html/aaf2903b-065d-3cfa-18f1-15847cf428a2.htm" />
+        <HelpTOCNode Title="LoadPartModel Method " Url="html/24afc6fd-4807-1f2f-92dd-5199d69a9d0f.htm" />
+        <HelpTOCNode Title="OnLoad Method " Url="html/59e781ae-c880-c94b-cb63-620ad5433136.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/fc931aa4-311a-d38d-8eb1-41d63357fff8.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="c855901c-78eb-4d48-a2d1-7eb8722abc78" Title="AbstractProceduralModel Fields" Url="html/69ff198b-72c7-0c1b-783c-0f8a8d41e920.htm">
+        <HelpTOCNode Title="color Field" Url="html/5b5ef931-c717-e9ac-04a1-54256bacf07b.htm" />
+        <HelpTOCNode Title="KspPartShaderName Field" Url="html/9db0639c-c79d-f00a-4867-eb76b132ba40.htm" />
+        <HelpTOCNode Title="shaderName Field" Url="html/43afbcbd-07c5-70aa-3e65-fc24fbecdb2a.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="760605d1-99f6-4a1c-85e3-8dc760dcd2a3" Title="KASModuleInteractiveJointSource Class" Url="html/e381a058-d26e-8901-e950-b456ceddc636.htm">
+      <HelpTOCNode Title="KASModuleInteractiveJointSource Constructor " Url="html/89c3f378-0cb2-0cd8-215b-a35f31875e9f.htm" />
+      <HelpTOCNode Id="6c7f6bb7-3d7f-4241-9b89-2d045f64fab7" Title="KASModuleInteractiveJointSource Methods" Url="html/de34e8c8-580b-fe7d-d0ef-700eef822ef3.htm">
+        <HelpTOCNode Title="BreakLinkContextMenuAction Method " Url="html/2268d6e8-fb53-2e9a-b86a-456da8c693ab.htm" />
+        <HelpTOCNode Title="OnAwake Method " Url="html/e207f22a-9d82-ae46-41a1-43ff721237bc.htm" />
+        <HelpTOCNode Title="OnKASLinkBrokenEvent Method " Url="html/0b4368e6-d072-494e-fd19-125e664a2dcb.htm" />
+        <HelpTOCNode Title="OnKASLinkCreatedEvent Method " Url="html/3425ea6c-9a86-8098-9c45-4d6eaae0b837.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/c21e2874-9a20-c2f6-ea35-0cc82e77dc7b.htm" />
+        <HelpTOCNode Title="OnUpdate Method " Url="html/2f3675e1-0c2b-39c1-3913-6550172f3229.htm" />
+        <HelpTOCNode Title="StartLinkContextMenuAction Method " Url="html/54fffd38-a94a-1efa-2775-64a439d2dca2.htm" />
+        <HelpTOCNode Title="StartLinking Method " Url="html/771eeaad-86e5-8455-4b60-afd71d28ae75.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="c1d4753f-a12d-4ed2-9590-8bcd6b6ce4b8" Title="KASModuleInteractiveJointSource Fields" Url="html/d7b1087a-5a54-34cd-19c4-23723bc8c20f.htm">
+        <HelpTOCNode Title="breakLinkMenu Field" Url="html/f0334149-582d-9d7d-ebc9-6be88c5e127a.htm" />
+        <HelpTOCNode Title="brokeSndPath Field" Url="html/5c5de07e-dd06-7644-6ec2-6cc3c3fe9275.htm" />
+        <HelpTOCNode Title="plugSndPath Field" Url="html/be38fc5a-f4a0-feb8-f61a-ef46843e5585.htm" />
+        <HelpTOCNode Title="startLinkMenu Field" Url="html/9ec512df-27df-f0b4-2ecb-60f314665de7.htm" />
+        <HelpTOCNode Title="unplugSndPath Field" Url="html/ea3be7c3-dc91-451e-3830-084746d6912d.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="335ce900-080d-4471-b602-f2a1a7f4d0b9" Title="KASModuleLinkSourceBase Class" Url="html/f993ba55-3d7e-5cbf-226d-12ddd6b815f4.htm">
+      <HelpTOCNode Title="KASModuleLinkSourceBase Constructor " Url="html/53dc8f07-ddb2-f0d4-cd8f-7c0e7d2aef31.htm" />
+      <HelpTOCNode Id="54e79fec-7232-4e95-8e0a-0d7d66922a69" Title="KASModuleLinkSourceBase Properties" Url="html/ebc7f19e-034c-b6dd-9a9f-c2fdc6e8b7c8.htm">
+        <HelpTOCNode Title="attachNode Property " Url="html/233d4aaf-ab0e-82f5-b93b-de4414081f28.htm" />
+        <HelpTOCNode Title="cfgAttachNodeName Property " Url="html/24226860-5204-9382-2179-1933fe601e85.htm" />
+        <HelpTOCNode Title="cfgLinkRendererName Property " Url="html/773901c1-9915-e25f-9e34-4da8a04e37d2.htm" />
+        <HelpTOCNode Title="cfgLinkType Property " Url="html/7157eeb0-0bd6-6fab-19f8-3f5a7ee29645.htm" />
+        <HelpTOCNode Title="guiLinkMode Property " Url="html/a53920b5-9785-997e-a13a-1e3c897ed121.htm" />
+        <HelpTOCNode Title="isLocked Property " Url="html/7f4ff7d8-d9b3-2391-20ed-ef1a8e42f14c.htm" />
+        <HelpTOCNode Title="linkJoint Property " Url="html/d4ef3f93-2fed-f918-4927-6894997ed157.htm" />
+        <HelpTOCNode Title="linkRenderer Property " Url="html/e6e9ea8a-c762-6a73-82fc-2a3bb9f5d26f.htm" />
+        <HelpTOCNode Title="linkState Property " Url="html/b91cf905-7a78-2b2e-e787-86b8431724eb.htm" />
+        <HelpTOCNode Title="linkTarget Property " Url="html/f4380e32-9495-9d6f-f763-5d71737d379a.htm" />
+        <HelpTOCNode Title="nodeTransform Property " Url="html/3333f451-b962-5a96-cb07-dafe8287b714.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="6fb3fb60-5250-46e9-a6f3-d82c238eaf75" Title="KASModuleLinkSourceBase Methods" Url="html/1850a22e-45f2-311e-201c-3aa2476066df.htm">
+        <HelpTOCNode Title="BreakCurrentLink Method " Url="html/f28abd0e-f7dd-928b-ce9f-aaa3cae71705.htm" />
+        <HelpTOCNode Title="CancelLinking Method " Url="html/ebd171c4-6a15-0394-d654-8a6b32b79f78.htm" />
+        <HelpTOCNode Title="CheckBasicLinkConditions Method " Url="html/2397ed81-2c02-3b67-c2c9-f7593fed7bd7.htm" />
+        <HelpTOCNode Title="CheckCanLinkTo Method " Url="html/96d9ad42-d154-d1e1-bbf9-06b3b0274de7.htm" />
+        <HelpTOCNode Title="CheckJointLimits Method " Url="html/161961a2-68ca-42d6-8a54-736c06bd973f.htm" />
+        <HelpTOCNode Title="ConnectParts Method " Url="html/50d36cd0-0185-e40f-58fb-b046a7098722.htm" />
+        <HelpTOCNode Title="DecoupleAction Method " Url="html/d6fd7443-d021-00fa-2146-6e7f8de86283.htm" />
+        <HelpTOCNode Title="GetDrawModulePanelCallback Method " Url="html/6f010c58-ad9d-bcae-f9cd-2e95678629d9.htm" />
+        <HelpTOCNode Title="GetInfo Method " Url="html/f24f8e78-3ebe-4069-3755-3831c2298bd6.htm" />
+        <HelpTOCNode Title="GetModuleTitle Method " Url="html/73977a2c-26bd-4472-2433-ea7dcb987eac.htm" />
+        <HelpTOCNode Title="GetPrimaryField Method " Url="html/9c836cef-49f4-c753-6742-1ce925815fd0.htm" />
+        <HelpTOCNode Title="LinkParts Method " Url="html/388e9f18-387e-3b1d-25b1-b6f9c69cc96e.htm" />
+        <HelpTOCNode Title="LinkToTarget Method " Url="html/238f9fd7-1850-4557-4a4f-934030651d5c.htm" />
+        <HelpTOCNode Title="OnAwake Method " Url="html/687b203a-f227-9fab-fbab-f01f88c0f1cf.htm" />
+        <HelpTOCNode Title="OnDestroy Method " Url="html/c895bb23-c736-626d-bd10-61a1a3b902d6.htm" />
+        <HelpTOCNode Title="OnJointBreak Method " Url="html/397f8192-16f3-901f-7012-85eecba9d090.htm" />
+        <HelpTOCNode Title="OnKASLinkBrokenEvent Method " Url="html/a29390cf-d5ed-a571-109c-5bb84ac0668b.htm" />
+        <HelpTOCNode Title="OnKASLinkCreatedEvent Method " Url="html/61815dd8-f56f-f4b8-897e-2d94ff554971.htm" />
+        <HelpTOCNode Title="OnLoad Method " Url="html/4a08b51b-8662-6c57-bb70-c87ddc2d6840.htm" />
+        <HelpTOCNode Title="OnPartPack Method " Url="html/a7046592-8e8f-f269-324d-e7e033de268e.htm" />
+        <HelpTOCNode Title="OnPartUnpack Method " Url="html/d2560417-a712-f8cc-2aa1-a3139c797bba.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/101edc0d-64c0-177d-4a63-06d1acc1495f.htm" />
+        <HelpTOCNode Title="OnStateChange Method " Url="html/af3783f3-2e8a-d8b0-c37d-23f3c64bd253.htm" />
+        <HelpTOCNode Title="StartLinkGUIMode Method " Url="html/f516dccd-6624-ade1-4645-527ef3f29616.htm" />
+        <HelpTOCNode Title="StartLinking Method " Url="html/15241173-e47c-d23b-4ee7-9a9e1f92c50f.htm" />
+        <HelpTOCNode Title="StopLinkGUIMode Method " Url="html/6786fd3f-baf8-0570-28e1-296acef86127.htm" />
+        <HelpTOCNode Title="UnlinkParts Method " Url="html/7020439d-ce7e-d469-c6fa-9d002a81686d.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="29e0d912-a0fa-43fb-8beb-4196ff8dabf4" Title="KASModuleLinkSourceBase Fields" Url="html/cda24f84-c6ed-eb24-fd63-0457ac3fc7c0.htm">
+        <HelpTOCNode Title="attachNodeName Field" Url="html/ffa343e1-3934-43e8-f77e-96c4a73c3a43.htm" />
+        <HelpTOCNode Title="attachNodeOrientation Field" Url="html/e2a35e5e-c18a-19b1-6b51-a973baa73eea.htm" />
+        <HelpTOCNode Title="attachNodePosition Field" Url="html/0458313c-1281-2160-dd53-ddc15804150a.htm" />
+        <HelpTOCNode Title="BadLinkStatusTimeout Field" Url="html/6a2c08b0-063b-9859-38e8-50508353563c.htm" />
+        <HelpTOCNode Title="CannotLinkToTheSameVesselMsg Field" Url="html/327b288b-f96c-e638-b262-a906bea3d4c1.htm" />
+        <HelpTOCNode Title="CannotRestoreLinkMsg Field" Url="html/2a637e8b-6bce-fb43-5544-557a75ad5be6.htm" />
+        <HelpTOCNode Title="IncompatibleTargetLinkTypeMsg Field" Url="html/eea84542-21f1-e867-78c3-1262697824b6.htm" />
+        <HelpTOCNode Title="linkRendererName Field" Url="html/f20346a8-f18e-4fe4-b2d1-d01e2d94e0a4.htm" />
+        <HelpTOCNode Title="LinksWithSocketTypeInfo Field" Url="html/b9e36239-1341-7e06-2835-8ae358c16f7c.htm" />
+        <HelpTOCNode Title="linkType Field" Url="html/c0d40cfd-2cac-f1a3-c9b3-4eaf492ef514.htm" />
+        <HelpTOCNode Title="ModuleTitleInfo Field" Url="html/a7975c9c-c269-5f21-0725-ee07eed69605.htm" />
+        <HelpTOCNode Title="persistedLinkState Field" Url="html/d2ec7fce-b125-619c-0c1b-7d01ff96a16a.htm" />
+        <HelpTOCNode Title="SourceIsNotAvailableForLinkMsg Field" Url="html/dc403323-0410-b24a-b77f-bc887b4b1f57.htm" />
+        <HelpTOCNode Title="TargetDoesntAcceptLinksMsg Field" Url="html/9d9092c6-755f-05f5-ae68-33cadf1ca31e.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="ea51eaf6-cea0-491e-92d4-a0fe86b9243f" Title="KASModuleLinkTargetBase Class" Url="html/5e50c5bc-ed05-2b33-1e37-113841cd25bd.htm">
+      <HelpTOCNode Title="KASModuleLinkTargetBase Constructor " Url="html/11a5df32-6711-299e-4f72-e26e0be3030f.htm" />
+      <HelpTOCNode Id="33c41969-73b8-4d16-88fa-a41681e34ab8" Title="KASModuleLinkTargetBase Properties" Url="html/d76ec7c4-6c90-e0a2-3897-624903cc346b.htm">
+        <HelpTOCNode Title="attachNode Property " Url="html/18c4a2fd-2ad6-c604-7d88-5808d7d0739d.htm" />
+        <HelpTOCNode Title="cfgAttachNodeName Property " Url="html/a616947d-ff3f-068c-aaa4-4d1a3e7fccaf.htm" />
+        <HelpTOCNode Title="cfgLinkType Property " Url="html/48648114-bb35-be82-bc00-0b1dbbfeb97d.htm" />
+        <HelpTOCNode Title="isLocked Property " Url="html/aad661e0-1a1b-2c8a-91a7-55aa8e64a1bd.htm" />
+        <HelpTOCNode Title="linkSource Property " Url="html/2bd24414-6884-6e1f-8b2b-24fddac1e8ca.htm" />
+        <HelpTOCNode Title="linkState Property " Url="html/40ad5d13-1174-52ec-8425-6a04fbd69bd1.htm" />
+        <HelpTOCNode Title="nodeTransform Property " Url="html/dc98a2f0-e9f4-4e5b-4757-a70d1ee07550.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="70b9e668-d702-4963-a837-c5993fd7047d" Title="KASModuleLinkTargetBase Methods" Url="html/f63c0dea-9103-5da5-7f57-3fef9c12ba1b.htm">
+        <HelpTOCNode Title="DecoupleAction Method " Url="html/7b423f0b-aee6-39ca-67cd-43befc4a69be.htm" />
+        <HelpTOCNode Title="OnAwake Method " Url="html/5d148ba1-1fa4-87d4-8b45-b7c0f2c743e4.htm" />
+        <HelpTOCNode Title="OnDestroy Method " Url="html/3f2a96f4-89f1-8aa4-8036-d0b781f355d3.htm" />
+        <HelpTOCNode Title="OnKASLinkBrokenEvent Method " Url="html/b3dd0851-20cd-d609-816d-7c767aa31cee.htm" />
+        <HelpTOCNode Title="OnKASLinkCreatedEvent Method " Url="html/35678026-9b91-e13c-7de0-f535d2634c5c.htm" />
+        <HelpTOCNode Title="OnLoad Method " Url="html/1c4d7ab2-f3df-5844-374b-6adb5c49aef9.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/47539c80-01ba-2c4f-4e4d-8e97638caf8f.htm" />
+        <HelpTOCNode Title="OnStateChange Method " Url="html/7f9387f6-1a97-4d7b-1f28-6d744c9dc07b.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="f9835a19-7ebb-4380-b9f5-4b0c4b223856" Title="KASModuleLinkTargetBase Fields" Url="html/9ef3dd1d-b305-0451-e595-f65272491ed4.htm">
+        <HelpTOCNode Title="attachNodeName Field" Url="html/082ef1a6-7faf-5908-c05e-b1780760a950.htm" />
+        <HelpTOCNode Title="attachNodeOrientation Field" Url="html/531d7b65-beed-c4b6-7c45-318ede86ba8a.htm" />
+        <HelpTOCNode Title="attachNodePosition Field" Url="html/97b273d4-e816-9639-760b-8e1c1d4d68e7.htm" />
+        <HelpTOCNode Title="highlightColor Field" Url="html/d0dfa219-6f51-c5a6-2fe4-764f2c74aef7.htm" />
+        <HelpTOCNode Title="highlightCompatibleTargets Field" Url="html/a0a1575f-2442-7814-5ed4-0acdab87cd6e.htm" />
+        <HelpTOCNode Title="linkStateMachine Field" Url="html/17c0efab-998a-d9d9-043d-057c6b6806d6.htm" />
+        <HelpTOCNode Title="linkType Field" Url="html/8986a10c-6c8a-582b-f796-116d9a4a8204.htm" />
+        <HelpTOCNode Title="persistedLinkState Field" Url="html/e78b8f26-cfb7-9d7e-c47c-02dd4ee42cee.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="7d87534b-afda-4110-841e-35ebe7d5c15a" Title="KASModuleStockJoint Class" Url="html/336a41dc-3be7-8c6c-3543-15ba3b07e43f.htm">
+      <HelpTOCNode Title="KASModuleStockJoint Constructor " Url="html/ee15eb22-75eb-febc-ce9d-78dd708cf5ae.htm" />
+      <HelpTOCNode Id="655c7d2c-6145-4930-8058-c0b0ec22e04e" Title="KASModuleStockJoint Methods" Url="html/edf9e9e5-58b2-14d2-417f-55216c389564.htm">
+        <HelpTOCNode Title="AdjustJoint Method " Url="html/a9c26c0d-15e6-8320-86bb-ac3e6c506d5a.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="e9955027-a47c-4692-9c45-5f03243d2a01" Title="KASModuleStockJoint Fields" Url="html/f3cf20fb-7271-2143-d51d-980e5ae30436.htm">
+        <HelpTOCNode Title="jointState Field" Url="html/e40116f2-de0c-0135-f6d8-9ff42627ce84.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="bfbcff4e-5d9f-451d-b4b2-cd525b87068a" Title="KASModuleTelescopicPipeStrut Class" Url="html/35c4799a-1258-000b-7c24-35db7883c8f8.htm">
+      <HelpTOCNode Title="KASModuleTelescopicPipeStrut Constructor " Url="html/7eb59c54-e19b-b962-23a3-adf2a97c74a3.htm" />
+      <HelpTOCNode Id="8f6875f9-19f1-4285-949e-4e9b2bc3c210" Title="KASModuleTelescopicPipeStrut Properties" Url="html/e0dbb8fe-8edd-4510-3abf-72d16a98c042.htm">
+        <HelpTOCNode Title="cfgRendererName Property " Url="html/9f04de43-ae69-b626-7870-13062da3ccf3.htm" />
+        <HelpTOCNode Title="colorOverride Property " Url="html/b893fc7b-ab1d-d33b-587d-9da6e94bf8df.htm" />
+        <HelpTOCNode Title="isLinked Property " Url="html/87ce1a38-c0b6-bf58-5313-cc7dba9367af.htm" />
+        <HelpTOCNode Title="isPhysicalCollider Property " Url="html/7e0d26fd-abe1-e829-35ee-40b199b39410.htm" />
+        <HelpTOCNode Title="isStarted Property " Url="html/f1cd745c-e4f8-aa54-7ff1-1c3073f5bd22.htm" />
+        <HelpTOCNode Title="linkSource Property " Url="html/9298e590-e378-8dd9-7a93-99028bb978d1.htm" />
+        <HelpTOCNode Title="maxLinkLength Property " Url="html/67cee9ed-8ec3-15d5-0316-29e7ea62701c.htm" />
+        <HelpTOCNode Title="minLinkLength Property " Url="html/ee8b5039-c544-d865-6225-593143505664.htm" />
+        <HelpTOCNode Title="pistons Property " Url="html/3106cab2-f888-8709-c438-36550f62194d.htm" />
+        <HelpTOCNode Title="shaderNameOverride Property " Url="html/2910f3f4-88e6-9a6f-1970-42c3214a112e.htm" />
+        <HelpTOCNode Title="sourceTransform Property " Url="html/22c7cc45-0741-7b5a-b00a-647f83a5cd3b.htm" />
+        <HelpTOCNode Title="srcJointHandleLength Property " Url="html/62da179c-8ac0-e67b-7798-d8fe6583969c.htm" />
+        <HelpTOCNode Title="srcPartJoint Property " Url="html/814f806f-97cc-b31e-9aa2-7d8ac033117d.htm" />
+        <HelpTOCNode Title="srcPartJointPivot Property " Url="html/f99066ce-dc58-edbd-34f1-cedf57cdb7a2.htm" />
+        <HelpTOCNode Title="srcStrutJoint Property " Url="html/e9416d07-ce06-8571-0025-9e054b2c136a.htm" />
+        <HelpTOCNode Title="targetTransform Property " Url="html/139c9e1c-5608-7905-7f4c-06ddaef54f76.htm" />
+        <HelpTOCNode Title="trgJointHandleLength Property " Url="html/14d844bf-65a1-600e-18a8-fceb7885e4c2.htm" />
+        <HelpTOCNode Title="trgStrutJoint Property " Url="html/78ccc202-bab0-120d-425e-c5594721ca76.htm" />
+        <HelpTOCNode Title="trgStrutJointPivot Property " Url="html/80d79d61-cb41-a8ab-9cb4-0472e1387d69.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="dae58e05-ddc5-4332-81b0-e611963606fe" Title="KASModuleTelescopicPipeStrut Methods" Url="html/a953c666-5417-3b44-d552-5c4be574ab59.htm">
+        <HelpTOCNode Title="CheckColliderHits Method " Url="html/d0159907-ce5c-e087-7266-61bc64f09336.htm" />
+        <HelpTOCNode Title="CreatePartModel Method " Url="html/b6ea65ff-a1ae-d093-c540-24c8ba8e2ab1.htm" />
+        <HelpTOCNode Title="ExtendAtMaxMenuAction Method " Url="html/59fa4a40-4718-7b11-f90d-6474f9a67ebf.htm" />
+        <HelpTOCNode Title="GetClampedLinkLength Method " Url="html/e72c0db2-09df-8ae7-97e2-3ecafc08b26a.htm" />
+        <HelpTOCNode Title="LoadPartModel Method " Url="html/cd016cf2-3df7-6e26-c8b8-362df60d2e91.htm" />
+        <HelpTOCNode Title="OnAwake Method " Url="html/5390ee4e-7e21-7c45-c006-23c258dc01f7.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/692de62c-1429-b0c7-1b8b-d9475b28fc4f.htm" />
+        <HelpTOCNode Title="OnUpdate Method " Url="html/174a5bd1-d4ce-ff55-a1e3-34e2ff0413b9.htm" />
+        <HelpTOCNode Title="ParkedOrientationMenuAction0 Method " Url="html/063fee01-120e-f560-a1fa-3be8795e12b0.htm" />
+        <HelpTOCNode Title="ParkedOrientationMenuAction1 Method " Url="html/7b3f2b4b-36be-0bb5-ca83-469a59070337.htm" />
+        <HelpTOCNode Title="ParkedOrientationMenuAction2 Method " Url="html/ecd2b15c-7d5e-a8dc-133b-5414ca378a6a.htm" />
+        <HelpTOCNode Title="RetractToMinMenuAction Method " Url="html/b7a4fc85-fbe1-4450-1f63-1472a01e75ba.htm" />
+        <HelpTOCNode Title="StartRenderer Method " Url="html/6afeb61f-fee9-ace6-28d8-f22d5e86b54f.htm" />
+        <HelpTOCNode Title="StopRenderer Method " Url="html/cd0a3221-f34e-fab7-41a7-6ea09b697d54.htm" />
+        <HelpTOCNode Title="UpdateLink Method " Url="html/795f257f-ec92-6d90-2ceb-0bc855a38477.htm" />
+        <HelpTOCNode Title="UpdateLinkLengthAndOrientation Method " Url="html/3ded9bfe-5c87-4b01-9e54-299a601767f3.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="06209a7b-9bca-4091-a45f-42cec55943cf" Title="KASModuleTelescopicPipeStrut Fields" Url="html/e2ced996-502d-aadb-c94d-0a84291b1097.htm">
+        <HelpTOCNode Title="AttachNodeObjName Field" Url="html/d59f9b2b-f794-9ebf-e7ef-9fdc60721550.htm" />
+        <HelpTOCNode Title="ExtendAtMaxMenuActionName Field" Url="html/92aacd81-3660-5719-6410-31b5c3769c75.htm" />
+        <HelpTOCNode Title="LinkCollidesWithObjectMsg Field" Url="html/10904179-4724-0d00-4ef5-40256718f677.htm" />
+        <HelpTOCNode Title="LinkCollidesWithSurfaceMsg Field" Url="html/cbfc352a-4f51-bea2-4718-de054ccf61ee.htm" />
+        <HelpTOCNode Title="MenuAction0Name Field" Url="html/a7a1d227-0d24-16ec-2cbc-32b865367382.htm" />
+        <HelpTOCNode Title="MenuAction1Name Field" Url="html/2824f093-3474-bde4-5a81-c786bf6fb55a.htm" />
+        <HelpTOCNode Title="MenuAction2Name Field" Url="html/cdf570a9-547a-0272-10ca-59ff02f78feb.htm" />
+        <HelpTOCNode Title="outerPistonDiameter Field" Url="html/7693f0c6-a66d-3c53-3a7a-7f1afe5678b4.htm" />
+        <HelpTOCNode Title="parkedLength Field" Url="html/7dd127eb-65df-cfca-3615-d7295c4b2204.htm" />
+        <HelpTOCNode Title="parkedOrientation Field" Url="html/41833e3f-2cc7-a37a-a323-0a3e65ff059b.htm" />
+        <HelpTOCNode Title="parkedOrientationMenu0 Field" Url="html/9deb23c3-b67e-8f49-9158-5e9b7d37e265.htm" />
+        <HelpTOCNode Title="parkedOrientationMenu1 Field" Url="html/276dc011-b61b-eab4-eb42-4044b7122cdf.htm" />
+        <HelpTOCNode Title="parkedOrientationMenu2 Field" Url="html/a0d193ce-7cf7-656a-2e4a-c6ea907cdaef.htm" />
+        <HelpTOCNode Title="pistonLength Field" Url="html/f26ae75c-3ddd-fd0b-0476-c7370c515d59.htm" />
+        <HelpTOCNode Title="pistonMinShift Field" Url="html/d6df643b-151f-94bb-0801-b9388520a245.htm" />
+        <HelpTOCNode Title="pistonsCount Field" Url="html/9bc19b1a-b797-61fb-7ea3-4a23af25c288.htm" />
+        <HelpTOCNode Title="pistonTexturePath Field" Url="html/1dd4d632-d4bf-4193-f751-9fa73dd2b9b8.htm" />
+        <HelpTOCNode Title="pistonWallThickness Field" Url="html/34ac9010-92fe-2af9-63dc-e6306b6310a8.htm" />
+        <HelpTOCNode Title="rendererName Field" Url="html/9fc26fe1-d2be-5147-4975-25d4c28d3faa.htm" />
+        <HelpTOCNode Title="RetractToMinMenuActionName Field" Url="html/5fd1704e-858e-5051-05eb-7f2e3c2d3511.htm" />
+        <HelpTOCNode Title="SrcPartJointObjName Field" Url="html/1505b0fe-32d1-cc4b-b620-25ec775b5236.htm" />
+        <HelpTOCNode Title="SrcStrutJointObjName Field" Url="html/3e0fe9cd-f1ee-29ef-c064-13d8dc1b514b.htm" />
+        <HelpTOCNode Title="TrgPartJointObjName Field" Url="html/345a3f51-c2e2-b9c6-00e3-56b5cf9f6f83.htm" />
+        <HelpTOCNode Title="TrgStrutJointObjName Field" Url="html/c94a56f8-969e-a3cc-4a0a-439455fc4cd2.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="8fa3629b-84b6-40b9-9230-ba480692676c" Title="KASModuleTwoEndsSphereJoint Class" Url="html/f9e7b6c3-e323-d300-9c08-400b29c74391.htm">
+      <HelpTOCNode Title="KASModuleTwoEndsSphereJoint Constructor " Url="html/b7670063-53b7-dfb1-2363-4823dd8de0b9.htm" />
+      <HelpTOCNode Id="4d1386eb-0f41-4fc1-bb31-9a5f3d1cde4c" Title="KASModuleTwoEndsSphereJoint Methods" Url="html/d4ef8b67-60f1-2a0c-4d05-ad673c9f0875.htm">
+        <HelpTOCNode Title="AdjustJoint Method " Url="html/5388a656-ebd0-cbb0-e4c7-caad275e7ecf.htm" />
+        <HelpTOCNode Title="CreateJoint Method " Url="html/051784c5-8d60-5cea-4057-84a8b7b962f1.htm" />
+        <HelpTOCNode Title="DropJoint Method " Url="html/9019b976-64c1-587e-345e-a1e81594a983.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="5f8ac7aa-6e4e-430f-8314-573e4be69109" Title="KASModuleTwoEndsSphereJoint Fields" Url="html/a2263297-5d04-3dac-880c-b16ff34362dc.htm">
+        <HelpTOCNode Title="strutSpringDamperRatio Field" Url="html/edd92638-371b-2615-f2b2-08e4b1439145.htm" />
+        <HelpTOCNode Title="strutSpringForce Field" Url="html/24509463-314e-b44b-ed35-fa0445f225dc.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="772dce6b-b57d-4786-9ad1-42e1f363c3f7" Title="KASAPIv1" Url="html/18015ce3-e3af-191c-f585-3fb0999bdb35.htm">
+    <HelpTOCNode Title="GUILinkMode Enumeration" Url="html/78dcd8bd-ac20-5813-879f-2b27547d6254.htm" />
+    <HelpTOCNode Id="295023b3-e573-4d17-bf51-10365043726a" Title="IAttachNodesUtils Interface" Url="html/f5dc1257-0271-8f0e-67b0-ebfc8845c648.htm">
+      <HelpTOCNode Id="fd7190e0-b4b6-4d5b-b957-be67d9f78b59" Title="IAttachNodesUtils Methods" Url="html/91fb3595-cbd8-c933-0159-055105ccbdaa.htm">
+        <HelpTOCNode Title="CreateAttachNode Method " Url="html/dd93788f-4a06-b43f-7fb7-ecd9245d658b.htm" />
+        <HelpTOCNode Title="DropAttachNode Method " Url="html/29d9033b-d3b5-0987-8a51-a58b0c213264.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="e93a600a-65e1-4861-a456-3245eb107788" Title="IJointUtils Interface" Url="html/fc0e7651-b167-7c88-20b4-85e85ef95cf8.htm">
+      <HelpTOCNode Id="b87bc16f-d242-4ba6-8860-acfb5df896dd" Title="IJointUtils Methods" Url="html/f4087f45-050a-67e8-8f97-5a3f6edf8462.htm">
+        <HelpTOCNode Title="DumpJoint Method " Url="html/939a4e41-c247-9b09-d167-34bb8c5ee696.htm" />
+        <HelpTOCNode Title="ResetJoint Method " Url="html/34d22f26-abbb-cf9f-2bc9-d6458656b803.htm" />
+        <HelpTOCNode Title="SetupPrismaticJoint Method " Url="html/c75fc5a0-259f-ca97-67f5-09bdbb19ec7d.htm" />
+        <HelpTOCNode Title="SetupSphericalJoint Method " Url="html/0aacee5b-4cbe-c428-6e91-9a804afa77a9.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="75277f5a-fd06-4f3f-9d4e-1b39fcc5c5dd" Title="ILinkJoint Interface" Url="html/3bb28523-f5b7-21f6-c133-427ca4a759fa.htm">
+      <HelpTOCNode Id="6cd6ad74-5e63-4b61-bc5f-457cd70e5cc9" Title="ILinkJoint Properties" Url="html/5db93774-9d4a-6da8-1f7b-109d4683fbe2.htm">
+        <HelpTOCNode Title="cfgLinkBreakForce Property " Url="html/f7f51bc5-77a3-4567-2cb8-43707c62985c.htm" />
+        <HelpTOCNode Title="cfgLinkBreakTorque Property " Url="html/5b35ed4c-b770-5224-e0da-90fcfbf7925f.htm" />
+        <HelpTOCNode Title="cfgMaxLinkLength Property " Url="html/b6f3c52c-05fc-70ec-d4f0-744be1456525.htm" />
+        <HelpTOCNode Title="cfgMinLinkLength Property " Url="html/19150c7c-8a16-5720-0653-a866f2e79fea.htm" />
+        <HelpTOCNode Title="cfgSourceLinkAngleLimit Property " Url="html/fac7f8df-bdfb-bfcb-ef37-9a72b62d41d2.htm" />
+        <HelpTOCNode Title="cfgTargetLinkAngleLimit Property " Url="html/48e426d3-8d44-0d89-b03c-4030247960b6.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="d2c2ac24-7442-4b96-91cc-ed76c774815c" Title="ILinkJoint Methods" Url="html/21256580-d598-a073-2973-03b1a8362511.htm">
+        <HelpTOCNode Title="AdjustJoint Method " Url="html/dc14ec70-3a71-d308-9c32-cb4b1f59edbb.htm" />
+        <HelpTOCNode Title="CheckAngleLimitAtSource Method " Url="html/5ed287b2-de67-d426-703f-1a1e7a815586.htm" />
+        <HelpTOCNode Title="CheckAngleLimitAtTarget Method " Url="html/24402732-ba48-de0e-03eb-bef8358a63f8.htm" />
+        <HelpTOCNode Title="CheckLengthLimit Method " Url="html/9fb8e847-91e4-230e-6e71-1dc3f59c1444.htm" />
+        <HelpTOCNode Title="CreateJoint Method " Url="html/3bf01c3e-cadd-17b1-8aec-9137acde35db.htm" />
+        <HelpTOCNode Title="DropJoint Method " Url="html/5531c51a-0850-9356-5003-50bfed6b3f16.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="e57d1bfe-169d-4c60-8567-eeb3cd6a1e0d" Title="ILinkRenderer Interface" Url="html/db9014ed-3c9e-ab0b-eae2-a0c6e7486435.htm">
+      <HelpTOCNode Id="79db78b3-a894-4701-8dce-82694c16c6ba" Title="ILinkRenderer Properties" Url="html/29ab9401-2615-82be-100e-037f479d79e4.htm">
+        <HelpTOCNode Title="cfgRendererName Property " Url="html/e4f3de83-c7c8-101c-e9ab-30d44de3d3e4.htm" />
+        <HelpTOCNode Title="colorOverride Property " Url="html/ad9b3fde-5e77-fb1d-1cb4-c266dcec93c6.htm" />
+        <HelpTOCNode Title="isPhysicalCollider Property " Url="html/a4f6302f-9020-7079-db62-9cca4a592b6a.htm" />
+        <HelpTOCNode Title="isStarted Property " Url="html/9a56c161-7e2a-c61d-a608-0f42d67f21b6.htm" />
+        <HelpTOCNode Title="shaderNameOverride Property " Url="html/39082dfe-a13e-e5e6-7bb7-143cf919e3fe.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="fe474f39-be0f-411f-890e-38d048b77214" Title="ILinkRenderer Methods" Url="html/baf22775-674a-1fff-2049-97a12feec806.htm">
+        <HelpTOCNode Title="CheckColliderHits Method " Url="html/d493a151-e8f0-6010-006b-04ef0dc00588.htm" />
+        <HelpTOCNode Title="StartRenderer Method " Url="html/6945081e-6bd4-2a22-af73-d15e8a59bff2.htm" />
+        <HelpTOCNode Title="StopRenderer Method " Url="html/201cbc42-4397-6610-b9b7-99a90e099366.htm" />
+        <HelpTOCNode Title="UpdateLink Method " Url="html/43f4d349-0465-bf5a-ef36-5ed4062818dd.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="472c9a78-8ef4-44f5-8ed3-81151859152b" Title="ILinkSource Interface" Url="html/f7608687-5965-7fb2-883e-e69cb6deff54.htm">
+      <HelpTOCNode Id="16d96dd4-017e-4de7-b769-710d53f60765" Title="ILinkSource Properties" Url="html/7ad2cbaa-d6d2-511b-358e-b23444d90a7e.htm">
+        <HelpTOCNode Title="attachNode Property " Url="html/05051421-f58f-02db-0c93-f4894cb3f91e.htm" />
+        <HelpTOCNode Title="cfgAttachNodeName Property " Url="html/2489048b-a99a-ccd3-6914-8f51748cc157.htm" />
+        <HelpTOCNode Title="cfgLinkRendererName Property " Url="html/86b92e19-e430-3ee0-132a-e0a91c235d89.htm" />
+        <HelpTOCNode Title="cfgLinkType Property " Url="html/5d5e615b-1e88-9f46-27f8-6f6e703b3df4.htm" />
+        <HelpTOCNode Title="guiLinkMode Property " Url="html/003b9d88-8046-be26-a797-624a56725a56.htm" />
+        <HelpTOCNode Title="isLocked Property " Url="html/73452b79-2a11-2882-e3dd-0d47cc5275f7.htm" />
+        <HelpTOCNode Title="linkState Property " Url="html/b37df465-a71d-442c-96b1-53d184919895.htm" />
+        <HelpTOCNode Title="linkTarget Property " Url="html/780e5114-735c-ff46-fbc3-30161dded8aa.htm" />
+        <HelpTOCNode Title="nodeTransform Property " Url="html/3fc2bd30-8da9-270e-6c7d-e0deb815a258.htm" />
+        <HelpTOCNode Title="part Property " Url="html/3bb069fe-f52c-7da9-0efb-bd5ef6061eb0.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="afa27ffe-d0da-4dfa-9174-ac875d60d858" Title="ILinkSource Methods" Url="html/796a7c31-f233-09dd-2f86-93159b2eeced.htm">
+        <HelpTOCNode Title="BreakCurrentLink Method " Url="html/b973acf3-4eb9-6b27-0d83-e724b6940ce7.htm" />
+        <HelpTOCNode Title="CancelLinking Method " Url="html/f34c4feb-5b24-d73a-0cad-09804ae4fa01.htm" />
+        <HelpTOCNode Title="CheckCanLinkTo Method " Url="html/b8047d59-167a-63b9-64b6-592f873abaab.htm" />
+        <HelpTOCNode Title="LinkToTarget Method " Url="html/885b7143-bb75-520a-a7a3-2209eaac3523.htm" />
+        <HelpTOCNode Title="StartLinking Method " Url="html/ee5bd38e-b538-0fa6-8906-6ad5169eacd9.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="addaf040-b830-4e08-9a8f-b2b164a604f2" Title="ILinkStateEventListener Interface" Url="html/50597413-b277-ed76-2573-fa2e35d055ba.htm">
+      <HelpTOCNode Id="4361b626-a312-4bc8-9b49-11b353c03a86" Title="ILinkStateEventListener Methods" Url="html/a00cc5bd-3bab-e240-7ff9-93fe40632d50.htm">
+        <HelpTOCNode Title="OnKASLinkBrokenEvent Method " Url="html/8ec9aa83-99bb-6b21-cb98-6ffabe64eb15.htm" />
+        <HelpTOCNode Title="OnKASLinkCreatedEvent Method " Url="html/72838adc-8a46-2a77-7e00-fc621b5795ee.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="2d763321-cac7-4911-a51c-5f1e090348a7" Title="ILinkTarget Interface" Url="html/57208073-364c-33bb-1112-39a24ce48f40.htm">
+      <HelpTOCNode Id="d422e6f2-d525-4c19-8af2-63f8f5f720db" Title="ILinkTarget Properties" Url="html/30815228-0ccd-59e8-bac3-c12e9daf3179.htm">
+        <HelpTOCNode Title="attachNode Property " Url="html/a69947ad-2c61-c877-f712-701cacf3f95a.htm" />
+        <HelpTOCNode Title="cfgAttachNodeName Property " Url="html/07e3ad80-19a8-c177-ea3b-025ba5160783.htm" />
+        <HelpTOCNode Title="cfgLinkType Property " Url="html/3cd22012-2542-e9fd-96a3-4fc688cbf6fa.htm" />
+        <HelpTOCNode Title="isLocked Property " Url="html/9c0e36ce-78ba-23c2-2a89-8c54722bccbd.htm" />
+        <HelpTOCNode Title="linkSource Property " Url="html/334c5ada-3b69-62aa-2137-66dd7a205f28.htm" />
+        <HelpTOCNode Title="linkState Property " Url="html/0efcf042-0f9a-26fc-534f-1fcf4dcaf676.htm" />
+        <HelpTOCNode Title="nodeTransform Property " Url="html/84947776-f256-824f-15ca-8ed0d3b0d5da.htm" />
+        <HelpTOCNode Title="part Property " Url="html/f72d132f-2bb6-4145-b16f-9ef743a30f60.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="477e66a4-2b76-47c6-b3b0-3a99b5071b44" Title="ILinkUtils Interface" Url="html/775b2b2e-52a6-26db-c006-c7a87a36c88b.htm">
+      <HelpTOCNode Id="e20c5cf7-03c6-45d4-8422-542c7a97ce08" Title="ILinkUtils Methods" Url="html/e8655038-18bc-2428-5648-684d6324141a.htm">
+        <HelpTOCNode Title="FindLinkSourceFromTarget Method " Url="html/5d7c5b9e-f108-f882-0d59-6d66f7664cad.htm" />
+        <HelpTOCNode Title="FindLinkTargetFromSource Method " Url="html/c0d4c865-b30f-b1a1-0ded-5874330bece2.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="34514d05-5c4c-4dd8-8585-439b9ca2ee74" Title="KASAPI Class" Url="html/4cc9933d-0065-db48-d540-d1021b08fb3f.htm">
+      <HelpTOCNode Id="15d78dbc-1a9a-423c-80e4-ba5e091b6730" Title="KASAPI Fields" Url="html/2c2145e3-0ad4-adb3-12af-5b4df3b2912a.htm">
+        <HelpTOCNode Title="AttachNodesUtils Field" Url="html/7d04cafd-6967-dd3a-6c3a-1122c1904411.htm" />
+        <HelpTOCNode Title="isLoaded Field" Url="html/40cf75a0-f3d7-9ac7-8196-2aa5f2ef88db.htm" />
+        <HelpTOCNode Title="JointUtils Field" Url="html/4e47a44d-b6a1-497d-b37f-4c98c468d542.htm" />
+        <HelpTOCNode Title="LinkUtils Field" Url="html/1d5a4ef1-a0f9-d6dd-e45c-68cf00f59e1c.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="81afe4cf-39b9-4aa1-92cc-5c8c93975531" Title="KASEvents Class" Url="html/aae7fd41-1902-9b9b-9f0b-ece17e95c9e2.htm">
+      <HelpTOCNode Id="5ffb5ffa-7caf-47cf-862b-e85b29bd0128" Title="KASEvents Fields" Url="html/581f8dc7-a037-f195-cc34-356a6552ca1f.htm">
+        <HelpTOCNode Title="OnLinkAccepted Field" Url="html/af6ffe4a-22f6-2f7a-d470-ed5370b62b4f.htm" />
+        <HelpTOCNode Title="OnLinkBroken Field" Url="html/7777b933-d5e8-f1f3-f8bb-291879bb408e.htm" />
+        <HelpTOCNode Title="OnLinkCreated Field" Url="html/8cb0d3ed-00a3-6d45-3c31-51a79242c333.htm" />
+        <HelpTOCNode Title="OnStartLinking Field" Url="html/833cc012-483b-2beb-6597-bc63216fe360.htm" />
+        <HelpTOCNode Title="OnStopLinking Field" Url="html/ea60e8d2-b0c8-0faf-7d1d-46b9bba9c862.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="05d646bf-33f9-4e33-ac69-7976d3d5a485" Title="KASEvents.LinkEvent Structure" Url="html/61cea1a4-2571-75e2-a3e0-058645634c25.htm">
+      <HelpTOCNode Title="KASEvents.LinkEvent Constructor " Url="html/95d08ab4-95b8-ae29-3290-add24cbb166f.htm" />
+      <HelpTOCNode Id="648cc94b-451e-4387-8b4f-661560eaeb52" Title="LinkEvent Fields" Url="html/65a7f089-0ef4-8c89-96f5-fcec80e9256f.htm">
+        <HelpTOCNode Title="actor Field" Url="html/5d1efdf9-9b34-ffc9-0bb9-4d36cd00d274.htm" />
+        <HelpTOCNode Title="source Field" Url="html/44ccf7ef-9337-2279-108e-5f1f09d70fa1.htm" />
+        <HelpTOCNode Title="target Field" Url="html/f189fec0-ce18-3e73-06c5-f273ea19e2be.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="LinkActorType Enumeration" Url="html/c28f8123-da3e-728d-9330-19d0a24cc88e.htm" />
+    <HelpTOCNode Title="LinkState Enumeration" Url="html/fc0f03c9-78fe-a439-1a4d-8d1388a18321.htm" />
+  </HelpTOCNode>
+  <HelpTOCNode Id="08db0f62-d2c5-4167-9837-8d0da268b8f3" Title="KSPDev.Extensions" Url="html/b1828e24-825b-9543-d43e-b3ab6383b000.htm">
+    <HelpTOCNode Id="bb5dc683-3bf9-4490-8eb5-c3faea9b2f96" Title="Dictionaries Class" Url="html/33ba710f-84cc-d108-4c0a-f5301473f836.htm">
+      <HelpTOCNode Id="c57f9b8b-5a0b-42cb-97db-ff5029896790" Title="Dictionaries Methods" Url="html/402ccf83-defa-9568-adb6-1092e5c59f4f.htm">
+        <HelpTOCNode Title="SetDefault(K, V) Method " Url="html/a67ea419-18f9-15be-901b-6adf5cd619ff.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="b7bfbda5-d8c8-4339-9aa5-d2f36a307518" Title="KSPDev.GUIUtils" Url="html/b5e643c2-2586-a951-1115-6d26cf63d619.htm">
+    <HelpTOCNode Id="49fe4d70-5d8a-4714-81fd-4b7be47ba886" Title="Formatter Class" Url="html/0eb61a28-fcd5-2589-9a8b-cfe86b54fb0f.htm">
+      <HelpTOCNode Id="b5309e81-f721-4c5c-bd44-e9fd94d327a1" Title="Formatter Methods" Url="html/f8e89521-0ce5-c4ff-58c3-dc69bd0b6293.htm">
+        <HelpTOCNode Id="b8f023bc-372e-4c11-b474-e45b5124e03a" Title="SpecialValue Method " Url="html/68c20032-3161-0d47-180e-3cd1d0b4b218.htm">
+          <HelpTOCNode Title="SpecialValue Method (Int32, String, Int32, String)" Url="html/a28894d2-4850-010f-b4d2-1989b09bf6f6.htm" />
+          <HelpTOCNode Title="SpecialValue Method (Single, String, Single, String)" Url="html/51564da7-9f3c-f100-8adf-50f9b2380ac4.htm" />
+        </HelpTOCNode>
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="5cbfd216-680a-4e69-9c2a-5350be8972a8" Title="UISoundPlayer Class" Url="html/5e9e04d3-23ea-763a-0dfb-af926bb31f36.htm">
+      <HelpTOCNode Title="UISoundPlayer Constructor " Url="html/a4474eb6-ad85-9fb1-074f-caee752744fb.htm" />
+      <HelpTOCNode Id="d9c86423-6796-49b8-a81b-daaef7946d52" Title="UISoundPlayer Methods" Url="html/00c67f52-202c-eaf3-0db6-c6432e9020bb.htm">
+        <HelpTOCNode Title="CacheSound Method " Url="html/5f8488e9-53d0-d03b-4edb-b864866c1771.htm" />
+        <HelpTOCNode Title="Play Method " Url="html/390cba4a-ec54-ee13-9bc1-3e89ceaa8498.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="d8c560f0-5404-400d-8174-ad389be7c99d" Title="UISoundPlayer Fields" Url="html/3f2ac8a8-15ac-b1e7-6517-eb155759b712.htm">
+        <HelpTOCNode Title="instance Field" Url="html/9815c298-5860-7a1b-b4ee-2953adc106f4.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="1192c6d6-3564-4635-870e-eaaab1339b0b" Title="KSPDev.KSPInterfaces" Url="html/639399ba-fc81-b494-6aa7-b4129500b0a1.htm">
+    <HelpTOCNode Id="d6345444-97c7-4188-b072-ea8a9d3e88ff" Title="IJointEventsListener Interface" Url="html/bf577f2d-a3f2-ceb9-c69c-8ca4ce5a08d4.htm">
+      <HelpTOCNode Id="00be363e-8365-495c-a2f3-b3cf85d714bb" Title="IJointEventsListener Methods" Url="html/c322b3e6-e498-6de1-303d-7fe8842e7d79.htm">
+        <HelpTOCNode Title="OnJointBreak Method " Url="html/189349f4-dd98-d56b-218b-e72b47a51928.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="5e5de630-f41f-40c6-b60d-c4cad183f61b" Title="IKSPActivateOnDecouple Interface" Url="html/e6315e29-c384-a61e-6b54-689ff7a18a2c.htm">
+      <HelpTOCNode Id="cd5eee7b-9fc0-48b2-866a-5437cae8a44f" Title="IKSPActivateOnDecouple Methods" Url="html/27ed7103-f7e1-3695-bd5c-ab4fcff3f46c.htm">
+        <HelpTOCNode Title="DecoupleAction Method " Url="html/3a0e6e79-6c2a-8498-94b0-b133d048fa1c.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="ddf5f212-1e3b-4419-a581-76bfdf292ee7" Title="IKSPDevModuleInfo Interface" Url="html/1eebf4ae-aa39-188f-2c13-5c84029e9bd6.htm">
+      <HelpTOCNode Id="b599c69d-4913-4f95-aa33-b73a9c08f4c4" Title="IKSPDevModuleInfo Methods" Url="html/f02eb771-7c71-75f0-6a97-4ac7c62e5f53.htm">
+        <HelpTOCNode Title="GetDrawModulePanelCallback Method " Url="html/dae49e71-07a7-f919-a75a-58448380cdfb.htm" />
+        <HelpTOCNode Title="GetInfo Method " Url="html/f19391c0-c211-7f1a-0025-02667546efe3.htm" />
+        <HelpTOCNode Title="GetModuleTitle Method " Url="html/57b313a0-cf86-f959-7811-25905970db1e.htm" />
+        <HelpTOCNode Title="GetPrimaryField Method " Url="html/468c3d4f-c41d-57f4-21b4-c843d7caf90a.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="1cd4c822-fab5-432a-93c1-321486d69276" Title="IPartModule Interface" Url="html/ac03e75d-d6fd-19ce-e52e-d75851a0c8b7.htm">
+      <HelpTOCNode Id="859d231c-504b-4cb7-b145-b846468d06bd" Title="IPartModule Methods" Url="html/bcd1b90f-6278-df8c-da01-f5da54138d41.htm">
+        <HelpTOCNode Title="OnAwake Method " Url="html/612ead8f-fd73-5f21-937b-aa1bf2561912.htm" />
+        <HelpTOCNode Title="OnFixedUpdate Method " Url="html/79acf11e-480b-f63a-ae5f-681b6023bd72.htm" />
+        <HelpTOCNode Title="OnInitialize Method " Url="html/99be7d0f-5576-8511-7dd8-ba00a2e53dd2.htm" />
+        <HelpTOCNode Title="OnLoad Method " Url="html/703e9ce5-08fb-a553-08b2-7698f6e0f531.htm" />
+        <HelpTOCNode Title="OnSave Method " Url="html/e5c1162f-5fab-4d2c-d61d-739574f2cd9f.htm" />
+        <HelpTOCNode Title="OnStart Method " Url="html/3b756d43-ef92-cd72-cbe2-51c142bdf5c6.htm" />
+        <HelpTOCNode Title="OnUpdate Method " Url="html/94a5dacd-d039-c7b3-3eac-2ffabfdc5c3a.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="ca5d326e-36b6-4fe9-b420-0708852d763a" Title="IsDestroyable Interface" Url="html/a68b6158-0a07-47b5-1f13-98b72f44bb50.htm">
+      <HelpTOCNode Id="27f6c68f-febd-41fa-80f3-4e45742b2409" Title="IsDestroyable Methods" Url="html/6e0bfb58-873a-3a11-3c23-8d4835e8cdd9.htm">
+        <HelpTOCNode Title="OnDestroy Method " Url="html/87169f3a-5bb4-0167-e52f-f71d954f18ea.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="ee47cf64-e49c-45b2-add2-33300c7f13e0" Title="IsPackable Interface" Url="html/75154042-4182-c9ec-c897-0bd9a4435cfc.htm">
+      <HelpTOCNode Id="38d6cb63-53d4-4078-883a-cf66dde25251" Title="IsPackable Methods" Url="html/0d4db6c6-40a2-546c-c9be-dbcac1b52a04.htm">
+        <HelpTOCNode Title="OnPartPack Method " Url="html/6cb0dad9-a3aa-ba2a-4ff0-cda271c98caa.htm" />
+        <HelpTOCNode Title="OnPartUnpack Method " Url="html/e962b503-8866-f088-9968-5e62d7f27cd2.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="31c9e904-0241-4993-bac3-ae9d7efefd47" Title="KSPDev.ModelUtils" Url="html/133feece-cce0-21d2-bfa6-b46eab175da8.htm">
+    <HelpTOCNode Id="b7296d90-a8ea-454f-b602-71859ea5c663" Title="Colliders Class" Url="html/24f1d34d-38cf-29a7-ed42-aaf082dd7879.htm">
+      <HelpTOCNode Id="b6d65342-99d1-4ae3-a629-ce316402717a" Title="Colliders Methods" Url="html/e731a159-bfd6-98fb-9b8c-ed179528271f.htm">
+        <HelpTOCNode Title="AdjustCollider Method " Url="html/1fd0fc66-d014-7aa6-3bcc-496e84750a64.htm" />
+        <HelpTOCNode Title="SetSimpleCollider Method " Url="html/15be5fa1-91b0-b5a0-3653-ac613cef763f.htm" />
+        <HelpTOCNode Title="UpdateColliders Method " Url="html/458a28c7-1e94-85dd-27b0-e47e259bb1cc.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="Colliders.PrimitiveCollider Enumeration" Url="html/c1820ced-936f-9ac4-1de4-99412c9edf94.htm" />
+    <HelpTOCNode Id="3df27c02-ddc9-40b9-8639-a458dffc779d" Title="Hierarchy Class" Url="html/fe9c3d0b-759d-a684-fd02-2c4e654a9329.htm">
+      <HelpTOCNode Id="c5e60a39-e849-4211-b2e3-a352549b59a5" Title="Hierarchy Methods" Url="html/b42069dc-cc6f-17b6-4069-af4da7d9366c.htm">
+        <HelpTOCNode Id="638faa92-d651-4773-b7e0-8936454633f6" Title="FindTransformByPath Method " Url="html/0bfb6e63-e4e7-4fed-e85c-5a1fef42e8f1.htm">
+          <HelpTOCNode Title="FindTransformByPath Method (Transform, String)" Url="html/feffb01a-139c-3d19-a900-007f47c2957f.htm" />
+          <HelpTOCNode Title="FindTransformByPath Method (Transform, String[])" Url="html/ad820549-256d-377a-83ac-e0936b0210af.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="FindTransformInChildren Method " Url="html/a7cfe98e-43ec-313b-7f94-60cb49a2f30f.htm" />
+        <HelpTOCNode Title="GetPartModelTransform Method " Url="html/c72f1e4a-6734-b8b4-ef2e-1289831652ba.htm" />
+        <HelpTOCNode Title="MoveToParent Method " Url="html/3c3a534f-0ac7-5d90-f61b-f620725328f2.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="KspLayerMask Enumeration" Url="html/e7bb60fe-b7f9-b962-de65-8a371d6c73ab.htm" />
+    <HelpTOCNode Id="a6844714-47cc-46b3-82ce-8811b2f25deb" Title="Meshes Class" Url="html/d32a5c07-d79d-fb91-5d44-c952cb194938.htm">
+      <HelpTOCNode Id="35a217e0-c8cf-4760-96ba-1ab5b3469bc9" Title="Meshes Methods" Url="html/70dea87f-dea1-21e9-a50e-a6d062e14071.htm">
+        <HelpTOCNode Title="CreateBox Method " Url="html/4ccbc79a-cde4-2b61-1aa2-709fefba84cd.htm" />
+        <HelpTOCNode Title="CreateCylinder Method " Url="html/883c0c2d-4121-ac1d-8819-9668eafd7990.htm" />
+        <HelpTOCNode Title="CreatePrimitive Method " Url="html/74a27fa7-f3f2-c5e6-b186-c7e54ce00334.htm" />
+        <HelpTOCNode Title="CreateSphere Method " Url="html/04817e3f-1fd9-f27c-b1bc-4c38a6fdf0f7.htm" />
+        <HelpTOCNode Title="RescaleTextureToLength Method " Url="html/e429a420-9af0-f584-aa59-984ba62fcdb3.htm" />
+        <HelpTOCNode Title="UpdateMaterials Method " Url="html/fff254b2-a5d0-a42f-09ba-f9fe6d4bee53.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="54c6f8a2-6c33-4ea7-a8cd-bc020729eacf" Title="KSPDev.ProcessingUtils" Url="html/5ea0a5e4-faf7-929b-fc7b-034b0bfa325d.htm">
+    <HelpTOCNode Id="cb34c3a1-e188-4bb7-8796-782836771f8e" Title="AsyncCall Class" Url="html/8a89caf5-dc4c-ac84-290a-7e6cf8acd825.htm">
+      <HelpTOCNode Id="af360b21-38b2-44ea-a65d-9bab3005d2a6" Title="AsyncCall Methods" Url="html/6f51cf9a-9fa2-4325-5e9d-0d4fc0fd29e0.htm">
+        <HelpTOCNode Title="CallOnEndOfFrame Method " Url="html/c2219b26-871a-8d58-0c9f-81f1421f14db.htm" />
+        <HelpTOCNode Title="CallOnFixedUpdate Method " Url="html/8a55e9a7-956d-bf61-52c3-30de9b088e1f.htm" />
+        <HelpTOCNode Title="CallOnTimeout Method " Url="html/e827dcfc-b7d4-2664-f8f7-07336245faa0.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="AsyncCall.Action0 Delegate" Url="html/cf6a21f5-6ab9-cfdf-c47d-3d67ee176252.htm" />
+    <HelpTOCNode Id="4ac441c1-8e2d-4352-8485-4a96a3894c65" Title="SimpleStateMachine(T) Class" Url="html/c2611b76-696e-204c-11da-ef236c71e01a.htm">
+      <HelpTOCNode Title="SimpleStateMachine(T) Constructor " Url="html/fb6ce103-f236-e698-b43d-ba28c7da8aa4.htm" />
+      <HelpTOCNode Id="46b4a19c-2313-4e95-8b29-5affd2f7d4a6" Title="SimpleStateMachine(T) Properties" Url="html/2e288d97-05b5-4669-4ea4-3b2243b56113.htm">
+        <HelpTOCNode Title="currentState Property " Url="html/54bebe21-e223-9fcb-57e9-483d101ed0f7.htm" />
+        <HelpTOCNode Title="isStarted Property " Url="html/f26f14bf-dc2b-bf14-6b38-c3bf6d1b679c.htm" />
+        <HelpTOCNode Title="isStrict Property " Url="html/1eaf2bf6-169b-03c6-6678-935f527e390e.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="2bb9d394-4fb8-4967-9bb3-038d59298d3f" Title="SimpleStateMachine(T) Methods" Url="html/5a3bdc8e-b160-7d0b-1125-8d67cf1bc603.htm">
+        <HelpTOCNode Title="AddStateHandlers Method " Url="html/6dd53830-bb74-1335-0d1e-a9cc1be0ced9.htm" />
+        <HelpTOCNode Title="CheckCanSwitchTo Method " Url="html/5c49eefa-9f00-a1c9-61e7-d51217deba83.htm" />
+        <HelpTOCNode Title="ForceSetState Method " Url="html/9b1cd5bd-f9de-d6fb-27ea-4270197d0b8e.htm" />
+        <HelpTOCNode Title="RemoveHandlers Method " Url="html/2f5fbfa1-f388-b88c-2e33-e64b92c67428.htm" />
+        <HelpTOCNode Title="ResetTransitionConstraint Method " Url="html/6ee023a7-22f0-6ce8-8e7b-38069b284a66.htm" />
+        <HelpTOCNode Title="SetTransitionConstraint Method " Url="html/828fb836-7e91-8048-b203-e5a77c20f902.htm" />
+        <HelpTOCNode Title="Start Method " Url="html/f5d5c5a2-740a-ac43-1585-d79e1bf089cd.htm" />
+        <HelpTOCNode Title="Stop Method " Url="html/2d9edccb-909e-bfcf-5fb4-998ad0be3935.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="cf31e52b-faa3-47b3-9249-cbe020e2c65d" Title="SimpleStateMachine(T) Fields" Url="html/4a4fc80c-1b3d-4610-cdaf-936dd1781cc7.htm">
+        <HelpTOCNode Title="OnDebugStateChange Field" Url="html/0f39872f-9ed5-60cf-f182-9146d1df4e5a.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Title="SimpleStateMachine(T).OnChange Delegate" Url="html/2f3c3d14-116f-5805-fa3e-b02f4c68eb8f.htm" />
+    <HelpTOCNode Title="SimpleStateMachine(T).OnDebugChange Delegate" Url="html/dedf0749-8c0d-251f-7724-8fa4b67c6291.htm" />
+  </HelpTOCNode>
+</HelpTOC>
