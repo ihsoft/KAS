@@ -320,7 +320,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   }
 
   void CheckIsNotStarted() {
-    if (!isStarted) {
+    if (isStarted) {
       throw new InvalidOperationException("Not allowed in STARTED state");
     }
   }
