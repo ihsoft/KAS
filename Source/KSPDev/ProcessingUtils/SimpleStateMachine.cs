@@ -337,20 +337,20 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   }
 
   void FireLeaveState() {
-    if (leaveHandlers.ContainsKey(_currentState)) {
-      FireEvents(leaveHandlers[_currentState], _currentState);
+    HashSet<OnChange> handlers;
+    if (leaveHandlers.TryGetValue(_currentState, out handlers)) {
+      foreach (var @event in handlers) {
+        @event.Invoke(_currentState);
+      }
     }
   }
 
   void FireEnterState() {
-    if (enterHandlers.ContainsKey(_currentState)) {
-      FireEvents(enterHandlers[_currentState], _currentState);
-    }
-  }
-
-  void FireEvents(HashSet<OnChange> events, T trigerringEvent) {
-    foreach (var @event in events) {
-      @event.Invoke(trigerringEvent);
+    HashSet<OnChange> handlers;
+    if (enterHandlers.TryGetValue(_currentState, out handlers)) {
+      foreach (var @event in handlers) {
+        @event.Invoke(_currentState);
+      }
     }
   }
   #endregion
