@@ -84,7 +84,6 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.secondaryAxis = Vector3.right;
     // Setup linear joint parameters.
     joint.xDrive = new JointDrive() {
-      mode = JointDriveMode.Position,
       positionSpring = springForce,
       positionDamper = springForce * springDamperRatio,
       maximumForce = maxSpringForce
@@ -122,7 +121,6 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     // Setup angular joint parameters.
     joint.angularXMotion = ConfigurableJointMotion.Free;
     joint.angularYZDrive = new JointDrive() {
-      mode = JointDriveMode.Position,
       positionSpring = springForce,
       positionDamper = springForce * springDamperRatio,
       maximumForce = maxSpringForce
@@ -164,8 +162,8 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
 
   static string Dump(JointDrive drive) {
     return string.Format(
-        "JointDrive(mode={0}, spring={1}, damper={2}, maxForce={3})",
-        drive.mode, drive.positionSpring, drive.positionDamper, drive.maximumForce);
+        "JointDrive(spring={1}, damper={2}, maxForce={3})",
+        drive.positionSpring, drive.positionDamper, drive.maximumForce);
   }
 }
   
