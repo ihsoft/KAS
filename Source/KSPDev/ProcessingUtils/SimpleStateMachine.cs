@@ -313,18 +313,29 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
   }
 
   #region Local utility methods
+  /// <summary>Verifies that state machine is started.</summary>
+  /// <exception cref="InvalidOperationException">If state machine is not yet started.</exception>
   void CheckIsStarted() {
     if (!isStarted) {
       throw new InvalidOperationException("Not allowed in STOPPED state");
     }
   }
 
+  /// <summary>Verifies that state machine is <i>not</i> started.</summary>
+  /// <exception cref="InvalidOperationException">If state machine is already started.</exception>
   void CheckIsNotStarted() {
     if (isStarted) {
       throw new InvalidOperationException("Not allowed in STARTED state");
     }
   }
 
+  /// <summary>
+  /// Changes machine's state if current and new states are different. Checks if transition is
+  /// allowed before actually changing state.
+  /// </summary>
+  /// <param name="newState">State to change to.</param>
+  /// <seealso cref="CheckCanSwitchTo"/>
+  /// <exception cref="InvalidOperationException">If transition is not allowed.</exception>
   void SetState(T newState) {
     CheckIsStarted();
     if (!_currentState.Equals(newState)) {
@@ -336,6 +347,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
     }
   }
 
+  /// <summary>Notifies all the leave handlers about leaving the current state.</summary>
   void FireLeaveState() {
     HashSet<OnChange> handlers;
     if (leaveHandlers.TryGetValue(_currentState, out handlers)) {
@@ -345,6 +357,7 @@ public sealed class SimpleStateMachine<T> where T : struct, IConvertible {
     }
   }
 
+  /// <summary>Notifies all the enter handlers about entering the current state.</summary>
   void FireEnterState() {
     HashSet<OnChange> handlers;
     if (enterHandlers.TryGetValue(_currentState, out handlers)) {
