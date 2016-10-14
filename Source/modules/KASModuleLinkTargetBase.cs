@@ -81,30 +81,81 @@ public class KASModuleLinkTargetBase :
   public AttachNode attachNode { get; private set; }
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Persistent fields
+  /// <summary>Persistent config field. Target link state in the last save action.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
   #endregion
 
-  // These fileds must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Part's config fields
+  /// <summary>Config setting. See <see cref="cfgLinkType"/>.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string linkType = "";
+  /// <summary>Config setting. See <see cref="cfgAttachNodeName"/>.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public string attachNodeName = "";
+  /// <summary>Config setting. Defines attach node position in the local units.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
+  /// <summary>Config setting. Defines attach node orientation in the local units.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
+  /// <summary>
+  /// Config setting. Tells if compatible targets should highlight themselves when linking mode
+  /// started.
+  /// </summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public bool highlightCompatibleTargets = true;
+  /// <summary>Config setting. Defines highlight color for the compatible targets.</summary>
+  /// <remarks>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public Color highlightColor = Color.green;
   #endregion

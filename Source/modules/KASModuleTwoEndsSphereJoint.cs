@@ -10,7 +10,16 @@ using UnityEngine;
 
 namespace KAS {
 
-//FIXME docs
+/// <summary>Module that offers a highly configurable setup of three PhysX joints.</summary>
+/// <remarks>
+/// One spherical joint is located at the source part, another spherical joint is located at the
+/// target part. The joints are connected with a third joint that is setup as prismatic. Such setup
+/// allows soucre and target parts rotationg relative to each other. Distance between the parts is
+/// limited by the prismatic joint.
+/// <para>TODO: add an image.</para>
+/// <para>TODO: implement prismatic joint linear limits.</para>
+/// <para>FIXME: fix initial state setup for the pshere joints.</para>
+/// </remarks>
 public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region Helper class to detect joint breakage
   /// <summary>
@@ -35,13 +44,31 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   }
   #endregion
 
-  // These fields must not be accessed outside of the module. They are declared public only
-  // because KSP won't work otherwise. Ancenstors and external callers must access values via
-  // interface properties. If property is not there then it means it's *intentionally* restricted
-  // for the non-internal consumers.
   #region Part's config fields
+  /// <summary>
+  /// Config setting. Spring force of the prismatic joint that limits the distance.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float strutSpringForce = Mathf.Infinity;
+  /// <summary>Config setting. Damper force of the spring that limits the distance.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
   #endregion
