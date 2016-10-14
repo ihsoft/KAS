@@ -1,0 +1,3 @@
+- Implement hollow method in the renderer
+- Save/restore vessel info.
+- Make different joints color for TJ-1 & TJ-2
