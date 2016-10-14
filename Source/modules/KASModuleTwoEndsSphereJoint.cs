@@ -142,7 +142,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     } else {
       SetupNormalEndJoint(srcJoint, sourceLinkAngleLimit);
       SetupNormalEndJoint(trgJoint, targetLinkAngleLimit);
-      SetupNormalStrutJoint(strutJoint);
+      SetupNormalStrutJoint();
     }
   }
   #endregion
@@ -200,7 +200,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     srcJoint.transform.LookAt(trgJoint.transform);
     trgJoint.transform.LookAt(srcJoint.transform);
     strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    SetupNormalStrutJoint(strutJoint);
+    SetupNormalStrutJoint();
     strutJoint.connectedBody = trgRb;
     
     // Allow another fixed update to happen to remember strut positions.
@@ -243,18 +243,15 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
 
   /// <summary>Sets parameters of the joint that connects the pivots.</summary>
   /// <remarks>If no strut joint were created than this call is NO-OP.</remarks>
-  /// <param name="joint">Strut joint to setup.</param>
-  void SetupNormalStrutJoint(ConfigurableJoint joint) {
-    //FIXME
-    if (joint == null) {
-      Debug.LogWarning("set NORMAL: joint doesn't exist!");
+  void SetupNormalStrutJoint() {
+    if (strutJoint == null) {
       return;
     }
-    KASAPI.JointUtils.ResetJoint(joint);
+    KASAPI.JointUtils.ResetJoint(strutJoint);
     //FIXME use spring force from the settings
-    KASAPI.JointUtils.SetupPrismaticJoint(joint, springForce: Mathf.Infinity);
-    joint.enablePreprocessing = true;
-    SetBreakForces(joint, linkBreakForce, Mathf.Infinity);
+    KASAPI.JointUtils.SetupPrismaticJoint(strutJoint, springForce: Mathf.Infinity);
+    strutJoint.enablePreprocessing = true;
+    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
   }
   #endregion
 }
