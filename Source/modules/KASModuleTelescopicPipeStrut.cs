@@ -220,6 +220,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     }
   }
   Color? _colorOverride;
+
   /// <inheritdoc/>
   public virtual string shaderNameOverride {
     get { return _shaderNameOverride; }
@@ -230,6 +231,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     }
   }
   string _shaderNameOverride;
+
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
@@ -243,17 +245,24 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   bool _isPhysicalCollider;
 
   /// <inheritdoc/>
-  public override Transform sourceTransform {
-    get { return srcPartJointPivot; }
-    set {
-      Debug.LogErrorFormat(
-          "Telescopic pipe part has a fixed source transform. Cannot set to: {0}", value);
-    }
-  }
-  /// <inheritdoc/>
   public bool isStarted {
     get { return targetTransform != null; }
   }
+
+  /// <inheritdoc/>
+  public Transform sourceTransform {
+    get { return srcPartJointPivot; }
+  }
+
+  /// <inheritdoc/>
+  public Transform targetTransform {
+    get { return _targetTransform; }
+    private set {
+      _targetTransform = value;
+      UpdateLinkLengthAndOrientation();
+    }
+  }
+  Transform _targetTransform;
   #endregion
 
   #region Event names. Keep them in sync with the event names!
@@ -400,16 +409,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     return null;
   }
   #endregion
-
-  //FIXME: hide or make part of interface
-  public Transform targetTransform {
-    get { return _targetTransform; }
-    private set {
-      _targetTransform = value;
-      UpdateLinkLengthAndOrientation();
-    }
-  }
-  Transform _targetTransform;
 
   // FIXME: check colliders.
   #region GUI menu action handlers

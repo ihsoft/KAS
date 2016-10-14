@@ -47,6 +47,14 @@ public interface ILinkRenderer {
   /// <summary>Tells if renderer is started and active.</summary>
   bool isStarted { get; }
 
+  /// <summary>Transform at the beginning of the link.</summary>
+  /// <seealso cref="StartRenderer"/>
+  Transform sourceTransform { get; }
+
+  /// <summary>Transform at the end of the link.</summary>
+  /// <seealso cref="StartRenderer"/>
+  Transform targetTransform { get; }
+
   /// <summary>Starts rendering link between the points.</summary>
   /// <remarks>
   /// This method only indicates that the link is to be drawn between the specified points. The

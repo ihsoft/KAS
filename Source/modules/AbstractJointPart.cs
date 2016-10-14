@@ -60,18 +60,6 @@ public abstract class AbstractJointPart : AbstractProceduralModel {
   public Vector3 attachNodeOrientation = Vector3.up;
   #endregion
 
-  /// <summary>Returns transform of the actual joint model.</summary>
-  /// <remarks>
-  /// It's not just a position anchor. It's a transform of the game object that represents the joint
-  /// root model. Its rotation will be adjusted when establishing/updating the link.
-  /// <para>
-  /// This transform is usually located at <see cref="attachNodePosition"/> and oriented as
-  /// <see cref="attachNodeOrientation"/>, but it's not the same transform as the attach node one
-  /// (due to it can be changed).
-  /// </para>
-  /// </remarks>
-  public abstract Transform sourceTransform { get; set; }
-
   /// <summary>
   /// Name of the transform that is used to conenct two levers to form a complete joint. 
   /// </summary>
