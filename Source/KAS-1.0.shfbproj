@@ -12,7 +12,7 @@ sources-->
     <AssemblyName>Documentation</AssemblyName>
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
-    <OutputPath>..\Help\APIv1\</OutputPath>
+    <OutputPath>..\docs\APIv1\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <DocumentationSources>
       <DocumentationSource sourceFile="KAS-1.0.csproj" xmlns="" />
