@@ -34,6 +34,9 @@ public static class Hierarchy {
   }
 
   /// <summary>Finds a transform by name down the hierarchy.</summary>
+  /// <remarks>
+  /// Implements breadth-first search approach to minimize depth of the found transform.
+  /// </remarks>
   /// <param name="parent">Transfrom to start from.</param>
   /// <param name="name">Name of the transfrom.</param>
   /// <returns>Found transform or <c>null</c> if nothing is found.</returns>
@@ -114,7 +117,6 @@ public static class Hierarchy {
     if (name == "**") {
       var nextName = names[0];
       var nextNames = names.Skip(1).ToArray();
-      //FIXME: use width first scan to minimize the path.
       return FindTransformInChildren(parent, nextName);
     }
     return null;

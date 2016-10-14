@@ -218,7 +218,6 @@ public abstract class AbstractJointModule :
   protected PartJoint stockJoint { get; private set; }
   #endregion
 
-  //FIXME: grab PartJoint logic
   #region Configurable joint settings used by the KSP stock joints for small stach nodes as of KSP 1.1.3.
   /// <summary>Default breaking force.</summary>  
   protected const float StockJointBreakingForce = 9600;
@@ -406,6 +405,9 @@ public abstract class AbstractJointModule :
 
   #region Utility methods
   /// <summary>Destroys stock joint on the part if one exists.</summary>
+  /// <remarks>
+  /// Note, that this will trigger <see cref="GameEvents.onPartJointBreak"/> event.
+  /// </remarks>
   protected void DropStockJoint() {
     if (stockJoint != null) {
       stockJoint.DestroyJoint();

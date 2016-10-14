@@ -16,9 +16,9 @@ namespace KAS {
 /// target part. The joints are connected with a third joint that is setup as prismatic. Such setup
 /// allows soucre and target parts rotationg relative to each other. Distance between the parts is
 /// limited by the prismatic joint.
-/// <para>TODO: add an image.</para>
-/// <para>TODO: implement prismatic joint linear limits.</para>
-/// <para>FIXME: fix initial state setup for the sphere joints.</para>
+/// <para>TODO(ihsoft): Add an image.</para>
+/// <para>TODO(ihsoft): Implement prismatic joint linear limits.</para>
+/// <para>FIXME(ihsoft): Fix initial state setup for the sphere joints.</para>
 /// </remarks>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
@@ -106,7 +106,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   ConfigurableJoint trgJoint;
   /// <summary>Joint that ties two sphere joints together.</summary>
   /// <remarks>It only makes sense <see cref="strutSpringForce"/> is not <c>Infinite</c>.</remarks>
-  /// FIXME: Don't create it if spring is infinte
+  // TODO(ihsoft): Don't create it if spring is infinte</para>
   ConfigurableJoint strutJoint;
 
   #region ILinkJoint implementation
@@ -157,7 +157,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   /// <param name="objName">Name of the game object for the new joint.</param>
   /// <param name="angleLimit">Degree of freedom for the joint.</param>
   /// <returns>Object that owns the joint.</returns>
-  /// FIXME: revise approach to not have two joints on one end (+strut joint)
+  // FIXME(ihsoft): Revise approach to not have two joints on one end (+strut joint)
   ConfigurableJoint CreateKinematicJointEnd(AttachNode an, string objName, float angleLimit) {
     var objJoint = new GameObject(objName);
     objJoint.AddComponent<BrokenJointListener>().host = part;
@@ -180,8 +180,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   /// attach them with a fixed or prismatic joint.
   /// </remarks>
   /// <returns><c>null</c> when it's time to terminate.</returns>
-  /// FIXME don't create prismatic joint when spring is infinite
-  /// FIXME when spring is set init prismatic joitn from the zero length
+  // TODO(ihsoft): Don't create prismatic joint when spring is infinite
   IEnumerator WaitAndConnectJointEnds() {
     // We'll spend several fixed update cycles to setup the joints, so make stock joint absolutely
     // rigid to avoid parts moving during the process.
@@ -214,7 +213,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
 
     // Promote source and target rigid bodies to independent physical objects. From now on they live
     // in a system of three joints.
-    //FIXME: for non spring strut target should be child of source. 
     srcRb.isKinematic = false;
     srcJoint.transform.parent = null;
     trgRb.isKinematic = false;

@@ -12,8 +12,8 @@ namespace KASAPIv1 {
 /// <remarks>Source is the initiator of the link to another part. It holds all the logic on making
 /// and maintaining actual connection between two parts. The other end of the connection must be
 /// <see cref="ILinkTarget"/> which implements own piece of logic.</remarks>
-/// FIXME(ihsoft): Add state transtion diagram reference.
-/// FIXME(ihsoft): Add code samples.
+/// TODO(ihsoft): Add state transtion diagram reference.
+/// TODO(ihsoft): Add code samples.
 public interface ILinkSource {
   /// <summary>Part that owns the source.</summary>
   Part part { get; }
@@ -74,7 +74,7 @@ public interface ILinkSource {
   /// Though, there is strict model of state tranistioning for the source.
   /// <para>If module is not started yet then the persisted state is returned.</para>
   /// </remarks>
-  /// FIXME(ihsoft): Add state transtion diagram.
+  /// TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
   /// <summary>

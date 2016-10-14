@@ -31,9 +31,9 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
 /// </seealso>
-/// TODO: Handle KIS actions.
-/// FIXME: Handle part destroyed action.
-/// FIXME: Handle part staged action.
+/// TODO(ihsoft): Handle KIS actions.
+/// TODO(ihsoft): Handle part destroyed action.
+/// TODO(ihsoft): Handle part staged action.
 public class KASModuleLinkSourceBase :
     // KSP parents.
     PartModule, IModuleInfo, IActivateOnDecouple,
@@ -561,7 +561,6 @@ public class KASModuleLinkSourceBase :
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
-    //FIXME do stuff from on state change
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
@@ -579,7 +578,6 @@ public class KASModuleLinkSourceBase :
     linkTarget.linkSource = null;
     linkTarget = null;
     linkState = LinkState.Available;
-    //FIXME do stuff from on state change
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));

@@ -12,8 +12,8 @@ namespace KASAPIv1 {
 /// <remarks>Target is a sink for the link initiated by another part's <see cref="ILinkSource"/>.
 /// The target logic is very limited and simple. It just remembers the source and does whatever GUI
 /// adjustments are needed.</remarks>
-/// FIXME(ihsoft): Add state transtion diagram reference.
-/// FIXME(ihsoft): Add code samples.
+/// TODO(ihsoft): Add state transtion diagram reference.
+/// TODO(ihsoft): Add code samples.
 public interface ILinkTarget {
   /// <summary>Part that owns the target.</summary>
   Part part { get; }
@@ -69,7 +69,7 @@ public interface ILinkTarget {
   /// The state cannot be affected directly. Different methods change it to different values.
   /// Though, there is strict model of state tranistioning for the target.
   /// </remarks>
-  /// FIXME(ihsoft): Add state transtion diagram.
+  /// TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
   /// <summary>
