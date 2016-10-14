@@ -16,14 +16,14 @@ namespace KAS {
 /// target part. The joints are connected with a third joint that is setup as prismatic. Such setup
 /// allows soucre and target parts rotationg relative to each other. Distance between the parts is
 /// limited by the prismatic joint.
-/// <para>TODO(ihsoft): Add an image.</para>
-/// <para>TODO(ihsoft): Implement prismatic joint linear limits.</para>
-/// <para>FIXME(ihsoft): Fix initial state setup for the sphere joints.</para>
 /// </remarks>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
+// TODO(ihsoft): Add an image.
+// TODO(ihsoft): Implement prismatic joint linear limits.
+// FIXME(ihsoft): Fix initial state setup for the sphere joints.
 public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region Helper class to detect joint breakage
   /// <summary>
@@ -192,7 +192,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
 
     // Now rotate both sphere joints towards each other, and connect them with a prismatic joint.
     var srcRb = srcJoint.gameObject.GetComponent<Rigidbody>();
-    //FIXME
+    // FIXME(ihsoft): Handle mass via joint instead of renderer.  
     Debug.LogWarningFormat("** RB MASS: {0}", srcRb.mass);
     var trgRb = trgJoint.gameObject.GetComponent<Rigidbody>();
     srcJoint.transform.LookAt(trgJoint.transform);
