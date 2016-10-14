@@ -234,8 +234,8 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
       return;
     }
     KASAPI.JointUtils.ResetJoint(strutJoint);
-    //FIXME use spring force from the settings
-    KASAPI.JointUtils.SetupPrismaticJoint(strutJoint, springForce: Mathf.Infinity);
+    KASAPI.JointUtils.SetupPrismaticJoint(
+        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
   }
