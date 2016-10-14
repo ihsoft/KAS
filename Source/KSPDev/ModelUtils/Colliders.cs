@@ -123,33 +123,34 @@ public static class Colliders {
   /// Type of the primitive collider is chosen basing on the primitive type.
   /// </remarks>
   /// <param name="primitive">Primitive game object to adjust.</param>
-  /// <param name="type">
-  /// Type of the primitive. It will determine the type of the collider.
-  /// FIXME: make it optional and rename. Only used for Shape
-  /// </param>
   /// <param name="meshSize">Size of the collider in local units.</param>
   /// <param name="colliderType">Determines how a collider type should be selected.</param>
+  /// <param name="shapeType">
+  /// Type of the primitive when <paramref name="colliderType"/> is
+  /// <see cref="PrimitiveCollider.Shape"/>. It will determine the type of the collider.
+  /// </param>
   public static void AdjustCollider(
-      GameObject primitive, PrimitiveType type, Vector3 meshSize, PrimitiveCollider colliderType) {
+      GameObject primitive, Vector3 meshSize, PrimitiveCollider colliderType,
+      PrimitiveType? shapeType = null) {
     UnityEngine.Object.Destroy(primitive.GetComponent<Collider>());
     if (colliderType == PrimitiveCollider.Mesh) {
       var collider = primitive.AddComponent<MeshCollider>();
       collider.convex = true;
     } else if (colliderType == PrimitiveCollider.Shape) {
       // FIXME: non tirival scales does't fit simple colliders. Fix it.
-      if (type == PrimitiveType.Cylinder) {
+      if (shapeType.Value == PrimitiveType.Cylinder) {
         var collider = primitive.AddComponent<CapsuleCollider>();
         collider.direction = 2;  // Z axis
         collider.height = meshSize.z;  // It's now length.
         collider.radius = meshSize.x;
-      } else if (type == PrimitiveType.Sphere) {
+      } else if (shapeType.Value == PrimitiveType.Sphere) {
         var collider = primitive.AddComponent<SphereCollider>();
         collider.radius = meshSize.x;
-      } else if (type == PrimitiveType.Cube) {
+      } else if (shapeType.Value == PrimitiveType.Cube) {
         var collider = primitive.AddComponent<BoxCollider>();
         collider.size = meshSize;
       } else {
-        Debug.LogWarningFormat("Unknown primitive type {0}. Droppping collider.", type);
+        Debug.LogWarningFormat("Unknown primitive type {0}. Droppping collider.", shapeType.Value);
       }
     } else if (colliderType != PrimitiveCollider.Bounds) {
       SetSimpleCollider(primitive, PrimitiveType.Cube, inscribeBoundaryIntoCollider: true);

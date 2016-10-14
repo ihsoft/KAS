@@ -88,7 +88,7 @@ public static class Meshes {
     // Default length scale is 2.0.
     var scale = new Vector3(diameter, diameter, length / 2);
     var obj = CreatePrimitive(PrimitiveType.Cylinder, scale, material, parent: parent);
-    Colliders.AdjustCollider(obj, PrimitiveType.Cylinder, scale, colliderType);
+    Colliders.AdjustCollider(obj, scale, colliderType, shapeType: PrimitiveType.Cylinder);
     return obj;
   }
 
@@ -109,7 +109,7 @@ public static class Meshes {
       Colliders.PrimitiveCollider colliderType = Colliders.PrimitiveCollider.None) {
     var scale = new Vector3(width, height, length);
     var obj = CreatePrimitive(PrimitiveType.Cube, scale, material, parent: parent);
-    Colliders.AdjustCollider(obj, PrimitiveType.Cube, scale, colliderType);
+    Colliders.AdjustCollider(obj, scale, colliderType, shapeType: PrimitiveType.Cube);
     return obj;
   }
 
@@ -128,7 +128,7 @@ public static class Meshes {
       Colliders.PrimitiveCollider colliderType = Colliders.PrimitiveCollider.None) {
     var scale =  new Vector3(diameter, diameter, diameter);
     var obj = CreatePrimitive(PrimitiveType.Sphere, scale, material, parent: parent);
-    Colliders.AdjustCollider(obj, PrimitiveType.Sphere, scale, colliderType);
+    Colliders.AdjustCollider(obj, scale, colliderType, shapeType: PrimitiveType.Sphere);
     return obj;
   }
 
