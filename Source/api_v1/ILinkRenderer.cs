@@ -25,13 +25,11 @@ public interface ILinkRenderer {
   /// <remarks>
   /// Set it to <c>null</c> to reset the override and get back to the original color.
   /// </remarks>
-  /// FIXME drop ibn favor of Hollow
   Color? colorOverride { get; set; }
 
   /// <summary>Temporally sets another shader to the link meshes.</summary>
   /// <remarks>Set it to <c>null</c> to reset the override and get back to the original shader.
   /// </remarks>
-  /// FIXME drop ibn favor of Hollow
   string shaderNameOverride { get; set; }
 
   /// <summary>Tells if link interact with rigid objects with a collider.</summary>
@@ -43,7 +41,8 @@ public interface ILinkRenderer {
   /// Unity3D: Collider</seealso>
   bool isPhysicalCollider { get; set; }
   
-  // FIXME: add method(s) for drawing hollow representation
+  // TODO: add method(s) for drawing hollow representation
+  // Drop colorOverride & shaderNameOverride
 
   /// <summary>Tells if renderer is started and active.</summary>
   bool isStarted { get; }
@@ -53,6 +52,11 @@ public interface ILinkRenderer {
   /// This method only indicates that the link is to be drawn between the specified points. The
   /// renderer is allowed to draw meshes even when not started. E.g. if there are constants parts of
   /// the link like joint pivots.
+  /// <para>
+  /// The ends of the link are not required to be located at the surface of the owning parts. It's
+  /// up to the renderer to decide how to draw link between an end and its owner part. Usually, an
+  /// end of the link is one of the part's attach nodes, but it's not a requirement. 
+  /// </para>
   /// <para>
   /// It's OK to call this method multiple times with different or same source/target arguments.
   /// Renderer must accept the values and update accordingly. Though, this operation is rated as

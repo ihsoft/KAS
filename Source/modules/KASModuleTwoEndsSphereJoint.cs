@@ -18,8 +18,12 @@ namespace KAS {
 /// limited by the prismatic joint.
 /// <para>TODO: add an image.</para>
 /// <para>TODO: implement prismatic joint linear limits.</para>
-/// <para>FIXME: fix initial state setup for the pshere joints.</para>
+/// <para>FIXME: fix initial state setup for the sphere joints.</para>
 /// </remarks>
+/// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
+/// PhysX: Spherical joint</seealso>
+/// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
+/// PhysX: Prismatic joint</seealso>
 public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   #region Helper class to detect joint breakage
   /// <summary>
