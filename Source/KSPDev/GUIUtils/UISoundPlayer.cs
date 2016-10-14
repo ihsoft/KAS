@@ -51,11 +51,10 @@ public sealed class UISoundPlayer : MonoBehaviour {
   /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   /// <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
   public void Play(string audioPath, bool dontCache = false) {
-    if (!audioCache.ContainsKey(audioPath)) {
-      LoadAndPlayAudio(audioPath, dontCache: dontCache, dontPlay: false);
-      return;
+    var audio = GetOrLoadAudio(audioPath, dontCache);
+    if (audio != null) {
+      audio.Play();
     }
-    audioCache[audioPath].Play();
   }
 
   /// <summary>Loads the sound into cache but doesn't play it.</summary>
@@ -66,9 +65,7 @@ public sealed class UISoundPlayer : MonoBehaviour {
   /// </remarks>
   /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   public void CacheSound(string audioPath) {
-    if (!audioCache.ContainsKey(audioPath)) {
-      LoadAndPlayAudio(audioPath, dontCache: false, dontPlay: true);
-    }
+    GetOrLoadAudio(audioPath, dontCache: false);
   }
 
   /// <summary>Initializes <see cref="instance"/>.</summary>
@@ -80,22 +77,30 @@ public sealed class UISoundPlayer : MonoBehaviour {
   /// <summary>Loads audio sample and plays it.</summary>
   /// <param name="audioPath">File path relative to <c>GameData</c>.</param>
   /// <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
-  /// <param name="dontPlay">If <c>true</c> then audio will not be played.</param>
-  /// FIXME: refactor to return loaded/cached resource
-  void LoadAndPlayAudio(string audioPath, bool dontCache, bool dontPlay) {
+  /// <returns>Audio resource if loaded or found in the cache, otherwise <c>null</c>.</returns>
+  AudioSource GetOrLoadAudio(string audioPath, bool dontCache) {
+    if (HighLogic.LoadedScene == GameScenes.LOADING
+        || HighLogic.LoadedScene == GameScenes.LOADINGBUFFER) {
+      // Resources are not avaialble during game load. 
+      return null;
+    }
+    AudioSource audio;
+    if (audioCache.TryGetValue(audioPath, out audio)) {
+      return audio;
+    }
     if (!GameDatabase.Instance.ExistsAudioClip(audioPath)) {
       Debug.LogErrorFormat("Cannot locate audio clip: {0}", audioPath);
-      return;
+      return null;
     }
     Debug.LogFormat("Loading sound audio clip: {0}", audioPath);
-    var audio = gameObject.AddComponent<AudioSource>();
+    audio = gameObject.AddComponent<AudioSource>();
     audio.volume = GameSettings.UI_VOLUME;
     audio.spatialBlend = 0;  // Set as 2D audiosource
     audio.clip = GameDatabase.Instance.GetAudioClip(audioPath);
     if (!dontCache) {
       audioCache[audioPath] = audio;
     }
-    audio.Play();
+    return audio;
   }
 }
 
