@@ -246,63 +246,6 @@ static public class KAS_Shared {
     }
   }
 
-  public static List<KASModuleRotor> GetAllRotor(Vessel fromVessel = null) {
-    List<KASModuleRotor> returnedRotors = new List<KASModuleRotor>();
-
-    var rotors = new List<KASModuleRotor>(
-        GameObject.FindObjectsOfType(typeof(KASModuleRotor)) as KASModuleRotor[]);
-    foreach (KASModuleRotor rotor in rotors) {
-      if (fromVessel) {
-        if (rotor.vessel == fromVessel) {
-          returnedRotors.Add(rotor);
-        }
-      } else {
-        returnedRotors.Add(rotor);
-      }
-    }
-    return returnedRotors;
-  }
-
-  public static void SendMsgToRotor(String methodeName, object value = null, Vessel vess = null) {
-    var rotors = GetAllRotor(vess);
-    foreach (KASModuleRotor rotor in rotors) {
-      if (value != null) {
-        rotor.SendMessage(methodeName, value, SendMessageOptions.DontRequireReceiver);
-      } else {
-        rotor.SendMessage(methodeName, SendMessageOptions.DontRequireReceiver);
-      }
-    }
-  }
-
-  public static List<KASModuleTelescopicArm> GetAllTelescopicArm(Vessel fromVessel = null) {
-    var returnedTelescopicArms = new List<KASModuleTelescopicArm>();
-
-    var telescopicArms = new List<KASModuleTelescopicArm>(
-        GameObject.FindObjectsOfType(typeof(KASModuleTelescopicArm)) as KASModuleTelescopicArm[]);
-    foreach (KASModuleTelescopicArm telescopicArm in telescopicArms) {
-      if (fromVessel) {
-        if (telescopicArm.vessel == fromVessel) {
-          returnedTelescopicArms.Add(telescopicArm);
-        }
-      } else {
-        returnedTelescopicArms.Add(telescopicArm);
-      }
-    }
-    return returnedTelescopicArms;
-  }
-
-  public static void SendMsgToTelescopicArm(String methodeName, object value = null, Vessel vess = null) {
-    var telescopicArms = GetAllTelescopicArm(vess);
-    foreach (KASModuleTelescopicArm telescopicArm in telescopicArms) {
-      if (value != null) {
-        telescopicArm.SendMessage(methodeName, value, SendMessageOptions.DontRequireReceiver);
-      } else {
-        telescopicArm.SendMessage(methodeName, SendMessageOptions.DontRequireReceiver);
-      }
-    }
-  }
-
-
   public static Part GetPartUnderCursor() {
     Ray ray;
     if (HighLogic.LoadedSceneIsFlight) {
@@ -537,7 +480,6 @@ static public class KAS_Shared {
     snapshot.inStageIndex = -1;
     snapshot.attachMode = (int)AttachModes.SRF_ATTACH;
     snapshot.attached = true;
-    snapshot.connected = true;
     snapshot.flagURL = vessel.rootPart.flagURL;
 
     // Save properties that may be messed up by new colliders

@@ -39,14 +39,14 @@ public class KASModulePort : KASModuleAttachCore {
 
   public Part nodeConnectedPart {
     get {
-      AttachNode an = this.part.findAttachNode(attachNode);
+      AttachNode an = this.part.FindAttachNode(attachNode);
       if (an != null) {
         return an.attachedPart;
       }
       return null;
     }
     set {
-      AttachNode an = this.part.findAttachNode(attachNode);
+      AttachNode an = this.part.FindAttachNode(attachNode);
       if (an != null) {
         an.attachedPart = value;
       } else {
@@ -73,9 +73,9 @@ public class KASModulePort : KASModuleAttachCore {
   }
 
   public void OnKISAction(BaseEventData baseEventData) {
-    string action = baseEventData.GetString("action");
-    Part tgtPart = (Part)baseEventData.Get("targetPart");
-    AttachNode tgtNode = (AttachNode)baseEventData.Get("targetNode");
+    var action = baseEventData.GetString("action");
+    var tgtPart = baseEventData.Get<Part>("targetPart");
+    var tgtNode = baseEventData.Get<AttachNode>("targetNode");
 
     if (action == "Store") {
       if (winchConnected) {

@@ -55,7 +55,7 @@ public class KASModuleStrut : KASModuleAttachCore {
   public KAS_Tube strutRenderer;
 
   private bool linkValid = true;
-  public bool linked = false;
+  protected bool linked = false;
   public KASModuleStrut linkedStrutModule = null;
   public Vessel linkedEvaVessel = null;
 
@@ -315,11 +315,12 @@ public class KASModuleStrut : KASModuleAttachCore {
     InputLockManager.SetControlLock(ControlTypes.PAUSE, "KASStrutLink");
   }
 
-  private void StopEvaLink() {
+  void StopEvaLink() {
     strutRenderer.UnLoad();
     linkedEvaVessel = null;
-    if (evaStrutTransform)
+    if (evaStrutTransform) {
       Destroy(evaStrutTransform.gameObject);
+    }
     InputLockManager.RemoveControlLock("KASStrutLink");
   }
 
@@ -464,7 +465,7 @@ public class KASModuleStrut : KASModuleAttachCore {
     pumpTo = pumpFrom = null;
   }
 
-  private void Unlink() {
+  protected virtual void Unlink() {
     // Unload tube renderer
     if (linkedStrutModule) {
       linkedStrutModule.UnlinkPump();
@@ -496,7 +497,7 @@ public class KASModuleStrut : KASModuleAttachCore {
     this.linkedStrutModule = null;
   }
 
-  private bool CheckLink(Transform srcTransform, Transform tgtTransform, bool checkTgtAngle) {
+  bool CheckLink(Transform srcTransform, Transform tgtTransform, bool checkTgtAngle) {
     bool maxLenghtReached = false;
     bool maxAngleReached = false;
     // Check max lenght
@@ -523,7 +524,7 @@ public class KASModuleStrut : KASModuleAttachCore {
     }
   }
 
-  private KASModuleStrut GetEvaLinkedStrutModule(Vessel evaVessel) {
+  public KASModuleStrut GetEvaLinkedStrutModule(Vessel evaVessel) {
     var allStrut = new List<KASModuleStrut>(
         GameObject.FindObjectsOfType(typeof(KASModuleStrut)) as KASModuleStrut[]);
     foreach (KASModuleStrut strut in allStrut) {

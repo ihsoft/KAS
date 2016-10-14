@@ -7,25 +7,25 @@
     }, 
     "KSP_VERSION": {
         "MAJOR": 1, 
-        "MINOR": 1, 
-        "PATCH": 3
+        "MINOR": 2, 
+        "PATCH": 0
     }, 
     "KSP_VERSION_MAX": {
         "MAJOR": 1, 
-        "MINOR": 1, 
+        "MINOR": 2, 
         "PATCH": 99
     }, 
     "KSP_VERSION_MIN": {
         "MAJOR": 1, 
-        "MINOR": 1, 
-        "PATCH": 3
+        "MINOR": 2, 
+        "PATCH": 0
     }, 
     "NAME": "Kerbal Attachment System", 
     "URL": "https://raw.githubusercontent.com/KospY/KAS/master/kas.version", 
     "VERSION": {
         "BUILD": 0, 
         "MAJOR": 0, 
-        "MINOR": 5, 
-        "PATCH": 9
+        "MINOR": 6, 
+        "PATCH": 0
     }
 }

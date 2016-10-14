@@ -192,14 +192,14 @@ public class KASModuleWinch : KASModuleAttachCore {
 
   public Part nodeConnectedPart {
     get {
-      AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+      AttachNode an = this.part.FindAttachNode(connectedPortNodeName);
       if (an != null && an.attachedPart) {
         return an.attachedPart;
       }
       return null;
     }
     set {
-      AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+      AttachNode an = this.part.FindAttachNode(connectedPortNodeName);
       if (an != null) {
         an.attachedPart = value;
       } else {
@@ -210,7 +210,7 @@ public class KASModuleWinch : KASModuleAttachCore {
 
   public KASModulePort nodeConnectedPort {
     get {
-      AttachNode an = part.findAttachNode(connectedPortNodeName);
+      AttachNode an = part.FindAttachNode(connectedPortNodeName);
       if (an != null) {
         if (an.attachedPart) {
           KASModulePort portModule = an.attachedPart.GetComponent<KASModulePort>();
@@ -222,7 +222,7 @@ public class KASModuleWinch : KASModuleAttachCore {
       return null;
     }
     set {
-      AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+      AttachNode an = this.part.FindAttachNode(connectedPortNodeName);
       if (an != null) {
         if (value) {
           an.attachedPart = value.part;
@@ -366,7 +366,7 @@ public class KASModuleWinch : KASModuleAttachCore {
     }
 
     //Set connector node transform
-    AttachNode an = this.part.findAttachNode(connectedPortNodeName);
+    AttachNode an = this.part.FindAttachNode(connectedPortNodeName);
     an.nodeTransform = new GameObject("KASWinchConnectorAn").transform;
     an.nodeTransform.parent = this.part.transform;
     an.nodeTransform.localPosition = an.position;
@@ -996,8 +996,8 @@ public class KASModuleWinch : KASModuleAttachCore {
       // This should be safe even if already connected
       AttachDocked(portModule);
       // Set attached part
-      portModule.part.findAttachNode(portModule.attachNode).attachedPart = this.part;
-      this.part.findAttachNode(connectedPortNodeName).attachedPart = portModule.part;
+      portModule.part.FindAttachNode(portModule.attachNode).attachedPart = this.part;
+      this.part.FindAttachNode(connectedPortNodeName).attachedPart = portModule.part;
       // Remove joints between connector and winch
       KAS_Shared.RemoveAttachJointBetween(this.part, portModule.part);
       headState = PlugState.PlugDocked;
