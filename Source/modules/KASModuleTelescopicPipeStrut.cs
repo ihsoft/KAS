@@ -237,8 +237,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     get { return _isPhysicalCollider; }
     set {
       _isPhysicalCollider = value;
-      //FIXME
-      Debug.LogWarningFormat("Setting collider mode to {0}", value);
       Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
     }
   }

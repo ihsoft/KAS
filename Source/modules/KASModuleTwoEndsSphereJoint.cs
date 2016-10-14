@@ -133,8 +133,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
 
   /// <inheritdoc/>
   public override void AdjustJoint(bool isUnbreakable = false) {
-    //FIXME
-    Debug.LogWarningFormat("** ON AdjustJoint: isIndestructible = {0}", isUnbreakable);
     if (isUnbreakable) {
       SetupUnbreakableJoint(srcJoint);
       SetupUnbreakableJoint(trgJoint);
@@ -204,8 +202,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     strutJoint.connectedBody = trgRb;
     
     // Allow another fixed update to happen to remember strut positions.
-    //FIXME
-    Debug.LogWarning("Wait for strut joints to populate");
     yield return new WaitForFixedUpdate();
 
     // Setup breaking forces.
@@ -217,18 +213,8 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
     srcJoint.transform.parent = null;
     trgRb.isKinematic = false;
     trgJoint.transform.parent = null;
-    
-    //FIXME
-    Debug.LogWarning("Joint promoted to physics");
-    // Note, that this will trigger GameEvents.onPartJointBreak event.
-    if (stockJoint != null) {
-      //FIXME
-      Debug.LogWarningFormat("DROP stock joint");
-      DropStockJoint();
-    } else {
-      //FIXME
-      Debug.LogWarningFormat("NOT DROP stock joint");
-    }
+
+    DropStockJoint();
   }
 
   /// <summary>Sets sphere joint parameters.</summary>

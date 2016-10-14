@@ -468,9 +468,6 @@ public abstract class AbstractJointModule :
   /// <seealso cref="AdjustJoint"/>
   protected static void SetupUnbreakableJoint(ConfigurableJoint joint,
                                               JointState jointState = null) {
-    //FIXME
-    Debug.LogWarningFormat("** setup unbreakable: {0}", KASAPI.JointUtils.DumpJoint(joint));
-
     if (jointState != null) {
       // Save settings that are going to change.
       jointState.angularXMotion = joint.angularXMotion;
@@ -509,9 +506,6 @@ public abstract class AbstractJointModule :
     joint.breakForce = jointState.breakForce;
     joint.breakTorque = jointState.breakTorque;
     joint.enablePreprocessing = jointState.enablePreprocessing;
-
-    //FIXME
-    Debug.LogWarningFormat("** restored joint: {0}", KASAPI.JointUtils.DumpJoint(joint));
   }
   #endregion
 }
