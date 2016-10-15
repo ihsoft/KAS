@@ -384,7 +384,6 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
 
   /// <inheritdoc/>
   public virtual void UpdateLink() {
-    // FIXME: update only when diff is big enough
     UpdateLinkLengthAndOrientation();
   }
 
