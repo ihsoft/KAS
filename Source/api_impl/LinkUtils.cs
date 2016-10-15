@@ -27,6 +27,39 @@ class LinkUtilsImpl : ILinkUtils {
     }
     return null;
   }
+
+  /// <inheritdoc/>
+  public DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode) {
+    var srcPart = sourceNode.owner;
+    var srcVessel = srcPart.vessel;
+    var trgPart = targetNode.owner;
+    var trgVessel = trgPart.vessel;
+
+    var vesselInfo = new DockedVesselInfo();
+    vesselInfo.name = srcVessel.vesselName;
+    vesselInfo.vesselType = srcVessel.vesselType;
+    vesselInfo.rootPartUId = srcVessel.rootPart.flightID;
+
+    GameEvents.onActiveJointNeedUpdate.Fire(srcVessel);
+    GameEvents.onActiveJointNeedUpdate.Fire(trgVessel);
+    sourceNode.attachedPart = trgPart;
+    targetNode.attachedPart = srcPart;
+    srcPart.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
+    srcPart.Couple(trgPart);
+    // Depending on how active vessel has updated do either force active or make active. Note, that
+    // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
+    // FYI: This logic was taken from ModuleDockingNode.DockToVessel.
+    if (srcVessel == FlightGlobals.ActiveVessel) {
+      FlightGlobals.ForceSetActiveVessel(sourceNode.owner.vessel);  // Use actual vessel.
+      FlightInputHandler.SetNeutralControls();
+    } else if (sourceNode.owner.vessel == FlightGlobals.ActiveVessel) {
+      sourceNode.owner.vessel.MakeActive();
+      FlightInputHandler.SetNeutralControls();
+    }
+    GameEvents.onVesselWasModified.Fire(sourceNode.owner.vessel);
+
+    return vesselInfo;
+  }
 }
 
 }  // namespace
