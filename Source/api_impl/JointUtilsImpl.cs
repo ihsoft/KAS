@@ -40,6 +40,11 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("angularYZLimitSpring: ").Append(Dump(joint.angularYZLimitSpring)).AppendLine();
     // Collider setup.        
     msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
+    // Optimization.        
+    msg.Append("enablePreprocessing: ").Append(joint.enablePreprocessing).AppendLine();
+    // Break forces.        
+    msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
+    msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
 
     return msg.ToString();
   }
@@ -162,7 +167,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
 
   static string Dump(JointDrive drive) {
     return string.Format(
-        "JointDrive(spring={1}, damper={2}, maxForce={3})",
+        "JointDrive(spring={0}, damper={1}, maxForce={2})",
         drive.positionSpring, drive.positionDamper, drive.maximumForce);
   }
 }
