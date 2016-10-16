@@ -33,9 +33,14 @@ public abstract class AbstractJointModule :
   /// Container class to store joint state when changing from breakable&lt;=&gt;unbreakable state.
   /// </summary>
   /// <remarks>
-  /// Field names match the related names in <see cref="ConfigurableJoint"/>. Not all settings are
-  /// saved. If caller needs more settings saved then it must extend this class, and save relevant
-  /// settings prior to call to any changing method.
+  /// Not whole joint state is saved. Only the following settings will be remembered:
+  /// <list type="bullet">
+  /// <item>Angular motion modes.</item>
+  /// <item>Linear motion modes.</item>
+  /// <item>Break force and torque.</item>
+  /// <item>Joint optimization settings.</item>
+  /// </list>
+  /// <para>Field names match the related names in <see cref="ConfigurableJoint"/>.</para>
   /// </remarks>
   /// <seealso href="https://docs.unity3d.com/356/Documentation/ScriptReference/ConfigurableJoint.html">
   /// Unity 3D: ConfigurableJoint</seealso>
@@ -60,6 +65,36 @@ public abstract class AbstractJointModule :
     public float breakTorque;
     /// <exlcude/>
     public bool enablePreprocessing;
+
+    /// <summary>Stores joint's state in the instance.</summary>
+    /// <remarks>Not whole state is saved. See <see cref="JointState"/>.</remarks>
+    /// <param name="sourceJoint">Joint to copy state from.</param>
+    public void SaveState(ConfigurableJoint sourceJoint) {
+      angularXMotion = sourceJoint.angularXMotion;
+      angularYMotion = sourceJoint.angularYMotion;
+      angularZMotion = sourceJoint.angularZMotion;
+      xMotion = sourceJoint.xMotion;
+      yMotion = sourceJoint.yMotion;
+      zMotion = sourceJoint.zMotion;
+      breakForce = sourceJoint.breakForce;
+      breakTorque = sourceJoint.breakTorque;
+      enablePreprocessing = sourceJoint.enablePreprocessing;
+    }
+
+    /// <summary>retsores joint's state from the instance.</summary>
+    /// <remarks>Not whole state is restored. See <see cref="JointState"/>.</remarks>
+    /// <param name="targetJoint">Joint to restore state for.</param>
+    public void RestoreState(ConfigurableJoint targetJoint) {
+      targetJoint.angularXMotion = angularXMotion;
+      targetJoint.angularYMotion = angularYMotion;
+      targetJoint.angularZMotion = angularZMotion;
+      targetJoint.xMotion = xMotion;
+      targetJoint.yMotion = yMotion;
+      targetJoint.zMotion = zMotion;
+      targetJoint.breakForce = breakForce;
+      targetJoint.breakTorque = breakTorque;
+      targetJoint.enablePreprocessing = enablePreprocessing;
+    }
   }
   #endregion
   
@@ -413,19 +448,6 @@ public abstract class AbstractJointModule :
       stockJoint.DestroyJoint();
     }
     stockJoint = null;
-  }
-
-  /// <summary>Returns a logs friendly string description of the link.</summary>
-  protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
-    var srcTitle = source != null && source.part != null 
-        ? string.Format("{0} at {1} (id={2})",
-                        source.part.name, source.cfgAttachNodeName, source.part.flightID)
-        : "NOTHING";
-    var trgTitle = target != null && target.part != null
-        ? string.Format("{0} at {1} (id={2})",
-                        target.part.name, target.cfgAttachNodeName, target.part.flightID)
-        : "NOTHING";
-    return srcTitle + " => " + trgTitle;
   }
 
   /// <summary>
