@@ -44,8 +44,7 @@ public abstract class AbstractJointModule :
   /// </remarks>
   /// <seealso href="https://docs.unity3d.com/356/Documentation/ScriptReference/ConfigurableJoint.html">
   /// Unity 3D: ConfigurableJoint</seealso>
-  /// <seealso cref="SetupUnbreakableJoint"></seealso>
-  /// <seealso cref="RestoreJointState"></seealso>
+  /// <seealso cref="SetupUnbreakableJoint"/>
   protected class JointState {
     /// <exlcude/>
     public ConfigurableJointMotion angularXMotion;
@@ -251,21 +250,10 @@ public abstract class AbstractJointModule :
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html#aa5a1e018fa5b47c5723aa0879e23c647">
   /// KSP: Part.attachJoint</seealso>
   protected PartJoint stockJoint { get; private set; }
-  #endregion
-
-  #region Configurable joint settings used by the KSP stock joints for small stach nodes as of KSP 1.1.3.
-  /// <summary>Default breaking force.</summary>  
-  protected const float StockJointBreakingForce = 9600;
-  /// <summary>Default breaking torque.</summary>  
-  protected const float StockJointBreakingTorque = 16000;
-  /// <summary>Default swing and twist angular limit.</summary>
-  protected const float StockJointAngleLimit = 177;
-  /// <summary>Default limit for X movement (stretch).</summary>
-  protected const float StockJointLinearLimit = 1;
-  /// <summary>Default strength of a linear spring.</summary>
-  protected const float StockJointSpring = 30000;
-  /// <summary>Default damping strength of the linear spring.</summary>
-  protected const float StockJointSpringDamper = 0;
+  /// <summary>State of the joint as it was set by the game's core.</summary>
+  /// <remarks>It only has valid value if <see cref="isLinked"/> is <c>true</c>.</remarks>
+  /// <seealso cref="SetupUnbreakableJoint"/>
+  protected JointState defaultJointState { get; private set; }
   #endregion
 
   bool isRestored;
@@ -288,6 +276,8 @@ public abstract class AbstractJointModule :
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
       stockJoint = part.attachJoint;
       part.attachJoint = null;
+      defaultJointState = new JointState();
+      defaultJointState.SaveState(stockJoint.Joint);
     }
     originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
     isLinked = true;
@@ -382,7 +372,7 @@ public abstract class AbstractJointModule :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    // Restore joint state. Don't do it in OnStart since we need partJoint created. 
+    // Restore joint state. Don't do it in OnStart since we need partJoint created.
     if (!isRestored) {
       var source = part.FindModulesImplementing<ILinkSource>()
           .FirstOrDefault(x => x.linkState == LinkState.Linked);
@@ -453,6 +443,11 @@ public abstract class AbstractJointModule :
   /// <summary>
   /// Setups joint break force and torque while handling special values from config.
   /// </summary>
+  /// <remarks>
+  /// This method must not be called prior to the joint initalization. It's safe to call it from
+  /// <see cref="ILinkJoint"/> implementations, but all other cases must ensure the default joint
+  /// state has been captured.
+  /// </remarks>
   /// <param name="joint">Joint to set forces for.</param>
   /// <param name="forceFromConfig">
   /// Break force from the config. If it's <c>0</c> then force will be the same as for the stock
@@ -462,14 +457,13 @@ public abstract class AbstractJointModule :
   /// Break torque from the config. If it's <c>0</c> then torque will be the same as for the stock
   /// joints.
   /// </param>
-  /// <seealso cref="StockJointBreakingForce"/>
-  /// <seealso cref="StockJointBreakingTorque"/>
-  protected static void SetBreakForces(
+  /// <seealso cref="defaultJointState"/>
+  protected void SetBreakForces(
       ConfigurableJoint joint, float forceFromConfig, float torqueFromConfig) {
     joint.breakForce =
-        Mathf.Approximately(forceFromConfig, 0) ? StockJointBreakingForce : forceFromConfig;
+        Mathf.Approximately(forceFromConfig, 0) ? defaultJointState.breakForce : forceFromConfig;
     joint.breakTorque =
-        Mathf.Approximately(torqueFromConfig, 0) ? StockJointBreakingTorque : torqueFromConfig;
+        Mathf.Approximately(torqueFromConfig, 0) ? defaultJointState.breakTorque : torqueFromConfig;
   }
 
   /// <summary>Makes a regular joint unbreakable and locked.</summary>
@@ -482,26 +476,18 @@ public abstract class AbstractJointModule :
   /// <item>Breaking forces are set to infinite.</item>
   /// <item>Joint preprocessing is set to <c>true</c> to improve performance.</item>
   /// </list>
+  /// <para>
+  /// Unless your code sets up the joint from the scratch it makes sense to save joint state via
+  /// <see cref="JointState.SaveState"/> before making it unbreakable. Or, if your code uses stock
+  /// settings, <see cref="defaultJointState"/> can be used to restore the default state.
+  /// </para>
   /// </remarks>
   /// <param name="joint">Joint to configure.</param>
-  /// <param name="jointState">
-  /// State object to pesist original settings into. If <c>null</c> then state save is not needed.
-  /// </param>
   /// <seealso cref="AdjustJoint"/>
-  protected static void SetupUnbreakableJoint(ConfigurableJoint joint,
-                                              JointState jointState = null) {
-    if (jointState != null) {
-      // Save settings that are going to change.
-      jointState.angularXMotion = joint.angularXMotion;
-      jointState.angularYMotion = joint.angularYMotion;
-      jointState.angularZMotion = joint.angularZMotion;
-      jointState.xMotion = joint.xMotion;
-      jointState.yMotion = joint.yMotion;
-      jointState.zMotion = joint.zMotion;
-      jointState.breakForce = joint.breakForce;
-      jointState.breakTorque = joint.breakTorque;
-      jointState.enablePreprocessing = joint.enablePreprocessing;
-    }
+  /// <seealso cref="JointState"/>
+  protected void SetupUnbreakableJoint(ConfigurableJoint joint) {
+    //FIXME
+    Debug.LogWarning("Set unbreakable");
     // Make joint absolutly rigid. 
     joint.angularXMotion = ConfigurableJointMotion.Locked;
     joint.angularYMotion = ConfigurableJointMotion.Locked;
@@ -509,25 +495,22 @@ public abstract class AbstractJointModule :
     joint.xMotion = ConfigurableJointMotion.Locked;
     joint.yMotion = ConfigurableJointMotion.Locked;
     joint.zMotion = ConfigurableJointMotion.Locked;
-    // Since no movements are allowed the preprocessing will give a performance boost.
+    // Since no movement is allowed the preprocessing will give a performance boost.
     joint.enablePreprocessing = true; 
     SetBreakForces(joint, Mathf.Infinity, Mathf.Infinity);
   }
 
-  /// <summary>Restores joint settings from a previosly saved state.</summary>
-  /// <param name="joint">Joint to restore settings for.</param>
-  /// <param name="jointState">Saved joint state.</param>
-  /// <see cref="SetupUnbreakableJoint"/>
-  protected static void RestoreJointState(ConfigurableJoint joint, JointState jointState) {
-    joint.angularXMotion = jointState.angularXMotion;
-    joint.angularYMotion = jointState.angularYMotion;
-    joint.angularZMotion = jointState.angularZMotion;
-    joint.xMotion = jointState.xMotion;
-    joint.yMotion = jointState.yMotion;
-    joint.zMotion = jointState.zMotion;
-    joint.breakForce = jointState.breakForce;
-    joint.breakTorque = jointState.breakTorque;
-    joint.enablePreprocessing = jointState.enablePreprocessing;
+  /// <summary>Returns a logs friendly string description of the link.</summary>
+  protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
+    var srcTitle = source != null && source.part != null 
+        ? string.Format("{0} at {1} (id={2})",
+                        source.part.name, source.cfgAttachNodeName, source.part.flightID)
+        : "NOTHING";
+    var trgTitle = target != null && target.part != null
+        ? string.Format("{0} at {1} (id={2})",
+                        target.part.name, target.cfgAttachNodeName, target.part.flightID)
+        : "NOTHING";
+    return srcTitle + " => " + trgTitle;
   }
   #endregion
 }

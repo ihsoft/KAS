@@ -5,25 +5,24 @@
 
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace KAS {
 
 /// <summary>
 /// Module that offers normal KAS joint logic basing on joint created by KSP. The joint is not
 /// modified in any way, and it behavior is very similar to the behavior of a regular joint that
-/// normally connets two parts together.
+/// normally connects two parts together.
 /// </summary>
 public class KASModuleStockJoint : AbstractJointModule {
-  /// <summary>Intermediate field to store joint settings in AdjustJoint.</summary>
-  protected JointState jointState = new JointState();
-
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public override void AdjustJoint(bool isUnbreakable = false) {
     if (isUnbreakable) {
-      SetupUnbreakableJoint(stockJoint.Joint, jointState: jointState);
+      SetupUnbreakableJoint(stockJoint.Joint);
     } else {
-      RestoreJointState(stockJoint.Joint, jointState);
+      defaultJointState.RestoreState(stockJoint.Joint);
+      SetBreakForces(stockJoint.Joint, cfgLinkBreakForce, cfgLinkBreakTorque);
     }
   }
   #endregion
