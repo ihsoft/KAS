@@ -69,9 +69,6 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.linearLimitSpring = new SoftJointLimitSpring();
     joint.targetRotation = Quaternion.identity;
     joint.targetAngularVelocity = Vector3.zero;
-    joint.autoConfigureConnectedAnchor = true;
-    joint.anchor = Vector3.zero;
-    joint.configuredInWorldSpace = false;
     joint.axis = Vector3.right;
     joint.secondaryAxis = Vector3.up;
   }

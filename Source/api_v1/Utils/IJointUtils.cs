@@ -25,7 +25,6 @@ public interface IJointUtils {
   /// <item>All linear and angular drive modes set to <see cref="ConfigurableJointMotion.Locked"/>.
   /// </item>
   /// <item>All drives, springs and limits are zeroed.</item>
-  /// <item>Anchors are reset, and connected anchor set to auto-configure mode.</item>
   /// <item>Coordinate system is reset to local. Y looks up, and X looks right.</item>
   /// <item>
   /// Connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
