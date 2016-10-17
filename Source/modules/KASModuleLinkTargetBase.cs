@@ -4,7 +4,6 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
-using System.Linq;
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
 using KSPDev.ModelUtils;
