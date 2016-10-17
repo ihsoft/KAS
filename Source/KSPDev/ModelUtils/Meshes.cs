@@ -162,10 +162,37 @@ public static class Meshes {
     // Make object's Z axis its length. For this rotate around X axis.
     var meshRotation =
         type == PrimitiveType.Cylinder ? Quaternion.Euler(90, 0, 0) : Quaternion.identity;
-    var meshFilter = primitive.GetComponent<MeshFilter>();
+    TranslateMesh(primitive, rotation: meshRotation, scale: meshScale);
+    return primitive;
+  }
+
+  /// <summary>Translates meshes's verticies.</summary>
+  /// <remarks>
+  /// This is different from setting postion, rotation and scale to the transform. Thos method
+  /// actually changes vetricies in the mesh. It's not performance effective, so avoid doing it
+  /// frequiently.
+  /// </remarks>
+  /// <param name="model">Model object to change mesh in.</param>
+  /// <param name="offset">
+  /// Offset for the verticies. If not specified then offset is zero. Offset is added <i>after</i>
+  /// scale and rotation have been applied.  
+  /// </param>
+  /// <param name="rotation">
+  /// Rotation for the verticies. If not set then no rotation is added.
+  /// </param>
+  /// <param name="scale">
+  /// Scale for the vertex positions. IF not specified then scale is not affected.
+  /// </param>
+  public static void TranslateMesh(GameObject model,
+                                   Vector3? offset = null, Quaternion? rotation = null,
+                                   Vector3? scale = null) {
+    var meshPosition = offset ?? Vector3.zero;
+    var meshRotation = rotation ?? Quaternion.identity;
+    var meshScale = scale ?? Vector3.one;
+    var meshFilter = model.GetComponent<MeshFilter>();
     // For some reason shared mesh refuses to properly react to the vertices updates (Unity
     // optimization?), so create a mesh copy and adjust it. It results in a loss of a bit of
-    // performance and memory but given it's only done on the scene load it's fine.
+    // performance and memory.
     var mesh = meshFilter.mesh;  // Do NOT use sharedMesh here!
     // Changing of mesh vertices/normals *must* follow read/modify/store contract. Read Unity docs
     // for more details.
@@ -174,6 +201,7 @@ public static class Meshes {
     for (var i = 0; i < mesh.vertexCount; ++i) {
       vertices[i] = meshRotation * vertices[i];
       vertices[i].Scale(meshScale);
+      vertices[i] += meshPosition;
       normals[i] = meshRotation * normals[i];
     }
     mesh.vertices = vertices;
@@ -182,8 +210,6 @@ public static class Meshes {
     mesh.RecalculateNormals();
     mesh.Optimize();  // We're not going to modify it further.
     meshFilter.sharedMesh = mesh;
-
-    return primitive;
   }
 }
 
