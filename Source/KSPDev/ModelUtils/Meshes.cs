@@ -168,7 +168,7 @@ public static class Meshes {
 
   /// <summary>Translates meshes's verticies.</summary>
   /// <remarks>
-  /// This is different from setting postion, rotation and scale to the transform. Thos method
+  /// This is different from setting postion, rotation and scale to the transform. This method
   /// actually changes vetricies in the mesh. It's not performance effective, so avoid doing it
   /// frequiently.
   /// </remarks>
@@ -181,7 +181,7 @@ public static class Meshes {
   /// Rotation for the verticies. If not set then no rotation is added.
   /// </param>
   /// <param name="scale">
-  /// Scale for the vertex positions. IF not specified then scale is not affected.
+  /// Scale for the vertex positions. If not specified then scale is not affected.
   /// </param>
   public static void TranslateMesh(GameObject model,
                                    Vector3? offset = null, Quaternion? rotation = null,
@@ -198,6 +198,7 @@ public static class Meshes {
     // for more details.
     var vertices = mesh.vertices;
     var normals = mesh.normals;
+    
     for (var i = 0; i < mesh.vertexCount; ++i) {
       vertices[i] = meshRotation * vertices[i];
       vertices[i].Scale(meshScale);
