@@ -128,7 +128,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS" xcopy "$(ProjectDir)..\Binaries\KSPDev_Utils.dll" "Q:\GameData\KAS\Plugins\" /Y</PostBuildEvent>
+    <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y
+IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(ProjectDir)..\Binaries\KSPDev_Utils.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
