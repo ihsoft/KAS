@@ -63,8 +63,14 @@ STRUCTURE = collections.OrderedDict({
     '/LICENSE-1.0.md',
   ],
   '/GameData/KAS-1.0/Parts' : '/Parts',
-  '/GameData/KAS-1.0/Sounds' : '/Sounds',
-  '/GameData/KAS-1.0/Textures' : '/Textures',
+  '/GameData/KAS-1.0/Sounds' : [
+    '/Sounds/broke.ogg',
+    '/Sounds/plugdocked.ogg',
+    '/Sounds/unplugdocked.ogg',
+  ],
+  '/GameData/KAS-1.0/Textures' : [
+    '/Textures/piston180.png',
+  ],
   '/GameData/KAS-1.0/Plugins' : [
     '/Binaries/MiniAVC.dll',
     '/Binaries/KSPDev_Utils.dll',
