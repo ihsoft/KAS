@@ -496,8 +496,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
 
     // Re-scale mesh to x100.
     // FIXME: drop once model is adjusted
-    var meshOffset = new Vector3(0, 0, 0.05f);
-    var meshScale = 70.0f;
+    var meshOffset = Vector3.zero;
+    const float meshScale = 0.8f;
     Meshes.TranslateMesh(
         jointModel, offset: meshOffset, scale: new Vector3(meshScale, meshScale, meshScale));
     jointModel.transform.localPosition = Vector3.zero;
@@ -506,9 +506,6 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     
     // Root for all the links meshes.
     // FIXME: drop once it's fixed in the model.
-    plugNodeTransform.parent = partModelTransform;
-    plugNodeTransform.localPosition = new Vector3(0.0f, 0.0362f, 0.0f);
-    plugNodeTransform.localScale = Vector3.one;
     plugNodeTransform.localRotation = Quaternion.LookRotation(Vector3.up);
     
     // Source part joint model.
