@@ -160,12 +160,11 @@ public static class Meshes {
     primitive.GetComponent<Renderer>().material = material;
 
     // Make object's Z axis its length. For this rotate around X axis.
-    //var meshRotation = Quaternion.Euler(90, 0, 0);
     var meshRotation =
         type == PrimitiveType.Cylinder ? Quaternion.Euler(90, 0, 0) : Quaternion.identity;
     var meshFilter = primitive.GetComponent<MeshFilter>();
     // For some reason shared mesh refuses to properly react to the vertices updates (Unity
-    // optimziation?), so create a mesh copy and adjust it. It results in a loss of a bit of
+    // optimization?), so create a mesh copy and adjust it. It results in a loss of a bit of
     // performance and memory but given it's only done on the scene load it's fine.
     var mesh = meshFilter.mesh;  // Do NOT use sharedMesh here!
     // Changing of mesh vertices/normals *must* follow read/modify/store contract. Read Unity docs
