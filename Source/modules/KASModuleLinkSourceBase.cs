@@ -55,6 +55,8 @@ public class KASModuleLinkSourceBase :
   protected static Message<string> CannotRestoreLinkMsg = "Cannot restore link for: {0}";
   /// <summary>Info string in the editor for link type setting.</summary>
   protected static Message<string> LinksWithSocketTypeInfo = "Links with socket type: {0}";
+  /// <summary>Info string in the editor to identify if part can link with anotehr vessel.</summary>
+  protected static Message CanLinkToANotherVesselInfo = "\n\nCan be linked to another vessel";
   /// <summary>Title of the module to present in the editor details window.</summary>
   protected static Message ModuleTitleInfo = "KAS Joint Source";
   #endregion
@@ -332,6 +334,7 @@ public class KASModuleLinkSourceBase :
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.Append(LinksWithSocketTypeInfo.Format(linkType));
+    sb.Append(CanLinkToANotherVesselInfo);
     return sb.ToString();
   }
 
