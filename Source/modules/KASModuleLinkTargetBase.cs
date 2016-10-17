@@ -4,8 +4,10 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using System;
+using System.Text;
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
@@ -26,11 +28,18 @@ namespace KAS {
 // TODO(ihsoft): Add code samples.
 public class KASModuleLinkTargetBase :
     // KSP parents.
-    PartModule, IActivateOnDecouple,
+    PartModule, IModuleInfo, IActivateOnDecouple,
     // KAS parents.
     ILinkTarget, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsDestroyable, IKSPActivateOnDecouple {
+    IPartModule, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+
+  #region Localizable GUI strings
+  /// <summary>Info string in the editor for link type setting.</summary>
+  protected static Message<string> AcceptsLinkTypeInfo = "Accepts link type: {0}";
+  /// <summary>Title of the module to present in the editor details window.</summary>
+  protected static Message ModuleTitleInfo = "KAS Joint Target";
+  #endregion
 
   #region ILinkTarget config properties implementation
   /// <inheritdoc/>
@@ -242,6 +251,30 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public virtual void OnDestroy() {
     linkStateMachine.Stop();
+  }
+  #endregion
+
+  #region IModuleInfo implementation
+  /// <inheritdoc/>
+  public override string GetInfo() {
+    var sb = new StringBuilder(base.GetInfo());
+    sb.Append(AcceptsLinkTypeInfo.Format(linkType));
+    return sb.ToString();
+  }
+
+  /// <inheritdoc/>
+  public string GetModuleTitle() {
+    return ModuleTitleInfo;
+  }
+
+  /// <inheritdoc/>
+  public Callback<Rect> GetDrawModulePanelCallback() {
+    return null;
+  }
+
+  /// <inheritdoc/>
+  public string GetPrimaryField() {
+    return null;
   }
   #endregion
 
