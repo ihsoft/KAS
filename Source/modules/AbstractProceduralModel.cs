@@ -55,7 +55,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public Color color = Color.white;
+  public Color materialColor = Color.white;
   #endregion
 
   // Internal cache of the textures used by this renderer (and its descendants).
@@ -100,7 +100,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   protected Material CreateMaterial(Texture2D mainTex) {
     var material = new Material(Shader.Find(shaderName));
     material.mainTexture = mainTex;
-    material.color = color;
+    material.color = materialColor;
     return material;
   }
 

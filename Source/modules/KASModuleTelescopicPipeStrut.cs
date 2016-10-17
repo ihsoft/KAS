@@ -216,7 +216,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? color);
+      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? materialColor);
     }
   }
   Color? _colorOverride;
