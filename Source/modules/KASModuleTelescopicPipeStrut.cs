@@ -16,7 +16,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
-public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
+public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRenderer {
 
   #region Localizable GUI strings
   /// <summary>
@@ -285,7 +285,7 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   #region Model name constants
   /// <summary>A transform that is a root for the whole pipe modelset.</summary>
   /// <remarks>It doesn't have to match part's atatch node transform.</remarks>
-  protected const string AttachNodeObjName = "AttachNode";
+  protected const string AttachNodeObjName = "plugNode";
   /// <summary>Name of model that connects pipe with the source part.</summary>
   protected const string SrcPartJointObjName = "srcPartJoint";
   /// <summary>Name of model at the pipe start.</summary>
@@ -294,6 +294,15 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   protected const string TrgStrutJointObjName = "trgStrutJoint";
   /// <summary>Name of model that connects pipe with the target part.</summary>
   protected const string TrgPartJointObjName = "trgPartJoint";
+  /// <summary>
+  /// Name of the joint model in the part's model. It's used as a template to create all the joint
+  /// levers.
+  /// </summary>
+  protected const string JointObjName = "Joint";
+  /// <summary>
+  /// Name of the transform that is used to conenct two levers to form a complete joint. 
+  /// </summary>
+  protected const string PivotAxileObjName = "PivotAxile";
   #endregion
 
   #region Model transforms & properties
@@ -458,24 +467,60 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
   }
   #endregion
 
+  //FIXME: drop
+  void DumpHirerahcy(Transform m) {
+    while (m != null) {
+      Debug.LogWarningFormat("Transform '{0}' has local scale {1}", m.name, m.localScale);
+      m = m.parent;
+    }
+  }
+
   #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    // Root for all the links meshes.
-    var attachNode = new GameObject(AttachNodeObjName).transform;
-    attachNode.parent = partModelTransform;
-    attachNode.localPosition = attachNodePosition;
-    attachNode.localScale = Vector3.one;
-    attachNode.localRotation = Quaternion.LookRotation(attachNodeOrientation);
+    var jointModel = part.FindModelTransform(JointObjName).gameObject;
+    if (jointModel == null) {
+      Debug.LogErrorFormat("No joint model found in {0}!!!!", part.name);
+      return;
+    }
+    //DumpHirerahcy(jointModel.transform);
+    var jointModelPivot = jointModel.transform.Find(PivotAxileObjName);
+    //DumpHirerahcy(jointModelPivot.transform);
+    var plugNodeTransform = part.FindModelTransform("plugNode");
+    //DumpHirerahcy(plugNodeTransform);
+    Debug.LogWarningFormat("plug node pos: {0}", plugNodeTransform.position.y);
+    
+    jointModel.transform.parent = null;
+    Debug.LogWarning("AFTER detach");
+    //DumpHirerahcy(jointModel.transform);
 
+    // Re-scale mesh to x100.
+    // FIXME: drop once model is adjusted
+    var meshOffset = new Vector3(0, 0, 0.05f);
+    var meshScale = 70.0f;
+    Meshes.TranslateMesh(
+        jointModel, offset: meshOffset, scale: new Vector3(meshScale, meshScale, meshScale));
+    jointModel.transform.localPosition = Vector3.zero;
+    jointModelPivot.transform.localPosition =
+        jointModelPivot.transform.localPosition * meshScale + meshOffset;
+    
+    // Root for all the links meshes.
+    // FIXME: drop once it's fixed in the model.
+    plugNodeTransform.parent = partModelTransform;
+    plugNodeTransform.localPosition = new Vector3(0.0f, 0.0362f, 0.0f);
+    plugNodeTransform.localScale = Vector3.one;
+    plugNodeTransform.localRotation = Quaternion.LookRotation(Vector3.up);
+    
     // Source part joint model.
-    srcPartJoint = CreateStrutJointModel(SrcPartJointObjName);
+    srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
+    // FIXME: Drop once collider is in the model.
     Colliders.SetSimpleCollider(srcPartJoint.gameObject, PrimitiveType.Cube);
-    Hierarchy.MoveToParent(srcPartJoint, attachNode);
+    Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
     srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
 
     // Source strut joint model.
-    srcStrutJoint = CreateStrutJointModel(SrcStrutJointObjName, createAxile: false);
+    srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
+    // FIXME: Drop once collider is in the model.
     Colliders.SetSimpleCollider(srcStrutJoint.gameObject, PrimitiveType.Cube);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
@@ -484,14 +529,18 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Target strut joint model.
-    trgStrutJoint = CreateStrutJointModel(TrgStrutJointObjName);
+    trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
+    // FIXME: Drop once collider is in the model.
     Colliders.SetSimpleCollider(trgStrutJoint.gameObject, PrimitiveType.Cube);
     trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
+    //FIXME
+    Debug.LogWarningFormat("Target handle length: {0}", trgJointHandleLength);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
-    var trgPartJoint = CreateStrutJointModel(TrgStrutJointObjName, createAxile: false);
+    var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
+    // FIXME: Drop once collider is in the model.
     Colliders.SetSimpleCollider(trgPartJoint.gameObject, PrimitiveType.Cube);
     var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
@@ -521,6 +570,9 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
                            newRotation: Quaternion.LookRotation(Vector3.forward));
     
     CalculateLengthLimits();
+
+    // Joint template model is not needed anymore.
+    UnityEngine.Object.DestroyImmediate(jointModel.gameObject);
 
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
@@ -672,6 +724,26 @@ public class KASModuleTelescopicPipeStrut : AbstractJointPart, ILinkRenderer {
         srcJointHandleLength
         + pistonsCount * (pistonLength - pistonMinShift)
         + trgJointHandleLength;
+  }
+
+  /// <summary>
+  /// Creates a new model from the existing one. Resets all local settinsg to default. 
+  /// </summary>
+  /// <remarks>
+  /// Same model in this part is copied several times, and they are organized into a hierarchy. So
+  /// if there were any scale or rotation adjustments they will accumulate thru the hirerachy
+  /// breaking the whole model. That's why all local transformations must be default.
+  /// </remarks>
+  /// <param name="model">Model to copy.</param>
+  /// <param name="objName">name of the new model.</param>
+  /// <returns>Cloned model with local transformations set to default.</returns>
+  GameObject CloneModel(GameObject model, string objName) {
+    var obj = Instantiate(model);
+    obj.name = objName;
+    obj.transform.localPosition = Vector3.zero;
+    obj.transform.localScale = Vector3.one;
+    obj.transform.localRotation = Quaternion.identity;
+    return obj;
   }
   #endregion
 }
