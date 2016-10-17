@@ -491,7 +491,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     Debug.LogWarningFormat("plug node pos: {0}", plugNodeTransform.position.y);
     
     jointModel.transform.parent = null;
-    Debug.LogWarning("AFTER detach");
+    //Debug.LogWarning("AFTER detach");
     //DumpHirerahcy(jointModel.transform);
 
     // Re-scale mesh to x100.
@@ -524,6 +524,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     Colliders.SetSimpleCollider(srcStrutJoint.gameObject, PrimitiveType.Cube);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
+    //FIXME: use info level
+    Debug.LogWarningFormat("Source joint handle length: {0}", srcJointHandleLength);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
@@ -534,8 +536,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     Colliders.SetSimpleCollider(trgStrutJoint.gameObject, PrimitiveType.Cube);
     trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
-    //FIXME
-    Debug.LogWarningFormat("Target handle length: {0}", trgJointHandleLength);
+    //FIXME: use info level
+    Debug.LogWarningFormat("Target joint handle length: {0}", trgJointHandleLength);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
