@@ -75,6 +75,7 @@ public static class Colliders {
       collider.center = combinedBounds.center;
       collider.size = combinedBounds.size;
     } else if (type == PrimitiveType.Capsule) {
+      // TODO(ihsoft): Choose direction so what the volume is minimized.
       var collider = parent.AddComponent<CapsuleCollider>();
       collider.center = combinedBounds.center;
       collider.direction = 2;  // Z axis
@@ -127,7 +128,9 @@ public static class Colliders {
   /// <param name="colliderType">Determines how a collider type should be selected.</param>
   /// <param name="shapeType">
   /// Type of the primitive when <paramref name="colliderType"/> is
-  /// <see cref="PrimitiveCollider.Shape"/>. It will determine the type of the collider.
+  /// <see cref="PrimitiveCollider.Shape"/>. It will determine the type of the collider. Only
+  /// <see cref="PrimitiveType.Cylinder"/>, <see cref="PrimitiveType.Sphere"/>, and
+  /// <see cref="PrimitiveType.Cube"/> are supported.
   /// </param>
   public static void AdjustCollider(
       GameObject primitive, Vector3 meshSize, PrimitiveCollider colliderType,
@@ -139,6 +142,7 @@ public static class Colliders {
     } else if (colliderType == PrimitiveCollider.Shape) {
       // FIXME: non tirival scales does't fit simple colliders. Fix it.
       if (shapeType.Value == PrimitiveType.Cylinder) {
+        // TODO(ihsoft): Choose direction so what the volume is minimized.
         var collider = primitive.AddComponent<CapsuleCollider>();
         collider.direction = 2;  // Z axis
         collider.height = meshSize.z;  // It's now length.

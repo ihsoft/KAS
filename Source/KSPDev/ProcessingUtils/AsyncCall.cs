@@ -10,8 +10,8 @@ namespace KSPDev.ProcessingUtils {
 
 /// <summary>Set of tools to execute a delayed code.</summary>
 /// <remarks>
-/// Use theese tools when code needs to be executed right with some delay or at a specific moment
-/// of the game.
+/// Use theese tools when code needs to be executed with some delay or at a specific moment of the
+/// game.
 /// <code><![CDATA[
 /// class MyComponent : MonoBehaviour {
 ///   void MyAsyncMethod(string a, int b) {
