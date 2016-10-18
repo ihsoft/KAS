@@ -151,20 +151,20 @@ public interface IJointUtils {
   /// </remarks>
   /// <param name="joint">Joint to setup.</param>
   /// <param name="springForce">
-  /// Torque force to apply when joint angle deviates from theoriginal.
+  /// Torque force to apply when joint angle deviates from the original.
   /// </param>
   /// <param name="springDamperRatio">
-  /// Percentage of the torque force to use for damperingoscillation effect.
+  /// Percentage of the torque force to use for dampering oscillation effect.
   /// </param>
   /// <param name="maxSpringForce">
-  /// Maximum torque force to apply when joint angle deviates from theoriginal.
+  /// Maximum torque force to apply when joint angle deviates from the original.
   /// </param>
   /// <param name="angleLimit">Maximum rotation angle (degrees) around Y or Z axis.</param>
   /// <param name="angleLimitForce">
   /// Force to apply to keep joint in limits. If it's <c>0</c> thenthe limit is impassible.
   /// </param>
   /// <param name="angleLimitDamperRatio">
-  /// Percentage of the limit force to use for damperingoscillation effect.
+  /// Percentage of the limit force to use for dampering oscillation effect.
   /// </param>
   void SetupSphericalJoint(ConfigurableJoint joint,
                            float springForce = 0,
