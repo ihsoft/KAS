@@ -24,7 +24,7 @@ namespace KAS {
 // TODO(ihsoft): Add an image.
 // TODO(ihsoft): Implement prismatic joint linear limits.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
-public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
+public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState {
   #region Helper class to detect joint breakage
   /// <summary>
   /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
@@ -109,6 +109,13 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule {
   // TODO(ihsoft): Don't create it if spring is infinte</para>
   ConfigurableJoint strutJoint;
 
+  #region IJointLockState implemenation
+  /// <inheritdoc/>
+  public bool IsJointUnlocked() {
+    return true;
+  }
+  #endregion
+  
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
