@@ -483,64 +483,46 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
       Debug.LogErrorFormat("No joint model found in {0}!!!!", part.name);
       return;
     }
+    
     //DumpHirerahcy(jointModel.transform);
     var jointModelPivot = jointModel.transform.Find(PivotAxileObjName);
     //DumpHirerahcy(jointModelPivot.transform);
     var plugNodeTransform = part.FindModelTransform("plugNode");
     //DumpHirerahcy(plugNodeTransform);
-    Debug.LogWarningFormat("plug node pos: {0}", plugNodeTransform.position.y);
+    //FIXME
+    Debug.LogWarningFormat(
+        "Procedural part {0}: plugNodeY={1}", part.name, plugNodeTransform.position.y);
     
     jointModel.transform.parent = null;
-    //Debug.LogWarning("AFTER detach");
-    //DumpHirerahcy(jointModel.transform);
 
-    // Re-scale mesh to x100.
-    // FIXME: drop once model is adjusted
-    var meshOffset = Vector3.zero;
-    const float meshScale = 0.8f;
-    Meshes.TranslateMesh(
-        jointModel, offset: meshOffset, scale: new Vector3(meshScale, meshScale, meshScale));
-    jointModel.transform.localPosition = Vector3.zero;
-    jointModelPivot.transform.localPosition =
-        jointModelPivot.transform.localPosition * meshScale + meshOffset;
-    
-    // Root for all the links meshes.
-    // FIXME: drop once it's fixed in the model.
-    plugNodeTransform.localRotation = Quaternion.LookRotation(Vector3.up);
-    
     // Source part joint model.
     srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
-    // FIXME: Drop once collider is in the model.
-    Colliders.SetSimpleCollider(srcPartJoint.gameObject, PrimitiveType.Cube);
     Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
     srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
 
     // Source strut joint model.
     srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
-    // FIXME: Drop once collider is in the model.
-    Colliders.SetSimpleCollider(srcStrutJoint.gameObject, PrimitiveType.Cube);
     var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    //FIXME: use info level
-    Debug.LogWarningFormat("Source joint handle length: {0}", srcJointHandleLength);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
+    //FIXME: use info level
+    Debug.LogWarningFormat(
+        "Procedural part {0}: srcJointHandleLength={1}, attachNodePosition.Y={2}",
+        part.name, srcJointHandleLength, srcStrutPivot.position.y);
 
     // Target strut joint model.
     trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    // FIXME: Drop once collider is in the model.
-    Colliders.SetSimpleCollider(trgStrutJoint.gameObject, PrimitiveType.Cube);
     trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
-    //FIXME: use info level
-    Debug.LogWarningFormat("Target joint handle length: {0}", trgJointHandleLength);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
+    //FIXME: use info level
+    Debug.LogWarningFormat(
+        "Procedural part {0}: trgJointHandleLength={1}", part.name, trgJointHandleLength);
 
     // Target part joint model.
     var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    // FIXME: Drop once collider is in the model.
-    Colliders.SetSimpleCollider(trgPartJoint.gameObject, PrimitiveType.Cube);
     var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
                            newPosition: new Vector3(0, 0, trgJointHandleLength),
