@@ -73,12 +73,6 @@
     <Folder Include="api_impl" />
     <Folder Include="api_v1" />
     <Folder Include="api_v1\Utils" />
-    <Folder Include="KSPDev" />
-    <Folder Include="KSPDev\Extensions" />
-    <Folder Include="KSPDev\GUIUtils" />
-    <Folder Include="KSPDev\KSPInterfaces" />
-    <Folder Include="KSPDev\ModelUtils" />
-    <Folder Include="KSPDev\ProcessingUtils" />
     <Folder Include="modules" />
     <Folder Include="Properties" />
   </ItemGroup>
@@ -100,21 +94,6 @@
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
-    <Compile Include="KSPDev\Extensions\Dictionaries.cs" />
-    <Compile Include="KSPDev\GUIUtils\Formatter.cs" />
-    <Compile Include="KSPDev\GUIUtils\UISoundPlayer.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IJointEventsListener.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IKSPActivateOnDecouple.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IKSPDevModuleInfo.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IPartModule.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IsDestroyable.cs" />
-    <Compile Include="KSPDev\KSPInterfaces\IsPackable.cs" />
-    <Compile Include="KSPDev\ModelUtils\Colliders.cs" />
-    <Compile Include="KSPDev\ModelUtils\Hierarchy.cs" />
-    <Compile Include="KSPDev\ModelUtils\KspLayer.cs" />
-    <Compile Include="KSPDev\ModelUtils\Meshes.cs" />
-    <Compile Include="KSPDev\ProcessingUtils\AsyncCall.cs" />
-    <Compile Include="KSPDev\ProcessingUtils\SimpleStateMachine.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />

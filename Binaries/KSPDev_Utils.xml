@@ -959,6 +959,30 @@
         <member name="M:KSPDev.ConfigUtils.KspTypesProto.ParseFromString(System.String,System.Type)">
             <inheritdoc/>
         </member>
+        <member name="T:KSPDev.Extensions.Dictionaries">
+            <summary>Helper extensions for generic dictionary container.</summary>
+        </member>
+        <member name="M:KSPDev.Extensions.Dictionaries.SetDefault``2(System.Collections.Generic.Dictionary{``0,``1},``0)">
+            <summary>
+            Returns a value from dictionary by the key. If key is not defined yet then a new default entry
+            is created and returned.
+            </summary>
+            <example>
+            It's most useful when dealing with dictionaries of a complex type:
+            <code><![CDATA[
+            var a = new Dictionary<int, HashSet<string>>();
+            // An empty string set for key 1 is created, and "abc" is added in it.
+            a.SetDefault(1).Add("abc");
+            // "def" is added into existing string set at key 1. 
+            a.SetDefault(1).Add("def");
+            ]]></code>
+            </example>
+            <param name="dict">Dictionary to get value from.</param>
+            <param name="key">Key to lookup.</param>
+            <typeparam name="K">Type of the dictionary key.</typeparam>
+            <typeparam name="V">Type of the dictionary value.</typeparam>
+            <returns>Either an existing value for the key or a default instance of the value.</returns>
+        </member>
         <member name="T:KSPDev.FSUtils.KspPaths">
             <summary>A helper class to deal with plugins file structure.</summary>
         </member>
@@ -974,6 +998,25 @@
         </member>
         <member name="P:KSPDev.FSUtils.KspPaths.pluginsRoot">
             <summary>Returns full path to the plugins root folder.</summary>
+        </member>
+        <member name="T:KSPDev.GUIUtils.Formatter">
+            <summary>Helper to format various values.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Single,System.String,System.Single,System.String)">
+            <summary>Formats a number that has special meaning for a predefined value.</summary>
+            <param name="number">Number to format.</param>
+            <param name="fmt">Format string for the number.</param>
+            <param name="specialValue">Special value of the number.</param>
+            <param name="specialString">String to show for the special value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Int32,System.String,System.Int32,System.String)">
+            <summary>Formats a number that has special meaning for a predefined value.</summary>
+            <param name="number">Number to format.</param>
+            <param name="fmt">Format string for the number.</param>
+            <param name="specialValue">Special value of the number.</param>
+            <param name="specialString">String to show for the special value.</param>
+            <returns></returns>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
@@ -1578,6 +1621,421 @@
         <member name="T:KSPDev.GUIUtils.GuiActionsList.GuiAction">
             <summary>GUI action type.</summary>
         </member>
+        <member name="T:KSPDev.GUIUtils.UISoundPlayer">
+             <summary>Helper class to play sounds in game GUI. Such sounds are not 3D aligned.</summary>
+             <remarks>
+             Use this player when soucre of the sound is player keyboard actions or a mouse pointer. This
+             class implements all the boilerplate to load and play sound resources.
+             </remarks>
+             <example>
+             Here is an example of playing two different sounds on pressing "O" or "P" keys.
+             <code><![CDATA[
+             class MyModule : PartModule {
+               public override OnAwake() {
+                 // We don't want to loose latency on "ooo.ogg" playing.
+                 UISoundPlayer.instance.CacheSound("ooo.ogg");
+               }
+            
+               public override OnUpdate() {
+                 if (Input.GetKeyDown("O")) {
+                   UISoundPlayer.instance.Play("ooo.ogg");  // Played from cache. No delay.
+                 }
+                 if (Input.GetKeyDown("P")) {
+                   UISoundPlayer.instance.Play("ppp.ogg");  // May delay game while loading the resource.
+                 }
+               }
+             }
+             ]]></code>
+             </example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.UISoundPlayer.instance">
+            <summary>Returns instance for the current scene.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.UISoundPlayer.audioCache">
+            <summary>Global scene cache for all the sounds.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.Play(System.String,System.Boolean)">
+            <summary>Plays the specified sound.</summary>
+            <remarks>
+            Every request is cached unless requested otherwise. Subsequent calls to the play method won't
+            require audio clip loading.
+            </remarks>
+            <param name="audioPath">File path relative to <c>GameData</c>.</param>
+            <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.CacheSound(System.String)">
+            <summary>Loads the sound into cache but doesn't play it.</summary>
+            <remarks>
+            Use this method when sound is expected to frequently played in the scene. If it worth spending
+            a bit more time in the loading to win some latency during the play time then it pre-caching
+            sounds is a good idea.
+            </remarks>
+            <param name="audioPath">File path relative to <c>GameData</c>.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.Awake">
+            <summary>Initializes <see cref="F:KSPDev.GUIUtils.UISoundPlayer.instance"/>.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.GetOrLoadAudio(System.String,System.Boolean)">
+            <summary>Loads audio sample and plays it.</summary>
+            <param name="audioPath">File path relative to <c>GameData</c>.</param>
+            <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
+            <returns>Audio resource if loaded or found in the cache, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IJointEventsListener">
+            <summary>Declares callbacks that are called when a joint between two parts is changed.</summary>
+            <remarks>
+            Events of this inteface are triggered by Unity engine via reflections. It's not required for the
+            module to implement the interface to be notified but by implementing it the code becomes more
+            consistent and less error prone.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IJointEventsListener {
+              /// <inheritdoc/>
+              public void OnJointBreak(float breakForce) {
+                Debug.LogInfoFormat("OnJointBreak: {0}", breakForce);
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnJointBreak.html">
+            Unity 3D: OnJointBreak</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IJointEventsListener.OnJointBreak(System.Single)">
+            <summary>Triggers when connection is broken due to too strong force applied.</summary>
+            <param name="breakForce">Actual force that has been applied.</param>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IKSPActivateOnDecouple">
+            <summary>Documented analogue of IActivateOnDecouple interface.</summary>
+            <remarks>
+            Inherit from <see cref="T:IActivateOnDecouple"/> to be able reacting on parts decoupling.
+            <see cref="T:KSPDev.KSPInterfaces.IKSPDevModuleInfo"/> is a full equivalent except it's documented.
+            Inheriting modules from both interfaces gives better code documentation.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IActivateOnDecouple, IKSPActivateOnDecouple {
+              /// <inheritdoc/>
+              public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+                Debug.LogInfo("DecoupleAction");
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
+            KSP: IActivateOnDecouple</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPActivateOnDecouple.DecoupleAction(System.String,System.Boolean)">
+            <summary>Called when two parts decouple.</summary>
+            <remarks>
+            Callback is only called on the part if it has an attach node that connects it to the other
+            part. Just removing from the vessel hierarchy won't trigger the event.
+            </remarks>
+            <param name="nodeName">Attach node name that has been detached.</param>
+            <param name="weDecouple">
+            If <c>true</c> then the part being notified was a child in the relation of the detached part.
+            </param>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IKSPDevModuleInfo">
+            <summary>Documented analogue of IModuleInfo interface.</summary>
+            <remarks>
+            Inherit from <see cref="T:IModuleInfo"/> to be able customizing module descriptions for the
+            editor. <see cref="T:KSPDev.KSPInterfaces.IKSPDevModuleInfo"/> is a full equivalent except it's documented. Inheriting
+            modules from both interfaces gives better code documentation.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IPartModule, IModuleInfo, IKSPDevModuleInfo {
+              /// <inheritdoc/>
+              public override string GetInfo() {
+                return "<size=20><color=#ff0000ff><b>BLAH!</b></color></size>";
+              }
+            }
+            ]]></code>
+            </example>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPDevModuleInfo.GetInfo">
+            <summary>Returns description for the editor part's browser.</summary>
+            <remarks>
+            Declared as virtual in <see cref="T:PartModule"/> and, hence, almost always needs to be
+            overridden. Though, it's also a part of <see cref="T:IModuleInfo"/>.
+            </remarks>
+            <returns>
+            Rich text to show the in GUI. Regular Unity rich text styles are supported.
+            <para>
+            Be careful when using &lt;size&gt;. It specifies size of the font in pixels which is an
+            absolute value. As of KSP v1.1.3 normal info font size is 11px but in the future versions it
+            may change.
+            </para>
+            </returns>
+            <seealso href="https://docs.unity3d.com/Manual/StyledText.html">Unity 3D: Rich text</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPDevModuleInfo.GetModuleTitle">
+            <summary>Returns module title to show in the editor part's details panel.</summary>
+            <returns>Title of the module.</returns>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPDevModuleInfo.GetDrawModulePanelCallback">
+            <summary>Returns a method delegate to draw a custom panel.</summary>
+            <returns>Delegate or <c>null</c> if not necessary.</returns>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPDevModuleInfo.GetPrimaryField">
+            <summary>Return a string to be displayed in the main information box on the tooltip.</summary>
+            <returns>String or <c>null</c> if nothing is that important to be up there.</returns>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IPartModule">
+             <summary>Interface for KSP part module.</summary>
+             <remarks>
+             Naturally, KSP doesn't declare any part module interface (unfortunately), and all modder's
+             modules just inherit from <see cref="T:PartModule"/>. This interface is introduced for the better
+             OOP approach. It reveals methods that a regular module can override, and provides documentation
+             for each of them.
+             <para>
+             Some methods of the module interface look familiar to the ones from Unity but they are not
+             behaving in the same way in every scene. Moreover, not all methods get called in every scene.
+             </para>
+            
+             <para>In the <i>loading scene</i> the callbacks are executed in the following order:</para>
+             <list type="table">
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnAwake"/></term>
+             <description>
+             Notifies about creating new module. If it's a clone operation then all <see cref="T:KSPField"/>
+             annotated fields have values from the part's config. Otherwise, all the fields are in the
+             initial states.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)"/></term>
+             <description>
+             The provided config node is the original configuration from the part's definition. All the
+             annotated fields are populated before this method gets control.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)"/></term>
+             <description>
+             Is <b>not called</b> since the parts being created are prefabs and icon models. They are not
+             real parts that behave on a vessel.
+             </description>
+             </item>
+             </list>
+            
+             <para>In the <i>editor</i> the callbacks are executed in the following order:</para>
+             <list type="table">
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnAwake"/></term>
+             <description>
+             Notifies about creating new module. If it's a clone operation then all <see cref="T:KSPField"/>
+             annotated fields have values from the part's config. Otherwise, all the fields are in the
+             initial states.
+             <para>
+             New parts in the editor are created via the clone operation. I.e. each time a part is dragged
+             from the toolbar it's get cloned from the prefab.
+             </para>
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)"/></term>
+             <description>Is <b>not called</b> for the new parts since they are clonned. When a saved vessel
+             is loaded in the editor every part on the vessel gets this method called with the values from
+             the save file. The annotated fields are populated from the file <i>before</i> this method gets
+             control, so it's safe to use them.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize"/></term>
+             <description>Hard to say what it means for the edtior, but important difference from the flight
+             scenes is that this method is called before <see cref="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)"/>.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)"/></term>
+             <description>The code must check if the current scene is editor, and do the behavior changes as
+             needed. In the editor parts must not have active behavior.
+             </description>
+             </item>
+             </list>
+            
+             <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
+             <list type="table">
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnAwake"/></term>
+             <description>Notifies about creating new module. All <see cref="T:KSPField"/> annotated fields
+             have initial values.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)"/></term>
+             <description>The provided config node is the config from the save file. The annotated fields are
+             populated from the file <i>before</i> this method gets control, so it's safe to use them.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)"/></term>
+             <description>This method is called when all parts in the vessel are created and loaded. The code
+             must check if the current scene is flight, and do the behavior changes as needed.
+             </description>
+             </item>
+             <item>
+             <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize"/></term>
+             <description>Indicates that part should start handling physics if any. It may be called multiple
+             times during the part's life. First time it's called when vessel is completely loaded in the
+             secene and all parts are started. Other calls may happen when game returns from a physics
+             suspended state (e.g. from a warp mode back to x1 time speed).
+             <para>
+             Code must check if editor scene is loaded since this method is called differently in the editor.
+             </para>
+             </description>
+             </item>
+             </list>
+            
+             </remarks>
+             <example>
+             <code><![CDATA[
+             public class MyModule : PartModule, IPartModule {
+               /// <inheritdoc/>
+               public override void OnAwake() {
+               }
+             }
+             ]]></code>
+             </example>
+             <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">
+             KSP: PartModule</seealso>
+             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+             KSP: KSPField</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnAwake">
+            <summary>Initializes a new instance of the module on the part.</summary>
+            <remarks>
+            Called on a newly created part. Note, that this method is a bad place to interact with the
+            other modules on the part since module initialization order is not defined.
+            <para>See more details on the calling sequence in <see cref="T:KSPDev.KSPInterfaces.IPartModule"/>.</para>
+            </remarks>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)">
+            <summary>Notifies that the part's config is loaded.</summary>
+            <remarks>
+            All the fields annotated by <see cref="T:KSPField"/> are already loaded at this moment. Use the
+            node from this method to handle special values that are not supported by KSP.
+            <para>See more details on the calling sequence in <see cref="T:KSPDev.KSPInterfaces.IPartModule"/>.</para>
+            </remarks>
+            <param name="node">Either the part's config node or a configuration from a save file.</param>
+            <seealso href="https://kerbalspaceprogram.com/api/class_config_node.html">
+            KSP: ConfigNode</seealso>
+            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+            KSP: KSPField</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)">
+            <summary>Initializes module's state after all other modules have been created.</summary>
+            <remarks>
+            Note, that this is not the right place to start physics on the part. This callback is good to
+            establish connections between the other modules on the part.
+            </remarks>
+            <para>See more details on the calling sequence in <see cref="T:KSPDev.KSPInterfaces.IPartModule"/>.</para>
+            <param name="state">State that specifies the situation of the vessel.</param>
+            <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html#ac6597127392e002b92f7427cf50244d3">
+            KSP: PartModule.StartState</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize">
+            <summary>
+            Called on vessel go off rails. Basically, every time the vessel becomes physics.
+            </summary>
+            <remarks>Can be called multiple times during the part's life.</remarks>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnUpdate">
+            <summary>Notifies about a frame update.</summary>
+            <remarks>
+            Be very careful about placing functionality into this callback even if it's bare "if/else"
+            statement. This callback is called on <b>every</b> frame update. It means that even a simple
+            piece of code will be called for every part that implements the module. Too many parts with
+            such modules may significantly drop FPS.
+            </remarks>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html">
+            Unity 3D: Update</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnFixedUpdate">
+            <summary>Notifies about a physics frame update.</summary>
+            <remarks>
+            Physics in Unity is updated every <c>20ms</c> which gives 50 calls per a second. Be
+            <i>extremly</i> careful about placing functionality into this callback. All fixed updates are
+            required to complete, so if 50 updates take longer than one second then the game's speed will
+            degrade.
+            <para>In general, don't even override this callback unless it's absolutely required.</para>
+            </remarks>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">
+            Unity 3D: FixedUpdate</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnSave(ConfigNode)">
+            <summary>Notifies about saving module state.</summary>
+            <remarks>
+            This isn't required to be saving into a real file. This method is a generic way to save module
+            state when it's needed. Note, that saving <c>null</c> is usually a problem for KSP, so always
+            give default non-null values to every persisted field.
+            <para>
+            Persistent fields annotated woth <see cref="T:KSPField"/> are saved before this callback is
+            called. Only save values that need special handling. 
+            </para>
+            </remarks>
+            <param name="node">Config node to save data into.</param>
+            <seealso href="https://kerbalspaceprogram.com/api/class_config_node.html">
+            KSP: ConfigNode</seealso>
+            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+            KSP: KSPField</seealso>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IsDestroyable">
+            <summary>Interface for modules that need not now if script object is destroyed.</summary>
+            <remarks>
+            Events of this inteface are triggered by Unity engine via reflections. It's not required for the
+            module to implement the interface to be notified but by implementing it the code becomes more
+            consistent and less error prone.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IsDestroyable {
+              /// <inheritdoc/>
+              public void OnDestory() {
+                Debug.LogInfo("OnDestory");
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDestroy.html">
+            Unity 3D: OnDestroy</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IsDestroyable.OnDestroy">
+            <summary>Triggers when Unity object is about to destroy.</summary>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IsPackable">
+            <summary>Interface to track physics state changes in the part's module.</summary>
+            <remarks>
+            Events of this inteface are triggered by KSP engine via Unity messaging mechanism. It's not
+            required for the module to implement the interface to be notified but by implementing it the
+            code becomes more consistent and less error prone.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IsPackable {
+              /// <inheritdoc/>
+              public void OnPartPack() {
+                Debug.LogInfo("OnPartPack");
+              }
+              /// <inheritdoc/>
+              public void OnPartUnpack() {
+                Debug.LogInfo("OnPartUnpack);
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.SendMessage.html">
+            Unity 3D: GameObject.SendMessage</seealso>
+            <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IsPackable.OnPartPack">
+            <summary>Triggers when physics stops on the part.</summary>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IsPackable.OnPartUnpack">
+            <summary>Triggers when physics starts on the part.</summary>
+        </member>
         <member name="T:KSPDev.LogUtils.Logger">
             <summary>A set of convenience logging methods.</summary>
         </member>
@@ -1613,6 +2071,647 @@
             <c>null</c> then standard <c>ToString()</c> is used.</param>
             <returns>Human readable form of the collection.</returns>
             <typeparam name="TSource">Collection's item type.</typeparam>
+        </member>
+        <member name="T:KSPDev.ModelUtils.Colliders">
+            <summary>Various tools to deal with procedural colliders.</summary>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.SetSimpleCollider(UnityEngine.GameObject,UnityEngine.PrimitiveType,System.Boolean)">
+            <summary>Drops colliders in all children objects, and adds one big collider to the parent.
+            </summary>
+            <remarks>
+            Intended to create one fast collider at the cost of precision. All the meshes in the parent
+            childs (including the parent) are processed to produce a boundary box. Then, this box is
+            applied to the requested primitive type that defines the shape of the collider.
+            <para>
+            Note, that rdaius if sphere and capsule is the same in both X and Y axis. If combined boundary
+            box has any of the dimensions significantly different then it makes sense to choose a
+            different collider type. Or break down the hirearchy into more colliders.
+            </para>
+            </remarks>
+            <param name="parent">Parent object.</param>
+            <param name="type">
+            Type of the primitive mesh which is the best for wrapping all the meshes of the object. Only
+            <see cref="F:UnityEngine.PrimitiveType.Cube"/>, <see cref="F:UnityEngine.PrimitiveType.Capsule"/>, and
+            <see cref="F:UnityEngine.PrimitiveType.Sphere"/> are supported.
+            </param>
+            <param name="inscribeBoundaryIntoCollider">
+            If <c>true</c> then collider will define the outer boundaries so what all the meshes are
+            inside the volume. Otherwise, the combined meshes box will define the outer boundary of the
+            collider. It only makes sense for the colliders other than <see cref="F:UnityEngine.PrimitiveType.Cube"/>.
+            </param>
+            <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">
+            Unity 3D: GameObject</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/PrimitiveType.html">
+            Unity 3D: PrimitiveType</seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.UpdateColliders(UnityEngine.GameObject,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>Sets the specified values to colliders of all the objects in the part's model.
+            </summary>
+            <param name="parent">Game object to start searching for renderers from.</param>
+            <param name="isPhysical">
+            If <c>true</c> then collider will trigger physical effects. If <c>false</c> then it will only
+            trigger collision events. When it's <c>null</c> the collider setting won't be changed.
+            </param>
+            <param name="isEnabled">
+            Defines if colliders should be enabled or disabled. When it's <c>null</c> the collider setting
+            won't be changed.
+            </param>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">Unity3D: Collider
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.AdjustCollider(UnityEngine.GameObject,UnityEngine.Vector3,KSPDev.ModelUtils.Colliders.PrimitiveCollider,System.Nullable{UnityEngine.PrimitiveType})">
+            <summary>Adds or adjusts a primitive collider on the mesh.</summary>
+            <remarks>
+            Type of the primitive collider is chosen basing on the primitive type.
+            </remarks>
+            <param name="primitive">Primitive game object to adjust.</param>
+            <param name="meshSize">Size of the collider in local units.</param>
+            <param name="colliderType">Determines how a collider type should be selected.</param>
+            <param name="shapeType">
+            Type of the primitive when <paramref name="colliderType"/> is
+            <see cref="F:KSPDev.ModelUtils.Colliders.PrimitiveCollider.Shape"/>. It will determine the type of the collider. Only
+            <see cref="F:UnityEngine.PrimitiveType.Cylinder"/>, <see cref="F:UnityEngine.PrimitiveType.Sphere"/>, and
+            <see cref="F:UnityEngine.PrimitiveType.Cube"/> are supported.
+            </param>
+        </member>
+        <member name="T:KSPDev.ModelUtils.Colliders.PrimitiveCollider">
+            <summary>Defines how collisions should be checked on a primitive.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.Colliders.PrimitiveCollider.None">
+            <summary>No collisions check.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.Colliders.PrimitiveCollider.Mesh">
+            <summary>Check collisions basing on the mesh. It's performance expensive.</summary>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MeshCollider.html">
+            Unity3D: MeshCollider</seealso>
+        </member>
+        <member name="F:KSPDev.ModelUtils.Colliders.PrimitiveCollider.Shape">
+            <summary>Simple collider which fits the primitive type. It's performance optimized.</summary>
+            <seealso href="https://docs.unity3d.com/ScriptReference/PrimitiveType.html">
+            Unity3D: PrimitiveType</seealso>
+        </member>
+        <member name="F:KSPDev.ModelUtils.Colliders.PrimitiveCollider.Bounds">
+            <summary>Simple collider which wraps all mesh vertexes. It's performance optimized.</summary>
+        </member>
+        <member name="T:KSPDev.ModelUtils.Hierarchy">
+            <summary>Various tools to deal with game object hierarchy.</summary>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.MoveToParent(UnityEngine.Transform,UnityEngine.Transform,System.Nullable{UnityEngine.Vector3},System.Nullable{UnityEngine.Quaternion},System.Nullable{UnityEngine.Vector3})">
+            <summary>Changes transform's parent keeping local postion, rotation and scale.</summary>
+            <remarks>
+            Normally, Unity preserves world position, rotation and scale when changing parent. It's
+            convinient when managing objects in a prefab but is not desired when constructing a new model.
+            </remarks>
+            <param name="child">Transform to change parent for.</param>
+            <param name="parent">Transform to change parent to.</param>
+            <param name="newPosition">Local position to set instead of the original one.</param>
+            <param name="newRotation">Local rotation to set instead of the original one.</param>
+            <param name="newScale">Local scale to set instead of the original one.</param>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformInChildren(UnityEngine.Transform,System.String)">
+            <summary>Finds a transform by name down the hierarchy.</summary>
+            <remarks>
+            Implements breadth-first search approach to minimize depth of the found transform.
+            </remarks>
+            <param name="parent">Transfrom to start from.</param>
+            <param name="name">Name of the transfrom.</param>
+            <returns>Found transform or <c>null</c> if nothing is found.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String)">
+            <summary>Finds transform treating the name as a hierarchy path.</summary>
+            <param name="parent">Transfrom to start looking from.</param>
+            <param name="path">
+            Path to the target. Path elements are separated by "/" symbol. Element can be name or a
+            pattern.
+            </param>
+            <returns>Transform or <c>null</c> if nothing found.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])">
+            <summary>Finds transform treating the name as a hierarchy path.</summary>
+            <remarks>
+            Elements of the path may specify exact transform name or be one of the following patterns:
+            <list type="bullet">
+            <item>
+            "*" - any child  will match. I.e. all children of the preceding parent will be checked for the
+            branch that follows the pattern. First full match will be returned. E.g. if the are parts
+            "a/b/c" and "a/aa/c" then pattern "a/*/c" will match "a/b/c" since child "b" is the first in
+            the children list. This pattern can be nested to specify that barcnh is expected to be found
+            at the exact depth: "a/*/*/c".
+            </item>
+            <item>
+            "**" - any path will match. I.e. all the branches of the preceding parent will be checked
+            until one of them is matched the sub-path that follows the pattern. The shortest path is used
+            in case of multple hits. E.g. if there are paths "a/b/c" and "a/c" then pattern "a/**/c" will
+            match path "a/c". This pattern cannot be followed by another pattern, but it can follow "*"
+            pattern, e.g. "a/*/**/c" (get "c" from any branch of "a" given the depth level is greater than
+            1).
+            </item>
+            </list>
+            <para>
+            Keep in mind that patterns require children scan, and in a worst case scenario all the
+            hirerachy can be scanned multiple times.
+            </para>
+            </remarks>
+            <param name="parent">Transfrom to start looking from.</param>
+            <param name="names">Path elements.</param>
+            <returns>Transform or <c>null</c> if nothing found.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.GetPartModelTransform(Part)">
+            <summary>Returns part's model transform.</summary>
+            <param name="part">Part to get model for.</param>
+            <returns>PartModel's transform if it was found. Part's trasnfrom otherwise.</returns>
+        </member>
+        <member name="T:KSPDev.ModelUtils.KspLayerMask">
+            <summary>Flags for the collision layers in KSP.</summary>
+            <remarks>
+            It's not a full set of the layers. More investigation is needed to reveal all of them.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.NONE">
+            <summary>Just a default value that doesn't match any layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.PARTS">
+            <summary>Layer for a regular part.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.SERVICE_LAYER">
+            <summary>Layer to set bounds of a celestial body.</summary>
+            <remarks>
+            A very rough boundary of a planet, moon or asteroid. Used for macro objects detection.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.SURFACE">
+            <summary>"Zero" level of a static structure on the surface.</summary>
+            <remarks>E.g. a launchpad.</remarks>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.KERBALS">
+            <summary>Layer of kerbonaut models.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.FX">
+            <summary>A layer for FX.</summary>
+            <remarks>E.g. <c>PadFXReceiver</c> on the Kerbins VAB launchpad.</remarks>
+        </member>
+        <member name="T:KSPDev.ModelUtils.Meshes">
+            <summary>Various tools to deal with procedural meshes.</summary>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.RescaleTextureToLength(UnityEngine.GameObject,System.Single,UnityEngine.Renderer)">
+            <summary>
+            Rescales texture so what one sample covers exactly one unit of the primitive length.
+            </summary>
+            <remarks>
+            Normally one texture sample covers the whole primitive regardless to its length. By calling
+            this method you ensure that one sample keeps its ratio comparing to a linear unit. If
+            primitive is too short to fit the texture then the texture is truncated. If primitive is too
+            long to be covered by one sample then the texture will be tiled to fill the space.
+            <para>
+            This methods assumes UV data on the primitive was created for a length of 1m. With this
+            assumption in mind the Z axis of the local scale is cosidered "the length".
+            <see cref="M:KSPDev.ModelUtils.Meshes.CreatePrimitive(UnityEngine.PrimitiveType,UnityEngine.Vector3,UnityEngine.Material,UnityEngine.Transform)"/> method guarantees that newly created primitive always has length
+            of one meter but if primitive was created by other means its default length can be different.
+            </para>
+            </remarks>
+            <param name="obj">Game object to adjust material on. Z axis scale gives the length.</param>
+            <param name="lengthUnit">Length to be completly covered by one sample of the texture.
+            </param>
+            <param name="renderer">Specific renderer to adjust texture in. If <c>null</c> then first
+            renderer on the object will be updated. Note, that getting renderer from the object is an
+            expensive operation. When performance is the key it makes sense caching the renderer, and
+            passing it in every rescale call.</param>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Renderer.html">Unity3D: Renderer
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.UpdateMaterials(UnityEngine.GameObject,System.String,System.Nullable{UnityEngine.Color})">
+            <summary>
+            Sets the specified values to material of all the renderers in the part's model.
+            </summary>
+            <remarks>
+            Shared material is affected, so if there are unrelated meshes that use the same material then
+            they will be affected as well. In general, it's a bad idea to share material between several
+            parts. And it's a good practice to share materials within the same part.
+            </remarks>
+            <param name="parent">Game object to start searching for renderers from.</param>
+            <param name="newShaderName">
+            New shader name. If <c>null</c> then it will not be changed.
+            </param>
+            <param name="newColor">Color to set. If <c>null</c> then it will not be changed.</param>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Shader.html">Unity3D: Shader</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Material.html">Unity3D: Material
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.CreateCylinder(System.Single,System.Single,UnityEngine.Material,UnityEngine.Transform,KSPDev.ModelUtils.Colliders.PrimitiveCollider)">
+            <summary>Creates a cylinder.</summary>
+            <param name="diameter">XY of the cylinder.</param>
+            <param name="length">Z-axis of the cylinder.</param>
+            <param name="material">Material for the primitive.</param>
+            <param name="parent">Parent transfrom to atatch primitive to.</param>
+            <param name="colliderType">Type of the collider to create on the primitive.</param>
+            <returns>Sphere game object.</returns>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Material.html">Unity3D: Material
+            </seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Unity3D: Transform
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.CreateBox(System.Single,System.Single,System.Single,UnityEngine.Material,UnityEngine.Transform,KSPDev.ModelUtils.Colliders.PrimitiveCollider)">
+            <summary>Creates a box.</summary>
+            <param name="width">X-axis of the box.</param>
+            <param name="height">Y-axis of the box.</param>
+            <param name="length">Z-axis of the box.</param>
+            <param name="material">Material for the primitive.</param>
+            <param name="parent">Parent transfrom to atatch primitive to.</param>
+            <param name="colliderType">Type of the collider to create on the primitive.</param>
+            <returns>Sphere game object.</returns>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Material.html">Unity3D: Material
+            </seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Unity3D: Transform
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.CreateSphere(System.Single,UnityEngine.Material,UnityEngine.Transform,KSPDev.ModelUtils.Colliders.PrimitiveCollider)">
+            <summary>Creates an ideal sphere.</summary>
+            <param name="diameter">Diameter of the sphere.</param>
+            <param name="material">Material for the primitive.</param>
+            <param name="parent">Parent transfrom to atatch primitive to.</param>
+            <param name="colliderType">Type of the collider to create on the primitive.</param>
+            <returns>Sphere game object.</returns>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Material.html">Unity3D: Material
+            </seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Unity3D: Transform
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.CreatePrimitive(UnityEngine.PrimitiveType,UnityEngine.Vector3,UnityEngine.Material,UnityEngine.Transform)">
+            <summary>Creates a primitive mesh and attaches it to the model.</summary>
+            <remarks>
+            For <see cref="F:UnityEngine.PrimitiveType.Cylinder"/> Z and Y axis will be swapped to make Z "the length".
+            <para>
+            Collider on the primitive will be destroyed. Consider using
+            <see cref="M:KSPDev.ModelUtils.Colliders.AdjustCollider(UnityEngine.GameObject,UnityEngine.Vector3,KSPDev.ModelUtils.Colliders.PrimitiveCollider,System.Nullable{UnityEngine.PrimitiveType})"/> to setup the right collider when needed.
+            </para>
+            </remarks>
+            <param name="type">Type of the primitive.</param>
+            <param name="meshScale">
+            Scale to bring all mesh vertices to. New primitive have base size of 1m but some shapes may
+            have exceptions (e.g. height of a cylinder is 2m). The scale is applied on the mesh, i.e. it's
+            applied on the vertices, not the transform.</param>
+            <param name="material">Material to use for the primitive.</param>
+            <param name="parent">Parent transform to attach primitive to.</param>
+            <returns>Game object of the new primitive.</returns>
+            <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.CreatePrimitive.html">
+            Unity3D: GameObject.CreatePrimitive</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Material.html">Unity3D: Material
+            </seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Meshes.TranslateMesh(UnityEngine.GameObject,System.Nullable{UnityEngine.Vector3},System.Nullable{UnityEngine.Quaternion},System.Nullable{UnityEngine.Vector3})">
+            <summary>Translates meshes's verticies.</summary>
+            <remarks>
+            This is different from setting postion, rotation and scale to the transform. This method
+            actually changes vetricies in the mesh. It's not performance effective, so avoid doing it
+            frequiently.
+            </remarks>
+            <param name="model">Model object to change mesh in.</param>
+            <param name="offset">
+            Offset for the verticies. If not specified then offset is zero. Offset is added <i>after</i>
+            scale and rotation have been applied.  
+            </param>
+            <param name="rotation">
+            Rotation for the verticies. If not set then no rotation is added.
+            </param>
+            <param name="scale">
+            Scale for the vertex positions. If not specified then scale is not affected.
+            </param>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.AsyncCall">
+            <summary>Set of tools to execute a delayed code.</summary>
+            <remarks>
+            Use theese tools when code needs to be executed with some delay or at a specific moment of the
+            game.
+            <code><![CDATA[
+            class MyComponent : MonoBehaviour {
+              void MyAsyncMethod(string a, int b) {
+                Debug.DebugLogInfo("MyAsyncMethod({0}, {1})", a, b);
+              }
+              void Update() {
+                // Call method at the end of the current frame.
+                AsyncCall.CallOnEndOfFrame(this, x => MyAsyncMethod("a", 1));
+                // Call method after 5 seconds timeout.
+                AsyncCall.CallOnTimeout(this, 5.0f, x => MyAsyncMethod("b", 2));
+                // Call method on the next fixed update.
+                AsyncCall.CallOnFixedUpdate(this, x => MyAsyncMethod("c", 3));
+              }
+            }
+            ]]></code>
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.AsyncCall.CallOnEndOfFrame(UnityEngine.MonoBehaviour,KSPDev.ProcessingUtils.AsyncCall.Action0,System.Object[])">
+            <summary>Delays execution of the delegate till the end of the current frame.</summary>
+            <remarks>
+            Caller can continue executing its logic. The delegate will be called at the end of
+            the frame via Unity StartCoroutine mechanism. The delegate will be called only once.
+            </remarks>
+            <param name="mono">
+            Unity object to run coroutine on. If this object dies then the async call will not be invoked.
+            </param>
+            <param name="action">Delegate to execute.</param>
+            <param name="args">Arguments to pass to the delegate.</param>
+            <returns>Coroutine instance.</returns>
+            <seealso href="https://docs.unity3d.com/Manual/Coroutines.html">Unity 3D: Coroutines</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html">
+            Unity 3D: WaitForEndOfFrame</seealso>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.AsyncCall.CallOnTimeout(UnityEngine.MonoBehaviour,System.Single,KSPDev.ProcessingUtils.AsyncCall.Action0,System.Object[])">
+            <summary>Delays execution of the delegate for the specified amount of time.</summary>
+            <remarks>
+            Caller can continue executing its logic. The delegate will be called once the timeout is
+            expired via Unity StartCoroutine mechanism. The delegate will be called only once.
+            <para>Using returned instance caller may cancel the call before the timeout expired.</para>
+            </remarks>
+            <param name="mono">
+            Unity object to run coroutine on. If this object dies then the async call will not be invoked.
+            </param>
+            <param name="seconds">Timeout in seconds.</param>
+            <param name="action">Delegate to execute.</param>
+            <param name="args">Arguments to pass to the delegate.</param>
+            <returns>Coroutine instance.</returns>
+            <seealso href="https://docs.unity3d.com/Manual/Coroutines.html">Unity 3D: Coroutines</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/WaitForSeconds.html">
+            Unity 3D: WaitForSeconds</seealso>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.AsyncCall.CallOnFixedUpdate(UnityEngine.MonoBehaviour,KSPDev.ProcessingUtils.AsyncCall.Action0,System.Object[])">
+            <summary>Delays execution of the delegate till the next fixed update.</summary>
+            <remarks>
+            Caller can continue executing its logic. The delegate will be called at the beginning of the
+            next fixed (physics) update via Unity StartCoroutine mechanism. The delegate will be called
+            only once.
+            </remarks>
+            <param name="mono">
+            Unity object to run coroutine on. If this object dies then the async call will not be invoked.
+            </param>
+            <param name="action">Delegate to execute.</param>
+            <param name="args">Arguments to pass to the delegate.</param>
+            <returns>Coroutine instance.</returns>
+            <seealso href="https://docs.unity3d.com/Manual/Coroutines.html">Unity 3D: Coroutines</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/WaitForFixedUpdate.html">
+            Unity 3D: WaitForFixedUpdate</seealso>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.AsyncCall.Action0">
+            <summary>Delayed execution delegate.</summary>
+            <param name="list">Optional list of parameters.</param>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1">
+             <summary>
+             Simple state machine that allows tracking states and checking basic conditions.
+             </summary>
+             <remarks>
+             If module has more that two modes (which can be controlled by a simple boolean) in makes sense
+             to define each mode as a state, and intorduce a definite state transition diagram. Once it's
+             done most of the mode changes logic can be mvoed in state transition callbacks. Such approach
+             significantly simplifies the code and makes it less error prone.
+             </remarks>
+             <typeparam name="T">
+             Enum to use as state constants. Note, that state machine won't consider any value of the enum as
+             a valid state. Valid states must be defined via <see cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>.
+             </typeparam>
+             <example>
+             Here is an example of a module with three states with the following logic:
+             <list type="bullet">
+             <item>State <c>One</c> can be transitioned into both <c>Two</c> and <c>Three</c>.</item>
+             <item>States <c>Two</c> and <c>Three</c> can only return back to <c>One</c>.</item>
+             <item>In states <c>Two</c> and <c>Three</c> different menu options are available.</item>
+             <item>In state <c>One</c> no menu options are available.</item>
+             </list>
+             <code><![CDATA[
+             class MyModule : PartModule {
+               enum MyState {
+                 One, Two, Three
+               }
+            
+               [KSPField(isPersistant = true)]
+               public MyState persistedState = MyState.One;  // ALWAYS provide a default value!
+            
+               SimpleStateMachine<MyState> linkStateMachine;
+            
+               [KSPEvent(guiName = "State: TWO")]
+               public void StateTwoMenuAction() {
+                 Debug.LogInfo("StateTwoMenuAction()");
+               }
+            
+               [KSPEvent(guiName = "State: THREE")]
+               public void StateThreeMenuAction() {
+                 Debug.LogInfo("StateThreeMenuAction()");
+               }
+            
+               public override OnAwake() {
+                 linkStateMachine = new SimpleStateMachine<MyState>(true /* strict */);
+                 linkStateMachine.SetTransitionConstraint(
+                     MyState.One,
+                     new[] {MyState.Two, MyState.Three});
+                 linkStateMachine.SetTransitionConstraint(
+                     MyState.Two,
+                     new[] {MyState.One});
+                 linkStateMachine.SetTransitionConstraint(
+                     MyState.Three,
+                     new[] {MyState.One});
+                 linkStateMachine.AddStateHandlers(
+                     MyState.One,
+                     enterHandler: x => {
+                       Events["StateTwoMenuAction"].active = false;
+                       Events["StateThreeMenuAction"].active = false;
+                     });
+                 linkStateMachine.AddStateHandlers(
+                     MyState.Two,
+                     enterHandler: x => {
+                       Events["StateTwoMenuAction"].active = true;
+                       Events["StateThreeMenuAction"].active = false;
+                     });
+                 linkStateMachine.AddStateHandlers(
+                     MyState.Three,
+                     enterHandler: x => {
+                       Events["StateTwoMenuAction"].active = false;
+                       Events["StateThreeMenuAction"].active = true;
+                     });
+               }
+            
+               public override void OnStart(PartModule.StartState state) {
+                 linkStateMachine.Start(persistedState);  // Restore state from the save file.
+               }
+            
+               void OnDestory() {
+                 // Usually, this isn't needed. But if code needs to do a cleanup job it makes sense to wrap
+                 // it into a handler, and stop the machine in Unity destructor.
+                 linkStateMachine.Stop();
+               }
+            
+               public override OnUpdate() {
+                 if (Input.GetKeyDown("1")) {
+                   // This transition will always succceed. 
+                   stateMachine.currentState = MyState.One;
+                 }
+                 if (Input.GetKeyDown("2")) {
+                   // This transition will only succceed if current state is MyState.One. 
+                   stateMachine.currentState = MyState.Two;
+                 }
+                 if (Input.GetKeyDown("3")) {
+                   // This transition will only succceed if current state is MyState.One. 
+                   stateMachine.currentState = MyState.Three;
+                 }
+               }
+             }
+             ]]></code>
+             <para>
+             The same logic could be achivied in a different way. Instead of enabling/disabling all the menu
+             items in every "enter" handler the code could define "leave" handlers that would disable the
+             related menu item. This way every state handler would control own menu item without interacting
+             with any existing or future items.
+             </para>
+             </example>
+             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+             KSP: KSPField</seealso>
+             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_event.html">
+             KSP: KSPEvent</seealso>
+        </member>
+        <member name="F:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnDebugStateChange">
+            <summary>
+            Debug handler for tracking state changes. Avoid using it in normal code logic.
+            </summary>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.#ctor(System.Boolean)">
+            <summary>Constructs new unstarted state machine.</summary>
+            <param name="strict">
+            If <c>true</c> then only transitions defined via <see cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/> will be
+            allowed.
+            </param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Start(`0)">
+            <summary>Starts state machine and makes it available for state transitions.</summary>
+            <remarks>
+            Until machine is started state transitions are not possible. Attempt to change to any state
+            will result in <see cref="T:System.InvalidOperationException"/>.
+            <para>Starting of the machine will trigger enter state event.</para>
+            </remarks>
+            <param name="startState">Initial state of the machine.</param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStarted"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)"/>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Stop">
+            <summary>Stops stat machine making it unavailable for any state transitions.</summary>
+            <remarks>
+            If machine is not started yet then this call is NO-OP.
+            <para>Stoping of the machine will trigger leave state event.</para>
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])">
+            <summary>Defines source state and, optionally, allowed trasitions.</summary>
+            <remarks>
+            State machine figures out full set the allowed states from the transitions. Even if transition
+            mode is not strict all the states must be defined via tarnsitions (eitehr as a source or a
+            target).
+            <para>In strict mode it's required that every transition is declared excplicitly.</para>
+            <para>If called multiple times then only last call's setup will be stored.</para>
+            <para>State machine must be in stopped state. Otherwise, an exception will thrown.</para>
+            </remarks>
+            <param name="fromState">Source state.</param>
+            <param name="toStates">
+            List of states that are allowed as targets for <paramref name="fromState"/>.
+            </param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ResetTransitionConstraint(`0)">
+            <summary>Clears transitions for the soucre state if any.</summary>
+            <remarks>
+            Note, that source state is cleared as well. If it's not mentioned in other transitions then
+            state machine will completely forget the state.
+            </remarks>
+            <param name="fromState">Source state to clear tarnsitions for.</param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ForceSetState(`0)">
+            <summary>Changes current state bypassing any transition or state changes.</summary>
+            <remarks>
+            It's discouraged to use this method in normal flow. Though, you it may be handy when
+            recovering module from an unknown state (e.g. an unexpected exception in the middle of the
+            process).
+            </remarks>
+            <param name="newState">
+            New current state. It can be a state that is not mentioned in any state transition.
+            </param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
+            <summary>Adds listeners for state enter/leave events.</summary>
+            <remarks>
+            Note, that code must not expect that handlers will be called in the same order as they were
+            added. Each handler must be independent from the others.
+            <para>Multiple calls for the same handler and state won't create multiple entries.</para>
+            </remarks>
+            <param name="state">State to call callbacke on.</param>
+            <param name="enterHandler">
+            Callback to call when state machine has switched to a new state. Callback is triggered
+            <i>after</i> the state has actually changed.
+            </param>
+            <param name="leaveHandler">
+            Callback to call when state machine is going to leave the current state. Callback is triggered
+            <i>before</i> the state has actually changed. 
+            </param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.RemoveHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
+            <summary>Removes enter state change event handler.</summary>
+            <remarks>It's safe to call it for non-existing handler.</remarks>
+            <param name="state">State to delete handler for.</param>
+            <param name="enterHandler">Enter state handler to delete.</param>
+            <param name="leaveHandler">Leave state handler to delete.</param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckCanSwitchTo(`0)">
+            <summary>Verifies if transition is allowed.</summary>
+            <param name="newState">State to check transition into.</param>
+            <returns><c>true</c> if transition is allowed.</returns>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckIsStarted">
+            <summary>Verifies that state machine is started.</summary>
+            <exception cref="T:System.InvalidOperationException">If state machine is not yet started.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckIsNotStarted">
+            <summary>Verifies that state machine is <i>not</i> started.</summary>
+            <exception cref="T:System.InvalidOperationException">If state machine is already started.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetState(`0)">
+            <summary>
+            Changes machine's state if current and new states are different. Checks if transition is
+            allowed before actually changing state.
+            </summary>
+            <param name="newState">State to change to.</param>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckCanSwitchTo(`0)"/>
+            <exception cref="T:System.InvalidOperationException">If transition is not allowed.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireLeaveState">
+            <summary>Notifies all the leave handlers about leaving the current state.</summary>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireEnterState">
+            <summary>Notifies all the enter handlers about entering the current state.</summary>
+        </member>
+        <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState">
+            <summary>Current state of the machine.</summary>
+            <remarks>
+            Setting same state as the current one is NO-OP. Setting of a new state may be blocked in
+            strict mode.
+            </remarks>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ForceSetState(`0)"/>
+        </member>
+        <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStarted">
+            <summary>Tells if state machine is started.</summary>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Start(`0)"/>
+        </member>
+        <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict">
+            <summary>
+            Tells if invalid state transitions will be blocked.  
+            </summary>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnChange">
+            <summary>Delegate for callback which notifies about state change.</summary>
+            <param name="state">Current state of the machine.</param>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnDebugChange">
+            <summary>Special debug delegate to track state changes.</summary>
+            <remarks>This callback is called before actual state change.</remarks>
+            <param name="fromState">State before change.</param>
+            <param name="toState">State after change.</param>
         </member>
     </members>
 </doc>
