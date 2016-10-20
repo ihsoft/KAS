@@ -71,7 +71,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
-    if (HighLogic.LoadedScene == GameScenes.LOADING) {
+    if (!PartLoader.Instance.IsReady()) {
       CreatePartModel();
     }
   }
