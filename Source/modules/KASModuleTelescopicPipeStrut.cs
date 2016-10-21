@@ -489,9 +489,6 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     //DumpHirerahcy(jointModelPivot.transform);
     var plugNodeTransform = part.FindModelTransform("plugNode");
     //DumpHirerahcy(plugNodeTransform);
-    //FIXME
-    Debug.LogWarningFormat(
-        "Procedural part {0}: plugNodeY={1}", part.name, plugNodeTransform.position.y);
     
     jointModel.transform.parent = null;
 
@@ -507,19 +504,12 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
-    //FIXME: use info level
-    Debug.LogWarningFormat(
-        "Procedural part {0}: srcJointHandleLength={1}, attachNodePosition.Y={2}",
-        part.name, srcJointHandleLength, srcStrutPivot.position.y);
 
     // Target strut joint model.
     trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
     trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
-    //FIXME: use info level
-    Debug.LogWarningFormat(
-        "Procedural part {0}: trgJointHandleLength={1}", part.name, trgJointHandleLength);
 
     // Target part joint model.
     var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
@@ -551,6 +541,10 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
                            newRotation: Quaternion.LookRotation(Vector3.forward));
     
     CalculateLengthLimits();
+    //FIXME: use info level
+    Debug.LogWarningFormat(
+        "Procedural part {0}: minLinkLength={1}, maxLinkLength={2}, attachNodePosition.Y={3}",
+        part.name, minLinkLength, maxLinkLength, srcStrutPivot.position.y);
 
     // Joint template model is not needed anymore.
     UnityEngine.Object.DestroyImmediate(jointModel.gameObject);
