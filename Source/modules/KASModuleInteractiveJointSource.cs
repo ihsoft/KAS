@@ -127,13 +127,6 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
 
   #region PartModule overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    Events[StartLinkMenuActionName].guiName = startLinkMenu;
-    Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
-  }
-
-  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     if (linkState == LinkState.Linking && guiLinkMode == GUILinkMode.Interactive) {
@@ -193,6 +186,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState oldState) {
     base.OnStateChange(oldState);
+    Events[StartLinkMenuActionName].guiName = startLinkMenu;
+    Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
     Events[StartLinkMenuActionName].active = linkState == LinkState.Available;
     Events[BreakLinkMenuActionName].active = linkState == LinkState.Linked;
   }

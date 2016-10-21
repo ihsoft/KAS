@@ -345,10 +345,13 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
-    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
-    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
     UpdateMenuItems();  // For editor mode.
+  }
+
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    UpdateMenuItems();  // For flight mode.
   }
 
   /// <inheritdoc/>
@@ -587,6 +590,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   }
   #endregion
 
+  #region Inheritable methods
   /// <summary>Adjusts link models to the changed target position.</summary>
   protected virtual void UpdateLinkLengthAndOrientation() {
     if (!isStarted) {
@@ -637,6 +641,19 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     }
   }
 
+  /// <summary>Updates menu item names and visibility states.</summary>
+  protected virtual void UpdateMenuItems() {
+    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
+    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
+    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
+    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
+    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
+    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
+    Events[ExtendAtMaxMenuActionName].active = !isLinked;
+    Events[RetractToMinMenuActionName].active = !isLinked;
+  }
+  #endregion
+
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
@@ -678,15 +695,6 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
       return Vector3.forward;
     }
     return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
-  }
-
-  /// <summary>Updates menu item visibility states.</summary>
-  void UpdateMenuItems() {
-    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
-    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
-    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
-    Events[ExtendAtMaxMenuActionName].active = !isLinked;
-    Events[RetractToMinMenuActionName].active = !isLinked;
   }
 
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
