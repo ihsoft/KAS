@@ -77,37 +77,34 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
   #endregion
 
-  /// <summary>Name of the source joint game object.</summary>
-  /// <remarks>
-  /// This object is connected to the target counter part either by a joint (stretch link) or as a
-  /// parent (in case of rigid link).
-  /// </remarks>
-  const string SrcJointName = "KASJointSrc";
-  /// <summary>Name of the target joint game object.</summary>
-  /// <remarks>This object is connected to the source counter part either by a joint or as a
-  /// transfrom child (in case of rigid link).</remarks>
-  const string TargetJointName = "KASJointTrg";
-
   /// <summary>Source sphere joint.</summary>
-  /// <remarks>
-  /// It doesn't allow linear movements but does allow rotation around any axis. Rotation can be
-  /// limited via a configuration parameter
-  /// <see cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>. The joint is unbreakable by the
-  /// linear force but can be broken by torque when angle limit is exhausted.
-  /// </remarks>
+  /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
+  /// <seealso cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>.
   ConfigurableJoint srcJoint;
+
   /// <summary>Target sphere joint.</summary>
-  /// <remarks>
-  /// It doesn't allow linear movements but does allow rotation around any axis. Rotation can be
-  /// limited via a configuration parameter
-  /// <see cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>. The joint is unbreakable by the
-  /// linear force but can be broken by torque when angle limit is exhausted.
-  /// </remarks>
+  /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
+  /// <seealso cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>
   ConfigurableJoint trgJoint;
+
   /// <summary>Joint that ties two sphere joints together.</summary>
-  /// <remarks>It only makes sense <see cref="strutSpringForce"/> is not <c>Infinite</c>.</remarks>
-  // TODO(ihsoft): Don't create it if spring is infinte</para>
+  /// <remarks>
+  /// It doesn't allow rotations but does allow linear movements. Rotations and shrink/stretch
+  /// limits are set via config settings.
+  /// </remarks>
+  /// <seealso cref="strutSpringForce"/>
+  /// <seealso cref="AbstractJointModule.cfgMinLinkLength"/>
+  /// <seealso cref="AbstractJointModule.cfgMaxLinkLength"/>
   ConfigurableJoint strutJoint;
+
+  /// <summary>Normal state of the source joint. Used to restore from ubreakable state.</summary>
+  JointState srcJointState;
+
+  /// <summary>Normal state of the targte joint. Used to restore from ubreakable state.</summary>
+  JointState trgJointState;
+
+  /// <summary>Normal state of the strut joint. Used to restore from ubreakable state.</summary>
+  JointState strutJointState;
 
   #region IJointLockState implemenation
   /// <inheritdoc/>
@@ -118,14 +115,28 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   
   #region ILinkJoint implementation
   /// <inheritdoc/>
+  // FIXME(ihsoft): Handle mass!  
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
     base.CreateJoint(source, target);
-    srcJoint = CreateKinematicJointEnd(source.attachNode, SrcJointName, sourceLinkAngleLimit);
-    trgJoint = CreateKinematicJointEnd(target.attachNode, TargetJointName, targetLinkAngleLimit);
-    if (!float.IsInfinity(strutSpringForce)) {
-      strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    }
-    StartCoroutine(WaitAndConnectJointEnds());
+    DropStockJoint();  // Stock joint is not used.
+
+    // Create end spherical joints.
+    srcJoint = CreateJointEnd(source.attachNode, "KASJointSrc", sourceLinkAngleLimit);
+    srcJointState = new JointState().SaveState(srcJoint);
+    trgJoint = CreateJointEnd(target.attachNode, "KASJointTrg", targetLinkAngleLimit);
+    trgJointState = new JointState().SaveState(trgJoint);
+    srcJoint.transform.LookAt(trgJoint.transform);
+    trgJoint.transform.LookAt(srcJoint.transform);
+
+    // Link end joints with a prismatic joint.
+    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(strutJoint);
+    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
+    KASAPI.JointUtils.SetupPrismaticJoint(
+        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
+    strutJoint.enablePreprocessing = true;
+    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+    strutJointState = new JointState().SaveState(strutJoint);
   }
 
   /// <inheritdoc/>
@@ -145,106 +156,41 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
       SetupUnbreakableJoint(trgJoint);
       SetupUnbreakableJoint(strutJoint);
     } else {
-      SetupNormalEndJoint(srcJoint, sourceLinkAngleLimit);
-      SetupNormalEndJoint(trgJoint, targetLinkAngleLimit);
-      SetupNormalStrutJoint();
+      srcJointState.RestoreState(srcJoint);
+      trgJointState.RestoreState(trgJoint);
+      strutJointState.RestoreState(strutJoint);
     }
   }
   #endregion
 
   #region Private utility methods
-  /// <summary>Creates a game object joined with the attach node.</summary>
+  /// <summary>Creates a game object joined with the attach node via a spherical joint.</summary>
   /// <remarks>
-  /// The created object has kinematic rigidbody and its transform is parented to the node. This
-  /// object must be promoted to physical once PhysX received the configuration.
+  /// Joint object will be aligned exactly to the attach node. This will result in zero anchor nodes
+  /// and zero/identity relative position and rotation. Caller needs to adjust position/rotation of
+  /// the created object as needed.
+  /// <para>
+  /// Joint object will have rigidobject created. Its physical settings will be default. Caller may
+  /// need to adjust the properties.
+  /// </para>
   /// </remarks>
-  /// <param name="an">Node to attach a new spheric joint to.</param>
-  /// <param name="objName">Name of the game object for the new joint.</param>
+  /// <param name="an">Node to attach new joint to.</param>
+  /// <param name="objName">Name of the game object for the joint.</param>
   /// <param name="angleLimit">Degree of freedom for the joint.</param>
-  /// <returns>Object that owns the joint.</returns>
-  // FIXME(ihsoft): Revise approach to not have two joints on one end (+strut joint)
-  ConfigurableJoint CreateKinematicJointEnd(AttachNode an, string objName, float angleLimit) {
-    var objJoint = new GameObject(objName);
-    objJoint.AddComponent<BrokenJointListener>().host = part;
-    var jointRb = objJoint.AddComponent<Rigidbody>();
-    jointRb.isKinematic = true;
-    objJoint.transform.parent = an.nodeTransform;
-    objJoint.transform.localPosition = Vector3.zero;
-    objJoint.transform.localRotation = Quaternion.identity;
-    var joint = objJoint.AddComponent<ConfigurableJoint>();
-    SetupNormalEndJoint(joint, angleLimit);
-    joint.connectedBody = an.owner.rb;
-    return joint;
-  }
-
-  /// <summary>Waits for the next fixed update and connects the joint ends.</summary>
-  /// <remarks>
-  /// Waiting is required to have the spherical joints info sent to the PhysX engine. This must
-  /// happen when both ends are at their "kinematic" positions to let engine capture the initial
-  /// angles. Once it's done it's time to rotate the ends so what they look at each other, and
-  /// attach them with a fixed or prismatic joint.
-  /// </remarks>
-  /// <returns><c>null</c> when it's time to terminate.</returns>
-  // TODO(ihsoft): Don't create prismatic joint when spring is infinite
-  IEnumerator WaitAndConnectJointEnds() {
-    // We'll spend several fixed update cycles to setup the joints, so make stock joint absolutely
-    // rigid to avoid parts moving during the process.
-    if (stockJoint != null) {
-      SetupUnbreakableJoint(stockJoint.Joint);
-    }
-  
-    // Allow fixed update to have the joint info sent to PhysX. This will capture initial sphere
-    // joints rotations.
-    yield return new WaitForFixedUpdate();
-
-    // Now rotate both sphere joints towards each other, and connect them with a prismatic joint.
-    var srcRb = srcJoint.gameObject.GetComponent<Rigidbody>();
-    // FIXME(ihsoft): Handle mass via joint instead of renderer.  
-    Debug.LogWarningFormat("** RB MASS: {0}", srcRb.mass);
-    var trgRb = trgJoint.gameObject.GetComponent<Rigidbody>();
-    srcJoint.transform.LookAt(trgJoint.transform);
-    trgJoint.transform.LookAt(srcJoint.transform);
-    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    SetupNormalStrutJoint();
-    strutJoint.connectedBody = trgRb;
-    
-    // Allow another fixed update to happen to remember strut positions.
-    yield return new WaitForFixedUpdate();
-
-    // Setup breaking forces.
-    AdjustJoint();
-
-    // Promote source and target rigid bodies to independent physical objects. From now on they live
-    // in a system of three joints.
-    srcRb.isKinematic = false;
-    srcJoint.transform.parent = null;
-    trgRb.isKinematic = false;
-    trgJoint.transform.parent = null;
-
-    DropStockJoint();
-  }
-
-  /// <summary>Sets sphere joint parameters.</summary>
-  /// <param name="joint">Joint to setup.</param>
-  /// <param name="angleLimit">Angle of freedom at the pivot.</param>
-  void SetupNormalEndJoint(ConfigurableJoint joint, float angleLimit) {
+  /// <returns>Joint object.</returns>
+  ConfigurableJoint CreateJointEnd(AttachNode an, string objName, float angleLimit) {
+    var jointObj = new GameObject(objName);
+    jointObj.transform.position = an.nodeTransform.position;
+    jointObj.transform.rotation = an.nodeTransform.rotation;
+    jointObj.AddComponent<BrokenJointListener>().host = part;
+    jointObj.AddComponent<Rigidbody>();
+    var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
     joint.enablePreprocessing = true;
-    SetBreakForces(joint, Mathf.Infinity, linkBreakTorque);
-  }
-
-  /// <summary>Sets parameters of the joint that connects the pivots.</summary>
-  /// <remarks>If no strut joint were created than this call is NO-OP.</remarks>
-  void SetupNormalStrutJoint() {
-    if (strutJoint == null) {
-      return;
-    }
-    KASAPI.JointUtils.ResetJoint(strutJoint);
-    KASAPI.JointUtils.SetupPrismaticJoint(
-        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
-    strutJoint.enablePreprocessing = true;
-    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+    joint.connectedBody = an.owner.rb;
+    SetBreakForces(joint, linkBreakForce, linkBreakTorque);
+    return joint;
   }
   #endregion
 }
