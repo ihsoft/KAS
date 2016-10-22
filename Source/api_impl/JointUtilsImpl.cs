@@ -45,6 +45,11 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     // Break forces.        
     msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
     msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
+    // Geometry.
+    msg.Append("axis: ").Append(joint.axis).AppendLine();
+    msg.Append("secondaryAxis: ").Append(joint.secondaryAxis).AppendLine();
+    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
+    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
 
     return msg.ToString();
   }
