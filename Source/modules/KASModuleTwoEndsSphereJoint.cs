@@ -152,13 +152,15 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <inheritdoc/>
   public override void AdjustJoint(bool isUnbreakable = false) {
     if (isUnbreakable) {
-      SetupUnbreakableJoint(srcJoint);
-      SetupUnbreakableJoint(trgJoint);
-      SetupUnbreakableJoint(strutJoint);
+      // Update parts relative position and rotation to remember pivot state. 
+      vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
+      SetBreakForces(srcJoint, Mathf.Infinity, Mathf.Infinity);
+      SetBreakForces(trgJoint, Mathf.Infinity, Mathf.Infinity);
+      SetBreakForces(strutJoint, Mathf.Infinity, Mathf.Infinity);
     } else {
-      srcJointState.RestoreState(srcJoint);
-      trgJointState.RestoreState(trgJoint);
-      strutJointState.RestoreState(strutJoint);
+      SetBreakForces(srcJoint, linkBreakForce, linkBreakTorque);
+      SetBreakForces(trgJoint, linkBreakForce, linkBreakTorque);
+      SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
     }
   }
   #endregion
