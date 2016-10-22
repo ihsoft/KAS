@@ -243,6 +243,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
           var linkStatusErrors = new[] {
+              CheckBasicLinkConditions(targetCandidate),
               linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform),
               linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform),
               linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform),
