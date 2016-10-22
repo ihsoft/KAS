@@ -19,9 +19,8 @@ public class KASModuleStockJoint : AbstractJointModule {
   /// <inheritdoc/>
   public override void AdjustJoint(bool isUnbreakable = false) {
     if (isUnbreakable) {
-      SetupUnbreakableJoint(stockJoint.Joint);
+      SetBreakForces(stockJoint.Joint, Mathf.Infinity, Mathf.Infinity);
     } else {
-      defaultJointState.RestoreState(stockJoint.Joint);
       SetBreakForces(stockJoint.Joint, cfgLinkBreakForce, cfgLinkBreakTorque);
     }
   }
