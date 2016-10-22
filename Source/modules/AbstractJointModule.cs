@@ -65,6 +65,16 @@ public abstract class AbstractJointModule :
     /// <exlcude/>
     public bool enablePreprocessing;
 
+    /// <summary>Creates default object. State should be saved via <see cref="SaveState"/></summary>
+    public JointState() {
+    }
+
+    /// <summary>Creates state object and stores joint's state into it.</summary>
+    /// <param name="joint">Joint to save state for.</param>
+    public JointState(ConfigurableJoint joint) {
+      SaveState(joint);
+    }
+
     /// <summary>Stores joint's state in the instance.</summary>
     /// <remarks>Not whole state is saved. See <see cref="JointState"/>.</remarks>
     /// <param name="sourceJoint">Joint to copy state from.</param>
@@ -276,8 +286,7 @@ public abstract class AbstractJointModule :
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
       stockJoint = part.attachJoint;
       part.attachJoint = null;
-      defaultJointState = new JointState();
-      defaultJointState.SaveState(stockJoint.Joint);
+      defaultJointState = new JointState(stockJoint.Joint);
     }
     originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
     isLinked = true;
