@@ -131,8 +131,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     base.OnUpdate();
     if (linkState == LinkState.Linking && guiLinkMode == GUILinkMode.Interactive) {
       UpdateLinkingState();
-      if (Input.GetKeyDown(KeyCode.Escape)) {
-        CancelLinking();
+      if (Input.GetKeyUp(KeyCode.Escape)) {
+        AsyncCall.CallOnEndOfFrame(this, x => CancelLinking());
       }
     }
   }
