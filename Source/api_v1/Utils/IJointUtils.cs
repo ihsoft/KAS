@@ -29,6 +29,10 @@ public interface IJointUtils {
   /// <item>
   /// Connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
   /// </item>
+  /// <item>
+  /// Any state accumulated so far (e.g. relative rotation or position) will be lost, and joint will
+  /// remember new relative rotation/position of the connected objects.
+  /// </item>
   /// </list>
   /// <para>
   /// Use this method before setting up a new or existing joint. By resetting the joint you ensure
@@ -47,12 +51,7 @@ public interface IJointUtils {
   /// <see cref="JointDriveMode.Position"/>.
   /// <para>
   /// Only main axis linear settings are changed. Consider using <see cref="ResetJoint"/> to
-  /// eliminate sideffects from the previous settings of the joint.
-  /// </para>
-  /// <para>
-  /// Original positions of the bodies are calculated on the first <c>FixedUpdate()</c> following
-  /// the joint setup. These positions will be used to calculate relative movements of the
-  /// bodies.
+  /// eliminate side effects from the previous settings of the joint.
   /// </para>
   /// <para>
   /// Pure prismatic joint assumes 5 out of the 6 degrees of freedom to be locked (everything,
@@ -117,12 +116,8 @@ public interface IJointUtils {
   /// and/or limits. Drive mode is set to <see cref="JointDriveMode.Position"/>.
   /// <para>
   /// Only angular settings are set. If joint had linear constraints defined they will stay
-  /// unchanged. Consider using <see cref="ResetJoint"/> to eliminate sideffects from the previous
+  /// unchanged. Consider using <see cref="ResetJoint"/> to eliminate side effects from the previous
   /// settings of the joint.
-  /// </para>
-  /// <para>
-  /// Original rotations of the bodies are calculated on the first <c>FixedUpdate()</c> following
-  /// the joint setup. These rotations will be used to calculate relative movements of the bodies.
   /// </para>
   /// <para>
   /// Pure spherical joint assumes 3 out of the 6 degrees of freedom to be locked (all the three
