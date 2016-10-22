@@ -65,20 +65,11 @@ public abstract class AbstractJointModule :
     /// <exlcude/>
     public bool enablePreprocessing;
 
-    /// <summary>Creates default object. State should be saved via <see cref="SaveState"/></summary>
-    public JointState() {
-    }
-
-    /// <summary>Creates state object and stores joint's state into it.</summary>
-    /// <param name="joint">Joint to save state for.</param>
-    public JointState(ConfigurableJoint joint) {
-      SaveState(joint);
-    }
-
     /// <summary>Stores joint's state in the instance.</summary>
     /// <remarks>Not whole state is saved. See <see cref="JointState"/>.</remarks>
     /// <param name="sourceJoint">Joint to copy state from.</param>
-    public void SaveState(ConfigurableJoint sourceJoint) {
+    /// <returns>Reference to self.</returns>
+    public virtual JointState SaveState(ConfigurableJoint sourceJoint) {
       angularXMotion = sourceJoint.angularXMotion;
       angularYMotion = sourceJoint.angularYMotion;
       angularZMotion = sourceJoint.angularZMotion;
@@ -88,12 +79,13 @@ public abstract class AbstractJointModule :
       breakForce = sourceJoint.breakForce;
       breakTorque = sourceJoint.breakTorque;
       enablePreprocessing = sourceJoint.enablePreprocessing;
+      return this;
     }
 
     /// <summary>retsores joint's state from the instance.</summary>
     /// <remarks>Not whole state is restored. See <see cref="JointState"/>.</remarks>
     /// <param name="targetJoint">Joint to restore state for.</param>
-    public void RestoreState(ConfigurableJoint targetJoint) {
+    public virtual void RestoreState(ConfigurableJoint targetJoint) {
       targetJoint.angularXMotion = angularXMotion;
       targetJoint.angularYMotion = angularYMotion;
       targetJoint.angularZMotion = angularZMotion;
@@ -286,7 +278,7 @@ public abstract class AbstractJointModule :
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
       stockJoint = part.attachJoint;
       part.attachJoint = null;
-      defaultJointState = new JointState(stockJoint.Joint);
+      defaultJointState = new JointState().SaveState(stockJoint.Joint);
     }
     originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
     isLinked = true;
