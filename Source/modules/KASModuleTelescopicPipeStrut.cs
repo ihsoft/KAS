@@ -300,9 +300,9 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// </summary>
   protected const string JointObjName = "Joint";
   /// <summary>
-  /// Name of the transform that is used to conenct two levers to form a complete joint. 
+  /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
-  protected const string PivotAxileObjName = "PivotAxile";
+  protected const string PivotAxleObjName = "PivotAxile";
   #endregion
 
   #region Model transforms & properties
@@ -488,7 +488,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     }
     
     //DumpHirerahcy(jointModel.transform);
-    var jointModelPivot = jointModel.transform.Find(PivotAxileObjName);
+    var jointModelPivot = jointModel.transform.Find(PivotAxleObjName);
     //DumpHirerahcy(jointModelPivot.transform);
     var plugNodeTransform = part.FindModelTransform("plugNode");
     //DumpHirerahcy(plugNodeTransform);
@@ -498,11 +498,11 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     // Source part joint model.
     srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
     Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
 
     // Source strut joint model.
     srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
@@ -510,13 +510,13 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
 
     // Target strut joint model.
     trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
     var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxileObjName);
+    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleObjName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
                            newPosition: new Vector3(0, 0, trgJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
@@ -567,16 +567,16 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxileObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
 
     // Source strut joint.
     srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxileObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
 
     // Target strut joint.
     trgStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TrgStrutJointObjName);
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxileObjName);
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
 
     // Pistons.
