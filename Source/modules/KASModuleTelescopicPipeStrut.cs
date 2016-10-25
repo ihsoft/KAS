@@ -144,7 +144,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
   /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
+  /// empty string to not show the menu item.
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -161,7 +162,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
   /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
+  /// empty string to not show the menu item.
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -178,7 +180,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
   /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;
+  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
+  /// empty string to not show the menu item.
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -319,15 +322,25 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   protected Transform trgStrutJoint { get; private set; }
   /// <summary>Pivot axis model at the pipe end.</summary>
   protected Transform trgStrutJointPivot { get; private set; }
-  /// <summary>Distance of source part joint pivot from it's base.</summary>
-  protected float srcJointHandleLength { get; private set; }
-  /// <summary>Distance of target part joint pivot from it's base.</summary>
-  protected float trgJointHandleLength { get; private set; }
   /// <summary>Pistons that form the strut.</summary>
   protected GameObject[] pistons { get; private set; }
-  /// <summary>Minmum link length that doesn't break telescopic pipe renderer.</summary>
+  /// <summary>
+  /// Distance of source part joint pivot from it's base. It's calculated from the model.
+  /// </summary>
+  protected float srcJointHandleLength { get; private set; }
+  /// <summary>
+  /// Distance of target part joint pivot from it's base. It's calculated from the model.
+  /// </summary>
+  protected float trgJointHandleLength { get; private set; }
+  /// <summary>
+  /// Minmum link length that doesn't break telescopic pipe renderer. It's calculated from the
+  /// model.
+  /// </summary>
   protected float minLinkLength { get; private set; }
-  /// <summary>Maximum link length that doesn't break telescopic pipe renderer.</summary>
+  /// <summary>
+  /// Maximum link length that doesn't break telescopic pipe renderer. It's calculated from the
+  /// model.
+  /// </summary>
   protected float maxLinkLength { get; private set; }
   #endregion
 
