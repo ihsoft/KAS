@@ -470,14 +470,6 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   }
   #endregion
 
-  //FIXME: drop
-  void DumpHirerahcy(Transform m) {
-    while (m != null) {
-      Debug.LogWarningFormat("Transform '{0}' has local scale {1}", m.name, m.localScale);
-      m = m.parent;
-    }
-  }
-
   #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
@@ -487,11 +479,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
       return;
     }
     
-    //DumpHirerahcy(jointModel.transform);
     var jointModelPivot = jointModel.transform.Find(PivotAxleObjName);
-    //DumpHirerahcy(jointModelPivot.transform);
     var plugNodeTransform = part.FindModelTransform("plugNode");
-    //DumpHirerahcy(plugNodeTransform);
     
     jointModel.transform.parent = null;
 
