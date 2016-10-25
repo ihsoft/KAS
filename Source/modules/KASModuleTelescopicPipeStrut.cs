@@ -375,9 +375,6 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
           .FindChild(pistonModelName).gameObject;
     }
   }
-  #endregion
-
-  #region Inheritable properties 
   /// <summary>Tells if source on the part is linked.</summary>
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
