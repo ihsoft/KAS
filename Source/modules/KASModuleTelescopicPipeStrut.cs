@@ -70,7 +70,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public int pistonsCount = 3;
-  /// <summary>Config setting. Diameter of the outer piston.</summary>
+  /// <summary>Config setting. Model for the pistons.</summary>
   /// <remarks>
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
@@ -81,9 +81,14 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public float outerPistonDiameter = 0.15f;
-  /// <summary>Config setting. Length of a single piston.</summary>
+  public string pistonModel = "KAS-1.0/Models/Piston/model";
+  /// <summary>Config setting. Scale of the piston comparing to the prefab.</summary>
   /// <remarks>
+  /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
+  /// affects the length.
+  /// <para>
+  /// <i>NOTE:</i> as of now X and Y scales must be equal. Otherwise pipe model will get broken.
+  /// </para>
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -93,14 +98,16 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public float pistonLength = 0.2f;
+  public Vector3 pistonModelScale = Vector3.one;
   /// <summary>
-  /// Config setting. Thickness of pisont's wall. Diameter of a nested piston is less than parent's
-  /// diameter by 2x of this value.  
+  /// Config setting. Allows random rotation of pistons relative to each other around Z (length)
+  /// axis. If piston's model has a complex texture this setting may be used to make telescopic pipe
+  /// less repeatative.
   /// </summary>
   /// <remarks>
-  /// E.g. if parent's diameter was <c>0.4m</c> and wall thickness is <c>0.01m</c> then nested
-  /// piston's diameter will be: <c>0.4 - 2*0.01 = 0.4 - 0.02 = 0.38m</c>.
+  /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
+  /// affects the length. Note that if X and Y are not equal you may want to disable
+  /// <see cref="pistonModelRandomRotation"/>.
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -110,9 +117,20 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public float pistonWallThickness = 0.01f;
-  /// <summary>Config setting. Texture to cover pistons with.</summary>
+  public bool pistonModelRandomRotation = true;
+  /// <summary>Config setting. Amount to decrease the scale of an inner pistons diameter.</summary>
   /// <remarks>
+  /// To keep models consistent every nested piston must be slightly less in diameter than the
+  /// parent. This value is a delta to decrease scale of every nested piston comparing to the prefab
+  /// model.
+  /// <para>
+  /// E.g. given this setting is 0.1f and there are 3 pistons the scales will be like this:
+  /// <list type="number">
+  /// <item>Top most (outer) piston: <c>1.0f</c>.</item>
+  /// <item>Middle piston: <c>0.9f</c>.</item>
+  /// <item>Last piston: <c>0.8f</c>.</item>
+  /// </list>
+  /// </para>  
   /// <para>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
   /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
@@ -122,7 +140,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public string pistonTexturePath = "";
+  public float pistonDiameterScaleDelta = 0.1f;
   /// <summary>
   /// Config setting. Minimum allowed overlap of the pistons in the extended state.
   /// </summary>
@@ -306,6 +324,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
   protected const string PivotAxleObjName = "PivotAxile";
+  /// <summary>Name of the piston object in the piston's model.</summary>
+  protected const string pistonModelName = "Piston";
   #endregion
 
   #region Model transforms & properties
@@ -342,6 +362,19 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// model.
   /// </summary>
   protected float maxLinkLength { get; private set; }
+  /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
+  /// <remarks>It's primarily used to cast a collider.</remarks>
+  /// <seealso cref="CheckColliderHits"/>
+  protected float outerPistonDiameter { get; private set; }
+  /// <summary>Length of a single piston. It's calculated from the model.</summary>
+  protected float pistonLength { get; private set; }
+  /// <summary>Prefab for the piston models.</summary>
+  protected GameObject pistonPrefab {
+    get {
+      return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
+          .FindChild(pistonModelName).gameObject;
+    }
+  }
   #endregion
 
   #region Inheritable properties 
@@ -486,78 +519,19 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    var jointModel = part.FindModelTransform(JointObjName).gameObject;
-    if (jointModel == null) {
-      Debug.LogErrorFormat("No joint model found in {0}!!!!", part.name);
-      return;
-    }
-    
-    var jointModelPivot = jointModel.transform.Find(PivotAxleObjName);
-    var plugNodeTransform = part.FindModelTransform("plugNode");
-    
-    jointModel.transform.parent = null;
-
-    // Source part joint model.
-    srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
-    Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
-
-    // Source strut joint model.
-    srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
-    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
-                           newPosition: new Vector3(0, 0, srcJointHandleLength),
-                           newRotation: Quaternion.LookRotation(Vector3.back));
-
-    // Target strut joint model.
-    trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
-    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
-    Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
-
-    // Target part joint model.
-    var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleObjName);
-    Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
-                           newPosition: new Vector3(0, 0, trgJointHandleLength),
-                           newRotation: Quaternion.LookRotation(Vector3.back));
-      
-    // Pistons.
-    pistons = new GameObject[pistonsCount];
-    var startDiameter = outerPistonDiameter;
-    var material = CreateMaterial(GetTexture(pistonTexturePath));
-    for (var i = 0; i < pistonsCount; ++i) {
-      var piston =
-          Meshes.CreateCylinder(startDiameter, pistonLength, material, parent: srcStrutJoint);
-      piston.name = "piston" + i;
-      Colliders.SetSimpleCollider(piston, PrimitiveType.Capsule);
-      // Source strut joint rotation is reversed. All pistons but the last one are relative to the
-      // source joint.
-      piston.transform.localRotation = Quaternion.LookRotation(Vector3.back);
-      startDiameter -= 2 * pistonWallThickness;
-      pistons[i] = piston;
-    }
-    // First piston rigidly attached at the bottom of the source joint model.
-    pistons[0].transform.localPosition = new Vector3(0, 0, -pistonLength / 2);
-    // Last piston rigidly attached at the bottom of the target joint model.
-    Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
-                           newPosition: new Vector3(0, 0, -pistonLength / 2),
-                           newRotation: Quaternion.LookRotation(Vector3.forward));
-    
-    CalculateLengthLimits();
+    CreateLeverModels();
+    CreatePistonModels();
+    UpdateGeometryFromModel();
+    // Log basic part values to help part's designers.
     //FIXME: use info level
     Debug.LogWarningFormat(
         "Procedural part {0}: minLinkLength={1}, maxLinkLength={2}, attachNodePosition.Y={3}",
-        part.name, minLinkLength, maxLinkLength, srcStrutPivot.position.y);
-
-    // Joint template model is not needed anymore.
-    UnityEngine.Object.DestroyImmediate(jointModel.gameObject);
+        part.name, minLinkLength, maxLinkLength,
+        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName).position.y);
 
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     if (Mathf.Approximately(parkedLength, 0)) {
-      // Cannot get length from the joint module since it may not be existing at the moment.
       parkedLength = minLinkLength;
     }
 
@@ -587,7 +561,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
       pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
 
-    CalculateLengthLimits();
+    UpdateGeometryFromModel();
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -700,7 +674,11 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   }
 
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
-  void CalculateLengthLimits() {
+  void UpdateGeometryFromModel() {
+    var pistonSize =
+        Vector3.Scale(pistonPrefab.GetComponent<Renderer>().bounds.size, pistonModelScale);
+    pistonLength = pistonSize.y;
+    outerPistonDiameter = Mathf.Max(pistonSize.x, pistonSize.z);
     minLinkLength =
         srcJointHandleLength
         + pistonLength + (pistonsCount - 1) * pistonMinShift
@@ -729,6 +707,81 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     obj.transform.localScale = Vector3.one;
     obj.transform.localRotation = Quaternion.identity;
     return obj;
+  }
+
+  /// <summary>Creates joint levers from a prefab in the main part model.</summary>
+  /// <remarks>Prefab is deleted once all levers are created.</remarks>
+  void CreateLeverModels() {
+    var jointModel = part.FindModelTransform(JointObjName).gameObject;
+    jointModel.transform.parent = null;
+    var jointModelPivot = jointModel.transform.Find(PivotAxleObjName);
+    var plugNodeTransform = part.FindModelTransform("plugNode");
+
+    // Source part joint model.
+    srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
+    Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
+
+    // Source strut joint model.
+    srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
+    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
+    Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
+                           newPosition: new Vector3(0, 0, srcJointHandleLength),
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+
+    // Target strut joint model.
+    trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
+    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
+    Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
+
+    // Target part joint model.
+    var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
+    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleObjName);
+    Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
+                           newPosition: new Vector3(0, 0, trgJointHandleLength),
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+
+    // Joint template model is not needed anymore.
+    UnityEngine.Object.Destroy(jointModel.gameObject);
+  }
+
+  /// <summary>Creates piston models from a prefab in a separate model file.</summary>
+  void CreatePistonModels() {
+    UpdateGeometryFromModel();
+    //FIXME: make it info
+    Debug.LogWarningFormat("Procedural part {0}: pistonLength={1}, outerPistonDiameter={2}",
+                           part.name, pistonLength, outerPistonDiameter);
+    pistons = new GameObject[pistonsCount];
+    var pistonDiameterScale = 1f;
+    var random = new System.Random(0xbeef);  // Just some seed value to make values consistent.
+    var randomRotation = Quaternion.identity;
+    for (var i = 0; i < pistonsCount; ++i) {
+      var piston = UnityEngine.Object.Instantiate(pistonPrefab, srcStrutJoint) as GameObject;
+      piston.name = "piston" + i;
+      if (pistonModelRandomRotation) {
+        // Add a bit of randomness to the pipe model textures. Keep rotation diff above 30 degrees.
+        randomRotation = Quaternion.Euler(
+            0, 0, randomRotation.eulerAngles.z + 30f + (float) random.NextDouble() * 330f);
+      }
+      // Source strut joint rotation is reversed. All pistons but the last one are relative to the
+      // source joint.
+      piston.transform.localRotation = randomRotation * Quaternion.LookRotation(Vector3.back);
+      piston.transform.localScale = new Vector3(
+          pistonModelScale.x * pistonDiameterScale,
+          pistonModelScale.z * pistonDiameterScale,  // Model's Z is game's Y.
+          pistonModelScale.y);
+      pistonDiameterScale -= pistonDiameterScaleDelta;
+      pistons[i] = piston;
+    }
+    // First piston rigidly attached at the bottom of the source joint model.
+    pistons[0].transform.localPosition = new Vector3(0, 0, -pistonLength / 2);
+    // Last piston rigidly attached at the bottom of the target joint model.
+    randomRotation = Quaternion.Euler(0, 0, pistons.Last().transform.localRotation.eulerAngles.z);
+    Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
+                           newPosition: new Vector3(0, 0, -pistonLength / 2),
+                           newRotation: randomRotation * Quaternion.LookRotation(Vector3.forward));
   }
   #endregion
 }
