@@ -323,7 +323,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// <summary>
   /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
-  protected const string PivotAxleObjName = "PivotAxile";
+  protected const string PivotAxleObjName = "PivotAxle";
   /// <summary>Name of the piston object in the piston's model.</summary>
   protected const string pistonModelName = "Piston";
   #endregion
