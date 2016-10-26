@@ -97,15 +97,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <seealso cref="AbstractJointModule.cfgMaxLinkLength"/>
   ConfigurableJoint strutJoint;
 
-  /// <summary>Normal state of the source joint. Used to restore from ubreakable state.</summary>
-  JointState srcJointState;
-
-  /// <summary>Normal state of the targte joint. Used to restore from ubreakable state.</summary>
-  JointState trgJointState;
-
-  /// <summary>Normal state of the strut joint. Used to restore from ubreakable state.</summary>
-  JointState strutJointState;
-
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
@@ -122,9 +113,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
 
     // Create end spherical joints.
     srcJoint = CreateJointEnd(source.attachNode, "KASJointSrc", sourceLinkAngleLimit);
-    srcJointState = new JointState().SaveState(srcJoint);
     trgJoint = CreateJointEnd(target.attachNode, "KASJointTrg", targetLinkAngleLimit);
-    trgJointState = new JointState().SaveState(trgJoint);
     srcJoint.transform.LookAt(trgJoint.transform);
     trgJoint.transform.LookAt(srcJoint.transform);
 
@@ -136,7 +125,6 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
         strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-    strutJointState = new JointState().SaveState(strutJoint);
   }
 
   /// <inheritdoc/>
