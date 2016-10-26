@@ -156,7 +156,7 @@ public interface IJointUtils {
   /// </param>
   /// <param name="angleLimit">Maximum rotation angle (degrees) around Y or Z axis.</param>
   /// <param name="angleLimitForce">
-  /// Force to apply to keep joint in limits. If it's <c>0</c> thenthe limit is impassible.
+  /// Force to apply to keep joint in limits. If it's <c>0</c> then the limit is impassible.
   /// </param>
   /// <param name="angleLimitDamperRatio">
   /// Percentage of the limit force to use for dampering oscillation effect.
