@@ -27,78 +27,6 @@ public abstract class AbstractJointModule :
     ILinkJoint, ILinkStateEventListener,
     // Syntax sugar parents.
     IPartModule, IJointEventsListener, IsPackable, IsDestroyable, IKSPDevModuleInfo {
-
-  #region Helper class to save joint state
-  /// <summary>
-  /// Container class to store joint state when changing from breakable&lt;=&gt;unbreakable state.
-  /// </summary>
-  /// <remarks>
-  /// Not whole joint state is saved. Only the following settings will be remembered:
-  /// <list type="bullet">
-  /// <item>Angular motion modes.</item>
-  /// <item>Linear motion modes.</item>
-  /// <item>Break force and torque.</item>
-  /// <item>Joint optimization settings.</item>
-  /// </list>
-  /// <para>Field names match the related names in <see cref="ConfigurableJoint"/>.</para>
-  /// </remarks>
-  /// <seealso href="https://docs.unity3d.com/356/Documentation/ScriptReference/ConfigurableJoint.html">
-  /// Unity 3D: ConfigurableJoint</seealso>
-  /// <seealso cref="SetupUnbreakableJoint"/>
-  protected class JointState {
-    /// <exlcude/>
-    public ConfigurableJointMotion angularXMotion;
-    /// <exlcude/>
-    public ConfigurableJointMotion angularYMotion;
-    /// <exlcude/>
-    public ConfigurableJointMotion angularZMotion;
-    /// <exlcude/>
-    public ConfigurableJointMotion xMotion;
-    /// <exlcude/>
-    public ConfigurableJointMotion yMotion;
-    /// <exlcude/>
-    public ConfigurableJointMotion zMotion;
-    /// <exlcude/>
-    public float breakForce;
-    /// <exlcude/>
-    public float breakTorque;
-    /// <exlcude/>
-    public bool enablePreprocessing;
-
-    /// <summary>Stores joint's state in the instance.</summary>
-    /// <remarks>Not whole state is saved. See <see cref="JointState"/>.</remarks>
-    /// <param name="sourceJoint">Joint to copy state from.</param>
-    /// <returns>Reference to self.</returns>
-    public virtual JointState SaveState(ConfigurableJoint sourceJoint) {
-      angularXMotion = sourceJoint.angularXMotion;
-      angularYMotion = sourceJoint.angularYMotion;
-      angularZMotion = sourceJoint.angularZMotion;
-      xMotion = sourceJoint.xMotion;
-      yMotion = sourceJoint.yMotion;
-      zMotion = sourceJoint.zMotion;
-      breakForce = sourceJoint.breakForce;
-      breakTorque = sourceJoint.breakTorque;
-      enablePreprocessing = sourceJoint.enablePreprocessing;
-      return this;
-    }
-
-    /// <summary>retsores joint's state from the instance.</summary>
-    /// <remarks>Not whole state is restored. See <see cref="JointState"/>.</remarks>
-    /// <param name="targetJoint">Joint to restore state for.</param>
-    public virtual void RestoreState(ConfigurableJoint targetJoint) {
-      targetJoint.angularXMotion = angularXMotion;
-      targetJoint.angularYMotion = angularYMotion;
-      targetJoint.angularZMotion = angularZMotion;
-      targetJoint.xMotion = xMotion;
-      targetJoint.yMotion = yMotion;
-      targetJoint.zMotion = zMotion;
-      targetJoint.breakForce = breakForce;
-      targetJoint.breakTorque = breakTorque;
-      targetJoint.enablePreprocessing = enablePreprocessing;
-    }
-  }
-  #endregion
-  
   #region Localizable GUI strings
   /// <summary>Message to display when link cannot be established because it's too short.</summary>
   protected static Message<float, float> MinLengthLimitReachedMsg =
@@ -251,17 +179,21 @@ public abstract class AbstractJointModule :
   /// Before it happen the source will be <c>null</c>.
   /// </remarks>
   protected ILinkSource linkSource { get; private set; }
+
   /// <summary>Target of the link. It's populated in <see cref="CreateJoint"/>.</summary>
   /// <remarks>
   /// When loading vessel the joint is restored in the "physics" method <see cref="OnPartUnpack"/>.
   /// Before it happen the target will be <c>null</c>.
   /// </remarks>
   protected ILinkTarget linkTarget { get; private set; }
+
   /// <summary>Length at the moment of creating joint.</summary>
   /// <remarks>Elastic joints may allow length deviation. Use thi svalue as the base.</remarks>
   protected float originalLength { get; private set; }
+
   /// <summary>Tells if there is joint created.</summary>
   protected bool isLinked { get; private set; }
+
   /// <summary>Joint that was created by KSP core to connect two parts.</summary>
   /// <remarks>
   /// Once physics starts on part the KSP core creates a joint, and assigns it to
@@ -272,10 +204,6 @@ public abstract class AbstractJointModule :
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html#aa5a1e018fa5b47c5723aa0879e23c647">
   /// KSP: Part.attachJoint</seealso>
   protected PartJoint stockJoint { get; private set; }
-  /// <summary>State of the joint as it was set by the game's core.</summary>
-  /// <remarks>It only has valid value if <see cref="isLinked"/> is <c>true</c>.</remarks>
-  /// <seealso cref="SetupUnbreakableJoint"/>
-  protected JointState defaultJointState { get; private set; }
   #endregion
 
   bool isRestored;
@@ -298,7 +226,6 @@ public abstract class AbstractJointModule :
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
       stockJoint = part.attachJoint;
       part.attachJoint = null;
-      defaultJointState = new JointState().SaveState(stockJoint.Joint);
     }
     originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
     isLinked = true;
@@ -524,7 +451,6 @@ public abstract class AbstractJointModule :
             Mathf.Min(value, linkSource.part.breakingTorque, linkTarget.part.breakingTorque));
   }
 
-
   /// <summary>Scales force value to the node size.</summary>
   /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
   /// <seealso cref="attachNodeSize"/>
@@ -533,40 +459,6 @@ public abstract class AbstractJointModule :
   protected float ScaleForceToNode(float force) {
     // Stack nodes has 2.0 multiplier. FYI: surface nodes have 0.8f.
     return force * (1.0f + attachNodeSize) * 2.0f;
-  }
-
-  /// <summary>Makes a regular joint unbreakable and locked.</summary>
-  /// <remarks>
-  /// Normal use-case for setting joint to unbreakable is switching to time warp mode. When time
-  /// warp mode is enabled it's undesirable to have joint moving or broken. Moreover, in this mode
-  /// performance reqirements become more improtant. 
-  /// <list type="bullet">
-  /// <item>All motions are set to <c>Locked</c>.</item>
-  /// <item>Breaking forces are set to infinite.</item>
-  /// <item>Joint preprocessing is set to <c>true</c> to improve performance.</item>
-  /// </list>
-  /// <para>
-  /// Unless your code sets up the joint from the scratch it makes sense to save joint state via
-  /// <see cref="JointState.SaveState"/> before making it unbreakable. Or, if your code uses stock
-  /// settings, <see cref="defaultJointState"/> can be used to restore the default state.
-  /// </para>
-  /// </remarks>
-  /// <param name="joint">Joint to configure.</param>
-  /// <seealso cref="AdjustJoint"/>
-  /// <seealso cref="JointState"/>
-  protected void SetupUnbreakableJoint(ConfigurableJoint joint) {
-    //FIXME
-    Debug.LogWarning("Set unbreakable");
-    // Make joint absolutly rigid. 
-    joint.angularXMotion = ConfigurableJointMotion.Locked;
-    joint.angularYMotion = ConfigurableJointMotion.Locked;
-    joint.angularZMotion = ConfigurableJointMotion.Locked;
-    joint.xMotion = ConfigurableJointMotion.Locked;
-    joint.yMotion = ConfigurableJointMotion.Locked;
-    joint.zMotion = ConfigurableJointMotion.Locked;
-    // Since no movement is allowed the preprocessing will give a performance boost.
-    joint.enablePreprocessing = true; 
-    SetBreakForces(joint, Mathf.Infinity, Mathf.Infinity);
   }
 
   /// <summary>Returns a logs friendly string description of the link.</summary>
