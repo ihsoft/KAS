@@ -146,6 +146,9 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   }
   #endregion
 
+  /// <summary>Variable to store auto save state before starting interactive mode.</summary>
+  bool canAutoSaveState;
+
   #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
   public override bool StartLinking(GUILinkMode mode) {
@@ -161,6 +164,8 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     base.StartLinkGUIMode(mode);
     InputLockManager.SetControlLock(
         ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
+    canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
+    HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = false;
     linkRenderer.shaderNameOverride = InteractiveShaderName;
     linkRenderer.colorOverride = BadLinkColor;
     linkRenderer.isPhysicalCollider = false;
@@ -174,6 +179,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     linkRenderer.isPhysicalCollider = true;
     ScreenMessages.RemoveMessage(statusMessage);
     InputLockManager.RemoveControlLock(TotalControlLock);
+    HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = canAutoSaveState;
     lastHoveredPart = null;
     base.StopLinkGUIMode();
 
