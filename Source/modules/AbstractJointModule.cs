@@ -150,6 +150,26 @@ public abstract class AbstractJointModule :
   #endregion
 
   #region Part's config fields
+  /// <summary>
+  /// Config setting. Defines strength scale of the joint when <see cref="linkBreakForce"/> or
+  /// <see cref="linkBreakTorque"/> are set to <c>0</c>.
+  /// </summary>
+  /// <remarks>
+  /// When source <i>by design</i> assumes a larger attach node for the link this value needs to be
+  /// adjusted. Default force settings vary for different node sizes.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="linkBreakForce"/>
+  /// <seealso cref="linkBreakTorque"/>
+  /// <seealso cref="SetBreakForces"/>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public int attachNodeSize = 0;
   /// <summary>Config setting. See <see cref="cfgLinkBreakForce"/>.</summary>
   /// <remarks>
   /// <para>
@@ -445,26 +465,74 @@ public abstract class AbstractJointModule :
   /// Setups joint break force and torque while handling special values from config.
   /// </summary>
   /// <remarks>
-  /// This method must not be called prior to the joint initalization. It's safe to call it from
-  /// <see cref="ILinkJoint"/> implementations, but all other cases must ensure the default joint
-  /// state has been captured.
+  /// The forces are set so what they are not contradicting with the attached parts. Normally, joint
+  /// must get destroyed by the physics before the attached part did.
   /// </remarks>
   /// <param name="joint">Joint to set forces for.</param>
   /// <param name="forceFromConfig">
-  /// Break force from the config. If it's <c>0</c> then force will be the same as for the stock
-  /// joints.
+  /// Break force from the config. If it's <c>0</c> then maxium acceptable force will be used.
   /// </param>
   /// <param name="torqueFromConfig">
-  /// Break torque from the config. If it's <c>0</c> then torque will be the same as for the stock
-  /// joints.
+  /// Break torque from the config. If it's <c>0</c> then maxium acceptable torque will be used.
   /// </param>
-  /// <seealso cref="defaultJointState"/>
+  /// <seealso cref="GetClampedBreakingForce"/>
   protected void SetBreakForces(
       ConfigurableJoint joint, float forceFromConfig, float torqueFromConfig) {
-    joint.breakForce =
-        Mathf.Approximately(forceFromConfig, 0) ? defaultJointState.breakForce : forceFromConfig;
-    joint.breakTorque =
-        Mathf.Approximately(torqueFromConfig, 0) ? defaultJointState.breakTorque : torqueFromConfig;
+    joint.breakForce = GetClampedBreakingForce(forceFromConfig);
+    joint.breakTorque = GetClampedBreakingTorque(torqueFromConfig);
+  }
+
+  /// <summary>
+  /// Rounds down the value so what it doesn't contradict with source and target breaking forces.
+  /// </summary>
+  /// <remarks>
+  /// It's a bad idea to make joint more durable than the parts that are connected with it. It's
+  /// always best to have joint broken before the parts destruction. Custom code is encouraged to
+  /// use this method to get the right force.
+  /// </remarks>
+  /// <param name="value">
+  /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
+  /// </param>
+  /// <returns>Force value that relates to the source and target parts durability.</returns>
+  /// <seealso cref="attachNodeSize"/>
+  protected float GetClampedBreakingForce(float value) {
+    return Mathf.Approximately(value, 0)
+        ? ScaleForceToNode(
+            Mathf.Min(linkSource.part.breakingForce, linkTarget.part.breakingForce))
+        : ScaleForceToNode(
+            Mathf.Min(value, linkSource.part.breakingForce, linkTarget.part.breakingForce));
+  }
+  
+  /// <summary>
+  /// Rounds down the value so what it doesn't contradict with source and target breaking torques.
+  /// </summary>
+  /// <remarks>
+  /// It's a bad idea to make joint more durable than the parts that are connected with it. It's
+  /// always best to have joint broken before the parts destruction. Custom code is encouraged to
+  /// use this method to get the right torque.
+  /// </remarks>
+  /// <param name="value">
+  /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
+  /// </param>
+  /// <returns>Force value that relates to the source and target parts durability.</returns>
+  /// <seealso cref="attachNodeSize"/>
+  protected float GetClampedBreakingTorque(float value) {
+    return Mathf.Approximately(value, 0)
+        ? ScaleForceToNode(
+            Mathf.Min(linkSource.part.breakingTorque, linkTarget.part.breakingTorque))
+        : ScaleForceToNode(
+            Mathf.Min(value, linkSource.part.breakingTorque, linkTarget.part.breakingTorque));
+  }
+
+
+  /// <summary>Scales force value to the node size.</summary>
+  /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
+  /// <seealso cref="attachNodeSize"/>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
+  /// KSP: PartJoint</seealso>
+  protected float ScaleForceToNode(float force) {
+    // Stack nodes has 2.0 multiplier. FYI: surface nodes have 0.8f.
+    return force * (1.0f + attachNodeSize) * 2.0f;
   }
 
   /// <summary>Makes a regular joint unbreakable and locked.</summary>
