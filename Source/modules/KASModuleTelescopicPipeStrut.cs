@@ -58,6 +58,36 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   #endregion
 
   #region Part's config fields
+  /// <summary>
+  /// Config setting. Model for a joint lever at the soucre part. Two such models are used to form a
+  /// complete joint.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public string sourceJointModel = "KAS-1.0/Models/Joint/model";
+  /// <summary>
+  /// Config setting. Model for a joint lever at the target part. Two such models are used to form a
+  /// complete joint.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public string targetJointModel = "KAS-1.0/Models/Joint/model";
   /// <summary>Config setting. Number of pistons in the link.</summary>
   /// <remarks>
   /// <para>
@@ -319,11 +349,11 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// Name of the joint model in the part's model. It's used as a template to create all the joint
   /// levers.
   /// </summary>
-  protected const string JointObjName = "Joint";
+  protected const string JointModelName = "Joint";
   /// <summary>
   /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
-  protected const string PivotAxleObjName = "PivotAxle";
+  protected const string PivotAxleTransformName = "PivotAxle";
   /// <summary>Name of the piston object in the piston's model.</summary>
   protected const string PistonModelName = "Piston";
   #endregion
@@ -542,16 +572,16 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
 
     // Source strut joint.
     srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
 
     // Target strut joint.
     trgStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TrgStrutJointObjName);
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleTransformName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
 
     // Pistons.
@@ -708,42 +738,58 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     return obj;
   }
 
+  /// <summary>Creates complete joint model from a prefab.</summary>
+  GameObject MakeJointModel(GameObject jointPrefab) {
+    // FIXME support scale
+    var jointLever = jointPrefab.transform.FindChild(JointModelName).gameObject;
+    var jointModel = Instantiate(jointLever);
+    jointModel.name = JointModelName;
+
+    var jointModelPivot = jointPrefab.transform.Find(PivotAxleTransformName);
+    jointModelPivot = Instantiate(jointModelPivot);
+    jointModelPivot.parent = jointModel.transform;
+    jointModelPivot.name = PivotAxleTransformName;
+
+    return jointModel;
+  }
+
   /// <summary>Creates joint levers from a prefab in the main part model.</summary>
   /// <remarks>Prefab is deleted once all levers are created.</remarks>
   void CreateLeverModels() {
-    var jointModel = part.FindModelTransform(JointObjName).gameObject;
-    jointModel.transform.parent = null;
-    var jointModelPivot = jointModel.transform.Find(PivotAxleObjName);
-    var plugNodeTransform = part.FindModelTransform("plugNode");
+    var srcJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(sourceJointModel));
 
     // Source part joint model.
-    srcPartJoint = CloneModel(jointModel.gameObject, SrcPartJointObjName).transform;
+    var plugNodeTransform = part.FindModelTransform("plugNode");
+    srcPartJoint = CloneModel(srcJointModel, SrcPartJointObjName).transform;
     Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
 
     // Source strut joint model.
-    srcStrutJoint = CloneModel(jointModel.gameObject, SrcStrutJointObjName).transform;
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName);
+    srcStrutJoint = CloneModel(srcJointModel, SrcStrutJointObjName).transform;
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
     Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
+    var trgJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(targetJointModel));
+
     // Target strut joint model.
-    trgStrutJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleObjName);
+    trgStrutJoint = CloneModel(trgJointModel, TrgStrutJointObjName).transform;
+    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleTransformName);
     trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
-    var trgPartJoint = CloneModel(jointModel.gameObject, TrgStrutJointObjName).transform;
-    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleObjName);
+    var trgPartJoint = CloneModel(trgJointModel, TrgStrutJointObjName).transform;
+    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleTransformName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
                            newPosition: new Vector3(0, 0, trgJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
-    // Joint template model is not needed anymore.
-    UnityEngine.Object.Destroy(jointModel.gameObject);
+    // Joint template models are not needed anymore.
+    Destroy(srcJointModel);
+    Destroy(trgJointModel);
   }
 
   /// <summary>Creates piston models from a prefab in a separate model file.</summary>
