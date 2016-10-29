@@ -518,13 +518,15 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   protected override void CreatePartModel() {
     CreateLeverModels();
     CreatePistonModels();
-    UpdateGeometryFromModel();
+    UpdateValuesFromModel();
     // Log basic part values to help part's designers.
     //FIXME: use info level
     Debug.LogWarningFormat(
-        "Procedural part {0}: minLinkLength={1}, maxLinkLength={2}, attachNodePosition.Y={3}",
+        "Procedural part {0}: minLinkLength={1}, maxLinkLength={2}, attachNodePosition.Y={3},"
+        + " pistonLength={4}, outerPistonDiameter={5}",
         part.name, minLinkLength, maxLinkLength,
-        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleObjName).position.y);
+        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
+        pistonLength, outerPistonDiameter);
 
     // Init parked state. It must go after all the models are created.
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
@@ -558,7 +560,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
       pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
 
-    UpdateGeometryFromModel();
+    UpdateValuesFromModel();
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -671,7 +673,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   }
 
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
-  void UpdateGeometryFromModel() {
+  void UpdateValuesFromModel() {
     var pistonSize =
         Vector3.Scale(pistonPrefab.GetComponent<Renderer>().bounds.size, pistonModelScale);
     pistonLength = pistonSize.y;
@@ -746,10 +748,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
 
   /// <summary>Creates piston models from a prefab in a separate model file.</summary>
   void CreatePistonModels() {
-    UpdateGeometryFromModel();
-    //FIXME: make it info
-    Debug.LogWarningFormat("Procedural part {0}: pistonLength={1}, outerPistonDiameter={2}",
-                           part.name, pistonLength, outerPistonDiameter);
+    UpdateValuesFromModel();
     pistons = new GameObject[pistonsCount];
     var pistonDiameterScale = 1f;
     var random = new System.Random(0xbeef);  // Just some seed value to make values consistent.
