@@ -325,7 +325,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   /// </summary>
   protected const string PivotAxleObjName = "PivotAxle";
   /// <summary>Name of the piston object in the piston's model.</summary>
-  protected const string pistonModelName = "Piston";
+  protected const string PistonModelName = "Piston";
   #endregion
 
   #region Model transforms & properties
@@ -372,7 +372,7 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   protected GameObject pistonPrefab {
     get {
       return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
-          .FindChild(pistonModelName).gameObject;
+          .FindChild(PistonModelName).gameObject;
     }
   }
   /// <summary>Tells if source on the part is linked.</summary>
