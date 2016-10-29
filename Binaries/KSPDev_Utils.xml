@@ -761,13 +761,13 @@
             <summary>Annotated fields metadata.</summary>
         </member>
         <member name="F:KSPDev.ConfigUtils.PersistentField.cfgPath">
-            <summary>Parsed configuration paths. The first </summary>
+            <summary>Parsed configuration paths.</summary>
         </member>
         <member name="F:KSPDev.ConfigUtils.PersistentField.ordinaryFieldHandler">
-            <summary>An instance of ordianl field proto as specified in the annotation.</summary>
+            <summary>Instance of ordianl field proto as specified in the annotation.</summary>
         </member>
         <member name="F:KSPDev.ConfigUtils.PersistentField.collectionFieldHandler">
-            <summary>An instance of collection fiel proto as specified in the annotation.</summary>
+            <summary>Instance of collection field proto as specified in the annotation.</summary>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.#ctor(System.Reflection.FieldInfo,KSPDev.ConfigUtils.PersistentFieldAttribute)">
             <param name="fieldInfo">An annotated field metadata.</param>
@@ -1003,20 +1003,44 @@
             <summary>Helper to format various values.</summary>
         </member>
         <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Single,System.String,System.Single,System.String)">
-            <summary>Formats a number that has special meaning for a predefined value.</summary>
+            <summary>Formats float number that has special meaning for a predefined value.</summary>
             <param name="number">Number to format.</param>
             <param name="fmt">Format string for the number.</param>
             <param name="specialValue">Special value of the number.</param>
             <param name="specialString">String to show for the special value.</param>
-            <returns></returns>
+            <returns>Formatted string.</returns>
+            <example>
+            <code><![CDATA[
+            var fmt = "Value: {0}";
+            var spcFmt = "SPECIAL VALUE!";
+            Debug.Log(Formatter.SpecialValue(0.5f, fmt, 0.5f, spcFmt);
+            // Outputs:
+            // SPECIAL VALUE!
+            Debug.Log(Formatter.SpecialValue(0.4f, fmt, 0.5f, spcFmt);
+            // Outputs:
+            // Value: 0.4
+            ]]></code>
+            </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Int32,System.String,System.Int32,System.String)">
-            <summary>Formats a number that has special meaning for a predefined value.</summary>
+            <summary>Formats integer number that has special meaning for a predefined value.</summary>
             <param name="number">Number to format.</param>
             <param name="fmt">Format string for the number.</param>
             <param name="specialValue">Special value of the number.</param>
             <param name="specialString">String to show for the special value.</param>
-            <returns></returns>
+            <returns>Formatted string.</returns>
+            <example>
+            <code><![CDATA[
+            var fmt = "Value: {0}";
+            var spcFmt = "SPECIAL VALUE!";
+            Debug.Log(Formatter.SpecialValue(100, fmt, 100, spcFmt);
+            // Outputs:
+            // SPECIAL VALUE!
+            Debug.Log(Formatter.SpecialValue(101, fmt, 100, spcFmt);
+            // Outputs:
+            // Value: 101
+            ]]></code>
+            </example>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
@@ -2221,6 +2245,24 @@
             <param name="part">Part to get model for.</param>
             <returns>PartModel's transform if it was found. Part's trasnfrom otherwise.</returns>
         </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.ListHirerahcy(UnityEngine.Transform,System.String)">
+            <summary>
+            Returns paths to all transformations in the object. Each item is a full path to the
+            transformation.
+            </summary>
+            <param name="parent">Object to start from.</param>
+            <param name="parentPath">
+            Path to <paramref name="parent"/>. Leave it <c>null</c> if paths should start from "/".
+            </param>
+            <returns>paths to all transformations separated by LF symbol.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.GetFullPath(UnityEngine.Transform,UnityEngine.Transform)">
+            <summary>Returns full path to the object starting from the specified parent.</summary>
+            <param name="obj">Object to find path for.</param>
+            <param name="parent">Optional parent to use a root.</param>
+            <returns>Full path to the object.</returns>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>
+        </member>
         <member name="T:KSPDev.ModelUtils.KspLayerMask">
             <summary>Flags for the collision layers in KSP.</summary>
             <remarks>
@@ -2380,7 +2422,7 @@
         <member name="T:KSPDev.ProcessingUtils.AsyncCall">
             <summary>Set of tools to execute a delayed code.</summary>
             <remarks>
-            Use theese tools when code needs to be executed with some delay or at a specific moment of the
+            Use these tools when code needs to be executed with some delay or at a specific moment of the
             game.
             <code><![CDATA[
             class MyComponent : MonoBehaviour {

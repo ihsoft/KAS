@@ -4,7 +4,7 @@ Author: igor.zavoychinskiy@gmail.com
 
 GitHub: https://github.com/ihsoft/KSPDev
 
-Documentation: http://ihsoft.github.io/KSPDevUtils_Doc
+Documentation: http://ihsoft.github.io/KSPDev/Utils
 
 * * *
 
