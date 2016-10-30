@@ -80,7 +80,7 @@
     <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
     <Compile Include="api_impl\JointUtilsImpl.cs" />
     <Compile Include="api_impl\KASAPILauncher.cs" />
-    <Compile Include="api_impl\LinkUtils.cs" />
+    <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
     <Compile Include="api_v1\ILinkJoint.cs" />
     <Compile Include="api_v1\ILinkRenderer.cs" />
