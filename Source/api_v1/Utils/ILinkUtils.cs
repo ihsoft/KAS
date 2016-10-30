@@ -49,7 +49,7 @@ public interface ILinkUtils {
   /// <param name="targetNode">
   /// Attach node at the target part that defines the target vessel.
   /// </param>
-  /// <returns></returns>
+  /// <returns>Source vessel info. This vessel gets destroyed on couple.</returns>
   DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode);
 }
 
