@@ -130,9 +130,9 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <inheritdoc/>
   public override void DropJoint() {
     base.DropJoint();
-    UnityEngine.Object.Destroy(srcJoint);
+    Destroy(srcJoint);
     srcJoint = null;
-    UnityEngine.Object.Destroy(trgJoint);
+    Destroy(trgJoint);
     trgJoint = null;
     strutJoint = null;
   }
