@@ -6,6 +6,7 @@
 using KASAPIv1;
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace KASImpl {
 
@@ -59,6 +60,23 @@ class LinkUtilsImpl : ILinkUtils {
     GameEvents.onVesselWasModified.Fire(sourceNode.owner.vessel);
 
     return vesselInfo;
+  }
+
+  /// <inheritdoc/>
+  public Vessel DecoupleParts(Part part1, Part part2) {
+    Vessel inactiveVessel;
+    if (part1.parent == part2) {
+      part1.decouple();
+      inactiveVessel = part2.vessel;
+    } if (part2.parent == part1) {
+      part2.decouple();
+      inactiveVessel = part1.vessel;
+    } else {
+      Debug.LogWarningFormat("Cannot decouple since parts belong to different vessels: {0} != {1}",
+                             part1.vessel, part2.vessel);
+      return null;
+    }
+    return inactiveVessel;
   }
 }
 

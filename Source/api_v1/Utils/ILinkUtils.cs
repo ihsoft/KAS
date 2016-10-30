@@ -51,6 +51,17 @@ public interface ILinkUtils {
   /// </param>
   /// <returns>Source vessel info. This vessel gets destroyed on couple.</returns>
   DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode);
+
+  /// <summary>Decouples conencted parts and breaks down one vessel into two.</summary>
+  /// <param name="part1">
+  /// First part of the connection. It muts be a direct parent or child of <paramref name="part2"/>.
+  /// </param>
+  /// <param name="part2">
+  /// Second part of the connection. It muts be a direct parent or child of
+  /// <paramref name="part1"/>.
+  /// </param>
+  /// <returns>Inactive vessel that was created as a result of decoupling.</returns>
+  Vessel DecoupleParts(Part part1, Part part2);
 }
 
 }  // namespace
