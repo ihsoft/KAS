@@ -385,12 +385,11 @@ public class KASModuleLinkSourceBase :
     if (!CheckCanLinkTo(target)) {
       return false;
     }
-    //FIXME drop method and do coupling here via KAS utils
-    ConnectParts(target);
+    PhysicalLink(target);
     var actorType = guiLinkMode == GUILinkMode.Eva || guiLinkMode == GUILinkMode.Interactive
         ? LinkActorType.Player
         : LinkActorType.API;
-    LinkParts(target, actorType);
+    LogicalLink(target, actorType);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
     // must not be stopped before the link is created.
     StopLinkGUIMode();
@@ -405,9 +404,10 @@ public class KASModuleLinkSourceBase :
       return;
     }
     // Logical unlink must be done first before doing actual decouple.
+    var oldTarget = linkTarget;
     var targetRootPart = linkTarget.part;
-    UnlinkParts(actorType);
-    part.decouple();
+    LogicalUnlink(actorType);
+    PhysicalUnink(oldTarget);
     // If either source or target part after the separation belong to the active vessel then adjust
     // the focus. Otherwise, actor was external (e.g. EVA).
     if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
@@ -464,7 +464,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
     if (linkState == LinkState.Linked) {
-      UnlinkParts(LinkActorType.Physics);
+      LogicalUnlink(LinkActorType.Physics);
     }
   }
   #endregion
@@ -473,7 +473,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName && linkState == LinkState.Linked) {
-      UnlinkParts(LinkActorType.API);
+      LogicalUnlink(LinkActorType.API);
     }
     KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
     attachNode = null;
@@ -518,7 +518,7 @@ public class KASModuleLinkSourceBase :
   /// <summary>Stops any pending GUI mode that displays linking process.</summary>
   /// <remarks>Does nothing if no GUI mode started.
   /// <para>
-  /// If link is created then this method is called <i>after</i> <see cref="LinkParts"/> callback
+  /// If link is created then this method is called <i>after</i> <see cref="LogicalLink"/> callback
   /// gets fired.
   /// </para>
   /// </remarks>
@@ -529,18 +529,32 @@ public class KASModuleLinkSourceBase :
     }
   }
 
-  /// <summary>Joins this part and the target into one vessel.</summary>
-  /// <param name="target">Target link module.</param>
-  protected virtual void ConnectParts(ILinkTarget target) {
+  /// <summary>Links source and target in the physical world.</summary>
+  /// <remarks>
+  /// Usually linked parts are physically related in the game's world but it's not required. E.g.
+  /// implementation may choose to handle the relation procedurally.
+  /// </remarks>
+  /// <param name="target">Target to link with.</param>
+  protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
     KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
   }
 
+  /// <summary>Breaks link with the target in the physical world.</summary>
+  protected virtual void PhysicalUnink(ILinkTarget target) {
+    // FIXME: restore vessels names/types
+    KASAPI.LinkUtils.DecoupleParts(part, target.part);
+  }
+
   /// <summary>Logically links source and target.</summary>
-  /// <remarks>No actual joint or connection is created in the game.</remarks>
+  /// <remarks>
+  /// No actual joint or connection is created in the game. Though, this method is always called
+  /// before any physics changes.
+  /// </remarks>
   /// <param name="target">Target to link with.</param>
   /// <param name="actorType">Initator of the link.</param>
-  protected virtual void LinkParts(ILinkTarget target, LinkActorType actorType) {
+  /// <seealso cref="PhysicalLink"/>
+  protected virtual void LogicalLink(ILinkTarget target, LinkActorType actorType) {
     var linkInfo = new KASEvents.LinkEvent(this, target, actorType);
     linkTarget = target;
     linkTarget.linkSource = this;
@@ -551,13 +565,9 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
-  /// <remarks>
-  /// Ovrrides must not expect any particular state of the physics connection state at this moment
-  /// since it depends on a variety of factors. Such a connection may or may not exist at the
-  /// moment of this method call.
-  /// </remarks>
+  /// <remarks>Physics state is undetermined at this moment.</remarks>
   /// <param name="actorType">Actor who intiated the unlinking.</param>
-  protected virtual void UnlinkParts(LinkActorType actorType) {
+  protected virtual void LogicalUnlink(LinkActorType actorType) {
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     linkTarget.linkSource = null;
     linkTarget = null;
