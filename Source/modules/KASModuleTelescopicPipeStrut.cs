@@ -452,7 +452,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     // right coordinates.
     if (Vector3.SqrMagnitude(source.position - sourceTransform.position) > 0.0005f) {
       Debug.LogErrorFormat(
-          "Part's source doesn't match renderer source: pivot={0}, source={1}, err={2}",
+          "Part's source on {0} doesn't match renderer source: pivot={1}, source={2}, err={3}",
+          part.name,
           sourceTransform.position,
           source.position,
           Vector3.SqrMagnitude(source.position - sourceTransform.position));
