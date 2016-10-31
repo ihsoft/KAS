@@ -103,7 +103,7 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
     return true;
   }
   #endregion
-  
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
   // FIXME(ihsoft): Handle mass!  
