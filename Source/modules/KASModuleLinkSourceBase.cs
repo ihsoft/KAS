@@ -534,13 +534,14 @@ public class KASModuleLinkSourceBase :
   /// Usually linked parts are physically related in the game's world but it's not required. E.g.
   /// implementation may choose to handle the relation procedurally.
   /// </remarks>
-  /// <param name="target">Target to link with.</param>
+  /// <param name="target">Target to physically link with.</param>
   protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
     KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
   }
 
   /// <summary>Breaks link with the target in the physical world.</summary>
+  /// <param name="target">Target to break physical link with.</param>
   protected virtual void PhysicalUnink(ILinkTarget target) {
     // FIXME: restore vessels names/types
     KASAPI.LinkUtils.DecoupleParts(part, target.part);
