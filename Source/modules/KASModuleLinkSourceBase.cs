@@ -199,6 +199,11 @@ public class KASModuleLinkSourceBase :
   /// <summary>Timeout to show various onload errors. Seconds.</summary>
   protected const float BadLinkStatusTimeout = 10f;
 
+  /// <summary>Tells if this source is currectly linked with a target.</summary>
+  protected bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
+
   /// <summary>State machine that controls event reaction in different states.</summary>
   /// <remarks>
   /// Primary usage of the machine is managing subscriptions to the different game events. It's
