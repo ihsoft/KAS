@@ -169,6 +169,11 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <param name="angleLimit">Degree of freedom for the joint.</param>
   /// <returns>Joint object.</returns>
   ConfigurableJoint CreateJointEnd(AttachNode an, string objName, float angleLimit) {
+    if (an.owner.rb == null) {
+      throw new InvalidOperationException(string.Format(
+          "Cannot create a joint to {0} since it doesn't have rigidbody (physicsless?)",
+          an.owner.name));
+    }
     var jointObj = new GameObject(objName);
     jointObj.transform.position = an.nodeTransform.position;
     jointObj.transform.rotation = an.nodeTransform.rotation;
