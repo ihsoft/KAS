@@ -97,6 +97,30 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <seealso cref="AbstractJointModule.cfgMaxLinkLength"/>
   ConfigurableJoint strutJoint;
 
+  #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onProtoPartSnapshotSave.Add(onProtoPartSnapshotSave);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onProtoPartSnapshotSave.Remove(onProtoPartSnapshotSave);
+  }
+
+  /// <inheritdoc/>
+  public override void OnSave(ConfigNode node) {
+    base.OnSave(node);
+    if (isLinked) {
+      // Note that part iteslf has already been saved into the config with the incorrect data. This
+      // data will be fixed in onProtoPartSnapshotSave.
+      vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
+    }
+  }
+  #endregion
+
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
@@ -186,6 +210,18 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
     joint.connectedBody = an.owner.rb;
     SetBreakForces(joint, linkBreakForce, linkBreakTorque);
     return joint;
+  }
+
+  /// <summary>
+  /// Fixes part's stored org position and rotation since they are saved before UpdateOrgPosAndRot
+  /// happens.
+  /// </summary>
+  void onProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {
+    if (isLinked && action.to != null && action.from.partRef == part) {
+      var node = action.to;
+      node.SetValue("position", part.orgPos);
+      node.SetValue("rotation", part.orgRot);
+    }
   }
   #endregion
 }
