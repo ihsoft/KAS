@@ -24,12 +24,12 @@ namespace KAS {
 // TODO(ihsoft): Add an image.
 // TODO(ihsoft): Implement prismatic joint linear limits.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
-public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState {
+public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState {
   #region Helper class to detect joint breakage
   /// <summary>
   /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
   /// </summary>
-  class BrokenJointListener : MonoBehaviour {
+  protected class BrokenJointListener : MonoBehaviour {
     /// <summary>Part to decouple on joint break.</summary>
     public Part host;
 
@@ -77,15 +77,16 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
   #endregion
 
+  #region Inheritable properties
   /// <summary>Source sphere joint.</summary>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
   /// <seealso cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>.
-  ConfigurableJoint srcJoint;
+  protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
   /// <seealso cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>
-  ConfigurableJoint trgJoint;
+  protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Joint that ties two sphere joints together.</summary>
   /// <remarks>
@@ -95,7 +96,8 @@ public sealed class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLoc
   /// <seealso cref="strutSpringForce"/>
   /// <seealso cref="AbstractJointModule.cfgMinLinkLength"/>
   /// <seealso cref="AbstractJointModule.cfgMaxLinkLength"/>
-  ConfigurableJoint strutJoint;
+  protected ConfigurableJoint strutJoint { get; private set; }
+  #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
