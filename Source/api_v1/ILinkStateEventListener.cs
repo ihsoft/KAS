@@ -14,8 +14,8 @@ namespace KASAPIv1 {
 public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the actual coupling has happen. Modules can expect the joints
-  /// setup but their physics may not have kicked in yet.
+  /// This event triggers <b>after</b> the physics changes on the part. Modules can expect the
+  /// joints logic is setup but actual physics may not have kicked in yet.
   /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
@@ -26,12 +26,11 @@ public interface ILinkStateEventListener {
   /// <list>
   /// <item>
   /// If link has been broken via KAS source (<see cref="ILinkSource.BreakCurrentLink"/>) then this
-  /// event is fired <b>before</b> the parts have actually decoupled.
+  /// event is fired <b>before</b> the physics changes.
   /// </item>
   /// <item>
   /// If link has been broken externally, e.g. via physics or by invoking
-  /// <see cref="Part.decouple"/> method, then this event is fired <b>after</b> the parts have
-  /// decoupled.
+  /// <see cref="Part.decouple"/> method, then this event is fired <b>after</b> the physics changes.
   /// </item>
   /// </list>
   /// </remarks>
