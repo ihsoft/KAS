@@ -5,7 +5,6 @@
 
 using KASAPIv1;
 using System;
-using System.Collections;
 using UnityEngine;
 
 namespace KAS {
@@ -14,9 +13,15 @@ namespace KAS {
 /// <remarks>
 /// One spherical joint is located at the source part, another spherical joint is located at the
 /// target part. The joints are connected with a third joint that is setup as prismatic. Such setup
-/// allows soucre and target parts rotationg relative to each other. Distance between the parts is
+/// allows source and target parts rotationg relative to each other. Distance between the parts is
 /// limited by the prismatic joint.
+/// <para>
+/// By default end spherical joints don't allow rotation around main axis. This degree of freedom is
+/// satisfied by the primsatic joint which allows such rotation. Defaults can be overridden in the
+/// children classes.
+/// </para>
 /// </remarks>
+/// <seealso cref="CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
@@ -140,15 +145,18 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState 
     // Create end spherical joints.
     srcJoint = CreateJointEnd(source.attachNode, "KASJointSrc", sourceLinkAngleLimit);
     trgJoint = CreateJointEnd(target.attachNode, "KASJointTrg", targetLinkAngleLimit);
-    srcJoint.transform.LookAt(trgJoint.transform);
-    trgJoint.transform.LookAt(srcJoint.transform);
+    srcJoint.transform.LookAt(trgJoint.transform, source.nodeTransform.up);
+    trgJoint.transform.LookAt(srcJoint.transform, target.nodeTransform.up);
 
     // Link end joints with a prismatic joint.
     strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(strutJoint);
-    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     KASAPI.JointUtils.SetupPrismaticJoint(
         strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
+    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
+    // joints rotations.
+    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
+    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
   }
@@ -180,11 +188,15 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState 
   #endregion
 
   #region Private utility methods
-  /// <summary>Creates a game object joined with the attach node via a spherical joint.</summary>
+  /// <summary>
+  /// Creates a game object joined with the attach node via a spherical joint. The joint is locked
+  /// for rotation around main axis (Z).
+  /// </summary>
   /// <remarks>
   /// Joint object will be aligned exactly to the attach node. This will result in zero anchor nodes
   /// and zero/identity relative position and rotation. Caller needs to adjust position/rotation of
-  /// the created object as needed.
+  /// the created object as needed, but rotation around Z axis must not be touched since it's
+  /// locked.
   /// <para>
   /// Joint object will have rigidobject created. Its physical settings will be default. Caller may
   /// need to adjust the properties.
@@ -208,6 +220,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState 
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
+    joint.angularXMotion = ConfigurableJointMotion.Locked;
     joint.enablePreprocessing = true;
     joint.connectedBody = an.owner.rb;
     SetBreakForces(joint, linkBreakForce, linkBreakTorque);
