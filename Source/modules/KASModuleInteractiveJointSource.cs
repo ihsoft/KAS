@@ -48,7 +48,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
   /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
   Part lastHoveredPart;
   /// <summary>Displayed during interactive linking.</summary>
-  ScreenMessage statusMessage;
+  ScreenMessage statusScreenMessage;
   #endregion
 
   #region Event names. Keep them in sync with the event names!
@@ -140,7 +140,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     base.OnStart(state);
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
-    statusMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
+    statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
   }
   #endregion
 
@@ -175,7 +175,7 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
     linkRenderer.shaderNameOverride = null;
     linkRenderer.colorOverride = null;
     linkRenderer.isPhysicalCollider = true;
-    ScreenMessages.RemoveMessage(statusMessage);
+    ScreenMessages.RemoveMessage(statusScreenMessage);
     InputLockManager.RemoveControlLock(TotalControlLock);
     HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = canAutoSaveState;
     lastHoveredPart = null;
@@ -255,10 +255,10 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
           }.Where(x => x != null).ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
-            statusMessage.message = CanBeConnectedMsg.Format(
+            statusScreenMessage.message = CanBeConnectedMsg.Format(
                 Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
           } else {
-            statusMessage.message = ScreenMessaging.SetColorToRichText(
+            statusScreenMessage.message = ScreenMessaging.SetColorToRichText(
                 String.Join("\n", linkStatusErrors), ScreenMessaging.ErrorColor);
           }
         }
@@ -280,9 +280,9 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
 
     // Update linking messages (it needs to be refreshed to not go out by timeout).
     if (targetCandidate == null) {
-      statusMessage.message = LinkingInProgressMsg;
+      statusScreenMessage.message = LinkingInProgressMsg;
     }
-    ScreenMessages.PostScreenMessage(statusMessage);
+    ScreenMessages.PostScreenMessage(statusScreenMessage);
   }
   #endregion
 }
