@@ -5,6 +5,7 @@
 # A very simple script to produce a .ZIP archive with the product distribution.
 
 import getopt
+import glob
 import json
 import logging
 import os
@@ -121,9 +122,19 @@ def CleanupReleaseFolder():
 # Creates whole release structure and copies the required files.
 def MakeFoldersStructure():
   print 'Make release folders structure...'
-  folders = sorted(STRUCTURE.keys())
+  folders = sorted(STRUCTURE.keys(), key=lambda x: x[0] != '-' and x or x[1:] + 'Z')
   # Make.
   for folder in folders:
+    if folder.startswith('-'):
+      # Drop files.
+      del_path = DEST + folder[1:] + STRUCTURE[folder]
+      print 'Droppping files from "%s"' % del_path
+      for file_name in glob.glob(del_path):
+        print 'Dropping "%s"' % file_name
+        os.unlink(file_name)
+      continue
+
+    # Copy files.
     dest_path = DEST + folder 
     sources = STRUCTURE[folder]
     if not isinstance(sources, list):
