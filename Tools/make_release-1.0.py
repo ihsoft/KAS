@@ -246,9 +246,9 @@ def main(argv):
   global MAKE_PACKAGE, OVERWRITE_PACKAGE, VERSION
 
   try:
-    opts, _ = getopt.getopt(argv[1:], 'dpo', )
+    opts, _ = getopt.getopt(argv[1:], 'po', )
   except getopt.GetoptError:
-    print 'make_release.py [-d]'
+    print 'make_release.py [-po]'
     exit(2)
   opts = dict(opts)
   MAKE_PACKAGE = '-p' in opts
