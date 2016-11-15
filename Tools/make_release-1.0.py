@@ -64,6 +64,8 @@ STRUCTURE = collections.OrderedDict({
     '/LICENSE-1.0.md',
   ],
   '/GameData/KAS-1.0/Parts' : '/Parts',
+  '/GameData/KAS-1.0/Models' : '/Models',
+  '-/GameData/KAS-1.0/Models' : '/**/*.psd',  # Drop texture sources.
   '/GameData/KAS-1.0/Sounds' : [
     '/Sounds/broke.ogg',
     '/Sounds/plugdocked.ogg',
