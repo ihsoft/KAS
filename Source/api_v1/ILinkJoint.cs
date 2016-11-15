@@ -25,16 +25,8 @@ public interface ILinkJoint {
 
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   /// <remarks>
-  /// If <c>0</c> then stock joint settings defines the value. If it's a positive number then it
-  /// defines a maximum possible strength of the link. Actual strength is a minimum of three values:
-  /// <list>
-  /// <item>This setting.</item>
-  /// <item>Source part attach strength.</item>
-  /// <item>target part attach strength.</item>
-  /// </list>
-  /// <para>
-  /// With this approach link will break before the linked parts get ripped off the vessels.
-  /// </para>
+  /// If <c>0</c> then strength will be calculated using the same approach as for a stock joint of
+  /// medium size.
   /// </remarks>
   float cfgLinkBreakForce { get; }
 

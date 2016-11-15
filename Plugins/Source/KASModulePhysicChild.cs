@@ -89,7 +89,7 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  /// <summary>Overriden from MonoBehavior.</summary>
+  /// <summary>Overriden from MonoBehaviour.</summary>
   void OnDestroy() {
     KAS_Shared.DebugLog("OnDestroy(PhysicChild)");
     if (physicObjRb != null) {
@@ -97,7 +97,7 @@ public class KASModulePhysicChild : PartModule {
     }
   }
 
-  /// <summary>Overriden from MonoBehavior.</summary>
+  /// <summary>Overriden from MonoBehaviour.</summary>
   void FixedUpdate() {
     if (physicObjRb != null && !physicObjRb.isKinematic) {
       physicObjRb.AddForce(vessel.precalc.integrationAccel, ForceMode.Acceleration);

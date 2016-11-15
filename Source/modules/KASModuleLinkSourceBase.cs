@@ -180,6 +180,7 @@ public class KASModuleLinkSourceBase :
   public Vector3 attachNodeOrientation = Vector3.up;
   #endregion
 
+  #region Inheritable properties
   /// <summary>Joint module that manages source &lt;=&gt; target physical connection.</summary>
   /// <remarks>
   /// This module must always exist on the part. If there is no such module then on start a simple
@@ -203,6 +204,7 @@ public class KASModuleLinkSourceBase :
   protected bool isLinked {
     get { return linkState == LinkState.Linked; }
   }
+  #endregion
 
   /// <summary>State machine that controls event reaction in different states.</summary>
   /// <remarks>
