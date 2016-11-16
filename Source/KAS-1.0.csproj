@@ -89,6 +89,7 @@
     <Compile Include="api_v1\ILinkTarget.cs" />
     <Compile Include="api_v1\KASAPI.cs" />
     <Compile Include="api_v1\KASEvents.cs" />
+    <Compile Include="api_v1\KSPDev_candidates.cs" />
     <Compile Include="api_v1\LinkActorType.cs" />
     <Compile Include="api_v1\LinkState.cs" />
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModuleStockJoint.cs" />
     <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
+    <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
