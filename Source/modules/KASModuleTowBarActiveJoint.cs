@@ -34,27 +34,30 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <summary>
   /// Message to display when a tow bar is not locked but the locking process has been started.
   /// </summary>
-  Message<float> LockingStatusMsg = "Tow bar is locking: diff {0:F1} deg";
+  static readonly Message<float> LockingStatusMsg = "Tow bar is locking: diff {0:F1} deg";
 
   /// <summary>
   /// Message to display when a tow bar locking process successfully ends with locking.
   /// </summary>
-  Message LockedStatusMsg = "Tow bar is LOCKED!";
+  static readonly Message LockedStatusMsg = "Tow bar is LOCKED!";
 
   /// <summary>Steering status value GUI decoding.</summary>
-  MessageEnumValue<SteeringStatus> SteeringStatusMsg = new MessageEnumValue<SteeringStatus>(
-    SteeringStatus.Disabled, "Disabled",
-    SteeringStatus.Active, "Active",
-    SteeringStatus.CurrentVesselIsTarget, "Target is active vessel",
-    SteeringStatus.TargetIsNotControllable, "Target is uncontrollable",
-    SteeringStatus.NotLocked, "Not locked"
-  );
+  static readonly MessageEnumValue<SteeringStatus> SteeringStatusMsg =
+      new MessageEnumValue<SteeringStatus>() {
+        {SteeringStatus.Disabled, "Disabled"},
+        {SteeringStatus.Active, "Active"},
+        {SteeringStatus.CurrentVesselIsTarget, "Target is active vessel"},
+        {SteeringStatus.TargetIsNotControllable, "Target is uncontrollable"},
+        {SteeringStatus.NotLocked, "Not locked"},
+      };
 
   /// <summary>Lock status GUI decoding.</summary>
-  MessageEnumValue<LockMode> LockStatusMsg = new MessageEnumValue<LockMode>(
-      LockMode.Disabled, "Disabled",
-      LockMode.Locked, "Locked",
-      LockMode.Locking, "Locking");
+  static readonly MessageEnumValue<LockMode> LockStatusMsg =
+      new MessageEnumValue<LockMode>() {
+        {LockMode.Disabled, "Disabled"},
+        {LockMode.Locked, "Locked"},
+        {LockMode.Locking, "Locking"},
+      };
   
   /// <summary>Status screen message to be displayed during locking process.</summary>
   ScreenMessage lockStatusScreenMessage;
