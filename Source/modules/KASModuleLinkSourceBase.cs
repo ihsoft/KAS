@@ -44,21 +44,29 @@ public class KASModuleLinkSourceBase :
 
   #region Localizable GUI strings
   /// <summary>Message to display when target link type doesn't match source type.</summary>
-  protected static Message IncompatibleTargetLinkTypeMsg = "Incompatible target link type";
+  protected readonly static Message IncompatibleTargetLinkTypeMsg =
+      "Incompatible target link type";
   /// <summary>Message to display when target belongs to the same vessel as source.</summary>
-  protected static Message CannotLinkToTheSameVesselMsg = "Cannot link to the same vessel";
+  protected readonly static Message CannotLinkToTheSameVesselMsg =
+      "Cannot link to the same vessel";
   /// <summary>Message to display when source refuses to start the link.</summary>
-  protected static Message SourceIsNotAvailableForLinkMsg = "Source is not available for link";
+  protected readonly static Message SourceIsNotAvailableForLinkMsg =
+      "Source is not available for link";
   /// <summary>Message to display when target refuses to accept the link.</summary>
-  protected static Message TargetDoesntAcceptLinksMsg = "Target doesn't accept links";
+  protected readonly static Message TargetDoesntAcceptLinksMsg =
+      "Target doesn't accept links";
   /// <summary>Message to display when linked source and target cannot be matched on laod.</summary>
-  protected static Message<string> CannotRestoreLinkMsg = "Cannot restore link for: {0}";
+  protected readonly static Message<string> CannotRestoreLinkMsg =
+      "Cannot restore link for: {0}";
   /// <summary>Info string in the editor for link type setting.</summary>
-  protected static Message<string> LinksWithSocketTypeInfo = "Links with socket type: {0}";
+  protected readonly static Message<string> LinksWithSocketTypeInfo =
+      "Links with socket type: {0}";
   /// <summary>Info string in the editor to identify if part can link with anotehr vessel.</summary>
-  protected static Message CanLinkToANotherVesselInfo = "\n\nCan be linked to another vessel";
+  protected readonly static Message CanLinkToANotherVesselInfo =
+      "\n\nCan be linked to another vessel";
   /// <summary>Title of the module to present in the editor details window.</summary>
-  protected static Message ModuleTitleInfo = "KAS Joint Source";
+  protected readonly static Message ModuleTitleInfo =
+      "KAS Joint Source";
   #endregion
 
   #region ILinkSource config properties implementation
