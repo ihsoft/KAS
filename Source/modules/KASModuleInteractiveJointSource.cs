@@ -25,11 +25,11 @@ public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
 
   #region Localizable strings
   /// <summary>Message to display when a compatible target part is hevred over.</summary>
-  static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  readonly static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
   /// <summary>
   /// Message to dsiplay as a help string when interactive linking mode is started.
   /// </summary>
-  static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  readonly static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
   #endregion
 
   #region Local members
