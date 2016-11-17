@@ -247,12 +247,16 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <summary>
   /// Sets current locking state. Updates UI, vessel, and joints states as needed.
   /// </summary>
+  /// <remarks>
+  /// This method may be called from a cleanup routines, so make it safe to execute in incomplete
+  /// states.
+  /// </remarks>
   /// <param name="mode"></param>
   void SetLockingMode(LockMode mode) {
     lockingMode = mode;
     lockStatus = LockStatusMsg.Format(lockingMode);
 
-    if (isLinked && mode == LockMode.Locked) {
+    if (isLinked && srcJoint != null && mode == LockMode.Locked) {
       // Restore joint state that could be affected during locking.
       var angularLimit = srcJoint.angularZLimit;
       angularLimit.limit = Mathf.Approximately(lockedSourceAngleLimit, 0)
@@ -260,8 +264,8 @@ public sealed class KASModuleTowBarActiveJoint :
           : lockedSourceAngleLimit;
       srcJoint.angularZLimit = angularLimit;
     }
-    
-    if (isLinked && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
+
+    if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
       trgJoint.angularZLimit = new SoftJointLimit() {
         limit = targetLinkAngleLimit
@@ -280,12 +284,16 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <summary>
   /// Enables or disables active steering mode. Updates UI and vessel state as needed.
   /// </summary>
+  /// <remarks>
+  /// This method may be called from a cleanup routines, so make it safe to execute in incomplete
+  /// states.
+  /// </remarks>
   /// <param name="state"></param>
   void SetActiveSteeringState(bool state) {
     activeSteeringEnabled = state;
     steeringStatus = SteeringStatusMsg.Format(
         activeSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
-    if (isLinked && !activeSteeringEnabled) {
+    if (isLinked && linkTarget != null && !activeSteeringEnabled) {
       linkTarget.part.vessel.ctrlState.wheelSteer = 0;
     }
     UpdateContextMenu();
