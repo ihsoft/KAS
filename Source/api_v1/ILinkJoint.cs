@@ -66,7 +66,7 @@ public interface ILinkJoint {
   /// <summary>Destroys a physical link between source and target.</summary>
   /// <remarks>
   /// This is a cleanup method. It must be safe to execute in any joint state, and should not throw
-  /// any errors.
+  /// any errors. E.g. it may get called when part's state is incomplete.
   /// </remarks>
   void DropJoint();
 
