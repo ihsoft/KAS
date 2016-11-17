@@ -57,11 +57,16 @@ public class KASModuleLinkTargetBase :
         var oldSource = _linkSource;
         _linkSource = value;
         linkState = value != null ? LinkState.Linked : LinkState.Available;
+        persistedLinkSourcePartId = value != null ? value.part.flightID : 0;
         TriggerSourceChangeEvents(oldSource);
       }
     }
   }
   ILinkSource _linkSource;
+
+  /// <inheritdoc/>
+  public uint linkSourcePartId { get { return persistedLinkSourcePartId; } }
+
   /// <inheritdoc/>
   public LinkState linkState {
     get {
@@ -74,6 +79,7 @@ public class KASModuleLinkTargetBase :
       OnStateChange(oldState);
     }
   }
+
   /// <inheritdoc/>
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
@@ -83,8 +89,10 @@ public class KASModuleLinkTargetBase :
       }
     }
   }
+
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
+
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
   #endregion
@@ -100,6 +108,19 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
+
+  /// <summary>Persistent config field. Source part flight ID.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField(isPersistant = true)]
+  public uint persistedLinkSourcePartId;
   #endregion
 
   #region Part's config fields

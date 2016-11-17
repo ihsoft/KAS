@@ -64,6 +64,9 @@ public interface ILinkTarget {
   /// <seealso cref="linkState"/>
   ILinkSource linkSource { get; set; }
 
+  /// <summary>ID of the linked source part.</summary>
+  uint linkSourcePartId { get; }
+
   /// <summary>Current state of the target.</summary>
   /// <remarks>
   /// The state cannot be affected directly. Different methods change it to different values.
