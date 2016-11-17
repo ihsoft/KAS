@@ -363,22 +363,25 @@ public class KASModuleLinkSourceBase :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    // Disconnect from the target if linking info cannot be restored.
-    if (linkState == LinkState.Linked && linkTarget == null) {
-      linkState = LinkState.Available;
+    if (linkState != LinkState.Linked) {
+      return;
+    }
+    if (linkTarget == null) {
+      LogicalUnlink(LinkActorType.None);
       ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
-      // To not interfere with the vessel initalization do decoupling at the end of the frame.
-      var oldParent = part.parent;
-      AsyncCall.CallOnEndOfFrame(this, x => {
-        // Ensure part's state hasn't been changed by the other modules.
-        if (part.parent == oldParent) {
-          Debug.LogWarningFormat(
-              "Detach part {0} from the parent since the link is invalid.", part.name);
-          part.decouple();
-        } else {
-          Debug.LogWarningFormat("Skip detaching {0} since it's already detached", part.name);
-        }
-      });
+      if (linkMode == LinkMode.DockVessels) {
+        Debug.LogWarningFormat("Fix docking state for a bad link on part {0}...", PartId(part));
+        AsyncCall.CallOnEndOfFrame(this, x => UndockFromBadTarget());
+      } else {
+        Debug.LogWarningFormat(
+            "Mark source part {0} as unlinked since link state cannot be restored.", PartId(part));
+      }
+    } else if (linkTarget.linkSource == null) {
+      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
+      Debug.LogWarningFormat(
+          "Detach part {0} from target {1} since target failed to restore its state.",
+          PartId(part), PartId(linkTarget.part));
+      AsyncCall.CallOnEndOfFrame(this, x => BreakCurrentLink(LinkActorType.None));
     }
   }
 
@@ -640,8 +643,10 @@ public class KASModuleLinkSourceBase :
   /// <param name="actorType">Actor who intiated the unlinking.</param>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
-    linkTarget.linkSource = null;
-    linkTarget = null;
+    if (linkTarget != null) {
+      linkTarget.linkSource = null;
+      linkTarget = null;
+    }
     linkState = LinkState.Available;
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
@@ -715,6 +720,30 @@ public class KASModuleLinkSourceBase :
     }
   }
   #endregion 
+
+  /// <summary>
+  /// Undocks source part from its probable target. Used to fix state when target cannot be resolved
+  /// from the config or it failed to properly re-link with source.
+  /// </summary>
+  void UndockFromBadTarget() {
+    if (attachNode == null || attachNode.attachedPart == null) {
+      Debug.LogWarningFormat(
+          "Cannot decouple part {0} because target candidate is not found.", PartId(part));
+      return;
+    }
+    Part partToDecouple;
+    if (part.parent == attachNode.attachedPart) {
+      partToDecouple = part;
+    } else if (attachNode.attachedPart.parent == part) {
+      partToDecouple = attachNode.attachedPart;
+    } else {
+      Debug.LogErrorFormat("Unexpected setup of attach node on part {0}", PartId(part));
+      return;
+    }
+    Debug.LogWarningFormat("Decouple part {0} from {1} since the link state cannot be restored.",
+                           PartId(partToDecouple), PartId(partToDecouple.parent));
+    partToDecouple.decouple();
+  }
 
   /// <summary>Gets part name and ID for loggin purpose.</summary>
   string PartId(Part p) {
