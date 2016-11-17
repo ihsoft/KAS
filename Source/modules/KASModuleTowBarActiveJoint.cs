@@ -166,7 +166,6 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <inheritdoc/>
   public override void DropJoint() {
     SetLockingMode(LockMode.Disabled);
-    SetActiveSteeringState(false);
     steeringInvert = false;
     base.DropJoint();
     UpdateContextMenu();
