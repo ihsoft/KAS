@@ -91,7 +91,16 @@ public class KASModuleLinkSourceBase :
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
-  public ILinkTarget linkTarget { get; private set; }
+  public ILinkTarget linkTarget {
+    get { return _linkTarget; }
+    private set {
+      _linkTarget = value;
+      persistedLinkTargetPartId = value != null ? value.part.flightID : 0;
+    }
+  }
+  ILinkTarget _linkTarget;
+  /// <inheritdoc/>
+  public uint linkTargetPartId { get { return persistedLinkTargetPartId; } }
   /// <inheritdoc/>
   public LinkState linkState {
     get {
@@ -134,6 +143,19 @@ public class KASModuleLinkSourceBase :
   /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
+
+  /// <summary>Persistent config field. Target part flight ID.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField(isPersistant = true)]
+  public uint persistedLinkTargetPartId;
   #endregion
 
   #region Part's config fields

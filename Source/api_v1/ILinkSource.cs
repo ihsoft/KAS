@@ -72,6 +72,9 @@ public interface ILinkSource {
   /// <summary>Linked target or <c>null</c> if nothing is linked.</summary>
   ILinkTarget linkTarget { get; }
 
+  /// <summary>ID of the linked target part.</summary>
+  uint linkTargetPartId { get; }
+
   /// <summary>Current state of the source.</summary>
   /// <remarks>
   /// The state cannot be affected directly. Different methods change it to different values.
