@@ -134,7 +134,6 @@ public class MessageEnumValue<T> : IEnumerable<KeyValuePair<T, string>> {
   /// <param name="key">Unique key.</param>
   /// <param name="value">GUI string for the key.</param>
   public void Add(T key, string value) {
-    Debug.LogWarningFormat("** Add value: key={0}, value={1}, dict={2}", key, value, strings);
     strings.Add(key, value);
   }
 
