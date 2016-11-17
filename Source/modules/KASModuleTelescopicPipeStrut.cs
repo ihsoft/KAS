@@ -560,7 +560,9 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
         pistonLength, outerPistonDiameter);
 
     // Init parked state. It must go after all the models are created.
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+    parkedOrientation = parkedOrientationMenu0 != ""
+        ? ExtractOrientationVector(parkedOrientationMenu0)
+        : Vector3.forward;
     if (Mathf.Approximately(parkedLength, 0)) {
       parkedLength = minLinkLength;
     }
