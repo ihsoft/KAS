@@ -15,6 +15,7 @@ namespace KASAPIv1 {
 /// TODO(ihsoft): Add state transtion diagram reference.
 /// TODO(ihsoft): Add code samples.
 public interface ILinkSource {
+
   /// <summary>Part that owns the source.</summary>
   Part part { get; }
 
@@ -24,6 +25,9 @@ public interface ILinkSource {
   /// able to connect with the source. Type can be any string, including empty.
   /// </remarks>
   string cfgLinkType { get; }
+
+  /// <summary>Defines link effect on vessel(s) hierarchy.</summary>
+  LinkMode cfgLinkMode { get; }
   
   /// <summary>Name of the attach node to connect with.</summary>
   /// <remarks>

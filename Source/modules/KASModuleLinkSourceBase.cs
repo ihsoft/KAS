@@ -46,9 +46,18 @@ public class KASModuleLinkSourceBase :
   /// <summary>Message to display when target link type doesn't match source type.</summary>
   protected readonly static Message IncompatibleTargetLinkTypeMsg =
       "Incompatible target link type";
-  /// <summary>Message to display when target belongs to the same vessel as source.</summary>
+  /// <summary>
+  /// Message to display when link mode requires different vessels but target belongs to the same
+  /// vessel as the source.
+  /// </summary>
   protected readonly static Message CannotLinkToTheSameVesselMsg =
       "Cannot link to the same vessel";
+  /// <summary>
+  /// Message to display when link mode requires parts to belong to the same vessel but source and
+  /// target are onwed by different crafts.
+  /// </summary>
+  protected readonly static Message CannotLinkDifferentVesselsMsg =
+      "Cannot link different vessels";
   /// <summary>Message to display when source refuses to start the link.</summary>
   protected readonly static Message SourceIsNotAvailableForLinkMsg =
       "Source is not available for link";
@@ -72,6 +81,8 @@ public class KASModuleLinkSourceBase :
   #region ILinkSource config properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return linkType; } }
+  /// <inheritdoc/>
+  public LinkMode cfgLinkMode { get { return linkMode; } }
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   /// <inheritdoc/>
@@ -138,6 +149,20 @@ public class KASModuleLinkSourceBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public string linkType = "";
+
+  /// <summary>Config setting. See <see cref="cfgLinkMode"/>.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public LinkMode linkMode = LinkMode.DockVessels;
+
   /// <summary>Config setting. See <see cref="cfgLinkRendererName"/>.</summary>
   /// <remarks>
   /// <para>
@@ -150,6 +175,7 @@ public class KASModuleLinkSourceBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public string linkRendererName = "";
+
   /// <summary>Config setting. See <see cref="cfgAttachNodeName"/>.</summary>
   /// <remarks>
   /// <para>
@@ -162,6 +188,7 @@ public class KASModuleLinkSourceBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public string attachNodeName = "";
+
   /// <summary>Config setting. Defines attach node position in the local units.</summary>
   /// <remarks>
   /// <para>
@@ -174,6 +201,7 @@ public class KASModuleLinkSourceBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
+
   /// <summary>Config setting. Defines attach node orientation in the local units.</summary>
   /// <remarks>
   /// <para>
@@ -602,8 +630,12 @@ public class KASModuleLinkSourceBase :
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
-    if (part.vessel == target.part.vessel) {
+    if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TieVessels)
+        && part.vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
+    }
+    if (linkMode == LinkMode.Strut && part.vessel != target.part.vessel) {
+      return CannotLinkDifferentVesselsMsg;
     }
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
       return SourceIsNotAvailableForLinkMsg;
