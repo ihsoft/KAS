@@ -4,6 +4,7 @@
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
 using KASAPIv1;
+using KSPDev.KSPInterfaces;
 using System;
 using UnityEngine;
 
@@ -29,7 +30,14 @@ namespace KAS {
 // TODO(ihsoft): Add an image.
 // TODO(ihsoft): Implement prismatic joint linear limits.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
-public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState {
+public class KASModuleTwoEndsSphereJoint :
+    // KAS parents.
+    AbstractJointModule,
+    // KSP interfaces.
+    IJointLockState,
+    // Syntax sugar interfaces.
+    IsDestroyable {
+
   #region Helper class to detect joint breakage
   /// <summary>
   /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
@@ -112,12 +120,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState 
   }
 
   /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onProtoPartSnapshotSave.Remove(onProtoPartSnapshotSave);
-  }
-
-  /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
     if (isLinked) {
@@ -125,6 +127,14 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule, IJointLockState 
       // data will be fixed in onProtoPartSnapshotSave.
       vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
     }
+  }
+  #endregion
+
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onProtoPartSnapshotSave.Remove(onProtoPartSnapshotSave);
   }
   #endregion
 
