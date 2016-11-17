@@ -353,8 +353,8 @@ public class KASModuleLinkSourceBase :
       nodeTransform = part.FindModelTransform(attachNodeName + "-node");
     }
 
-    // If source is linked then we need actual attach node. Create it.
-    if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
+    // If source is docked to the target then we need actual attach node. Create it.
+    if (persistedLinkState == LinkState.Linked && linkMode == LinkMode.DockVessels) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
   }
