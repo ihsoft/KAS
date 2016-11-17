@@ -202,7 +202,10 @@ public sealed class KASModuleTowBarActiveJoint :
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public void FixedUpdate() {
-    if (isLinked && lockingMode == LockMode.Locking) {
+    if (!isLinked) {
+      return;
+    }
+    if (lockingMode == LockMode.Locking) {
       var yaw = GetYawAngle(linkTarget.nodeTransform, linkSource.nodeTransform);
       var absYaw = Mathf.Abs(yaw);
       if (absYaw < trgJoint.angularZLimit.limit) {
