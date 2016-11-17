@@ -442,8 +442,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (linkState != LinkState.Linked) {
-      Debug.LogWarningFormat(
-          "Cannot break link: part {0} is not linked to anything", part.name);
+      Debug.LogWarningFormat("Cannot break link: part {0} is not linked to anything", PartId(part));
       return;
     }
     // Logical unlink must be done first before doing actual decouple.
@@ -470,8 +469,8 @@ public class KASModuleLinkSourceBase :
     if (errorMsg != null) {
       if (reportToGUI || reportToLog) {
         Debug.LogWarningFormat(
-            "Cannot link {0} (type={1}) and {2} (type={3}): {4}",
-            part.name, cfgLinkType, target.part.name, target.cfgLinkType, errorMsg);
+            "Cannot link part {0} (type={1}) and part {2} (type={3}): {4}",
+            PartId(part), cfgLinkType, PartId(target.part), target.cfgLinkType, errorMsg);
       }
       if (reportToGUI) {
         ScreenMessaging.ShowScreenMessage(
@@ -688,6 +687,11 @@ public class KASModuleLinkSourceBase :
     }
   }
   #endregion 
+
+  /// <summary>Gets part name and ID for loggin purpose.</summary>
+  string PartId(Part p) {
+    return p != null ? string.Format("{0} (id={1})", p.name, p.flightID) : "NULL";
+  }
 }
 
 }  // namespace
