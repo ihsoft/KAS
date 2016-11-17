@@ -601,14 +601,20 @@ public class KASModuleLinkSourceBase :
   /// <param name="target">Target to physically link with.</param>
   protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
-    KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
+    if (linkMode == LinkMode.DockVessels) {
+      Debug.LogFormat("Physically linking {0} to {1}", PartId(part), PartId(target.part));
+      KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
+    }
   }
 
   /// <summary>Breaks link with the target in the physical world.</summary>
   /// <param name="target">Target to break physical link with.</param>
   protected virtual void PhysicalUnink(ILinkTarget target) {
     // FIXME: restore vessels names/types
-    KASAPI.LinkUtils.DecoupleParts(part, target.part);
+    if (linkMode == LinkMode.DockVessels) {
+      Debug.LogFormat("Physically unlinking {0} to {1}", PartId(part), PartId(target.part));
+      KASAPI.LinkUtils.DecoupleParts(part, target.part);
+    }
   }
 
   /// <summary>Logically links source and target.</summary>
