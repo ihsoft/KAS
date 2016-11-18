@@ -68,7 +68,7 @@ class LinkUtilsImpl : ILinkUtils {
     if (part1.parent == part2) {
       part1.decouple();
       inactiveVessel = part2.vessel;
-    } if (part2.parent == part1) {
+    } else if (part2.parent == part1) {
       part2.decouple();
       inactiveVessel = part1.vessel;
     } else {
