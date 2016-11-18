@@ -86,7 +86,7 @@ public sealed class KASModuleTowBarActiveJoint :
   public string steeringStatus = "";
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
-  [KSPField(guiName = "Steering: Direction", isPersistant = true, guiActiveEditor = true),
+  [KSPField(guiName = "Steering: Direction", isPersistant = true, guiActiveEditor = false),
    UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
   public bool steeringInvert;
   #endregion
