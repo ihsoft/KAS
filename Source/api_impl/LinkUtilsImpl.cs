@@ -13,18 +13,35 @@ namespace KASImpl {
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
-    if (source != null && source.attachNode != null && source.attachNode.attachedPart != null) {
-      return source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-          .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == source.part);
+    // Docked parts must be connected via attach nodes. Use them to doublecheck if the link is OK.
+    if (source.cfgLinkMode == LinkMode.DockVessels) {
+      if (source != null && source.attachNode != null && source.attachNode.attachedPart != null) {
+        return source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
+            .FirstOrDefault(s => s.attachNode != null && s.attachNode.attachedPart == source.part);
+      }
+      return null;
+    }
+    // Non-docked parts are bound via part IDs. Usen them to resolve source<=>target relation.
+    if (source.linkTargetPartId > 0) {
+      var targetPart = FlightGlobals.FindPartByID(source.linkTargetPartId);
+      return targetPart.FindModulesImplementing<ILinkTarget>().FirstOrDefault(
+          t => t.linkState == LinkState.Linked && t.linkSourcePartId == source.part.flightID);
     }
     return null;
   }
 
   /// <inheritdoc/>
   public ILinkSource FindLinkSourceFromTarget(ILinkTarget target) {
+    // Docked parts must be connected via attach nodes. Use them to doublecheck if the link is OK.
     if (target != null && target.attachNode != null && target.attachNode.attachedPart != null) {
       return target.attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(x => x.attachNode != null && x.attachNode.attachedPart == target.part);
+          .FirstOrDefault(s => s.attachNode != null && s.attachNode.attachedPart == target.part);
+    }
+    // Non-docked parts are bound via part IDs. Usen them to resolve source<=>target relation.
+    if (target.linkSourcePartId > 0) {
+      var sourcePart = FlightGlobals.FindPartByID(target.linkSourcePartId);
+      return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
+          s => s.linkState == LinkState.Linked && s.linkTargetPartId == target.part.flightID);
     }
     return null;
   }
