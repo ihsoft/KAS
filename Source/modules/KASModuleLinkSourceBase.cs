@@ -329,18 +329,18 @@ public class KASModuleLinkSourceBase :
           "KAS part {0} misses renderer module. It won't work properly", part.name);
     }
 
-    // Try to restore link to the target.
+    // Try to restore link to the target and update module's state.
     if (persistedLinkState == LinkState.Linked) {
-      linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
-      if (linkTarget == null) {
-        Debug.LogErrorFormat(
-            "Source {0} (id={1}) cannot restore link to target on attach node {2}",
-            part.name, part.flightID, attachNodeName);
+      if (linkMode == LinkMode.TieVessels) {
+        // It's unknown in which order the vessels will load, so postpone the restoring process.
+        AsyncCall.CallOnEndOfFrame(this, x => RestoreTarget());
+      } else {
+        RestoreTarget();
       }
+    } else {
+      linkStateMachine.Start(persistedLinkState);
+      linkState = linkState;  // Trigger state updates.
     }
-
-    linkStateMachine.Start(persistedLinkState);
-    linkState = linkState;  // Trigger state updates.
   }
 
   /// <inheritdoc/>
@@ -761,6 +761,18 @@ public class KASModuleLinkSourceBase :
         "Decouple part {0} from {1} since the link state cannot be restored.",
         DbgFormatter.PartId(partToDecouple), DbgFormatter.PartId(partToDecouple.parent));
     partToDecouple.decouple();
+  }
+
+  /// <summary>Finds linked target for the source, and updates the state.</summary>
+  void RestoreTarget() {
+    linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
+    if (linkTarget == null) {
+      Debug.LogErrorFormat(
+          "Source {0} cannot restore link to target part id={1} on attach node {2}",
+          DbgFormatter.PartId(part), persistedLinkTargetPartId, attachNodeName);
+    }
+    linkStateMachine.Start(persistedLinkState);
+    linkState = linkState;  // Trigger state updates.
   }
 }
 
