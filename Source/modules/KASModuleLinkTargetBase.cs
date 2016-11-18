@@ -56,8 +56,9 @@ public class KASModuleLinkTargetBase :
       if (_linkSource != value) {
         var oldSource = _linkSource;
         _linkSource = value;
-        linkState = value != null ? LinkState.Linked : LinkState.Available;
         persistedLinkSourcePartId = value != null ? value.part.flightID : 0;
+        persistedLinkMode = value != null ? value.cfgLinkMode : LinkMode.DockVessels;
+        linkState = value != null ? LinkState.Linked : LinkState.Available;
         TriggerSourceChangeEvents(oldSource);
       }
     }
@@ -121,6 +122,22 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public uint persistedLinkSourcePartId;
+
+  /// <summary>
+  /// Persistent config field. Source link mode. It only makes sense when state is
+  /// <see cref="LinkState.Linked"/>.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField(isPersistant = true)]
+  public LinkMode persistedLinkMode;
   #endregion
 
   #region Part's config fields
