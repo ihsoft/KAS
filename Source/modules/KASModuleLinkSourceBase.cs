@@ -70,12 +70,16 @@ public class KASModuleLinkSourceBase :
   /// <summary>Info string in the editor for link type setting.</summary>
   protected readonly static Message<string> LinksWithSocketTypeInfo =
       "Links with socket type: {0}";
-  /// <summary>Info string in the editor to identify if part can link with anotehr vessel.</summary>
-  protected readonly static Message CanLinkToANotherVesselInfo =
-      "\n\nCan be linked to another vessel";
   /// <summary>Title of the module to present in the editor details window.</summary>
   protected readonly static Message ModuleTitleInfo =
       "KAS Joint Source";
+  /// <summary>Info string in the editor to identify if part can link with another vessel.</summary>
+  protected readonly static MessageEnumValue<LinkMode> LinkModeInfo =
+      new MessageEnumValue<LinkMode>() {
+        {LinkMode.DockVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
+        {LinkMode.TieVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
+        {LinkMode.Strut, "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
+      };
   #endregion
 
   #region ILinkSource config properties implementation
@@ -401,8 +405,9 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.Append(LinksWithSocketTypeInfo.Format(linkType));
-    sb.Append(CanLinkToANotherVesselInfo);
+    sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
+    sb.AppendLine();
+    sb.AppendLine(LinkModeInfo.Format(linkMode));
     return sb.ToString();
   }
 
