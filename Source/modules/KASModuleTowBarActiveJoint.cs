@@ -64,8 +64,24 @@ public sealed class KASModuleTowBarActiveJoint :
   #endregion
 
   #region Part's config fields
+  /// <summary>
+  /// Config setting. Link angle at the source part that produces maximum steering.
+  /// </summary>
+  /// <remarks>
+  /// E.g. if this settings is <c>25</c> degrees and the angle at the source is <c>10</c> degrees
+  /// then steering power will be <c>10/25=0.4</c>. If angle at the source goes beyond the limit
+  /// then steering power is just clamped to <c>1.0</c>. What is good value for this limit depends
+  /// on the towing speed: the higher the speed the lower you want this limit to be.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField]
-  public float lockedSourceAngleLimit;
+  public float maxSteeringAngle;
   #endregion
 
   #region persistent fields
@@ -256,20 +272,11 @@ public sealed class KASModuleTowBarActiveJoint :
     lockingMode = mode;
     lockStatus = LockStatusMsg.Format(lockingMode);
 
-    if (isLinked && srcJoint != null && mode == LockMode.Locked) {
-      // Restore joint state that could be affected during locking.
-      var angularLimit = srcJoint.angularZLimit;
-      angularLimit.limit = Mathf.Approximately(lockedSourceAngleLimit, 0)
-          ? sourceLinkAngleLimit
-          : lockedSourceAngleLimit;
-      srcJoint.angularZLimit = angularLimit;
-    }
-
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
-      trgJoint.angularZLimit = new SoftJointLimit() {
-        limit = targetLinkAngleLimit
-      };
+      var angularLimit = trgJoint.angularZLimit;
+      angularLimit.limit = targetLinkAngleLimit;
+      trgJoint.angularZLimit = angularLimit;
       trgJoint.angularZMotion = mode == LockMode.Locked
           ? ConfigurableJointMotion.Locked
           : ConfigurableJointMotion.Limited;
@@ -332,7 +339,7 @@ public sealed class KASModuleTowBarActiveJoint :
         srcJointYaw = -srcJointYaw;
       }
       linkTarget.part.vessel.ctrlState.wheelSteer = Mathf.Abs(srcJointYaw) > ZeroSteeringAngle
-          ? Mathf.Clamp(srcJointYaw / srcJoint.angularZLimit.limit, -1.0f, 1.0f)
+          ? Mathf.Clamp(srcJointYaw / maxSteeringAngle, -1.0f, 1.0f)
           : 0;
     }
   }
