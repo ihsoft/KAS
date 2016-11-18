@@ -338,8 +338,11 @@ public class KASModuleLinkTargetBase :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-    attachNode = null;
+    if (nodeName == attachNodeName) {
+      // Cleanup the node since once decoupled it's not more needed.
+      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+      attachNode = null;
+    }
   }
   #endregion
 

@@ -544,11 +544,15 @@ public class KASModuleLinkSourceBase :
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (nodeName == attachNodeName && linkState == LinkState.Linked) {
-      LogicalUnlink(LinkActorType.API);
+    if (nodeName == attachNodeName) {
+      if (linkState == LinkState.Linked) {
+        // In case of event was external to KAS.
+        LogicalUnlink(LinkActorType.None);
+      }
+      // Cleanup the node since once decoupled it's not more needed.
+      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
+      attachNode = null;
     }
-    KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-    attachNode = null;
     //FIXME: restore source vessel info
   }
   #endregion
