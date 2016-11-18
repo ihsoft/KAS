@@ -367,7 +367,8 @@ public class KASModuleLinkTargetBase :
       attachNode = null;
     }
 
-    // Adjust compatible part highlight. 
+    // Adjust compatible part highlight.
+    // TODO(ihsoft): Handle mutliple targets on part to not override settings.
     if (highlightCompatibleTargets && oldState != linkState) {
       if (linkState == LinkState.AcceptingLinks) {
         part.highlighter.ConstantOn(highlightColor);
