@@ -9,6 +9,7 @@ using KASAPIv1;
 using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
+using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -249,18 +250,18 @@ public class KASModuleLinkTargetBase :
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
-    var newState = persistedLinkState;
+    // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {
-      _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
-      if (_linkSource == null) {
-        Debug.LogErrorFormat(
-            "Target {0} (id={1}) cannot restore link to source on attach node {2}",
-            part.name, part.flightID, attachNodeName);
-        newState = LinkState.Available;
+      if (persistedLinkMode == LinkMode.TieVessels) {
+        // It's unknown in which order the vessels will load, so postpone the restoring process.
+        AsyncCall.CallOnEndOfFrame(this, x => RestoreSource());
+      } else {
+        RestoreSource();
       }
+    } else {
+      linkStateMachine.Start(persistedLinkState);
+      linkState = linkState;  // Trigger state updates.
     }
-    linkStateMachine.Start(newState);
-    linkState = linkState;  // Trigger updates.
   }
 
   /// <inheritdoc/>
@@ -278,8 +279,8 @@ public class KASModuleLinkTargetBase :
       nodeTransform = part.FindModelTransform(attachNodeName + "-node");
     }
 
-    // If source is linked then we need actual attach node. Create it.
-    if (persistedLinkState == LinkState.Linked && HighLogic.LoadedSceneIsFlight) {
+    // If source is linked and docked then we need actual attach node. Create it.
+    if (persistedLinkState == LinkState.Linked && persistedLinkMode == LinkMode.DockVessels) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
   }
@@ -369,8 +370,10 @@ public class KASModuleLinkTargetBase :
 
   #region New inheritable methods
   /// <summary>Triggers when state has being assigned with a value.</summary>
-  /// <remarks>This method triggers even when new state doesn't differ from the old one. When it's
-  /// important to catch the transition check for <paramref name="oldState"/>.</remarks>
+  /// <remarks>
+  /// This method triggers even when new state doesn't differ from the old one. When it's important
+  /// to catch the transition check for <paramref name="oldState"/>.
+  /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
     // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
@@ -412,6 +415,23 @@ public class KASModuleLinkTargetBase :
     }
   }
   #endregion
+
+  /// <summary>Finds linked source for the target, and updates the state.</summary>
+  void RestoreSource() {
+    _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
+    var startState = persistedLinkState;
+    if (_linkSource == null) {
+      Debug.LogErrorFormat(
+          "Target {0} cannot restore link to source part id={1} on attach node {2}."
+          + " Make it unlinked.",
+           DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
+      persistedLinkSourcePartId = 0;
+      persistedLinkMode = LinkMode.DockVessels;
+      startState = LinkState.Available;
+    }
+    linkStateMachine.Start(startState);
+    linkState = linkState;  // Trigger state updates.
+  }
 }
 
 }  // namespace
