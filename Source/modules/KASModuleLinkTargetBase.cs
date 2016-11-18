@@ -322,9 +322,13 @@ public class KASModuleLinkTargetBase :
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   void OnStartConnecting(ILinkSource source) {
-    linkState = (part != source.part && cfgLinkType == source.cfgLinkType)
-        ? LinkState.AcceptingLinks
-        : LinkState.RejectingLinks;
+    if (part != source.part && cfgLinkType == source.cfgLinkType
+        && (source.cfgLinkMode == LinkMode.Strut && vessel == source.part.vessel
+            || source.cfgLinkMode != LinkMode.Strut && vessel != source.part.vessel)) {
+      linkState = LinkState.AcceptingLinks;
+    } else {
+      linkState = LinkState.RejectingLinks;
+    }
   }
 
   /// <summary>Reacts on source link mode change.</summary>
