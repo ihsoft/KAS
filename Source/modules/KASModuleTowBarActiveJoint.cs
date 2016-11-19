@@ -162,6 +162,7 @@ public sealed class KASModuleTowBarActiveJoint :
     lockStatusScreenMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
     if (HighLogic.LoadedSceneIsFlight) {
+      // Trigger updates with the loaded value.
       SetActiveSteeringState(activeSteeringEnabled);
       UpdateContextMenu();
     }
@@ -172,7 +173,6 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <inheritdoc/>
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
     base.CreateJoint(source, target);
-    //FIXME: change main axis for target joint.
     UpdateContextMenu();
     SetLockingMode(lockingMode);
     SetActiveSteeringState(activeSteeringEnabled);
