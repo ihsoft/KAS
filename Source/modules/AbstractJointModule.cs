@@ -223,7 +223,10 @@ public abstract class AbstractJointModule :
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
-    DropJoint();
+    if (isLinked) {
+      Debug.LogWarningFormat("Joint on {0} is already linked", DbgFormatter.PartId(part));
+      return;
+    }
     linkSource = source;
     linkTarget = target;
     if (part.attachJoint != null && part.attachJoint.Target == target.part) {
