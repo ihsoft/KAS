@@ -123,6 +123,13 @@ public sealed class KASModuleTowBarActiveJoint :
   [KSPField(guiName = "Steering status")]
   public string steeringStatus = "";
 
+  /// <summary>Defines responsiveness of the towed vessel to teh steering.</summary>
+  [KSPField(guiName = "Steering sensitivity", guiFormat = "0.0", isPersistant = true,
+            guiActiveEditor = false, guiActive = true),
+   UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
+                 stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
+  public float steeringSensitivity = 1.0f;
+
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
   [KSPField(guiName = "Steering: Direction", isPersistant = true, guiActiveEditor = false),
    UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
@@ -202,6 +209,7 @@ public sealed class KASModuleTowBarActiveJoint :
   public override void DropJoint() {
     SetLockingMode(LockMode.Disabled);
     steeringInvert = false;
+    steeringSensitivity = 1.0f;
     base.DropJoint();
     UpdateContextMenu();
   }
@@ -272,6 +280,7 @@ public sealed class KASModuleTowBarActiveJoint :
     Fields["lockStatus"].guiActive = isLinked;
     Fields["steeringStatus"].guiActive = isLinked;
     Fields["steeringInvert"].guiActive = isLinked && activeSteeringEnabled;
+    Fields["steeringSensitivity"].guiActive = isLinked && activeSteeringEnabled;
     Events["StartLockLockingAction"].active = isLinked && lockingMode == LockMode.Disabled;
     Events["UnlockAction"].active = isLinked && lockingMode != LockMode.Disabled;
     Events["DeactiveSteeringAction"].active = isLinked && activeSteeringEnabled;
@@ -358,7 +367,7 @@ public sealed class KASModuleTowBarActiveJoint :
         srcJointYaw = -srcJointYaw;
       }
       linkTarget.part.vessel.ctrlState.wheelSteer = Mathf.Abs(srcJointYaw) > ZeroSteeringAngle
-          ? Mathf.Clamp(srcJointYaw / maxSteeringAngle, -1.0f, 1.0f)
+          ? Mathf.Clamp(steeringSensitivity * srcJointYaw / maxSteeringAngle, -1.0f, 1.0f)
           : 0;
     }
   }
