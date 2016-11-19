@@ -85,9 +85,31 @@ public sealed class KASModuleTowBarActiveJoint :
   #endregion
 
   #region persistent fields
+  /// <summary>Persistent config field. Tells of active steering mode is enabled.</summary>
+  /// <remarks>
+  /// If mode is enabled it doesn't mean it's active. There are conditions that affect when the mode
+  /// can actually start affecting target vessel.
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public bool activeSteeringEnabled;
 
+  /// <summary>Persistent config field. Current locking mode of the tow bar.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
+  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
+  /// declared <c>public</c> it must not be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public LockMode lockingMode = LockMode.Disabled;
   #endregion
