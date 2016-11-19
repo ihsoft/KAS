@@ -164,7 +164,6 @@ public sealed class KASModuleTowBarActiveJoint :
     if (HighLogic.LoadedSceneIsFlight) {
       // Trigger updates with the loaded value.
       SetActiveSteeringState(activeSteeringEnabled);
-      UpdateContextMenu();
     }
   }
   #endregion
@@ -173,7 +172,6 @@ public sealed class KASModuleTowBarActiveJoint :
   /// <inheritdoc/>
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
     base.CreateJoint(source, target);
-    UpdateContextMenu();
     SetLockingMode(lockingMode);
     SetActiveSteeringState(activeSteeringEnabled);
   }
