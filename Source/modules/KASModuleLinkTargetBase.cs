@@ -397,6 +397,28 @@ public class KASModuleLinkTargetBase :
       }
     }
   }
+
+  /// <summary>Finds linked source for the target, and updates the state.</summary>
+  /// <remarks>
+  /// Depending on link mode this method may be called synchronously when part is started or
+  /// asynchronously at the end of frame.
+  /// </remarks>
+  /// <seealso cref="persistedLinkMode"/>
+  protected virtual void RestoreSource() {
+    _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
+    var startState = persistedLinkState;
+    if (_linkSource == null) {
+      Debug.LogErrorFormat(
+          "Target {0} cannot restore link to source part id={1} on attach node {2}."
+          + " Make it unlinked.",
+           DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
+      persistedLinkSourcePartId = 0;
+      persistedLinkMode = LinkMode.DockVessels;
+      startState = LinkState.Available;
+    }
+    linkStateMachine.Start(startState);
+    linkState = linkState;  // Trigger state updates.
+  }
   #endregion
 
   #region Local untility methods
@@ -415,23 +437,6 @@ public class KASModuleLinkTargetBase :
     }
   }
   #endregion
-
-  /// <summary>Finds linked source for the target, and updates the state.</summary>
-  void RestoreSource() {
-    _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
-    var startState = persistedLinkState;
-    if (_linkSource == null) {
-      Debug.LogErrorFormat(
-          "Target {0} cannot restore link to source part id={1} on attach node {2}."
-          + " Make it unlinked.",
-           DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
-      persistedLinkSourcePartId = 0;
-      persistedLinkMode = LinkMode.DockVessels;
-      startState = LinkState.Available;
-    }
-    linkStateMachine.Start(startState);
-    linkState = linkState;  // Trigger state updates.
-  }
 }
 
 }  // namespace

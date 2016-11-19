@@ -668,6 +668,23 @@ public class KASModuleLinkSourceBase :
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
   }
+
+  /// <summary>Finds linked target for the source, and updates the state.</summary>
+  /// <remarks>
+  /// Depending on link mode this method may be called synchronously when part is started or
+  /// asynchronously at the end of frame.
+  /// </remarks>
+  /// <seealso cref="linkMode"/>
+  protected virtual void RestoreTarget() {
+    linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
+    if (linkTarget == null) {
+      Debug.LogErrorFormat(
+          "Source {0} cannot restore link to target part id={1} on attach node {2}",
+          DbgFormatter.PartId(part), persistedLinkTargetPartId, attachNodeName);
+    }
+    linkStateMachine.Start(persistedLinkState);
+    linkState = linkState;  // Trigger state updates.
+  }
   #endregion
 
   #region New utility methods
@@ -761,18 +778,6 @@ public class KASModuleLinkSourceBase :
         "Decouple part {0} from {1} since the link state cannot be restored.",
         DbgFormatter.PartId(partToDecouple), DbgFormatter.PartId(partToDecouple.parent));
     partToDecouple.decouple();
-  }
-
-  /// <summary>Finds linked target for the source, and updates the state.</summary>
-  void RestoreTarget() {
-    linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
-    if (linkTarget == null) {
-      Debug.LogErrorFormat(
-          "Source {0} cannot restore link to target part id={1} on attach node {2}",
-          DbgFormatter.PartId(part), persistedLinkTargetPartId, attachNodeName);
-    }
-    linkStateMachine.Start(persistedLinkState);
-    linkState = linkState;  // Trigger state updates.
   }
 }
 
