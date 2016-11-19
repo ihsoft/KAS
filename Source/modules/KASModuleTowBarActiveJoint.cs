@@ -5,10 +5,7 @@
 
 using KASAPIv1;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using KSPDev.KSPInterfaces;
-using KSPDev.ProcessingUtils;
 using KSPDev.GUIUtils;
 using UnityEngine;
 
