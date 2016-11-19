@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
+using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.KSPInterfaces;
 using System;
@@ -212,7 +213,8 @@ public abstract class AbstractJointModule :
   #region IJointEventsListener implemetation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    Debug.LogFormat("Joint on {0} broken by physics with force={1}", part.name, breakForce);
+    Debug.LogFormat("Joint on {0} broken by physics with force={1}",
+                    DbgFormatter.PartId(part), breakForce);
     DropJoint();
     part.OnPartJointBreak(breakForce);
   }
@@ -339,10 +341,11 @@ public abstract class AbstractJointModule :
             if (part.parent == oldParent) {
               Debug.LogWarningFormat(
                   "Detach part {0} from the parent since joint limits are not met: {1}",
-                  part.name, limitError);
+                  DbgFormatter.PartId(part), limitError);
               source.BreakCurrentLink(LinkActorType.Physics);
             } else {
-              Debug.LogWarningFormat("Skip detaching {0} since it's already detached", part.name);
+              Debug.LogWarningFormat(
+                  "Skip detaching {0} since it's already detached", DbgFormatter.PartId(part));
             }
           });
         } else {
@@ -465,12 +468,10 @@ public abstract class AbstractJointModule :
   /// <summary>Returns a logs friendly string description of the link.</summary>
   protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
     var srcTitle = source != null && source.part != null 
-        ? string.Format("{0} at {1} (id={2})",
-                        source.part.name, source.cfgAttachNodeName, source.part.flightID)
+        ? string.Format("{0} at {1}", DbgFormatter.PartId(source.part), source.cfgAttachNodeName)
         : "NOTHING";
     var trgTitle = target != null && target.part != null
-        ? string.Format("{0} at {1} (id={2})",
-                        target.part.name, target.cfgAttachNodeName, target.part.flightID)
+        ? string.Format("{0} at {1}", DbgFormatter.PartId(target.part), target.cfgAttachNodeName)
         : "NOTHING";
     return srcTitle + " => " + trgTitle;
   }
