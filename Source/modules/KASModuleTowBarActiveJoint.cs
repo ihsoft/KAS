@@ -173,10 +173,9 @@ public sealed class KASModuleTowBarActiveJoint :
   public override void CreateJoint(ILinkSource source, ILinkTarget target) {
     base.CreateJoint(source, target);
     //FIXME: change main axis for target joint.
-    //FIXME check for locked
-    SetLockingMode(LockMode.Disabled);  //FIXME figure from the current joint config
-    SetActiveSteeringState(false);  // FIXME use saved state
     UpdateContextMenu();
+    SetLockingMode(lockingMode);
+    SetActiveSteeringState(activeSteeringEnabled);
   }
 
   /// <inheritdoc/>
