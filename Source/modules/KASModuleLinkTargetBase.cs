@@ -411,7 +411,7 @@ public class KASModuleLinkTargetBase :
       Debug.LogErrorFormat(
           "Target {0} cannot restore link to source part id={1} on attach node {2}."
           + " Make it unlinked.",
-           DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
+          DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
       persistedLinkSourcePartId = 0;
       persistedLinkMode = LinkMode.DockVessels;
       startState = LinkState.Available;
