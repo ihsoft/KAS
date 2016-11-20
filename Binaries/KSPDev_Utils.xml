@@ -1013,10 +1013,10 @@
             <code><![CDATA[
             var fmt = "Value: {0}";
             var spcFmt = "SPECIAL VALUE!";
-            Debug.Log(Formatter.SpecialValue(0.5f, fmt, 0.5f, spcFmt);
+            Debug.LogFormat(Formatter.SpecialValue(0.5f, fmt, 0.5f, spcFmt);
             // Outputs:
             // SPECIAL VALUE!
-            Debug.Log(Formatter.SpecialValue(0.4f, fmt, 0.5f, spcFmt);
+            Debug.LogFormat(Formatter.SpecialValue(0.4f, fmt, 0.5f, spcFmt);
             // Outputs:
             // Value: 0.4
             ]]></code>
@@ -1042,6 +1042,151 @@
             ]]></code>
             </example>
         </member>
+        <member name="T:KSPDev.GUIUtils.MessageBoolValue">
+             <summary>A class to wrap a UI string for a boolean value.</summary>
+             <remarks>
+             <para>
+             When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageBoolValue.Format(System.Boolean)"/> to make the parameter substitute.
+             </para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>MessageBoolValue</c>.
+             <code><![CDATA[
+             class MyMod : MonoBehaviour {
+               static readonly MessageBoolValue SwitchMsg = new MessageBoolValue("ON", "OFF");
+               static readonly MessageBoolValue StateMsg = new MessageBoolValue("Enabled", "Disabled");
+            
+               void Awake() {
+                 Debug.LogFormat("Localized: {0}", SwitchMsg.Format(true));  // ON
+                 Debug.LogFormat("Localized: {0}", StateMsg.Format(false));  // Disabled
+               }
+             }
+             ]]></code>
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageBoolValue.#ctor(System.String,System.String)">
+            <summary>Creates a message.</summary>
+            <param name="positiveStr">Message string for <c>true</c> value.</param>
+            <param name="negativeStr">Message string for <c>false</c> value.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageBoolValue.Format(System.Boolean)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.MessageEnumValue`1">
+             <summary>A class to wrap a UI string for an enum value.</summary>
+             <remarks>
+             <para>
+             When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageEnumValue`1.Format(`0)"/> to make the parameter substitute.
+             </para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of doing switches when an enum value should be presented on UI just define a message
+             that declares a map between values and their UI representations. You don't need specify every
+             single value in the map, there is an option to set a UI string for unknown value.  
+             <code><![CDATA[
+             class MyMod : MonoBehaviour {
+               enum MyEnum {
+                 Disabled,
+                 Enabled,
+                 UnusedValue1,
+                 UnusedValue2,
+                 UnusedValue3,
+               }
+            
+               // Lookup with custom value for an unknown key.
+               static readonly MessageEnumValue<MyEnum> Msg1 =
+                   new MessageEnumValue<MyEnum>("UNKNOWN") {
+                     {MyEnum.Enabled, "ENABLED"},
+                     {MyEnum.Disabled, "DISABLED"},
+                   };
+            
+               // Default lookup.
+               static readonly MessageEnumValue<MyEnum> Msg2 =
+                   new MessageEnumValue<MyEnum>() {
+                     {MyEnum.Enabled, "ENABLED"},
+                     {MyEnum.Disabled, "DISABLED"},
+                     {MyEnum.UnusedValue1, "Value1"},
+                     {MyEnum.UnusedValue2, "Value2"},
+                   };
+            
+               void Awake() {
+                 Debug.LogFormat("Localized: {0}", Msg1.Format(MyEnum.Disabled));  // DISABLED
+                 Debug.LogFormat("Localized: {0}", Msg1.Format(MyEnum.UnusedValue1));  // UNKNOWN
+            
+                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue1));  // Value1
+                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue2));  // Value2
+                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue3));  // "" (null)
+               }
+             }
+             ]]></code>
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.#ctor(System.String)">
+            <summary>Creates an empty message with a default value for unknow entries.</summary>
+            <param name="unknownKeyValue">
+            Value to return if lookup dictionary doesn't have the requested key.
+            </param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.Add(`0,System.String)">
+            <summary>Adds a new lookup for the key.</summary>
+            <param name="key">Unique key.</param>
+            <param name="value">GUI string for the key.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.Format(`0)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.MessageSpecialFloatValue">
+             <summary>
+             A class to wrap a UI string with one parameter which may have special meaning.
+             </summary>
+             <remarks>
+             <para>When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)"/> to make the parameter
+             substitute.</para>
+             <para>
+             In the future it may support localization but for now it's only a convinience wrapper.
+             </para>
+             </remarks>
+             <example>
+             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
+             to fields of type <c>Message</c>.
+             <code><![CDATA[
+             class MyMod : MonoBehaviour {
+               MessageSpecialFloatValue MyMessage =
+                   new MessageSpecialFloatValue("Param: {0}", 0, "Param is ZERO");
+            
+               void Awake() {
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format(1));  // Param: 1
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format(0));  // Param is ZERO
+               }
+             }
+             ]]></code>
+             </example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.#ctor(System.String,System.Single,System.String)">
+            <summary>Creates a message.</summary>
+            <param name="fmtString">A message format string.</param>
+            <param name="specialValue">Value to use a special message string for.</param>
+            <param name="specialString">Special message string for the value.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)">
+            <summary>Formats message string with the provided arguments.</summary>
+            <param name="arg1">An argument to substitute.</param>
+            <returns>Complete message string.</returns>
+        </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
             <remarks>The actual representation of the different priority messages depends on the KSP
@@ -1056,7 +1201,7 @@
             </remarks>
             <example>
             <code>
-            class MyMod : MonoBehavior {
+            class MyMod : MonoBehaviour {
               void Update() {
                 if (Input.GetKeyDown("1")) {
                   ScreenMessaging.ShowPriorityScreenMessage("Key pressed in frame #{0}", Time.frameCount);
@@ -1172,7 +1317,7 @@
              In a common case initialization of the hint window is done on the game object awakening, and
              it's either shown or hidden in <c>OnGUI</c> method.
              <code>
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                HintOverlay hint;
             
                void Awake() {
@@ -1249,20 +1394,16 @@
              </remarks>
              <example>
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
-             localization.
+             to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message MyMessage = "This is a message without parameters";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage);
+                 Debug.LogFormat("Localized: {0}", MyMessage);
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message.#ctor(System.String)">
@@ -1293,20 +1434,16 @@
              </remarks>
              <example>
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
-             localization.
+             to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message<string> MyMessage = "Param: {0}";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!"));
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!"));
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String)">
@@ -1323,48 +1460,6 @@
             <param name="fmtString">A string value to assign.</param>
             <returns>Message instance.</returns>
         </member>
-        <member name="T:KSPDev.GUIUtils.MessageSpecialFloatValue">
-             <summary>
-             A class to wrap a UI string with one parameter which may have special meaning.
-             </summary>
-             <remarks>
-             <para>When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)"/> to make the parameter
-             substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
-             localization.
-             <code><![CDATA[
-             class MyMod : MonoBehavior {
-               MessageSpecialFloatValue MyMessage =
-                   new MessageSpecialFloatValue("Param: {0}", 0, "Param is ZERO");
-            
-               void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format(1));  // Param: 1
-                 Logger.logInfo("Localized: {0}", MyMessage.Format(0));  // Param is ZERO
-               }
-             }
-             ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
-             </example>
-        </member>
-        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.#ctor(System.String,System.Single,System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
-            <param name="specialValue">Value to use a special message string for.</param>
-            <param name="specialString">Special message string for the value.</param>
-        </member>
-        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
-        </member>
         <member name="T:KSPDev.GUIUtils.Message`2">
              <summary>A class to wrap a UI string with two parameters.</summary>
              <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
@@ -1378,20 +1473,16 @@
              </remarks>
              <example>
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>. Don't declare them <c>readonly</c> since it will block future
-             localization.
+             to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message<string, int> MyMessage = "Params: {0}, {1}";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123));
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123));
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String)">
@@ -1425,17 +1516,14 @@
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
              to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message<string, int, float> MyMessage = "Params: {0}, {1}, {2}";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f));
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f));
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String)">
@@ -1471,17 +1559,14 @@
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
              to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message<string, int, float, int> MyMessage = "Params: {0}, {1}, {2}, {3}";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456));
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456));
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String)">
@@ -1519,17 +1604,14 @@
              Instead of presenting hardcoded strings on UI move them all into a special section, and assign
              to fields of type <c>Message</c>.
              <code><![CDATA[
-             class MyMod : MonoBehavior {
+             class MyMod : MonoBehaviour {
                Message<string, int, float, int, float> MyMessage = "Params: {0}, {1}, {2}, {3}, {4}";
             
                void Awake() {
-                 Logger.logInfo("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456, 456f));
+                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456, 456f));
                }
              }
              ]]></code>
-             <para>Note, that it's OK to name such members as constants in spite of they are not constants by
-             the C# language semantics. I.e. instead of <c>myMessage</c> you spell <c>MyMessage</c> to
-             highlight the fact it won't (and must not) change from the code.</para>  
              </example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String)">
@@ -2007,7 +2089,7 @@
             KSP: KSPField</seealso>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IsDestroyable">
-            <summary>Interface for modules that need not now if script object is destroyed.</summary>
+            <summary>Interface for modules that need to know if script object is destroyed.</summary>
             <remarks>
             Events of this inteface are triggered by Unity engine via reflections. It's not required for the
             module to implement the interface to be notified but by implementing it the code becomes more
@@ -2060,32 +2142,43 @@
         <member name="M:KSPDev.KSPInterfaces.IsPackable.OnPartUnpack">
             <summary>Triggers when physics starts on the part.</summary>
         </member>
-        <member name="T:KSPDev.LogUtils.Logger">
-            <summary>A set of convenience logging methods.</summary>
+        <member name="T:KSPDev.KSPInterfaces.IsPhysicalObject">
+            <summary>Interface for modules that need handling physics.</summary>
+            <remarks>
+            Events of this inteface are triggered by Unity engine via reflections. It's not required for the
+            module to implement the interface to be notified but by implementing it the code becomes more
+            consistent and less error prone.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IsPhysicalObject {
+              /// <inheritdoc/>
+              public void FixedUpdate() {
+                // Do physics stuff.
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">
+            Unity 3D: FixedUpdate</seealso>
         </member>
-        <member name="M:KSPDev.LogUtils.Logger.logInfo(System.String,System.Object[])">
-            <summary>Logs a formatted message as INFO record.</summary>
-            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
-            <param name="fmt">A standard C# format string.</param>
-            <param name="args">Arguments for the format string.</param>
+        <member name="M:KSPDev.KSPInterfaces.IsPhysicalObject.FixedUpdate">
+            <summary>Notifies that fixed framerate frame is being handled.</summary>
+            <remarks>
+            This method is called by Unity via reflections, so it's not required to implement the
+            interface. Though, it's a good idea to implement this interface in objects/modules that need
+            physics updates to make code more readable.
+            </remarks>
         </member>
-        <member name="M:KSPDev.LogUtils.Logger.logWarning(System.String,System.Object[])">
-            <summary>Logs a formatted message as WARNING record.</summary>
-            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
-            <param name="fmt">A standard C# format string.</param>
-            <param name="args">Arguments for the format string.</param>
+        <member name="T:KSPDev.LogUtils.DbgFormatter">
+            <summary>A set of tools to format various game enities for debugging purposes.</summary>
         </member>
-        <member name="M:KSPDev.LogUtils.Logger.logError(System.String,System.Object[])">
-            <summary>Logs a formatted message as ERROR record.</summary>
-            <seealso cref="M:System.String.Format(System.String,System.Object)"/>
-            <param name="fmt">A standard C# format string.</param>
-            <param name="args">Arguments for the format string.</param>
+        <member name="M:KSPDev.LogUtils.DbgFormatter.PartId(Part)">
+            <summary>Returns a user friendly unique description of the part.</summary>
+            <param name="p">Part to get ID string for.</param>
+            <returns>ID string.</returns>
         </member>
-        <member name="M:KSPDev.LogUtils.Logger.logException(System.Exception)">
-            <summary>Logs an exception stack trace as EXCEPTION record.</summary>
-            <param name="ex">An exception to log.</param>
-        </member>
-        <member name="M:KSPDev.LogUtils.Logger.C2S``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String})">
+        <member name="M:KSPDev.LogUtils.DbgFormatter.C2S``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String})">
             <summary>Flatterns collection items into a comma separated string.</summary>
             <remarks>This method's name is a shorthand for "Collection-To-String". Given a collection
             (e.g. list, set, or anything else implementing <c>IEnumarable</c>) this method transforms it
