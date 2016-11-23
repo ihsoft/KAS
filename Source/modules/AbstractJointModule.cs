@@ -469,17 +469,6 @@ public abstract class AbstractJointModule :
     // Stack nodes has 2.0 multiplier. FYI: surface nodes have 0.8f.
     return force * (1.0f + attachNodeSize) * 2.0f;
   }
-
-  /// <summary>Returns a logs friendly string description of the link.</summary>
-  protected static string DumpJoint(ILinkSource source, ILinkTarget target) {
-    var srcTitle = source != null && source.part != null 
-        ? string.Format("{0} at {1}", DbgFormatter.PartId(source.part), source.cfgAttachNodeName)
-        : "NOTHING";
-    var trgTitle = target != null && target.part != null
-        ? string.Format("{0} at {1}", DbgFormatter.PartId(target.part), target.cfgAttachNodeName)
-        : "NOTHING";
-    return srcTitle + " => " + trgTitle;
-  }
   #endregion
 }
 
