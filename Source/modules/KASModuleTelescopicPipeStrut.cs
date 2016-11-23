@@ -3,12 +3,12 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: https://github.com/KospY/KAS/blob/master/LICENSE.md
 
-using System;
-using System.Linq;
-using UnityEngine;
 using KASAPIv1;
 using KSPDev.ModelUtils;
 using KSPDev.GUIUtils;
+using System;
+using System.Linq;
+using UnityEngine;
 
 namespace KAS {
 
