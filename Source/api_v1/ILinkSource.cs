@@ -34,12 +34,11 @@ namespace KASAPIv1 {
 ///   public void ConnectParts(Part sourcePart, Part targetPart) {
 ///     var source = sourcePart.FindModuleImplementing<ILinkSource>();
 ///     var target = sourcePart.FindModuleImplementing<ILinkTarget>();
-///     source.StartLinking(GUILinkMode.API);
-///     if (!source.LinkToTarget(target)) {
+///     if (source.StartLinking(GUILinkMode.API) && source.LinkToTarget(target)) {
+///       Debug.Log("Link successful!");
+///     } else {
 ///       Debug.LogError("Cannot link!");
 ///       source.CancelLinking();
-///     } else {
-///       Debug.Log("Link successful!");
 ///     }
 ///   }
 /// }
