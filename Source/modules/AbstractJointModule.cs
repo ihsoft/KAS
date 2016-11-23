@@ -460,6 +460,8 @@ public abstract class AbstractJointModule :
 
   /// <summary>Scales force value to the node size.</summary>
   /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
+  /// <param name="force">Base force to scale.</param>
+  /// <returns>Force scaled to the node size.</returns>
   /// <seealso cref="attachNodeSize"/>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
   /// KSP: PartJoint</seealso>

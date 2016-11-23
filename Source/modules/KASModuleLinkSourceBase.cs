@@ -25,12 +25,14 @@ namespace KAS {
 /// <para>Decendand classes may use any members and methods but good practice is restricting the
 /// usage to the interfaces and virtuals only.</para>
 /// </remarks>
+/// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
+/// </seealso>
 /// <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule
 /// </seealso>
 /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
 /// KSP: IActivateOnDecouple</seealso>
-/// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
-/// </seealso>
+/// <seealso cref="ILinkSource"/>
+/// <seealso cref="ILinkStateEventListener"/>
 /// TODO(ihsoft): Handle KIS actions.
 /// TODO(ihsoft): Handle part destroyed action.
 /// TODO(ihsoft): Handle part staged action.

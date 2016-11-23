@@ -28,6 +28,7 @@ public interface IAttachNodesUtils {
   /// <param name="part">Part to create node for.</param>
   /// <param name="nodeName">Name of the node to create.</param>
   /// <param name="nodeTransform">Transform that specifies node position and orientation.</param>
+  /// <returns>New attach node atatched to the part.</returns>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_attach_node.html">
   /// KSP: AttachNode</seealso>
   /// <seealso href="https://kerbalspaceprogram.com/api/_attach_node_8cs.html#ad750801f509bb71dc93caffbca90ad3d">

@@ -138,7 +138,7 @@ public sealed class KASModuleTowBarActiveJoint :
     Disabled,
     /// <summary>Requested but angular difference is too much to activate.</summary>
     Locking,
-    /// <summary>Target joint is locked on Z axis (normal to the surface).</summary>
+    /// <summary>Target joint is locked on Z axis (a normal vector to the surface).</summary>
     Locked,
   }
 

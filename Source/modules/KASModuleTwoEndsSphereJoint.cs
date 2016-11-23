@@ -42,13 +42,12 @@ public class KASModuleTwoEndsSphereJoint :
   /// <summary>
   /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
   /// </summary>
-  protected class BrokenJointListener : MonoBehaviour {
+  protected class BrokenJointListener : MonoBehaviour, IJointEventsListener {
     /// <summary>Part to decouple on joint break.</summary>
     public Part host;
 
-    /// <summary>Triggers when joint break force if exceeded.</summary>
-    /// <param name="breakForce">Actual force that broke the joint.</param>
-    void OnJointBreak(float breakForce) {
+    /// <inheritdoc/>
+    public void OnJointBreak(float breakForce) {
       if (host.parent != null) {
         if (gameObject != host.gameObject) {
           host.gameObject.SendMessage(

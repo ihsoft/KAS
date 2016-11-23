@@ -8,7 +8,7 @@ using System;
 namespace KASAPIv1 {
 
 /// <summary>Defines global events that are triggered by KAS.</summary>
-/// <remarks>Try to keep subscriptions to these evnets at the bare minimum. To many listeners may
+/// <remarks>Try to keep subscriptions to these events at the bare minimum. Too many listeners may
 /// impact performance at the moment of actual event triggering.</remarks>
 public static class KASEvents {
   /// <summary>A holder for simple source-to-target event.</summary>

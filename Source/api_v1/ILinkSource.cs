@@ -9,11 +9,46 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
-/// <remarks>Source is the initiator of the link to another part. It holds all the logic on making
-/// and maintaining actual connection between two parts. The other end of the connection must be
-/// <see cref="ILinkTarget"/> which implements own piece of logic.</remarks>
-/// TODO(ihsoft): Add state transtion diagram reference.
-/// TODO(ihsoft): Add code samples.
+/// <remarks>
+/// Source is the initiator of the link to another part. It holds all the logic on making and
+/// maintaining actual connection between two parts. The other end of the connection must be
+/// <see cref="ILinkTarget"/> which implements own piece of logic.
+/// <para>
+/// Link source have a state that defines what it can do (<see cref="linkState"/>). Not all actions
+/// allowed in any state. E.g. in order to link source to a target the source must be in state
+/// <see cref="LinkState.Linking"/>.
+/// </para>
+/// <para>
+/// Physical joint between the parts is determined by the <see cref="cfgLinkMode"/>. It's a static
+/// settings of the part, so one source can only link in one mode. If part needs to link in
+/// different modes it must implement multiple modules: one per mode.
+/// </para>
+/// </remarks>
+/// <example>
+/// Here is how a third-party mod may establish a link between two parts that implement the right
+/// KAS interfaces:
+/// <code><![CDATA[
+/// using KASAPIv1;
+///
+/// public class MyModule : PartModule {
+///   public void ConnectParts(Part sourcePart, Part targetPart) {
+///     var source = sourcePart.FindModuleImplementing<ILinkSource>();
+///     var target = sourcePart.FindModuleImplementing<ILinkTarget>();
+///     source.StartLinking(GUILinkMode.API);
+///     if (!source.LinkToTarget(target)) {
+///       Debug.LogError("Cannot link!");
+///       source.CancelLinking();
+///     } else {
+///       Debug.Log("Link successful!");
+///     }
+///   }
+/// }
+/// ]]></code>
+/// <para>
+/// Note that this code uses GUI mode <see cref="GUILinkMode.API"/>. Depending on how linking
+/// process needs to be represented in UI this mode can be set to various values.
+/// </para>
+/// </example>
 public interface ILinkSource {
 
   /// <summary>Part that owns the source.</summary>
