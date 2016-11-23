@@ -1,7 +1,7 @@
 ﻿// Kerbal Attachment System API
 // Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // API design and implemenation: igor.zavoychinskiy@gmail.com
-// License: https://github.com/KospY/KAS/blob/master/LICENSE.md
+// License: Public Domain
 
 using System;
 using UnityEngine;

@@ -1,7 +1,7 @@
 ﻿// Kerbal Attachment System API
 // Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // API design and implemenation: igor.zavoychinskiy@gmail.com
-// License: https://github.com/KospY/KAS/blob/master/LICENSE.md
+// License: Public Domain
 //
 // This module is used to build API assembly. Once released to the public the version of this
 // assembly cannot change. This guarantees that all the dependent mods will be able to load it. In

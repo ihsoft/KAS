@@ -1,7 +1,7 @@
 ﻿// Kerbal Attachment System
 // Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
-// License: https://github.com/KospY/KAS/blob/master/LICENSE.md
+// License: Public Domain
 
 using KASAPIv1;
 using KSPDev.ModelUtils;
