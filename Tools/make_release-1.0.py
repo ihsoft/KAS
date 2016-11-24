@@ -215,8 +215,6 @@ def MakeReleaseFileName():
 
 # Creates a package for re-destribution.
 def MakePackage():
-#  global VERSION, MAKE_PACKAGE, OVERWRITE_PACKAGE
-
   if not MAKE_PACKAGE:
     print 'No package requested, skipping.'
     return
