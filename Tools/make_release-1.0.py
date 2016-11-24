@@ -128,12 +128,16 @@ def MakeFoldersStructure():
   # Make.
   for folder in folders:
     if folder.startswith('-'):
-      # Drop files.
+      # Drop files/directories.
       del_path = DEST + folder[1:] + STRUCTURE[folder]
-      print 'Droppping files from "%s"' % del_path
+      print 'Drop targets by pattern: %s' % del_path
       for file_name in glob.glob(del_path):
-        print 'Dropping "%s"' % file_name
-        os.unlink(file_name)
+        if os.path.isfile(file_name):
+          print 'Dropping file "%s"' % file_name
+          os.unlink(file_name)
+        else:
+          print 'Dropping directory "%s"' % file_name
+          shutil.rmtree(file_name, True)
       continue
 
     # Copy files.
