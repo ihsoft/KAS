@@ -1,5 +1,6 @@
 ### 0.6.1 (December 5th, 2016)
 - [Fix #194] Ground pylon part is not visible in editor.
+- [Fix #195] Put more parts into EVA items filter.
 
 ### 0.6.0 (October 12th, 2016)
 - [Enhancement] KSP 1.2 support
