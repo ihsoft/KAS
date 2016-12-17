@@ -1,9 +1,9 @@
 {
-    "CHANGE_LOG_URL": "https://raw.githubusercontent.com/KospY/KAS/master/changelog.md", 
+    "CHANGE_LOG_URL": "https://raw.githubusercontent.com/ihsoft/KAS/master/changelog.md", 
     "DOWNLOAD": "http://forum.kerbalspaceprogram.com/threads/92514", 
     "GITHUB": {
         "REPOSITORY": "KAS", 
-        "USERNAME": "KospY"
+        "USERNAME": "ihsoft"
     }, 
     "KSP_VERSION": {
         "MAJOR": 1, 
@@ -21,7 +21,7 @@
         "PATCH": 0
     }, 
     "NAME": "Kerbal Attachment System", 
-    "URL": "https://raw.githubusercontent.com/KospY/KAS/master/kas.version", 
+    "URL": "https://raw.githubusercontent.com/ihsoft/KAS/master/kas.version", 
     "VERSION": {
         "BUILD": 0, 
         "MAJOR": 0, 
