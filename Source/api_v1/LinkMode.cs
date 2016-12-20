@@ -13,15 +13,19 @@ public enum LinkMode {
   /// </summary>
   DockVessels,
   /// <summary>
-  /// Tie two different vessel with a joint but keep them separate. This mode is not allowed on the
+  /// Tie two parts given they belong to the different vessels. This mode is not allowed on the
   /// parts that belong to the same vessel.
   /// </summary>
-  TieVessels,
+  TiePartsOnDifferentVessels,
   /// <summary>
-  /// Tie two parts within same vessel by creating a joint. This mode requires for the two parts to
-  /// belong to the same vessel.
+  /// Tie two parts within same vessel. This mode requires for the two parts to belong to the same
+  /// vessel.
   /// </summary>
-  Strut
+  TiePartsOnSameVessel,
+  /// <summary>
+  /// Tie two parts regardless what vessel own them.
+  /// </summary>
+  TieAnyParts,
 }
 
 }  // namespace

@@ -126,7 +126,7 @@ public class KASModuleLinkTargetBase :
 
   /// <summary>
   /// Persistent config field. Source link mode. It only makes sense when state is
-  /// <see cref="LinkState.Linked"/>.
+  /// <see cref="LinkState.Linked"/>. Target doesn't have own link mode until linked to a source.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -252,11 +252,13 @@ public class KASModuleLinkTargetBase :
   public override void OnStart(PartModule.StartState state) {
     // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {
-      if (persistedLinkMode == LinkMode.TieVessels) {
+      if (persistedLinkMode == LinkMode.DockVessels
+          || persistedLinkMode == LinkMode.TiePartsOnSameVessel) {
+        // Same vessel links can be restored right away.
+        RestoreSource();
+      } else {
         // It's unknown in which order the vessels will load, so postpone the restoring process.
         AsyncCall.CallOnEndOfFrame(this, x => RestoreSource());
-      } else {
-        RestoreSource();
       }
     } else {
       linkStateMachine.Start(persistedLinkState);
@@ -341,8 +343,8 @@ public class KASModuleLinkTargetBase :
   /// <param name="source"></param>
   void OnStartConnecting(ILinkSource source) {
     if (part != source.part && cfgLinkType == source.cfgLinkType
-        && (source.cfgLinkMode == LinkMode.Strut && vessel == source.part.vessel
-            || source.cfgLinkMode != LinkMode.Strut && vessel != source.part.vessel)) {
+        && (source.cfgLinkMode == LinkMode.TiePartsOnSameVessel && vessel == source.part.vessel
+            || source.cfgLinkMode != LinkMode.TiePartsOnSameVessel && vessel != source.part.vessel)) {
       linkState = LinkState.AcceptingLinks;
     } else {
       linkState = LinkState.RejectingLinks;

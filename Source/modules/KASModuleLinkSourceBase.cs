@@ -80,8 +80,8 @@ public class KASModuleLinkSourceBase :
   protected readonly static MessageEnumValue<LinkMode> LinkModeInfo =
       new MessageEnumValue<LinkMode>() {
         {LinkMode.DockVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
-        {LinkMode.TieVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
-        {LinkMode.Strut, "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
+        {LinkMode.TiePartsOnDifferentVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
+        {LinkMode.TiePartsOnSameVessel, "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
       };
   #endregion
 
@@ -333,7 +333,14 @@ public class KASModuleLinkSourceBase :
 
     // Try to restore link to the target and update module's state.
     if (persistedLinkState == LinkState.Linked) {
-      if (linkMode == LinkMode.TieVessels) {
+      if (linkMode == LinkMode.DockVessels || linkMode == LinkMode.TiePartsOnSameVessel) {
+        RestoreTarget();  // Same vessel links can be restored right away.
+      } else {
+        // It's unknown in which order the vessels will load, so postpone the restoring process.
+        AsyncCall.CallOnEndOfFrame(this, x => RestoreTarget());
+      }
+
+      if (linkMode == LinkMode.TiePartsOnDifferentVessels) {
         // It's unknown in which order the vessels will load, so postpone the restoring process.
         AsyncCall.CallOnEndOfFrame(this, x => RestoreTarget());
       } else {
@@ -697,11 +704,11 @@ public class KASModuleLinkSourceBase :
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
-    if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TieVessels)
+    if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TiePartsOnDifferentVessels)
         && part.vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
     }
-    if (linkMode == LinkMode.Strut && part.vessel != target.part.vessel) {
+    if (linkMode == LinkMode.TiePartsOnSameVessel && part.vessel != target.part.vessel) {
       return CannotLinkDifferentVesselsMsg;
     }
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
