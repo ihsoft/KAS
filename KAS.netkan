@@ -12,6 +12,7 @@
     "recommends"      : [
         { "name": "ModuleManager" }
         { "name": "KIS" }
+        { "name": "CommunityCategoryKit" },
     ],
     "suggests"        : [
         { "name": "EasyVesselSwitch" }
