@@ -321,7 +321,7 @@ public class KASModuleLinkSourceBase :
 
     linkJoint = part.FindModuleImplementing<ILinkJoint>();
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
-        .First(x => x.cfgRendererName == linkRendererName);
+        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
     if (linkJoint == null) {
       Debug.LogErrorFormat(
           "KAS part {0} misses joint module. It won't work properly", part.name);
