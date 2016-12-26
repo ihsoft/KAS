@@ -466,13 +466,15 @@ public abstract class AbstractJointModule :
   /// <summary>Scales force value to the node size.</summary>
   /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
   /// <param name="force">Base force to scale.</param>
+  /// <param name="isStack">
+  /// Type of the connection. Stack connections are much stronger than surface ones.
+  /// </param>
   /// <returns>Force scaled to the node size.</returns>
   /// <seealso cref="attachNodeSize"/>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
   /// KSP: PartJoint</seealso>
-  protected float ScaleForceToNode(float force) {
-    // Stack nodes has 2.0 multiplier. FYI: surface nodes have 0.8f.
-    return force * (1.0f + attachNodeSize) * 2.0f;
+  protected float ScaleForceToNode(float force, bool isStack = true) {
+    return force * (1.0f + attachNodeSize) * (isStack ? 2.0f : 0.8f);
   }
   #endregion
 }
