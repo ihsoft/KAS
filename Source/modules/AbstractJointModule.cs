@@ -100,6 +100,7 @@ public abstract class AbstractJointModule :
   /// KSP: KSPField</seealso>
   [KSPField]
   public int attachNodeSize = 0;
+
   /// <summary>Config setting. See <see cref="cfgLinkBreakForce"/>.</summary>
   /// <remarks>
   /// <para>
@@ -124,6 +125,7 @@ public abstract class AbstractJointModule :
   /// KSP: KSPField</seealso>
   [KSPField]
   public float linkBreakTorque = 0;
+
   /// <summary>Config setting. See <see cref="cfgSourceLinkAngleLimit"/>.</summary>
   /// <remarks>
   /// <para>
@@ -136,6 +138,7 @@ public abstract class AbstractJointModule :
   /// KSP: KSPField</seealso>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
+
   /// <summary>Config setting. See <see cref="cfgTargetLinkAngleLimit"/>.</summary>
   /// <remarks>
   /// <para>
@@ -148,6 +151,7 @@ public abstract class AbstractJointModule :
   /// KSP: KSPField</seealso>
   [KSPField]
   public int targetLinkAngleLimit = 0;
+
   /// <summary>Config setting. See <see cref="cfgMinLinkLength"/>.</summary>
   /// <remarks>
   /// <para>
@@ -160,6 +164,7 @@ public abstract class AbstractJointModule :
   /// KSP: KSPField</seealso>
   [KSPField]
   public float minLinkLength = 0;
+
   /// <summary>Config setting. See <see cref="cfgMaxLinkLength"/>.</summary>
   /// <remarks>
   /// <para>

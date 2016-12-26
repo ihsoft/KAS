@@ -277,6 +277,8 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
+      // Only update shader on the source joint object since all other objects (pistons and target
+      // joint) are children and will be updated hierarchically.
       Meshes.UpdateMaterials(
           srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
     }

@@ -81,7 +81,7 @@ public sealed class KASModuleTowBarActiveJoint :
   public float maxSteeringAngle;
   #endregion
 
-  #region persistent fields
+  #region Persistent fields
   /// <summary>Persistent config field. Tells of active steering mode is enabled.</summary>
   /// <remarks>
   /// If mode is enabled it doesn't mean it's active. There are conditions that affect when the mode

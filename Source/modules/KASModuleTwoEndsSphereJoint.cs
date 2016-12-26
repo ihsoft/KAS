@@ -28,7 +28,6 @@ namespace KAS {
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
 // TODO(ihsoft): Add an image.
-// TODO(ihsoft): Implement prismatic joint linear limits.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
 public class KASModuleTwoEndsSphereJoint :
     // KAS parents.
@@ -75,6 +74,7 @@ public class KASModuleTwoEndsSphereJoint :
   /// KSP: KSPField</seealso>
   [KSPField]
   public float strutSpringForce = Mathf.Infinity;
+
   /// <summary>Config setting. Damper force of the spring that limits the distance.</summary>
   /// <remarks>
   /// <para>
@@ -169,6 +169,7 @@ public class KASModuleTwoEndsSphereJoint :
     strutJoint.angularXMotion = ConfigurableJointMotion.Free;
     strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     strutJoint.enablePreprocessing = true;
+    // FIXME: adjust src/trg anchors to put joint center in the middile of the connection bar.
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
   }
 
