@@ -563,7 +563,7 @@ public class KASModuleLinkSourceBase :
         // In case of event was external to KAS.
         LogicalUnlink(LinkActorType.None);
       }
-      // Cleanup the node since once decoupled it's not more needed.
+      // Cleanup the node since once decoupled it's no more needed.
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
