@@ -45,8 +45,7 @@ public interface IJointUtils {
 
   /// <summary>Sets up joint so what it becomes a prismatic joint.</summary>
   /// <remarks>
-  /// It's a <see href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
-  /// standard PhysX configuration</see>. Main axis is set to Z. Moving along it is allowed but can
+  /// It's a standard PhysX configuration. Main axis is set to Z. Moving along it is allowed but can
   /// be constrained by a spring and limit. Drive mode is set to
   /// <see cref="JointDriveMode.Position"/>.
   /// <para>
@@ -100,6 +99,9 @@ public interface IJointUtils {
   /// <param name = "distanceLimitDamperRatio">
   /// Percentage of the limit force to use for dampering oscillation effect.
   /// </param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
+  /// PhysX: Prismatic Joint
+  /// </seealso>
   void SetupPrismaticJoint(ConfigurableJoint joint,
                            float springForce = 0,
                            float springDamperRatio = 0.1f,
@@ -110,8 +112,7 @@ public interface IJointUtils {
 
   /// <summary>Sets up joint so what it becomes a spherical hinge joint.</summary>
   /// <remarks>
-  /// It's a <see href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
-  /// standard PhysiX configuration</see>. Main axis is set to Z, and angular rotation around it is
+  /// It's a standard PhysiX configuration. Main axis is set to Z, and angular rotation around it is
   /// completely unrestricted. Secondary axes are X&amp;Y can be restricted by applying spring force
   /// and/or limits. Drive mode is set to <see cref="JointDriveMode.Position"/>.
   /// <para>
@@ -161,6 +162,9 @@ public interface IJointUtils {
   /// <param name="angleLimitDamperRatio">
   /// Percentage of the limit force to use for dampering oscillation effect.
   /// </param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
+  /// PhysX: Spherical Joint
+  /// </seealso>
   void SetupSphericalJoint(ConfigurableJoint joint,
                            float springForce = 0,
                            float springDamperRatio = 0.1f,
