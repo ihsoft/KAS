@@ -87,6 +87,19 @@ public class KASModuleTwoEndsSphereJoint :
   /// KSP: KSPField</seealso>
   [KSPField]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
+
+  /// <summary>Config setting. Tells if joined parts can move relative to each other.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public bool isUnlockedJoint;
   #endregion
 
   #region Inheritable properties
@@ -140,7 +153,7 @@ public class KASModuleTwoEndsSphereJoint :
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
-    return true;
+    return isUnlockedJoint;
   }
   #endregion
 
@@ -151,6 +164,12 @@ public class KASModuleTwoEndsSphereJoint :
     base.CreateJoint(source, target);
     DropStockJoint();  // Stock joint is not used.
 
+    // Let other mods know if this joint allows parts moving.
+    if (isUnlockedJoint && source.attachNode != null && target.attachNode != null) {
+      source.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
+      target.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
+    }
+    
     // Create end spherical joints.
     srcJoint = CreateJointEnd(
         source.nodeTransform, source.part.rb, "KASJointSrc", sourceLinkAngleLimit);
@@ -246,7 +265,7 @@ public class KASModuleTwoEndsSphereJoint :
   /// happens.
   /// </summary>
   void onProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {
-    if (isLinked && action.to != null && action.from.partRef == part) {
+    if (isUnlockedJoint && isLinked && action.to != null && action.from.partRef == part) {
       var node = action.to;
       node.SetValue("position", part.orgPos);
       node.SetValue("rotation", part.orgRot);
