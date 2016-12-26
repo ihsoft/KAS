@@ -93,6 +93,8 @@ class LinkUtilsImpl : ILinkUtils {
                              part1.vessel, part2.vessel);
       return null;
     }
+    part1.vessel.CycleAllAutoStrut();
+    part2.vessel.CycleAllAutoStrut();
     return inactiveVessel;
   }
 }
