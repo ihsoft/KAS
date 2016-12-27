@@ -115,3 +115,5 @@ UpgradeLog*.XML
 Plugins/MiniAVC.xml
 KAS_v*.zip
 *.zip
+*.pyc
+
