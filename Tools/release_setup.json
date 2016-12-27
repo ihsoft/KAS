@@ -1,0 +1,25 @@
+{
+  "PACKAGE_NAME": "KAS",
+  "SRC" : "..",
+  "DEST" : "../Release",
+  "ARCHIVE_DEST" : "..",
+  "SRC_COMPILED_BINARY" : "/Plugins/Source/bin/Release/{PACKAGE_NAME}.dll",
+  "SRC_VERSIONS_FILE" : "/Plugins/Source/Properties/AssemblyInfo.cs",
+  "STRUCTURE" : {
+    "" : [
+      "/LICENSE.md",
+      "/settings.cfg",
+      "/Parts",
+      "/Sounds",
+      "/Textures"
+    ],
+    "Plugins" : [
+      "{SRC_COMPILED_BINARY}",
+      "{SRC_REPOSITORY_VERSION_FILE}",
+      "/Plugins/MiniAVC.dll"
+    ]
+  },
+  "POST_BUILD_COPY" : [
+    ["{SRC}{SRC_REPOSITORY_VERSION_FILE}", "{SRC}/Plugins/{PACKAGE_NAME}.version"]
+  ]
+}
