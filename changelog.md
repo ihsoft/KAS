@@ -1,3 +1,6 @@
+### 0.6.2 (December 26th, 2016)
+- [Fix #191] Unable to use winch with attached in VAB parts with wheels.
+
 ### 0.6.1 (December 5th, 2016)
 - [Fix #194] Ground pylon part is not visible in editor.
 - [Fix #195] Put more parts into EVA items filter.
