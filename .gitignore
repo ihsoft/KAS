@@ -116,3 +116,4 @@ Plugins/MiniAVC.xml
 docs
 KAS_*.zip
 *.zip
+*.pyc
