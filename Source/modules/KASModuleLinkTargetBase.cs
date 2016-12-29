@@ -341,13 +341,7 @@ public class KASModuleLinkTargetBase :
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   void OnStartConnecting(ILinkSource source) {
-    if (part != source.part && cfgLinkType == source.cfgLinkType
-        && (source.cfgLinkMode == LinkMode.TiePartsOnSameVessel && vessel == source.part.vessel
-            || source.cfgLinkMode != LinkMode.TiePartsOnSameVessel && vessel != source.part.vessel)) {
-      linkState = LinkState.AcceptingLinks;
-    } else {
-      linkState = LinkState.RejectingLinks;
-    }
+    linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
   }
 
   /// <summary>Reacts on source link mode change.</summary>
@@ -419,6 +413,34 @@ public class KASModuleLinkTargetBase :
     }
     linkStateMachine.Start(startState);
     linkState = linkState;  // Trigger state updates.
+  }
+
+  /// <summary>Verifies that part can link with the source.</summary>
+  /// <param name="source">Source to check against.</param>
+  /// <returns>
+  /// <c>true</c> if link is <i>technically</i> possible. It's not guaranteed that the link will
+  /// succeed.
+  /// </returns>
+  protected virtual bool CheckCanLinkWith(ILinkSource source) {
+    // Cannot attach to itself or incompatible link type.
+    if (part == source.part || cfgLinkType != source.cfgLinkType) {
+      return false;
+    }
+    // Check if same vessel part links are enabled. 
+    if (source.part.vessel == vessel
+        && (source.cfgLinkMode == LinkMode.TiePartsOnSameVessel
+            || source.cfgLinkMode == LinkMode.TieAnyParts)) {
+      return true;
+    }
+    // Check if different vessel part links are enabled. 
+    if (source.part.vessel != vessel
+        && (source.cfgLinkMode == LinkMode.DockVessels
+            || source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
+            || source.cfgLinkMode == LinkMode.TieAnyParts)) {
+      return true;
+    }
+    // Link is not allowed.
+    return false;
   }
   #endregion
 
