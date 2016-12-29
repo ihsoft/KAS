@@ -82,6 +82,7 @@
     <Compile Include="api_impl\KASAPILauncher.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
+    <Compile Include="api_v1\IKasJointEventsListener.cs" />
     <Compile Include="api_v1\ILinkJoint.cs" />
     <Compile Include="api_v1\ILinkRenderer.cs" />
     <Compile Include="api_v1\ILinkSource.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractJointPart.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
+    <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
