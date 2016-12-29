@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -14,7 +15,12 @@ namespace KAS {
 /// modified in any way, and it behavior is very similar to the behavior of a regular joint that
 /// normally connects two parts together.
 /// </summary>
-public class KASModuleStockJoint : AbstractJointModule {
+public class KASModuleStockJoint :
+    // KAS parents.
+    AbstractJointModule,
+    // Syntax sugar parents.
+    IJointEventsListener {
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public override void AdjustJoint(bool isUnbreakable = false) {
@@ -23,6 +29,15 @@ public class KASModuleStockJoint : AbstractJointModule {
     } else {
       SetBreakForces(stockJoint.Joint, cfgLinkBreakForce, cfgLinkBreakTorque);
     }
+  }
+  #endregion
+
+  #region IJointEventsListener implementation
+  /// <inheritdoc/>
+  public virtual void OnJointBreak(float breakForce) {
+    // It's not absolutely required since part will get decoupled anyways, but pro-active link
+    // break allows specifying the right actor.
+    linkSource.BreakCurrentLink(KASAPIv1.LinkActorType.Physics);
   }
   #endregion
 }

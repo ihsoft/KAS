@@ -27,7 +27,7 @@ public abstract class AbstractJointModule :
     // KAS parents.
     ILinkJoint, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IJointEventsListener, IsPackable, IsDestroyable, IKSPDevModuleInfo {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <summary>Message to display when link cannot be established because it's too short.</summary>
@@ -214,16 +214,6 @@ public abstract class AbstractJointModule :
   #endregion
 
   bool isRestored;
-
-  #region IJointEventsListener implemetation
-  /// <inheritdoc/>
-  public virtual void OnJointBreak(float breakForce) {
-    Debug.LogFormat("Joint on {0} broken by physics with force={1}",
-                    DbgFormatter.PartId(part), breakForce);
-    DropJoint();
-    part.OnPartJointBreak(breakForce);
-  }
-  #endregion
 
   #region ILinkJoint implementation
   /// <inheritdoc/>

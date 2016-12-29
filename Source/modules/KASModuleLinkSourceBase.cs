@@ -42,8 +42,7 @@ public class KASModuleLinkSourceBase :
     // KAS parents.
     ILinkSource, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IJointEventsListener,
-    IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <summary>Message to display when target link type doesn't match source type.</summary>
@@ -536,15 +535,6 @@ public class KASModuleLinkSourceBase :
     // Unlock this source if link with another source one the part has broke.
     if (isLocked && !ReferenceEquals(info.source, this)) {
       isLocked = false;
-    }
-  }
-  #endregion
-
-  #region IJointEventsListener implementation
-  /// <inheritdoc/>
-  public virtual void OnJointBreak(float breakForce) {
-    if (linkState == LinkState.Linked) {
-      LogicalUnlink(LinkActorType.Physics);
     }
   }
   #endregion

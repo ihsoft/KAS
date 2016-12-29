@@ -31,33 +31,11 @@ namespace KAS {
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
 public class KASModuleTwoEndsSphereJoint :
     // KAS parents.
-    AbstractJointModule,
+    AbstractJointModule, IKasJointEventsListener,
     // KSP interfaces.
     IJointLockState,
     // Syntax sugar interfaces.
     IsDestroyable {
-
-  #region Helper class to detect joint breakage
-  /// <summary>
-  /// Helper class to detect sphere joint ends breakage and deliver event to the host part.
-  /// </summary>
-  protected class BrokenJointListener : MonoBehaviour, IJointEventsListener {
-    /// <summary>Part to decouple on joint break.</summary>
-    public Part host;
-
-    /// <inheritdoc/>
-    public void OnJointBreak(float breakForce) {
-      if (host.parent != null) {
-        if (gameObject != host.gameObject) {
-          host.gameObject.SendMessage(
-              "OnJointBreak", breakForce, SendMessageOptions.DontRequireReceiver);
-        } else {
-          Debug.LogWarning("Owner and host of the joint break listener are the same!");
-        }
-      }
-    }
-  }
-  #endregion
 
   #region Part's config fields
   /// <summary>
@@ -218,6 +196,16 @@ public class KASModuleTwoEndsSphereJoint :
   }
   #endregion
 
+  #region IKasJointEventsListener implementation
+  /// <inheritdoc/>
+  public virtual void OnKASJointBreak(GameObject hostObj, float breakForce) {
+    // Check for the linked state since there can be multiple joints destroyed in the same frame.
+    if (isLinked) {
+      linkSource.BreakCurrentLink(LinkActorType.Physics);
+    }
+  }
+  #endregion
+
   #region Private utility methods
   /// <summary>
   /// Creates a game object joined with the attach node via a spherical joint. The joint is locked
@@ -248,7 +236,7 @@ public class KASModuleTwoEndsSphereJoint :
     var jointObj = new GameObject(objName);
     jointObj.transform.position = nodeTransform.position;
     jointObj.transform.rotation = nodeTransform.rotation;
-    jointObj.AddComponent<BrokenJointListener>().host = part;
+    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
     jointObj.AddComponent<Rigidbody>();
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
