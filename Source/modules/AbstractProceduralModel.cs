@@ -92,15 +92,22 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   #region Protected utility methods
   /// <summary>Creates a material with default color and shader settings.</summary>
   /// <param name="mainTex">Main texture of the material.</param>
+  /// <param name="overrideShaderName">Shader name to use instead of the module's one.</param>
+  /// <param name="overrideColor">Color to use instead of main module's color.</param>
   /// <returns>New material.</returns>
+  /// <seealso cref="shaderName"/>
+  /// <seealso cref="materialColor"/>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Texture2D.html">
   /// Unity3D: Texture2D</seealso>
   /// <seealso href="https://docs.unity3d.com/Manual/MaterialsAccessingViaScript.html">
   /// Unity3D: Dealing with materials from scripts.</seealso>
-  protected Material CreateMaterial(Texture2D mainTex) {
-    var material = new Material(Shader.Find(shaderName));
+  /// FIXME: docs
+  protected Material CreateMaterial(Texture2D mainTex,
+                                    string overrideShaderName = null,
+                                    Color? overrideColor = null) {
+    var material = new Material(Shader.Find(overrideShaderName ?? shaderName));
     material.mainTexture = mainTex;
-    material.color = materialColor;
+    material.color = overrideColor ?? materialColor;
     return material;
   }
 
