@@ -107,6 +107,7 @@
     <Compile Include="modules\KASModuleStockJoint.cs" />
     <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
     <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
+    <Compile Include="modules\KASModulePipeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
