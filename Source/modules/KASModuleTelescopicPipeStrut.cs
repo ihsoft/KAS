@@ -286,6 +286,15 @@ public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRender
   string _shaderNameOverride;
 
   /// <inheritdoc/>
+  public virtual float stretchRatio {
+    get { return 1.0f; }
+    set {
+      Debug.LogWarningFormat(
+          "Stretch ratio of the telescopic link is fixed and cannnot be changed to {0}", value);
+    }
+  }
+
+  /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
     set {

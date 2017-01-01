@@ -55,6 +55,18 @@ public interface ILinkRenderer {
   /// <seealso cref="StartRenderer"/>
   Transform targetTransform { get; }
 
+  /// <summary>
+  /// Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
+  /// </summary>
+  /// <remarks>
+  /// Value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
+  /// <para>
+  /// This ratio only affects visual representation. For the renderers that don't care about
+  /// stretching it's ok to always return <c>1.0</c> from the getter and ignore calls to the setter.
+  /// </para>
+  /// </remarks>
+  float stretchRatio { get; set; }
+
   /// <summary>Starts rendering link between the points.</summary>
   /// <remarks>
   /// This method only indicates that the link is to be drawn between the specified points. The
