@@ -195,7 +195,7 @@ public abstract class AbstractJointModule :
   protected ILinkTarget linkTarget { get; private set; }
 
   /// <summary>Length at the moment of creating joint.</summary>
-  /// <remarks>Elastic joints may allow length deviation. Use thi svalue as the base.</remarks>
+  /// <remarks>Elastic joints may allow length deviation. Use this value as the base.</remarks>
   protected float originalLength { get; private set; }
 
   /// <summary>Tells if there is joint created.</summary>
