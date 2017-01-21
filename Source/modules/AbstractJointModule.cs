@@ -296,17 +296,17 @@ public abstract class AbstractJointModule :
   }
 
   /// <inheritdoc/>
-  public string GetModuleTitle() {
+  public virtual string GetModuleTitle() {
     return ModuleTitle;
   }
 
   /// <inheritdoc/>
-  public Callback<Rect> GetDrawModulePanelCallback() {
+  public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
   /// <inheritdoc/>
-  public string GetPrimaryField() {
+  public virtual string GetPrimaryField() {
     return null;
   }
   #endregion

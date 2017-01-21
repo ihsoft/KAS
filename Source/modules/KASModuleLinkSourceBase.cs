@@ -417,17 +417,17 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <inheritdoc/>
-  public string GetModuleTitle() {
+  public virtual string GetModuleTitle() {
     return ModuleTitleInfo;
   }
 
   /// <inheritdoc/>
-  public Callback<Rect> GetDrawModulePanelCallback() {
+  public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
   /// <inheritdoc/>
-  public string GetPrimaryField() {
+  public virtual string GetPrimaryField() {
     return null;
   }
   #endregion
