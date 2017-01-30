@@ -12,10 +12,15 @@ namespace KASAPIv1 {
 
 /// <summary>Various tools to deal with KSP part joints.</summary>
 public interface IJointUtils {
-  /// <summary>Outputs all propertis of the joint to the string.</summary>
+  /// <summary>Outputs all properties of the joint to the string.</summary>
   /// <param name="joint">Joint to dump settings for.</param>
   /// <returns>Linefeed formatted block of text.</returns>
   string DumpJoint(ConfigurableJoint joint);
+  
+  /// <summary>Outputs all properties of the joint to the string.</summary>
+  /// <param name="joint">Joint to dump settings for.</param>
+  /// <returns>Linefeed formatted block of text.</returns>
+  string DumpSpringJoint(SpringJoint joint);
 
   /// <summary>Initializes joint to a consistent state.</summary>
   /// <remarks>

@@ -15,7 +15,9 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     if (joint == null) {
       return "<NULL JOINT>";
     }
-    var msg = new StringBuilder();
+    var msg = DumpBaseJoint(joint);
+    // Geometry.
+    msg.Append("secondaryAxis: ").Append(joint.secondaryAxis).AppendLine();
     // X axis settings.
     msg.Append("xDrive: ").Append(Dump(joint.xDrive)).AppendLine();
     msg.Append("xMotion: ").Append(joint.xMotion).AppendLine();
@@ -38,18 +40,23 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("linearLimitSpring: ").Append(Dump(joint.linearLimitSpring)).AppendLine();
     msg.Append("angularYZDrive").Append(Dump(joint.angularYZDrive)).AppendLine();
     msg.Append("angularYZLimitSpring: ").Append(Dump(joint.angularYZLimitSpring)).AppendLine();
-    // Collider setup.        
-    msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
-    // Optimization.        
-    msg.Append("enablePreprocessing: ").Append(joint.enablePreprocessing).AppendLine();
-    // Break forces.        
-    msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
-    msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
-    // Geometry.
-    msg.Append("axis: ").Append(joint.axis).AppendLine();
-    msg.Append("secondaryAxis: ").Append(joint.secondaryAxis).AppendLine();
-    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
-    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
+
+    return msg.ToString();
+  }
+
+  /// <inheritdoc/>
+  public string DumpSpringJoint(SpringJoint joint) {
+    if (joint == null) {
+      return "<NULL JOINT>";
+    }
+    var msg = DumpBaseJoint(joint);
+
+    // Distance joint specific settings.    
+    msg.Append("spring: ").Append(joint.spring).AppendLine();
+    msg.Append("damper: ").Append(joint.damper).AppendLine();
+    msg.Append("maxDistance: ").Append(joint.maxDistance).AppendLine();
+    msg.Append("minDistance: ").Append(joint.minDistance).AppendLine();
+    msg.Append("tolerance: ").Append(joint.tolerance).AppendLine();
 
     return msg.ToString();
   }
@@ -155,6 +162,23 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
       joint.angularYMotion = ConfigurableJointMotion.Limited;
       joint.angularZMotion = ConfigurableJointMotion.Limited;
     }
+  }
+
+  StringBuilder DumpBaseJoint(Joint joint) {
+    var msg = new StringBuilder();
+    msg.Append("name: ").Append(joint.name).AppendLine();
+    // Collider setup.
+    msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
+    // Optimization.
+    msg.Append("enablePreprocessing: ").Append(joint.enablePreprocessing).AppendLine();
+    // Break forces.
+    msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
+    msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
+    // Geometry.
+    msg.Append("axis: ").Append(joint.axis).AppendLine();
+    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
+    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
+    return msg;
   }
 
   static string Dump(SoftJointLimitSpring limitSpring) {
