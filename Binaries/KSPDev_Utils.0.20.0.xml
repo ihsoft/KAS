@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils</name>
+        <name>KSPDev_Utils.0.20.0</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -55,14 +55,21 @@
         <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetEnumerator(System.Object)">
             <summary>Returns enumerable object for the collection.</summary>
             <param name="instance">An instance to get the enumerable for.</param>
-            <returns>An enumerable of objects. Type of the items is determined by the relevant
-            <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.</returns>
+            <returns>
+            An enumerable of objects. Type of the items is determined by the relevant
+            <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.
+            </returns>
         </member>
         <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.AddItem(System.Object,System.Object)">
             <summary>Adds an item into the collection.</summary>
             <param name="instance">A collection instance to add item into.</param>
-            <param name="item">An item to add. The item must be of the same type as
-            <see cref="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetItemType"/> specifies.</param>
+            <param name="item">
+            An item to add. The item must be of the same type as <see cref="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetItemType"/> specifies.
+            </param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.ClearItems(System.Object)">
+            <summary>Removes all items from the collection.</summary>
+            <param name="instance">A collection instance to clear.</param>
         </member>
         <member name="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto">
             <summary>A base class for a proto of a single value.</summary>
@@ -181,18 +188,26 @@
         </member>
         <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.configFilePath">
             <summary>An optional relative path to the config file.</summary>
-            <remarks>Absolute name is resolved via <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>. If left
-            empty then data is read from the game's database. Note, that database access is read-only.  
+            <remarks>
+            Absolute name is resolved via <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])"/>. If left
+            empty then data is read from the game's database. Note, that database access is read-only.
             </remarks>
         </member>
         <member name="M:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute.#ctor(System.String,System.String,System.String)">
-            <param name="configFilePath">A relative or an absolute path to the file. It's resolved via
-            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>. If empty then data is read from database.
+            <summary>Constructor for a persistent field.</summary>
+            <param name="configFilePath">
+            A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])"/>. If empty then data is read from
+            database.
             </param>
-            <param name="nodePath">A root for the persistent fields when saving or loading via this
-            annotation. If empty then root node of the file is used. Cannot be <c>null</c></param>
-            <param name="group">A group of the annotation. When saving or loading persistent fields only
-            the fields of this group will be considered. Must not be <c>null</c>.</param>
+            <param name="nodePath">
+            A root for the persistent fields when saving or loading via this annotation. If empty then
+            root node of the file is used. Cannot be <c>null</c>
+            </param>
+            <param name="group">
+            A group of the annotation. When saving or loading persistent fields only the fields of this
+            group will be considered. Must not be <c>null</c>.
+            </param>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute">
             <summary>
@@ -336,8 +351,11 @@
         </member>
         <member name="T:KSPDev.ConfigUtils.GenericCollectionTypeProto">
             <summary>A proto handler for a simple generic collection.</summary>
-            <remarks>Generic must have exactly one arguent, implement method <c>Add</c> for adding new
-            items, and implement <see cref="T:System.Collections.IEnumerable"/>.</remarks>
+            <remarks>
+            Generic must have exactly one arguent, implement method <c>Add</c> for adding new items, and
+            implement <see cref="T:System.Collections.IEnumerable"/>.
+            </remarks>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.#ctor(System.Type)">
             <inheritdoc/>
@@ -351,37 +369,8 @@
         <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.AddItem(System.Object,System.Object)">
             <inheritdoc/>
         </member>
-        <member name="T:KSPDev.ConfigUtils.OrdinaryFieldHandler">
-            <summary>
-            A handler that manages ordinary fields. All type specific handling is done via a proto.
-            </summary>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.#ctor(KSPDev.ConfigUtils.PersistentField,System.Type,System.Type)">
-            <param name="persistentField">A persitent field descriptor.</param>
-            <param name="valueType">A type to handle. If field is a collection then this type is a type of
-            the collection's item.</param>
-            <param name="simpleTypeProtoType">A proto that handles (de)serializing (in)to a simple string.
-            if this proto cannot handle <paramref name="valueType"/> then the type will be attempted to be
-            handled as a complex type.</param>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.SerializeValue(System.Object)">
-            <summary>Converts field value into a form suitable for storing into config file.</summary>
-            <remarks>Values that can be handled by the proto are transformed into simple strings, and
-            saved as string values into the config. Structs and classes are considred "compound types"
-            (see <see cref="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.IsCompound"/>), i.e. types that have nested fields in them. Such types are
-            converted into a config node.</remarks>
-            <param name="value">A field's value to convert.</param>
-            <returns>String or <see cref="T:ConfigNode"/>.</returns>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.DeserializeValue(System.Object)">
-            <summary>Converts a value from config into an actual fiel's value.</summary>
-            <param name="cfgValue">A string if value can be handled by the proto or
-            <see cref="T:ConfigNode"/> if type is compound.</param>
-            <returns>Field's value.</returns>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.OrdinaryFieldHandler.IsCompound">
-            <summary>Determines if the field is complex type consiting of more fields.</summary>
-            <returns><c>true</c> if type can have nested persitent fields.</returns>
+        <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.ClearItems(System.Object)">
+            <inheritdoc/>
         </member>
         <member name="T:KSPDev.ConfigUtils.PrimitiveTypesProto">
             <summary>A proto for handling C# primitive types.</summary>
@@ -431,13 +420,18 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromFile(System.String,System.Type,System.Object,System.String,System.String)">
             <summary>Reads values of the annotated persistent fields from a config file.</summary>
-            <param name="filePath">A relative or an absolute path to the file. It's resolved via
-            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>.</param>
+            <param name="filePath">
+            A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])"/>.
+            </param>
             <param name="type">A type to load fields for.</param>
-            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
-            only static fields will be loaded.</param>
-            <param name="nodePath">An optional path in the file. All type's field will be read relative
-            to this part.</param>
+            <param name="instance">
+            An instance of type <paramref name="type"/>. If it's <c>null</c> then
+            only static fields will be loaded.
+            </param>
+            <param name="nodePath">
+            An optional path in the file. All type's field will be read relative to this part.
+            </param>
             <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
@@ -475,19 +469,27 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsIntoFile(System.String,System.Type,System.Object,System.String,System.Boolean,System.String)">
             <summary>Writes values of the annotated persistent fields into a file.</summary>
-            <remarks>All persitent values are <b>added</b> into the file provided. I.e. if node had
-            already had a value being persited then it either overwritten (ordinary fields) or extended
-            (collection fields).</remarks>
-            <param name="filePath">A relative or an absolute path to the file. It's resolved via
-            <see cref="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)"/>.</param>
-            <param name="rootNodePath">A path to the node in the file where the data should be
-            written. If the node already exsist it will be deleted.</param>
+            <remarks>
+            All persitent values are <b>added</b> into the file provided. I.e. if node had already had a
+            value being persited then it either overwritten (ordinary fields) or extended (collection
+            fields).
+            </remarks>
+            <param name="filePath">
+            A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])"/>.
+            </param>
+            <param name="rootNodePath">
+            A path to the node in the file where the data should be written. If the node already exsists
+            it will be deleted.
+            </param>
             <param name="type">A type to write fields for.</param>
-            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
-            only static fields will be written.</param>
-            <paramref name="rootNodePath"/> node will be updated in that file. Otherwise, a new file
-            <param name="mergeMode">If <c>true</c> and the file already exists then only
-            will be created.</param>
+            <param name="instance">
+            An instance of type <paramref name="type"/>. If it's <c>null</c> then only static fields will
+            be written.
+            </param>
+            <param name="mergeMode">
+            If <c>true</c> and the file already exists then only will be created.
+            </param>
             <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
@@ -714,28 +716,6 @@
             <c>null</c> then all files defined in the type are returned.</param>
             <returns>Array of persistent fields.</returns>
         </member>
-        <member name="T:KSPDev.ConfigUtils.CollectionFieldHandler">
-            <summary>A handler that manages collections in persitent fields.</summary>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.#ctor(KSPDev.ConfigUtils.PersistentField,System.Type,System.Type)">
-            <param name="persistentField">A descriptor of persistent field which holds the value.</param>
-            <param name="collectionType">A type of the collection this handler will be handling.</param>
-            <param name="collectionProtoType">A proto type that can work with the collection.</param>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.SerializeValues(ConfigNode,System.Object)">
-            <summary>Stores collection values into a config node.</summary>
-            <param name="node">A node to add values into.</param>
-            <param name="value">A collection instance to get values from.</param>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.DeserializeValues(ConfigNode)">
-            <summary>Creates a collection from the config node.</summary>
-            <param name="node">A node to read data from.</param>
-            <returns>Сollection instance.</returns>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.CollectionFieldHandler.GetItemType">
-            <summary>Returns type of an item in the colelction.</summary>
-            <returns>Item's type.</returns>
-        </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldsFactory">
             <summary>A helper class to gather persistent field attributes.</summary>
         </member>
@@ -763,18 +743,16 @@
         <member name="F:KSPDev.ConfigUtils.PersistentField.cfgPath">
             <summary>Parsed configuration paths.</summary>
         </member>
-        <member name="F:KSPDev.ConfigUtils.PersistentField.ordinaryFieldHandler">
-            <summary>Instance of ordianl field proto as specified in the annotation.</summary>
-        </member>
-        <member name="F:KSPDev.ConfigUtils.PersistentField.collectionFieldHandler">
-            <summary>Instance of collection field proto as specified in the annotation.</summary>
-        </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.#ctor(System.Reflection.FieldInfo,KSPDev.ConfigUtils.PersistentFieldAttribute)">
             <param name="fieldInfo">An annotated field metadata.</param>
             <param name="fieldAttr">An annotation of the field.</param>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.WriteToConfig(ConfigNode,System.Object)">
             <summary>Writes field into a config node.</summary>
+            <remarks>
+            This method is not expected to fail since converting any type into string is expected to
+            succeeed on any value.
+            </remarks>
             <param name="node">A node to write state to.</param>
             <param name="instance">An owner of the field. Can be <c>null</c> for static fields.</param>
         </member>
@@ -785,31 +763,33 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.SerializeCompoundFieldsToNode(System.Object)">
             <summary>Makes a config node from the compound type fields.</summary>
-            <param name="instance">An owner ofthe fields. Can be <c>null</c> for static fields.</param>
+            <param name="instance">Owner of the fields. Can be <c>null</c> for static fields.</param>
             <returns>New configuration node with the data.</returns>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.DeserializeCompoundFieldsFromNode(ConfigNode,System.Object)">
             <summary>Sets compound type field values from the config node.</summary>
-            <param name="node">A node to read values from.</param>
-            <param name="instance">An owner ofthe fields. Can be <c>null</c> for static fields.</param>
+            <param name="node">Node to read values from.</param>
+            <param name="instance">Owner of the fields.</param>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
             <summary>A simple attribute for fields that need (de)serialization.</summary>
             <remarks>
             This form allows adjusting any <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/> property
-            in the annotation, and has a shortcut to mark field as collection
+            in the annotation, and has a shortcut to mark a field as collection
             (<c><see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection"/> = true</c>).
-            <para> By default ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
+            <para>
+            By default ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
             and collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
             be changed in the annotation by assigning values to properties
-            <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto"/> and/or <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto"/>.</para>
+            <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto"/> and/or <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto"/>.
+            </para>
             </remarks>
             <example>
             Below is a simple usage of the attribute.
-            <code>
+            <code><![CDATA[
             class ClassWithPersistentFields {
               [PersistentField("my/listField", isCollection = true)]
-              private List&lt;string&gt; sampleList = new List&lt;string&gt;();
+              private List<string> sampleList = new List<string>();
             
               internal struct ComplexType {
                 [PersistentField("val1", group = "nevermind")]
@@ -819,7 +799,7 @@
               }
             
               [PersistentField("my/setField", isCollection = true, group = "abc")]
-              private HashSet&lt;ComplexType&gt; sampleSet = new HashSet&lt;ComplexType&gt;();
+              private HashSet<ComplexType> sampleSet = new HashSet<ComplexType>();
             
               void SaveConfigs() {
                 // Save a default group of fields: only field "sampleList" qualifies.
@@ -855,15 +835,18 @@
                  */
               }
             }
-            </code>
-            <para>Note that group is ignored in the nested types. I.e. in <c>ComplexType</c> in this case.
-            Though, if <c>ComplexType</c> was an immediate target of the <c>WriteFieldsIntoFile</c> call
-            then the group would be considered.</para>
-            <para>Visibility of the annotated field is also important. Persistent field attributes are
-            only visible in the child class if they were public or protected in the parent. Private field
+            ]]></code>
+            <para>
+            Note that group is ignored in the nested types. I.e. in <c>ComplexType</c> in this case. Though,
+            if <c>ComplexType</c> was an immediate target of the <c>WriteFieldsIntoFile</c> call then the
+            group would be considered.
+            </para>
+            <para>
+            Visibility of the annotated field is also important. Persistent field attributes are only
+            visible in the child class if they were public or protected in the parent. Private field
             annotations are not inherited and need to be handled at the level of the declaring class.
             </para>
-            <code>
+            <code><![CDATA[
             class Parent {
               [PersistentField("parent_private")]
               private int field1 = 1;
@@ -901,28 +884,45 @@
                  */
               }
             }
-            </code>
-            <para>The code above implies that in a common case unsealed class should put private fields in
-            a group other than default to avoid settings collision.</para> 
-            <para>When type of the field is different from primitive C# type or common Unity 4 type you
-            may need provide custom value handlers to deal with (de)serializing. E.g. for an ordinary type
-            it may look like this:</para>
-            <code>
-            class CustomTypes {
+            ]]></code>
+            <para>
+            The code above implies that in a common case unsealed class should put private fields in a group
+            other than default to avoid settings collision.
+            </para>
+            <para>
+            When type of the field is different from primitive C# type or common Unity 4 type you may need
+            provide custom value handlers to deal with (de)serializing. E.g. for an ordinary type it may
+            look like this:
+            </para>
+            <code><![CDATA[
+            class CustomType {
               [PersistentField("my/custom/type", ordinaryTypeProto = typeof(MyTypeProto))]
               private MyType field1;
             }
-            </code>
-            <para>If your custom type is a collection that cannot be handled by the standard proto you can
-            provide your own collection proto handler. Note that if you do the annotated field will be
-            treated as a collection. In fact, when you set <c>isCollection = true</c> what actually
-            happens is just assigning <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/> as a collection proto
-            handler.</para>
-            <code>
+            ]]></code>
+            <para>
+            Or you custom class can implement KSP interface <see cref="T:IConfigNode"/>, and it will be
+            invoked during field saving and restoring.
+            </para>
+            <code><![CDATA[
+            class NodeCustomType : IConfigNode {
+              public virtual void Save(ConfigNode node) {
+              }
+              public virtual void Load(ConfigNode node) {
+              }
+            }
+            ]]></code>
+            <para>
+            If your custom type is a collection that cannot be handled by the standard proto you can provide
+            your own collection proto handler. Note that if you do then annotated field will be treated as a
+            collection. In fact, when you set <c>isCollection = true</c> what actually happens is just
+            assigning <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/> as a collection proto handler.
+            </para>
+            <code><![CDATA[
             class CustomTypes {
               [PersistentField("my/custom/type", collectionTypeProto = typeof(MyCollectionProto))]
               private MyCollection field1;
-            }
+            ]]>}
             </code>
             For more examples on custom proto handlers see <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/> and
             <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
@@ -930,6 +930,7 @@
             <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
             <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
             <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
+            <seealso href="https://kerbalspaceprogram.com/api/interface_i_config_node.html">KSP: IConfigNode</seealso>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentFieldAttribute.#ctor(System.String)">
             <inheritdoc/>
@@ -989,15 +990,63 @@
         <member name="F:KSPDev.FSUtils.KspPaths.pluginsRootFolder">
             <summary>Standard plug-ins folder.</summary>
         </member>
-        <member name="M:KSPDev.FSUtils.KspPaths.makePluginPath(System.String)">
-            <summary>Makes an absolute file path given a relative one.</summary>
-            <param name="path">A relative or an absolute part. If the first case the path is translated
-            from the game's plugin root folder ("GameData" as of KSP 1.0.5). If argument is an absolute
-            path then it's returned as is.</param>
-            <returns>Absolute file path.</returns>
+        <member name="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])">
+            <summary>
+            Makes full absolute path from the provided relative path in the game's <c>GameData</c> folder.
+            </summary>
+            <remarks>
+            If joining of all the provided parts gives a full path then it's only normalized. In case of
+            path is relative it's resolved against game's <c>GameData</c> folder.
+            <para>Note that method doesn't care if the path exists.</para>
+            </remarks>
+            <param name="pathParts">Path parts for an absolute or relative path.</param>
+            <returns>
+            Absolute path. All relative casts (e.g. '..') will be resolved, and all
+            directory separators will be translated to the platform format (e.g. '/' will become '\' on
+            Windows). 
+            </returns>
+        </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.NormalizePath(System.String)">
+            <summary>
+            Normalizes path by resolving all upcasts. Works for both relative and absolute paths.
+            </summary>
+            <remarks>Note that method doesn't care if the path exists.</remarks>
+            <param name="path">Path to normalize.</param>
+            <returns>
+            Path with no <c>.</c> or <c>..</c> casts. All directory separators will be translated to
+            <c>/</c> regardless to the platform settings.
+            </returns>
+            <seealso cref="M:KSPDev.FSUtils.KspPaths.MakeRelativePathToGameData(System.String[])"/>
+        </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.MakeRelativePathToGameData(System.String[])">
+            <summary>Returns path relative to the game's GameData folder.</summary>
+            <remarks>
+            Note that method doesn't care if the path exists. The returned path will always use <c>/</c>
+            as directory separator regardless to the platform.
+            </remarks>
+            <param name="pathParts">Path parts tp consutruct an absolute or relative path.</param>
+            <returns>
+            Relative path. All relative casts (e.g. '..') will be resolved, and all
+            directory separators will be translated to <c>/</c> regardless to the platform settings.
+            </returns>
+            <example>
+            Let's say mod's exact location is not known (e.g. as it is for MiniAVC) and the mod needs to
+            load a texture. In order to do it the mod needs to know a <c>GameData</c> relative path which
+            can be used as a prefix to the texture. Below is a sample code that figures it out.
+            <code><![CDATA[
+            var assembly = Assembly.GetExecutingAssembly();
+            var relPath = KspPaths.MakeRelativePathToGameData(assembly.Location);
+            Debug.LogWarningFormat("Assembly {0} is loaded from {1}", assembly.FullName, relPath);
+            // Pretend the mod's DLL lives in 'Plugins' subfolder.
+            var textureFolder = KspPaths.NormalizePath(Path.GetDirectoryName(relPath) + "/../Textures");
+            // Get a texture from 'Textures' folder that lives in the mods's root.
+            var texture = GameDatabase.Instance.GetTexture(textureFolder + "/MyTexture.png", false);
+            ]]></code>
+            </example>
+            <seealso cref="M:KSPDev.FSUtils.KspPaths.NormalizePath(System.String)"/>
         </member>
         <member name="P:KSPDev.FSUtils.KspPaths.pluginsRoot">
-            <summary>Returns full path to the plugins root folder.</summary>
+            <summary>Returns full path to the plugins root folder (a.k.a. <c>GameData</c>).</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.Formatter">
             <summary>Helper to format various values.</summary>
@@ -1080,6 +1129,7 @@
         </member>
         <member name="T:KSPDev.GUIUtils.MessageEnumValue`1">
              <summary>A class to wrap a UI string for an enum value.</summary>
+             <typeparam name="T">Enum type to define strings for.</typeparam>
              <remarks>
              <para>
              When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageEnumValue`1.Format(`0)"/> to make the parameter substitute.
@@ -1632,43 +1682,6 @@
             <param name="fmtString">A string value to assign.</param>
             <returns>Message instance.</returns>
         </member>
-        <member name="T:KSPDev.GUIUtils.KeyModifiers">
-            <summary>Flags to specify key modifiers combination.</summary>
-            <remarks>Modifiers can be joined to get a combination. E.g. <c>AnyAlt | AnyShift</c>.</remarks>
-            <seealso cref="M:KSPDev.GUIUtils.EventChecker.IsModifierCombinationPressed(KSPDev.GUIUtils.KeyModifiers)"/>
-        </member>
-        <member name="F:KSPDev.GUIUtils.KeyModifiers.None">
-            <summary>No modifier keys are pressed.</summary>
-            <remarks>This value only makes sense when used alone. Combining it with any other value
-            will result in ignoring value <c>None</c>.</remarks>
-        </member>
-        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyAlt">
-            <summary>Left or right ALT key pressed.</summary>
-        </member>
-        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyShift">
-            <summary>Left or right SHIFT key pressed.</summary>
-        </member>
-        <member name="F:KSPDev.GUIUtils.KeyModifiers.AnyControl">
-            <summary>Left or right CONTROL key pressed.</summary>
-        </member>
-        <member name="T:KSPDev.GUIUtils.EventChecker">
-            <summary>A helper to verify various event handling conditions.</summary>
-        </member>
-        <member name="M:KSPDev.GUIUtils.EventChecker.IsModifierCombinationPressed(KSPDev.GUIUtils.KeyModifiers)">
-            <summary>Verifies that the requested key modifiers are pressed.</summary>
-            <remarks>The check will succeed only if the exact set of modifier keys is pressed. If there
-            are more or less modifiers pressed the check will fail. E.g. if there are <c>LeftAlt</c> and
-            <c>LeftShift</c> pressed but the check is executed against
-            <c>AnyShift</c> then it will fail. Though, checking for <c>AnyShift | AnyAlt</c> will succeed.
-            <para>In case of checking for <c>None</c> the check will require no modifier keys to be
-            pressed. If you deal with mouse button events it's a good idea to verify if no modifiers are
-            pressed even if you don't care about other combinations. It will let other modders to use
-            mouse buttons and not to interfere with your mod.</para>
-            </remarks>
-            <param name="modifiers">A combination of key modifiers to verify.</param>
-            <returns><c>true</c> when exactly the requested combination is pressed.</returns>
-            <seealso cref="T:KSPDev.GUIUtils.KeyModifiers"/>
-        </member>
         <member name="T:KSPDev.GUIUtils.GuiActionsList">
              <summary>A helper to accumulate GUI actions.</summary>
              <remarks>Unity may issue multiple GUI passes during a frame, and it requires number of UI
@@ -1786,6 +1799,276 @@
             <param name="audioPath">File path relative to <c>GameData</c>.</param>
             <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
             <returns>Audio resource if loaded or found in the cache, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="T:KSPDev.InputUtils.KeyModifiers">
+            <summary>Flags to specify key modifiers combination.</summary>
+            <remarks>Modifiers can be joined to get a combination. E.g. <c>AnyAlt | AnyShift</c>.</remarks>
+            <seealso cref="M:KSPDev.InputUtils.EventChecker.IsModifierCombinationPressed(KSPDev.InputUtils.KeyModifiers)"/>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyModifiers.None">
+            <summary>No modifier keys are pressed.</summary>
+            <remarks>This value only makes sense when used alone. Combining it with any other value
+            will result in ignoring value <c>None</c>.</remarks>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyModifiers.AnyAlt">
+            <summary>Left or right ALT key pressed.</summary>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyModifiers.AnyShift">
+            <summary>Left or right SHIFT key pressed.</summary>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyModifiers.AnyControl">
+            <summary>Left or right CONTROL key pressed.</summary>
+        </member>
+        <member name="T:KSPDev.InputUtils.EventChecker">
+            <summary>A helper to verify various event handling conditions.</summary>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.IsModifierCombinationPressed(KSPDev.InputUtils.KeyModifiers)">
+            <summary>Verifies that the requested key modifiers are pressed.</summary>
+            <remarks>The check will succeed only if the exact set of modifier keys is pressed. If there
+            are more or less modifiers pressed the check will fail. E.g. if there are <c>LeftAlt</c> and
+            <c>LeftShift</c> pressed but the check is executed against
+            <c>AnyShift</c> then it will fail. Though, checking for <c>AnyShift | AnyAlt</c> will succeed.
+            <para>In case of checking for <c>None</c> the check will require no modifier keys to be
+            pressed. If you deal with mouse button events it's a good idea to verify if no modifiers are
+            pressed even if you don't care about other combinations. It will let other modders to use
+            mouse buttons and not to interfere with your mod.</para>
+            </remarks>
+            <param name="modifiers">A combination of key modifiers to verify.</param>
+            <returns><c>true</c> when exactly the requested combination is pressed.</returns>
+            <seealso cref="T:KSPDev.InputUtils.KeyModifiers"/>
+        </member>
+        <member name="T:KSPDev.InputUtils.KeyboardInputSwitch">
+             <summary>
+             Wrapper around keyboard key code that incapsulates persiting and handling into a single class.  
+             </summary>
+             <remarks>
+             Fields of this type are correctly handled by <see cref="T:KSPField"/> and
+             <see cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/> attributes.
+             </remarks>
+             <example>
+             <para>
+             To define a key binding just create a class with the key code as a parameter and notify the
+             switch about frame updates so what it could update its state:
+             </para>
+             <code><![CDATA[
+             class MyClass : MonoBehaviour {
+               KeyboardInputSwitch mySwitch = new KeyboardInputSwitch(KeyCode.Alpha1);
+            
+               void Update() {
+                 if (mySwitch.Update()) {
+                   Debug.Log("The key is being hold");
+                 }
+               }
+             }
+             ]]></code>
+             <para>
+             In case of switch state needs to be checked from other methods use <see cref="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold"/>
+             property:
+             </para>
+             <code><![CDATA[
+             class MyClass : MonoBehaviour {
+               KeyboardInputSwitch mySwitch = new KeyboardInputSwitch(KeyCode.Alpha1);
+            
+               void Update() {
+                 mySwitch.Update();
+               }
+            
+               void FixedUpdate() {
+                 if (mySwitch.isHold) {
+                   Debug.Log("The key is being hold");
+                 }
+               }
+             }
+             ]]></code>
+             <para>
+             When code needs to react to the event of changing switch state it can register for the state
+             change event:
+             </para>
+             <code><![CDATA[
+             class MyClass : MonoBehaviour {
+               KeyboardInputSwitch mySwitch = new KeyboardInputSwitch(KeyCode.Alpha1);
+            
+               void Awake() {
+                 mySwitch.OnStateChanged += OnSwitchStateChange;
+                 mySwitch.OnPress += delegate{
+                   Debug.Log("Key pressed");
+                 };
+                 mySwitch.OnRelease += delegate{
+                   Debug.Log("Key is released");
+                 };
+                 mySwitch.OnClick += delegate{
+                   Debug.Log("Key click registered");
+                 };
+               }
+            
+               void OnDestroy() {
+                 // Do nothing since in this example switch is an instance field, and it will be destroyed
+                 // together with the owning class (and, hence, all the listeners).
+                 // Though, if it was a static field we would do something like this:
+                 mySwitch.OnStateChanged -= OnSwitchStateChange;
+                 // Anonymous functions cannot be unregistered, so don't use them on static fields.
+               }
+            
+               void OnSwitchStateChange() {
+                 Debug.LogFormat("Switch state changed to: {0}", mySwitch.isHold);
+               }
+            
+               void Update() {
+                 mySwitch.Update();
+               }
+             }
+             ]]></code>
+             <para>
+             In many cases you may want to load key bining from a config file. Due to switch supports
+             KSP/KSPDev persistence it can easily be achieved by just adding an attribute:
+             </para>
+             <code><![CDATA[
+             [PersistentFieldsFile("my/mod/settings.cfg", "")]
+             class MyClass : PartModule {
+               // Note that KSPField attributed fields *must* be public.
+               [KSPField]
+               public KeyboardInputSwitch switchFromPart = new KeyboardInputSwitch(KeyCode.Alpha1);
+            
+               // Note that for PersistentField attribute field doesn't need to be public.
+               // Though, private fields are handled a bit differently (read the docs!).
+               [PersistentField("Keyboard/Bindings")]
+               KeyboardInputSwitch switchFromSettings = new KeyboardInputSwitch(KeyCode.Alpha2);
+            
+               public override void OnLoad(ConfigNode node) {
+                 // At this point `switchFromPart` is already loaded from the part's config.
+                 base.OnLoad(node);
+                 // Load `switchFromSettings` via KSPDev from "my/mod/settings.cfg".
+                 KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(typeof(MyClass), this);
+               }
+             }
+             ]]></code>
+             <para>Storing of the key binding works in a similar way.</para>
+             </example>
+             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
+             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.ClickDelay">
+            <summary>Maximum delay to register click event.</summary>
+            <remarks>Value used is the same as in KSP <see cref="T:KeyBinding"/>.</remarks>
+            <seealso href="https://kerbalspaceprogram.com/api/class_key_binding.html">KSP: KeyBinding</seealso>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.keyCode">
+            <summary>Key code for the switch.</summary>
+            <remarks>
+            It can be changed in runtime but if hold state was <c>true</c> it must be reset by the caller.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.keyboardEnabled">
+            <summary>
+            Determines if switch should react on keyboard events from <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.Update"/> method. 
+            </summary>
+            <remarks>
+            Note that if switch is disabled while the key was hold the hold state will <i>not</i> be
+            reset. If state needs to be reset then caller must do it explicitly.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.lastPressTime">
+            <summary>Last press event timestamp.</summary>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Load(ConfigNode)">
+            <summary>
+            Loads switch binding when field is attributed with KSP or KSPDev persisting attributes. 
+            </summary>
+            <param name="node">Node to get values from.</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Save(ConfigNode)">
+            <summary>
+            Saves switch binding when field is attributed with KSP or KSPDev persisting attributes. 
+            </summary>
+            <param name="node">Node to get values from.</param>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.#ctor">
+            <summary>
+            Creates a switch with a <see cref="F:UnityEngine.KeyCode.None"/> key binding. It's a default constructor
+            needed for config utils to work.
+            </summary>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.#ctor(UnityEngine.KeyCode)">
+            <summary>Main constructor to create a switch for the provided key code.</summary>
+            <param name="code">
+            Key code to activate the switch. Can be <see cref="F:UnityEngine.KeyCode.None"/> in which case this switch
+            can only be changed via code.
+            </param>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Update">
+            <summary>Checks keyboard status and updates the switch accordingly.</summary>
+            <remarks>
+            This method handles game's pause and time warp modes, and disables key handling in these
+            modes. It also respects UI locking mode set by the game.
+            </remarks>
+            <returns>Current hold state.</returns>
+            <seealso cref="F:KSPDev.InputUtils.KeyboardInputSwitch.keyboardEnabled"/>
+        </member>
+        <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.SetHoldState(System.Boolean)">
+            <summary>Updates hold state and triggers event(s) if any.</summary>
+            <param name="newState">New hold state.</param>
+            <seealso cref="E:KSPDev.InputUtils.KeyboardInputSwitch.OnStateChanged"/>
+        </member>
+        <member name="P:KSPDev.InputUtils.KeyboardInputSwitch.isAnyKeyHold">
+            <summary>Says if any switch is being hold.</summary>
+            <remarks>
+            This value is version specific. I.e. multiple versions of the utils DLL will not see each
+            other. So if this property returns <c>true</c> then the only safe assumption is that any
+            switch <i>within the running</i> mod is being hold. Ideally, when all mods in the game run the
+            same version of the utils DLL this property will truly say if <i>any</i> switch across all
+            mods is hold.
+            </remarks>
+        </member>
+        <member name="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold">
+            <summary>Defines current hold state of the switch.</summary>
+            <remarks>
+            Note that when reading this property it may not represent actual keyboard key hold state since
+            switch state can be assigned from the code.
+            </remarks>
+        </member>
+        <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnStateChanged">
+            <summary>
+            Event that notifies about hold state change. The event is only called when state has actually
+            changed.
+            </summary>
+            <remarks>
+            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
+            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            </remarks>
+        </member>
+        <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnPress">
+            <summary>
+            Event that notifies that switch key has been pressed.
+            </summary>
+            <remarks>
+            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
+            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            </remarks>
+        </member>
+        <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnRelease">
+            <summary>
+            Event that notifies that switch key has been released.
+            </summary>
+            <remarks>
+            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
+            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            </remarks>
+        </member>
+        <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnClick">
+            <summary>
+            Event that notifies about "click" event. Click event requires press and release actions
+            separted by a maximum delay.
+            </summary>
+            <remarks>
+            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
+            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            </remarks>
+            <seealso cref="F:KSPDev.InputUtils.KeyboardInputSwitch.ClickDelay"/>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IJointEventsListener">
             <summary>Declares callbacks that are called when a joint between two parts is changed.</summary>
@@ -2123,11 +2406,11 @@
             public class MyModule : PartModule, IsPackable {
               /// <inheritdoc/>
               public void OnPartPack() {
-                Debug.LogInfo("OnPartPack");
+                Debug.Log("OnPartPack");
               }
               /// <inheritdoc/>
               public void OnPartUnpack() {
-                Debug.LogInfo("OnPartUnpack);
+                Debug.Log("OnPartUnpack);
               }
             }
             ]]></code>
@@ -2847,6 +3130,15 @@
             <remarks>This callback is called before actual state change.</remarks>
             <param name="fromState">State before change.</param>
             <param name="toState">State after change.</param>
+        </member>
+        <member name="T:VersionLogger">
+            <summary>
+            Debugging class that reports which DLL was actually loaded for the Utils assembly.
+            </summary>
+            <remarks>
+            It helps understanding which binary is used in case of multiple mods are using same version of
+            KSPDev_utils assembly.
+            </remarks>
         </member>
     </members>
 </doc>

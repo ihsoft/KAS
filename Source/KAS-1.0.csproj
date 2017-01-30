@@ -56,9 +56,8 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KSPDev_Utils">
-      <HintPath>..\Binaries\KSPDev_Utils.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="KSPDev_Utils.0.20.0">
+      <HintPath>..\Binaries\KSPDev_Utils.0.20.0.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>
@@ -114,6 +113,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(ProjectDir)..\Binaries\KSPDev_Utils.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y</PostBuildEvent>
+IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
