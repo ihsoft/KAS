@@ -96,11 +96,6 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    
-    //FIXME
-    linkBreakForce = 100;
-    linkBreakTorque = 100;
-    
     UpdateMenuItems();
   }
   #endregion
