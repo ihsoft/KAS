@@ -422,14 +422,19 @@ public abstract class AbstractJointModule :
   /// <param name="value">
   /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
   /// </param>
+  /// <param name="isStack">
+  /// Type of the connection. Stack connections are much stronger than surface ones.
+  /// </param>
   /// <returns>Force value that relates to the source and target parts durability.</returns>
   /// <seealso cref="attachNodeSize"/>
-  protected float GetClampedBreakingForce(float value) {
+  protected float GetClampedBreakingForce(float value, bool isStack = true) {
     return Mathf.Approximately(value, 0)
         ? ScaleForceToNode(
-            Mathf.Min(linkSource.part.breakingForce, linkTarget.part.breakingForce))
+            Mathf.Min(linkSource.part.breakingForce, linkTarget.part.breakingForce),
+            isStack: isStack)
         : ScaleForceToNode(
-            Mathf.Min(value, linkSource.part.breakingForce, linkTarget.part.breakingForce));
+            Mathf.Min(value, linkSource.part.breakingForce, linkTarget.part.breakingForce),
+            isStack: isStack);
   }
   
   /// <summary>
@@ -443,14 +448,19 @@ public abstract class AbstractJointModule :
   /// <param name="value">
   /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
   /// </param>
+  /// <param name="isStack">
+  /// Type of the connection. Stack connections are much stronger than surface ones.
+  /// </param>
   /// <returns>Force value that relates to the source and target parts durability.</returns>
   /// <seealso cref="attachNodeSize"/>
-  protected float GetClampedBreakingTorque(float value) {
+  protected float GetClampedBreakingTorque(float value, bool isStack = true) {
     return Mathf.Approximately(value, 0)
         ? ScaleForceToNode(
-            Mathf.Min(linkSource.part.breakingTorque, linkTarget.part.breakingTorque))
+            Mathf.Min(linkSource.part.breakingTorque, linkTarget.part.breakingTorque),
+            isStack: isStack)
         : ScaleForceToNode(
-            Mathf.Min(value, linkSource.part.breakingTorque, linkTarget.part.breakingTorque));
+            Mathf.Min(value, linkSource.part.breakingTorque, linkTarget.part.breakingTorque),
+            isStack: isStack);
   }
 
   /// <summary>Scales force value to the node size.</summary>
