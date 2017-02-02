@@ -138,8 +138,8 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
         texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         texture.SetPixels(new[] {Color.red});
         texture.Apply();
+        texture.Compress(highQuality: false);
       }
-      texture.Compress(true /* highQuality */);
       textures[textureFileName] = texture;
     }
     return texture;
