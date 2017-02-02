@@ -75,18 +75,25 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   ILinkRenderer renderer;
 
   /// <summary>Maximum allowed distance between the linked objects.</summary>
-  float maxJointLength {
+  float maxJointDistance {
     get { return springJoint.maxDistance; }
     set { springJoint.maxDistance = value; }
+  }
+
+  /// <summary>Gets current distance between the joint ends.</summary>
+  float currentJointDistance {
+    get {
+      return Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);  
+    }
   }
 
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public void FixedUpdate() {
     if (renderer != null) {
-      var jointLength = maxJointLength;
-      var length =
-          Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);
+      // Adjust texture on the cable to simulate stretching.
+      var jointLength = maxJointDistance;
+      var length = currentJointDistance;
       renderer.stretchRatio = length > jointLength ? length / jointLength : 1.0f;
     }
   }
@@ -161,13 +168,11 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   /// <c>0.1</c> (10%).
   /// </returns>
   public float GetCableStretch() {
-    var length =
-        Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);
-    var stretch = length - maxJointLength;
+    var stretch = currentJointDistance - maxJointDistance;
     if (stretch < MinViableStretch) {
       return 0f;
     }
-    return stretch / maxJointLength;
+    return stretch / maxJointDistance;
   }
 
   #region Loacl utility methods
