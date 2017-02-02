@@ -42,7 +42,8 @@ public class KASModuleLinkSourceBase :
     // KAS parents.
     ILinkSource, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsPackable, IsDestroyable, IsPartDeathListener,
+    IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <summary>Message to display when target link type doesn't match source type.</summary>
@@ -403,6 +404,15 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual void OnDestroy() {
     linkStateMachine.Stop();
+  }
+  #endregion
+
+  #region IsPartDeathListener implementation
+  /// <inheritdoc/>
+  public virtual void OnPartDie() {
+    if (isLinked) {
+      BreakCurrentLink(LinkActorType.Physics);
+    }
   }
   #endregion
 
