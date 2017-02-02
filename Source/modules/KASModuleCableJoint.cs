@@ -137,13 +137,6 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   #endregion
 
   #region GUI action handlers
-  /// <summary>Sets cable limit to the maxumum length.</summary>
-  [KSPEvent(guiName = "Release cable", guiActive = true, guiActiveUnfocused = true)]
-  public void ReleaseLockContextMenuAction() {
-    maxJointLength = maxLinkLength;
-    UpdateMenuItems();
-  }
-
   /// <summary>
   /// Context menu action that triggers current stretch ration check. Result is reported to UI.
   /// </summary>
@@ -212,8 +205,6 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
 
   /// <summary>Updates GUI context menu items to the current state of the module.</summary>
   void UpdateMenuItems() {
-    Events["ReleaseLockContextMenuAction"].active =
-        isLinked && !Mathf.Approximately(maxJointLength, maxLinkLength);
     Events["CheckCableStretchContextMenuAction"].active = isLinked;
   }
   #endregion
