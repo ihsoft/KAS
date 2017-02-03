@@ -290,8 +290,12 @@ public abstract class AbstractJointModule :
     if (maxLinkLength > 0) {
       sb.AppendLine(MaximumLinkLengthInfo.Format(maxLinkLength));
     }
-    sb.AppendLine(SourceJointFreedomInfo.Format(sourceLinkAngleLimit));
-    sb.AppendLine(TargetJointFreedomInfo.Format(targetLinkAngleLimit));
+    if (sourceLinkAngleLimit > 0) {
+      sb.AppendLine(SourceJointFreedomInfo.Format(sourceLinkAngleLimit));
+    }
+    if (targetLinkAngleLimit > 0) {
+      sb.AppendLine(TargetJointFreedomInfo.Format(targetLinkAngleLimit));
+    }
     return sb.ToString();
   }
 
