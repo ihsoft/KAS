@@ -277,6 +277,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
+      // FIXME: update material everywhere.
       // Only update shader on the source joint object since all other objects (pistons and target
       // joint) are children and will be updated hierarchically.
       Meshes.UpdateMaterials(
@@ -757,6 +758,8 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     // FIXME support scale
     var jointLever = jointPrefab.transform.FindChild(JointModelName).gameObject;
     var jointModel = Instantiate(jointLever);
+    //FIXME
+    DestroyImmediate(jointModel.GetComponent<Collider>());
     jointModel.name = JointModelName;
 
     var jointModelPivot = jointPrefab.transform.Find(PivotAxleTransformName);

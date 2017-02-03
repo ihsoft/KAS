@@ -101,11 +101,11 @@
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleCableJoint.cs" />
-    <Compile Include="modules\KASModuleInteractiveJointSource.cs" />
+    <Compile Include="modules\KASModuleInteractiveLinkSource.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModuleStockJoint.cs" />
-    <Compile Include="modules\KASModuleTelescopicPipeStrut.cs" />
+    <Compile Include="modules\KASModuleTelescopicPipeModel.cs" />
     <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
     <Compile Include="modules\KASModulePipeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
