@@ -79,9 +79,15 @@ public class KASModuleLinkSourceBase :
   /// <summary>Info string in the editor to identify if part can link with another vessel.</summary>
   protected readonly static MessageEnumValue<LinkMode> LinkModeInfo =
       new MessageEnumValue<LinkMode>() {
-        {LinkMode.DockVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
-        {LinkMode.TiePartsOnDifferentVessels, "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
-        {LinkMode.TiePartsOnSameVessel, "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
+        {LinkMode.DockVessels,
+         "<color=#00ffff>Only docks to <b>another</b> vessel</color>"},
+        {LinkMode.TiePartsOnDifferentVessels,
+         "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
+        {LinkMode.TiePartsOnSameVessel,
+         "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
+        {LinkMode.TieAnyParts,
+         "<color=#00ffff>Links to the <b>same</b> vessel</color>"
+         + "\n<color=#00ffff>Links to <b>another</b> vessel</color>"},
       };
   #endregion
 
