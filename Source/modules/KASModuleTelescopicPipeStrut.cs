@@ -16,7 +16,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
-public class KASModuleTelescopicPipeStrut : AbstractProceduralModel, ILinkRenderer {
+public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRenderer {
 
   #region Localizable GUI strings
   /// <summary>

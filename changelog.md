@@ -1,3 +1,7 @@
+# 0.6.1 (pre-release):
+* [Change] Rename module: `KASModuleInteractiveJointSource` to `KASModuleInteractiveLinkSource`.
+* [Change] Rename module: `KASModuleTelescopicPipeStrut` to `KASModuleTelescopicPipeModel`.
+
 ### 0.6.0 (October 12th, 2016)
 - [Enhancement] KSP 1.2 support
 

@@ -21,7 +21,7 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-public sealed class KASModuleInteractiveJointSource : KASModuleLinkSourceBase {
+public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
   #region Localizable strings
   /// <summary>Message to display when a compatible target part is hevred over.</summary>
