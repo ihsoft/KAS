@@ -17,7 +17,7 @@ import sys
 import time
 import collections
 
-ZIP_BINARY = 'L:/Program Files/7-Zip/7z.exe'
+ZIP_BINARY = 'C:/Program Files/7-Zip/7z.exe'
 PACKAGE_TITLE = 'Kerbal Attachment System'
 
 # SRC configs.
@@ -64,19 +64,24 @@ STRUCTURE = collections.OrderedDict({
     '/LICENSE-1.0.md',
   ],
   '/GameData/KAS-1.0/Parts' : '/Parts',
+  '/GameData/KAS-1.0/Patches' : '/Patches',
   '/GameData/KAS-1.0/Models' : '/Models',
   '-/GameData/KAS-1.0/Models' : '/**/*.psd',  # Drop texture sources.
   '/GameData/KAS-1.0/Sounds' : [
     '/Sounds/broke.ogg',
     '/Sounds/plugdocked.ogg',
     '/Sounds/unplugdocked.ogg',
+    '/Sounds/grappleAttachEva.ogg',
+    '/Sounds/grappleDetach.ogg',
   ],
   '/GameData/KAS-1.0/Textures' : [
     '/Textures/piston180.png',
+    '/Textures/KASFilterIcon.png',
+    '/Textures/cable.png',
   ],
   '/GameData/KAS-1.0/Plugins' : [
     '/Binaries/MiniAVC.dll',
-    '/Binaries/KSPDev_Utils.dll',
+    '/Binaries/KSPDev_Utils.0.20.0.dll',
     '/Binaries/KSPDev_Utils_License.md',
     '/Source/bin/Release/KAS-1.0.dll',
   ],
