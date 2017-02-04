@@ -825,7 +825,9 @@ public class KASModuleLinkSourceBase :
     yield return new WaitForFixedUpdate();
     yield return new WaitForFixedUpdate();
     yield return new WaitForFixedUpdate();
-    SetCollisionIgnores(linkTarget.part, ignore: true);
+    if (isLinked) {  // Link may get broken during physics easyment.
+      SetCollisionIgnores(linkTarget.part, ignore: true);
+    }
   }
 
   /// <summary>Disables/enables all colliders between current part and the target.</summary>
