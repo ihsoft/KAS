@@ -138,7 +138,7 @@ public class KASModuleLinkTargetBase :
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
-  public LinkMode persistedLinkMode;
+  public LinkMode persistedLinkMode = LinkMode.DockVessels;
   #endregion
 
   #region Part's config fields
@@ -208,11 +208,18 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   /// <summary>State machine that controls event reaction in different states.</summary>
-  /// <remarks>Primary usage of the machine is managing subscriptions to the different game events. 
-  /// It's highly discouraged to use it for firing events or taking actions. Initial state can be
-  /// setup under different circumstances, and the associated events and actions may get triggered
-  /// at the inappropriate moment.</remarks>
+  /// <remarks>
+  /// Primary usage of the machine is managing subscriptions to the different game events. It's
+  /// highly discouraged to use it for firing events or taking actions. Initial state can be setup
+  /// under different circumstances, and the associated events and actions may get triggered at the
+  /// inappropriate moment.
+  /// </remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
+
+  /// <summary>Tells if this source is currectly linked with a target.</summary>
+  protected bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -297,7 +304,7 @@ public class KASModuleLinkTargetBase :
   #region IsPartDeathListener implemenation
   /// <inheritdoc/>
   public virtual void OnPartDie() {
-    if (linkState == LinkState.Linked) {
+    if (isLinked) {
       linkSource.BreakCurrentLink(LinkActorType.Physics);
     }
   }
@@ -385,8 +392,7 @@ public class KASModuleLinkTargetBase :
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
-    if (oldState == LinkState.AcceptingLinks && linkState != LinkState.Linked
-        && attachNode != null) {
+    if (oldState == LinkState.AcceptingLinks && isLinked && attachNode != null) {
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
