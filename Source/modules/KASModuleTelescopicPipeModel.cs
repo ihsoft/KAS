@@ -798,7 +798,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
-    var trgPartJoint = CloneModel(trgJointModel, TrgStrutJointObjName).transform;
+    var trgPartJoint = CloneModel(trgJointModel, TrgPartJointObjName).transform;
     var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleTransformName);
     Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
                            newPosition: new Vector3(0, 0, trgJointHandleLength),
