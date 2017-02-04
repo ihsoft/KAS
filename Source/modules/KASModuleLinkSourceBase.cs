@@ -377,7 +377,7 @@ public class KASModuleLinkSourceBase :
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    if (linkState != LinkState.Linked) {
+    if (!isLinked) {
       return;
     }
     if (linkTarget == null) {
@@ -492,7 +492,7 @@ public class KASModuleLinkSourceBase :
 
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
-    if (linkState != LinkState.Linked) {
+    if (!isLinked) {
       Debug.LogWarningFormat(
           "Cannot break link: part {0} is not linked to anything", DbgFormatter.PartId(part));
       return;
@@ -559,7 +559,7 @@ public class KASModuleLinkSourceBase :
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
-      if (linkState == LinkState.Linked) {
+      if (isLinked) {
         // In case of event was external to KAS.
         LogicalUnlink(LinkActorType.None);
       }
@@ -580,10 +580,10 @@ public class KASModuleLinkSourceBase :
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
     // Start renderer in a linked state with a valid target, and stop it in all other states.
-    if (linkState == LinkState.Linked && !linkRenderer.isStarted && linkTarget != null) {
+    if (isLinked && !linkRenderer.isStarted && linkTarget != null) {
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     }
-    if (linkState != LinkState.Linked && linkRenderer.isStarted) {
+    if (!isLinked && linkRenderer.isStarted) {
       linkRenderer.StopRenderer();
     }
     // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
@@ -591,8 +591,7 @@ public class KASModuleLinkSourceBase :
     if (linkState == LinkState.Linking && attachNode == null) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
-    if (oldState == LinkState.Linking && linkState != LinkState.Linked
-        && attachNode != null) {
+    if (oldState == LinkState.Linking && !isLinked && attachNode != null) {
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
