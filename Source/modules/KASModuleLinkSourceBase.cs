@@ -364,11 +364,10 @@ public class KASModuleLinkSourceBase :
 
     // Try to restore link to the target and update module's state.
     if (persistedLinkState == LinkState.Linked) {
-      if (linkMode == LinkMode.DockVessels
-          || FlightGlobals.FindPartByID(linkTargetPartId) != null) {
+      if (linkMode == LinkMode.DockVessels) {
         RestoreTarget();
       } else {
-        // Target vessel is not yet loaded. Wait for it.
+        // Target vessel may not be loaded yet. Wait for it.
         AsyncCall.CallOnEndOfFrame(this, x => RestoreTarget());
       }
     } else {
