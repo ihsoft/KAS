@@ -129,8 +129,14 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
     base.OnUpdate();
     if (linkState == LinkState.Linking && guiLinkMode == GUILinkMode.Interactive) {
       UpdateLinkingState();
+
+      // Handle link mode cancel.
       if (Input.GetKeyUp(KeyCode.Escape)) {
         AsyncCall.CallOnEndOfFrame(this, x => CancelLinking());
+      }
+      // Handle link action (mouse click).
+      if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
+        AsyncCall.CallOnEndOfFrame(this, x => LinkToTarget(targetCandidate));
       }
     }
   }
@@ -271,11 +277,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
         linkRenderer.colorOverride = BadLinkColor;
         linkRenderer.StopRenderer();
       }
-    }
-
-    // Handle link action (mouse click).
-    if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
-      AsyncCall.CallOnEndOfFrame(this, x => LinkToTarget(targetCandidate));
     }
 
     // Update linking messages (it needs to be refreshed to not go out by timeout).
