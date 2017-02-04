@@ -276,14 +276,15 @@ public class KASModuleLinkTargetBase :
     base.OnLoad(node);
 
     // Create attach node transform. It will become a part of the model.
-    if (HighLogic.LoadedScene == GameScenes.LOADING) {
-      nodeTransform = new GameObject(attachNodeName + "-node").transform;
+    var nodeName = attachNodeName + "-node";
+    nodeTransform = part.FindModelTransform(nodeName);
+    if (nodeTransform == null) {
+      Debug.LogWarningFormat("Create attach node {0} on {1}", nodeName, part.name);
+      nodeTransform = new GameObject(nodeName).transform;
       nodeTransform.parent = Hierarchy.GetPartModelTransform(part);
       nodeTransform.localPosition = attachNodePosition;
       nodeTransform.localScale = Vector3.one;
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
-    } else {
-      nodeTransform = part.FindModelTransform(attachNodeName + "-node");
     }
 
     // If source is linked and docked then we need actual attach node. Create it.
