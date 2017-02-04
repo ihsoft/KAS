@@ -112,8 +112,10 @@ public class KASModuleLinkSourceBase :
     }
   }
   ILinkTarget _linkTarget;
+
   /// <inheritdoc/>
   public uint linkTargetPartId { get { return persistedLinkTargetPartId; } }
+
   /// <inheritdoc/>
   public LinkState linkState {
     get {
@@ -126,6 +128,7 @@ public class KASModuleLinkSourceBase :
       OnStateChange(oldState);
     }
   }
+
   /// <inheritdoc/>
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
@@ -135,10 +138,13 @@ public class KASModuleLinkSourceBase :
       }
     }
   }
+
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
+
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
+
   /// <inheritdoc/>
   public GUILinkMode guiLinkMode { get; private set; }
   #endregion
