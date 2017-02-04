@@ -83,7 +83,7 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   /// <summary>Gets current distance between the joint ends.</summary>
   float currentJointDistance {
     get {
-      return Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);  
+      return Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);
     }
   }
 
@@ -185,7 +185,7 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
     rb.mass = (source.part.mass + target.part.mass) / 2;
 
     // Temporarily align to the source to have spring joint remembered zero length.
-    jointObj.transform.parent = source.part.transform;
+    jointObj.transform.parent = source.nodeTransform;
     jointObj.transform.localPosition = Vector3.zero;
 
     springJoint = jointObj.AddComponent<SpringJoint>();
@@ -197,9 +197,9 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
     springJoint.maxDistance = originalLength;
     springJoint.connectedBody = source.part.rb;
     springJoint.enablePreprocessing = false;
-
-    // Move plug head to the target and adhere it there.
-    jointObj.transform.parent = target.part.transform;
+    
+    // Move plug head to the target and adhere it there at the attach node transform.
+    jointObj.transform.parent = target.nodeTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<FixedJoint>();
     fixedJoint.connectedBody = target.part.rb;
