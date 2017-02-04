@@ -758,8 +758,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     // FIXME support scale
     var jointLever = jointPrefab.transform.FindChild(JointModelName).gameObject;
     var jointModel = Instantiate(jointLever);
-    //FIXME
-    DestroyImmediate(jointModel.GetComponent<Collider>());
     jointModel.name = JointModelName;
 
     var jointModelPivot = jointPrefab.transform.Find(PivotAxleTransformName);

@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -104,9 +105,18 @@ public class KASModuleLinkSourceBase :
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
+  /// <seealso cref="SetCollisionIgnores"/>
   public ILinkTarget linkTarget {
     get { return _linkTarget; }
     private set {
+      if (_linkTarget != value) {
+        if (value != null && value.part.vessel != vessel) {
+          SetCollisionIgnores(value.part, true);  // Set ignores on the new target part.
+        }
+        if (_linkTarget != null && _linkTarget.part.vessel != vessel) {
+          SetCollisionIgnores(_linkTarget.part, false);  // Reset ignores on the old target part.
+        }
+      }
       _linkTarget = value;
       persistedLinkTargetPartId = value != null ? value.part.flightID : 0;
     }
@@ -327,6 +337,15 @@ public class KASModuleLinkSourceBase :
         leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAcceptedKASEvent));
   }
 
+  /// <inheritdoc/>
+  public override void OnInitialize() {
+    base.OnInitialize();
+    if (isLinked && linkTarget.part.vessel != vessel) {
+      // When target is at the different vessel there is no automatic collision ignore set.
+      StartCoroutine(WaitAndSetCollisionIgnores());
+    }
+  }
+  
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
@@ -792,6 +811,37 @@ public class KASModuleLinkSourceBase :
         "Decouple part {0} from {1} since the link state cannot be restored.",
         DbgFormatter.PartId(partToDecouple), DbgFormatter.PartId(partToDecouple.parent));
     partToDecouple.decouple();
+  }
+
+  /// <summary>
+  /// Waits till physics easement ligic warmed up and disables collision between source and target
+  /// parts.
+  /// </summary>
+  /// <remarks>Needed when source and target belong to different vessels.</remarks>
+  /// <seealso cref="linkTarget"/>
+  IEnumerator WaitAndSetCollisionIgnores() {
+    // Copied from KervalEVA.OnVesselGoOffRails() method.
+    // There must be at least 3 fixed frames.
+    yield return new WaitForFixedUpdate();
+    yield return new WaitForFixedUpdate();
+    yield return new WaitForFixedUpdate();
+    SetCollisionIgnores(linkTarget.part, ignore: true);
+  }
+
+  /// <summary>Disables/enables all colliders between current part and the target.</summary>
+  /// <remarks>Ingore state needs to be reset when it's not used anymore.</remarks>
+  /// <seealso cref="linkTarget"/>
+  /// <seealso cref="OnInitialize"/>
+  void SetCollisionIgnores(Part tgtPart, bool ignore) {
+    Debug.LogFormat("Set collision ignores between {0} and {1} to {2}",
+                    DbgFormatter.PartId(part), DbgFormatter.PartId(tgtPart), ignore);
+    var srcColliders = part.FindModelComponents<Collider>();
+    var trgColliders = tgtPart.FindModelComponents<Collider>();
+    foreach (var c1 in srcColliders) {
+      foreach (var c2 in trgColliders) {
+        Physics.IgnoreCollision(c1, c2, ignore);
+      }
+    }
   }
 }
 
