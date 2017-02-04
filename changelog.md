@@ -1,6 +1,8 @@
-# 0.6.1 (pre-release):
+# 0.7.3 (pre-release):
+* [Enhancement] Add cable joint parts PCB-1 and CH-1.
 * [Change] Rename module: `KASModuleInteractiveJointSource` to `KASModuleInteractiveLinkSource`.
 * [Change] Rename module: `KASModuleTelescopicPipeStrut` to `KASModuleTelescopicPipeModel`.
+* [Fix #190] KAS 1.0: Bring back collider for the clutches.
 
 ### 0.6.0 (October 12th, 2016)
 - [Enhancement] KSP 1.2 support
