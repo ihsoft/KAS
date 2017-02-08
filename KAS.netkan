@@ -18,6 +18,6 @@
         { "name": "EasyVesselSwitch" }
     ],
     "license"         : "restricted",
-    "author"          : [ "KospY", "Winn75", "zzz", "Majiir", "a.g.", "IgorZ" ],
+    "author"          : [ "IgorZ", "KospY", "Winn75", "zzz", "Majiir", "a.g." ],
     "$vref"           : "#/ckan/ksp-avc"
 }
