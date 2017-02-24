@@ -162,6 +162,20 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public string attachNodeName = "";
+
+  /// <summary>Config setting. Name of object in the model that defines attach node.</summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public string attachNodeTransformName = "";
+
   /// <summary>Config setting. Defines attach node position in the local units.</summary>
   /// <remarks>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
@@ -279,15 +293,25 @@ public class KASModuleLinkTargetBase :
     base.OnLoad(node);
 
     // Create attach node transform. It will become a part of the model.
-    var nodeName = attachNodeName + "-node";
-    nodeTransform = part.FindModelTransform(nodeName);
+    var nodeName = attachNodeTransformName != ""
+        ? attachNodeTransformName
+        : attachNodeName + "-node";
+    nodeTransform = Hierarchy.FindTransformInChildren(part.transform, nodeName);
     if (nodeTransform == null) {
-      Debug.LogWarningFormat("Create attach node {0} on {1}", nodeName, part.name);
       nodeTransform = new GameObject(nodeName).transform;
       nodeTransform.parent = Hierarchy.GetPartModelTransform(part);
       nodeTransform.localPosition = attachNodePosition;
       nodeTransform.localScale = Vector3.one;
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
+      Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
+                      nodeName, part.name,
+                      DbgFormatter2.Vector(nodeTransform.position),
+                      nodeTransform.rotation * Vector3.forward);
+    } else {
+      Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, rot={3}",
+                      nodeName, part.name,
+                      DbgFormatter2.Vector(nodeTransform.position),
+                      nodeTransform.rotation * Vector3.forward);
     }
 
     // If target is linked and docked then we need actual attach node. Create it.
