@@ -20,6 +20,9 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <summary>Standard KSP part shader name.</summary>
   public const string KspPartShaderName = "KSP/Bumped Specular";
 
+  /// <summary>Name of bump map property in the renderer.</summary>
+  protected const string BumpMapProp = "_BumpMap";
+
   /// <summary>Returns cached part's model root transform.</summary>
   /// <remarks>
   /// Attach all your meshes to this transform (directly or via parents). Otherwise, the new meshes
@@ -114,7 +117,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
     material.color = overrideColor ?? materialColor;
     if (normals != null) {
       material.EnableKeyword("_NORMALMAP");
-      material.SetTexture("_BumpMap", normals);
+      material.SetTexture(BumpMapProp, normals);
     }
     
     return material;
