@@ -23,6 +23,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// Message to display when link cannot be created due to an obstacle in the way. 
   /// </summary>
   protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+
   /// <summary>
   /// Message to display when link strut orientation cannot be changed due to it would hit the
   /// surface.
@@ -43,6 +44,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField(isPersistant = true)]
   public Vector3 parkedOrientation = Vector3.zero;
+
   /// <summary>Persistent config field. Extended length of the unlinked strut.</summary>
   /// <remarks>
   /// <para>
@@ -73,6 +75,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public string sourceJointModel = "KAS-1.0/Models/Joint/model";
+
   /// <summary>
   /// Config setting. Model for a joint lever at the target part. Two such models are used to form a
   /// complete joint.
@@ -88,6 +91,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public string targetJointModel = "KAS-1.0/Models/Joint/model";
+
   /// <summary>Config setting. Number of pistons in the link.</summary>
   /// <remarks>
   /// <para>
@@ -100,6 +104,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public int pistonsCount = 3;
+
   /// <summary>Config setting. Model for the pistons.</summary>
   /// <remarks>
   /// <para>
@@ -112,6 +117,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public string pistonModel = "KAS-1.0/Models/Piston/model";
+
   /// <summary>Config setting. Scale of the piston comparing to the prefab.</summary>
   /// <remarks>
   /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
@@ -129,6 +135,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 pistonModelScale = Vector3.one;
+
   /// <summary>
   /// Config setting. Allows random rotation of pistons relative to each other around Z (length)
   /// axis. If piston's model has a complex texture this setting may be used to make telescopic pipe
@@ -147,6 +154,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
+
   public bool pistonModelRandomRotation = true;
   /// <summary>Config setting. Amount to decrease the scale of an inner pistons diameter.</summary>
   /// <remarks>
@@ -171,6 +179,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public float pistonDiameterScaleDelta = 0.1f;
+
   /// <summary>
   /// Config setting. Minimum allowed overlap of the pistons in the extended state.
   /// </summary>
@@ -188,6 +197,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// KSP: KSPField</seealso>
   [KSPField]
   public float pistonMinShift = 0.02f;
+
   /// <summary>
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
@@ -206,6 +216,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu0 = "";
+
   /// <summary>
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
@@ -224,6 +235,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu1 = "";
+
   /// <summary>
   /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
   /// </summary>
@@ -242,6 +254,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// <seealso cref="ExtractPositionName"/>
   [KSPField]
   public string parkedOrientationMenu2 = "";
+
   /// <summary>Config setting. Name of the renderer for this procedural part.</summary>
   /// <remarks>
   /// This setting is used to let link source know primary renderer for the linked state.
@@ -262,6 +275,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   #region ILinkRenderer properties
   /// <inheritdoc/>
   public string cfgRendererName { get { return rendererName; } }
+
   /// <inheritdoc/>
   public virtual Color? colorOverride {
     get { return _colorOverride; }
@@ -331,41 +345,52 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// <seealso cref="ParkedOrientationMenuAction0"/>
   /// <seealso cref="parkedOrientationMenu0"/>
   protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
+
   /// <summary>Name of the relevant event. It must match name of the method.</summary>
   /// <seealso cref="ParkedOrientationMenuAction1"/>
   /// <seealso cref="parkedOrientationMenu1"/>
   protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
+
   /// <summary>Name of the relevant event. It must match name of the method.</summary>
   /// <seealso cref="ParkedOrientationMenuAction2"/>
   /// <seealso cref="parkedOrientationMenu2"/>
   protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
+
   /// <summary>Name of the relevant event. It must match name of the method.</summary>
   protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
+
   /// <summary>Name of the relevant event. It must match name of the method.</summary>
   protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
   #endregion
 
   #region Model name constants
   /// <summary>A transform that is a root for the whole pipe modelset.</summary>
-  /// <remarks>It doesn't have to match part's atatch node transform.</remarks>
+  /// <remarks>It doesn't have to match part's attach node transform.</remarks>
   protected const string AttachNodeObjName = "plugNode";
+
   /// <summary>Name of model that connects pipe with the source part.</summary>
   protected const string SrcPartJointObjName = "srcPartJoint";
+
   /// <summary>Name of model at the pipe start.</summary>
   protected const string SrcStrutJointObjName = "srcStrutJoint";
+
   /// <summary>Name of model at the pipe end.</summary>
   protected const string TrgStrutJointObjName = "trgStrutJoint";
+
   /// <summary>Name of model that connects pipe with the target part.</summary>
   protected const string TrgPartJointObjName = "trgPartJoint";
+
   /// <summary>
   /// Name of the joint model in the part's model. It's used as a template to create all the joint
   /// levers.
   /// </summary>
   protected const string JointModelName = "Joint";
+
   /// <summary>
   /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
   protected const string PivotAxleTransformName = "PivotAxle";
+
   /// <summary>Name of the piston object in the piston's model.</summary>
   protected const string PistonModelName = "Piston";
   #endregion
@@ -373,43 +398,55 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   #region Model transforms & properties
   /// <summary>Model that connects pipe assembly with the source part.</summary> 
   protected Transform srcPartJoint { get; private set; }
+
   /// <summary>Pivot axis model at the source part.</summary>
   protected Transform srcPartJointPivot { get; private set; }
+
   /// <summary>Model at the pipe start.</summary>
   /// <remarks>It's orientation is reversed, and it's positioned so what its pivot axis matches
   /// <see cref="srcPartJointPivot"/>. I.e. forward direction in the local space is
   /// <see cref="Vector3.back"/>.</remarks>
   protected Transform srcStrutJoint { get; private set; }
+
   /// <summary>Model at the pipe end.</summary>
   protected Transform trgStrutJoint { get; private set; }
+
   /// <summary>Pivot axis model at the pipe end.</summary>
   protected Transform trgStrutJointPivot { get; private set; }
+
   /// <summary>Pistons that form the strut.</summary>
   protected GameObject[] pistons { get; private set; }
+
   /// <summary>
   /// Distance of source part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   protected float srcJointHandleLength { get; private set; }
+
   /// <summary>
   /// Distance of target part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   protected float trgJointHandleLength { get; private set; }
+
   /// <summary>
   /// Minmum link length that doesn't break telescopic pipe renderer. It's calculated from the
   /// model.
   /// </summary>
   protected float minLinkLength { get; private set; }
+
   /// <summary>
   /// Maximum link length that doesn't break telescopic pipe renderer. It's calculated from the
   /// model.
   /// </summary>
   protected float maxLinkLength { get; private set; }
+
   /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
   /// <remarks>It's primarily used to cast a collider.</remarks>
   /// <seealso cref="CheckColliderHits"/>
   protected float outerPistonDiameter { get; private set; }
+
   /// <summary>Length of a single piston. It's calculated from the model.</summary>
   protected float pistonLength { get; private set; }
+
   /// <summary>Prefab for the piston models.</summary>
   protected GameObject pistonPrefab {
     get {
@@ -417,10 +454,12 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
           .FindChild(PistonModelName).gameObject;
     }
   }
+
   /// <summary>Tells if source on the part is linked.</summary>
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
+
   /// <summary>Link source module that operates on this part. There can be only one.</summary>
   /// <remarks>It's get populated in the <see cref="OnStart"/> method.</remarks>
   protected ILinkSource linkSource { get; private set; }

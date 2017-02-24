@@ -172,6 +172,7 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
+
   /// <summary>Config setting. Defines attach node orientation in the local units.</summary>
   /// <remarks>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
@@ -182,6 +183,7 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
+
   /// <summary>
   /// Config setting. Tells if compatible targets should highlight themselves when linking mode
   /// started.
@@ -195,6 +197,7 @@ public class KASModuleLinkTargetBase :
   /// KSP: KSPField</seealso>
   [KSPField]
   public bool highlightCompatibleTargets = true;
+
   /// <summary>Config setting. Defines highlight color for the compatible targets.</summary>
   /// <remarks>
   /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
@@ -287,7 +290,7 @@ public class KASModuleLinkTargetBase :
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
     }
 
-    // If source is linked and docked then we need actual attach node. Create it.
+    // If target is linked and docked then we need actual attach node. Create it.
     if (persistedLinkState == LinkState.Linked && persistedLinkMode == LinkMode.DockVessels) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
