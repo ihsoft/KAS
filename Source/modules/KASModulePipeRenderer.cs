@@ -332,6 +332,23 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
   /// <summary>
+  /// Config setting. Normals texture to use for the pipe. If empty string then no normals.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
+  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
+  /// be accessed outside of the module.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="targetTransform"/>
+  /// <seealso cref="PipeEndType.Rounded"/>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
+  /// KSP: KSPField</seealso>
+  [KSPField]
+  public string pipeNormalsTexturePath = "";
+
+  /// <summary>
   /// Config setting. Defines how texture should cover the pipe.  
   /// </summary>
   /// <remarks>
@@ -418,7 +435,9 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     }
     sourceTransform = source;
     targetTransform = target;
+    var nrmTexture = pipeNormalsTexturePath != "" ? GetTexture(pipeNormalsTexturePath, asNormalMap: true) : null;
     var material = CreateMaterial(GetTexture(pipeTexturePath),
+                                  normals: nrmTexture,
                                   overrideShaderName: shaderNameOverride,
                                   overrideColor: colorOverride);
     sourceJointNode = CreateJointNode(sourceJointType, material, source, sourceJointOffset);
@@ -499,6 +518,10 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     var newScale = obj.transform.localScale.z * pipeTextureSamplesPerMeter * scaleRatio;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
+    if (pipeNormalsTexturePath != null) {
+      var nrmScale = mr.material.GetTextureScale(BumpMapProp);
+      mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
+    }
   }
 
   /// <summary>Ensures pipe mesh connect the specified positions.</summary>
