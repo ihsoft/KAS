@@ -97,7 +97,6 @@
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
-    <Compile Include="modules\AbstractJointPart.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleCableJoint.cs" />
