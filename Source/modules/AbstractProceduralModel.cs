@@ -92,8 +92,11 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   #region Protected utility methods
   /// <summary>Creates a material with default color and shader settings.</summary>
   /// <param name="mainTex">Main texture of the material.</param>
-  /// <param name="overrideShaderName">Shader name to use instead of the module's one.</param>
-  /// <param name="overrideColor">Color to use instead of main module's color.</param>
+  /// <param name="normals">Optional. Normals texture.</param>
+  /// <param name="overrideShaderName">
+  /// Optional. Shader name to use instead of the module's one.</param>
+  /// <param name="overrideColor">Optional. Color to use instead of main module's color.
+  /// </param>
   /// <returns>New material.</returns>
   /// <seealso cref="shaderName"/>
   /// <seealso cref="materialColor"/>
@@ -103,11 +106,17 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// Unity3D: Dealing with materials from scripts.</seealso>
   /// FIXME: docs
   protected Material CreateMaterial(Texture2D mainTex,
+                                    Texture2D normals = null,
                                     string overrideShaderName = null,
                                     Color? overrideColor = null) {
     var material = new Material(Shader.Find(overrideShaderName ?? shaderName));
     material.mainTexture = mainTex;
     material.color = overrideColor ?? materialColor;
+    if (normals != null) {
+      material.EnableKeyword("_NORMALMAP");
+      material.SetTexture("_BumpMap", normals);
+    }
+    
     return material;
   }
 
