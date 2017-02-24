@@ -109,6 +109,7 @@
     <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
     <Compile Include="modules\KASModulePipeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
+    <Compile Include="modules\KSPDev_candidates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
