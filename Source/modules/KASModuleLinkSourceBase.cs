@@ -381,7 +381,7 @@ public class KASModuleLinkSourceBase :
         RestoreTarget();
       } else {
         // Target vessel may not be loaded yet. Wait for it.
-        AsyncCall.CallOnEndOfFrame(this, x => RestoreTarget());
+        AsyncCall.CallOnEndOfFrame(this, RestoreTarget);
       }
     } else {
       linkStateMachine.Start(persistedLinkState);
@@ -406,12 +406,12 @@ public class KASModuleLinkSourceBase :
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
       Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter2.Vector(nodeTransform.position),
+                      DbgFormatter.Vector(nodeTransform.position),
                       nodeTransform.rotation * Vector3.forward);
     } else {
       Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter2.Vector(nodeTransform.position),
+                      DbgFormatter.Vector(nodeTransform.position),
                       nodeTransform.rotation * Vector3.forward);
     }
 
@@ -434,7 +434,7 @@ public class KASModuleLinkSourceBase :
       if (linkMode == LinkMode.DockVessels) {
         Debug.LogWarningFormat("Fix docking state for a bad link on part {0}...",
                                DbgFormatter.PartId(part));
-        AsyncCall.CallOnEndOfFrame(this, x => UndockFromBadTarget());
+        AsyncCall.CallOnEndOfFrame(this, UndockFromBadTarget);
       } else {
         Debug.LogWarningFormat(
             "Mark source part {0} as unlinked since link state cannot be restored.",
@@ -445,7 +445,7 @@ public class KASModuleLinkSourceBase :
       Debug.LogWarningFormat(
           "Detach part {0} from target {1} since target failed to restore its state.",
           DbgFormatter.PartId(part), DbgFormatter.PartId(linkTarget.part));
-      AsyncCall.CallOnEndOfFrame(this, x => BreakCurrentLink(LinkActorType.None));
+      AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.None));
     }
   }
 

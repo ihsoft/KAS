@@ -338,7 +338,7 @@ public abstract class AbstractJointModule :
         if (limitError != null) {
           ScreenMessaging.ShowErrorScreenMessage(limitError);
           var oldParent = part.parent;
-          AsyncCall.CallOnEndOfFrame(this, x => {
+          AsyncCall.CallOnEndOfFrame(this, () => {
             // Ensure part's state hasn't been changed by the other modules.
             if (part.parent == oldParent) {
               Debug.LogWarningFormat(

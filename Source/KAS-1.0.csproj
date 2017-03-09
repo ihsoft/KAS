@@ -56,8 +56,8 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.20.0">
-      <HintPath>..\Binaries\KSPDev_Utils.0.20.0.dll</HintPath>
+    <Reference Include="KSPDev_Utils.0.21.0">
+      <HintPath>..\Binaries\KSPDev_Utils.0.21.0.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>

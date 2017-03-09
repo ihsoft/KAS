@@ -280,7 +280,7 @@ public class KASModuleLinkTargetBase :
         RestoreSource();
       } else {
         // Target vessel may not be loaded yet. Wait for it.
-        AsyncCall.CallOnEndOfFrame(this, x => RestoreSource());
+        AsyncCall.CallOnEndOfFrame(this, RestoreSource);
       }
     } else {
       linkStateMachine.Start(persistedLinkState);
@@ -305,12 +305,12 @@ public class KASModuleLinkTargetBase :
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
       Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter2.Vector(nodeTransform.position),
+                      DbgFormatter.Vector(nodeTransform.position),
                       nodeTransform.rotation * Vector3.forward);
     } else {
       Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter2.Vector(nodeTransform.position),
+                      DbgFormatter.Vector(nodeTransform.position),
                       nodeTransform.rotation * Vector3.forward);
     }
 
