@@ -61,7 +61,9 @@ class LinkUtilsImpl : ILinkUtils {
     GameEvents.onActiveJointNeedUpdate.Fire(srcVessel);
     GameEvents.onActiveJointNeedUpdate.Fire(trgVessel);
     sourceNode.attachedPart = trgPart;
+    sourceNode.attachedPartId = trgPart.flightID;
     targetNode.attachedPart = srcPart;
+    targetNode.attachedPartId = srcPart.flightID;
     srcPart.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
     srcPart.Couple(trgPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
