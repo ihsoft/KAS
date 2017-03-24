@@ -190,12 +190,10 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   public Transform targetTransform { get; private set; }
 
   /// <inheritdoc/>
-  //public float stretchRatio { get; set; }
   public float stretchRatio {
     get { return _stretchRatio; }
     set {
       _stretchRatio = value;
-      //pipeTextureScaleRatio = 1 / _stretchRatio;
     }
   }
   float _stretchRatio = 1.0f;
@@ -203,43 +201,17 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Part's config fields
   /// <summary>Config setting. See <see cref="cfgRendererName"/>.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public string rendererName = string.Empty;
 
   /// <summary>Config setting. Diameter of the pipe.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public float pipeDiameter = 0.15f;
 
   /// <summary>Config setting. Specifies how the source end of the pipe should be rounded.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
   /// <seealso cref="sourceJointOffset"/>
+  /// <seealso cref="sourceJointModelCfg"/>
   /// <seealso cref="sphereDiameter"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public PipeEndType sourceJointType = PipeEndType.Rounded;
 
@@ -248,16 +220,10 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// </summary>
   /// <remarks>
   /// Only makes sense when source end's type is <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
   /// <seealso cref="sourceTransform"/>
+  /// <seealso cref="sourceJointType"/>
   /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public float sourceJointOffset = 0f;
 
@@ -270,9 +236,8 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// </para>
   /// </remarks>
   /// <seealso cref="targetJointOffset"/>
+  /// <seealso cref="targetJointModelCfg"/>
   /// <seealso cref="sphereDiameter"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public PipeEndType targetJointType = PipeEndType.Rounded;
 
@@ -281,16 +246,9 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// </summary>
   /// <remarks>
   /// Only makes sense when target end's type is <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
   /// <seealso cref="targetTransform"/>
   /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public float targetJointOffset = 0f;
 
@@ -300,85 +258,45 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// <remarks>
   /// Only makes sense when either source or target end type is configured for
   /// <see cref="PipeEndType.Rounded"/> or <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
   /// <seealso cref="targetTransform"/>
   /// <seealso cref="PipeEndType.Rounded"/>
   /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public float sphereDiameter = 0.15f;
 
   /// <summary>
   /// Config setting. Texture to use for the pipe.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso cref="targetTransform"/>
-  /// <seealso cref="PipeEndType.Rounded"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="pipeTextureRescaleMode"/>
+  /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
   /// <summary>
   /// Config setting. Normals texture to use for the pipe. If empty string then no normals.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso cref="targetTransform"/>
-  /// <seealso cref="PipeEndType.Rounded"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="pipeTexturePath"/>
   [KSPField]
   public string pipeNormalsTexturePath = "";
 
   /// <summary>
-  /// Config setting. Defines how texture should cover the pipe.  
+  /// Config setting. Defines how texture should cover the pipe.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
+  /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
   /// <summary>
-  /// Config setting. Defines how many texture samples to apply per one meter of pipe's length.
+  /// Config setting. Defines how many texture samples to apply per one meter of the pipe's length.
   /// </summary>
+  /// <remarks>
   /// This setting is ignored if texture rescale mode is
   /// <see cref="PipeTextureRescaleMode.Stretch"/>.
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
+  /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public float pipeTextureSamplesPerMeter = 1f;
   #endregion
