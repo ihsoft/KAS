@@ -325,13 +325,13 @@ public class KASModuleLinkSourceBase :
       nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
       Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.position),
-                      nodeTransform.rotation * Vector3.forward);
+                      DbgFormatter.Vector(nodeTransform.localPosition),
+                      nodeTransform.localRotation * Vector3.forward);
     } else {
       Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.position),
-                      nodeTransform.rotation * Vector3.forward);
+                      DbgFormatter.Vector(nodeTransform.localPosition),
+                      nodeTransform.localRotation * Vector3.forward);
     }
 
     // If source is docked to the target then we need actual attach node. Create it.
