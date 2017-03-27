@@ -47,11 +47,17 @@ public interface ILinkRenderer {
   /// <summary>Tells if renderer is started and active.</summary>
   bool isStarted { get; }
 
-  /// <summary>Transform at the beginning of the link.</summary>
+  /// <summary>
+  /// Base position/direction of the connection point at the beginning of the link. The source
+  /// joint models will be aligned against this transform.
+  /// </summary>
   /// <seealso cref="StartRenderer"/>
   Transform sourceTransform { get; }
 
-  /// <summary>Transform at the end of the link.</summary>
+  /// <summary>
+  /// Base position/direction of the connection point at the end of the link. The target
+  /// joint models will be aligned against this transform.
+  /// </summary>
   /// <seealso cref="StartRenderer"/>
   Transform targetTransform { get; }
 
@@ -61,7 +67,7 @@ public interface ILinkRenderer {
   /// <remarks>
   /// Value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
   /// <para>
-  /// This ratio only affects visual representation. For the renderers that don't care about
+  /// This ratio only affects the visual representation. For the renderers that don't care about
   /// stretching it's ok to always return <c>1.0</c> from the getter and ignore calls to the setter.
   /// </para>
   /// </remarks>
