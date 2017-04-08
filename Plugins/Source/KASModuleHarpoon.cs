@@ -143,6 +143,8 @@ public class KASModuleHarpoon : KASModuleAttachCore {
 
   public void AttachPartGrapple(Part attachToPart) {
     AttachFixed(this.part, attachToPart, partBreakForce);
+    Events["ContextMenuDetach"].guiActive = true;
+    Events["ContextMenuDetach"].guiActiveUnfocused = true;
     state = "Attached to : " + attachToPart.partInfo.title;
     //Sound
     if (attachToPart.vessel.isEVA) {
