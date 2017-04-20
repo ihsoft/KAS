@@ -1,3 +1,6 @@
+### 0.6.3 (pre-release)
+- [Fix] Show detach button when harpooned to a part (asmigala).
+
 ### 0.6.2 (December 26th, 2016)
 - [Fix #191] Unable to use winch with attached in VAB parts with wheels.
 
