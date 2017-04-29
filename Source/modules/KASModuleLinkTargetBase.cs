@@ -299,10 +299,9 @@ public class KASModuleLinkTargetBase :
     nodeTransform = Hierarchy.FindTransformInChildren(part.transform, nodeName);
     if (nodeTransform == null) {
       nodeTransform = new GameObject(nodeName).transform;
-      nodeTransform.parent = Hierarchy.GetPartModelTransform(part);
-      nodeTransform.localPosition = attachNodePosition;
-      nodeTransform.localScale = Vector3.one;
-      nodeTransform.localRotation = Quaternion.LookRotation(attachNodeOrientation);
+      Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
+                             newPosition: attachNodePosition,
+                             newRotation: Quaternion.LookRotation(attachNodeOrientation));
       Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
                       nodeName, part.name,
                       DbgFormatter.Vector(nodeTransform.localPosition),
