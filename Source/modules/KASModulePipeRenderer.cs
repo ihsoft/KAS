@@ -3,11 +3,16 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-using UnityEngine;
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.ConfigUtils;
 using KSPDev.ModelUtils;
+using KSPDev.LogUtils;
+using KSPDev.Types;
+using KSPDev.GUIUtils;
+using System;
+using System.Linq;
+using UnityEngine;
 
 namespace KAS {
 
@@ -25,7 +30,7 @@ namespace KAS {
 /// </description>
 /// </item>
 /// <item>
-/// <term><see cref="PipeEndType.RoundedWithOffset"/></term>
+/// <term><see cref="PipeEndType.ProceduralModel"/></term>
 /// <description>
 /// A sphere is drawn at the end of the pipe. If sphere diameter matches the pipe's diameter then
 /// the pipe gets a capsule form. However, the sphere is not required to have the same diameter.
@@ -36,29 +41,68 @@ namespace KAS {
 /// </para>
 /// </description>
 /// </item>
+/// <item>
+/// <term><see cref="PipeEndType.PrefabModel"/></term>
+/// <description>
+/// A model form the part's prefab is used to draw the end of the pipe. No extra actions are made at
+/// the pipe's connect, so the model must be appropriately setup to make this joint looking cute.
+/// </description>
+/// </item>
 /// </list>
 /// </para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkRenderer"/>
-public sealed class KASModulePipeRenderer : AbstractProceduralModel,
+/// <seealso cref="PipeEndType"/>
+/// <seealso cref="JointConfig"/>
+public class KASModulePipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KPSDev sugar interfaces.    
     IPartModule, IsDestroyable {
 
-  #region Internal config types
+  #region Localizable GUI strings
+  /// <summary>
+  /// Message to display when link cannot be created due to an obstacle in the way. 
+  /// </summary>
+  protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+
+  /// <summary>
+  /// Message to display when link strut orientation cannot be changed due to it would hit the
+  /// surface.
+  /// </summary>
+  protected static Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
+  #endregion
+
+  #region Public config types
   /// <summary>Type if the end of the pipe.</summary>
   public enum PipeEndType {
-    /// <summary>Pipe's end is just a section of the cylinder.</summary>
+    /// <summary>The pipe's mesh just touches the target's attach node.</summary>
+    /// <remarks>
+    /// It looks ugly on the large pipe diameters but may be fine when the diameter is not
+    /// significant. The problem can be mitigated by "sinking" the node into the part's mesh.
+    /// </remarks>
     Simple,
-    /// <summary>Pipe ends with a half of a sphere. Kind of "capsule" design.</summary>
-    Rounded,
-    /// <summary>
-    /// Link attach point is raised above the attach node point, and joint between the "arm" and
-    /// the pipe is rounded using a sphere.
-    /// </summary>
-    RoundedWithOffset,
+    /// <summary>Pipe's end is a model that is dynamically created.</summary>
+    /// <remarks>
+    /// A sphere mesh is rendered at the point where the pipe's mesh touches the target part's
+    /// attach node. The sphere diameter can be adjusted, and if it's equal or greater than the
+    /// diameter of the pipe then the joint looks smoother.
+    /// <para>
+    /// The actual connection point for the pipe mesh can be elevated over the target attach node.
+    /// In this case a simple cylinder, the "arm", will be rendered between the part and the joint
+    /// sphere. The diameter and the height of the arm can be adjusted.
+    /// </para>
+    /// </remarks>
+    /// <seealso cref="JointConfig"/>
+    ProceduralModel,
+    /// <summary>Pipe's end model is defined in the part's prefab.</summary>
+    /// <remarks>
+    /// The model must exist in the part's prefab. Also, some extra settings need to be setup to
+    /// tell how to align the model against the target part.
+    /// </remarks>
+    /// <seealso cref="JointConfig"/>
+    PrefabModel,
   }
 
   /// <summary>Mode of adjusting texture when pipe length is changed.</summary>
@@ -78,56 +122,170 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     /// <seealso cref="pipeTextureSamplesPerMeter"/>
     TileFromTarget,
   }
+
+  /// <summary>Helper structure to hold the joint model setup.</summary>
+  public class JointConfig {
+    /// <value>Defines how to obtain the joint model.</value>
+    [PersistentField("type")]
+    public PipeEndType type = PipeEndType.Simple;
+    
+    /// <value>
+    /// Defines if model's should trigger physical effects on collision.
+    /// </value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> or
+    /// <see cref="PipeEndType.PrefabModel"/>. If the prefab models are used then the colliders must
+    /// be existing in the model. If there are none then this settings doesn't have effect.
+    /// </remarks>
+    [PersistentField("colliderIsPhysical")]
+    public bool colliderIsPhysical;
+
+    /// <value>
+    /// Height of the joint sphere over the attach node. It's either zero or a positive number.
+    /// </value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// </remarks>
+    [PersistentField("sphereOffset")]
+    public float sphereOffset;
+
+    /// <summary>Diameter of the joint sphere.</summary>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// </remarks>
+    [PersistentField("sphereDiameter")]
+    public float sphereDiameter;
+
+    /// <value>Diameter of the pipe that connects the attach node and the sphere.</value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
+    /// <see cref="sphereOffset"/> is greater than zero.
+    /// </remarks>
+    [PersistentField("armDiameter")]
+    public float armDiameter;
+
+    /// <value>Defines how the texture is tiled on the sphere and arm primitives.</value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// </remarks>
+    [PersistentField("textureSamplesPerMeter")]
+    public float textureSamplesPerMeter;
+
+    /// <value>Texture to use to cover the arm and sphere primitives.</value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// </remarks>
+    [PersistentField("texture")]
+    public string texture = "";
+
+    /// <value>Normals texture for the primitives. Can be omitted.</value>
+    /// <remarks>
+    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// </remarks>
+    [PersistentField("textureNrm")]
+    public string textureNrm = "";
+
+    /// <value>Path to the model that represents the joint.</value>
+    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">
+    /// KSPDev: Hierarchy.FindTransformByPath</seealso>
+    [PersistentField("model")]
+    public string modelPath = "";
+
+    /// <value>Setup of the node at which the node's model will attach to the target part.</value>
+    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    [PersistentField("partAttachAt")]
+    public PosAndRot partAttachAt = new PosAndRot();
+
+    /// <value>Setup of the node at which the node's model will attach to the pipe.</value>
+    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    [PersistentField("pipeAttachAt")]
+    public PosAndRot pipeAttachAt = new PosAndRot();
+  }
   #endregion
 
-  #region Helper class for drawing a pipe's end.
-  struct PipeEndNode {
-    /// <summary>Sphere primitive for rounding the end.</summary>
-    public GameObject sphere;
+  #region Object names for the procedural model construction
+  const string PartJointTransformName = "$partAttach";
+  const string PipeJointTransformName = "$pipeAttach";
+  const string ProceduralSourceJointObjectName = "$sourceJointEnd";
+  const string ProceduralTargetJointObjectName = "$targetJointEnd";
+  #endregion
 
-    /// <summary>Cylinder primitive to connect attach node and the rounding sphere.</summary>
-    public GameObject arm;
+  /// <summary>
+  /// Name of the group for the extra settings from the part's config. The values will be loaded via
+  /// <c>ConfigAccessor</c>.
+  /// </summary>
+  /// <remarks>
+  /// Decendants may declare own persistent fields in this group, and they will be automatically
+  /// loaded. The only requirement is that these fields must be declared public.
+  /// </remarks>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_ConfigAccessor.htm">
+  /// KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
+  protected const string PartConfigGroup = "partConfig";
 
-    readonly Transform node;
+  #region Helper class for drawing a pipe's end
+  /// <summary>Helper class for drawing a pipe's end.</summary>
+  protected class ModelPipeEndNode {
+    /// <value>The main node's model.</value>
+    public readonly Transform model;
+
+    /// <value>Transform at which the node attaches to the target part.</value>
+    /// <remarks>It's always a child of the main node's model.</remarks>
+    public readonly Transform partAttach;
+
+    /// <value>Transform at which the node attaches to the pipe mesh.</value>
+    /// <remarks>It's always a child of the main node's model.</remarks>
+    public readonly Transform pipeAttach;
+
+    /// <summary>Creates a new attach node.</summary>
+    /// <param name="model">Model to use. It cannot be <c>null</c>.</param>
+    public ModelPipeEndNode(Transform model) {
+      this.model = model;
+      partAttach = GetTransformByName(PartJointTransformName);
+      partAttach.parent = model;
+      pipeAttach = GetTransformByName(PipeJointTransformName);
+      pipeAttach.parent = model;
+    }
+
+    /// <summary>Aligns node against the target.</summary>
+    /// <param name="target">
+    /// The target object. Can be <c>null</c> in which case the node model will be hidden.
+    /// </param>
+    public virtual void AlignTo(Transform target) {
+      if (target != null) {
+        AlignTransforms.SnapAlign(model, partAttach, target);
+        model.gameObject.SetActive(true);
+      } else {
+        model.gameObject.SetActive(false);
+      }
+    }
+
+    /// <summary>Updates the material settings on the model meshes.</summary>
+    /// <param name="newColor">New color.</param>
+    /// <param name="newShaderName">New shader name.</param>
+    public virtual void UpdateMaterial(Color? newColor = null, string newShaderName = null) {
+      Meshes.UpdateMaterials(model.gameObject, newShaderName: newShaderName, newColor: newColor);
+    }
+
+    /// <summary>Turns model's collider(s) on/off.</summary>
+    /// <param name="isEnabled">The new state.</param>
+    public virtual void SetColliderEnabled(bool isEnabled) {
+      Colliders.UpdateColliders(model.gameObject, isEnabled: isEnabled);
+    }
 
     /// <summary>
-    /// Actual position to start pipe from. It gets affected by the <see cref="PipeEndType"/>.
+    /// Finds and returns the requested child model, or mthe main model if the child is not found.  
     /// </summary>
-    public Vector3 position {
-      get {
-        return sphere != null ? sphere.transform.position : node.position;
+    /// <param name="name"></param>
+    /// <returns></returns>
+    protected Transform GetTransformByName(string name) {
+      var res = model.FindChild(name);
+      if (res == null) {
+        Debug.LogErrorFormat(
+            "Cannot find transform '{0}' in '{1}'", name, DbgFormatter.TranformPath(model));
+        res = model;  // Fallback.
       }
-    }
-
-    /// <summary>Constructs end node at the specified tranform.</summary>
-    /// <param name="node">Actual attach node transform in the part.</param>
-    public PipeEndNode(Transform node) {
-      this.node = node;
-      sphere = null;
-      arm = null;
-    }
-
-    /// <summary>Cleans up all the primitives.</summary>
-    public void DestroyPrimitives() {
-      if (sphere != null) {
-        Destroy(sphere);
-        sphere = null;
-      }
-      if (arm != null) {
-        Destroy(arm);
-        arm = null;
-      }
-    }
-
-    /// <summary>Updates color and shader on the primitives.</summary>
-    /// <remarks>Set parameters to <c>null</c> to have them <i>not</i> affected.</remarks>
-    public void UpdateMaterial(Color? newColor = null, string newShaderName = null) {
-      if (sphere != null) {
-        Meshes.UpdateMaterials(sphere, newShaderName: newShaderName, newColor: newColor);
-      }
-      if (arm != null) {
-        Meshes.UpdateMaterials(arm, newShaderName: newShaderName, newColor: newColor);
-      }
+      return res;
     }
   }
   #endregion
@@ -141,10 +299,10 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-      if (isStarted) {
-        var newColor = _colorOverride ?? materialColor;
-        sourceJointNode.UpdateMaterial(newColor: newColor);
-        targetJointNode.UpdateMaterial(newColor: newColor);
+      var newColor = _colorOverride ?? materialColor;
+      sourceJointNode.UpdateMaterial(newColor: newColor);
+      targetJointNode.UpdateMaterial(newColor: newColor);
+      if (linkPipe != null) {
         Meshes.UpdateMaterials(linkPipe, newColor: newColor);
       }
     }
@@ -152,14 +310,14 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   Color? _colorOverride;
 
   /// <inheritdoc/>
-  public string shaderNameOverride {
+  public virtual string shaderNameOverride {
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
-      if (isStarted) {
-        var newShader = _shaderNameOverride ?? shaderName;
-        sourceJointNode.UpdateMaterial(newShaderName: newShader);
-        targetJointNode.UpdateMaterial(newShaderName: newShader);
+      var newShader = _shaderNameOverride ?? shaderName;
+      sourceJointNode.UpdateMaterial(newShaderName: newShader);
+      targetJointNode.UpdateMaterial(newShaderName: newShader);
+      if (linkPipe) {
         Meshes.UpdateMaterials(linkPipe, newShaderName: newShader);
       }
     }
@@ -167,13 +325,18 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   string _shaderNameOverride;
 
   /// <inheritdoc/>
-  public bool isPhysicalCollider {
-    get { return false; }
-    // disable once ValueParameterNotUsed
+  public virtual bool isPhysicalCollider {
+    get { return _collidersEnabled; }
     set {
-      // TODO(ihsoft): Support colliders if mode is enabled.
+      _collidersEnabled = value;
+      sourceJointNode.SetColliderEnabled(_collidersEnabled);
+      targetJointNode.SetColliderEnabled(_collidersEnabled);
+      if (linkPipe != null) {
+        Colliders.UpdateColliders(linkPipe.gameObject, isEnabled: _collidersEnabled);
+      }
     }
   }
+  bool _collidersEnabled = true;
 
   /// <inheritdoc/>
   public bool isStarted { get { return linkPipe != null; } }
@@ -196,63 +359,6 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// <value>Config setting. Diameter of the pipe.</value>
   [KSPField]
   public float pipeDiameter = 0.15f;
-
-  /// <summary>Config setting. Specifies how the source end of the pipe should be rounded.</summary>
-  /// <seealso cref="sourceJointOffset"/>
-  /// <seealso cref="sourceJointModelCfg"/>
-  /// <seealso cref="sphereDiameter"/>
-  [KSPField]
-  public PipeEndType sourceJointType = PipeEndType.Rounded;
-
-  /// <summary>
-  /// Config setting. Specifies how far above the attach node the source attach point is located.
-  /// </summary>
-  /// <remarks>
-  /// Only makes sense when source end's type is <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// </remarks>
-  /// <seealso cref="sourceTransform"/>
-  /// <seealso cref="sourceJointType"/>
-  /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  [KSPField]
-  public float sourceJointOffset = 0f;
-
-  /// <summary>Config setting. Specifies how the target end of the pipe should be rounded.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso cref="targetJointOffset"/>
-  /// <seealso cref="targetJointModelCfg"/>
-  /// <seealso cref="sphereDiameter"/>
-  [KSPField]
-  public PipeEndType targetJointType = PipeEndType.Rounded;
-
-  /// <summary>
-  /// Config setting. Specifies how far above the attach node the target attach point is located.
-  /// </summary>
-  /// <remarks>
-  /// Only makes sense when target end's type is <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// </remarks>
-  /// <seealso cref="targetTransform"/>
-  /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  [KSPField]
-  public float targetJointOffset = 0f;
-
-  /// <summary>
-  /// Config setting. Diameter of the rounding sphere for <see cref="PipeEndType.Rounded"/> mode.
-  /// </summary>
-  /// <remarks>
-  /// Only makes sense when either source or target end type is configured for
-  /// <see cref="PipeEndType.Rounded"/> or <see cref="PipeEndType.RoundedWithOffset"/>.
-  /// </remarks>
-  /// <seealso cref="targetTransform"/>
-  /// <seealso cref="PipeEndType.Rounded"/>
-  /// <seealso cref="PipeEndType.RoundedWithOffset"/>
-  [KSPField]
-  public float sphereDiameter = 0.15f;
 
   /// <value>Config setting. Texture to use for the pipe.</value>
   /// <seealso cref="pipeTextureRescaleMode"/>
@@ -284,6 +390,26 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureRescaleMode"/>
   [KSPField]
   public float pipeTextureSamplesPerMeter = 1f;
+
+  /// <value>
+  /// Config setting. Defines if pipe's collider should interact with the physics objects.
+  /// </value>
+  /// <remarks>
+  /// If this setting is <c>false</c> the link mesh will still have a collider, but it will not
+  /// trigger physical effects.
+  /// </remarks>
+  [KSPField]
+  public bool pipeColliderIsPhysical;
+  #endregion
+
+  #region Part's config settings loaded via ConfigAccessor
+  /// <summary>Configuration of the source joint model.</summary>
+  [PersistentField("sourceJoint", group = "partConfig")]
+  public JointConfig sourceJointConfig = new JointConfig();
+
+  /// <summary>Configuration of the target joint model.</summary>
+  [PersistentField("targetJoint", group = "partConfig")]
+  public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
   #region Local properties
@@ -302,6 +428,23 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region PartModule overrides
   /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    if (HighLogic.LoadedScene == GameScenes.LOADING) {
+      LoadPartConfig(node);
+    }
+    base.OnLoad(node);  // Must be the last in the call sequence.
+  }
+
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    stretchRatio = 1.0f;  // A property default.
+    base.OnAwake();
+    if (HighLogic.LoadedScene != GameScenes.LOADING) {
+      LoadPartConfig(PartConfig.GetModuleConfig(this));
+    }
+  }
+
+  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     if (isStarted) {
@@ -312,7 +455,7 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region IsDestroyable implementation
   /// <inheritdoc/>
-  public void OnDestroy() {
+  public virtual void OnDestroy() {
     StopRenderer();
   }
   #endregion
@@ -320,118 +463,149 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   #region AbstractProceduralModel abstract members
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    // Nothing to do.
+    CreateJointEndModelsIfNeeded(ProceduralSourceJointObjectName, sourceJointConfig);
+    CreateJointEndModelsIfNeeded(ProceduralTargetJointObjectName, targetJointConfig);
+    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName, sourceJointConfig);
+    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName, targetJointConfig);
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    // Nothing to do.
+    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName, sourceJointConfig);
+    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName, targetJointConfig);
   }
   #endregion
 
   #region ILinkRenderer implementation
   /// <inheritdoc/>
-  public void StartRenderer(Transform source, Transform target) {
+  public virtual void StartRenderer(Transform source, Transform target) {
     if (isStarted) {
       Debug.LogWarning("Renderer already started. Stopping...");
       StopRenderer();
     }
     sourceTransform = source;
+    sourceJointNode.AlignTo(source);
+    sourceJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
     targetTransform = target;
-    var nrmTexture = pipeNormalsTexturePath != "" ? GetTexture(pipeNormalsTexturePath, asNormalMap: true) : null;
-    var material = CreateMaterial(GetTexture(pipeTexturePath),
-                                  normals: nrmTexture,
-                                  overrideShaderName: shaderNameOverride,
-                                  overrideColor: colorOverride);
-    sourceJointNode = CreateJointNode(sourceJointType, material, source, sourceJointOffset);
-    targetJointNode = CreateJointNode(targetJointType, material, target, targetJointOffset);
-    linkPipe = Meshes.CreateCylinder(pipeDiameter, 1f, material, partModelTransform);
-    linkPipeMR = linkPipe.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
-    SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
-    RescaleTextureToLength(linkPipe, renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
+    targetJointNode.AlignTo(target);
+    targetJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
+    CreateLinkPipe();
+    isPhysicalCollider = isPhysicalCollider;  // Update the status.
   }
   
   /// <inheritdoc/>
-  public void StopRenderer() {
+  public virtual void StopRenderer() {
     if (isStarted) {
-      sourceJointNode.DestroyPrimitives();
-      targetJointNode.DestroyPrimitives();
-      if (linkPipe != null) {
-        Destroy(linkPipe);
-        linkPipe = null;
-        linkPipeMR = null;
-      }
+      sourceJointNode.AlignTo(null);
+      targetJointNode.AlignTo(null);
+      DestroyLinkPipe();
     }
   }
 
   /// <inheritdoc/>
-  public void UpdateLink() {
+  public virtual void UpdateLink() {
     if (isStarted) {
-      SetupPipe(linkPipe.transform, sourceJointNode.position, targetJointNode.position);
+      SetupPipe(linkPipe.transform,
+                sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+      targetJointNode.AlignTo(targetTransform);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
-        RescaleTextureToLength(linkPipe, renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
+        RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter,
+                               renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
       }
     }
   }
 
   /// <inheritdoc/>
-  public string CheckColliderHits(Transform source, Transform target) {
-    return null;  // There are no collider.
+  public virtual string CheckColliderHits(Transform source, Transform target) {
+    // TODO(ihsoft): Implement a full check that includes the pipe ends as well.
+    string result = null;
+    if (pipeColliderIsPhysical) {
+      result = DoSimpleSphereCheck(target, source, pipeDiameter);
+    }
+    return result;
   }
   #endregion
 
-  #region Local utility methods
-  /// <summary>Creates internal joint node.</summary>
-  /// <param name="type">Type of the pipe's ending.</param>
-  /// <param name="material">Material for the new primitives.</param>
-  /// <param name="node">Actual attach node transform in the part.</param>
-  /// <param name="jointOffset">
-  /// Offset for <see cref="PipeEndType.RoundedWithOffset"/> endings.
-  /// </param>
-  /// <returns>New ending structure.</returns>
-  PipeEndNode CreateJointNode(PipeEndType type, Material material, Transform node,
-                              float jointOffset = 0) {
-    var res = new PipeEndNode(node);
-    if (type != PipeEndType.Simple && jointOffset > Mathf.Epsilon) {
-      res.sphere = Meshes.CreateSphere(sphereDiameter, material, node);
-      RescaleTextureToLength(res.sphere);
-      if (type == PipeEndType.RoundedWithOffset) {
-        // Raise connection sphere over the node.
-        res.sphere.transform.localPosition += new Vector3(0, 0, jointOffset);
-        // Connect sphere and the node with a pipe.
-        res.arm = Meshes.CreateCylinder(sphereDiameter, jointOffset, material, node);
-        res.arm.transform.localPosition += new Vector3(0, 0, jointOffset / 2);
-        SetupPipe(res.arm.transform, node.transform.position, res.sphere.transform.position);
-        RescaleTextureToLength(res.arm);
-      }
+  #region Inheritable utility methods
+  /// <summary>Constructs a joint node for the requested config.</summary>
+  /// <param name="modelName"></param>
+  /// <param name="config"></param>
+  /// <returns></returns>
+  protected virtual ModelPipeEndNode LoadJointNode(string modelName, JointConfig config) {
+    var node = new ModelPipeEndNode(partModelTransform.FindChild(modelName));
+    node.AlignTo(null);  // Init mode objects state.
+    return node;
+  }
+  
+  /// <summary>Loads the dynamic properties from the part's config.</summary>
+  /// <remarks>
+  /// It triggers every time when a new instance of the part instantiates. Use it to update/load
+  /// the settings that cannot be loaded via normal KSP means, like the custom types for the
+  /// <c>PersistentField</c> attributed fields.
+  /// </remarks>
+  /// <pre>
+  /// When a decendant class needs the custom persisten fields loaded, there is no need to override
+  /// this method. It's enough to declare the fields as public and assign them to the persistent
+  /// group <see cref="PartConfigGroup"/>. The base implementation will load all the fields in this
+  /// group.
+  /// </pre>
+  /// <param name="moduleNode">Config node to get the values from.</param>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">
+  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  protected virtual void LoadPartConfig(ConfigNode moduleNode) {
+    // This will load all the public fields of the descendant types as well.
+    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this, group: PartConfigGroup);
+    // For the procedural and simple modes use the hardcoded model names.
+    if (sourceJointConfig.type != PipeEndType.PrefabModel) {
+      sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
     }
-    return res;
+    if (targetJointConfig.type != PipeEndType.PrefabModel) {
+      targetJointConfig.modelPath = ProceduralTargetJointObjectName;
+    }
   }
 
-  /// <summary>Adjusts texture on the object to fit rescale mode.</summary>
-  /// <remarks>Primitive mesh is expected to be of base size 1m.</remarks>
-  /// <param name="obj">Object to adjust texture for.</param>
-  /// <param name="renderer">
-  /// Optional renderer that owns the material. If not provided then renderer will be obtained via
-  /// <c>GetComponent()</c> call which is rather expensive.
-  /// </param>
-  /// <param name="scaleRatio">Additional scale to apply to the pipe texture.</param>
-  void RescaleTextureToLength(
-      GameObject obj, Renderer renderer = null, float scaleRatio = 1.0f) {
-    var newScale = obj.transform.localScale.z * pipeTextureSamplesPerMeter * scaleRatio;
-    var mr = renderer ?? obj.GetComponent<Renderer>();
-    mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
-    if (pipeNormalsTexturePath != null) {
-      var nrmScale = mr.material.GetTextureScale(BumpMapProp);
-      mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
+  /// <summary>
+  /// Creates and displays a mesh that represents a connecting pipe between the source and the
+  /// target parts.
+  /// </summary>
+  protected virtual void CreateLinkPipe() {
+    var nrmTexture = pipeNormalsTexturePath != ""
+        ? GetTexture(pipeNormalsTexturePath, asNormalMap: true)
+        : null;
+    var material = CreateMaterial(GetTexture(pipeTexturePath),
+                                  mainTexNrm: nrmTexture,
+                                  overrideShaderName: shaderNameOverride,
+                                  overrideColor: colorOverride);
+    linkPipe = Meshes.CreateCylinder(pipeDiameter, 1f, material, partModelTransform,
+                                     colliderType: Colliders.PrimitiveCollider.Shape);
+    Colliders.UpdateColliders(linkPipe, isPhysical: pipeColliderIsPhysical);
+    if (pipeColliderIsPhysical) {
+      CollisionManager.IgnoreCollidersOnVessel(
+          vessel, linkPipe.GetComponentsInChildren<Collider>());
+      // TODO(ihsoft): Ignore the parts when migrated to the interfaces.
+      Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
     }
+    linkPipeMR = linkPipe.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
+    SetupPipe(linkPipe.transform,
+              sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+    RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter,
+                           renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
+    // Let the part know about the new mesh so that it could be properly highlighted.
+    part.RefreshHighlighter();
+  }
+
+  /// <summary>Destroys any meshes that represent a connection pipe.</summary>
+  protected virtual void DestroyLinkPipe() {
+    Destroy(linkPipe);
+    linkPipe = null;
+    linkPipeMR = null;
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
   /// <param name="obj">Pipe's object.</param>
   /// <param name="fromPos">Position of the link source.</param>
   /// <param name="toPos">Position of the link target.</param>
-  void SetupPipe(Transform obj, Vector3 fromPos, Vector3 toPos) {
+  protected virtual void SetupPipe(Transform obj, Vector3 fromPos, Vector3 toPos) {
     obj.position = (fromPos + toPos) / 2;
     if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
       obj.LookAt(fromPos);
@@ -440,6 +614,121 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     }
     obj.localScale =
         new Vector3(obj.localScale.x, obj.localScale.y, Vector3.Distance(fromPos, toPos));
+  }
+
+  /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
+  /// <param name="nodeName">Joint transform name.</param>
+  /// <param name="config">Joint configuration from the part's config.</param>
+  protected virtual void CreateJointEndModelsIfNeeded(string nodeName, JointConfig config) {
+    // Make or get the root.
+    Transform root = null;
+    if (config.type == PipeEndType.PrefabModel) {
+      root = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
+      if (root != null) {
+        root.parent = partModelTransform;  // We need the part's model to be the root.
+        var partAttach = new GameObject(PartJointTransformName).transform;
+        Hierarchy.MoveToParent(partAttach, root,
+                               newPosition: config.partAttachAt.pos,
+                               newRotation: config.partAttachAt.rot);
+        var pipeAttach = new GameObject(PipeJointTransformName);
+        Hierarchy.MoveToParent(pipeAttach.transform, root,
+                               newPosition: config.pipeAttachAt.pos,
+                               newRotation: config.pipeAttachAt.rot);
+      } else {
+        Debug.LogErrorFormat("Cannot find model '{0}' in part '{1}'.",config.modelPath, part.name);
+        config.type = PipeEndType.Simple;  // Fallback.
+      }
+    }
+    if (root == null) {
+      root = new GameObject().transform;
+      Hierarchy.MoveToParent(root, partModelTransform);
+      var partJoint = new GameObject(PartJointTransformName).transform;
+      Hierarchy.MoveToParent(partJoint, root);
+      partJoint.rotation = Quaternion.LookRotation(Vector3.forward);
+      if (config.type == PipeEndType.Simple || config.sphereDiameter < float.Epsilon) {
+        // No extra models are displayed at the joint, just attach the pipe to the part's node.
+        var pipeJoint = new GameObject(PipeJointTransformName);
+        Hierarchy.MoveToParent(pipeJoint.transform, root);
+        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
+      } else {
+        // Create procedural models at the point where the pipe connects to the part's node.
+        var material = CreateMaterial(
+            GetTexture(config.texture),
+            mainTexNrm: config.textureNrm != "" ? GetTexture(config.textureNrm) : null);
+        var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
+                                         colliderType: Colliders.PrimitiveCollider.Shape);
+        sphere.name = PipeJointTransformName;
+        sphere.transform.rotation = Quaternion.LookRotation(Vector3.back);
+        RescaleTextureToLength(sphere, samplesPerMeter: config.textureSamplesPerMeter);
+        if (config.sphereOffset > float.Epsilon) {
+          sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
+          if (config.armDiameter > float.Epsilon) {
+            var arm = Meshes.CreateCylinder(
+                config.armDiameter, config.sphereOffset, material, root,
+                colliderType: Colliders.PrimitiveCollider.Shape);
+            arm.transform.localPosition += new Vector3(0, 0, config.sphereOffset / 2);
+            arm.transform.LookAt(sphere.transform.position);
+            RescaleTextureToLength(arm, samplesPerMeter: config.textureSamplesPerMeter);
+          }
+        }
+      }
+    }
+    Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
+    root.gameObject.SetActive(false);
+    root.name = nodeName;
+  }
+  #endregion
+
+  #region Utility methods
+  /// <summary>Adjusts texture on the object to fit rescale mode.</summary>
+  /// <remarks>Primitive mesh is expected to be of base size 1m.</remarks>
+  /// <param name="obj">Object to adjust texture for.</param>
+  /// <param name="samplesPerMeter">
+  /// Number fo texture samples per a meter of the linear size.
+  /// </param>
+  /// <param name="renderer">
+  /// Optional renderer that owns the material. If not provided then renderer will be obtained via
+  /// a <c>GetComponent()</c> call which is rather expensive.
+  /// </param>
+  /// <param name="scaleRatio">Additional scale to apply to the pipe texture.</param>
+  protected static void RescaleTextureToLength(
+      GameObject obj, float samplesPerMeter, Renderer renderer = null, float scaleRatio = 1.0f) {
+    var newScale = obj.transform.localScale.z * samplesPerMeter * scaleRatio;
+    var mr = renderer ?? obj.GetComponent<Renderer>();
+    mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
+    if (mr.material.GetTexture(BumpMapProp) != null) {
+      var nrmScale = mr.material.GetTextureScale(BumpMapProp);
+      mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
+    }
+  }
+
+  /// <summary>
+  /// Performs a simple collision check for a vector that connects two transforms.
+  /// </summary>
+  /// <remarks>
+  /// The method ignores the colliders that belong to the source or target object hierarchies.
+  /// </remarks>
+  /// <param name="source">Transform to start from.</param>
+  /// <param name="target">Transform to end at.</param>
+  /// <param name="radius">Radius of the spehere to use for the check.</param>
+  /// <returns>
+  /// <c>null</c> if nothing has been hit or a message for the first hit detected.
+  /// </returns>
+  protected static string DoSimpleSphereCheck(Transform source, Transform target, float radius) {
+    var linkVector = target.position - source.position;
+    var hits = Physics.SphereCastAll(
+        source.position, radius, linkVector, linkVector.magnitude,
+        (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
+        QueryTriggerInteraction.Ignore);
+    foreach (var hit in hits) {
+      var hitPart = hit.transform.root.GetComponent<Part>();
+      if (hit.transform.root != source.root && hit.transform.root != target.root) {
+        return hitPart != null
+            ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
+            : LinkCollidesWithSurfaceMsg.ToString();
+      }
+    }
+    return null;
   }
   #endregion
 }
