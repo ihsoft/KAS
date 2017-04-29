@@ -105,7 +105,6 @@ public class KASModuleLinkSourceBase :
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
-  /// <seealso cref="SetCollisionIgnores"/>
   public ILinkTarget linkTarget {
     get { return _linkTarget; }
     private set {
@@ -538,14 +537,14 @@ public class KASModuleLinkSourceBase :
   #endregion
 
   #region Inheritable methods
-  /// <summary>Triggers when state has been assigned with a value.</summary>
+  /// <summary>Triggers when a state has been assigned with a value.</summary>
   /// <remarks>
-  /// This method triggers even when new state doesn't differ from the old one. When it's important
-  /// to catch the transition check for <paramref name="oldState"/>.
+  /// This method triggers even when the new state doesn't differ from the old one. When it's
+  /// important to catch the transition, check for the <paramref name="oldState"/>.
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState oldState) {
-    // Start renderer in a linked state with a valid target, and stop it in all other states.
+    // Start a renderer in a linked state with a valid target, and stop it in all the other states.
     if (isLinked && !linkRenderer.isStarted && linkTarget != null) {
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     }
@@ -755,10 +754,10 @@ public class KASModuleLinkSourceBase :
   }
 
   /// <summary>
-  /// Waits till physics easement ligic warmed up and disables collision between source and target
-  /// parts.
+  /// Waits till the physics easement logic warmed up and disables the collision between the source
+  /// and target parts.
   /// </summary>
-  /// <remarks>Needed when source and target belong to different vessels.</remarks>
+  /// <remarks>Needed when the source and target parts belong to different vessels.</remarks>
   /// <seealso cref="linkTarget"/>
   IEnumerator WaitAndSetCollisionIgnores() {
     // Copied from KervalEVA.OnVesselGoOffRails() method.
