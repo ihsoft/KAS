@@ -107,7 +107,6 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// Unity3D: Texture2D</seealso>
   /// <seealso href="https://docs.unity3d.com/Manual/MaterialsAccessingViaScript.html">
   /// Unity3D: Dealing with materials from scripts.</seealso>
-  /// FIXME: docs
   protected Material CreateMaterial(Texture2D mainTex,
                                     Texture2D mainTexNrm = null,
                                     string overrideShaderName = null,
@@ -123,19 +122,20 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
     return material;
   }
 
-  /// <summary>Gets the texture from either KSP gamebase or the internal cache.</summary>
+  /// <summary>Gets the texture from either a KSP gamebase or the internal cache.</summary>
   /// <remarks>
-  /// It's OK to call this method in the performance demanding code since once texture is
+  /// It's OK to call this method in the performance demanding code since once the texture is
   /// successfully returned it's cached internally. The subsequent calls won't issue expensive game
   /// database requests.
   /// </remarks>
   /// <param name="textureFileName">
-  /// Filename of the texture file. The path is realtive to "GameData" folder. Can be PNG or DDS.
+  /// Filename of the texture file. The path is realtive to <c>GameData</c> folder. The name must
+  /// not have the file extension.
   /// </param>
-  /// <param name="asNormalMap">If <c>true</c> then texture will be loaded as a bumpmap.</param>
+  /// <param name="asNormalMap">If <c>true</c> then the texture will be loaded as a bumpmap.</param>
   /// <returns>
   /// The texture. Note that it's a shared object. Don't execute actions on it which you don't want
-  /// to affect other meshes in the game.
+  /// to affect the other meshes in the game.
   /// </returns>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Texture2D.html">
   /// Unity3D: Texture2D</seealso>
@@ -145,7 +145,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
     if (!textures.TryGetValue(textureFileName, out texture)) {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
       if (texture == null) {
-        // Use "red" texture if no file found.
+        // Use a "red" texture if no file found.
         Debug.LogWarningFormat("Cannot load texture: {0}", textureFileName);
         texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         texture.SetPixels(new[] {Color.red});
