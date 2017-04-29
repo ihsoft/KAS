@@ -322,15 +322,15 @@ public class KASModuleLinkSourceBase :
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, rot={3}",
+      Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, euler={3}",
                       nodeName, part.name,
                       DbgFormatter.Vector(nodeTransform.localPosition),
-                      nodeTransform.localRotation * Vector3.forward);
+                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, rot={3}",
+      Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, euler={3}",
                       nodeName, part.name,
                       DbgFormatter.Vector(nodeTransform.localPosition),
-                      nodeTransform.localRotation * Vector3.forward);
+                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }
 
     // If source is docked to the target then we need actual attach node. Create it.
