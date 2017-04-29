@@ -20,29 +20,24 @@ namespace KAS {
 /// <item>
 /// <term><see cref="PipeEndType.Simple"/></term>
 /// <description>
-/// Simple cylinder is drawn between the nodes. The ends of the pipe may look ugly at large angles
-/// if they are not "sunken" into another mesh.
-/// </description>
-/// </item>
-/// <item>
-/// <term><see cref="PipeEndType.Rounded"/></term>
-/// <description>
-/// A sphere is draw at the end of the pipe. If sphere diameter matches pipe's diameter then pipe
-/// gets capsule form. Though, sphere is not required to have the same diameter. This mode is good
-/// for the cases when attach node is located on a surface of the part.
+/// A simple cylinder is drawn between the nodes. The ends of the pipe may look ugly at the large
+/// angles if they are not "sunken" into another mesh.
 /// </description>
 /// </item>
 /// <item>
 /// <term><see cref="PipeEndType.RoundedWithOffset"/></term>
 /// <description>
-/// Basically, it's the same as <see cref="PipeEndType.Rounded"/> but the node is located above the
-/// part's surface. Between the part and the node a static cylinder is drawn which forms an "arm".
-/// The length of the arm can be configured independently for source and target.
+/// A sphere is drawn at the end of the pipe. If sphere diameter matches the pipe's diameter then
+/// the pipe gets a capsule form. However, the sphere is not required to have the same diameter.
+/// This mode is good for the cases when the attach node is located on the surface of the part.
+/// <para>
+/// There is an option to raise the connection point over the attach node. In this case a simple
+/// cylinder (the "arm") is drawn between the attach node and the connection sphere.
+/// </para>
 /// </description>
 /// </item>
 /// </list>
 /// </para>
-/// <para>See config settings for defining capsule sphere and arm</para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkRenderer"/>
@@ -50,7 +45,7 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KPSDev sugar interfaces.    
-    IPartModule, IsDestroyable{
+    IPartModule, IsDestroyable {
 
   #region Internal config types
   /// <summary>Type if the end of the pipe.</summary>
@@ -190,21 +185,15 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   public Transform targetTransform { get; private set; }
 
   /// <inheritdoc/>
-  public float stretchRatio {
-    get { return _stretchRatio; }
-    set {
-      _stretchRatio = value;
-    }
-  }
-  float _stretchRatio = 1.0f;
+  public virtual float stretchRatio { get; set; }
   #endregion
 
   #region Part's config fields
-  /// <summary>Config setting. See <see cref="cfgRendererName"/>.</summary>
+  /// <value>Config setting. See <see cref="cfgRendererName"/>.</value>
   [KSPField]
   public string rendererName = string.Empty;
 
-  /// <summary>Config setting. Diameter of the pipe.</summary>
+  /// <value>Config setting. Diameter of the pipe.</value>
   [KSPField]
   public float pipeDiameter = 0.15f;
 
@@ -265,32 +254,28 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   [KSPField]
   public float sphereDiameter = 0.15f;
 
-  /// <summary>
-  /// Config setting. Texture to use for the pipe.
-  /// </summary>
+  /// <value>Config setting. Texture to use for the pipe.</value>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
-  /// <summary>
+  /// <value>
   /// Config setting. Normals texture to use for the pipe. If empty string then no normals.
-  /// </summary>
+  /// </value>
   /// <seealso cref="pipeTexturePath"/>
   [KSPField]
   public string pipeNormalsTexturePath = "";
 
-  /// <summary>
-  /// Config setting. Defines how texture should cover the pipe.
-  /// </summary>
+  /// <value>Config setting. Defines how the texture should cover the pipe.</value>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
-  /// <summary>
+  /// <value>
   /// Config setting. Defines how many texture samples to apply per one meter of the pipe's length.
-  /// </summary>
+  /// </value>
   /// <remarks>
   /// This setting is ignored if texture rescale mode is
   /// <see cref="PipeTextureRescaleMode.Stretch"/>.
@@ -302,19 +287,19 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Local properties
-  /// <summary>The pipe mesh.</summary>
-  GameObject linkPipe;
+  /// <value>The pipe mesh.</value>
+  protected GameObject linkPipe { get; private set; }
 
-  /// <summary>Pipe's mesh renderer. Used to speedup updates that are done in every frame.</summary>
-  Renderer linkPipeMR;
+  /// <value>Pipe's mesh renderer. Used to speedup updates that are done in every frame.</value>
+  protected Renderer linkPipeMR { get; private set; }
 
-  /// <summary>Pipe ending at the source.</summary>
-  PipeEndNode sourceJointNode;
+  /// <value>Pipe ending node at the source.</value>
+  protected ModelPipeEndNode sourceJointNode { get; private set; }
 
-  /// <summary>Pipe ending at the target.</summary>
-  PipeEndNode targetJointNode;
+  /// <value>Pipe ending node at the target.</value>
+  protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
-  
+
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnUpdate() {
@@ -442,7 +427,7 @@ public sealed class KASModulePipeRenderer : AbstractProceduralModel,
     }
   }
 
-  /// <summary>Ensures pipe mesh connect the specified positions.</summary>
+  /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
   /// <param name="obj">Pipe's object.</param>
   /// <param name="fromPos">Position of the link source.</param>
   /// <param name="toPos">Position of the link target.</param>
