@@ -59,6 +59,12 @@
     <Reference Include="KSPDev_Utils.0.21.0">
       <HintPath>..\Binaries\KSPDev_Utils.0.21.0.dll</HintPath>
     </Reference>
+    <Reference Include="System">
+      <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>Q:\KSP_x64_Data\Managed\System.Core.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>True</Private>
