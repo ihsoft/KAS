@@ -140,7 +140,6 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Texture2D.html">
   /// Unity3D: Texture2D</seealso>
   protected Texture2D GetTexture(string textureFileName, bool asNormalMap = false) {
-    var texKey = textureFileName + (asNormalMap ? "_NormalMap" : "");
     Texture2D texture;
     if (!textures.TryGetValue(textureFileName, out texture)) {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
