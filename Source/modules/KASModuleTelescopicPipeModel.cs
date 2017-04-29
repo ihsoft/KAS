@@ -28,7 +28,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   /// Message to display when link strut orientation cannot be changed due to it would hit the
   /// surface.
   /// </summary>
-  protected static Message LinkCollidesWithSurfaceMsg = "Link collides with surface";
+  protected static Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
   #endregion
 
   #region Persistent fields
