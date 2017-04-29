@@ -221,7 +221,7 @@ public class KASModuleLinkTargetBase :
   /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
   /// KSP: KSPField</seealso>
   [KSPField]
-  public Color highlightColor = Color.green;
+  public Color highlightColor = Color.cyan;
   #endregion
 
   /// <summary>State machine that controls event reaction in different states.</summary>
@@ -428,9 +428,11 @@ public class KASModuleLinkTargetBase :
     // TODO(ihsoft): Handle mutliple targets on part to not override settings.
     if (highlightCompatibleTargets && oldState != linkState) {
       if (linkState == LinkState.AcceptingLinks) {
-        part.highlighter.ConstantOn(highlightColor);
+        part.SetHighlightType(Part.HighlightType.AlwaysOn);
+        part.SetHighlightColor(highlightColor);
+        part.SetHighlight(true, false);
       } else if (oldState == LinkState.AcceptingLinks) {
-        part.highlighter.ConstantOff();
+        part.SetHighlightDefault();
       }
     }
   }
