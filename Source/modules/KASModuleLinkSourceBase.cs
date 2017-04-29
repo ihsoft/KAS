@@ -110,10 +110,12 @@ public class KASModuleLinkSourceBase :
     private set {
       if (_linkTarget != value) {
         if (value != null && value.part.vessel != vessel) {
-          SetCollisionIgnores(value.part, true);  // Set ignores on the new target part.
+          // Set ignores on the new target part.
+          Colliders.SetCollisionIgnores(part, value.part, true);
         }
         if (_linkTarget != null && _linkTarget.part.vessel != vessel) {
-          SetCollisionIgnores(_linkTarget.part, false);  // Reset ignores on the old target part.
+          // Reset ignores on the old target part.
+          Colliders.SetCollisionIgnores(part, _linkTarget.part, false);
         }
       }
       _linkTarget = value;
@@ -759,6 +761,9 @@ public class KASModuleLinkSourceBase :
   /// </summary>
   /// <remarks>Needed when the source and target parts belong to different vessels.</remarks>
   /// <seealso cref="linkTarget"/>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Colliders_SetCollisionIgnores_1.htm">
+  /// KSPDev Utils: Colliders.SetCollisionIgnores
+  /// </seealso>
   IEnumerator WaitAndSetCollisionIgnores() {
     // Copied from KervalEVA.OnVesselGoOffRails() method.
     // There must be at least 3 fixed frames.
@@ -766,23 +771,7 @@ public class KASModuleLinkSourceBase :
     yield return new WaitForFixedUpdate();
     yield return new WaitForFixedUpdate();
     if (isLinked) {  // Link may get broken during physics easyment.
-      SetCollisionIgnores(linkTarget.part, ignore: true);
-    }
-  }
-
-  /// <summary>Disables/enables all colliders between current part and the target.</summary>
-  /// <remarks>Ingore state needs to be reset when it's not used anymore.</remarks>
-  /// <seealso cref="linkTarget"/>
-  /// <seealso cref="OnInitialize"/>
-  void SetCollisionIgnores(Part tgtPart, bool ignore) {
-    Debug.LogFormat("Set collision ignores between {0} and {1} to {2}",
-                    DbgFormatter.PartId(part), DbgFormatter.PartId(tgtPart), ignore);
-    var srcColliders = part.FindModelComponents<Collider>();
-    var trgColliders = tgtPart.FindModelComponents<Collider>();
-    foreach (var c1 in srcColliders) {
-      foreach (var c2 in trgColliders) {
-        Physics.IgnoreCollision(c1, c2, ignore);
-      }
+      Colliders.SetCollisionIgnores(part, linkTarget.part, true);
     }
   }
 }
