@@ -770,8 +770,9 @@ public class KASModuleLinkSourceBase :
     yield return new WaitForFixedUpdate();
     yield return new WaitForFixedUpdate();
     yield return new WaitForFixedUpdate();
-    if (isLinked) {  // Link may get broken during physics easyment.
-      Colliders.SetCollisionIgnores(part, linkTarget.part, true);
+    if (isLinked) {  // Link may get broken during the physics easyment.
+      CollisionManager.IgnoreCollidersOnVessel(
+          linkTarget.part.vessel, part.GetComponentInChildren<Collider>());
     }
   }
 }
