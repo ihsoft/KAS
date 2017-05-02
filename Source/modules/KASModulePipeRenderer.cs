@@ -209,10 +209,28 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Object names for the procedural model construction
-  const string PartJointTransformName = "$partAttach";
-  const string PipeJointTransformName = "$pipeAttach";
-  const string ProceduralSourceJointObjectName = "$sourceJointEnd";
-  const string ProceduralTargetJointObjectName = "$targetJointEnd";
+  /// <summary>Name of the node's model for the end that attaches to the source part.</summary>
+  protected const string ProceduralSourceJointObjectName = "$sourceJointEnd";
+
+  /// <summary>Name of the node's model for the end that attaches to the target part.</summary>
+  protected const string ProceduralTargetJointObjectName = "$targetJointEnd";
+
+  /// <summary>
+  /// Name of the object in the node's model that defines how it's attached to the part.
+  /// </summary>
+  /// <remarks>
+  /// The source node attaches to the source part, and the target node attaches to the target part.
+  /// The node will be oriented so that its direction looks agains the part's attach node direction. 
+  /// </remarks>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_AlignTransforms_SnapAlign.htm">
+  /// KSPDev Utils: AlignTransforms.SnapAlign</seealso>
+  protected const string PartJointTransformName = "$partAttach";
+
+  /// <summary>
+  /// Name of the object in the node's model that defines where the connecting pipe is attached to
+  /// node.
+  /// </summary>
+  protected const string PipeJointTransformName = "$pipeAttach";
   #endregion
 
   /// <summary>
