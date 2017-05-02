@@ -125,13 +125,13 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   /// <summary>Helper structure to hold the joint model setup.</summary>
   public class JointConfig {
-    /// <value>Defines how to obtain the joint model.</value>
+    /// <summary>Defines how to obtain the joint model.</summary>
     [PersistentField("type")]
     public PipeEndType type = PipeEndType.Simple;
     
-    /// <value>
+    /// <summary>
     /// Defines if model's should trigger physical effects on collision.
-    /// </value>
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> or
     /// <see cref="PipeEndType.PrefabModel"/>. If the prefab models are used then the colliders must
@@ -140,9 +140,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("colliderIsPhysical")]
     public bool colliderIsPhysical;
 
-    /// <value>
+    /// <summary>
     /// Height of the joint sphere over the attach node. It's either zero or a positive number.
-    /// </value>
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -156,7 +156,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("sphereDiameter")]
     public float sphereDiameter;
 
-    /// <value>Diameter of the pipe that connects the attach node and the sphere.</value>
+    /// <summary>Diameter of the pipe that connects the attach node and the sphere.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
     /// <see cref="sphereOffset"/> is greater than zero.
@@ -164,41 +164,45 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("armDiameter")]
     public float armDiameter;
 
-    /// <value>Defines how the texture is tiled on the sphere and arm primitives.</value>
+    /// <summary>Defines how the texture is tiled on the sphere and arm primitives.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
     [PersistentField("textureSamplesPerMeter")]
     public float textureSamplesPerMeter;
 
-    /// <value>Texture to use to cover the arm and sphere primitives.</value>
+    /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
     [PersistentField("texture")]
     public string texture = "";
 
-    /// <value>Normals texture for the primitives. Can be omitted.</value>
+    /// <summary>Normals texture for the primitives. Can be omitted.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
     [PersistentField("textureNrm")]
     public string textureNrm = "";
 
-    /// <value>Path to the model that represents the joint.</value>
+    /// <summary>Path to the model that represents the joint.</summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
     /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">
     /// KSPDev: Hierarchy.FindTransformByPath</seealso>
     [PersistentField("model")]
     public string modelPath = "";
 
-    /// <value>Setup of the node at which the node's model will attach to the target part.</value>
+    /// <summary>Setup of the node at which the node's model will attach to the target part.</summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
+    /// KSPDev Utils: Types.PosAndRot</seealso>
     [PersistentField("partAttachAt")]
     public PosAndRot partAttachAt = new PosAndRot();
 
-    /// <value>Setup of the node at which the node's model will attach to the pipe.</value>
+    /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
+    /// KSPDev Utils: Types.PosAndRot</seealso>
     [PersistentField("pipeAttachAt")]
     public PosAndRot pipeAttachAt = new PosAndRot();
   }
@@ -226,14 +230,14 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
   protected class ModelPipeEndNode {
-    /// <value>The main node's model.</value>
+    /// <summary>The main node's model.</summary>
     public readonly Transform model;
 
-    /// <value>Transform at which the node attaches to the target part.</value>
+    /// <summary>Transform at which the node attaches to the target part.</summary>
     /// <remarks>It's always a child of the main node's model.</remarks>
     public readonly Transform partAttach;
 
-    /// <value>Transform at which the node attaches to the pipe mesh.</value>
+    /// <summary>Transform at which the node attaches to the pipe mesh.</summary>
     /// <remarks>It's always a child of the main node's model.</remarks>
     public readonly Transform pipeAttach;
 
@@ -352,36 +356,36 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
-  /// <value>Config setting. See <see cref="cfgRendererName"/>.</value>
+  /// <summary>Config setting. See <see cref="cfgRendererName"/>.</summary>
   [KSPField]
   public string rendererName = string.Empty;
 
-  /// <value>Config setting. Diameter of the pipe.</value>
+  /// <summary>Config setting. Diameter of the pipe.</summary>
   [KSPField]
   public float pipeDiameter = 0.15f;
 
-  /// <value>Config setting. Texture to use for the pipe.</value>
+  /// <summary>Config setting. Texture to use for the pipe.</summary>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
-  /// <value>
+  /// <summary>
   /// Config setting. Normals texture to use for the pipe. If empty string then no normals.
-  /// </value>
+  /// </summary>
   /// <seealso cref="pipeTexturePath"/>
   [KSPField]
   public string pipeNormalsTexturePath = "";
 
-  /// <value>Config setting. Defines how the texture should cover the pipe.</value>
+  /// <summary>Config setting. Defines how the texture should cover the pipe.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
-  /// <value>
+  /// <summary>
   /// Config setting. Defines how many texture samples to apply per one meter of the pipe's length.
-  /// </value>
+  /// </summary>
   /// <remarks>
   /// This setting is ignored if texture rescale mode is
   /// <see cref="PipeTextureRescaleMode.Stretch"/>.
@@ -391,9 +395,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   [KSPField]
   public float pipeTextureSamplesPerMeter = 1f;
 
-  /// <value>
+  /// <summary>
   /// Config setting. Defines if pipe's collider should interact with the physics objects.
-  /// </value>
+  /// </summary>
   /// <remarks>
   /// If this setting is <c>false</c> the link mesh will still have a collider, but it will not
   /// trigger physical effects.
@@ -413,16 +417,16 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Local properties
-  /// <value>The pipe mesh.</value>
+  /// <summary>Pipe's mesh.</summary>
   protected GameObject linkPipe { get; private set; }
 
-  /// <value>Pipe's mesh renderer. Used to speedup updates that are done in every frame.</value>
+  /// <summary>Pipe's mesh renderer. Used to speedup the updates.</summary>
   protected Renderer linkPipeMR { get; private set; }
 
-  /// <value>Pipe ending node at the source.</value>
+  /// <summary>Pipe ending node at the source.</summary>
   protected ModelPipeEndNode sourceJointNode { get; private set; }
 
-  /// <value>Pipe ending node at the target.</value>
+  /// <summary>Pipe ending node at the target.</summary>
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
