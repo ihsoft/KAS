@@ -426,25 +426,35 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Configuration of the source joint model.</summary>
-  [PersistentField("sourceJoint", group = "partConfig")]
+  /// <seealso cref="LoadPartConfig"/>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
+  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  [PersistentField("sourceJoint", group = PartConfigGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
-  [PersistentField("targetJoint", group = "partConfig")]
+  /// <seealso cref="LoadPartConfig"/>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
+  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  [PersistentField("targetJoint", group = PartConfigGroup)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
   #region Local properties
   /// <summary>Pipe's mesh.</summary>
+  /// <seealso cref="CreateLinkPipe"/>
   protected GameObject linkPipe { get; private set; }
 
   /// <summary>Pipe's mesh renderer. Used to speedup the updates.</summary>
+  /// <seealso cref="CreateLinkPipe"/>
   protected Renderer linkPipeMR { get; private set; }
 
   /// <summary>Pipe ending node at the source.</summary>
+  /// <seealso cref="LoadJointNode"/>
   protected ModelPipeEndNode sourceJointNode { get; private set; }
 
   /// <summary>Pipe ending node at the target.</summary>
+  /// <seealso cref="LoadJointNode"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
