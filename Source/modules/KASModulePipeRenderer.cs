@@ -537,9 +537,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual void UpdateLink() {
     if (isStarted) {
+      targetJointNode.AlignTo(targetTransform);
       SetupPipe(linkPipe.transform,
                 sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
-      targetJointNode.AlignTo(targetTransform);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
         RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter,
                                renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
