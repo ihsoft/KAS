@@ -497,14 +497,14 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   protected override void CreatePartModel() {
     CreateJointEndModelsIfNeeded(ProceduralSourceJointObjectName, sourceJointConfig);
     CreateJointEndModelsIfNeeded(ProceduralTargetJointObjectName, targetJointConfig);
-    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName, sourceJointConfig);
-    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName, targetJointConfig);
+    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName);
+    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName);
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName, sourceJointConfig);
-    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName, targetJointConfig);
+    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName);
+    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName);
   }
   #endregion
 
@@ -560,10 +560,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Inheritable utility methods
   /// <summary>Constructs a joint node for the requested config.</summary>
-  /// <param name="modelName"></param>
-  /// <param name="config"></param>
-  /// <returns></returns>
-  protected virtual ModelPipeEndNode LoadJointNode(string modelName, JointConfig config) {
+  /// <param name="modelName">Name of the model in the hierarchy.</param>
+  /// <returns>Pipe's end node.</returns>
+  protected virtual ModelPipeEndNode LoadJointNode(string modelName) {
     var node = new ModelPipeEndNode(partModelTransform.FindChild(modelName));
     node.AlignTo(null);  // Init mode objects state.
     return node;
