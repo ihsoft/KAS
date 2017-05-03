@@ -1,0 +1,92 @@
+﻿// Kerbal Attachment System
+// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Module author: igor.zavoychinskiy@gmail.com
+// License: Public Domain
+
+using KSPDev.ConfigUtils;
+using KSPDev.ModelUtils;
+using KSPDev.Types;
+using System;
+using UnityEngine;
+
+namespace KAS {
+
+/// <summary>
+/// Extension to the regular render that does't hide the target's joint node. Instead, the node is
+/// "parked" at the main part model.
+/// </summary>
+/// <seealso cref="parkAtPart"/>
+public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
+
+  #region Object names for the procedural model construction
+  /// <summary>
+  /// Name of the object in the part's model to park the target node's model at.  
+  /// </summary>
+  protected const string ParkAtPartObjectName = "$parkAtPartTarget";
+  #endregion
+
+  #region Helper class for drawing a head model at the pipe's target emd.
+  /// <summary>Helper class for drawing a pipe's end.</summary>
+  protected class ParkedHead : ModelPipeEndNode {
+    /// <summary>
+    /// Transform at which the node's model should be parked when the renderer is stopped.
+    /// </summary>
+    public readonly Transform parkAt;
+
+    /// <summary>Creates a new attach node.</summary>
+    /// <param name="model">Model to use. It cannot be <c>null</c>.</param>
+    /// <param name="parkAt">Object ot park the model at when the renderer is stopped.</param>
+    public ParkedHead(Transform model, Transform parkAt) : base(model) {
+      //parkAt = GetTransformByName(ParkAtPartObjectName);
+      this.parkAt = parkAt;
+    }
+
+    /// <inheritdoc/>
+    public override void AlignTo(Transform target) {
+      if (target == null) {
+        AlignTransforms.SnapAlign(model, pipeAttach, parkAt);
+        model.gameObject.SetActive(true);
+      } else {
+        base.AlignTo(target);
+      }
+    }
+  }
+  #endregion
+
+  #region Part's config settings loaded via ConfigAccessor
+  /// <summary>Config setting. Position/rotation of the head when the renderer is stopped.</summary>
+  /// <seealso cref="LoadPartConfig"/>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
+  /// KSPDev Utils: Types.PosAndRot</seealso>
+  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
+  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  [PersistentField("parkAtPart", group = PartConfigGroup)]
+  public PosAndRot parkAtPart = new PosAndRot();
+  #endregion
+
+  #region KASModulePipeRenderer overrides
+  /// <inheritdoc/>
+  protected override void CreateJointEndModels(string modelName, JointConfig config) {
+    base.CreateJointEndModels(modelName, config);
+    if (modelName == ProceduralTargetJointObjectName) {
+      var partAtTransform = new GameObject(ParkAtPartObjectName).transform;
+      Hierarchy.MoveToParent(partAtTransform, partModelTransform,
+                             newPosition: parkAtPart.pos,
+                             newRotation: parkAtPart.rot);
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override ModelPipeEndNode LoadJointNode(string modelName) {
+    if (modelName == ProceduralTargetJointObjectName) {
+      var node = new ParkedHead(partModelTransform.FindChild(modelName),
+                                partModelTransform.FindChild(ParkAtPartObjectName));
+      node.AlignTo(null);  // Init mode objects state.
+      return node;
+    }
+    return base.LoadJointNode(modelName);
+  }
+  #endregion
+}
+
+}  // namespace
