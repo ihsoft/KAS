@@ -17,25 +17,25 @@ namespace KASAPIv1 {
 /// the representation if the connecting points have moved (<see cref="UpdateLink"/>).
 /// </remarks>
 public interface ILinkRenderer {
-  /// <value>
+  /// <summary>
   /// Unique name of the randerer that is used by the other modules to find this renderer.
-  /// </value>
+  /// </summary>
   string cfgRendererName { get; }
 
-  /// <value>Temporally sets another color to the link meshes.</value>
+  /// <summary>Temporally sets another color to the link meshes.</summary>
   /// <remarks>
   /// Set it to <c>null</c> to reset the override and get back to the original color.
   /// </remarks>
   /// TODO(ihsoft): Deprecate it.
   Color? colorOverride { get; set; }
 
-  /// <value>Temporally sets another shader to the link meshes.</value>
+  /// <summary>Temporally sets another shader to the link meshes.</summary>
   /// <remarks>Set it to <c>null</c> to reset the override and get back to the original shader.
   /// </remarks>
   /// TODO(ihsoft): Deprecate it.
   string shaderNameOverride { get; set; }
 
-  /// <value>Tells if the link interacts with the rigid bodies.</value>
+  /// <summary>Tells if the link interacts with the rigid bodies.</summary>
   /// <remarks>
   /// Setting this property to <c>false</c> turns the link colliders into triggers. I.e. the link
   /// won't have a physical impact but the collision events will be sent to the parent game object.
@@ -47,27 +47,29 @@ public interface ILinkRenderer {
   
   // TODO(ihsoft): Add method(s) for drawing a hollow representation.
 
-  /// <value>Tells if the renderer is started and active.</value>
+  /// <summary>Tells if the renderer is started and active.</summary>
   /// <seealso cref="StartRenderer"/>
   bool isStarted { get; }
 
-  /// <value>
+  /// <summary>
   /// Base position/direction of the connection point at the beginning of the link. The source
   /// joint models will be aligned against this transform.
-  /// </value>
+  /// </summary>
+  /// <remarks>The value is undefined if the renderer is not started.</remarks>
   /// <seealso cref="StartRenderer"/>
   Transform sourceTransform { get; }
 
-  /// <value>
+  /// <summary>
   /// Base position/direction of the connection point at the end of the link. The target
   /// joint models will be aligned against this transform.
-  /// </value>
+  /// </summary>
+  /// <remarks>The value is undefined if the renderer is not started.</remarks>
   /// <seealso cref="StartRenderer"/>
   Transform targetTransform { get; }
 
-  /// <value>
+  /// <summary>
   /// Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
-  /// </value>
+  /// </summary>
   /// <remarks>
   /// A value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
   /// <para>
@@ -77,7 +79,7 @@ public interface ILinkRenderer {
   /// </remarks>
   float stretchRatio { get; set; }
 
-  /// <value>Starts rendering a link between the points.</value>
+  /// <summary>Starts rendering a link between the points.</summary>
   /// <remarks>
   /// This method only indicates that the link is to be drawn between the specified points. The
   /// renderer is allowed to draw meshes even when not started. E.g. if there are constants parts of
