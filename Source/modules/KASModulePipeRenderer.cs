@@ -495,8 +495,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #region AbstractProceduralModel abstract members
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    CreateJointEndModelsIfNeeded(ProceduralSourceJointObjectName, sourceJointConfig);
-    CreateJointEndModelsIfNeeded(ProceduralTargetJointObjectName, targetJointConfig);
+    CreateJointEndModels(ProceduralSourceJointObjectName, sourceJointConfig);
+    CreateJointEndModels(ProceduralTargetJointObjectName, targetJointConfig);
     sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName);
     targetJointNode = LoadJointNode(ProceduralTargetJointObjectName);
   }
@@ -650,7 +650,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
   /// <param name="nodeName">Joint transform name.</param>
   /// <param name="config">Joint configuration from the part's config.</param>
-  protected virtual void CreateJointEndModelsIfNeeded(string nodeName, JointConfig config) {
+  protected virtual void CreateJointEndModels(string nodeName, JointConfig config) {
     // Make or get the root.
     Transform root = null;
     if (config.type == PipeEndType.PrefabModel) {
