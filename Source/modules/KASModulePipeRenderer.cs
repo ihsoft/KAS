@@ -296,7 +296,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     }
 
     /// <summary>
-    /// Finds and returns the requested child model, or mthe main model if the child is not found.  
+    /// Finds and returns the requested child model, or the main model if the child is not found.  
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
@@ -575,10 +575,10 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <c>PersistentField</c> attributed fields.
   /// </remarks>
   /// <pre>
-  /// When a decendant class needs the custom persisten fields loaded, there is no need to override
+  /// When a decendant class needs the custom persistent fields loaded, there is no need to override
   /// this method. It's enough to declare the fields as public and assign them to the persistent
   /// group <see cref="PartConfigGroup"/>. The base implementation will load all the fields in this
-  /// group.
+  /// group for all the descendants in the chain.
   /// </pre>
   /// <param name="moduleNode">Config node to get the values from.</param>
   /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">
