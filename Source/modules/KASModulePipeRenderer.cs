@@ -559,6 +559,68 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Inheritable utility methods
+  /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
+  /// <param name="modelName">Joint transform name.</param>
+  /// <param name="config">Joint configuration from the part's config.</param>
+  protected virtual void CreateJointEndModels(string modelName, JointConfig config) {
+    // Make or get the root.
+    Transform root = null;
+    if (config.type == PipeEndType.PrefabModel) {
+      root = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
+      if (root != null) {
+        root.parent = partModelTransform;  // We need the part's model to be the root.
+        var partAttach = new GameObject(PartJointTransformName).transform;
+        Hierarchy.MoveToParent(partAttach, root,
+                               newPosition: config.partAttachAt.pos,
+                               newRotation: config.partAttachAt.rot);
+        var pipeAttach = new GameObject(PipeJointTransformName);
+        Hierarchy.MoveToParent(pipeAttach.transform, root,
+                               newPosition: config.pipeAttachAt.pos,
+                               newRotation: config.pipeAttachAt.rot);
+      } else {
+        Debug.LogErrorFormat("Cannot find model '{0}' in part '{1}'.",config.modelPath, part.name);
+        config.type = PipeEndType.Simple;  // Fallback.
+      }
+    }
+    if (root == null) {
+      root = new GameObject().transform;
+      Hierarchy.MoveToParent(root, partModelTransform);
+      var partJoint = new GameObject(PartJointTransformName).transform;
+      Hierarchy.MoveToParent(partJoint, root);
+      partJoint.rotation = Quaternion.LookRotation(Vector3.forward);
+      if (config.type == PipeEndType.Simple || config.sphereDiameter < float.Epsilon) {
+        // No extra models are displayed at the joint, just attach the pipe to the part's node.
+        var pipeJoint = new GameObject(PipeJointTransformName);
+        Hierarchy.MoveToParent(pipeJoint.transform, root);
+        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
+      } else {
+        // Create procedural models at the point where the pipe connects to the part's node.
+        var material = CreateMaterial(
+            GetTexture(config.texture),
+            mainTexNrm: config.textureNrm != "" ? GetTexture(config.textureNrm) : null);
+        var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
+                                         colliderType: Colliders.PrimitiveCollider.Shape);
+        sphere.name = PipeJointTransformName;
+        sphere.transform.rotation = Quaternion.LookRotation(Vector3.back);
+        RescaleTextureToLength(sphere, samplesPerMeter: config.textureSamplesPerMeter);
+        if (config.sphereOffset > float.Epsilon) {
+          sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
+          if (config.armDiameter > float.Epsilon) {
+            var arm = Meshes.CreateCylinder(
+                config.armDiameter, config.sphereOffset, material, root,
+                colliderType: Colliders.PrimitiveCollider.Shape);
+            arm.transform.localPosition += new Vector3(0, 0, config.sphereOffset / 2);
+            arm.transform.LookAt(sphere.transform.position);
+            RescaleTextureToLength(arm, samplesPerMeter: config.textureSamplesPerMeter);
+          }
+        }
+      }
+    }
+    Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
+    root.gameObject.SetActive(false);
+    root.name = modelName;
+  }
+
   /// <summary>Constructs a joint node for the requested config.</summary>
   /// <param name="modelName">Name of the model in the hierarchy.</param>
   /// <returns>Pipe's end node.</returns>
@@ -645,68 +707,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     }
     obj.localScale =
         new Vector3(obj.localScale.x, obj.localScale.y, Vector3.Distance(fromPos, toPos));
-  }
-
-  /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
-  /// <param name="nodeName">Joint transform name.</param>
-  /// <param name="config">Joint configuration from the part's config.</param>
-  protected virtual void CreateJointEndModels(string nodeName, JointConfig config) {
-    // Make or get the root.
-    Transform root = null;
-    if (config.type == PipeEndType.PrefabModel) {
-      root = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
-      if (root != null) {
-        root.parent = partModelTransform;  // We need the part's model to be the root.
-        var partAttach = new GameObject(PartJointTransformName).transform;
-        Hierarchy.MoveToParent(partAttach, root,
-                               newPosition: config.partAttachAt.pos,
-                               newRotation: config.partAttachAt.rot);
-        var pipeAttach = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeAttach.transform, root,
-                               newPosition: config.pipeAttachAt.pos,
-                               newRotation: config.pipeAttachAt.rot);
-      } else {
-        Debug.LogErrorFormat("Cannot find model '{0}' in part '{1}'.",config.modelPath, part.name);
-        config.type = PipeEndType.Simple;  // Fallback.
-      }
-    }
-    if (root == null) {
-      root = new GameObject().transform;
-      Hierarchy.MoveToParent(root, partModelTransform);
-      var partJoint = new GameObject(PartJointTransformName).transform;
-      Hierarchy.MoveToParent(partJoint, root);
-      partJoint.rotation = Quaternion.LookRotation(Vector3.forward);
-      if (config.type == PipeEndType.Simple || config.sphereDiameter < float.Epsilon) {
-        // No extra models are displayed at the joint, just attach the pipe to the part's node.
-        var pipeJoint = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeJoint.transform, root);
-        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
-      } else {
-        // Create procedural models at the point where the pipe connects to the part's node.
-        var material = CreateMaterial(
-            GetTexture(config.texture),
-            mainTexNrm: config.textureNrm != "" ? GetTexture(config.textureNrm) : null);
-        var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
-                                         colliderType: Colliders.PrimitiveCollider.Shape);
-        sphere.name = PipeJointTransformName;
-        sphere.transform.rotation = Quaternion.LookRotation(Vector3.back);
-        RescaleTextureToLength(sphere, samplesPerMeter: config.textureSamplesPerMeter);
-        if (config.sphereOffset > float.Epsilon) {
-          sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
-          if (config.armDiameter > float.Epsilon) {
-            var arm = Meshes.CreateCylinder(
-                config.armDiameter, config.sphereOffset, material, root,
-                colliderType: Colliders.PrimitiveCollider.Shape);
-            arm.transform.localPosition += new Vector3(0, 0, config.sphereOffset / 2);
-            arm.transform.LookAt(sphere.transform.position);
-            RescaleTextureToLength(arm, samplesPerMeter: config.textureSamplesPerMeter);
-          }
-        }
-      }
-    }
-    Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
-    root.gameObject.SetActive(false);
-    root.name = nodeName;
   }
   #endregion
 
