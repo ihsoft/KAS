@@ -55,7 +55,7 @@ public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Config setting. Position/rotation of the head when the renderer is stopped.</summary>
-  /// <seealso cref="LoadPartConfig"/>
+  /// <seealso cref="KASModulePipeRenderer.LoadPartConfig"/>
   /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
   /// KSPDev Utils: Types.PosAndRot</seealso>
   /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">

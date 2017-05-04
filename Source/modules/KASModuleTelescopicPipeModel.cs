@@ -4,8 +4,9 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KSPDev.ModelUtils;
 using KSPDev.GUIUtils;
+using KSPDev.ModelUtils;
+using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -16,7 +17,9 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
-public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRenderer {
+public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
+    // KAS interfaces.
+    ILinkRenderer {
 
   #region Localizable GUI strings
   /// <summary>
@@ -713,6 +716,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
   }
   #endregion
 
+  #region Inherotable utility methods 
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
@@ -729,25 +733,24 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     return linkLength;
   }
 
-  #region Private utility methods
-  /// <summary>Returns parked menu item name.</summary>
-  /// <param name="cfgSetting">String from config of the following format:
-  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines direction in node's local
-  /// coordinates, and <c>menu text</c> is a string to show in context menu.</param>
-  /// <returns></returns>
-  string ExtractPositionName(string cfgSetting) {
+  /// <summary>Returns a context menu item name from the packed string.</summary>
+  /// <param name="cfgSetting">String from the config of the following format:
+  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
+  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
+  /// <returns>Display string for the action.</returns>
+  protected static string ExtractPositionName(string cfgSetting) {
     var lastCommaPos = cfgSetting.LastIndexOf(',');
     return lastCommaPos != -1
         ? cfgSetting.Substring(lastCommaPos + 1)
         : cfgSetting;
   }
 
-  /// <summary>Returns direction vector for a parked menu item.</summary>
-  /// <param name="cfgSetting">String from config of the following format:
-  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines direction in node's local
-  /// coordinates, and <c>menu text</c> is a string to show in context menu.</param>
-  /// <returns></returns>
-  Vector3 ExtractOrientationVector(string cfgSetting) {
+  /// <summary>Returns a direction vector for the parked string.</summary>
+  /// <param name="cfgSetting">String from the config of the following format:
+  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
+  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
+  /// <returns>Direction vector for the action.</returns>
+  protected static Vector3 ExtractOrientationVector(string cfgSetting) {
     var lastCommaPos = cfgSetting.LastIndexOf(',');
     if (lastCommaPos == -1) {
       Debug.LogWarningFormat("Cannot extract direction from string: {0}", cfgSetting);
@@ -755,7 +758,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel, ILinkRender
     }
     return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
   }
+  #endregion
 
+  #region Private utility methods
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
   void UpdateValuesFromModel() {
     var pistonSize =

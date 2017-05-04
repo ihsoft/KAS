@@ -34,15 +34,15 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-/// TODO(ihsoft): Handle KIS actions.
-/// TODO(ihsoft): Handle part destroyed action.
-/// TODO(ihsoft): Handle part staged action.
-public class KASModuleLinkSourceBase :
-    // KSP parents.
-    PartModule, IModuleInfo, IActivateOnDecouple,
-    // KAS parents.
+// TODO(ihsoft): Handle KIS actions.
+// TODO(ihsoft): Handle part destroyed action.
+// TODO(ihsoft): Handle part staged action.
+public class KASModuleLinkSourceBase : PartModule,
+    // KSP interfaces.
+    IModuleInfo, IActivateOnDecouple,
+    // KAS interfaces.
     ILinkSource, ILinkStateEventListener,
-    // Syntax sugar parents.
+    // KSPDev syntax sugar interfaces.
     IPartModule, IsPackable, IsDestroyable, IsPartDeathListener,
     IKSPDevModuleInfo, IKSPActivateOnDecouple {
 

@@ -21,12 +21,12 @@ namespace KAS {
 /// target. This module only deals with joining two parts together. It does not deal with
 /// collider(s) or rigid body masses (see <see cref="ILinkRenderer"/>).
 /// </remarks>
-public abstract class AbstractJointModule :
-    // KSP parents.
-    PartModule, IModuleInfo,
-    // KAS parents.
+public abstract class AbstractJointModule : PartModule,
+    // KSP interfaces.
+    IModuleInfo,
+    // KAS interfaces.
     ILinkJoint, ILinkStateEventListener,
-    // Syntax sugar parents.
+    // KSPDev syntax sugar interfaces.
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings

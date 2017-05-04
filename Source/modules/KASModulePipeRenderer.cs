@@ -124,6 +124,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   }
 
   /// <summary>Helper structure to hold the joint model setup.</summary>
+  /// <seealso cref="KASModulePipeRenderer"/>
   public class JointConfig {
     /// <summary>Defines how to obtain the joint model.</summary>
     [PersistentField("type")]
@@ -241,6 +242,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// Decendants may declare own persistent fields in this group, and they will be automatically
   /// loaded. The only requirement is that these fields must be declared public.
   /// </remarks>
+  /// <seealso cref="LoadPartConfig"/>
   /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_ConfigAccessor.htm">
   /// KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
   protected const string PartConfigGroup = "partConfig";
@@ -298,8 +300,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     /// <summary>
     /// Finds and returns the requested child model, or the main model if the child is not found.  
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">Name of the child object to find.</param>
+    /// <returns>Object or node's model itself if the child is not found.</returns>
     protected Transform GetTransformByName(string name) {
       var res = model.FindChild(name);
       if (res == null) {
@@ -635,13 +637,13 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// It triggers every time when a new instance of the part instantiates. Use it to update/load
   /// the settings that cannot be loaded via normal KSP means, like the custom types for the
   /// <c>PersistentField</c> attributed fields.
-  /// </remarks>
-  /// <pre>
+  /// <para>
   /// When a decendant class needs the custom persistent fields loaded, there is no need to override
   /// this method. It's enough to declare the fields as public and assign them to the persistent
   /// group <see cref="PartConfigGroup"/>. The base implementation will load all the fields in this
   /// group for all the descendants in the chain.
-  /// </pre>
+  /// </para>
+  /// </remarks>
   /// <param name="moduleNode">Config node to get the values from.</param>
   /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">
   /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>

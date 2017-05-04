@@ -12,10 +12,10 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Module that allows connecting parts by mouse via GUI.</summary>
+/// <summary>Module that allows connecting the parts by a mouse via GUI.</summary>
 /// <remarks>
-/// When player starts linking mode he must either complete it by clicking on a compatible target
-/// part or abort the mode altogether.
+/// When the player starts the linking mode, he must either complete it by clicking on a compatible
+/// target part or abort the mode altogether.
 /// <para>
 /// EVA kerbal movement is locked when linking mode is active, so both source and target parts
 /// must be in the range from the kerbal.
@@ -224,14 +224,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   // TODO(ihsoft): Disallow non-eva control.
   #region Action handlers
   /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
-  /// <seealso cref="StartLinkMenuActionName"/>
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
   public void StartLinkContextMenuAction() {
     StartLinking(GUILinkMode.Interactive);
   }
 
   /// <summary>Event handler. Breaks current link between source and target.</summary>
-  /// <seealso cref="BreakLinkMenuActionName"/>
   [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink(LinkActorType.Player);

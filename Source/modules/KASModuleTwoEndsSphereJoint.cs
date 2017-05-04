@@ -29,13 +29,13 @@ namespace KAS {
 /// PhysX: Prismatic joint</seealso>
 // TODO(ihsoft): Add an image.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
-public class KASModuleTwoEndsSphereJoint :
-    // KAS parents.
-    AbstractJointModule, IKasJointEventsListener,
+public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     // KSP interfaces.
     IJointLockState,
-    // Syntax sugar interfaces.
-    IsDestroyable {
+    // KAS interfaces.
+    IKasJointEventsListener,
+    // KSPDev syntax sugar interfaces.
+    IPartModule, IsDestroyable, IKSPDevJointLockState {
 
   #region Part's config fields
   /// <summary>

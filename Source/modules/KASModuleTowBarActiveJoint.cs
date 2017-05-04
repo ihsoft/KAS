@@ -21,10 +21,8 @@ namespace KAS {
 /// </item>
 /// </list>
 /// </remarks>
-public sealed class KASModuleTowBarActiveJoint :
-    // KAS parents.
-    KASModuleTwoEndsSphereJoint,
-    // Syntax sugar parents.
+public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
+    // KSPDev sugar interfaces.
     IsPhysicalObject {
 
   #region Localizable strings

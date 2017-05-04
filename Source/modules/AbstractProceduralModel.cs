@@ -11,10 +11,10 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Base class for parts that dynamically create their model on game load.</summary>
+/// <summary>Base class for the parts that dynamically create their model on the game load.</summary>
 /// <remarks>
-/// This class offers common functionality for creating meshes in the model and loading them when
-/// needed.
+/// This class offers a common functionality for creating meshes in the part's model and loading
+/// them when needed.
 /// </remarks>
 public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <summary>Standard KSP part shader name.</summary>
@@ -23,10 +23,10 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   /// <summary>Name of bump map property in the renderer.</summary>
   protected const string BumpMapProp = "_BumpMap";
 
-  /// <summary>Returns cached part's model root transform.</summary>
+  /// <summary>Returns a cached part's model root transform.</summary>
   /// <remarks>
-  /// Attach all your meshes to this transform (directly or via parents). Otherwise, the new meshes
-  /// will be ignored by the part's model!
+  /// Attach all your meshes to this transform (eitehr directly or via parents). Otherwise, the new
+  /// meshes will be ignored by the part's model!
   /// </remarks>
   protected Transform partModelTransform {
     get {
