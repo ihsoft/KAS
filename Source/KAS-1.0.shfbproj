@@ -39,7 +39,7 @@ sources-->
     <FeedbackEMailAddress>igor.zavoychinskiy%40gmail.com</FeedbackEMailAddress>
     <CopyrightText>Public Domain</CopyrightText>
     <CopyrightHref>http://unlicense.org/</CopyrightHref>
-    <VisibleItems>Attributes, ExplicitInterfaceImplementations, Protected, ProtectedInternalAsProtected, PublicCompilerGenerated</VisibleItems>
+    <VisibleItems>Attributes, ExplicitInterfaceImplementations, InheritedMembers, Protected, ProtectedInternalAsProtected, PublicCompilerGenerated</VisibleItems>
     <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
     <ComponentConfigurations>
       <ComponentConfig id="API Token Resolution" enabled="True">
