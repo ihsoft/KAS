@@ -13,7 +13,7 @@ sources-->
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <OutputPath>..\docs\APIv1\</OutputPath>
-    <HtmlHelpName>Documentation</HtmlHelpName>
+    <HtmlHelpName>KAS_API_v1</HtmlHelpName>
     <DocumentationSources>
       <DocumentationSource sourceFile="KAS-1.0.csproj" />
       <DocumentationSource sourceFile="..\Binaries\KSPDev_Utils.xml" />
@@ -30,7 +30,7 @@ sources-->
     <Preliminary>False</Preliminary>
     <NamingMethod>MemberName</NamingMethod>
     <Language>en-US</Language>
-    <HelpTitle>KAS API v1.0</HelpTitle>
+    <HelpTitle>KAS API v1</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
     <HelpFileFormat>Website</HelpFileFormat>
@@ -55,7 +55,7 @@ sources-->
           <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
           <allowMissingSource value="false" />
           <removeRegionMarkers value="false" />
-          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="true" outlining="false" keepSeeTags="true" defaultTitle="true" />
+          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="2" numberLines="true" outlining="true" keepSeeTags="true" defaultTitle="true" />
         </component>
       </ComponentConfig>
     </ComponentConfigurations>
@@ -71,8 +71,8 @@ sources-->
       <Argument Key="maxVersionParts" Value="" />
       <Argument Key="defaultLanguage" Value="cs" />
       <Argument Key="includeEnumValues" Value="true" />
-      <Argument Key="baseSourceCodeUrl" Value="https://github.com/KospY/KAS/tree/KAS-v1.0/Source/" />
-      <Argument Key="requestExampleUrl" Value="https://github.com/KospY/KAS/issues/new" />
+      <Argument Key="baseSourceCodeUrl" Value="https://github.com/ihsoft/KAS/tree/KAS-v1.0/Source/" />
+      <Argument Key="requestExampleUrl" Value="https://github.com/ihsoft/KAS/issues/new" />
     </TransformComponentArguments>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="KAS" isDocumented="True">&lt;para&gt;Main namespace for KAS functionality &lt;i&gt;implementations&lt;/i&gt;.&lt;/para&gt;
