@@ -12,10 +12,10 @@ sources-->
     <AssemblyName>Documentation</AssemblyName>
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
-    <OutputPath>..\docs\APIv1\</OutputPath>
+    <OutputPath>..\..\docs\APIv1\</OutputPath>
     <HtmlHelpName>KAS_API_v1</HtmlHelpName>
     <DocumentationSources>
-      <DocumentationSource sourceFile="KAS-1.0.csproj" />
+      <DocumentationSource sourceFile="..\KAS-1.0.csproj" />
     </DocumentationSources>
     <HelpFileVersion>1.0.0.0</HelpFileVersion>
     <MaximumGroupParts>2</MaximumGroupParts>
@@ -59,7 +59,7 @@ sources-->
     <SourceCodeBasePath>.\</SourceCodeBasePath>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <TransformComponentArguments>
-      <Argument Key="logoFile" Value="" />
+      <Argument Key="logoFile" Value="KAS-logo.png" />
       <Argument Key="logoHeight" Value="" />
       <Argument Key="logoWidth" Value="" />
       <Argument Key="logoAltText" Value="" />
