@@ -131,6 +131,15 @@ common platform types that may appear.-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' " />
+  <ItemGroup>
+    <Folder Include="icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\KAS-logo.png">
+      <ImageId>KAS-logo</ImageId>
+      <AlternateText>KAS-logo</AlternateText>
+    </Content>
+  </ItemGroup>
   <!--Import the SHFB build targets-->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
 </Project>
