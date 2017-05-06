@@ -16,34 +16,35 @@ namespace KASAPIv1 {
 /// </remarks>
 public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
-  /// <remarks>If <c>0</c> then no limit for minimum value is applied.</remarks>
+  /// <value>Distance in meters. <c>0</c> if no limit for minimum value is applied.</value>
   float cfgMinLinkLength { get; }
 
   /// <summary>Maximum allowed distance between parts to establish a link.</summary>
-  /// <remarks>If <c>0</c> then no limit for maximum value is applied.</remarks>
+  /// <value>Distance in meters. <c>0</c> if no limit for maximum value is applied.</value>
   float cfgMaxLinkLength { get; }
 
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
-  /// <remarks>
-  /// If <c>0</c> then strength will be calculated using the same approach as for a stock joint of
-  /// medium size.
-  /// </remarks>
+  /// <value>
+  /// Force in kilonewtons. <c>0</c> if the joint strength is calculated automatically.
+  /// </value>
   float cfgLinkBreakForce { get; }
 
   /// <summary>Breaking torque for the link connecting the two parts.</summary>
-  /// <remarks><see cref="cfgLinkBreakForce"/></remarks>
+  /// <value>
+  /// Force in kilonewtons. <c>0</c> if the joint strength is calculated automatically.
+  /// </value>
   float cfgLinkBreakTorque { get; }
 
   /// <summary>
-  /// Maximum allowed angle between attach node normal and the link at the source part.
+  /// Maximum allowed angle between the attach node normal and the link at the source part.
   /// </summary>
-  /// <remarks>If <c>0</c> then angle is not checked.</remarks>
+  /// <value>Angle in degrees. <c>0</c> if angle is not checked.</value>
   int cfgSourceLinkAngleLimit { get; }
 
   /// <summary>
-  /// Maximum allowed angle between attach node normal and the link at the target part.
+  /// Maximum allowed angle between the attach node normal and the link at the target part.
   /// </summary>
-  /// <remarks>If <c>0</c> then angle is not checked.</remarks>
+  /// <value>Angle in degrees. <c>0</c> if angle is not checked.</value>
   int cfgTargetLinkAngleLimit { get; }
 
   /// <summary>Sets up a physical link between source and target.</summary>
@@ -70,7 +71,7 @@ public interface ILinkJoint {
   /// </remarks>
   void DropJoint();
 
-  /// <summary>Requests joint to become unbreakable or normal.</summary>
+  /// <summary>Requests the joint to become unbreakable or normal.</summary>
   /// <remarks>
   /// Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
   /// moment. In unbreakable state joint must behave as a hard connection that cannot be changed or

@@ -51,91 +51,103 @@ namespace KASAPIv1 {
 public interface ILinkSource {
 
   /// <summary>Part that owns the source.</summary>
+  /// <value>Instance of the part.</value>
   Part part { get; }
 
-  /// <summary>A source link type identifier.</summary>
+  /// <summary>Source link type identifier.</summary>
+  /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
-  /// This type is used to match with compatible targets. Targets of different types will not be
-  /// able to connect with the source. Type can be any string, including empty.
+  /// This value is used to find the compatible targets. Targets of the different types will not
+  /// be able to connect with the source.
   /// </remarks>
   string cfgLinkType { get; }
 
-  /// <summary>Defines link effect on vessel(s) hierarchy.</summary>
+  /// <summary>Defines the link's effect on the vessel(s) hierarchy.</summary>
+  /// <value>Linking mode.</value>
   LinkMode cfgLinkMode { get; }
   
   /// <summary>Name of the attach node to connect with.</summary>
+  /// <value>Arbitrary string.</value>
   /// <remarks>
-  /// Node with such name must not exist in the part config. It will be created right before
+  /// A node with such name must not exist in the part's model. It will be created right before
   /// establishing a link, and will be destroyed after the link is broken.
   /// <para>
-  /// Name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any string. In
-  /// fact, it's best to not use standard names to avoid possible conflicts if part config is
-  /// upgraded.
+  /// The name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any
+  /// string. In fact, it's best to not use the standard names to avoid the possible conflicts.
   /// </para>
-  /// <para>It's up to the implementation to decide what attach node to create.</para>
   /// </remarks>
   /// <seealso cref="nodeTransform"/>
   string cfgAttachNodeName { get; }
 
-  /// <summary>Name of the renderer that draws link in linked state.</summary>
+  /// <summary>Name of the renderer that draws the link.</summary>
+  /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
-  /// Source will use this renderer to represent linked state. It's expected there is a
-  /// <see cref="ILinkRenderer"/> module defined on the part with the matching name. Behavior is
-  /// undefined if no such renderer exists on the part.
+  /// The source will find a renderer module using this name as a key. It will be used to draw the
+  /// link when connected to teh target. The behavior is undefined if there is no renderer found on
+  /// the part.
   /// </remarks>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
   string cfgLinkRendererName { get; }
 
   /// <summary>Attach node used for linking with the target part.</summary>
+  /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
   /// <remarks>
   /// The node is required to exist only when source is linked to a compatible target. For not
-  /// linked parts attach node may not actually exist in the source part.
+  /// linked parts the attach node may not actually exist in the source part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
   AttachNode attachNode { get; }
 
-  /// <summary>Transform that defines position and orientation of the attach node.</summary>
+  /// <summary>Transform that defines the position and orientation of the attach node.</summary>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>This transform must exist even when no actual attach node is created on the part.
   /// <list>
-  /// <item>When connecting parts this transform will be used to create part's attach node.</item>
-  /// <item>Renderer uses this transform to align meshes.</item>
-  /// <item>Joint module uses node transform as source anchor for PhysX joint.</item>
+  /// <item>
+  /// When connecting the parts, this transform will be used to create a part's attach node.
+  /// </item>
+  /// <item>The renderer uses this transform to align the meshes.</item>
+  /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
   /// </list>
   /// </remarks>
+  /// <seealso cref="attachNode"/>
   Transform nodeTransform { get; }
 
-  /// <summary>Linked target or <c>null</c> if nothing is linked.</summary>
+  /// <summary>Target of the link.</summary>
+  /// <value>Target or <c>null</c> if nothing is linked.</value>
+  /// <remarks>Only defined for an established link.</remarks>
   ILinkTarget linkTarget { get; }
 
   /// <summary>ID of the linked target part.</summary>
+  /// <value>Flight ID.</value>
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
+  /// <value>The current state.</value>
   /// <remarks>
-  /// The state cannot be affected directly. Different methods change it to different values.
-  /// Though, there is strict model of state tranistioning for the source.
-  /// <para>If module is not started yet then the persisted state is returned.</para>
+  /// The state cannot be affected directly. The different methods change it to the different
+  /// values. However, there is a strict model of state tranistioning for the source.
+  /// <para>If the module is not started yet then the persisted state is returned.</para>
   /// </remarks>
-  /// TODO(ihsoft): Add state transtion diagram.
+  // TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
-  /// <summary>
-  /// Defines if source must not initiate link requests because there is another source module on
-  /// the part that has established a link.
-  /// </summary>
+  /// <summary>Defines if the source can initiate a link.</summary>
+  /// <value>Locked state.</value>
   /// <remarks>
-  /// Setting of this property changes source state: <c>true</c> value changes state to
-  /// <see cref="LinkState.Locked"/>; <c>false</c> value changes state to
+  /// Setting of this property changes the source state: <c>true</c> value changes the state to
+  /// <see cref="LinkState.Locked"/>; <c>false</c> value changes the state to
   /// <see cref="LinkState.Available"/>.
-  /// <para>Setting same value to this property doesn't trigger state change events.</para>
+  /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
-  /// Note, that not any state transition is possible. If transition is invalid then exception is
-  /// thrown.
+  /// Note, that not any state transition is possible. If the transition is invalid then an
+  /// exception is thrown.
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
   bool isLocked { get; set; }
 
-  /// <summary>Mode in which a link between soucre and target is being created.</summary>
+  /// <summary>Mode in which the link between source and target is created.</summary>
+  /// <value>GUI mode.</value>
   /// <seealso cref="StartLinking"/>
   GUILinkMode guiLinkMode { get; }
 
@@ -154,10 +166,12 @@ public interface ILinkSource {
   /// </para>
   /// <returns><c>true</c> if mode successfully started.</returns>
   /// <seealso cref="guiLinkMode"/>
+  /// <seealso cref="CancelLinking"/>
   bool StartLinking(GUILinkMode mode);
 
   /// <summary>Cancels linking mode without creating a link.</summary>
   /// <remarks>All sources and targets that were locked on mode start will be unlocked.</remarks>
+  /// <seealso cref="StartLinking"/>
   void CancelLinking();
 
   /// <summary>Establishes a link between two parts.</summary>
@@ -165,15 +179,17 @@ public interface ILinkSource {
   /// Source and target parts become tied with a joint but are not required to be joined into a
   /// single vessel.
   /// <para>
-  /// Link conditions will be checked via <see cref="CheckCanLinkTo"/> befor creating the link, and
-  /// all errors will be reported to the GUI.
+  /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> befor creating a link,
+  /// and all the errors will be reported to the GUI.
   /// </para>
   /// </remarks>
   /// <param name="target">Target to link with.</param>
-  /// <returns><c>true</c> if parts were linked successfully.</returns>
+  /// <returns><c>true</c> if the parts were linked successfully.</returns>
+  /// <seealso cref="BreakCurrentLink"/>
+  // TODO(ihsoft): Clarify which mode is allowed.
   bool LinkToTarget(ILinkTarget target);
 
-  /// <summary>Breaks a link between source and the current target.</summary>
+  /// <summary>Breaks the link between the source and target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
   /// <param name="actorType">
   /// Specifies what initiates the action. Final result of teh action doesn't depend on it but
@@ -183,9 +199,10 @@ public interface ILinkSource {
   /// If <c>true</c> then upon decoupling current vessel focus will be set on the vessel that owns
   /// the link's <i>target</i>. Otherwise, the focus will stay at the source part vessel.
   /// </param>
+  /// <seealso cref="LinkToTarget"/>
   void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
-  /// <summary>Verifies if link between the parts can be successful.</summary>
+  /// <summary>Verifies if a link between the parts can be successful.</summary>
   /// <param name="target">Target to connect with.</param>
   /// <param name="reportToGUI">
   /// If <c>true</c> then errors will be reported to the UI letting user know the link cannot be

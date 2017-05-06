@@ -9,84 +9,96 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 /// <summary>A generic target of a KAS link between two parts.</summary>
-/// <remarks>Target is a sink for the link initiated by another part's <see cref="ILinkSource"/>.
-/// The target logic is very limited and simple. It just remembers the source and does whatever GUI
-/// adjustments are needed.</remarks>
-/// TODO(ihsoft): Add state transtion diagram reference.
-/// TODO(ihsoft): Add code samples.
+/// <remarks>
+/// The target is a sink for a link initiated by the another part's <see cref="ILinkSource"/>.
+/// The target logic is very limited and simple. It just remembers the source and does the GUI
+/// adjustments as needed.
+/// </remarks>
+// TODO(ihsoft): Add state transtion diagram reference.
+// TODO(ihsoft): Add code samples.
 public interface ILinkTarget {
+
   /// <summary>Part that owns the target.</summary>
+  /// <value>Instance of the part.</value>
   Part part { get; }
 
-  /// <summary>A target link type identifier.</summary>
+  /// <summary>Target link type identifier.</summary>
+  /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
-  /// This type is used to match with compatible sources. Sources of different types will not be
-  /// able to connect with the target. Type can be any string, including empty.
+  /// This string is used by the source to find the compatible targets.
   /// </remarks>
   string cfgLinkType { get; }
 
   /// <summary>Name of the attach node to connect with.</summary>
+  /// <value>Arbitrary string.</value>
   /// <remarks>
-  /// Name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any string.
+  /// A node with such name must not exist in the part's model. It will be created right before
+  /// establishing a link, and will be destroyed after the link is broken.
   /// </remarks>
+  /// <seealso cref="nodeTransform"/>
   string cfgAttachNodeName { get; }
 
   /// <summary>Attach node used for linking with the source part.</summary>
+  /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
   /// <remarks>
-  /// The node is required to exist only when target is linked to a compatible source. For not
-  /// linked parts attach node may not actually exist in the target part.
+  /// The node is required to exist only when source is linked to a compatible target. For not
+  /// linked parts the attach node may not actually exist in the source part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
   AttachNode attachNode { get; }
 
-  /// <summary>Transform that defines position and orientation of the attach node.</summary>
-  /// <remarks>
-  /// This transform must exist even when no actual attach node is created on the part.
+  /// <summary>Transform that defines the position and orientation of the attach node.</summary>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
+  /// <remarks>This transform must exist even when no actual attach node is created on the part.
   /// <list>
-  /// <item>When connecting parts this transform will be used to create part's attach node.</item>
-  /// <item>Renderer uses this transform to align meshes.</item>
-  /// <item>Joint module uses node transform as source anchor for PhysX joint.</item>
+  /// <item>
+  /// When connecting the parts, this transform will be used to create a part's attach node.
+  /// </item>
+  /// <item>The renderer uses this transform to align the meshes.</item>
+  /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
   /// </list>
   /// </remarks>
+  /// <seealso cref="attachNode"/>
   Transform nodeTransform { get; }
 
-  /// <summary>Source that maintains the link or <c>null</c> if nothing is linked.</summary>
+  /// <summary>Source that maintains the link.</summary>
+  /// <value>Source or <c>null</c> if nothing is linked.</value>
   /// <remarks>
-  /// Setting of this property changes target state: a non-null value changes state to
-  /// <see cref="LinkState.Linked"/>; <c>null</c> value changes state to
+  /// Setting of this property changes the target state: a non-null value changes the state to
+  /// <see cref="LinkState.Linked"/>; <c>null</c> value changes the state to
   /// <see cref="LinkState.Available"/>.
-  /// <para>Setting same value to this property doesn't trigger state change events.</para>
+  /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
-  /// Note, that not any state transition is possible. If transition is invalid then exception is
-  /// thrown.
+  /// Note, that not any state transition is possible. If the transition is invalid then an
+  /// exception is thrown.
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
   ILinkSource linkSource { get; set; }
 
   /// <summary>ID of the linked source part.</summary>
+  /// <value>Flight ID.</value>
   uint linkSourcePartId { get; }
 
   /// <summary>Current state of the target.</summary>
+  /// <value>The current state.</value>
   /// <remarks>
-  /// The state cannot be affected directly. Different methods change it to different values.
-  /// Though, there is strict model of state tranistioning for the target.
+  /// The state cannot be affected directly. The different methods change it to the different
+  /// values. However, there is a strict model of state tranistioning for the target.
   /// </remarks>
-  /// TODO(ihsoft): Add state transtion diagram.
+  // TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
-  /// <summary>
-  /// Defines if target must not accept any link requests because the part is already linked as
-  /// source.
-  /// </summary>
+  /// <summary>Defines if target must not accept any link requests.</summary>
+  /// <value>Locked state.</value>
   /// <remarks>
-  /// Setting of this property changes target state: <c>true</c> value changes state to
-  /// <see cref="LinkState.Locked"/>; <c>false</c> value changes state to
+  /// Setting of this property changes the target state: <c>true</c> value changes the state to
+  /// <see cref="LinkState.Locked"/>; <c>false</c> value changes the state to
   /// <see cref="LinkState.Available"/>.
-  /// <para>Setting same value to this property doesn't trigger state change events.</para>
+  /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
-  /// Note, that not any state transition is possible. If transition is invalid then exception is
-  /// thrown.
+  /// Note, that not any state transition is possible. If the transition is invalid then an
+  /// exception is thrown.
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
