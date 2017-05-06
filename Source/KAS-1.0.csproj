@@ -117,6 +117,12 @@
     <Compile Include="modules\KSPDev_candidates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="KSPAPI_HelpIndex.xml" />
+    <None Include="KSPDevUtilsAPI_HelpIndex.xml" />
+    <None Include="SpecialDocTags.xml" />
+    <None Include="Unity3D_HelpIndex.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y

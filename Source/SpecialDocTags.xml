@@ -1,0 +1,45 @@
+<Tags>
+
+<ConfigSetting>
+  <summary-prefix><i>Config setting.</i><br/></summary-prefix>
+  <remarks>
+  This value is managed by the KSP core. Its value is automatically read from the part's config.
+  Despite of this field is declared as <i>public</i>, the other components must not be accessing it.
+  The settings that are allowed for reading and/or writing should be exposed via a module's public
+  property.
+  </remarks>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPField']/*"/>
+</ConfigSetting>
+
+<PersistentConfigSetting>
+  <summary-prefix><i>Persistent KSP field.</i><br/></summary-prefix>
+  <remarks>
+  This value is managed by the KSP core. Its initial value is read from the part's config, and then
+  the value is read from/written into the vessel's config. Despite of this field is declared as
+  <i>public</i>, the other components must not be accessing it. The settings that are allowed for 
+  reading and/or writing should be exposed via a module's public property.
+  </remarks>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPField']/*"/>
+</PersistentConfigSetting>
+
+<PersistentField>
+  <summary-prefix><i>Persistent field.</i><br/></summary-prefix>
+  <remarks>
+  This value can be loaded or saved via a <c>ConfigAccessor</c> utility class.
+  </remarks>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+</PersistentField>
+
+<Message0>
+  <summary-prefix><i>GUI message.</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message']/*"/>
+</Message0>
+
+<Message1>
+  <summary-prefix><i>GUI message (1 parameter).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_1']/*"/>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+</Message1>
+
+</Tags>
