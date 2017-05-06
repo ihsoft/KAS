@@ -39,59 +39,48 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
 
   #region Part's config fields
   /// <summary>
-  /// Config setting. Spring force of the prismatic joint that limits the distance.
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Spring force of the prismatic joint that limits the distance.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float strutSpringForce = Mathf.Infinity;
 
-  /// <summary>Config setting. Damper force of the spring that limits the distance.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Damper force of the spring that limits the distance.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
 
-  /// <summary>Config setting. Tells if joined parts can move relative to each other.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Tells if joined parts can move relative to each other.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool isUnlockedJoint;
   #endregion
 
   #region Inheritable properties
   /// <summary>Source sphere joint.</summary>
+  /// <value>PhysX joint at the source part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
   /// <seealso cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>.
   protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
+  /// <value>PhysX joint at the target part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
   /// <seealso cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Joint that ties two sphere joints together.</summary>
+  /// <value>
+  /// PhysX joint that connects the source and the end rigid objects. <c>null</c> if there is no
+  /// joint established.
+  /// </value>
   /// <remarks>
   /// It doesn't allow rotations but does allow linear movements. Rotations and shrink/stretch
   /// limits are set via config settings.

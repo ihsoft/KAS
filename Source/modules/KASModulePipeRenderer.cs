@@ -18,7 +18,7 @@ namespace KAS {
 
 /// <summary>Module that draws a pipe between two nodes.</summary>
 /// <remarks>
-/// If it's assigned to link source then it will draw a pipe between source and target atatch nodes.
+/// Usually, the renderer is started or stopped by a link source. However, it can be any module.  
 /// <para>
 /// Pipe ends can be constructed differently:
 /// <list type="table">
@@ -63,14 +63,18 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/summary-prefix/*"/>
   /// Message to display when link cannot be created due to an obstacle in the way. 
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
 
   /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/summary-prefix/*"/>
   /// Message to display when link strut orientation cannot be changed due to it would hit the
   /// surface.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
   #endregion
 
@@ -126,11 +130,16 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <summary>Helper structure to hold the joint model setup.</summary>
   /// <seealso cref="KASModulePipeRenderer"/>
   public class JointConfig {
-    /// <summary>Defines how to obtain the joint model.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Defines how to obtain the joint model.
+    /// </summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("type")]
     public PipeEndType type = PipeEndType.Simple;
     
     /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
     /// Defines if model's should trigger physical effects on collision.
     /// </summary>
     /// <remarks>
@@ -138,72 +147,104 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     /// <see cref="PipeEndType.PrefabModel"/>. If the prefab models are used then the colliders must
     /// be existing in the model. If there are none then this settings doesn't have effect.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("colliderIsPhysical")]
     public bool colliderIsPhysical;
 
     /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
     /// Height of the joint sphere over the attach node. It's either zero or a positive number.
     /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
     public float sphereOffset;
 
-    /// <summary>Diameter of the joint sphere.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Diameter of the joint sphere.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
     public float sphereDiameter;
 
-    /// <summary>Diameter of the pipe that connects the attach node and the sphere.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Diameter of the pipe that connects the attach node and the sphere.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
     /// <see cref="sphereOffset"/> is greater than zero.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
     public float armDiameter;
 
-    /// <summary>Defines how the texture is tiled on the sphere and arm primitives.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Defines how the texture is tiled on the sphere and arm primitives.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("textureSamplesPerMeter")]
     public float textureSamplesPerMeter;
 
-    /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Texture to use to cover the arm and sphere primitives.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("texture")]
     public string texture = "";
 
-    /// <summary>Normals texture for the primitives. Can be omitted.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Normals texture for the primitives. Can be omitted.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("textureNrm")]
     public string textureNrm = "";
 
-    /// <summary>Path to the model that represents the joint.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Path to the model that represents the joint.
+    /// </summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
-    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">
-    /// KSPDev: Hierarchy.FindTransformByPath</seealso>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
     public string modelPath = "";
 
-    /// <summary>Setup of the node at which the node's model will attach to the target part.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Setup of the node at which the node's model will attach to the target part.
+    /// </summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
-    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
-    /// KSPDev Utils: Types.PosAndRot</seealso>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("partAttachAt")]
     public PosAndRot partAttachAt = new PosAndRot();
 
-    /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
+    /// <summary>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+    /// Setup of the node at which the node's model will attach to the pipe.
+    /// </summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
-    /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
-    /// KSPDev Utils: Types.PosAndRot</seealso>
+    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("pipeAttachAt")]
     public PosAndRot pipeAttachAt = new PosAndRot();
   }
@@ -211,9 +252,11 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Object names for the procedural model construction
   /// <summary>Name of the node's model for the end that attaches to the source part.</summary>
+  // FIXME: use renderer name in the name
   protected const string ProceduralSourceJointObjectName = "$sourceJointEnd";
 
   /// <summary>Name of the node's model for the end that attaches to the target part.</summary>
+  // FIXME: use renderer name in the name
   protected const string ProceduralTargetJointObjectName = "$targetJointEnd";
 
   /// <summary>
@@ -223,8 +266,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// The source node attaches to the source part, and the target node attaches to the target part.
   /// The node will be oriented so that its direction looks agains the part's attach node direction. 
   /// </remarks>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_AlignTransforms_SnapAlign.htm">
-  /// KSPDev Utils: AlignTransforms.SnapAlign</seealso>
   protected const string PartJointTransformName = "$partAttach";
 
   /// <summary>
@@ -249,6 +290,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
+  /// <seealso cref="KASModulePipeRenderer"/>
   protected class ModelPipeEndNode {
     /// <summary>The main node's model.</summary>
     public readonly Transform model;
@@ -275,6 +317,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     /// <param name="target">
     /// The target object. Can be <c>null</c> in which case the node model will be hidden.
     /// </param>
+    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.AlignTransforms.SnapAlign']/*"/>
     public virtual void AlignTo(Transform target) {
       if (target != null) {
         AlignTransforms.SnapAlign(model, partAttach, target);
@@ -376,86 +419,124 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
-  /// <summary>Config setting. See <see cref="cfgRendererName"/>.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// See <see cref="cfgRendererName"/>.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = string.Empty;
 
-  /// <summary>Config setting. Diameter of the pipe.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Diameter of the pipe.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float pipeDiameter = 0.15f;
 
-  /// <summary>Config setting. Texture to use for the pipe.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Texture to use for the pipe.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
   /// <summary>
-  /// Config setting. Normals texture to use for the pipe. If empty string then no normals.
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Normals texture to use for the pipe. If empty string then no normals.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="pipeTexturePath"/>
   [KSPField]
   public string pipeNormalsTexturePath = "";
 
-  /// <summary>Config setting. Defines how the texture should cover the pipe.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Defines how the texture should cover the pipe.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   [KSPField]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
   /// <summary>
-  /// Config setting. Defines how many texture samples to apply per one meter of the pipe's length.
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Defines how many texture samples to apply per one meter of the pipe's length.
   /// </summary>
   /// <remarks>
   /// This setting is ignored if texture rescale mode is
   /// <see cref="PipeTextureRescaleMode.Stretch"/>.
   /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
   [KSPField]
   public float pipeTextureSamplesPerMeter = 1f;
 
   /// <summary>
-  /// Config setting. Defines if pipe's collider should interact with the physics objects.
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Defines if pipe's collider should interact with the physics objects.
   /// </summary>
   /// <remarks>
   /// If this setting is <c>false</c> the link mesh will still have a collider, but it will not
   /// trigger physical effects.
   /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool pipeColliderIsPhysical;
   #endregion
 
   #region Part's config settings loaded via ConfigAccessor
-  /// <summary>Configuration of the source joint model.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+  /// Configuration of the source joint model.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   /// <seealso cref="LoadPartConfig"/>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
-  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
   [PersistentField("sourceJoint", group = PartConfigGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
-  /// <summary>Configuration of the target joint model.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
+  /// Configuration of the target joint model.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   /// <seealso cref="LoadPartConfig"/>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
-  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
   [PersistentField("targetJoint", group = PartConfigGroup)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
   #region Local properties
   /// <summary>Pipe's mesh.</summary>
+  /// <value>The root object the link mesh. <c>null</c> if the renderer is not started.</value>
   /// <seealso cref="CreateLinkPipe"/>
   protected GameObject linkPipe { get; private set; }
 
   /// <summary>Pipe's mesh renderer. Used to speedup the updates.</summary>
+  /// <value>
+  /// The mesh renderer object the link mesh. <c>null</c> if the renderer is not started.
+  /// </value>
+  /// <remarks>
+  /// The pipe's mesh is updated in every farme. So, saving some performance by caching the 
+  /// components is in general a good thing to do.
+  /// </remarks>
   /// <seealso cref="CreateLinkPipe"/>
+  /// <seealso cref="UpdateLink"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
   protected Renderer linkPipeMR { get; private set; }
 
   /// <summary>Pipe ending node at the source.</summary>
+  /// <value>The source node container.</value>
   /// <seealso cref="LoadJointNode"/>
   protected ModelPipeEndNode sourceJointNode { get; private set; }
 
   /// <summary>Pipe ending node at the target.</summary>
+  /// <value>The target node container.</value>
   /// <seealso cref="LoadJointNode"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion

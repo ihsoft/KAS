@@ -399,58 +399,67 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #endregion
 
   #region Model transforms & properties
-  /// <summary>Model that connects pipe assembly with the source part.</summary> 
+  /// <summary>Model that represents a joint at the source part.</summary>
+  /// <value>An object in the part's model. It's never <c>null</c>.</value>
   protected Transform srcPartJoint { get; private set; }
 
-  /// <summary>Pivot axis model at the source part.</summary>
+  /// <summary>Pivot axis object on the source joint.</summary>
+  /// <value>An object in the part's model. It's never <c>null</c>.</value>
   protected Transform srcPartJointPivot { get; private set; }
 
-  /// <summary>Model at the pipe start.</summary>
-  /// <remarks>It's orientation is reversed, and it's positioned so what its pivot axis matches
-  /// <see cref="srcPartJointPivot"/>. I.e. forward direction in the local space is
-  /// <see cref="Vector3.back"/>.</remarks>
+  /// <summary>Model at the pipe's start that connects to the source joint pivot.</summary>
+  /// <value>An object in the part's model. It's never <c>null</c>.</value>
+  /// <remarks>It's orientation is reversed. I.e .it "looks" at the source joint pivot.</remarks>
   protected Transform srcStrutJoint { get; private set; }
 
-  /// <summary>Model at the pipe end.</summary>
+  /// <summary>Model at the pipe's end that connects to the target joint pivot.</summary>
+  /// <value>An object in the part's model. It's never <c>null</c>.</value>
   protected Transform trgStrutJoint { get; private set; }
 
-  /// <summary>Pivot axis model at the pipe end.</summary>
+  /// <summary>Pivot axis object at the pipe's end.</summary>
+  /// <value>An object in the part's model. It's never <c>null</c>.</value>
   protected Transform trgStrutJointPivot { get; private set; }
 
-  /// <summary>Pistons that form the strut.</summary>
+  /// <summary>Pistons that form the strut pipe.</summary>
+  /// <value>A list of meshes.</value>
   protected GameObject[] pistons { get; private set; }
 
   /// <summary>
-  /// Distance of source part joint pivot from it's base. It's calculated from the model.
+  /// Distance of the source part joint pivot from it's base. It's calculated from the model.
   /// </summary>
+  /// <value>The distance in meters.</value>
   protected float srcJointHandleLength { get; private set; }
 
   /// <summary>
-  /// Distance of target part joint pivot from it's base. It's calculated from the model.
+  /// Distance of the target part joint pivot from it's base. It's calculated from the model.
   /// </summary>
+  /// <value>The distance in meters.</value>
   protected float trgJointHandleLength { get; private set; }
 
   /// <summary>
-  /// Minmum link length that doesn't break telescopic pipe renderer. It's calculated from the
-  /// model.
+  /// The minimum length to which the telescopic pipe can shrink. It's calculated from the model.
   /// </summary>
+  /// <value>The distance in meters.</value>
   protected float minLinkLength { get; private set; }
 
   /// <summary>
-  /// Maximum link length that doesn't break telescopic pipe renderer. It's calculated from the
-  /// model.
+  /// The maximum length to which the telescopic pipe can expand. It's calculated from the model.
   /// </summary>
+  /// <value>The distance in meters.</value>
   protected float maxLinkLength { get; private set; }
 
   /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
+  /// <value>The diameter in metters.</value>
   /// <remarks>It's primarily used to cast a collider.</remarks>
   /// <seealso cref="CheckColliderHits"/>
   protected float outerPistonDiameter { get; private set; }
 
   /// <summary>Length of a single piston. It's calculated from the model.</summary>
+  /// <value>The distance in meters.</value>
   protected float pistonLength { get; private set; }
 
   /// <summary>Prefab for the piston models.</summary>
+  /// <value>A model reference from the part's model. It's not a copy!</value>
   protected GameObject pistonPrefab {
     get {
       return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
@@ -458,12 +467,14 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     }
   }
 
-  /// <summary>Tells if source on the part is linked.</summary>
+  /// <summary>Tells if the source on the part is linked.</summary>
+  /// <value>The current state of the link.</value>
   protected bool isLinked {
     get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
   }
 
-  /// <summary>Link source module that operates on this part. There can be only one.</summary>
+  /// <summary>A link source module that operates on this part. There can be only one.</summary>
+  /// <value>The first <see cref="ILinkSource"/> module on the part.</value>
   /// <remarks>It's get populated in the <see cref="OnStart"/> method.</remarks>
   protected ILinkSource linkSource { get; private set; }
   #endregion

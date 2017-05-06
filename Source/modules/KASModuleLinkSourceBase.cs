@@ -161,66 +161,97 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region Persistent fields
-  /// <summary>Persistent config field. Source link state in the last save action.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/summary-prefix/*"/>
+  /// Source link state in the last save action.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
 
-  /// <summary>Persistent config field. Target part flight ID.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/summary-prefix/*"/>
+  /// <i>Persistent config field.</i>
+  /// Target part flight ID.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkTargetPartId;
   #endregion
 
   #region Part's config fields
-  /// <summary>Config setting. See <see cref="cfgLinkType"/>.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// See <see cref="cfgLinkType"/>.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkType = "";
 
-  /// <summary>Config setting. See <see cref="cfgLinkMode"/>.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// See <see cref="cfgLinkMode"/>.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public LinkMode linkMode = LinkMode.DockVessels;
 
-  /// <summary>Config setting. See <see cref="cfgLinkRendererName"/>.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// See <see cref="cfgLinkRendererName"/>.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkRendererName = "";
 
-  /// <summary>Config setting. See <see cref="cfgAttachNodeName"/>.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// See <see cref="cfgAttachNodeName"/>.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeName = "";
 
-  /// <summary>Config setting. Name of object in the model that defines attach node.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Name of object in the model that defines the attach node.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeTransformName = "";
 
-  /// <summary>Config setting. Defines attach node position in the local units.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Defines the attach node position in the local space.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
 
-  /// <summary>Config setting. Defines attach node orientation in the local units.</summary>
+  /// <summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
+  /// Defines the attach node orientation in the local space.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
   #endregion
 
   #region Inheritable properties
-  /// <summary>Joint module that manages source &lt;=&gt; target physical connection.</summary>
-  /// <remarks>
-  /// This module must always exist on the part. If there is no such module then on start a simple
-  /// <see cref="KASModuleStockJoint"/> will be added with all the default settings. Proper part
-  /// design must always specify a joint module (exactly one).
-  /// </remarks>
+  /// <summary>Joint module that manages a physical link.</summary>
+  /// <value>The physical joint module on the part.</value>
+  /// <remarks>A part must have exactly one joint module.</remarks>
   protected ILinkJoint linkJoint { get; private set; }
-  /// <summary>Renderer of the link meshes. It cannot be <c>null</c>.</summary>
-  /// <remarks>
-  /// This module must always exist on the part. If there is no such module then on start a NO-OP
-  /// renderer will be added. This renderer doesn't draw anything. Proper part design must always
-  /// specify a renderer module that draws linked state.
-  /// </remarks>
-  /// <seealso cref="cfgLinkRendererName"/>
+
+  /// <summary>Renderer of the link meshes.</summary>
+  /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
   protected ILinkRenderer linkRenderer { get; private set; }
 
   /// <summary>Timeout to show various onload errors. Seconds.</summary>
   protected const float BadLinkStatusTimeout = 10f;
 
   /// <summary>Tells if this source is currectly linked with a target.</summary>
+  /// <value>The current state of the link.</value>
   protected bool isLinked {
     get { return linkState == LinkState.Linked; }
   }

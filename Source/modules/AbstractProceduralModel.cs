@@ -24,6 +24,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   protected const string BumpMapProp = "_BumpMap";
 
   /// <summary>Returns a cached part's model root transform.</summary>
+  /// <value>The part's root model.</value>
   /// <remarks>
   /// Attach all your meshes to this transform (eitehr directly or via parents). Otherwise, the new
   /// meshes will be ignored by the part's model!
@@ -39,24 +40,19 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   Transform _partModelTransform;
 
   #region Part's config fields
-  /// <summary>Config setting. Shader to use for meshes by default.</summary>
-  /// <remarks>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Shader to use for meshes by default.
+  /// </summary>
+  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
   [KSPField]
   public string shaderName = KspPartShaderName;
-  /// <summary>Config setting. Main material color to use for meshes by default.</summary>
-  /// <remarks>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Main material color to use for meshes by default.
+  /// </summary>
+  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
   [KSPField]
   public Color materialColor = Color.white;
   #endregion

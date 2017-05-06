@@ -66,153 +66,164 @@ public abstract class AbstractJointModule : PartModule,
 
   #region ILinkJoint CFG properties
   /// <inheritdoc/>
+  /// <remarks>
+  /// When calculating the strength, the minimum of the source and the target breaking forces is
+  /// used as a base. Then, the value is scaled to the node size assuming it's a stack node.
+  /// </remarks>
+  /// <seealso cref="ScaleForceToNode"/>
   public float cfgLinkBreakForce { get { return linkBreakForce; } }
+
   /// <inheritdoc/>
+  /// <remarks>
+  /// When calculating the torque, the minimum of the source and the target breaking torque is
+  /// used as a base. Then, the value is scaled to the node size assuming it's a stack node.
+  /// </remarks>
+  /// <seealso cref="ScaleForceToNode"/>
   public float cfgLinkBreakTorque { get { return linkBreakTorque; } }
+
   /// <inheritdoc/>
   public int cfgSourceLinkAngleLimit { get { return sourceLinkAngleLimit; } }
+
   /// <inheritdoc/>
   public int cfgTargetLinkAngleLimit { get { return targetLinkAngleLimit; } }
+
   /// <inheritdoc/>
   public float cfgMinLinkLength { get { return minLinkLength; } }
+
   /// <inheritdoc/>
   public float cfgMaxLinkLength { get { return maxLinkLength; } }
   #endregion
 
   #region Part's config fields
   /// <summary>
-  /// Config setting. Defines strength scale of the joint when <see cref="linkBreakForce"/> or
-  /// <see cref="linkBreakTorque"/> are set to <c>0</c>.
+  /// <i>Config setting.</i>
+  /// Defines how the physics joint breaking force and torque are scaled.
   /// </summary>
   /// <remarks>
-  /// When source <i>by design</i> assumes a larger attach node for the link this value needs to be
-  /// adjusted. Default force settings vary for different node sizes.
+  /// This value is managed by the game. It's read from the part's config.
   /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
+  /// The larger is the scale, the higher are the actual values used in physics. Size <c>0</c>
+  /// matches the game's "tiny".
   /// </para>
   /// </remarks>
   /// <seealso cref="linkBreakForce"/>
   /// <seealso cref="linkBreakTorque"/>
   /// <seealso cref="SetBreakForces"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   [KSPField]
   public int attachNodeSize = 0;
 
-  /// <summary>Config setting. See <see cref="cfgLinkBreakForce"/>.</summary>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// The unscaled maximum force that can be applied on the joint before it breaks.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="attachNodeSize"/>
+  /// <seealso cref="cfgLinkBreakForce"/>
   [KSPField]
   public float linkBreakForce = 0;
-  /// <summary>Config setting. See <see cref="cfgLinkBreakTorque"/>.</summary>
+
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// The unscaled maximum torque that can be applied on the joint before it breaks.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="attachNodeSize"/>
+  /// <seealso cref="cfgLinkBreakTorque"/>
   [KSPField]
   public float linkBreakTorque = 0;
 
-  /// <summary>Config setting. See <see cref="cfgSourceLinkAngleLimit"/>.</summary>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Maximum allowed angle between the attach node normal and the link at the source part.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="cfgSourceLinkAngleLimit"/>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
 
-  /// <summary>Config setting. See <see cref="cfgTargetLinkAngleLimit"/>.</summary>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Maximum allowed angle between the attach node normal and the link at the target part.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="cfgTargetLinkAngleLimit"/>
   [KSPField]
   public int targetLinkAngleLimit = 0;
 
-  /// <summary>Config setting. See <see cref="cfgMinLinkLength"/>.</summary>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Minumum allowed distance between the source and target parts.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="cfgMinLinkLength"/>
   [KSPField]
   public float minLinkLength = 0;
 
-  /// <summary>Config setting. See <see cref="cfgMaxLinkLength"/>.</summary>
+  /// <summary>
+  /// <i>Config setting.</i>
+  /// Maximum allowed distance between the source and target parts.
+  /// </summary>
   /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
+  /// This value is managed by the game. It's read from the part's config.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <seealso cref="cfgMaxLinkLength"/>
   [KSPField]
   public float maxLinkLength = 0;
   #endregion
 
   #region Inheritable properties
-  /// <summary>Source of the link. It's populated in <see cref="CreateJoint"/>.</summary>
+  /// <summary>Source of the link.</summary>
+  /// <value>Link module on the source part.</value>
   /// <remarks>
-  /// When loading vessel the joint is restored in the "physics" method <see cref="OnPartUnpack"/>.
-  /// Before it happen the source will be <c>null</c>.
+  /// When a vessel is loaded, the joint is restored in the "physics" method
+  /// <see cref="OnPartUnpack"/>. Before this method had a chance to work the source is <c>null</c>.
   /// </remarks>
   protected ILinkSource linkSource { get; private set; }
 
-  /// <summary>Target of the link. It's populated in <see cref="CreateJoint"/>.</summary>
+  /// <summary>Target of the link.</summary>
+  /// <value>Link module on the target part.</value>
   /// <remarks>
-  /// When loading vessel the joint is restored in the "physics" method <see cref="OnPartUnpack"/>.
-  /// Before it happen the target will be <c>null</c>.
+  /// When a vessel is loaded, the joint is restored in the "physics" method
+  /// <see cref="OnPartUnpack"/>. Before this method had a chance to work the target is <c>null</c>.
   /// </remarks>
   protected ILinkTarget linkTarget { get; private set; }
 
-  /// <summary>Length at the moment of creating joint.</summary>
-  /// <remarks>Elastic joints may allow length deviation. Use this value as the base.</remarks>
+  /// <summary>Length at the moment of creating the joint.</summary>
+  /// <value>Distance in meters.</value>
+  /// <remarks>
+  /// The elastic joints may allow the length deviation. This value can be used as a base.
+  /// </remarks>
   protected float originalLength { get; private set; }
 
-  /// <summary>Tells if there is joint created.</summary>
+  /// <summary>Tells if there is a physical joint created.</summary>
+  /// <value><c>true</c> if the source and target parts are physically linked.</value>
   protected bool isLinked { get; private set; }
 
-  /// <summary>Joint that was created by KSP core to connect two parts.</summary>
+  /// <summary>Joint that was created by the KSP core to connect the two parts.</summary>
+  /// <value>Joint object.</value>
   /// <remarks>
-  /// Once physics starts on part the KSP core creates a joint, and assigns it to
-  /// <see cref="Part.attachJoint"/>. This module resets the joint to <c>null</c> to prevent KSP
-  /// logic on it but <i>does not</i> change joint component on the part. Descendants must take care
-  /// of the stock joint either by delegating relevant events to it or by destroying altogether.
+  /// Once the physics starts on part, the KSP core creates a joint and assigns it to
+  /// <see cref="Part.attachJoint"/>. This module resets the stock joint to <c>null</c> to prevent
+  /// the KSP logic on it, but it <i>does not</i> change the joint component on the part.
+  /// The descendants must take care of the stock joint either by delegating the relevant events to
+  /// it or by destroying it altogether.
   /// </remarks>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html#aa5a1e018fa5b47c5723aa0879e23c647">
   /// KSP: Part.attachJoint</seealso>
   protected PartJoint stockJoint { get; private set; }
   #endregion
 
+  // Internal setting to determine if the joint has restored its state on the physics start.
   bool isRestored;
 
   #region ILinkJoint implementation
@@ -467,7 +478,7 @@ public abstract class AbstractJointModule : PartModule,
             isStack: isStack);
   }
 
-  /// <summary>Scales force value to the node size.</summary>
+  /// <summary>Scales the force value to the node size.</summary>
   /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
   /// <param name="force">Base force to scale.</param>
   /// <param name="isStack">
