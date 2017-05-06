@@ -56,7 +56,7 @@ sources-->
         </component>
       </ComponentConfig>
     </ComponentConfigurations>
-    <SourceCodeBasePath>.\</SourceCodeBasePath>
+    <SourceCodeBasePath>..\</SourceCodeBasePath>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <TransformComponentArguments>
       <Argument Key="logoFile" Value="KAS-logo.png" />
