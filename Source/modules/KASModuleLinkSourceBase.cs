@@ -171,7 +171,6 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/summary-prefix/*"/>
-  /// <i>Persistent config field.</i>
   /// Target part flight ID.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>

@@ -39,7 +39,6 @@
 <Message1>
   <summary-prefix><i>GUI message (1 parameter).</i><br/></summary-prefix>
   <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_1']/*"/>
-  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
 </Message1>
 
 </Tags>
