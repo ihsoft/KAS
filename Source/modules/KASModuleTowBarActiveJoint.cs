@@ -59,52 +59,30 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   #endregion
 
   #region Part's config fields
-  /// <summary>
-  /// Config setting. Link angle at the source part that produces maximum steering.
-  /// </summary>
+  /// <summary>Link angle at the source part that produces maximum steering.</summary>
   /// <remarks>
   /// E.g. if this settings is <c>25</c> degrees and the angle at the source is <c>10</c> degrees
   /// then steering power will be <c>10/25=0.4</c>. If angle at the source goes beyond the limit
   /// then steering power is just clamped to <c>1.0</c>. What is good value for this limit depends
   /// on the towing speed: the higher the speed the lower you want this limit to be.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float maxSteeringAngle;
   #endregion
 
   #region Persistent fields
-  /// <summary>Persistent config field. Tells of active steering mode is enabled.</summary>
+  /// <summary>Tells if the active steering mode is enabled.</summary>
   /// <remarks>
-  /// If mode is enabled it doesn't mean it's active. There are conditions that affect when the mode
-  /// can actually start affecting target vessel.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
+  /// If the mode is enabled it doesn't mean it's active. There are the conditions that affect when
+  /// the mode can actually start affecting the target vessel.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool activeSteeringEnabled;
 
-  /// <summary>Persistent config field. Current locking mode of the tow bar.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Current locking mode of the tow bar.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LockMode lockingMode = LockMode.Disabled;
   #endregion

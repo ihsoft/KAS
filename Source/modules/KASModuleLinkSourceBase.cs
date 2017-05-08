@@ -162,7 +162,6 @@ public class KASModuleLinkSourceBase : PartModule,
 
   #region Persistent fields
   /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/summary-prefix/*"/>
   /// Source link state in the last save action.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
@@ -170,7 +169,6 @@ public class KASModuleLinkSourceBase : PartModule,
   public LinkState persistedLinkState = LinkState.Available;
 
   /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/summary-prefix/*"/>
   /// Target part flight ID.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
@@ -179,58 +177,37 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region Part's config fields
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// See <see cref="cfgLinkType"/>.
-  /// </summary>
+  /// <summary>See <see cref="cfgLinkType"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkType = "";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// See <see cref="cfgLinkMode"/>.
-  /// </summary>
+  /// <summary>See <see cref="cfgLinkMode"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public LinkMode linkMode = LinkMode.DockVessels;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// See <see cref="cfgLinkRendererName"/>.
-  /// </summary>
+  /// <summary>See <see cref="cfgLinkRendererName"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkRendererName = "";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// See <see cref="cfgAttachNodeName"/>.
-  /// </summary>
+  /// <summary>See <see cref="cfgAttachNodeName"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeName = "";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Name of object in the model that defines the attach node.
-  /// </summary>
+  /// <summary>Name of object in the model that defines the attach node.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeTransformName = "";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Defines the attach node position in the local space.
-  /// </summary>
+  /// <summary>Defines the attach node position in the local space.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Defines the attach node orientation in the local space.
-  /// </summary>
+  /// <summary>Defines the attach node orientation in the local space.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;

@@ -100,101 +100,60 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region Persistent fields
-  /// <summary>Persistent config field. Target link state in the last save action.</summary>
-  /// <remarks>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Target link state in the last save action.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
 
-  /// <summary>Persistent config field. Source part flight ID.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Source part flight ID.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkSourcePartId;
 
   /// <summary>
-  /// Persistent config field. Source link mode. It only makes sense when state is
-  /// <see cref="LinkState.Linked"/>. Target doesn't have own link mode until linked to a source.
+  /// Source link mode. It only makes sense when state is <see cref="LinkState.Linked"/>. Target
+  /// doesn't have own link mode until linked to a source.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkMode persistedLinkMode = LinkMode.DockVessels;
   #endregion
 
   #region Part's config fields
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// See <see cref="cfgLinkType"/>.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>See <see cref="cfgLinkType"/>.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkType = "";
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// See <see cref="cfgAttachNodeName"/>.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>See <see cref="cfgAttachNodeName"/>.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeName = "";
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Name of object in the model that defines attach node.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Name of object in the model that defines attach node.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string attachNodeTransformName = "";
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Defines attach node position in the local units.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Defines attach node position in the local units.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodePosition = Vector3.zero;
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Defines attach node orientation in the local units.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Defines attach node orientation in the local units.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
 
   /// <summary>
-  /// <i>Config setting.</i>
   /// Tells if compatible targets should highlight themselves when linking mode started.
   /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool highlightCompatibleTargets = true;
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Defines highlight color for the compatible targets.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Defines highlight color for the compatible targets.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Color highlightColor = Color.cyan;
   #endregion

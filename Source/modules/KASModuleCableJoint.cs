@@ -33,31 +33,15 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
 
   #region Part's config fields
   /// <summary>
-  /// Config setting. Force per one meter of the stretched cable to apply to keep the object close
-  /// to each other. Too high value may result in joint destruction.
+  /// Force per one meter of the stretched cable to apply to keep the object close to each other.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <remarks>A too high value may result in the joint destruction.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableStrength = 1000f;
 
-  /// <summary>Config setting. Force to apply to damper oscillations.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Force to apply to damper oscillations.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringDamper = 1f;
   #endregion

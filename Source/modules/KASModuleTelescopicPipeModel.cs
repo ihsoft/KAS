@@ -35,131 +35,68 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #endregion
 
   #region Persistent fields
-  /// <summary>Persistent config field. Orientation of the unlinked strut.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Orientation of the unlinked strut.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public Vector3 parkedOrientation = Vector3.zero;
 
-  /// <summary>Persistent config field. Extended length of the unlinked strut.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field that is saved/restored with the vessel. It's
-  /// handled by the KSP core and must <i>not</i> be altered directly. Moreover, in spite of it's
-  /// declared <c>public</c> it must not be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Extended length of the unlinked strut.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float parkedLength = 0;  // If 0 then minimum link length will be used.
   #endregion
 
   #region Part's config fields
   /// <summary>
-  /// Config setting. Model for a joint lever at the soucre part. Two such models are used to form a
-  /// complete joint.
+  /// Model for a joint lever at the soucre part. Two such models are used to form a complete joint.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sourceJointModel = "KAS-1.0/Models/Joint/model";
 
   /// <summary>
-  /// Config setting. Model for a joint lever at the target part. Two such models are used to form a
-  /// complete joint.
+  /// Model for a joint lever at the target part. Two such models are used to form a complete joint.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string targetJointModel = "KAS-1.0/Models/Joint/model";
 
-  /// <summary>Config setting. Number of pistons in the link.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Number of pistons in the link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int pistonsCount = 3;
 
-  /// <summary>Config setting. Model for the pistons.</summary>
-  /// <remarks>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
-  /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <summary>Model for the pistons.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pistonModel = "KAS-1.0/Models/Piston/model";
 
-  /// <summary>Config setting. Scale of the piston comparing to the prefab.</summary>
+  /// <summary>Scale of the piston comparing to the prefab.</summary>
   /// <remarks>
   /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
   /// affects the length.
   /// <para>
   /// <i>NOTE:</i> as of now X and Y scales must be equal. Otherwise pipe model will get broken.
   /// </para>
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 pistonModelScale = Vector3.one;
 
   /// <summary>
-  /// Config setting. Allows random rotation of pistons relative to each other around Z (length)
-  /// axis. If piston's model has a complex texture this setting may be used to make telescopic pipe
-  /// less repeatative.
+  /// Allows random rotation of pistons relative to each other around Z (length) axis. If piston's
+  /// model has a complex texture this setting may be used to make telescopic pipe less repeatative.
   /// </summary>
   /// <remarks>
   /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
   /// affects the length. Note that if X and Y are not equal you may want to disable
   /// <see cref="pistonModelRandomRotation"/>.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
 
   public bool pistonModelRandomRotation = true;
-  /// <summary>Config setting. Amount to decrease the scale of an inner pistons diameter.</summary>
+  /// <summary>Amount to decrease the scale of an inner pistons diameter.</summary>
   /// <remarks>
   /// To keep models consistent every nested piston must be slightly less in diameter than the
   /// parent. This value is a delta to decrease scale of every nested piston comparing to the prefab
@@ -172,105 +109,61 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <item>Last piston: <c>0.8f</c>.</item>
   /// </list>
   /// </para>  
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float pistonDiameterScaleDelta = 0.1f;
 
-  /// <summary>
-  /// Config setting. Minimum allowed overlap of the pistons in the extended state.
-  /// </summary>
+  /// <summary>Minimum allowed overlap of the pistons in the extended state.</summary>
   /// <remarks>
   /// Used to determine minimum and maximum length of the link in terms of visual representation.
   /// Note, that renderer doesn't deal with joint limits. Length limits are only applied to the
   /// meshes used for the link representation.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float pistonMinShift = 0.02f;
 
-  /// <summary>
-  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
-  /// </summary>
+  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
   /// <remarks>
   /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
   /// empty string to not show the menu item.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   /// <seealso cref="ExtractOrientationVector"/>
   /// <seealso cref="ExtractPositionName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string parkedOrientationMenu0 = "";
 
-  /// <summary>
-  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
-  /// </summary>
+  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
   /// <remarks>
   /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
   /// empty string to not show the menu item.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   /// <seealso cref="ExtractOrientationVector"/>
   /// <seealso cref="ExtractPositionName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string parkedOrientationMenu1 = "";
 
-  /// <summary>
-  /// Config setting. User friendly name for a menu item to adjust unlinked strut orientation.
-  /// </summary>
+  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
   /// <remarks>
   /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
   /// empty string to not show the menu item.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   /// <seealso cref="ExtractOrientationVector"/>
   /// <seealso cref="ExtractPositionName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string parkedOrientationMenu2 = "";
 
-  /// <summary>Config setting. Name of the renderer for this procedural part.</summary>
+  /// <summary>Name of the renderer for this procedural part.</summary>
   /// <remarks>
   /// This setting is used to let link source know primary renderer for the linked state.
-  /// <para>
-  /// This is a <see cref="KSPField"/> annotated field. It's handled by the KSP core and must
-  /// <i>not</i> be altered directly. Moreover, in spite of it's declared <c>public</c> it must not
-  /// be accessed outside of the module.
-  /// </para>
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-  /// KSP: KSPField</seealso>
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
   #endregion

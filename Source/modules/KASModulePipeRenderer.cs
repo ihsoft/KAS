@@ -419,69 +419,50 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// See <see cref="cfgRendererName"/>.
-  /// </summary>
+  /// <summary>See <see cref="cfgRendererName"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = string.Empty;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Diameter of the pipe.
-  /// </summary>
+  /// <summary>Diameter of the pipe.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float pipeDiameter = 0.15f;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Texture to use for the pipe.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <summary>Texture to use for the pipe.</summary>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pipeTexturePath = "KAS-1.0/Textures/pipe";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Normals texture to use for the pipe. If empty string then no normals.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <summary>Normals texture to use for the pipe. If empty string then no normals.</summary>
   /// <seealso cref="pipeTexturePath"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pipeNormalsTexturePath = "";
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Defines how the texture should cover the pipe.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <summary>Defines how the texture should cover the pipe.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
   /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
   /// Defines how many texture samples to apply per one meter of the pipe's length.
   /// </summary>
   /// <remarks>
   /// This setting is ignored if texture rescale mode is
   /// <see cref="PipeTextureRescaleMode.Stretch"/>.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float pipeTextureSamplesPerMeter = 1f;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Defines if pipe's collider should interact with the physics objects.
-  /// </summary>
+  /// <summary>Defines if pipe's collider should interact with the physics objects.</summary>
   /// <remarks>
   /// If this setting is <c>false</c> the link mesh will still have a collider, but it will not
   /// trigger physical effects.

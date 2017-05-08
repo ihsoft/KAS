@@ -38,26 +38,17 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     IPartModule, IsDestroyable, IKSPDevJointLockState {
 
   #region Part's config fields
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Spring force of the prismatic joint that limits the distance.
-  /// </summary>
+  /// <summary>Spring force of the prismatic joint that limits the distance.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float strutSpringForce = Mathf.Infinity;
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Damper force of the spring that limits the distance.
-  /// </summary>
+  /// <summary>Damper force of the spring that limits the distance.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/summary-prefix/*"/>
-  /// Tells if joined parts can move relative to each other.
-  /// </summary>
+  /// <summary>Tells if joined parts can move relative to each other.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool isUnlockedJoint;

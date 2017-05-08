@@ -40,19 +40,13 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   Transform _partModelTransform;
 
   #region Part's config fields
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Shader to use for meshes by default.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Shader to use for meshes by default.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string shaderName = KspPartShaderName;
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Main material color to use for meshes by default.
-  /// </summary>
-  /// <remarks>This value is managed by the game. It's read from the part's config.</remarks>
+  /// <summary>Main material color to use for meshes by default.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Color materialColor = Color.white;
   #endregion

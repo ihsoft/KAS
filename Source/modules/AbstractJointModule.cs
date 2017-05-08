@@ -95,88 +95,61 @@ public abstract class AbstractJointModule : PartModule,
   #endregion
 
   #region Part's config fields
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Defines how the physics joint breaking force and torque are scaled.
-  /// </summary>
+  /// <summary>Defines how the physics joint breaking force and torque are scaled.</summary>
   /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// <para>
   /// The larger is the scale, the higher are the actual values used in physics. Size <c>0</c>
   /// matches the game's "tiny".
-  /// </para>
   /// </remarks>
   /// <seealso cref="linkBreakForce"/>
   /// <seealso cref="linkBreakTorque"/>
   /// <seealso cref="SetBreakForces"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int attachNodeSize = 0;
 
   /// <summary>
-  /// <i>Config setting.</i>
   /// The unscaled maximum force that can be applied on the joint before it breaks.
   /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
   /// <seealso cref="attachNodeSize"/>
   /// <seealso cref="cfgLinkBreakForce"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakForce = 0;
 
   /// <summary>
-  /// <i>Config setting.</i>
   /// The unscaled maximum torque that can be applied on the joint before it breaks.
   /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
   /// <seealso cref="attachNodeSize"/>
   /// <seealso cref="cfgLinkBreakTorque"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakTorque = 0;
 
   /// <summary>
-  /// <i>Config setting.</i>
   /// Maximum allowed angle between the attach node normal and the link at the source part.
   /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
   /// <seealso cref="cfgSourceLinkAngleLimit"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
 
   /// <summary>
-  /// <i>Config setting.</i>
   /// Maximum allowed angle between the attach node normal and the link at the target part.
   /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
   /// <seealso cref="cfgTargetLinkAngleLimit"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int targetLinkAngleLimit = 0;
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Minumum allowed distance between the source and target parts.
-  /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
+  /// <summary>Minumum allowed distance between the source and target parts.</summary>
   /// <seealso cref="cfgMinLinkLength"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float minLinkLength = 0;
 
-  /// <summary>
-  /// <i>Config setting.</i>
-  /// Maximum allowed distance between the source and target parts.
-  /// </summary>
-  /// <remarks>
-  /// This value is managed by the game. It's read from the part's config.
-  /// </remarks>
+  /// <summary>Maximum allowed distance between the source and target parts.</summary>
   /// <seealso cref="cfgMaxLinkLength"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float maxLinkLength = 0;
   #endregion
