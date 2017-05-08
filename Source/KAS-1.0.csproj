@@ -121,11 +121,18 @@
     <None Include="KSPAPI_HelpIndex.xml" />
     <None Include="KSPDevUtilsAPI_HelpIndex.xml" />
     <None Include="SpecialDocTags.xml" />
+    <None Include="SpecialDocTagsExpand.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Unity3D_HelpIndex.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y</PostBuildEvent>
+IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y
+copy KAS.xml KAS.org.xml /Y
+rem "$(ProjectDir)..\Binaries\msxsl.exe" -t "KAS.xml" "$(ProjectDir)SpecialDocTagsExpand.xslt" -o KAS.xml
+"$(ProjectDir)..\Binaries\msxsl.exe" -t "KAS.xml" "SpecialDocTagsExpand.xslt" -o KAS.xml
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
