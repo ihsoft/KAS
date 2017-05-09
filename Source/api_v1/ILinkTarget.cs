@@ -14,8 +14,8 @@ namespace KASAPIv1 {
 /// The target logic is very limited and simple. It just remembers the source and does the GUI
 /// adjustments as needed.
 /// </remarks>
+/// <example>See <see cref="ILinkSource"/> for the examples.</example>
 // TODO(ihsoft): Add state transtion diagram reference.
-// TODO(ihsoft): Add code samples.
 public interface ILinkTarget {
 
   /// <summary>Part that owns the target.</summary>
