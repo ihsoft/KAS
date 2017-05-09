@@ -63,14 +63,12 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/summary-prefix/*"/>
   /// Message to display when link cannot be created due to an obstacle in the way. 
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
 
   /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/summary-prefix/*"/>
   /// Message to display when link strut orientation cannot be changed due to it would hit the
   /// surface.
   /// </summary>
@@ -130,18 +128,12 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <summary>Helper structure to hold the joint model setup.</summary>
   /// <seealso cref="KASModulePipeRenderer"/>
   public class JointConfig {
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Defines how to obtain the joint model.
-    /// </summary>
+    /// <summary>Defines how to obtain the joint model.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("type")]
     public PipeEndType type = PipeEndType.Simple;
     
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Defines if model's should trigger physical effects on collision.
-    /// </summary>
+    /// <summary>Defines if model's should trigger physical effects on collision.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> or
     /// <see cref="PipeEndType.PrefabModel"/>. If the prefab models are used then the colliders must
@@ -152,7 +144,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     public bool colliderIsPhysical;
 
     /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
     /// Height of the joint sphere over the attach node. It's either zero or a positive number.
     /// </summary>
     /// <remarks>
@@ -162,10 +153,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("sphereOffset")]
     public float sphereOffset;
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Diameter of the joint sphere.
-    /// </summary>
+    /// <summary>Diameter of the joint sphere.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -173,10 +161,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("sphereDiameter")]
     public float sphereDiameter;
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Diameter of the pipe that connects the attach node and the sphere.
-    /// </summary>
+    /// <summary>Diameter of the pipe that connects the attach node and the sphere.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
     /// <see cref="sphereOffset"/> is greater than zero.
@@ -185,10 +170,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("armDiameter")]
     public float armDiameter;
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Defines how the texture is tiled on the sphere and arm primitives.
-    /// </summary>
+    /// <summary>Defines how the texture is tiled on the sphere and arm primitives.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -196,10 +178,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("textureSamplesPerMeter")]
     public float textureSamplesPerMeter;
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Texture to use to cover the arm and sphere primitives.
-    /// </summary>
+    /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -207,10 +186,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("texture")]
     public string texture = "";
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Normals texture for the primitives. Can be omitted.
-    /// </summary>
+    /// <summary>Normals texture for the primitives. Can be omitted.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -218,10 +194,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("textureNrm")]
     public string textureNrm = "";
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Path to the model that represents the joint.
-    /// </summary>
+    /// <summary>Path to the model that represents the joint.</summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
@@ -229,7 +202,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     public string modelPath = "";
 
     /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
     /// Setup of the node at which the node's model will attach to the target part.
     /// </summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
@@ -238,10 +210,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     [PersistentField("partAttachAt")]
     public PosAndRot partAttachAt = new PosAndRot();
 
-    /// <summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-    /// Setup of the node at which the node's model will attach to the pipe.
-    /// </summary>
+    /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
     /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
@@ -473,21 +442,15 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Part's config settings loaded via ConfigAccessor
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-  /// Configuration of the source joint model.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <summary>Configuration of the source joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = PartConfigGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
-  /// <summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/summary-prefix/*"/>
-  /// Configuration of the target joint model.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <summary>Configuration of the target joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = PartConfigGroup)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
