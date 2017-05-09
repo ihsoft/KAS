@@ -30,14 +30,20 @@ class BrokenJointListenerExample : PartModule, IKasJointEventsListener {
     var targetJoint = jointObj.AddComponent<FixedJoint>();
     targetJoint.connectedBody = targetRb;
     targetJoint.breakForce = 10;
-    targetJoint.breakTorque = 10;    
+    targetJoint.breakTorque = 10;
+
+    // All modules on the host part that implement IKasJointEventsListener will be notified.
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
   }
 
   /// <inheritdoc/>
   public virtual void OnKASJointBreak(GameObject hostObj, float breakForce) {
-    Debug.LogWarningFormat("Joint on MyFakeRB is broken with force {0}", breakForce);
-    Destroy(hostObj);
+    // Ensure that the joint being destoyed was created by this module since the event is global
+    // for the part.
+    if (hostObj.name == "MyFakeRB") {
+      Debug.LogWarningFormat("Joint on MyFakeRB is broken with force {0}", breakForce);
+      Destroy(hostObj);
+    }
   }
 }
 #endregion

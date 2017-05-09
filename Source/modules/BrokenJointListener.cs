@@ -26,7 +26,7 @@ namespace KAS {
 /// the stock game's one and the custom one. When any of them got broken the game's core will assume
 /// it was a joint between the part and its parent, even though it wasn't <i>that</i> joint. To
 /// overcome this limitation an extra game object and this component can be used:
-/// <code source="Examples/BrokenJointListenerExamples.cs" region="BrokenJointListenerExample"/>
+/// <code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/>
 /// </example>
 public class BrokenJointListener : MonoBehaviour,
     // KSP syntax sugar interfaces.

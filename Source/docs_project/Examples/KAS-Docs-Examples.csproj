@@ -49,8 +49,8 @@
     <StartAction>Project</StartAction>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BrokenJointListenerExamples.cs" />
-    <Compile Include="LinksExamples.cs" />
+    <Compile Include="BrokenJointListener-Examples.cs" />
+    <Compile Include="ILinkSource-Examples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

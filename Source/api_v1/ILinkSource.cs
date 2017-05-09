@@ -26,15 +26,15 @@ namespace KASAPIv1 {
 /// </remarks>
 /// <example>
 /// <para>Connect two KAS parts:</para>
-/// <code source="Examples/LinksExamples.cs" region="ConnectParts"/>
+/// <code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/>
 /// <para>Disconnect two connected KAS parts:</para>
-/// <code source="Examples/LinksExamples.cs" region="DisconnectParts"/>
+/// <code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/>
 /// <para>Find the target part from a connected KAS source part:</para>
-/// <code source="Examples/LinksExamples.cs" region="FindTargetFromSource"/>
+/// <code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/>
 /// <para>Find a KAS source module on a multi-source part:</para>
-/// <code source="Examples/LinksExamples.cs" region="FindSourceByAttachNode"/>
+/// <code source="Examples/ILinkSource-Examples.cs" region="FindSourceByAttachNode"/>
 /// <para>Check if two KAS parts are connected:</para>
-/// <code source="Examples/LinksExamples.cs" region="CheckIfConnected"/>
+/// <code source="Examples/ILinkSource-Examples.cs" region="CheckIfConnected"/>
 /// <para>
 /// Note, that if you only need to know if the two parts are connected in terms of the game logic,
 /// you don't need to deal with the KAS modules. For the game the parts connected via KAS are no
@@ -53,7 +53,7 @@ public interface ILinkSource {
   /// This value is used to find the compatible targets. Targets of the different types will not
   /// be able to connect with the source.
   /// </remarks>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectNodes"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgLinkType { get; }
 
   /// <summary>Defines the link's effect on the vessel(s) hierarchy.</summary>
@@ -71,7 +71,7 @@ public interface ILinkSource {
   /// </para>
   /// </remarks>
   /// <seealso cref="nodeTransform"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectNodes"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgAttachNodeName { get; }
 
   /// <summary>Name of the renderer that draws the link.</summary>
@@ -110,7 +110,7 @@ public interface ILinkSource {
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>
   /// <remarks>Only defined for an established link.</remarks>
-  /// <example><code source="Examples/LinksExamples.cs" region="FindTargetFromSource"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   ILinkTarget linkTarget { get; }
 
   /// <summary>ID of the linked target part.</summary>
@@ -124,7 +124,7 @@ public interface ILinkSource {
   /// values. However, there is a strict model of state tranistioning for the source.
   /// <para>If the module is not started yet then the persisted state is returned.</para>
   /// </remarks>
-  /// <example><code source="Examples/LinksExamples.cs" region="CheckIfSourceCanConnect"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="CheckIfSourceCanConnect"/></example>
   // TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
@@ -141,13 +141,13 @@ public interface ILinkSource {
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="HighlightLocked"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="HighlightLocked"/></example>
   bool isLocked { get; set; }
 
   /// <summary>Mode in which the link between source and target is created.</summary>
   /// <value>GUI mode.</value>
   /// <seealso cref="StartLinking"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   GUILinkMode guiLinkMode { get; }
 
   /// <summary>Starts linking mode of this source.</summary>
@@ -166,13 +166,13 @@ public interface ILinkSource {
   /// <returns><c>true</c> if mode successfully started.</returns>
   /// <seealso cref="guiLinkMode"/>
   /// <seealso cref="CancelLinking"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool StartLinking(GUILinkMode mode);
 
   /// <summary>Cancels linking mode without creating a link.</summary>
   /// <remarks>All sources and targets that were locked on mode start will be unlocked.</remarks>
   /// <seealso cref="StartLinking"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   void CancelLinking();
 
   /// <summary>Establishes a link between two parts.</summary>
@@ -187,7 +187,7 @@ public interface ILinkSource {
   /// <param name="target">Target to link with.</param>
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
   /// <seealso cref="BreakCurrentLink"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   // TODO(ihsoft): Clarify which mode is allowed.
   bool LinkToTarget(ILinkTarget target);
 
@@ -202,7 +202,7 @@ public interface ILinkSource {
   /// the link's <i>target</i>. Otherwise, the focus will stay at the source part vessel.
   /// </param>
   /// <seealso cref="LinkToTarget"/>
-  /// <example><code source="Examples/LinksExamples.cs" region="DisconnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
   void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>
@@ -218,7 +218,7 @@ public interface ILinkSource {
   /// the errors will be logged regardless to the setting of this parameter.
   /// </param>
   /// <returns><c>true</c> if the link can be made.</returns>
-  /// <example><code source="Examples/LinksExamples.cs" region="ConnectPartsWithCheck"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectPartsWithCheck"/></example>
   bool CheckCanLinkTo(ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
 }
 

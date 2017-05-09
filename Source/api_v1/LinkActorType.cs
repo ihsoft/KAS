@@ -16,7 +16,7 @@ namespace KASAPIv1 {
 /// to present it.
 /// </remarks>
 /// <seealso cref="KASEvents.LinkEvent"/>
-/// <example><code source="Examples/LinksExamples.cs" region="DisconnectParts"/></example>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
 public enum LinkActorType {
   /// <summary>Actor is unspecified.</summary>
   /// <remarks>
