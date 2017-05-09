@@ -54,12 +54,9 @@ public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
   #endregion
 
   #region Part's config settings loaded via ConfigAccessor
-  /// <summary>Config setting. Position/rotation of the head when the renderer is stopped.</summary>
+  /// <summary>Position/rotation of the head when the renderer is stopped.</summary>
   /// <seealso cref="KASModulePipeRenderer.LoadPartConfig"/>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">
-  /// KSPDev Utils: Types.PosAndRot</seealso>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldsFileAttribute.htm">
-  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("parkAtPart", group = PartConfigGroup)]
   public PosAndRot parkAtPart = new PosAndRot();
   #endregion
