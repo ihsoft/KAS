@@ -10,6 +10,7 @@ namespace KAS {
 
 /// <summary>Interface that notifies listeners about joints breaking.</summary>
 /// <seealso cref="BrokenJointListener"/>
+/// <example><code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/></example>
 public interface IKasJointEventsListener {
   /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
   /// <remarks>

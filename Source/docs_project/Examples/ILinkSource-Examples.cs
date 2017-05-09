@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Examples {
 
-public static class LinksExample  {
+public static class ILinkSourceExample  {
 
   #region ConnectParts
   // Connects two parts assuming the source and the target parts own exactly one link module. 
