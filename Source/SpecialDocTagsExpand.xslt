@@ -29,4 +29,7 @@
       <xsl:apply-templates select="node()" />
     </summary>
   </xsl:template>
+
+  <xsl:template match="//member/summary-prefix">
+  </xsl:template>
 </xsl:stylesheet>
