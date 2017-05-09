@@ -10,18 +10,18 @@ namespace KASAPIv1 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
 /// <remarks>
-/// Source is the initiator of the link to another part. It holds all the logic on making and
-/// maintaining actual connection between two parts. The other end of the connection must be
-/// <see cref="ILinkTarget"/> which implements own piece of logic.
+/// Source is the initiator of the link to the another part. It holds all the logic on making and
+/// maintaining the actual connection between two parts. The other end of the connection must be
+/// <see cref="ILinkTarget"/> which implements its own piece of the logic.
 /// <para>
-/// Link source have a state that defines what it can do (<see cref="linkState"/>). Not all actions
-/// allowed in any state. E.g. in order to link source to a target the source must be in state
-/// <see cref="LinkState.Linking"/>.
+/// The link source have a state that defines what it can do (<see cref="linkState"/>). Not all
+/// actions are allowed in any state. E.g. in order to link the source to a target the source must
+/// be in state <see cref="LinkState.Linking"/>, it will refuse connecting in the other state.
 /// </para>
 /// <para>
-/// Physical joint between the parts is determined by the <see cref="cfgLinkMode"/>. It's a static
-/// settings of the part, so one source can only link in one mode. If part needs to link in
-/// different modes it must implement multiple modules: one per mode.
+/// A physical joint between the parts is determined by the <see cref="cfgLinkMode"/>. It's a static
+/// settings of the part, so one source module can only link in one mode. If the part needs to link
+/// in different modes it must implement multiple modules: one per mode.
 /// </para>
 /// </remarks>
 /// <example>
@@ -205,16 +205,17 @@ public interface ILinkSource {
   /// <summary>Verifies if a link between the parts can be successful.</summary>
   /// <param name="target">Target to connect with.</param>
   /// <param name="reportToGUI">
-  /// If <c>true</c> then errors will be reported to the UI letting user know the link cannot be
-  /// made. By default this mode is OFF.
+  /// If <c>true</c> then the errors will be reported to the UI letting the user know that the link
+  /// cannot be made.
   /// </param>
   /// <param name="reportToLog">
-  /// If <c>true</c> then errors will be logged to the logs as warnings. Disabling of such logging
-  /// makes sense when caller code just checks for the possibility of the link (e.g. when showing UI
-  /// elements). If <paramref name="reportToGUI"/> set to <c>true</c> then errors will be logged
-  /// regardless to the setting of this parameter. By default logging mode is ON.
+  /// If <c>true</c> then the errors will be logged to the logs as warnings. Disabling of such a
+  /// logging makes sense when the caller code only needs to check for the possibility of the link
+  /// (e.g. when showing the UI elements). If <paramref name="reportToGUI"/> set to <c>true</c> then
+  /// the errors will be logged regardless to the setting of this parameter.
   /// </param>
-  /// <returns><c>true</c> if link can be made.</returns>
+  /// <returns><c>true</c> if the link can be made.</returns>
+  /// <example><code source="Examples/LinksExamples.cs" region="ConnectPartsWithCheck"/></example>
   bool CheckCanLinkTo(ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
 }
 

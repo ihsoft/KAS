@@ -159,12 +159,12 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
     return stretch / maxJointDistance;
   }
 
-  #region Loacl utility methods
-  /// <summary>Creates a distant joint between the source and the target.</summary>
+  #region Local utility methods
+  /// <summary>Creates a distance joint between the source and the target.</summary>
   void CreateDistanceJoint(ILinkSource source, ILinkTarget target) {
     jointObj = new GameObject("RopeConnectorHead");
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    // Joints behave crazy when connected rigidbody masses differ to much. So use the average.
+    // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
     var rb = jointObj.AddComponent<Rigidbody>();
     rb.mass = (source.part.mass + target.part.mass) / 2;
 

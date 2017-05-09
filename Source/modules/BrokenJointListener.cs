@@ -11,11 +11,14 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Helper class to detect joint breakage and deliver event to the host part.</summary>
+/// <summary>
+/// Helper class to detect a joint breakage and deliver the event to the part that ctually controls
+/// this joint.
+/// </summary>
 /// <remarks>
-/// Modules that implement <see cref="IKasJointEventsListener"/> will get notified about a joint
-/// broken on the specific game object. It allows distinguishing joints in a multi-joint setup since
-/// normally Unity doesn't tell which joint has broken if there were more than one on the object.
+/// The modules that implement <see cref="IKasJointEventsListener"/> will get notified about a
+/// broken joint on a specific game object. It allows distinguishing the joints in a multi-joint
+/// setup since normally Unity doesn't tell which joint has broken.
 /// </remarks>
 /// <example>
 /// Let's say a module needs to create an extra joint to something. If it was added to the part
@@ -56,7 +59,7 @@ namespace KAS {
 /// ]]></code>
 /// </example>
 public class BrokenJointListener : MonoBehaviour,
-    // Syntax sugar interfaces.
+    // KSP syntax sugar interfaces.
     IJointEventsListener {
 
   /// <summary>Part to send messages to.</summary>
