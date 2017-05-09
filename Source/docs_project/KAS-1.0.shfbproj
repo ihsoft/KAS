@@ -46,16 +46,13 @@ sources-->
         <component id="API Token Resolution">{@TokenFiles}
 <replace elements="/*//token" item="string(.)" /></component>
       </ComponentConfig>
-      <ComponentConfig id="Code Block Component" enabled="True">
-        <component id="Code Block Component">
-          <basePath value="{@HtmlEncProjectFolder}" />
-          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
-          <allowMissingSource value="false" />
-          <removeRegionMarkers value="false" />
-          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="2" numberLines="true" outlining="true" keepSeeTags="true" defaultTitle="true" />
-        </component>
-      </ComponentConfig>
-    </ComponentConfigurations>
+<ComponentConfig id="Code Block Component" enabled="True"><component id="Code Block Component">
+  <basePath value="{@HtmlEncProjectFolder}" />
+  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+  <allowMissingSource value="false" />
+  <removeRegionMarkers value="false" />
+  <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="2" numberLines="false" outlining="true" keepSeeTags="true" defaultTitle="false" />
+</component></ComponentConfig></ComponentConfigurations>
     <SourceCodeBasePath>..\</SourceCodeBasePath>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <TransformComponentArguments>
@@ -75,7 +72,7 @@ sources-->
       <NamespaceSummaryItem name="KAS" isDocumented="True">&lt;para&gt;The main namespace for the KAS functionality &lt;i&gt;implementations&lt;/i&gt;.&lt;/para&gt;
 &lt;para&gt;A third-party code usually don't need to access anything from this namespace. The only legitimate exception is writing a module that inherits a KAS module. In all the other cases a third-party code must use &lt;see cref="N:KASAPIv1"&gt;KAS API&lt;/see&gt; to interact with the KAS modules.&lt;/para&gt;
 &lt;para&gt;If inheriting is the case then a depedent mod must include a reference to the &lt;c&gt;KAS.dll&lt;/c&gt; assembly. However, this assembly must not be released together with the mod. Having two KAS assemblies in the game may badly break it.&lt;/para&gt;</NamespaceSummaryItem>
-<NamespaceSummaryItem name="KASAPIv1" isDocumented="True">&lt;para&gt;KAS API namespace. Almost always third-party code wants using types and interfaces from this namespace instead of anything else.&lt;/para&gt;
+      <NamespaceSummaryItem name="KASAPIv1" isDocumented="True">&lt;para&gt;KAS API namespace. Almost always third-party code wants using types and interfaces from this namespace instead of anything else.&lt;/para&gt;
 &lt;para&gt;Each API release has a version. Once API is released to the public its methods cannot be changed. In case of new functionality is relased a new version (and namespace) will be created. The old namespace will not be removed, so mods built with the old version will continue working. Though, it's a good idea to periodically migrate to the higher versions since eventually the old versions will get deprected.&lt;/para&gt;
 &lt;para&gt;If API is needed the depedent mod should only include reference to &lt;c&gt;KAS-API-v1.dll&lt;/c&gt; (version number may vary). This assembly version never changes, so the dependency will never break. It's OK to provide API assembly with the mod since multliple API assemblies will not conflict with each other. Moreover, having "own" copy of the API ensures the mod will load even if no KAS is installed in the game. There is an ability to check if KAS is installed in run-time (see example below).&lt;/para&gt;
 &lt;example&gt;
@@ -106,7 +103,8 @@ public class MyModule : PartModule {
   }
 }
 ]]&gt;&lt;/code&gt;
-&lt;/example&gt;</NamespaceSummaryItem></NamespaceSummaries>
+&lt;/example&gt;</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <PlugInConfigurations>
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>
