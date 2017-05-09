@@ -249,12 +249,12 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <c>ConfigAccessor</c>.
   /// </summary>
   /// <remarks>
-  /// Decendants may declare own persistent fields in this group, and they will be automatically
-  /// loaded. The only requirement is that these fields must be declared public.
+  /// The descendants may declare their own persistent fields in this group, and they will be
+  /// automatically loaded. The only requirement is that these fields must be declared public.
   /// </remarks>
   /// <seealso cref="LoadPartConfig"/>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_ConfigAccessor.htm">
-  /// KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+  /// <example><code source="Examples/KASModulePipeRenderer-Examples.cs" region="KASModulePipeRendererFieldsExample"/></example>
   protected const string PartConfigGroup = "partConfig";
 
   #region Helper class for drawing a pipe's end
