@@ -18,7 +18,7 @@
 			encodeURIComponent("Please add an example for " + document.title + ".%0D%0DTODO (optional): Describe a specific " +
 			"scenario you would like to see addressed.%0D%0DHelp Topic: " + window.location.href).replace(/%250D/g, "%0D");
 		HT_requestExampleLink.innerHTML = HT_requestExampleLinkText;
-		</script><a target="_blank" class="button" href="https://github.com/ihsoft/KAS/tree/KAS-v1.0/Source/api_v1/Utils/IJointUtils.cs" title="View the source code">View Source</a><h4 class="subHeading">Parameters</h4><dl><dt><span class="parameter">joint</span></dt><dd>Type: <span class="nolink">UnityEngine<span id="LST5FF95F55_1"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST5FF95F55_1?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>ConfigurableJoint</span><br />Joint to reset.</dd></dl></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection">
+		</script><a target="_blank" class="button" href="https://github.com/ihsoft/KAS/tree/KAS-v1.0/Source/api_v1/Utils/IJointUtils.cs" title="View the source code">View Source</a><h4 class="subHeading">Parameters</h4><dl><dt><span class="parameter">joint</span></dt><dd>Type: <span class="nolink">UnityEngine<span id="LST5FF95F55_1"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST5FF95F55_1?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>ConfigurableJoint</span><br />Joint to reset.</dd></dl></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection"><p>
             It's not the same as creating a default joint. The state is consistent but different from the
             default:
             <ul><li>All linear and angular drive modes set to <span class="nolink">Locked</span>.
@@ -27,7 +27,7 @@
             </li><li>
             Any state accumulated so far (e.g. relative rotation or position) will be lost, and joint will
             remember new relative rotation/position of the connected objects.
-            </li></ul><p>
+            </li></ul></p><p>
             Use this method before setting up a new or existing joint. By resetting the joint you ensure
             it's in a consistent state, and further adjustments will always give the same result
             regardless to how the joint was created and what components were affecting it.

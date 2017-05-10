@@ -37,11 +37,11 @@
             Force to apply to keep distance in limits. If it's <span class="code">0</span> then the limit is impassible.
             </dd><dt><span class="parameter">distanceLimitDamperRatio</span> (Optional)</dt><dd>Type: <a href="http://msdn2.microsoft.com/en-us/library/3www918f" target="_blank">System<span id="LSTFD1B5AA1_7"></span><script type="text/javascript">AddLanguageSpecificTextSet("LSTFD1B5AA1_7?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>Single</a><br />
             Percentage of the limit force to use for dampering oscillation effect.
-            </dd></dl></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection">
+            </dd></dl></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection"><p>
             It's a standard PhysX configuration. Main axis is set to Z. Moving along it is allowed but can
             be constrained by a spring and limit. Drive mode is set to
             <span class="nolink">Position</span>.
-            <p>
+            </p><p>
             Only main axis linear settings are changed. Consider using <a href="M_KASAPIv1_IJointUtils_ResetJoint.htm">ResetJoint(ConfigurableJoint)</a> to
             eliminate side effects from the previous settings of the joint.
             </p><p>
@@ -50,17 +50,17 @@
             to <span class="code">true</span> since it may improve PhysXperformance.
             </p><p>
             For performance reasons some parameters combindations may result in different motion modes:
-            
+            <ul><li>
             When <span class="parameter">springForce</span> is <span class="code">Infinite</span> or <span class="parameter">distanceLimit</span> is
             <span class="code">0</span> the main axis linear movement mode is set to
             <span class="nolink">Locked</span>. If you plan to change force/limit don't forget
             to update the modes as well.
-            
+            </li><li>
             When <span class="parameter">springForce</span> is <span class="code">0</span> and <span class="parameter">distanceLimit</span> is
             <span class="code">Infinite</span> the main axis linear movement mode is set to
             <span class="nolink">Free</span>. If you plan to change either of the parameters
             don't forget to update the mode as well.
-            </p><p>
+            </li></ul></p><p>
             Regardless to the modes set all the other parameters are also applied. I.e. you don't need to
             re-apply them when changing mode.
             </p></div><div class="collapsibleAreaRegion" id="seeAlsoSection"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID3RB')" onkeypress="SectionExpandCollapse_CheckKey('ID3RB', event)" tabindex="0"><img id="ID3RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />See Also</span></div><div id="ID3RBSection" class="collapsibleSection"><h4 class="subHeading">Reference</h4><div class="seeAlsoStyle"><a href="T_KASAPIv1_IJointUtils.htm">IJointUtils Interface</a></div><div class="seeAlsoStyle"><a href="N_KASAPIv1.htm">KASAPIv1 Namespace</a></div><h4 class="subHeading">Other Resources</h4><div class="seeAlsoStyle"><a href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint" target="_blank">
