@@ -31,36 +31,57 @@ public abstract class AbstractJointModule : PartModule,
 
   #region Localizable GUI strings
   /// <summary>Message to display when link cannot be established because it's too short.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   protected readonly static Message<float, float> MinLengthLimitReachedMsg =
       "Link is too short: {0:F2}m < {1:F2}m";
+
   /// <summary>Message to display when link cannot be established because it's too long.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   protected readonly static Message<float, float> MaxLengthLimitReachedMsg =
       "Link is too long: {0:F2}m > {1:F2}m";
+
   /// <summary>
   /// Message to display when link cannot be established because maximum angle between link vector
   /// and the joint normal at the source part is to big.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   protected readonly static Message<float, int> SourceNodeAngleLimitReachedMsg =
       "Source angle limit reached: {0:F0}deg > {1}deg";
+
   /// <summary>
   /// Message to display when link cannot be established because maximum angle between link vector
   /// and the joint normal at the target part is to big.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   protected readonly static Message<float, int> TargetNodeAngleLimitReachedMsg =
       "Target angle limit reached: {0:F0}deg > {1}deg";
+
   /// <summary>Info string in the editor for link break force setting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> LinkLinearStrengthInfo = "Link break force: {0:F1}N";
+
   /// <summary>Info string in the editor for link break torque setting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> LinkBreakStrengthInfo = "Link torque force: {0:F1}N";
+
   /// <summary>Info string in the editor for minimum link length setting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> MinimumLinkLengthInfo = "Minimum link length: {0:F1}m";
+
   /// <summary>Info string in the editor for maximum link length setting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> MaximumLinkLengthInfo = "Maximum link length: {0:F1}m";
+
   /// <summary>Info string in the editor for maximum allowed angle at the source.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> SourceJointFreedomInfo = "Source angle limit: {0}deg";
+
   /// <summary>Info string in the editor for maximum allowed angle at the target.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<float> TargetJointFreedomInfo = "Target angle limit: {0}deg";
+
   /// <summary>Title of the module to present in the editor details window.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message ModuleTitle = "KAS Joint";
   #endregion
 

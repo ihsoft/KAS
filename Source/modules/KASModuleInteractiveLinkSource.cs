@@ -25,18 +25,21 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
   #region Localizable strings
   /// <summary>Message to display when a compatible target part is hevred over.</summary>
-  readonly static Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+
   /// <summary>
   /// Message to dsiplay as a help string when interactive linking mode is started.
   /// </summary>
-  readonly static Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
   #endregion
 
   #region Local members
   /// <summary>Color of pipe in the linking mode when link can be established.</summary>
-  readonly static Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
+  static readonly Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
   /// <summary>Color of pipe in the linking mode when link cannot be established.</summary>
-  readonly static Color BadLinkColor = new Color(1, 0, 0, 0.5f);
+  static readonly Color BadLinkColor = new Color(1, 0, 0, 0.5f);
   /// <summary>A lock that restricts anything but camera positioning.</summary>
   const string TotalControlLock = "KASInteractiveJointUberLock";
   /// <summary>Shader that reders pipe during linking.</summary>

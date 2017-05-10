@@ -26,9 +26,12 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
 
   #region Localizable strings
   /// <summary>Message to show when cable stretch is checked, and it's close to zero.</summary>
-  readonly static Message NotStretchedMsg = "Cable is not stretched";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message NotStretchedMsg = "Cable is not stretched";
+
   /// <summary>Message to report cable stretch ratio when it's not zero.</summary>
-  readonly static Message<float> StretchRatioMsg = "Cable stretch: {0:0.##}%";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<float> StretchRatioMsg = "Cable stretch: {0:0.##}%";
   #endregion
 
   #region Part's config fields

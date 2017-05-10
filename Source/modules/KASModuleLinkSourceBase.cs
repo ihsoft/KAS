@@ -48,36 +48,53 @@ public class KASModuleLinkSourceBase : PartModule,
 
   #region Localizable GUI strings
   /// <summary>Message to display when target link type doesn't match source type.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message IncompatibleTargetLinkTypeMsg =
       "Incompatible target link type";
+
   /// <summary>
   /// Message to display when link mode requires different vessels but target belongs to the same
   /// vessel as the source.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message CannotLinkToTheSameVesselMsg =
       "Cannot link to the same vessel";
+
   /// <summary>
   /// Message to display when link mode requires parts to belong to the same vessel but source and
   /// target are onwed by different crafts.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message CannotLinkDifferentVesselsMsg =
       "Cannot link different vessels";
+
   /// <summary>Message to display when source refuses to start the link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message SourceIsNotAvailableForLinkMsg =
       "Source is not available for link";
+
   /// <summary>Message to display when target refuses to accept the link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message TargetDoesntAcceptLinksMsg =
       "Target doesn't accept links";
+
   /// <summary>Message to display when linked source and target cannot be matched on laod.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<string> CannotRestoreLinkMsg =
       "Cannot restore link for: {0}";
+
   /// <summary>Info string in the editor for link type setting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   protected readonly static Message<string> LinksWithSocketTypeInfo =
       "Links with socket type: {0}";
+
   /// <summary>Title of the module to present in the editor details window.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message ModuleTitleInfo =
       "KAS Joint Source";
+
   /// <summary>Info string in the editor to identify if part can link with another vessel.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
   protected readonly static MessageEnumValue<LinkMode> LinkModeInfo =
       new MessageEnumValue<LinkMode>() {
         {LinkMode.DockVessels,

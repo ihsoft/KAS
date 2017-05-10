@@ -66,14 +66,14 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// Message to display when link cannot be created due to an obstacle in the way. 
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+  protected static readonly Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
 
   /// <summary>
   /// Message to display when link strut orientation cannot be changed due to it would hit the
   /// surface.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
+  protected static readonly Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
   #endregion
 
   #region Public config types

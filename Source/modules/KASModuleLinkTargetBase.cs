@@ -37,14 +37,18 @@ public class KASModuleLinkTargetBase :
 
   #region Localizable GUI strings
   /// <summary>Info string in the editor for link type setting.</summary>
-  protected static Message<string> AcceptsLinkTypeInfo = "Accepts link type: {0}";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  protected static readonly Message<string> AcceptsLinkTypeInfo = "Accepts link type: {0}";
+
   /// <summary>Title of the module to present in the editor details window.</summary>
-  protected static Message ModuleTitleInfo = "KAS Joint Target";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message ModuleTitleInfo = "KAS Joint Target";
   #endregion
 
   #region ILinkTarget config properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return linkType; } }
+
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   #endregion

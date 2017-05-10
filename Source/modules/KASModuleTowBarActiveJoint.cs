@@ -29,14 +29,17 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   /// <summary>
   /// Message to display when a tow bar is not locked but the locking process has been started.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<float> LockingStatusMsg = "Tow bar is locking: diff {0:F1} deg";
 
   /// <summary>
   /// Message to display when a tow bar locking process successfully ends with locking.
   /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LockedStatusMsg = "Tow bar is LOCKED!";
 
   /// <summary>Steering status value GUI decoding.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
   static readonly MessageEnumValue<SteeringStatus> SteeringStatusMsg =
       new MessageEnumValue<SteeringStatus>() {
         {SteeringStatus.Disabled, "Disabled"},
@@ -47,6 +50,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
       };
 
   /// <summary>Lock status GUI decoding.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
   static readonly MessageEnumValue<LockMode> LockStatusMsg =
       new MessageEnumValue<LockMode>() {
         {LockMode.Disabled, "Disabled"},
@@ -54,7 +58,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
         {LockMode.Locking, "Locking"},
       };
   
-  /// <summary>Status screen message to be displayed during locking process.</summary>
+  /// <summary>Status screen message to be displayed during the locking process.</summary>
   ScreenMessage lockStatusScreenMessage;
   #endregion
 
