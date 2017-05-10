@@ -38,10 +38,12 @@ namespace KASAPIv1 {
 /// different from the ones conected in the editor or via the docking nodes.
 /// </para>
 /// </example>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="StateModel"/></example>
 public interface ILinkSource {
 
   /// <summary>Part that owns the source.</summary>
   /// <value>Instance of the part.</value>
+  /// <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>
   Part part { get; }
 
   /// <summary>Source link type identifier.</summary>
@@ -55,6 +57,7 @@ public interface ILinkSource {
 
   /// <summary>Defines the link's effect on the vessel(s) hierarchy.</summary>
   /// <value>Linking mode.</value>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   LinkMode cfgLinkMode { get; }
   
   /// <summary>Name of the attach node to connect with.</summary>
@@ -79,6 +82,7 @@ public interface ILinkSource {
   /// the part.
   /// </remarks>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   string cfgLinkRendererName { get; }
 
   /// <summary>Attach node used for linking with the target part.</summary>
@@ -88,6 +92,8 @@ public interface ILinkSource {
   /// not linked parts the attach node may not actually exist in the source part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindSourceAtAttachNode"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetAtAttachNode"/></example>
   AttachNode attachNode { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
@@ -102,6 +108,8 @@ public interface ILinkSource {
   /// </list>
   /// </remarks>
   /// <seealso cref="attachNode"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
+  // TODO(ihsoft): Add example from a joint module.
   Transform nodeTransform { get; }
 
   /// <summary>Target of the link.</summary>
@@ -113,6 +121,7 @@ public interface ILinkSource {
   /// <summary>ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
   /// <remarks>It only makes sense when the link is connected to the target.</remarks>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
@@ -122,9 +131,64 @@ public interface ILinkSource {
   /// The state cannot be affected directly from the outside. The state is changing in response to
   /// the actions that are implemented by the interface methods.
   /// </para>
+  /// <para>
+  /// There is a strict model of state tranistioning for the source. The implementation must obey
+  /// the state transition requirements to be compatible with the other sources and targets. 
+  /// <list type="table">
+  /// <listheader>
+  /// <term>Transition</term><description>Action</description>
+  /// </listheader>
+  /// <item>
+  /// <term><see cref="LinkState.Available"/> => <see cref="LinkState.Linking"/></term>
+  /// <description>This module has initiated a link <see cref="StartLinking"/>.</description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Available"/> => <see cref="LinkState.RejectingLinks"/></term>
+  /// <description>
+  /// Some other source module in the world has initiated a link via <see cref="StartLinking"/>.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Linking"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// This module has cancelled the linking mode via <see cref="CancelLinking"/>.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Linking"/> => <see cref="LinkState.Linked"/></term>
+  /// <description>This module has completed the link via <see cref="LinkToTarget"/>.</description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// Some other module, which initiated a link, has cancelled or completed the linking mode.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Locked"/></term>
+  /// <description>
+  /// Some other module on the same part, which initiated a link, has completed it via
+  /// <see cref="LinkToTarget"/>.
+  /// <br/>Or there was an explicit lock state change via <see cref="isLocked"/>.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Linked"/> => <see cref="LinkState.Available"/></term>
+  /// <description>This module has broke its link via <see cref="BreakCurrentLink"/>.</description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Locked"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// Some other module on the same part, which was linked, has broke its link via
+  /// <see cref="BreakCurrentLink"/>.
+  /// <br/>Or there was an explicit lock state change via <see cref="isLocked"/>.
+  /// </description>
+  /// </item>
+  /// </list>
+  /// </para>
   /// </remarks>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="StateModel"/></example>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="CheckIfSourceCanConnect"/></example>
-  // TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
 
   /// <summary>Defines if the source can initiate a link.</summary>

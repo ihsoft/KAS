@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="BrokenJointListener-Examples.cs" />
     <Compile Include="ILinkSource-Examples.cs" />
+    <Compile Include="ILinkTarget-Examples.cs" />
     <Compile Include="KASModulePipeRenderer-Examples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -15,11 +15,11 @@ namespace KASAPIv1 {
 /// adjustments as needed.
 /// </remarks>
 /// <example>See <see cref="ILinkSource"/> for the examples.</example>
-// TODO(ihsoft): Add state transtion diagram reference.
 public interface ILinkTarget {
 
   /// <summary>Part that owns the target.</summary>
   /// <value>Instance of the part.</value>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   Part part { get; }
 
   /// <summary>Target link type identifier.</summary>
@@ -27,6 +27,7 @@ public interface ILinkTarget {
   /// <remarks>
   /// This string is used by the source to find the compatible targets.
   /// </remarks>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgLinkType { get; }
 
   /// <summary>Name of the attach node to connect with.</summary>
@@ -36,6 +37,7 @@ public interface ILinkTarget {
   /// establishing a link, and will be destroyed after the link is broken.
   /// </remarks>
   /// <seealso cref="nodeTransform"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgAttachNodeName { get; }
 
   /// <summary>Attach node used for linking with the source part.</summary>
@@ -45,6 +47,7 @@ public interface ILinkTarget {
   /// parts the attach node may not actually exist in the target part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetAtAttachNode"/></example>
   AttachNode attachNode { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
@@ -59,6 +62,7 @@ public interface ILinkTarget {
   /// </list>
   /// </remarks>
   /// <seealso cref="attachNode"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
 
   /// <summary>Source that maintains the link.</summary>
@@ -82,6 +86,7 @@ public interface ILinkTarget {
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>
   ILinkSource linkSource { get; set; }
 
   /// <summary>ID of the linked source part.</summary>
@@ -95,8 +100,68 @@ public interface ILinkTarget {
   /// The state cannot be affected directly. The state is changing in response to the actions that
   /// are implemented by the interface methods.
   /// </para>
+  /// <para>
+  /// There is a strict model of state tranistioning for the target. The implementation must obey
+  /// the state transition requirements to be compatible with the other sources and targets. 
+  /// <list type="table">
+  /// <listheader>
+  /// <term>Transition</term><description>Action</description>
+  /// </listheader>
+  /// <item>
+  /// <term><see cref="LinkState.Available"/> => <see cref="LinkState.AcceptingLinks"/></term>
+  /// <description>
+  /// This target is able to connect to a source that has just initiated a link.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Available"/> => <see cref="LinkState.RejectingLinks"/></term>
+  /// <description>
+  /// This target cannot connect to a source that has just initiated a link.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.AcceptingLinks"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// The source module has ended its linking mode without coupling with this target.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.AcceptingLinks"/> => <see cref="LinkState.Linked"/></term>
+  /// <description>A source from the world has coupled with this target.</description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.AcceptingLinks"/> => <see cref="LinkState.Locked"/></term>
+  /// <description>
+  /// A source from the world has coupled with another target on the part that owns this target.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Linked"/> => <see cref="LinkState.Available"/></term>
+  /// <description>A link with this target has been broken by the source.</description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.Locked"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// A source from the world has broke the link with another target on the part that owns this
+  /// target.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Available"/></term>
+  /// <description>
+  /// A source from the world has ended the linking mode, and the target's part hasn't linked.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Locked"/></term>
+  /// <description>
+  /// A source from the world has coupled with the owner of this target but thru another target.
+  /// </description>
+  /// </item>
+  /// </list>
+  /// </para>
   /// </remarks>
-  // TODO(ihsoft): Add state transtion diagram.
+  /// <example><code source="Examples/ILinkTarget-Examples.cs" region="StateModel"/></example>
   LinkState linkState { get; }
 
   /// <summary>Defines if target must not accept any link requests.</summary>
@@ -116,6 +181,7 @@ public interface ILinkTarget {
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkTarget-Examples.cs" region="HighlightLocked"/></example>
   bool isLocked { get; set; }
 }
 
