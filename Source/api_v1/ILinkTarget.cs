@@ -41,16 +41,16 @@ public interface ILinkTarget {
   /// <summary>Attach node used for linking with the source part.</summary>
   /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
   /// <remarks>
-  /// The node is required to exist only when source is linked to a compatible target. For not
-  /// linked parts the attach node may not actually exist in the source part.
+  /// The node is required to exist only when the target is linked to a source. For the not linked
+  /// parts the attach node may not actually exist in the target part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
   AttachNode attachNode { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <remarks>This transform must exist even when no actual attach node is created on the part.
-  /// <list>
+  /// <remarks>This transform must exist even when no actual attach node is created on the part:
+  /// <list type="bullet">
   /// <item>
   /// When connecting the parts, this transform will be used to create a part's attach node.
   /// </item>
@@ -64,13 +64,21 @@ public interface ILinkTarget {
   /// <summary>Source that maintains the link.</summary>
   /// <value>Source or <c>null</c> if nothing is linked.</value>
   /// <remarks>
-  /// Setting of this property changes the target state: a non-null value changes the state to
-  /// <see cref="LinkState.Linked"/>; <c>null</c> value changes the state to
-  /// <see cref="LinkState.Available"/>.
+  /// <para>
+  /// Setting of this property changes the target state:
+  /// <list type="bullet">
+  /// <item>A non-null value changes the state to <see cref="LinkState.Linked"/>.</item>
+  /// <item><c>null</c> value changes the state to <see cref="LinkState.Available"/>.</item>
+  /// </list>
+  /// </para>
   /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
   /// Note, that not any state transition is possible. If the transition is invalid then an
   /// exception is thrown.
+  /// </para>
+  /// <para>
+  /// It's descouraged to assign this property from a code other than an implementation of
+  /// <see cref="ILinkSource"/>.
   /// </para>
   /// </remarks>
   /// <seealso cref="linkState"/>
@@ -83,8 +91,10 @@ public interface ILinkTarget {
   /// <summary>Current state of the target.</summary>
   /// <value>The current state.</value>
   /// <remarks>
-  /// The state cannot be affected directly. The different methods change it to the different
-  /// values. However, there is a strict model of state tranistioning for the target.
+  /// <para>
+  /// The state cannot be affected directly. The state is changing in response to the actions that
+  /// are implemented by the interface methods.
+  /// </para>
   /// </remarks>
   // TODO(ihsoft): Add state transtion diagram.
   LinkState linkState { get; }
@@ -92,9 +102,13 @@ public interface ILinkTarget {
   /// <summary>Defines if target must not accept any link requests.</summary>
   /// <value>Locked state.</value>
   /// <remarks>
-  /// Setting of this property changes the target state: <c>true</c> value changes the state to
-  /// <see cref="LinkState.Locked"/>; <c>false</c> value changes the state to
-  /// <see cref="LinkState.Available"/>.
+  /// <para>
+  /// Setting of this property changes the target state:
+  /// <list type="bullet">
+  /// <item><c>true</c> value changes the state to <see cref="LinkState.Locked"/>.</item>
+  /// <item><c>false</c> value changes the state to <see cref="LinkState.Available"/>.</item>
+  /// </list>
+  /// </para>
   /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
   /// Note, that not any state transition is possible. If the transition is invalid then an

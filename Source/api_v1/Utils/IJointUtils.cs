@@ -24,9 +24,10 @@ public interface IJointUtils {
 
   /// <summary>Initializes joint to a consistent state.</summary>
   /// <remarks>
+  /// <para>
   /// It's not the same as creating a default joint. The state is consistent but different from the
   /// default:
-  /// <list type="">
+  /// <list type="bullet">
   /// <item>All linear and angular drive modes set to <see cref="ConfigurableJointMotion.Locked"/>.
   /// </item>
   /// <item>All drives, springs and limits are zeroed.</item>
@@ -39,6 +40,7 @@ public interface IJointUtils {
   /// remember new relative rotation/position of the connected objects.
   /// </item>
   /// </list>
+  /// </para>
   /// <para>
   /// Use this method before setting up a new or existing joint. By resetting the joint you ensure
   /// it's in a consistent state, and further adjustments will always give the same result
@@ -50,9 +52,11 @@ public interface IJointUtils {
 
   /// <summary>Sets up joint so what it becomes a prismatic joint.</summary>
   /// <remarks>
+  /// <para>
   /// It's a standard PhysX configuration. Main axis is set to Z. Moving along it is allowed but can
   /// be constrained by a spring and limit. Drive mode is set to
   /// <see cref="JointDriveMode.Position"/>.
+  /// </para>
   /// <para>
   /// Only main axis linear settings are changed. Consider using <see cref="ResetJoint"/> to
   /// eliminate side effects from the previous settings of the joint.
@@ -64,7 +68,7 @@ public interface IJointUtils {
   /// </para>
   /// <para>
   /// For performance reasons some parameters combindations may result in different motion modes:
-  /// <list>
+  /// <list type="bullet">
   /// <item>
   /// When <paramref name="springForce"/> is <c>Infinite</c> or <paramref name="distanceLimit"/> is
   /// <c>0</c> the main axis linear movement mode is set to
@@ -117,9 +121,11 @@ public interface IJointUtils {
 
   /// <summary>Sets up joint so what it becomes a spherical hinge joint.</summary>
   /// <remarks>
+  /// <para>
   /// It's a standard PhysiX configuration. Main axis is set to Z, and angular rotation around it is
   /// completely unrestricted. Secondary axes are X&amp;Y can be restricted by applying spring force
   /// and/or limits. Drive mode is set to <see cref="JointDriveMode.Position"/>.
+  /// </para>
   /// <para>
   /// Only angular settings are set. If joint had linear constraints defined they will stay
   /// unchanged. Consider using <see cref="ResetJoint"/> to eliminate side effects from the previous
@@ -132,7 +138,7 @@ public interface IJointUtils {
   /// </para>
   /// <para>
   /// For performance reasons some parameters combindations may result in different angular modes:
-  /// <list>
+  /// <list type="bullet">
   /// <item>
   /// When <paramref name="springForce"/> is <c>Infinite</c> or <paramref name="angleLimit"/> is
   /// <c>0</c> Y&amp;Z rotation modes are set to <see cref="ConfigurableJointMotion.Locked"/>. If

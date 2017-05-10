@@ -7,15 +7,17 @@ using System;
 
 namespace KASAPIv1 {
 
-/// <summary>Part module interface that defines events for link state changes.</summary>
-/// <remarks>Both source and target parts can recieve these events. To receive events in the module
-/// just implement this interface.</remarks>
+/// <summary>Part module interface that defines the events for a link state changes.</summary>
+/// <remarks>
+/// Both the source and the target parts can recieve these events. To receive the events, a module
+/// needs to implement this interface.
+/// </remarks>
 //TODO(ihsoft): Add code samples.
 public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has created a link.</summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the physics changes on the part. Modules can expect the
-  /// joints logic is setup but actual physics may not have kicked in yet.
+  /// This event triggers <b>after</b> the physics changes on the part. The modules can expect the
+  /// joints logic is setup but the actual physics may not have kicked in yet.
   /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
@@ -23,13 +25,13 @@ public interface ILinkStateEventListener {
   /// <summary>Triggers when a source on the part has broke the link.</summary>
   /// <remarks>
   /// This event comes at different link states depending on what has initiated the link break:
-  /// <list>
+  /// <list type="bullet">
   /// <item>
-  /// If link has been broken via KAS source (<see cref="ILinkSource.BreakCurrentLink"/>) then this
-  /// event is fired <b>before</b> the physics changes.
+  /// If the link has been broken via a KAS source (<see cref="ILinkSource.BreakCurrentLink"/>) then
+  /// this event is fired <b>before</b> the physics changes.
   /// </item>
   /// <item>
-  /// If link has been broken externally, e.g. via physics or by invoking
+  /// If the link has been broken externally, e.g. via physics or by invoking a
   /// <see cref="Part.decouple"/> method, then this event is fired <b>after</b> the physics changes.
   /// </item>
   /// </list>

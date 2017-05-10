@@ -100,7 +100,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   [KSPField(guiName = "Steering status")]
   public string steeringStatus = "";
 
-  /// <summary>Defines responsiveness of the towed vessel to teh steering.</summary>
+  /// <summary>Defines responsiveness of the towed vessel to the steering.</summary>
   [KSPField(guiName = "Steering sensitivity", guiFormat = "0.0", isPersistant = true),
    UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
                  stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
@@ -250,7 +250,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   #region Local utility methods
   /// <summary>
   /// Updates GUI context menu items status according to the current module state. Call it every
-  /// time teh state is changed.
+  /// time the state is changed.
   /// </summary>
   void UpdateContextMenu() {
     Fields["lockStatus"].guiActive = isLinked;
@@ -348,7 +348,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
     }
   }
 
-  /// <summary>\Displays current locking state in the upper left corner of teh screen.</summary>
+  /// <summary>\Displays current locking state in the upper left corner of the screen.</summary>
   /// <param name="angleDiff">
   /// Value of the difference between port normal and link vector projected on the surface plane.
   /// If value is close to zero then locking state is assumed to be LOCKED.

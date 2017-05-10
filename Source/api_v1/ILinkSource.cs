@@ -10,9 +10,11 @@ namespace KASAPIv1 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
 /// <remarks>
+/// <para>
 /// Source is the initiator of the link to the another part. It holds all the logic on making and
 /// maintaining the actual connection between two parts. The other end of the connection must be
 /// <see cref="ILinkTarget"/> which implements its own piece of the logic.
+/// </para>
 /// <para>
 /// The link source have a state that defines what it can do (<see cref="linkState"/>). Not all
 /// actions are allowed in any state. E.g. in order to link the source to a target the source must
@@ -24,16 +26,11 @@ namespace KASAPIv1 {
 /// in different modes it must implement multiple modules: one per mode.
 /// </para>
 /// </remarks>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
+/// <example><code source="Examples/ILinkSource-Examples.cs" region="FindSourceByAttachNode"/></example>
 /// <example>
-/// <para>Connect two KAS parts:</para>
-/// <code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/>
-/// <para>Disconnect two connected KAS parts:</para>
-/// <code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/>
-/// <para>Find the target part from a connected KAS source part:</para>
-/// <code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/>
-/// <para>Find a KAS source module on a multi-source part:</para>
-/// <code source="Examples/ILinkSource-Examples.cs" region="FindSourceByAttachNode"/>
-/// <para>Check if two KAS parts are connected:</para>
 /// <code source="Examples/ILinkSource-Examples.cs" region="CheckIfConnected"/>
 /// <para>
 /// Note, that if you only need to know if the two parts are connected in terms of the game logic,
@@ -78,7 +75,7 @@ public interface ILinkSource {
   /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
   /// The source will find a renderer module using this name as a key. It will be used to draw the
-  /// link when connected to teh target. The behavior is undefined if there is no renderer found on
+  /// link when connected to the target. The behavior is undefined if there is no renderer found on
   /// the part.
   /// </remarks>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
@@ -87,8 +84,8 @@ public interface ILinkSource {
   /// <summary>Attach node used for linking with the target part.</summary>
   /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
   /// <remarks>
-  /// The node is required to exist only when source is linked to a compatible target. For not
-  /// linked parts the attach node may not actually exist in the source part.
+  /// The node is required to exist only when the source is linked to a compatible target. For the
+  /// not linked parts the attach node may not actually exist in the source part.
   /// </remarks>
   /// <seealso cref="cfgAttachNodeName"/>
   AttachNode attachNode { get; }
@@ -96,7 +93,7 @@ public interface ILinkSource {
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>This transform must exist even when no actual attach node is created on the part.
-  /// <list>
+  /// <list type="bullet">
   /// <item>
   /// When connecting the parts, this transform will be used to create a part's attach node.
   /// </item>
@@ -115,14 +112,16 @@ public interface ILinkSource {
 
   /// <summary>ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
+  /// <remarks>It only makes sense when the link is connected to the target.</remarks>
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
   /// <value>The current state.</value>
   /// <remarks>
-  /// The state cannot be affected directly. The different methods change it to the different
-  /// values. However, there is a strict model of state tranistioning for the source.
-  /// <para>If the module is not started yet then the persisted state is returned.</para>
+  /// <para>
+  /// The state cannot be affected directly from the outside. The state is changing in response to
+  /// the actions that are implemented by the interface methods.
+  /// </para>
   /// </remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="CheckIfSourceCanConnect"/></example>
   // TODO(ihsoft): Add state transtion diagram.
@@ -131,9 +130,11 @@ public interface ILinkSource {
   /// <summary>Defines if the source can initiate a link.</summary>
   /// <value>Locked state.</value>
   /// <remarks>
+  /// <para>
   /// Setting of this property changes the source state: <c>true</c> value changes the state to
   /// <see cref="LinkState.Locked"/>; <c>false</c> value changes the state to
   /// <see cref="LinkState.Available"/>.
+  /// </para>
   /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
   /// <para>
   /// Note, that not any state transition is possible. If the transition is invalid then an
@@ -177,24 +178,26 @@ public interface ILinkSource {
 
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>
-  /// Source and target parts become tied with a joint but are not required to be joined into a
-  /// single vessel.
   /// <para>
-  /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> befor creating a link,
-  /// and all the errors will be reported to the GUI.
+  /// The source and the target parts become tied with a joint but are not required to be joined
+  /// into a single vessel in terms of the parts hierarchy.
+  /// </para>
+  /// <para>
+  /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
+  /// If the were errorsm they will be reported to the GUI and the link aborted. However, the
+  /// linking mode is only ended in case of the successful linking.
   /// </para>
   /// </remarks>
   /// <param name="target">Target to link with.</param>
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
   /// <seealso cref="BreakCurrentLink"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  // TODO(ihsoft): Clarify which mode is allowed.
   bool LinkToTarget(ILinkTarget target);
 
   /// <summary>Breaks the link between the source and target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
   /// <param name="actorType">
-  /// Specifies what initiates the action. Final result of teh action doesn't depend on it but
+  /// Specifies what initiates the action. Final result of the action doesn't depend on it but
   /// visual and sound representation may differ for different actors.
   /// </param>
   /// <param name="moveFocusOnTarget">

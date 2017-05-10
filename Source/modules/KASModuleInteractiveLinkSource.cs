@@ -46,7 +46,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   const string InteractiveShaderName = "Transparent/Diffuse";  
   /// <summary>Compativle target under mouse cursor.</summary>
   ILinkTarget targetCandidate;
-  /// <summary>Tells if connection with teh candidate will be sucessfull.</summary>
+  /// <summary>Tells if connection with the candidate will be sucessfull.</summary>
   bool targetCandidateIsGood;
   /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
   Part lastHoveredPart;
