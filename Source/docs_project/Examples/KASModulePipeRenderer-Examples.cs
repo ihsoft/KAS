@@ -10,7 +10,7 @@ namespace Examples {
 #region KASModulePipeRendererFieldsExample
 public class KASModulePipeRendererFieldsExample : KASModulePipeRenderer {
   // This field will be automatically loaded by the KASModulePipeRenderer implementation.
-  // The path in the parts config will be:
+  // The path in the part's config will be:
   //   PART/MODULE[@name="KASModulePipeRendererFieldsExample"]/myField
   [PersistentField("myField", group = PartConfigGroup)]
   public string myCustomStringFromPartsConfig = "";
