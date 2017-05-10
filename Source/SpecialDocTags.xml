@@ -41,4 +41,14 @@
   <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_1']/*"/>
 </Message1>
 
+<Message2>
+  <summary-prefix><i>GUI message (2 parameters).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_2']/*"/>
+</Message2>
+
+<MessageEnumValue>
+  <summary-prefix><i>GUI message (Enum translation).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.MessageEnumValue']/*"/>
+</MessageEnumValue>
+
 </Tags>

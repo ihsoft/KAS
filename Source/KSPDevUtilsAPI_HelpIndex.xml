@@ -13,6 +13,12 @@
 <item name="T:KSPDev.GUIUtils.Message_1">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_1.htm">KSPDev Utils: GUIUtils.Message&lt;T1&gt;</seealso>
 </item>
+<item name="T:KSPDev.GUIUtils.Message_2">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_2.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2&gt;</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.MessageEnumValue">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MessageEnumValue_1.htm">KSPDev Utils: GUIUtils.MessageEnumValue&lt;T1&gt;</seealso>
+</item>
 <item name="T:KSPDev.Types.PosAndRot">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">KSPDev Utils: Types.PosAndRot</seealso>
 </item>
