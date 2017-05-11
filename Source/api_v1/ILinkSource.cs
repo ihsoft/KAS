@@ -60,18 +60,20 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   LinkMode cfgLinkMode { get; }
   
-  /// <summary>Name of the attach node to connect with.</summary>
+  /// <summary>
+  /// The name prefix of the object that specifies the position and orientation of the attach node
+  /// which is used to connect with the target.
+  /// </summary>
   /// <value>Arbitrary string.</value>
   /// <remarks>
-  /// A node with such name must not exist in the part's model. It will be created right before
-  /// establishing a link, and will be destroyed after the link is broken.
-  /// <para>
-  /// The name is not required to be one of the KSP reserved ones (e.g. "top"). It can be any
-  /// string. In fact, it's best to not use the standard names to avoid the possible conflicts.
-  /// </para>
+  /// Within the part every module must have a unique node name. This name will be used to create
+  /// an object right before establishing a link, and it will be destroyed after the link is broken.
+  /// The object is created at the root of the part's model, i.e. it will be affected by the
+  /// <c>rescaleFactor</c> tag in the part's config.
   /// </remarks>
   /// <seealso cref="nodeTransform"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
+  // TODO(ihsoft): Give examples with the different scale models.
   string cfgAttachNodeName { get; }
 
   /// <summary>Name of the renderer that draws the link.</summary>

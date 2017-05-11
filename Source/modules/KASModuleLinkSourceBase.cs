@@ -112,10 +112,13 @@ public class KASModuleLinkSourceBase : PartModule,
   #region ILinkSource config properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return linkType; } }
+
   /// <inheritdoc/>
   public LinkMode cfgLinkMode { get { return linkMode; } }
+
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
+
   /// <inheritdoc/>
   public string cfgLinkRendererName { get { return linkRendererName; } }
   #endregion

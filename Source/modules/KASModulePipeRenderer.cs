@@ -195,7 +195,15 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     public string textureNrm = "";
 
     /// <summary>Path to the model that represents the joint.</summary>
-    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <remarks>
+    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
+    /// <para>
+    /// Note, that the model will be "consumed". I.e. the internal logic may change the name of the
+    /// prefab within the part's model, extend it with more objects, or destroy it altogether. If
+    /// the same model is needed for the other purposes, add a copy via a <c>MODEL</c> tag in the
+    /// part's config.
+    /// </para>
+    /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
@@ -204,14 +212,20 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     /// <summary>
     /// Setup of the node at which the node's model will attach to the target part.
     /// </summary>
-    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <remarks>
+    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
+    /// <para><i>IMPORTANT!</i> The position is affected by the prefab's scale.</para>
+    /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("partAttachAt")]
     public PosAndRot partAttachAt = new PosAndRot();
 
     /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
-    /// <remarks>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</remarks>
+    /// <remarks>
+    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
+    /// <para><i>IMPORTANT!</i> The position is affected by the prefab's scale.</para>
+    /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("pipeAttachAt")]
@@ -577,6 +591,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
     // TODO(ihsoft): Implement a full check that includes the pipe ends as well.
+    // TODO(ihsoft): Add a parameter to request only the physical colision.
     string result = null;
     if (pipeColliderIsPhysical) {
       result = DoSimpleSphereCheck(target, source, pipeDiameter);
@@ -590,6 +605,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <param name="modelName">Joint transform name.</param>
   /// <param name="config">Joint configuration from the part's config.</param>
   protected virtual void CreateJointEndModels(string modelName, JointConfig config) {
+    // FIXME: Prefix the model name with the renderer name.
     // Make or get the root.
     Transform root = null;
     if (config.type == PipeEndType.PrefabModel) {

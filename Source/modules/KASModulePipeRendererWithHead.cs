@@ -37,7 +37,6 @@ public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
     /// <param name="model">Model to use. It cannot be <c>null</c>.</param>
     /// <param name="parkAt">Object ot park the model at when the renderer is stopped.</param>
     public ParkedHead(Transform model, Transform parkAt) : base(model) {
-      //parkAt = GetTransformByName(ParkAtPartObjectName);
       this.parkAt = parkAt;
     }
 
@@ -55,6 +54,7 @@ public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Position/rotation of the head when the renderer is stopped.</summary>
+  /// <remarks>The object is added at the part's model root.</remarks>
   /// <seealso cref="KASModulePipeRenderer.LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("parkAtPart", group = PartConfigGroup)]

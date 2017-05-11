@@ -30,14 +30,20 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgLinkType { get; }
 
-  /// <summary>Name of the attach node to connect with.</summary>
-  /// <value>Arbitrary string.</value>
+  /// <summary>
+  /// The name prefix of the object that specifies the position and orientation of the attach node
+  /// which is used to connect with the source.
+  /// </summary>
+  /// <value>An arbitrary string.</value>
   /// <remarks>
-  /// A node with such name must not exist in the part's model. It will be created right before
-  /// establishing a link, and will be destroyed after the link is broken.
+  /// Within the part every module must have a unique node name. This name will be used to create
+  /// an object right before establishing a link, and it will be destroyed after the link is broken.
+  /// The object is created at the root of the part's model, i.e. it will be affected by the
+  /// <c>rescaleFactor</c> tag in the part's config.
   /// </remarks>
   /// <seealso cref="nodeTransform"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
+  // TODO(ihsoft): Give examples with the different scale models.
   string cfgAttachNodeName { get; }
 
   /// <summary>Attach node used for linking with the source part.</summary>
