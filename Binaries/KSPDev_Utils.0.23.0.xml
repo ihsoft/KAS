@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.22.1</name>
+        <name>KSPDev_Utils.0.23.0</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -2200,12 +2200,41 @@
             <summary>Triggers when connection is broken due to too strong force applied.</summary>
             <param name="breakForce">Actual force that has been applied.</param>
         </member>
-        <member name="T:KSPDev.KSPInterfaces.IKSPActivateOnDecouple">
-            <summary>Documented analogue of IActivateOnDecouple interface.</summary>
+        <member name="T:KSPDev.KSPInterfaces.IKSPDevJointLockState">
+            <summary>A documented version of the KSP <c>IJointLockState</c> interface.</summary>
             <remarks>
-            Inherit from <see cref="T:IActivateOnDecouple"/> to be able reacting on parts decoupling.
-            <see cref="T:KSPDev.KSPInterfaces.IKSPDevModuleInfo"/> is a full equivalent except it's documented.
-            Inheriting modules from both interfaces gives better code documentation.
+            Inherit from <see cref="T:IJointLockState"/> to let the game know if this part's joint can be
+            unlocked. This interface is a full equivalent of <see cref="T:IJointLockState"></see> except it's
+            documented. The modules that inherit both interfaces get better code documentation.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IJointLockState, IKSPDevJointLockState {
+              /// <inheritdoc/>
+              public override bool IsJointUnlocked() {
+                return true;
+              }
+            }
+            ]]></code>
+            </example>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IKSPDevJointLockState.IsJointUnlocked">
+            <summary>Tells if the parts can move relative to each other.</summary>
+            <remarks>
+            <para>
+            It's important to override this method when the joint is not rigid. For the rigid joints the
+            game may create autostruts when appropriate, which will adhere the parts to each other.
+            </para>
+            <para>This method is called on the child part to check it's joint state to the parent.</para>
+            </remarks>
+            <returns><c>true</c> if the joint are not fixed relative to each other.</returns>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IKSPActivateOnDecouple">
+            <summary>A documented version of the <see cref="T:IActivateOnDecouple"/> interface.</summary>
+            <remarks>
+            Inherit from <see cref="T:IActivateOnDecouple"/> to be able reacting on the parts decoupling.
+            This interface is a full equivalent of <see cref="T:IActivateOnDecouple"/> except it's documented.
+            The modules that inherit both interfaces get better code documentation.
             </remarks>
             <example>
             <code><![CDATA[
@@ -2223,12 +2252,13 @@
         <member name="M:KSPDev.KSPInterfaces.IKSPActivateOnDecouple.DecoupleAction(System.String,System.Boolean)">
             <summary>Called when two parts decouple.</summary>
             <remarks>
-            Callback is only called on the part if it has an attach node that connects it to the other
-            part. Just removing from the vessel hierarchy won't trigger the event.
+            The callback is only called on the part if it has an attach node that connects it to the other
+            part. For this event to fire a decoupling logic must be executed. A s imple removal from the
+            vessel hierarchy won't trigger the event.
             </remarks>
-            <param name="nodeName">Attach node name that has been detached.</param>
+            <param name="nodeName">The attach node name that has been detached.</param>
             <param name="weDecouple">
-            If <c>true</c> then the part being notified was a child in the relation of the detached part.
+            If <c>true</c> then the part being notified was a child in the relation to the detached part.
             </param>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IKSPDevModuleInfo">
@@ -2280,10 +2310,12 @@
         <member name="T:KSPDev.KSPInterfaces.IPartModule">
              <summary>Interface for KSP part module.</summary>
              <remarks>
+             <para>
              Naturally, KSP doesn't declare any part module interface (unfortunately), and all modder's
              modules just inherit from <see cref="T:PartModule"/>. This interface is introduced for the better
              OOP approach. It reveals methods that a regular module can override, and provides documentation
              for each of them.
+             </para>
              <para>
              Some methods of the module interface look familiar to the ones from Unity but they are not
              behaving in the same way in every scene. Moreover, not all methods get called in every scene.
@@ -2501,7 +2533,7 @@
             <summary>Triggers when Unity object is about to destroy.</summary>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IsPackable">
-            <summary>Interface to track physics state changes in the part's module.</summary>
+            <summary>Interface to track the physics state changes in the part's module.</summary>
             <remarks>
             Events of this inteface are triggered by KSP engine via Unity messaging mechanism. It's not
             required for the module to implement the interface to be notified but by implementing it the
@@ -2530,6 +2562,31 @@
         </member>
         <member name="M:KSPDev.KSPInterfaces.IsPackable.OnPartUnpack">
             <summary>Triggers when physics starts on the part.</summary>
+        </member>
+        <member name="T:KSPDev.KSPInterfaces.IsPartDeathListener">
+            <summary>Interface to notify about part's forced destruction.</summary>
+            <remarks>
+            Events of this inteface are triggered by the KSP engine via Unity messaging mechanism. It's not
+            required for the module to implement the interface to be notified but by implementing it the
+            code becomes more consistent and less error prone.
+            </remarks>
+            <example>
+            <code><![CDATA[
+            public class MyModule : PartModule, IsPartDeathListener {
+              /// <inheritdoc/>
+              public virtual void OnPartDie() {
+                Debug.LogFromat("OnPartDie: {0}", part.name);
+              }
+            }
+            ]]></code>
+            </example>
+            <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.SendMessage.html">
+            Unity 3D: GameObject.SendMessage</seealso>
+            <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IsPartDeathListener.OnPartDie">
+            <summary>Triggers when part ois destroyed by the game's logic.</summary>
+            <remarks>At this moment the part is already decoupled from the vessel.</remarks>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IsPhysicalObject">
             <summary>Interface for modules that need handling physics.</summary>
@@ -2731,6 +2788,9 @@
         <member name="T:KSPDev.ModelUtils.Hierarchy">
             <summary>Various tools to deal with game object hierarchy.</summary>
         </member>
+        <member name="F:KSPDev.ModelUtils.Hierarchy.ReSplitEscapedPath">
+            <summary>Regex to split an escaped path.</summary>
+        </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.MoveToParent(UnityEngine.Transform,UnityEngine.Transform,System.Nullable{UnityEngine.Vector3},System.Nullable{UnityEngine.Quaternion},System.Nullable{UnityEngine.Vector3})">
             <summary>Changes transform's parent keeping local postion, rotation and scale.</summary>
             <remarks>
@@ -2758,7 +2818,7 @@
             </item>
             </list>
             </param>
-            <param name="target">Target string to check.</param>
+            <param name="target">The target string to check.</param>
             <returns><c>true</c> if pattern matches the target.</returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformInChildren(UnityEngine.Transform,System.String)">
@@ -2766,17 +2826,20 @@
             <remarks>
             Implements breadth-first search approach to minimize depth of the found transform.
             </remarks>
-            <param name="parent">Transfrom to start from.</param>
-            <param name="name">Name of the transfrom.</param>
-            <returns>Found transform or <c>null</c> if nothing is found.</returns>
+            <param name="parent">The transfrom to start from.</param>
+            <param name="name">The name of the transfrom.</param>
+            <returns>A transform or <c>null</c> if nothing is found.</returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String)">
             <summary>Finds a transform in the hirerachy by the provided path.</summary>
             <remarks>See path format in <see cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>.</remarks>
-            <param name="parent">Transfrom to start looking from.</param>
-            <param name="path">Path to the target.</param>
-            <returns>Transform or <c>null</c> if nothing found.</returns>
+            <param name="parent">The transfrom to start looking from.</param>
+            <param name="path">
+            The path to the target. The name components must be escaped if they contain special symbols.
+            </param>
+            <returns>A transform or <c>null</c> if nothing found.</returns>
             <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])">
             <summary>Finds a transform in the hirerachy by the provided path.</summary>
@@ -2815,8 +2878,8 @@
             methods.
             </para>
             </remarks>
-            <param name="parent">Transfrom to start looking from.</param>
-            <param name="names">Path elements.</param>
+            <param name="parent">The transfrom to start looking from.</param>
+            <param name="names">The path elements. All special symbols must be unescaped.</param>
             <returns>Transform or <c>null</c> if nothing found.</returns>
             <example>
             Given the following hierarchy:
@@ -2850,29 +2913,64 @@
             // *b* => node "abc"
             ]]></code>
             </example>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.UnescapeName(System.String)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.GetPartModelTransform(Part)">
             <summary>Returns part's model transform.</summary>
-            <param name="part">Part to get model for.</param>
-            <returns>PartModel's transform if it was found. Part's trasnfrom otherwise.</returns>
+            <param name="part">The part to get model for.</param>
+            <returns>
+            The part's model transform if one was found. Or the root part's transform otherwise.
+            </returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.ListHirerahcy(UnityEngine.Transform,System.String)">
             <summary>
-            Returns paths to all transformations in the object. Each item is a full path to the
-            transformation.
+            Returns the paths to all the transformations in the object. Each item is a full path to the
+            transformation starting from the <paramref name="parent"/>.
             </summary>
-            <param name="parent">Object to start from.</param>
-            <param name="parentPath">
-            Path to <paramref name="parent"/>. Leave it <c>null</c> if paths should start from "/".
-            </param>
-            <returns>paths to all transformations separated by LF symbol.</returns>
+            <param name="parent">The object to start from.</param>
+            <param name="pathPrefix">The prefix to add to every path in the result.</param>
+            <returns>The paths to all the objects in the hirerachy separated by a LF symbol.</returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.GetFullPath(UnityEngine.Transform,UnityEngine.Transform)">
-            <summary>Returns full path to the object starting from the specified parent.</summary>
-            <param name="obj">Object to find path for.</param>
-            <param name="parent">Optional parent to use a root.</param>
-            <returns>Full path to the object.</returns>
+            <summary>Returns a full path to the object starting from the specified parent.</summary>
+            <param name="obj">The object to find path for.</param>
+            <param name="parent">
+            The object at which the path must stop. If <c>null</c> then the path is gathered to the root
+            object.
+            </param>
+            <returns>A full path name components. The names are not escaped.</returns>
             <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.SplitAndUnescapePath(System.String)">
+            <summary>Splits a path and unescapes the name elements.</summary>
+            <remarks>
+            The path elements must be separted by a <c>'/'</c> symbol. The name elements must be escaped
+            in case of they contain a separator symbol in the content. 
+            </remarks>
+            <param name="escapedPath">The escaped path to split.</param>
+            <returns>An array of unescaped names.</returns>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.UnescapeName(System.String)"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.MakePath(System.String[])">
+            <summary>Escapes the element names and builds a path.</summary>
+            <param name="unescapedNames">The raw name elements of the path.</param>
+            <returns>An escaped path built of the provided elements.</returns>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.UnescapeName(System.String)">
+            <summary>Unescapes all the special symbols in the name.</summary>
+            <param name="escapedName">The name where all the special symbols are escaped.</param>
+            <returns>An unescaped name.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)">
+            <summary>Escapes all the special symbols in the name.</summary>
+            <remarks>
+            For now the only specil symbol is <c>/</c> (slash) because of it's used as a name separator
+            in the hierarchy paths. The escaped separator symbol is simple doubled. I.e. string <c>a/b</c>
+            transforms into <c>a//b</c>.
+            </remarks>
+            <param name="unescapedName">The raw name with any symbols.</param>
+            <returns>A name where all the special symbols are properly escaped.</returns>
         </member>
         <member name="T:KSPDev.ModelUtils.KspLayerMask">
             <summary>Flags for the collision layers in KSP.</summary>
