@@ -1,4 +1,8 @@
-# 0.7.3 (pre-release):
+# 0.7.4-pre:
+* [Enhancement] A brand new model for CH-1.
+* [Enhancement] PCB-1 cable now has a head that plugs into CH-1 model.
+
+# 0.7.3 (Februare 4th, 2017):
 * [Enhancement] Add cable joint parts PCB-1 and CH-1.
 * [Change] Rename module: `KASModuleInteractiveJointSource` to `KASModuleInteractiveLinkSource`.
 * [Change] Rename module: `KASModuleTelescopicPipeStrut` to `KASModuleTelescopicPipeModel`.
