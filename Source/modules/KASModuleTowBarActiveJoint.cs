@@ -93,20 +93,24 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
 
   #region GUI status/mode fields
   /// <summary>Status field to display current lock state.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Lock status")]
   public string lockStatus = "";
 
   /// <summary>Status field to display current steering status.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Steering status")]
   public string steeringStatus = "";
 
   /// <summary>Defines responsiveness of the towed vessel to the steering.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Steering sensitivity", guiFormat = "0.0", isPersistant = true),
    UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
                  stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
   public float steeringSensitivity = 1.0f;
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Steering: Direction", isPersistant = true),
    UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
   public bool steeringInvert;
