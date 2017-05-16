@@ -22,6 +22,23 @@
   <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPField']/*"/>
 </PersistentConfigSetting>
 
+<UIConfigSetting>
+  <summary-prefix><i>UI KSP field.</i><br/></summary-prefix>
+  <remarks>
+  <para>
+  This value is managed by the KSP core. Its initial value is read from the part's config. The value
+  is presented in the part's context menu. Depending on the field's properties it can just show a
+  value or allow changing it.
+  </para>
+  <para>
+  Avoid accessing the properties of the fields from the other classes. Instead, the owner class
+  should provide a related field object.
+  </para>
+  </remarks>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPField']/*"/>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:BaseField']/*"/>
+</UIConfigSetting>
+
 <PersistentField>
   <summary-prefix><i>Persistent field.</i><br/></summary-prefix>
   <remarks>
