@@ -124,7 +124,7 @@ public static class StockResourceNames {
 
 namespace KSPDev.ModelUtils {
 
-/// TODO: Merge with KSPDev.Hierarchy
+/// TODO: Merge with KSPDev.ModelUtils.Hierarchy
 public static class Hierarchy2 {
   /// TODO: Replace default FindTransformByPath version.
   public static Transform FindTransformByPath(Transform parent, string path, Transform defValue = null) {
@@ -148,4 +148,49 @@ public static class Hierarchy2 {
   }
 }
   
+}  // namespace
+
+namespace KSPDev.ModelUtils {
+
+/// TODO: Merge with KSPDev.LogUtils.DbgFormatters
+public static class DbgFormatters2 {
+  /// <summary>Formats a string providing a reference to the host part.</summary>
+  /// <param name="host">The part that outputs into the log.</param>
+  /// <param name="format">The format string.</param>
+  /// <param name="args">The format arguments.</param>
+  /// <returns>A logging string.</returns>
+  public static string HostedLog(Part host, string format, params object[] args) {
+    return string.Format("[Part:" + DbgFormatter.PartId(host) + "] " + format, args);
+  }
+
+  /// <summary>Formats a string providing a reference to the host part module.</summary>
+  /// <param name="host">The part module that outputs into the log.</param>
+  /// <param name="format">The format string.</param>
+  /// <param name="args">The format arguments.</param>
+  /// <returns>A logging string.</returns>
+  public static string HostedLog(PartModule host, string format, params object[] args) {
+    return string.Format(
+        "[Part:" + DbgFormatter.PartId(host.part) + "#Module:" + host.moduleName + "] " + format,
+        args);
+  }
+
+  /// <summary>Formats a string providing a reference to the host object.</summary>
+  /// <param name="host">The object that outputs into the log.</param>
+  /// <param name="format">The format string.</param>
+  /// <param name="args">The format arguments.</param>
+  /// <returns>A logging string.</returns>
+  public static string HostedLog(Transform host, string format, params object[] args) {
+    return string.Format("[Object:" + host.name + "] " + format, args);
+  }
+
+  /// <summary>Formats a string providing a reference to the host object.</summary>
+  /// <param name="host">The object that outputs into the log.</param>
+  /// <param name="format">The format string.</param>
+  /// <param name="args">The format arguments.</param>
+  /// <returns>A logging string.</returns>
+  public static string HostedLog(GameObject host, string format, params object[] args) {
+    return HostedLog(host.transform, format, args);
+  }
+}
+
 }  // namespace
