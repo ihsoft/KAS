@@ -1,7 +1,8 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v1, 05.15.2017 -->
+<!-- v2, 05.18.2017 -->
 <index>
 
+<!--************ TYPES ************-->
 <item name="T:KSPDev.ConfigUtils.ConfigAccessor">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_ConfigAccessor.htm">KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
 </item>
@@ -17,17 +18,24 @@
 <item name="T:KSPDev.GUIUtils.Message_2">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_2.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2&gt;</seealso>
 </item>
-<item name="T:KSPDev.GUIUtils.MessageEnumValue">
+<item name="T:KSPDev.GUIUtils.MessageEnumValue_1">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MessageEnumValue_1.htm">KSPDev Utils: GUIUtils.MessageEnumValue&lt;T1&gt;</seealso>
+</item>
+<item name="T:KSPDev.ProcessingUtils.SimpleStateMachine_1">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ProcessingUtils_SimpleStateMachine_1.htm">KSPDev Utils: ProcessingUtils.SimpleStateMachine&lt;T1&gt;</seealso>
 </item>
 <item name="T:KSPDev.Types.PosAndRot">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">KSPDev Utils: Types.PosAndRot</seealso>
 </item>
+
+<!--************ MEMBERS ************-->
 <item name="M:KSPDev.AlignTransforms.SnapAlign">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_AlignTransforms_SnapAlign.htm">KSPDev Utils: AlignTransforms.SnapAlign</seealso>
 </item>
 <item name="M:KSPDev.Hierarchy.FindTransformByPath">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">KSPDev Utils: Hierarchy.FindTransformByPath</seealso>
 </item>
+
+<!--************ PROPERTIES ************-->
 
 </index>
