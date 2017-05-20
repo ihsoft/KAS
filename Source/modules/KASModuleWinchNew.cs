@@ -154,7 +154,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Amount of the electricity to consume each second of the motor activity.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float powerDrain = 0.5f;
+  public float motorPowerDrain = 0.5f;
   #endregion
 
   #region The context menu fields
@@ -541,7 +541,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
 
     // Adjust the cable length.
-    var powerDemand = powerDrain * TimeWarp.fixedDeltaTime;
+    var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
       currentCableLength += motorCurrentSpeed * TimeWarp.fixedDeltaTime;
