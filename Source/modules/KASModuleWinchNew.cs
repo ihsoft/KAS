@@ -184,7 +184,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;
     }
     if (winchState == WinchState.CableRetracting || winchState == WinchState.HeadLocked) {
-      winchState = WinchState.HeadDeployed;
+      SetStateIfPossible(WinchState.HeadDeployed);
     }
     SetStateIfPossible(WinchState.CableExtending);
   }
@@ -206,7 +206,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;
     }
     if (winchState == WinchState.CableExtending) {
-      winchState = WinchState.HeadDeployed; 
+      SetStateIfPossible(WinchState.HeadDeployed);
     }
     SetStateIfPossible(WinchState.CableRetracting);
   }
