@@ -217,20 +217,21 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   GUILinkMode guiLinkMode { get; }
 
-  /// <summary>Starts linking mode of this source.</summary>
+  /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
-  /// Only one source at time can be linking. If part has more sources or targets they all will get
-  /// <see cref="LinkState.Locked"/>.
+  /// Only one source at time can be linking. If the part has more sources or targets, they will all
+  /// get <see cref="LinkState.Locked"/>.
   /// </remarks>
   /// <param name="mode">
-  /// Defines how pending link should be displayed. See <see cref="GUILinkMode"/> for more details.
+  /// Defines how the pending link should be displayed. See <see cref="GUILinkMode"/> for more
+  /// details.
   /// </param>
   /// <para>
-  /// Module can refuse the mode by returning <c>false</c>. Refusing mode
+  /// The module can refuse the mode by returning <c>false</c>. Refusing the mode
   /// <see cref="GUILinkMode.API"/> is allowed but strongly discouraged. Only refuse this mode when
-  /// all other modes are refused too (i.e. source cannot be linked at all).
+  /// all the other modes are refused too (i.e. the source cannot be linked at all).
   /// </para>
-  /// <returns><c>true</c> if mode successfully started.</returns>
+  /// <returns><c>true</c> if the mode has successfully started.</returns>
   /// <seealso cref="guiLinkMode"/>
   /// <seealso cref="CancelLinking"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
