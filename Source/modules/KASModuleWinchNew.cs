@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.ProcessingUtils;
+using KSPDev.Types;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -108,6 +109,20 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public string headPartAttachAt = "";
 
+  /// <summary>Position and rotation of the target part-to-head attach point.</summary>
+  /// <remarks>
+  /// <para>
+  /// The values must be given in the coordinates local to the head. This value will only be used
+  /// if there is no object named <see cref="headPartAttachAt"/> in the head's object hierarchy.
+  /// </para>
+  /// <para>The value is a serialized format of <see cref="PosAndRot"/>.</para>
+  /// </remarks>
+  /// <seealso cref="headPartAttachAt"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+  [KSPField]
+  public string headPartAttachAtPosAndRot = "";
+
   /// <summary>Object that is used to align the cable mesh to the cable head.</summary>
   /// <remarks>
   /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform, string)"/> search path. The
@@ -118,6 +133,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
   [KSPField]
   public string headCableAttachAt = "";
+
+  /// <summary>Position of the cable-to-head attach point.</summary>
+  /// <remarks>
+  /// The position must be given in the coordinates local to the head. This value will only be used
+  /// if there is no object named <see cref="headCableAttachAt"/> in the head's object hierarchy.
+  /// </remarks>
+  /// <seealso cref="headCableAttachAt"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
+  [KSPField]
+  public Vector3 headCableAttachAtPos;
 
   /// <summary>Maximum cable length at which the cable head can lock to the winch.</summary>
   /// <seealso cref="CheckIsHeadAligned"/>
@@ -451,21 +477,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
+    LoadOrCreateHeadModel();
     UpdateContextMenu();
-    headModelObj = Hierarchy2.FindPartModelByPath(part, headModel);
-    if (headModelObj != null) {
-      headCableAnchor =
-          Hierarchy2.FindTransformByPath(headModelObj, headCableAttachAt, defValue: headModelObj);
-      headPartAnchor =
-          Hierarchy2.FindTransformByPath(headModelObj, headPartAttachAt, defValue: headModelObj);
-    } else {
-      Debug.LogErrorFormat(DbgFormatters2.HostedLog(
-          part, "Cannot find a head model: {1}", headModel));
-      // Fallback to not have the whole code to crush. 
-      headModelObj = new GameObject().transform;
-      headCableAnchor = headModelObj;
-      headPartAnchor = headModelObj;
-    }
   }
   
   /// <inheritdoc/>
@@ -640,6 +653,47 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     //FIXME: LOG level
     Debug.LogWarning(DbgFormatter2.HostedLog(part, "Winch head is locked"));
     //TODO: fix physical joint.
+  }
+
+  /// <summary>Intializes the head model object and its anchors.</summary>
+  /// <remarks>
+  /// <para>
+  /// If the head model is not found than a stub object will be created. There will be no visual
+  /// representation but the overall functionality of the winch should keep working.
+  /// </para>
+  /// <para>
+  /// If the head doesn't have the anchors then the missed onces will be created basing on the
+  /// provided position/rotation. If the config file doesn't provide anything then the anchors will
+  /// have a zero position and a random rotation.
+  /// </para>
+  /// </remarks>
+  void LoadOrCreateHeadModel() {
+    headModelObj = Hierarchy2.FindPartModelByPath(part, headModel);
+    if (headModelObj != null) {
+      headCableAnchor = Hierarchy2.FindTransformByPath(headModelObj, headCableAttachAt);
+      if (headCableAnchor == null) {
+        //FIXME: LOG level
+        Debug.LogWarning(DbgFormatter2.HostedLog(part, "Creating cable transform"));
+        headCableAnchor = new GameObject(headCableAttachAt).transform;
+        Hierarchy.MoveToParent(headCableAnchor, headModelObj,
+                               newPosition: headCableAttachAtPos, newRotation: Quaternion.identity);
+      }
+      headPartAnchor = Hierarchy2.FindTransformByPath(headModelObj, headPartAttachAt);
+      if (headPartAnchor == null) {
+        //FIXME: LOG level
+        Debug.LogWarning(DbgFormatter2.HostedLog(part, "Creating part transform"));
+        headPartAnchor = new GameObject(headPartAttachAt).transform;
+        var posAndRot = PosAndRot2.FromString(headPartAttachAtPosAndRot);
+        Hierarchy.MoveToParent(headPartAnchor, headModelObj,
+                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
+      }
+    } else {
+      Debug.LogError(DbgFormatter2.HostedLog(part, "Cannot find a head model: {1}", headModel));
+      // Fallback to not have the whole code to crush. 
+      headModelObj = new GameObject().transform;
+      headCableAnchor = headModelObj;
+      headPartAnchor = headModelObj;
+    }
   }
   #endregion
 }
