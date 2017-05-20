@@ -107,7 +107,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
   [KSPField]
   public string headPartAttachAt = "";
-  
+
   /// <summary>Object that is used to align the cable mesh to the cable head.</summary>
   /// <remarks>
   /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform, string)"/> search path. The
@@ -250,10 +250,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (kerbalTarget != null && StartLinking(GUILinkMode.API)) {
         LinkToTarget(kerbalTarget);
         //FIXME: LOG level
-        Debug.LogWarningFormat(DbgFormatters2.HostedLog(
+        Debug.LogWarning(DbgFormatter2.HostedLog(
             part, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName));
       } else {
-        Debug.LogErrorFormat(DbgFormatters2.HostedLog(
+        Debug.LogError(DbgFormatter2.HostedLog(
             part, "{0} cannot grab the winch head", FlightGlobals.ActiveVessel.vesselName));
       }
     }
@@ -271,11 +271,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         BreakCurrentLink(LinkActorType.Player);
         winchState = WinchState.HeadLocked;
         //FIXME: LOG level
-        Debug.LogWarningFormat(DbgFormatters2.HostedLog(
+        Debug.LogWarning(DbgFormatter2.HostedLog(
             part, "{0} has returned the winch head", FlightGlobals.ActiveVessel.vesselName));
       } else {
-        Debug.LogErrorFormat(DbgFormatters2.HostedLog(
-            part, "Wrong target for the lock head action"));
+        Debug.LogError(DbgFormatter2.HostedLog(part, "Wrong target for the lock head action"));
       }
     }
   }
@@ -476,7 +475,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     UpdateContextMenu();
   }
   #endregion
-  
+
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public virtual void FixedUpdate() {
@@ -632,14 +631,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   // FIXME: Implement
   void DeployCableHead() {
     //FIXME: LOG level
-    Debug.LogWarningFormat(DbgFormatters2.HostedLog(part, "Winch head is deployed"));
+    Debug.LogWarning(DbgFormatter2.HostedLog(part, "Winch head is deployed"));
   }
 
   // FIXME: Implement
   void LockCableHead() {
     currentCableLength = 0;
     //FIXME: LOG level
-    Debug.LogWarningFormat(DbgFormatters2.HostedLog(part, "Winch head is locked"));
+    Debug.LogWarning(DbgFormatter2.HostedLog(part, "Winch head is locked"));
     //TODO: fix physical joint.
   }
   #endregion
