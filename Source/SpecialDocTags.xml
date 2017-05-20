@@ -65,7 +65,7 @@
 
 <MessageEnumValue>
   <summary-prefix><i>GUI message (Enum translation).</i><br/></summary-prefix>
-  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.MessageEnumValue']/*"/>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.MessageEnumValue_1']/*"/>
 </MessageEnumValue>
 
 </Tags>
