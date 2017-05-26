@@ -1,9 +1,6 @@
 # Solution file
 *.sln
 
-# Kospy > DebugTools
-DebugTools
-
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
 [Oo]bj/
@@ -117,3 +114,5 @@ docs
 KAS_*.zip
 *.zip
 *.pyc
+
+*.wrk.*
