@@ -16,10 +16,4 @@
     }, 
     "NAME": "KAS", 
     "URL": "https://raw.githubusercontent.com/ihsoft/KAS/master/kas.version", 
-    "VERSION": {
-        "BUILD": 0, 
-        "MAJOR": 0, 
-        "MINOR": 6, 
-        "PATCH": 0
-    }
 }
