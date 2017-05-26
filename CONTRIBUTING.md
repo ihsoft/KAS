@@ -1,7 +1,7 @@
 ### Before you open an issue
 
 **Has it already been reported?**  
-Check the [issue tracker](https://github.com/KospY/KAS/issues) and the [Known issues](https://github.com/KospY/KAS/wiki/Known%20issues) to see if the problem has already been reported. If it has, please add any additional information you have instead of opening a new issue. If you're unsure if your issue is related, comment on the existing report first.
+Check the [issue tracker](https://github.com/ihsoft/KAS/issues) and the [Known issues](https://github.com/ihsoft/KAS/wiki/Known%20issues) to see if the problem has already been reported. If it has, please add any additional information you have instead of opening a new issue. If you're unsure if your issue is related, comment on the existing report first.
 
 **Is it intended behavior? / Are you doing it right?**  
 Make sure you're encountering a bug and not just an intended aspect of the mod. For exemple, if a winch isn't working, make sure you have enough electrical power. 
@@ -14,7 +14,7 @@ Only the latest version of KAS and the latest version of KSP are supported. Make
 
 ### Opening an issue
 
-Bug reports and feature requests should be filled on the [issue tracker](https://github.com/KospY/KAS/issues). Please read the following guidelines for filing reports; it's very difficult for me to help otherwise.
+Bug reports and feature requests should be filled on the [issue tracker](https://github.com/ihsoft/KAS/issues). Please read the following guidelines for filing reports; it's very difficult for me to help otherwise.
 
 1. **Be specific.** The title and description of your report should describe exactly what isn't working. Provide reproduction steps if you can, and explain in detail the symptoms of the issue and what causes it.
 2. **Provide your output log.** This file can be found at `KSP/KSP_Data/output_log.txt`. This contains debug information about your last KSP session. Without this, I cannot diagnose most issues. If your report has precise reproduction steps and the cause is obvious, the log is optional. When in doubt, please include it.

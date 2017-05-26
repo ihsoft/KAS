@@ -9,7 +9,7 @@
 
 Code, binaries, models and textures are released under Public Domain license.
 
-GitHub: https://github.com/KospY/KAS/tree/KAS-v1.0
+GitHub: https://github.com/ihsoft/KAS/tree/KAS-v1.0
 
 * * *
 

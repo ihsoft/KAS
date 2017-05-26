@@ -9,7 +9,7 @@
     - If you choose not to do that or the drive letter is different then you also need to change `KAS.csproj` project file to correct references and post-build actions.
 - For making releases:
   - Python 2.7 or greater.
-  - Owner or collaborator permissions in [Github repository](https://github.com/KospY/KAS).
+  - Owner or collaborator permissions in [Github repository](https://github.com/ihsoft/KAS).
   - Owner or maintainer permissions on [Curseforge project](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas).
 - For development do one of the following things:
   - Install an open source [SharpDevelop](https://en.wikipedia.org/wiki/SharpDevelop). It will pickup existing project settings just fine but at the same time can add some new changes. Please, don't submit them into the trunk until they are really needed to build the project.
@@ -35,12 +35,12 @@ _Note_: If you don't want building yourself you can use the DLL from the reposit
 - Check if file `KAS\Plugins\Source\CHANGES.txt` has any "alpha" changes since the last release:
   - Only consider changes of types: Fix, Feature, Enhancement, and Change. Anything else is internal stuff which is not interesting to the outer world.
   - Copy the changes into `changelog.md` and add the release date.
-  - Go thru issues having #XX in the title, and update each releveant [Github issue](https://github.com/KospY/KAS/issues) with the version where it was addressed. Usually it means closing of the issue but there can be exceptions.
+  - Go thru issues having #XX in the title, and update each releveant [Github issue](https://github.com/ihsoft/KAS/issues) with the version where it was addressed. Usually it means closing of the issue but there can be exceptions.
   - Drop all changes from `CHANGES.txt`.
 - Run `Tools\make_release.py -p` having folder `Tools` as current.
 - Given there were no compile errors the new release will live in `Releases` folder.
-- Update [Github repository](https://github.com/KospY/KAS) with the files updated during the release.
-- Create a new release in the [Github repository releases](https://github.com/KospY/KAS/releases). Use changes from `changelog.md` as a release description. Do **not** add ZIP into the release. Primary source for the release binaries is [Curseforge](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files).
+- Update [Github repository](https://github.com/ihsoft/KAS) with the files updated during the release.
+- Create a new release in the [Github repository releases](https://github.com/ihsoft/KAS/releases). Use changes from `changelog.md` as a release description. Do **not** add ZIP into the release. Primary source for the release binaries is [Curseforge](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files).
 - Upload new package to [Curseforge](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files). Once verified the package will become available for downloading.
 - Add new version entry in [KSP-CKAN](https://github.com/KSP-CKAN/CKAN-meta/tree/master/KAS) (you may need to fork first) and request a pull request. CKAN has an automated system to push new versions which may conflict with the manual update so, keep an eye on the meta for a couple of days.
  - Use "download" link from Curseforge as the file source.
