@@ -81,7 +81,7 @@ STRUCTURE = collections.OrderedDict({
   ],
   '/GameData/KAS-1.0/Plugins' : [
     '/Binaries/MiniAVC.dll',
-    '/Binaries/KSPDev_Utils.0.20.0.dll',
+    '/Binaries/KSPDev_Utils.0.23.0.dll',
     '/Binaries/KSPDev_Utils_License.md',
     '/Source/bin/Release/KAS-1.0.dll',
   ],
