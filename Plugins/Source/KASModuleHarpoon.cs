@@ -59,9 +59,9 @@ public class KASModuleHarpoon : KASModuleAttachCore {
     this.part.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
   }
 
-  public void OnKISAction(BaseEventData baseEventData) {
-    string action = baseEventData.GetString("action");
-    Part tgtPart = (Part)baseEventData.Get("targetPart");
+  public void OnKISAction(Dictionary<string, object> eventData) {
+    var action = eventData["action"].ToString();
+    var tgtPart = eventData["targetPart"] as Part;
 
     if (action == "Store" || action == "AttachStart" || action == "DropEnd") {
       DetachGrapple();
