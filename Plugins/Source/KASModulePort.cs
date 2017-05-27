@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -72,10 +73,10 @@ public class KASModulePort : KASModuleAttachCore {
     }
   }
 
-  public void OnKISAction(BaseEventData baseEventData) {
-    var action = baseEventData.GetString("action");
-    var tgtPart = baseEventData.Get<Part>("targetPart");
-    var tgtNode = baseEventData.Get<AttachNode>("targetNode");
+  public void OnKISAction(Dictionary<string, object> eventData) {
+    var action = eventData["action"].ToString();
+    var tgtPart = eventData["targetPart"] as Part;
+    var tgtNode = eventData["targetNode"] as AttachNode;
 
     if (action == "Store") {
       if (winchConnected) {

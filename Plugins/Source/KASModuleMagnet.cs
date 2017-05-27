@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -96,17 +97,17 @@ public class KASModuleMagnet : KASModuleAttachCore {
     base.OnJointBreakFixed();
   }
 
-  public void OnKISAction(BaseEventData baseEventData) {
-    string action = baseEventData.GetString("action");
-    string sourceNodeID = baseEventData.GetString("sourceNode");
-    Part tgtPart = (Part)baseEventData.Get("targetPart");
+  public void OnKISAction(Dictionary<string, object> eventData) {
+    var action = eventData["action"].ToString();
+    var sourceNode = eventData["sourceNode"] as AttachNode;
+    var tgtPart = eventData["targetPart"] as Part;
 
     if (action == "Store" || action == "AttachStart" || action == "DropEnd") {
       MagnetActive = false;
     }
     if (action == "AttachEnd") {
       if (tgtPart) {
-        if (sourceNodeID == "srfAttach") {
+        if (sourceNode.id == "srfAttach") {
           if (!tgtPart.vessel.isEVA)
             AttachMagnet(tgtPart);
         }
