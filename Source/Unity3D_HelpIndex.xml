@@ -1,10 +1,13 @@
 <!-- Index file for Unity3D methods help -->
-<!-- v2, 05.18.2017 -->
+<!-- v3, 05.24.2017 -->
 <index>
 
 <!--************ TYPES ************-->
 <item name="T:UnityEngine.Renderer">
   <seealso href="https://docs.unity3d.com/ScriptReference/Renderer.html">Untiy3D: Renderer</seealso>
+</item>
+<item name="T:UnityEngine.Transform">
+  <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
 </item>
 <item name="T:UnityEngine.Vector3">
   <seealso href="https://docs.unity3d.com/ScriptReference/Vector3.html">Untiy3D: Vector3</seealso>

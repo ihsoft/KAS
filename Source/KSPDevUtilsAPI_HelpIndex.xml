@@ -1,5 +1,5 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v2, 05.18.2017 -->
+<!-- v3, 05.23.2017 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -20,6 +20,9 @@
 </item>
 <item name="T:KSPDev.GUIUtils.MessageEnumValue_1">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MessageEnumValue_1.htm">KSPDev Utils: GUIUtils.MessageEnumValue&lt;T1&gt;</seealso>
+</item>
+<item name="T:KSPDev.KSPInterfaces.IPartModule">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_KSPInterfaces_IPartModule.htm">KSPDev Utils: KSPInterfaces.IPartModule</seealso>
 </item>
 <item name="T:KSPDev.ProcessingUtils.SimpleStateMachine_1">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ProcessingUtils_SimpleStateMachine_1.htm">KSPDev Utils: ProcessingUtils.SimpleStateMachine&lt;T1&gt;</seealso>
