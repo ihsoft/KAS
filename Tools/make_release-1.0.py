@@ -64,6 +64,7 @@ STRUCTURE = collections.OrderedDict({
     '/LICENSE-1.0.md',
   ],
   '/GameData/KAS-1.0/Parts' : '/Parts',
+  '-/GameData/KAS-1.0/Parts' : '/Winch1',
   '/GameData/KAS-1.0/Patches' : '/Patches',
   '/GameData/KAS-1.0/Models' : '/Models',
   '-/GameData/KAS-1.0/Models' : '/**/*.psd',  # Drop texture sources.
@@ -78,6 +79,8 @@ STRUCTURE = collections.OrderedDict({
     '/Textures/piston180.png',
     '/Textures/KASFilterIcon.png',
     '/Textures/cable.png',
+    '/Textures/ProceduralSteelCable.tga',
+    '/Textures/ProceduralSteelCableNRM.dds',
   ],
   '/GameData/KAS-1.0/Plugins' : [
     '/Binaries/MiniAVC.dll',
@@ -204,9 +207,7 @@ def UpdateVersionInSources():
 def UpdateVersionInJsonFile_(name):
   with open(name) as fp:
     content = json.load(fp);
-  if not 'VERSION' in content:
-    print 'ERROR: Cannot find VERSION in:', name
-    exit(-1)
+  content['VERSION'] = {}
   content['VERSION']['MAJOR'] = VERSION[0]
   content['VERSION']['MINOR'] = VERSION[1]
   content['VERSION']['PATCH'] = VERSION[2]

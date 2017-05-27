@@ -69,7 +69,7 @@ STRUCTURE = collections.OrderedDict({
   '/GameData/KAS' : [
     '/settings.cfg',
   ],
-  '/GameData/KAS/Parts' : '/Parts',
+  '/GameData/KAS/Parts' : '/Parts.legacy',
   '/GameData/KAS/Sounds' : '/Sounds',
   '/GameData/KAS/Textures' : '/Textures',
   '/GameData/KAS/Plugins' : [
@@ -186,9 +186,7 @@ def UpdateVersionInSources():
 def UpdateVersionInJsonFile_(name):
   with open(name) as fp:
     content = json.load(fp);
-  if not 'VERSION' in content:
-    print 'ERROR: Cannot find VERSION in:', name
-    exit(-1)
+  content['VERSION'] = {}
   content['VERSION']['MAJOR'] = VERSION[0]
   content['VERSION']['MINOR'] = VERSION[1]
   content['VERSION']['PATCH'] = VERSION[2]
