@@ -9,8 +9,10 @@
     "" : [
       "/README.md",
       "/LICENSE-1.0.md",
+      "/Models",
       "/Parts",
-      "/Patches"
+      "/Patches",
+      "/Textures"
     ],
     "Parts" : [
       "-Winch1"
