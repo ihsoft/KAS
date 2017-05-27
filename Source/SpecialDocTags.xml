@@ -1,3 +1,5 @@
+<!-- Special KSP tags help -->
+<!-- v1, 05.27.2017 -->
 <Tags>
 
 <ConfigSetting>
@@ -38,6 +40,23 @@
   <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPField']/*"/>
   <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:BaseField']/*"/>
 </UIConfigSetting>
+
+<KspEvent>
+  <summary-prefix><i>KSP event.</i><br/></summary-prefix>
+  <remarks>
+  <para>
+  The methods that are attributed as KSP events will show up in the part's context menu. Such
+  methods must always be declared as <i>public</i> to let the KSP core correctly handling them. In
+  case of the module class is not sealed, it highly encouraged to define the methods also as
+  <i>virtual</i>.
+  </para>
+  <para>
+  Avoid accessing the events from the other classes. Instead, the owner class should provide a
+  related fields or methods.
+  </para>
+  </remarks>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPEvent']/*"/>
+</KspEvent>
 
 <PersistentField>
   <summary-prefix><i>Persistent field.</i><br/></summary-prefix>
