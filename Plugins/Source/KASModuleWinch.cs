@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace KAS {
 
-public class KASModuleWinch : KASModuleAttachCore {
+public class KASModuleWinch : KASModuleAttachCore, IJointLockState {
   //Part.cfg file
   [KSPField]
   public float maxLenght = 50.0f;
@@ -255,6 +255,12 @@ public class KASModuleWinch : KASModuleAttachCore {
       }
     }
   }
+
+  #region IJointLockState implemenation
+  public bool IsJointUnlocked() {
+    return true;
+  }
+  #endregion
 
   public override string GetInfo() {
     var sb = new StringBuilder();

@@ -270,9 +270,9 @@ public class KASModuleStrut : KASModuleAttachCore {
     fxSndBroke.audio.Play();
   }
 
-  public void OnKISAction(Dictionary<string, object> eventData) {
-    var action = eventData["action"].ToString();
-    var tgtPart = eventData["targetPart"] as Part;
+  public void OnKISAction(Dictionary<string, object> baseEventData) {
+    var action = baseEventData["action"].ToString();
+    var tgtPart = baseEventData["targetPart"] as Part;
 
     if (action == "Store" || action == "AttachStart" || action == "DropEnd") {
       if (linked) {
