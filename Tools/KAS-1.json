@@ -1,0 +1,25 @@
+{
+  "JSON_SCHEMA_VERSION": "1.0",
+
+  "PACKAGE_NAME": "KAS-1.0",
+
+  "SHELL_COMPILE_BINARY_SCRIPT" : "make_binary-1.0.cmd",
+
+  "STRUCTURE" : {
+    "" : [
+      "/README.md",
+      "/LICENSE-1.0.md",
+      "/Parts",
+      "/Patches"
+    ],
+    "Parts" : [
+      "-Winch1"
+    ],
+    "Plugins" : [
+      "{COMPILED_BINARY}",
+      "bin/Release/{PACKAGE_NAME}.xml",
+      "{MINIAVC_VERSION_FILE}",
+      "/Binaries/*"
+    ]
+  }
+}
