@@ -10,6 +10,7 @@ using KSPDev.ModelUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.ProcessingUtils;
 using KSPDev.Types;
+using KSPDev.ConfigUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace KAS {
 /// However, it's highly recommended to use the mode <see cref="LinkMode.TieAnyParts"/>. As it
 /// the most flexible, and the winch is capable of changing "docked" vs "non-docked" mode when the
 /// link is already made.
-/// <br/>FIXME: Implement
+/// <br/>TODO: Implement
 /// </para>
 /// <para>A compatible target must take into account that the winch's head has some height, and its
 /// part attach anchor is shifted to compensate this height. The target needs to shift the attach
@@ -62,8 +63,43 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// Error message to present when an improperly aligned cable head has attempted to lock with the
   /// winch.
   /// </summary>
-  protected static readonly Message CannotLockHeadMsg = "Head is not aligned. Cannot lock";
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message LockHeadNotAlignedMsg = "Cannot lock the head: not aligned";
+
+  /// <summary>
+  /// Info message to present when an cable head has successfully locked to the winch.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message HeadLockedMsg = "Head locked!";
+
+  /// <summary>
+  /// An info message to present when the cable is extended at its maximum length.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  protected static readonly Message<float> MaxLengthReachedMsg =
+      "Maximum cable length reached: {0:F2}m";
+
+  /// <summary>
+  /// An info message to present when the cable retract action is attempted on a locked head.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message HeadIsAlreadyLockedMsg = "The head is already locked";
+
+  /// <summary>Name of the menu item that stops the cable extending.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message StopExtendingMenuTxt = "Stop extending";
+
+  /// <summary>Name of the menu item that starts the cable extending.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message ExtendCableMenuTxt = "Extend cable";
+
+  /// <summary>Name of the menu item that stops the cable retracting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message StopRetractingMenuTxt = "Stop retracting";
+
+  /// <summary>Name of the menu item that starts the cable extending.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message RetractCableMenuTxt = "Retract cable";
   #endregion
 
   #region Part's config fields
@@ -97,6 +133,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
   [KSPField]
   public string headModel = "";
+
+  /// <summary>Mass of the head of the winch.</summary>
+  /// <remarks>
+  /// It's substracted from the part's mass on deploy, and added back on the lock. For this reason
+  /// it must not be greater then the total part's mass. Also, try to avoid making the head heavier
+  /// than the part iteself - the Unity physics may start behaving awkward. 
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public float headMass = 0.01f;
 
   /// <summary>Object that is used to align the cable head against the target part.</summary>
   /// <remarks>
@@ -134,35 +180,43 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public string headCableAttachAt = "";
 
-  /// <summary>Position of the cable-to-head attach point.</summary>
+  /// <summary>Position and rotation of the cable-to-head attach point.</summary>
   /// <remarks>
-  /// The position must be given in the coordinates local to the head. This value will only be used
+  /// The values must be given in the coordinates local to the head. This value will only be used
   /// if there is no object named <see cref="headCableAttachAt"/> in the head's object hierarchy.
   /// </remarks>
   /// <seealso cref="headCableAttachAt"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
-  public Vector3 headCableAttachAtPos;
+  public string headCableAttachAtPosAndRot;
 
   /// <summary>Maximum cable length at which the cable head can lock to the winch.</summary>
+  /// <remarks>
+  /// A spring joint in PhysX will never pull the objects together to the zero distance regardless
+  /// to the spring strength. For this reason the there should be always be a reasonable error
+  /// allowed. Setting the error to a too big value will result in unpleasant locking behavior and
+  /// increase the force at which the head hits the winch on locking. A too small value of the
+  /// allowed error will make the locking harder, up to not being able to lock at all.
+  /// </remarks>
   /// <seealso cref="CheckIsHeadAligned"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float headLockMaxErrorDist = 0.01f;
+  public float headLockMaxErrorDist = 0.05f;
 
-  /// <summary>Maximum direction error to allow for the cable head to lock to the winch.</summary>
+  /// <summary>
+  /// Maximum direction error to allow for the cable head to lock to the winch. It's in degrees.
+  /// </summary>
   /// <remarks>
-  /// This value is always positive, and it determines how significantly the <c>forward</c> and
-  /// <c>up</c> vectors of the head can differ from the winch's attach node ones. The value is
-  /// compared with an absolute value of a difference between <c>1.0f</c> and a
-  /// <see cref="Vector3.Dot"/> between the vectors.
+  /// This value is always positive, and it determines how significantly the deriction of
+  /// <c>forward</c> and <c>up</c> vectors of the head can differ from the winch's attach node
+  /// direction.
   /// </remarks>
   /// <seealso cref="CheckIsHeadAligned"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
-  public float headLockMaxErrorDir = 0.01f;
+  public float headLockMaxErrorDir = 1;
 
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -190,11 +244,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField(guiName = "Winch state", guiActive = true)]
   public string headDeployStateMenuInfo = "";
 
-  /// <summary>Presents the current cable length.</summary>
-  /// <seealso cref="currentCableLength"/>
+  /// <summary>Presents the real cable length that connects the winch and the head.</summary>
+  /// <seealso cref="realHeadDistance"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Cable lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
+  [KSPField(guiName = "Actual lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
   public float cableLengthMenuInfo = 0.0f;
+
+  /// <summary>Presents the maximum allowed cable length.</summary>
+  /// <seealso cref="maxAllowedCableLength"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  [KSPField(guiName = "Deployed lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
+  public float deployedCableLengthMenuInfo = 0.0f;
   #endregion
 
   #region Context menu events/actions
@@ -206,13 +266,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Extend cable", guiActive = true)]
   public virtual void ExtentCableEvent() {
-    if (Mathf.Approximately(currentCableLength, cableMaxLenght)) {
+    if (Mathf.Approximately(maxAllowedCableLength, cableMaxLenght)) {
+      // Already at the maximum length.
+      ScreenMessaging.ShowPriorityScreenMessage(MaxLengthReachedMsg.Format(cableMaxLenght));
       return;
     }
-    if (winchState == WinchState.CableRetracting || winchState == WinchState.HeadLocked) {
-      SetStateIfPossible(WinchState.HeadDeployed);
+    // Bring the winch into the inital state for the extending cable action.
+    var oldState = winchState;
+    if (!SetStateIfPossible(WinchState.HeadDeployed, reportNegative: true)) {
+      return;  // Unexpected.
     }
-    SetStateIfPossible(WinchState.CableExtending);
+    if (oldState != WinchState.CableExtending) {
+      winchState = WinchState.CableExtending;  // Override any other state except the self.
+    }
   }
 
   /// <summary>Starts retracting the cable.</summary>
@@ -223,26 +289,22 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Retract cable", guiActive = true)]
   public virtual void RetractCableEvent() {
-    if (winchState == WinchState.HeadDeployed && currentCableLength <= headLockMaxErrorDist) {
-      if (CheckIsHeadAligned()) {
-        winchState = WinchState.HeadLocked;
-      } else {
-        ScreenMessaging.ShowInfoScreenMessage(CannotLockHeadMsg);
-      }
+    if (winchState == WinchState.HeadLocked) {
+      ShowMessageForActiveVessel(HeadIsAlreadyLockedMsg);
+      return;  // Nothing to do.
+    }
+    // If the whole cable has been retracted, then just try to lock.
+    if (winchState == WinchState.HeadDeployed && maxAllowedCableLength < Mathf.Epsilon) {
+      TryLockingHead();
       return;
     }
-    if (winchState == WinchState.CableExtending) {
-      SetStateIfPossible(WinchState.HeadDeployed);
+    // Bring the winch into the inital state for the retract cable action.
+    var oldState = winchState;
+    if (!SetStateIfPossible(WinchState.HeadDeployed, reportNegative: true)) {
+      return;  // Unexpected.
     }
-    SetStateIfPossible(WinchState.CableRetracting);
-  }
-
-  /// <summary>Stops any current motor operation.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Stop motor", guiActive = true)]
-  public virtual void StopMotorEvent() {
-    if (CheckIfDrainsElectricity()) {
-      SetStateIfPossible(WinchState.HeadDeployed);
+    if (oldState != WinchState.CableRetracting) {
+      winchState = WinchState.CableRetracting;  // Override any other state except the self.
     }
   }
 
@@ -251,7 +313,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPEvent(guiName = "Release cable", guiActive = true)]
   public virtual void ReleaseCableEvent() {
     if (SetStateIfPossible(WinchState.HeadDeployed)) {
-      currentCableLength = cableMaxLenght;
+      maxAllowedCableLength = cableMaxLenght;
+      ScreenMessaging.ShowPriorityScreenMessage(MaxLengthReachedMsg.Format(cableMaxLenght));
     }
   }
 
@@ -260,7 +323,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPEvent(guiName = "Instant stretch", guiActive = true)]
   public virtual void InstantStretchEvent() {
     if (SetStateIfPossible(WinchState.HeadDeployed)) {
-      currentCableLength = currentHeadDistance;
+      maxAllowedCableLength = Mathf.Min(realHeadDistance, maxAllowedCableLength);
     }
   }
 
@@ -275,18 +338,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       linkMode = LinkMode.TiePartsOnDifferentVessels;
       if (kerbalTarget != null && StartLinking(GUILinkMode.API)) {
         LinkToTarget(kerbalTarget);
-        //FIXME: LOG level
-        Debug.LogWarning(DbgFormatter2.HostedLog(
-            part, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName));
+        HostedDebugLog.Info(
+            this, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName);
       } else {
-        Debug.LogError(DbgFormatter2.HostedLog(
-            part, "{0} cannot grab the winch head", FlightGlobals.ActiveVessel.vesselName));
+        HostedDebugLog.Error(
+            this, "{0} cannot grab the winch head", FlightGlobals.ActiveVessel.vesselName);
       }
     }
   }
 
-  /// <summary>Detaches the head from the kerbal and pust it back into the winch.</summary>
-  /// <remarks>The active vessel must be a kerbal holding the head.</remarks>
+  /// <summary>Detaches the head from the kerbal and puts it back into the winch.</summary>
+  /// <remarks>The active vessel must be a kerbal holding a headof this winch.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Lock head", guiActiveUnfocused = true, externalToEVAOnly = false)]
   public virtual void LockHeadEvent() {
@@ -296,12 +358,89 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (kerbalTarget != null) {
         BreakCurrentLink(LinkActorType.Player);
         winchState = WinchState.HeadLocked;
-        //FIXME: LOG level
-        Debug.LogWarning(DbgFormatter2.HostedLog(
-            part, "{0} has returned the winch head", FlightGlobals.ActiveVessel.vesselName));
+        HostedDebugLog.Info(
+            this, "{0} has returned the winch head", FlightGlobals.ActiveVessel.vesselName);
       } else {
-        Debug.LogError(DbgFormatter2.HostedLog(part, "Wrong target for the lock head action"));
+        HostedDebugLog.Error(this, "Wrong target for the lock head action");
       }
+    }
+  }
+  #endregion
+
+  #region Externally visible state of the winch 
+  /// <summary>State of the motor.</summary>
+  /// <seealso cref="FixedUpdate"/>
+  public enum WinchState {
+    /// <summary>The head is rigidly attached to the winch's body.</summary>
+    HeadLocked,
+    /// <summary>The motor is not moving, and the head is hanging free on the cable.</summary>
+    HeadDeployed,
+    /// <summary>The motor is spinning, giving an extra length of the available cable.</summary>
+    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
+    CableExtending,
+    /// <summary>The motor is spinning, reducing the length of the available cable.</summary>
+    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
+    CableRetracting,
+  }
+
+  /// <summary>Controls the state of the winch.</summary>
+  /// <remarks>
+  /// Not any state transition is allowed. See <see cref="OnAwake"/> for the transitions definition.
+  /// </remarks>
+  /// <value>The current winch state.</value>
+  // TODO(ihsoft): DOCS: put state transitions here
+  public virtual WinchState winchState {
+    get { return stateMachine.currentState; }
+    set { stateMachine.currentState = value; }
+  }
+
+  /// <summary>
+  /// Tells how much of the cable is available. It defines the maximum possible distance of the head
+  /// from the winch.
+  /// </summary>
+  /// <remarks>
+  /// When the head is deployed, changing of this property may affect the actual physical link with
+  /// the head. A too rapid decrease in the limit may result in the distructive physical effects.
+  /// </remarks>
+  /// <value>The length in meters.</value>
+  /// <seealso cref="winchState"/>
+  /// <seealso cref="realHeadDistance"/>
+  public float maxAllowedCableLength {
+    get {
+      return cableJoint != null ? cableJoint.maxDistance : 0;
+    }
+    set {
+      if (cableJoint != null) {
+        cableJoint.maxDistance = value;
+        UpdateContextMenu();
+      } else {
+        HostedDebugLog.Error(
+            this, "Setting of the cable length length to {0} on a non-existing joint object");
+      }
+    }
+  }
+
+  /// <summary>Actual distance of the head from the winch.</summary>
+  /// <remarks>
+  /// It can be slightly larger than the maximum allowed cable size due to the spring joint
+  /// flexibility. Due to the PhysX engine specifics, the joint's stretching cannot be avoided
+  /// even by setting an infinite <see cref="cableSpring"/> setting.
+  /// </remarks>
+  /// <value>The distance in meters.</value>
+  /// <seealso cref="maxAllowedCableLength"/>
+  public float realHeadDistance {
+    get {
+      return cableJoint != null
+         ? Vector3.Distance(headCableAnchor.position, nodeTransform.position)
+         : 0;
+    }
+  }
+
+  /// <summary>Tells if the winch head is picked up by an EVA kerbal.</summary>
+  /// <value><c>true</c> if the head is being carried by a kerbal.</value>
+  public bool isCableHeadOnKerbal {
+    get {
+      return isLinked && linkTarget.part.vessel.isEVA;
     }
   }
   #endregion
@@ -318,10 +457,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Field instance for <see cref="RetractCableEvent"/>.</summary>
   /// <seealso cref="LoadUIControlsCache"/>
   protected BaseEvent uiRetractCableEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="StopMotorEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiStopMotorEvent { get; private set; }
 
   /// <summary>Field instance for <see cref="GrabHeadEvent"/>.</summary>
   /// <seealso cref="LoadUIControlsCache"/>
@@ -340,100 +475,22 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected BaseEvent uiInstantStretchEvent { get; private set; }
   #endregion
 
-  #region Externally visible state of the winch 
-  /// <summary>State of the motor.</summary>
-  /// <seealso cref="FixedUpdate"/>
-  public enum WinchState {
-    /// <summary>The head is rigidly attached to the winch's body.</summary>
-    HeadLocked,
-    /// <summary>The motor is not moving, and the head is hanging free of the cable.</summary>
-    HeadDeployed,
-    /// <summary>The motor is spinning, giving an extra length of the available cable.</summary>
-    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
-    CableExtending,
-    /// <summary>The motor is spinning, reducing the length of the available cable.</summary>
-    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
-    CableRetracting,
-  }
-
-  /// <summary>Controls the state of the winch.</summary>
-  /// <remarks>
-  /// Not any state transition is allowed. See <see cref="OnAwake"/> for the transitions definition.
-  /// </remarks>
-  /// <value>The current winch state.</value>
-  // FIXME: DOCS: put state transitions here
-  public virtual WinchState winchState {
-    get { return stateMachine.currentState; }
-    set {
-      stateMachine.currentState = value;
-      headDeployStateMenuInfo = WinchStatesMsg.Format(value);
-      UpdateContextMenu();
-    }
-  }
-
-  /// <summary>Tells the current length of the cable between the winch and the head.</summary>
-  /// <remarks>
-  /// <para>
-  /// It's not a real distance between the winch and the head. It's an allowance for the maximum
-  /// distance.
-  /// </para>
-  /// <para>
-  /// When the head is deployed, changing of this property will affect the actual physical link with
-  /// the head. A too rapid change in the cable length may result in the distructive physical
-  /// effects.
-  /// </para>
-  /// </remarks>
-  /// <value>The current length in meters.</value>
-  /// <seealso cref="winchState"/>
-  /// <seealso cref="currentHeadDistance"/>
-  // FIXME: read/write it from the physics joint.
-  public float currentCableLength {
-    get { return _cableLength; }
-    protected set {
-      _cableLength = value;
-      cableLengthMenuInfo = value;
-      UpdateCableLength();
-    }
-  }
-  float _cableLength;
-
-  /// <summary>Actual distance of the head from the winch.</summary>
-  /// <remarks>
-  /// It may be different from the <see cref="currentCableLength"/> if the head is moving or it
-  /// hasn't reached the cable limit yet.
-  /// </remarks>
-  /// <value>The current distance in meters./</value>
-  public float currentHeadDistance {
-    get {
-      return winchState != WinchState.HeadLocked
-          ? (headCableAnchor.position - nodeTransform.position).magnitude
-          : 0;
-    }
-  }
-
-  /// <summary>Tells if the winch head is picked up by an EVA kerbal.</summary>
-  /// <value><c>true</c> if the head is being carried by a kerbal.</value>
-  public bool isCableHeadOnKerbal {
-    get {
-      return isLinked && linkTarget.part.vessel.isEVA;
-    }
-  }
-
+  #region Local properties and fields
   /// <summary>State machine that defines and controls the winch state.</summary>
   /// <remarks>
   /// The machine can be adjusted until it's started in the <see cref="OnStart"/> method.
   /// </remarks>
-  /// <value>The state machine.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  protected SimpleStateMachine<WinchState> stateMachine { get; private set; }
-  #endregion
+  SimpleStateMachine2<WinchState> stateMachine;
 
+  //FIXME: add comments to each field.
+  SpringJoint cableJoint;
   Transform headModelObj;
   Transform headCableAnchor;
   Transform headPartAnchor;
-
   float motorCurrentSpeed;
   float motorTargetSpeed;
+  #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -441,7 +498,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.OnAwake();
     LoadUIControlsCache();
 
-    stateMachine = new SimpleStateMachine<WinchState>(strict: true);
+    stateMachine = new SimpleStateMachine2<WinchState>(strict: true);
+    stateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
     stateMachine.SetTransitionConstraint(
         WinchState.HeadLocked, new[] { WinchState.HeadDeployed });
     stateMachine.SetTransitionConstraint(
@@ -460,8 +518,18 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         });
     stateMachine.AddStateHandlers(
         WinchState.HeadLocked,
-        enterHandler: oldState => LockCableHead(),
-        leaveHandler: oldState => DeployCableHead());
+        enterHandler: oldState => {
+          // The module's default state is "locked". Skip the state's machine start.
+          if (oldState.HasValue) {
+            LockCableHead();
+          }
+        },
+        leaveHandler: newState => {
+          // Don't deploy if it's just the state machine stopping.
+          if (newState.HasValue) {
+            DeployCableHead();
+          }
+        });
     stateMachine.AddStateHandlers(
         WinchState.CableExtending,
         enterHandler: oldState => {
@@ -476,15 +544,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    stateMachine.Start(WinchState.HeadLocked);
     base.OnLoad(node);
+    if (headMass > part.mass) {
+      HostedDebugLog.Error(
+          this, "Head mass is greater that the part's mass: {0} > {1}", headMass, part.mass);
+      headMass = 0.1f * part.mass;  // A fail safe value. 
+    }
     LoadOrCreateHeadModel();
-    UpdateContextMenu();
   }
   
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
-    stateMachine.Start(WinchState.HeadLocked);
     UpdateContextMenu();
   }
   #endregion
@@ -492,8 +564,18 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public virtual void FixedUpdate() {
+    //TODO: Do it in the OnFixedUpdate().
+    if (HighLogic.LoadedSceneIsEditor) {
+      return;
+    }
     if (CheckIfDrainsElectricity()) {
       UpdateMotor();
+    }
+    if (winchState != WinchState.HeadLocked) {
+      // Apply to the head the same forces as are affecting the part.
+      headModelObj.GetComponent<Rigidbody>()
+          .AddForce(vessel.precalc.integrationAccel, ForceMode.Acceleration);
+      UpdateContextMenu();  // The real cable length may have changed.
     }
   }
   #endregion
@@ -507,38 +589,81 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   protected override void PhysicalLink(ILinkTarget target) {
+    //FIXME: handle persisted release state.
+    //FIXME: release the cable.
     winchState = WinchState.HeadDeployed;  // Ensure the head is deployed and not moving.
     base.PhysicalLink(target);
+    //FIXME: fix the cable length.
   }
+  
+  //FIXME: handle break link event
   #endregion
 
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
-    uiExtendCableEvent.active =
-        winchState == WinchState.CableExtending || !CheckIfDrainsElectricity();
-    uiRetractCableEvent.active =
-        winchState == WinchState.CableRetracting || !CheckIfDrainsElectricity();
-    uiStopMotorEvent.active = CheckIfDrainsElectricity();
+    //TODO: Move to the state preview handler.
+    headDeployStateMenuInfo = WinchStatesMsg.Format(winchState);
+    cableLengthMenuInfo = realHeadDistance;
+    deployedCableLengthMenuInfo = maxAllowedCableLength;
+    // Keep the visibility states so that the context menu is not "jumping" when the state is
+    // changed. In general, if a menu item disappears then another one should show up. 
+    uiExtendCableEvent.active = true;
+    uiExtendCableEvent.guiName = winchState == WinchState.CableExtending
+        ? StopExtendingMenuTxt
+        : ExtendCableMenuTxt;
+    uiRetractCableEvent.active = true;
+    uiRetractCableEvent.guiName = winchState == WinchState.CableRetracting
+        ? StopRetractingMenuTxt
+        : RetractCableMenuTxt;
+    uiReleaseCableEvent.active = true;
+    uiInstantStretchEvent.active = true;
+    // These events are only available for an EVA kerbal.
     uiGrabHeadEvent.active = winchState == WinchState.HeadLocked;
     uiLockHeadEvent.active = isCableHeadOnKerbal;
-    //TODO: Consider checking the cable length. Updates from currentCableLength will be needed.
-    uiReleaseCableEvent.active = winchState == WinchState.HeadDeployed;
-    uiInstantStretchEvent.active = winchState == WinchState.HeadDeployed;
   }
   #endregion
 
   #region Overridable methods
-  /// <summary>Tells if the winch is a state that requires the electricity charge.</summary>
-  /// <returns><c>true</c> if winch is consuming electricity.</returns>
-  protected virtual bool CheckIfDrainsElectricity() {
-    return winchState == WinchState.CableExtending || winchState == WinchState.CableRetracting;
+  /// <summary>Caches the UI elements into the local state.</summary>
+  protected virtual void LoadUIControlsCache() {
+    uiExtendCableEvent = Events["ExtentCableEvent"];
+    uiRetractCableEvent = Events["RetractCableEvent"];
+    uiGrabHeadEvent = Events["GrabHeadEvent"];
+    uiLockHeadEvent = Events["LockHeadEvent"];
+    uiReleaseCableEvent = Events["ReleaseCableEvent"];
+    uiInstantStretchEvent = Events["InstantStretchEvent"];
+  }
+  #endregion
+
+  #region Inheritable utility methods
+  /// <summary>Shows a message in GUI if the reporting part belongs to the active vessel.</summary>
+  /// <remarks>
+  /// Use this method to a present an update which is only important when the player is in control
+  /// of the owner vessel. In general, when an update happens on an inactive vessel, the GUI message
+  /// will look confusing since the player may not have the context.
+  /// </remarks>
+  /// <remarks>The message is also reported to the log.</remarks>
+  /// <param name="message">The message to present.</param>
+  protected void ShowMessageForActiveVessel(string message) {
+    HostedDebugLog.Info(this, message);
+    if (vessel.isActiveVessel) {
+      ScreenMessaging.ShowPriorityScreenMessage(message);
+    }
   }
 
+  /// <summary>Tells if the winch is a state that requires the electricity charge.</summary>
+  /// <returns><c>true</c> if winch is consuming electricity.</returns>
+  protected bool CheckIfDrainsElectricity() {
+    return winchState == WinchState.CableExtending || winchState == WinchState.CableRetracting;
+  }
+  #endregion
+
+  #region Local utility methods
   /// <summary>Updates the winch state according to the current motor movements.</summary>
   /// <remarks>This method is only called when the winch is consuming electricity.</remarks>
   /// <seealso cref="CheckIfDrainsElectricity"/>
-  protected virtual void UpdateMotor() {
+  void UpdateMotor() {
     // Adjust the motor speed to the target.
     if (motorCurrentSpeed < motorTargetSpeed) {
       motorCurrentSpeed += motorAcceleration * Time.fixedDeltaTime;
@@ -556,23 +681,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
-      currentCableLength += motorCurrentSpeed * TimeWarp.fixedDeltaTime;
-      if (currentCableLength >= cableMaxLenght) {
-        currentCableLength = cableMaxLenght;
+      maxAllowedCableLength += motorCurrentSpeed * TimeWarp.fixedDeltaTime;
+      if (motorCurrentSpeed > 0 && maxAllowedCableLength >= cableMaxLenght) {
+        maxAllowedCableLength = cableMaxLenght;
         winchState = WinchState.HeadDeployed;
-      } else if (currentCableLength <= 0) {
-        currentCableLength = 0;
+        ScreenMessaging.ShowPriorityScreenMessage(MaxLengthReachedMsg.Format(cableMaxLenght));
+      } else if (motorCurrentSpeed < 0 && maxAllowedCableLength <= 0) {
+        maxAllowedCableLength = 0;
         winchState = WinchState.HeadDeployed;  // Stop the motor.
-        if (CheckIsHeadAligned()) {
-          winchState = WinchState.HeadLocked;
-        } else {
-          ScreenMessaging.ShowInfoScreenMessage(CannotLockHeadMsg);
-        }
-      }
-      if (winchState == WinchState.CableRetracting && currentCableLength <= headLockMaxErrorDist
-          && CheckIsHeadAligned()) {
-        winchState = WinchState.HeadDeployed;  // Abort the motor state.
-        winchState = WinchState.HeadLocked;
+        TryLockingHead();
       }
     } else {
       winchState = WinchState.HeadDeployed;
@@ -580,57 +697,77 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Updates the physical joint state according to the current cable length.</summary>
-  //FIXME: Implement
-  protected virtual void UpdateCableLength() {
-  }
-
-  /// <summary>Caches the UI elements into the local state.</summary>
-  protected virtual void LoadUIControlsCache() {
-    uiExtendCableEvent = Events["ExtentCableEvent"];
-    uiRetractCableEvent = Events["RetractCableEvent"];
-    uiStopMotorEvent = Events["StopMotorEvent"];
-    uiGrabHeadEvent = Events["GrabHeadEvent"];
-    uiLockHeadEvent = Events["LockHeadEvent"];
-    uiReleaseCableEvent = Events["ReleaseCableEvent"];
-    uiInstantStretchEvent = Events["InstantStretchEvent"];
-  }
-  #endregion
-
-  #region Inheritable utility methods
   /// <summary>
-  /// Checks if the cable head is located very close to the winch's attach node and is looking in
-  /// the approaximnatle same direction.
+  /// Checks if the cable head can be locked without triggering significant physical froces. 
   /// </summary>
+  /// <param name="logCheckResult">
+  /// If <c>true</c> then the result of the check will be logged.
+  /// </param>
   /// <returns>
   /// <c>true</c> if projection of the position and direction of the head, and whatever is attached
-  /// to it, won't deal a physics damage.
+  /// to it, won't deal a significant disturbance to the system.
   /// </returns>
-  protected bool CheckIsHeadAligned() {
-    // Check if the distance is small enough.
-    if (currentHeadDistance > headLockMaxErrorDist) {
+  bool CheckIsHeadAligned(bool logCheckResult) {
+    // Check the pre-conditions. 
+    if (maxAllowedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
+        || realHeadDistance > headLockMaxErrorDist  // The head is not close enough.
+        || isCableHeadOnKerbal) {  // A live being is on the cable.
+      if (logCheckResult) {
+        HostedDebugLog.Info(this, "Head is not aligned: preconditions failed");
+      }
       return false;
     }
-    // The forward vectors of the attach node and the head cable anchor must point in the
-    // completely opposite directions.
-    var fwdDot = 1.0f + Vector3.Dot(headCableAnchor.forward, nodeTransform.forward);
-    if (Mathf.Abs(fwdDot) > headLockMaxErrorDir) {
+    // The alignment doesn't matter if the head is not attached to anything.
+    if (!isLinked) {
+      if (logCheckResult) {
+        HostedDebugLog.Info(this, "Unplugged head is allowed to lock");
+      }
+      return true;
+    }
+    // Check if the alignment error is small enough to not awake Krakken on dock.
+    var fwdAngleErr = 180 - Vector3.Angle(headCableAnchor.forward, nodeTransform.forward);
+    if (fwdAngleErr > headLockMaxErrorDir) {
+      if (logCheckResult) {
+        HostedDebugLog.Info(
+            this, "Plugged head align error is beyond the allowed limits: yaw/pitch={0}",
+            fwdAngleErr);
+      }
       return false;
     }
-    var rollDot = 1.0f + Vector3.Dot(headCableAnchor.forward, nodeTransform.forward);
-    if (Mathf.Abs(rollDot) > headLockMaxErrorDir) {
-      return false;
+
+    if (logCheckResult) {
+      HostedDebugLog.Info(this, "Plugged head is allowed to lock");
     }
     return true;
   }
-  #endregion
 
-  #region Local utility methods
+  /// <summary>Checks if the cable head can be locked, and attempts to lock it.</summary>
+  /// <remarks>The successful attempt will be logged to GUI.</remarks>
+  /// <param name="reportIfCannot">
+  /// If <c>true</c> then the failed attempt will be logged to GUI.
+  /// </param>
+  /// <returns><c>true</c> if the head was successfully locked.</returns>
+  bool TryLockingHead(bool reportIfCannot = true) {
+    if (!CheckIsHeadAligned(reportIfCannot)) {
+      if (reportIfCannot) {
+        ShowMessageForActiveVessel(LockHeadNotAlignedMsg);
+      }
+      return false;
+    }
+    winchState = WinchState.HeadLocked;
+    ShowMessageForActiveVessel(HeadLockedMsg);
+    return true;
+  }
+
   /// <summary>Changes the winch state if the transition is allowed.</summary>
   /// <remarks>Transition to the same state is always allowed.</remarks>
   /// <param name="newState">The new state of the winch to set.</param>
+  /// <param name="reportNegative">
+  /// If <c>true</c> then the negative responses will be logged as a warning in the logs. Set this
+  /// parameter if the call is done for a sanity check.
+  /// </param>
   /// <returns><c>true</c> if state change was successful.</returns>
-  bool SetStateIfPossible(WinchState newState) {
+  bool SetStateIfPossible(WinchState newState, bool reportNegative = false) {
     if (newState == winchState) {
       return true;
     }
@@ -638,21 +775,66 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       winchState = newState;
       return true;
     }
+    if (reportNegative) {
+      HostedDebugLog.Warning(
+          this, "Ignore impossible state transition: {0} => {1}", winchState, newState);
+    }
     return false;
   }
-
-  // FIXME: Implement
+  
+  /// <summary>
+  /// Turns the head into a physical object that's linked to the winch via a cable.
+  /// </summary>
   void DeployCableHead() {
-    //FIXME: LOG level
-    Debug.LogWarning(DbgFormatter2.HostedLog(part, "Winch head is deployed"));
+    headModelObj.parent = headModelObj;
+    //TODO(ihsoft): Make a KAS shared method.
+    var headRb = headModelObj.gameObject.AddComponent<Rigidbody>();
+    headRb.useGravity = false;
+    headRb.velocity = part.rb.velocity;
+    headRb.angularVelocity = part.rb.angularVelocity;
+    headRb.mass = headMass;
+    part.mass -= headRb.mass;
+    part.rb.mass -= headRb.mass;
+
+    // The cable is indestructable. In case of too string froces the head or the winch joint should
+    // break.
+    //TODO(ihsoft): use KAS shared library.
+    cableJoint = headModelObj.gameObject.AddComponent<SpringJoint>();
+    cableJoint.connectedBody = part.rb;
+    cableJoint.maxDistance = 0;
+    cableJoint.minDistance = 0;
+    cableJoint.spring = cableSpring;
+    cableJoint.damper = cableDamper;
+    cableJoint.breakForce = Mathf.Infinity;
+    cableJoint.breakTorque = Mathf.Infinity;
+    cableJoint.autoConfigureConnectedAnchor = false;
+    cableJoint.anchor = headModelObj.InverseTransformPoint(headCableAnchor.position);
+    cableJoint.connectedAnchor = part.rb.transform.InverseTransformPoint(nodeTransform.position);
+    
+    linkRenderer.StartRenderer(nodeTransform, headCableAnchor);
+    
+    HostedDebugLog.Info(this, "Winch head is deployed");
   }
 
-  // FIXME: Implement
+  /// <summary>Turns a physical head back into a physicsless mesh within the part's model.</summary>
   void LockCableHead() {
-    currentCableLength = 0;
-    //FIXME: LOG level
-    Debug.LogWarning(DbgFormatter2.HostedLog(part, "Winch head is locked"));
-    //TODO: fix physical joint.
+    // Turn the head into a physicsless object.
+    var headRb = headModelObj.gameObject.GetComponent<Rigidbody>();
+    part.mass += headRb.mass;
+    part.rb.mass += headRb.mass;
+    // We want the immediate destruction to not get affected by the physics left-offs.
+    UnityEngine.Object.DestroyImmediate(cableJoint);
+    UnityEngine.Object.DestroyImmediate(headRb);
+    cableJoint = null;
+
+    // Bring the head back into the part's model.
+    headModelObj.parent = Hierarchy.GetPartModelTransform(part);
+    AlignTransforms2.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    UpdateContextMenu();  // The real cable length may have changed.
+
+    linkRenderer.StopRenderer();
+
+    HostedDebugLog.Info(this, "Winch head is locked");
   }
 
   /// <summary>Intializes the head model object and its anchors.</summary>
@@ -670,30 +852,39 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void LoadOrCreateHeadModel() {
     headModelObj = Hierarchy2.FindPartModelByPath(part, headModel);
     if (headModelObj != null) {
-      headCableAnchor = Hierarchy2.FindTransformByPath(headModelObj, headCableAttachAt);
+      headCableAnchor = Hierarchy.FindTransformByPath(headModelObj, headCableAttachAt);
       if (headCableAnchor == null) {
-        //FIXME: LOG level
-        Debug.LogWarning(DbgFormatter2.HostedLog(part, "Creating cable transform"));
+        HostedDebugLog.Info(this, "Creating cable transform");
         headCableAnchor = new GameObject(headCableAttachAt).transform;
+        var posAndRot = PosAndRot2.FromString(headCableAttachAtPosAndRot);
         Hierarchy.MoveToParent(headCableAnchor, headModelObj,
-                               newPosition: headCableAttachAtPos, newRotation: Quaternion.identity);
+                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
-      headPartAnchor = Hierarchy2.FindTransformByPath(headModelObj, headPartAttachAt);
+      headPartAnchor = Hierarchy.FindTransformByPath(headModelObj, headPartAttachAt);
       if (headPartAnchor == null) {
-        //FIXME: LOG level
-        Debug.LogWarning(DbgFormatter2.HostedLog(part, "Creating part transform"));
+        HostedDebugLog.Info(this, "Creating part transform");
         headPartAnchor = new GameObject(headPartAttachAt).transform;
         var posAndRot = PosAndRot2.FromString(headPartAttachAtPosAndRot);
         Hierarchy.MoveToParent(headPartAnchor, headModelObj,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
     } else {
-      Debug.LogError(DbgFormatter2.HostedLog(part, "Cannot find a head model: {1}", headModel));
+      HostedDebugLog.Error(this, "Cannot find a head model: {1}", headModel);
       // Fallback to not have the whole code to crush. 
       headModelObj = new GameObject().transform;
       headCableAnchor = headModelObj;
       headPartAnchor = headModelObj;
     }
+
+    // Ensure the head is aligned as we expect it to be.    
+    AlignTransforms2.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+  }
+  
+  string DumpAxis(Transform trf) {
+    return string.Format("(fwd={0}, up={1}, right={2})",
+                         DbgFormatter.Vector(trf.forward),
+                         DbgFormatter.Vector(trf.up),
+                         DbgFormatter.Vector(trf.right));
   }
   #endregion
 }
