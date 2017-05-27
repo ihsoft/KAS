@@ -631,12 +631,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
       var partJoint = new GameObject(PartJointTransformName).transform;
       Hierarchy.MoveToParent(partJoint, root);
       partJoint.rotation = Quaternion.LookRotation(Vector3.forward);
-      if (config.type == PipeEndType.Simple || config.sphereDiameter < float.Epsilon) {
-        // No extra models are displayed at the joint, just attach the pipe to the part's node.
-        var pipeJoint = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeJoint.transform, root);
-        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
-      } else {
+      if (config.type == PipeEndType.ProceduralModel) {
         // Create procedural models at the point where the pipe connects to the part's node.
         var material = CreateMaterial(
             GetTexture(config.texture),
@@ -657,6 +652,15 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
             RescaleTextureToLength(arm, samplesPerMeter: config.textureSamplesPerMeter);
           }
         }
+      } else {
+        // No extra models are displayed at the joint, just attach the pipe to the part's node.
+        if (config.type != PipeEndType.Simple) {
+          // Normally, this error should never pop up.
+          Debug.LogError(DbgFormatter2.HostedLog(part, "Unknown joint type: {0}", config.type));
+        }
+        var pipeJoint = new GameObject(PipeJointTransformName);
+        Hierarchy.MoveToParent(pipeJoint.transform, root);
+        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
       }
     }
     Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
