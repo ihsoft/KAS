@@ -1,6 +1,7 @@
-### 0.6.3 (pre-release)
+### 0.6.3 (May 26th, 2017)
 - [Fix] Show detach button when harpooned to a part (asmigala).
 - [Change] Support a new format of the `OnKISAction` parameter.
+- KSP 1.3 support.
 
 ### 0.6.2 (December 26th, 2016)
 - [Fix #191] Unable to use winch with attached in VAB parts with wheels.
