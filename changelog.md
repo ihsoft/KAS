@@ -1,6 +1,7 @@
-# 0.7.4-pre:
+# 0.7.4 (May 26th, 2017):
 * [Enhancement] A brand new model for CH-1.
 * [Enhancement] PCB-1 cable now has a head that plugs into CH-1 model.
+* KSP 1.3 support.
 
 # 0.7.3 (Februare 4th, 2017):
 * [Enhancement] Add cable joint parts PCB-1 and CH-1.
