@@ -55,15 +55,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       };
 
   /// <summary>Error message to present when the electricity charge has exhausted.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message/*"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message NoEnergyMsg = "No energy!";
 
   /// <summary>
   /// Error message to present when an improperly aligned cable head has attempted to lock with the
   /// winch.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message/*"/>
   protected static readonly Message CannotLockHeadMsg = "Head is not aligned. Cannot lock";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   #endregion
 
   #region Part's config fields
@@ -141,7 +141,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <seealso cref="headCableAttachAt"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
   public Vector3 headCableAttachAtPos;
 
@@ -160,7 +160,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <seealso cref="CheckIsHeadAligned"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
   public float headLockMaxErrorDir = 0.01f;
 
