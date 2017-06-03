@@ -696,28 +696,3 @@ public sealed class SimpleStateMachine2<T> where T : struct, IConvertible {
 }
 
 }  // namespace
-
-namespace KSPDev.ModelUtils {
-
-/// FIXME: merge with AlignTransforms 
-public static class AlignTransforms2 {
-  /// <summary>
-  /// Aligns the source node so that it's located at the target, and source and target are "looking"
-  /// at the each other.
-  /// </summary>
-  /// <remarks>
-  /// The object's "look" direction is a <see cref="Transform.forward"/> direction.
-  /// </remarks>
-  /// <param name="source">The node to align.</param>
-  /// <param name="sourceChild">The child node of the source to use as the align point.</param>
-  /// <param name="target">The target node to align with.</param>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  public static void SnapAlign(Transform source, Transform sourceChild, Transform target) {
-    // Don't relay on the localRotation since the child may be not an immediate child.
-    var localChildRot = source.rotation.Inverse() * sourceChild.rotation;
-    source.rotation = Quaternion.LookRotation(-target.forward, target.up) * localChildRot;
-    source.position = source.position - (sourceChild.position - target.position);
-  }
-}
-
-}  // namespace

@@ -829,7 +829,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
     // Bring the head back into the part's model.
     headModelObj.parent = Hierarchy.GetPartModelTransform(part);
-    AlignTransforms2.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
     UpdateContextMenu();  // The real cable length may have changed.
 
     linkRenderer.StopRenderer();
@@ -877,7 +877,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
 
     // Ensure the head is aligned as we expect it to be.    
-    AlignTransforms2.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
   }
   
   string DumpAxis(Transform trf) {
