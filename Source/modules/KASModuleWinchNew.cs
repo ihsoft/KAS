@@ -856,7 +856,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (headCableAnchor == null) {
         HostedDebugLog.Info(this, "Creating cable transform");
         headCableAnchor = new GameObject(headCableAttachAt).transform;
-        var posAndRot = PosAndRot2.FromString(headCableAttachAtPosAndRot);
+        var posAndRot = PosAndRot.FromString(headCableAttachAtPosAndRot);
         Hierarchy.MoveToParent(headCableAnchor, headModelObj,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
@@ -864,7 +864,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (headPartAnchor == null) {
         HostedDebugLog.Info(this, "Creating part transform");
         headPartAnchor = new GameObject(headPartAttachAt).transform;
-        var posAndRot = PosAndRot2.FromString(headPartAttachAtPosAndRot);
+        var posAndRot = PosAndRot.FromString(headPartAttachAtPosAndRot);
         Hierarchy.MoveToParent(headPartAnchor, headModelObj,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
