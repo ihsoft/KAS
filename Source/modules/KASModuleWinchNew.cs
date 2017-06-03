@@ -126,8 +126,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Object that represents the head model.</summary>
   /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform, string)"/> search path. The
-  /// path is looked globally, starting from the part's model root.
+  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
+  /// path. The path is looked globally, starting from the part's model root.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
@@ -146,8 +146,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Object that is used to align the cable head against the target part.</summary>
   /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform, string)"/> search path. The
-  /// path is looked starting from the head model.
+  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
+  /// path. The path is looked starting from the head model.
   /// </remarks>
   /// <seealso cref="headModel"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -171,8 +171,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Object that is used to align the cable mesh to the cable head.</summary>
   /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform, string)"/> search path. The
-  /// path is looked starting from the head model.
+  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
+  /// path. The path is looked starting from the head model.
   /// </remarks>
   /// <seealso cref="headModel"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>

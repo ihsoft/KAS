@@ -45,18 +45,6 @@ public interface IHasContextMenu {
 
 }  // namespace
 
-namespace KSPDev.GUIUtils {
-
-/// TODO: Drop it.
-public static class A {
-  /// TODO: Merge into KSPDev.GUIUtils.Messages
-  public static string Format(this Message msg) {
-    return (string) msg;
-  }
-}
-
-}  // namepsace
-
 namespace KSPDev.ResourceUtils {
 
 /// <summary>
@@ -707,53 +695,6 @@ public sealed class SimpleStateMachine2<T> where T : struct, IConvertible {
   #endregion
 }
 
-}  // namespace
-
-namespace KSPDev.LogUtils {
-  /// FIXME
-  public static class HostedDebugLog {
-    /// <summary>Logs a formatted messages with a part indentifier,</summary>
-    /// <param name="host">The host object which is bound to the log record.</param>
-    /// <param name="format">The format string for the log message.</param>
-    /// <param name="args">The arguments for the format string.</param>
-    public static void Info(object host, string format, params object[] args) {
-      Debug.logger.LogFormat(LogType.Log, GetHostName(host) + format, args);
-    }
-    
-    /// <summary>Logs a formatted messages with a part indentifier,</summary>
-    /// <param name="host">The host object which is bound to the log record.</param>
-    /// <param name="format">The format string for the log message.</param>
-    /// <param name="args">The arguments for the format string.</param>
-    public static void Warning(object host, string format, params object[] args) {
-      Debug.logger.LogFormat(LogType.Warning, GetHostName(host) + format, args);
-    }
-
-    /// <summary>Logs a formatted messages with a part indentifier,</summary>
-    /// <param name="host">The host object which is bound to the log record.</param>
-    /// <param name="format">The format string for the log message.</param>
-    /// <param name="args">The arguments for the format string.</param>
-    public static void Error(object host, string format, params object[] args) {
-      Debug.logger.LogFormat(LogType.Error, GetHostName(host) + format, args);
-    }
-
-    static string GetHostName(object host) {
-      var partHost = host as Part;
-      if (partHost != null) {
-        return "[Part:" + DbgFormatter.PartId(partHost) + "] ";
-      }
-      var moduleHost = host as PartModule;
-      if (moduleHost != null) {
-        var moduleNum = moduleHost.part.Modules.IndexOf(moduleHost);
-        return "[Part:" + DbgFormatter.PartId(moduleHost.part) + "#Module:" + moduleNum + "] ";
-      }
-      var transformHost = host as Transform;
-      if (transformHost != null) {
-        return "[Tranform:" + DbgFormatter.TranformPath(transformHost) + "] ";
-      }
-      return "[Obj:" + (host != null ? host.ToString() : "NULL") + "] ";
-    }
-  }
-  
 }  // namespace
 
 namespace KSPDev.ModelUtils {

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.23.0</name>
+        <name>KSPDev_Utils.0.23.1-pre</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1062,28 +1062,26 @@
             <inheritdoc/>
         </member>
         <member name="T:KSPDev.Extensions.Dictionaries">
-            <summary>Helper extensions for generic dictionary container.</summary>
+            <summary>Helper extensions for the generic dictionary container.</summary>
+            <example><code source="Examples/Extensions/Dictionary-Examples.cs" region="SetDefaultAddToDict"/></example>
         </member>
         <member name="M:KSPDev.Extensions.Dictionaries.SetDefault``2(System.Collections.Generic.Dictionary{``0,``1},``0)">
             <summary>
-            Returns a value from dictionary by the key. If key is not defined yet then a new default entry
-            is created and returned.
+            Returns a value from the dictionary by a key. If the key is not present yet, then a new
+            default entry is created and returned.
             </summary>
-            <example>
-            It's most useful when dealing with dictionaries of a complex type:
-            <code><![CDATA[
-            var a = new Dictionary<int, HashSet<string>>();
-            // An empty string set for key 1 is created, and "abc" is added in it.
-            a.SetDefault(1).Add("abc");
-            // "def" is added into existing string set at key 1. 
-            a.SetDefault(1).Add("def");
-            ]]></code>
-            </example>
-            <param name="dict">Dictionary to get value from.</param>
-            <param name="key">Key to lookup.</param>
-            <typeparam name="K">Type of the dictionary key.</typeparam>
-            <typeparam name="V">Type of the dictionary value.</typeparam>
+            <param name="dict">The dictionary to get value from.</param>
+            <param name="key">The key to lookup.</param>
+            <typeparam name="K">The type of the dictionary key.</typeparam>
+            <typeparam name="V">The type of the dictionary value.</typeparam>
             <returns>Either an existing value for the key or a default instance of the value.</returns>
+            <example>
+            If there is a dictionary which values are collections or a class, then a special code is
+            always needed to properly access this dictionary:
+            <code source="Examples/Extensions/Dictionary-Examples.cs" region="ClassicAddToDict"/>
+            With this extension the key can safely be accessed with just one call:   
+            <code source="Examples/Extensions/Dictionary-Examples.cs" region="SetDefaultAddToDict"/>
+            </example>
         </member>
         <member name="T:KSPDev.FSUtils.KspPaths">
             <summary>A helper class to deal with plugins file structure.</summary>
@@ -1424,7 +1422,7 @@
         </member>
         <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowPriorityScreenMessage(System.String,System.Object[])">
             <summary>Shows an important message with a default timeout.</summary>
-            <remarks>It's no defined how exactly the message is shown. The only thing required is that
+            <remarks>It's not defined how exactly the message is shown. The only thing required is that
             player won't miss it.</remarks>
             <param name="fmt">A formatting string.</param>
             <param name="args">Arguments for the formatting string.</param>
@@ -1445,11 +1443,11 @@
         <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowErrorScreenMessage(System.String,System.Object[])">
             <summary>Shows an error message with a default timeout.</summary>
             <remarks>
-            It's no defined how exactly the message is shown, but it's guaranteed it looks like an error
-            and player will perceive it like that.
+            It's not defined how exactly the message is shown, but it's guaranteed that it will look like
+            an "error", and the player will perceive it like that.
             </remarks>
-            <param name="fmt"><c>string.Format()</c> formatting string.</param>
-            <param name="args">Arguments for the formattign string.</param>
+            <param name="fmt">The <c>string.Format()</c> formatting string.</param>
+            <param name="args">The arguments for the formattign string.</param>
         </member>
         <member name="M:KSPDev.GUIUtils.ScreenMessaging.ShowWarningScreenMessage(System.String,System.Object[])">
             <summary>Shows a warning message with a default timeout.</summary>
@@ -1577,6 +1575,13 @@
             <summary>Allows casting messages to string.</summary>
             <param name="msg">A message to cast.</param>
             <returns>Message value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.Message.Format">
+            <summary>Returns the message string.</summary>
+            <remarks>
+            This is just a compatibility method to make all message classes work in the same way.
+            </remarks>
+            <returns>Complete message string.</returns>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`1">
              <summary>A class to wrap a UI string with one parameter.</summary>
@@ -1847,13 +1852,19 @@
             <summary>GUI action type.</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.UISoundPlayer">
-             <summary>Helper class to play sounds in game GUI. Such sounds are not 3D aligned.</summary>
+             <summary>Helper class to play sounds in the game GUI. Such sounds are not 3D aligned.</summary>
              <remarks>
-             Use this player when soucre of the sound is player keyboard actions or a mouse pointer. This
-             class implements all the boilerplate to load and play sound resources.
+             <para>
+             Use this player when the source of the sound is a GUI object (e.g. a GUI control). This class
+             implements all the boilerplate to load and play the sound resources. All the sounds are cached
+             wihtin the scene, so repeating requests to the same sound won't add extra latency.
+             </para>
+             <para>
+             In case of the very first usage of the sound is latency restricted, the sound resource can be
+             pre-cached via the <see cref="M:KSPDev.GUIUtils.UISoundPlayer.CacheSound(System.String)"/> method. It will increase the loading time, though.
+             </para>
              </remarks>
              <example>
-             Here is an example of playing two different sounds on pressing "O" or "P" keys.
              <code><![CDATA[
              class MyModule : PartModule {
                public override OnAwake() {
@@ -1866,45 +1877,46 @@
                    UISoundPlayer.instance.Play("ooo.ogg");  // Played from cache. No delay.
                  }
                  if (Input.GetKeyDown("P")) {
-                   UISoundPlayer.instance.Play("ppp.ogg");  // May delay game while loading the resource.
+                   UISoundPlayer.instance.Play("ppp.ogg");  // May delay the game while loading the resource.
                  }
                }
              }
              ]]></code>
              </example>
         </member>
-        <member name="F:KSPDev.GUIUtils.UISoundPlayer.instance">
-            <summary>Returns instance for the current scene.</summary>
-        </member>
         <member name="F:KSPDev.GUIUtils.UISoundPlayer.audioCache">
             <summary>Global scene cache for all the sounds.</summary>
         </member>
-        <member name="M:KSPDev.GUIUtils.UISoundPlayer.Play(System.String,System.Boolean)">
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.Play(System.String)">
             <summary>Plays the specified sound.</summary>
             <remarks>
-            Every request is cached unless requested otherwise. Subsequent calls to the play method won't
-            require audio clip loading.
+            Every request is cached unless requested otherwise. The subsequent calls to the play method
+            won't require the audio clip loading. However, the same cached sound cannot be played
+            simultaneously from the different calls: every next call will abort the previous play action
+            of the same sound.
             </remarks>
             <param name="audioPath">File path relative to <c>GameData</c>.</param>
-            <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
         </member>
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.CacheSound(System.String)">
             <summary>Loads the sound into cache but doesn't play it.</summary>
             <remarks>
-            Use this method when sound is expected to frequently played in the scene. If it worth spending
-            a bit more time in the loading to win some latency during the play time then it pre-caching
-            sounds is a good idea.
+            Use this method when the sound is expected to be frequently played in the scene. However, it
+            it only makes sense to pre-cache a resource if the first usage of the sound is a latency
+            critical. The latency difference is not hight enough to be significant for the GUI actions.
             </remarks>
             <param name="audioPath">File path relative to <c>GameData</c>.</param>
         </member>
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.Awake">
-            <summary>Initializes <see cref="F:KSPDev.GUIUtils.UISoundPlayer.instance"/>.</summary>
+            <summary>Initializes <see cref="P:KSPDev.GUIUtils.UISoundPlayer.instance"/>.</summary>
         </member>
-        <member name="M:KSPDev.GUIUtils.UISoundPlayer.GetOrLoadAudio(System.String,System.Boolean)">
-            <summary>Loads audio sample and plays it.</summary>
-            <param name="audioPath">File path relative to <c>GameData</c>.</param>
-            <param name="dontCache">If <c>true</c> then audio will not be cached.</param>
-            <returns>Audio resource if loaded or found in the cache, otherwise <c>null</c>.</returns>
+        <member name="M:KSPDev.GUIUtils.UISoundPlayer.GetOrLoadAudio(System.String)">
+            <summary>Loads the audio sample and plays it.</summary>
+            <param name="audioPath">The file path relative to <c>GameData</c>.</param>
+            <returns>An audio resource if loaded or found in the cache, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="P:KSPDev.GUIUtils.UISoundPlayer.instance">
+            <summary>Returns the instance for the player in the current scene.</summary>
+            <value>Instance of the player.</value>
         </member>
         <member name="T:KSPDev.InputUtils.KeyModifiers">
             <summary>Flags to specify key modifiers combination.</summary>
@@ -1945,16 +1957,25 @@
         </member>
         <member name="T:KSPDev.InputUtils.KeyboardInputSwitch">
              <summary>
-             Wrapper around keyboard key code that incapsulates persiting and handling into a single class.  
+             Wrapper around a keyboard key code that incapsulates the persiting and the handling logic into
+             a single class.
              </summary>
              <remarks>
-             Fields of this type are correctly handled by <see cref="T:KSPField"/> and
-             <see cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/> attributes.
+             <para>
+             The fields of this type are correctly handled by the stock game persisting functionality
+             (<see cref="T:KSPField"/>). It's also compatible with the KSPDev persisting logic
+             (<see cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>).
+             </para>
+             <para>
+             <i>Important!</i> This type will be correctly loaded or saved by the KSP core but it will
+             <i>not</i> be correctly copied in the game's editor. It's not an issue when the field is static
+             but in case of it's an instance member, the code must not be accessing it in the editor mode.
+             </para>
              </remarks>
              <example>
              <para>
-             To define a key binding just create a class with the key code as a parameter and notify the
-             switch about frame updates so what it could update its state:
+             To define a key binding just create a class with the key code as a parameter, and notify the
+             switch about the frame updates so that it could update its state:
              </para>
              <code><![CDATA[
              class MyClass : MonoBehaviour {
@@ -1968,7 +1989,7 @@
              }
              ]]></code>
              <para>
-             In case of switch state needs to be checked from other methods use <see cref="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold"/>
+             In case of the switch state needs to be checked from the other methods use <see cref="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold"/>
              property:
              </para>
              <code><![CDATA[
@@ -1987,8 +2008,7 @@
              }
              ]]></code>
              <para>
-             When code needs to react to the event of changing switch state it can register for the state
-             change event:
+             When the code needs to react to a switch state event, it can register a listener:
              </para>
              <code><![CDATA[
              class MyClass : MonoBehaviour {
@@ -2008,11 +2028,11 @@
                }
             
                void OnDestroy() {
-                 // Do nothing since in this example switch is an instance field, and it will be destroyed
-                 // together with the owning class (and, hence, all the listeners).
-                 // Though, if it was a static field we would do something like this:
+                 // Do nothing since in this example the switch is an instance field, and it will be
+                 // destroyed together with the owning class (and, hence, all the listeners).
+                 // However, if it was a static field we would do something like this:
                  mySwitch.OnStateChanged -= OnSwitchStateChange;
-                 // Anonymous functions cannot be unregistered, so don't use them on static fields.
+                 // Anonymous functions cannot be unregistered, so don't use them on the static fields.
                }
             
                void OnSwitchStateChange() {
@@ -2025,8 +2045,8 @@
              }
              ]]></code>
              <para>
-             In many cases you may want to load key bining from a config file. Due to switch supports
-             KSP/KSPDev persistence it can easily be achieved by just adding an attribute:
+             In many cases you may want to load a key bining from a config file. It can be achieved by
+             adding an attribute to the field of this type:
              </para>
              <code><![CDATA[
              [PersistentFieldsFile("my/mod/settings.cfg", "")]
@@ -2035,8 +2055,8 @@
                [KSPField]
                public KeyboardInputSwitch switchFromPart = new KeyboardInputSwitch(KeyCode.Alpha1);
             
-               // Note that for PersistentField attribute field doesn't need to be public.
-               // Though, private fields are handled a bit differently (read the docs!).
+               // Note that for a PersistentField attribute the field doesn't need to be public.
+               // However, the private fields are handled a bit differently (read the docs!).
                [PersistentField("Keyboard/Bindings")]
                KeyboardInputSwitch switchFromSettings = new KeyboardInputSwitch(KeyCode.Alpha2);
             
@@ -2048,131 +2068,145 @@
                }
              }
              ]]></code>
-             <para>Storing of the key binding works in a similar way.</para>
              </example>
-             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
              <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
-             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+             <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
         </member>
         <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.ClickDelay">
-            <summary>Maximum delay to register click event.</summary>
-            <remarks>Value used is the same as in KSP <see cref="T:KeyBinding"/>.</remarks>
+            <summary>Maximum delay to record a click event.</summary>
+            <remarks>
+            If the key is released later than this delay, then the click event will not be triggered. By
+            default the switch uses the same value as defined in the core KSP <see cref="T:KeyBinding"/>.
+            </remarks>
+            <seealso cref="E:KSPDev.InputUtils.KeyboardInputSwitch.OnClick"/>
             <seealso href="https://kerbalspaceprogram.com/api/class_key_binding.html">KSP: KeyBinding</seealso>
         </member>
         <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.keyCode">
             <summary>Key code for the switch.</summary>
             <remarks>
-            It can be changed in runtime but if hold state was <c>true</c> it must be reset by the caller.
+            It can be changed in runtime but if the hold state was <c>true</c> then it must be reset by
+            the caller.
             </remarks>
         </member>
         <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.keyboardEnabled">
             <summary>
-            Determines if switch should react on keyboard events from <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.Update"/> method. 
+            Determines if the switch should react on the keyboard events from the <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.Update"/>
+            method.
             </summary>
             <remarks>
-            Note that if switch is disabled while the key was hold the hold state will <i>not</i> be
-            reset. If state needs to be reset then caller must do it explicitly.
+            If switch is disabled while the key was pressed then the hold state will <i>not</i> be reset.
+            If the state needs to be reset then caller must do it explicitly.
             </remarks>
         </member>
         <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.lastPressTime">
             <summary>Last press event timestamp.</summary>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Load(ConfigNode)">
-            <summary>
-            Loads switch binding when field is attributed with KSP or KSPDev persisting attributes. 
-            </summary>
-            <param name="node">Node to get values from.</param>
+            <summary>Loads a persisted switch binding.</summary>
+            <param name="node">The node to get values from.</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
-            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Save(ConfigNode)">
-            <summary>
-            Saves switch binding when field is attributed with KSP or KSPDev persisting attributes. 
-            </summary>
-            <param name="node">Node to get values from.</param>
+            <summary>Saves the switch binding.</summary>
+            <param name="node">The node to store the values into.</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
-            <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.#ctor">
             <summary>
             Creates a switch with a <see cref="F:UnityEngine.KeyCode.None"/> key binding. It's a default constructor
-            needed for config utils to work.
+            needed for the <see cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/> functionality to work.
             </summary>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.#ctor(UnityEngine.KeyCode)">
             <summary>Main constructor to create a switch for the provided key code.</summary>
             <param name="code">
-            Key code to activate the switch. Can be <see cref="F:UnityEngine.KeyCode.None"/> in which case this switch
-            can only be changed via code.
+            The key code to activate the switch. Can be <see cref="F:UnityEngine.KeyCode.None"/> in which case this
+            switch can only be changed via the code.
             </param>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.Update">
-            <summary>Checks keyboard status and updates the switch accordingly.</summary>
+            <summary>Checks the keyboard status and updates the switch accordingly.</summary>
             <remarks>
-            This method handles game's pause and time warp modes, and disables key handling in these
-            modes. It also respects UI locking mode set by the game.
+            This method handles the game's pause and time warp modes, and disables the key handling in
+            these modes. It also respects the UI locking mode set by the game.
             </remarks>
-            <returns>Current hold state.</returns>
+            <returns>The current hold state.</returns>
             <seealso cref="F:KSPDev.InputUtils.KeyboardInputSwitch.keyboardEnabled"/>
         </member>
         <member name="M:KSPDev.InputUtils.KeyboardInputSwitch.SetHoldState(System.Boolean)">
-            <summary>Updates hold state and triggers event(s) if any.</summary>
-            <param name="newState">New hold state.</param>
+            <summary>Updates the hold state and triggers the event(s) if any.</summary>
+            <remarks>This method can be used to simulate a click event.</remarks>
+            <param name="newState">The new hold state.</param>
             <seealso cref="E:KSPDev.InputUtils.KeyboardInputSwitch.OnStateChanged"/>
+            <seealso cref="E:KSPDev.InputUtils.KeyboardInputSwitch.OnClick"/>
         </member>
         <member name="P:KSPDev.InputUtils.KeyboardInputSwitch.isAnyKeyHold">
-            <summary>Says if any switch is being hold.</summary>
+            <summary>Tells if any switch is being hold.</summary>
             <remarks>
-            This value is version specific. I.e. multiple versions of the utils DLL will not see each
-            other. So if this property returns <c>true</c> then the only safe assumption is that any
-            switch <i>within the running</i> mod is being hold. Ideally, when all mods in the game run the
-            same version of the utils DLL this property will truly say if <i>any</i> switch across all
-            mods is hold.
+            This value is a version specific. I.e. the multiple versions of the utils DLL will not see
+            each other. So, if this property returns <c>true</c> then the only safe assumption is that any
+            switch <i>within the running</i> mod is being hold. Ideally, when all the mods in the game run
+            the same version of the utils DLL, this property will truly say if any in the <i>game</i> is
+            in the hold state.
             </remarks>
         </member>
         <member name="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold">
-            <summary>Defines current hold state of the switch.</summary>
+            <summary>Defines the current hold state of the switch.</summary>
             <remarks>
-            Note that when reading this property it may not represent actual keyboard key hold state since
-            switch state can be assigned from the code.
+            This property may not represent the actual keyboard key hold state since it can be assigned
+            from the code.
             </remarks>
+            <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.SetHoldState(System.Boolean)"/>
         </member>
         <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnStateChanged">
             <summary>
-            Event that notifies about hold state change. The event is only called when state has actually
-            changed.
+            Event that notifies about the hold state change. The event is only called when the state has
+            actually changed.
             </summary>
             <remarks>
-            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
-            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            Remember to remove the listeners when their owner class is destroyed by the game. If it's not
+            done then no NRE will happen, but the "ghost" listeners will continue to react on the events.  
             </remarks>
         </member>
         <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnPress">
             <summary>
-            Event that notifies that switch key has been pressed.
+            Event that notifies that the switch key has been pressed.
             </summary>
             <remarks>
-            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
-            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            Remember to remove the listeners when their owner class is destroyed by the game. If it's not
+            done then no NRE will happen, but the "ghost" listeners will continue to react on the events.  
             </remarks>
         </member>
         <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnRelease">
             <summary>
-            Event that notifies that switch key has been released.
+            Event that notifies that the switch key has been released.
             </summary>
             <remarks>
-            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
-            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            Remember to remove the listeners when their owner class is destroyed by the game. If it's not
+            done then no NRE will happen, but the "ghost" listeners will continue to react on the events.  
             </remarks>
         </member>
         <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnClick">
             <summary>
-            Event that notifies about "click" event. Click event requires press and release actions
-            separted by a maximum delay.
+            Event that notifies about the click event.
             </summary>
             <remarks>
-            Remember to remove listeners when their owner class is destroyed by the game. If it's not done
-            no NRE will happen but "ghost" listeners will continue to react on the events.  
+            <para>
+            In order for the click event to trigger the key release event must happen within the
+            <see cref="F:KSPDev.InputUtils.KeyboardInputSwitch.ClickDelay"/> delay after the preceding press event.
+            </para>
+            <para>
+            Remember to remove the listeners when their owner class is destroyed by the game. If it's not
+            done then no NRE will happen, but the "ghost" listeners will continue to react on the events.  
+            </para>  
             </remarks>
             <seealso cref="F:KSPDev.InputUtils.KeyboardInputSwitch.ClickDelay"/>
         </member>
@@ -2465,9 +2499,9 @@
         </member>
         <member name="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize">
             <summary>
-            Called on vessel go off rails. Basically, every time the vessel becomes physics.
+            Called on a vessel when it's time to start the physics on it.
             </summary>
-            <remarks>Can be called multiple times during the part's life.</remarks>
+            <remarks>It can be called multiple times during the part's life.</remarks>
         </member>
         <member name="M:KSPDev.KSPInterfaces.IPartModule.OnUpdate">
             <summary>Notifies about a frame update.</summary>
@@ -2564,7 +2598,7 @@
             <summary>Triggers when physics starts on the part.</summary>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IsPartDeathListener">
-            <summary>Interface to notify about part's forced destruction.</summary>
+            <summary>Interface to notify about the part's forced destruction.</summary>
             <remarks>
             Events of this inteface are triggered by the KSP engine via Unity messaging mechanism. It's not
             required for the module to implement the interface to be notified but by implementing it the
@@ -2586,21 +2620,23 @@
         </member>
         <member name="M:KSPDev.KSPInterfaces.IsPartDeathListener.OnPartDie">
             <summary>Triggers when part ois destroyed by the game's logic.</summary>
-            <remarks>At this moment the part is already decoupled from the vessel.</remarks>
+            <remarks>
+            At the moment of this callback call the part is already decoupled from the vessel.
+            </remarks>
         </member>
         <member name="T:KSPDev.KSPInterfaces.IsPhysicalObject">
-            <summary>Interface for modules that need handling physics.</summary>
+            <summary>Interface for the modules that need handling physics.</summary>
             <remarks>
-            Events of this inteface are triggered by Unity engine via reflections. It's not required for the
-            module to implement the interface to be notified but by implementing it the code becomes more
-            consistent and less error prone.
+            The events of this interface are triggered by the Unity engine via reflections. It's not
+            required for the module to implement the interface to be notified, but by implementing it, the
+            code becomes more consistent and less error prone.
             </remarks>
             <example>
             <code><![CDATA[
             public class MyModule : PartModule, IsPhysicalObject {
               /// <inheritdoc/>
               public void FixedUpdate() {
-                // Do physics stuff.
+                // Do the physics stuff.
               }
             }
             ]]></code>
@@ -2609,11 +2645,11 @@
             Unity 3D: FixedUpdate</seealso>
         </member>
         <member name="M:KSPDev.KSPInterfaces.IsPhysicalObject.FixedUpdate">
-            <summary>Notifies that fixed framerate frame is being handled.</summary>
+            <summary>Notifies that the fixed rate frame is being handled.</summary>
             <remarks>
             This method is called by Unity via reflections, so it's not required to implement the
-            interface. Though, it's a good idea to implement this interface in objects/modules that need
-            physics updates to make code more readable.
+            interface to get notified. Though, it's a good idea to implement this interface in the
+            objects and modules that need the physics updates. It makes the code more readable.
             </remarks>
         </member>
         <member name="T:KSPDev.LogUtils.DbgFormatter">
@@ -2658,17 +2694,66 @@
             <returns>Human readable form of the collection.</returns>
             <typeparam name="TSource">Collection's item type.</typeparam>
         </member>
+        <member name="M:KSPDev.LogUtils.DbgFormatter.Nullable``1(System.Nullable{``0},System.String)">
+            <summary>Prints out a content if the nullable type.</summary>
+            <param name="value">The value to print.</param>
+            <param name="defStr">A string to present when the value is <c>null</c>.</param>
+            <returns>The content of the non-null value, or <paramref name="defStr"/>, or "NULL".</returns>
+        </member>
+        <member name="T:KSPDev.LogUtils.HostedDebugLog">
+            <summary>Helper class to log a record which is bound to a specific object.</summary>
+            <remarks>
+            It may be useful when there are situations that relate to a specific instance of the commong
+            KSP objects. Like <see cref="T:Part"/>, <see cref="T:PartModule"/>, <see cref="T:UnityEngine.Transform"/>, etc.
+            With the hosted logging there will be no need to manually designate for which object the
+            record is being logged.
+            </remarks>
+            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])">
+            <summary>Logs a formatted INFO message with a host indentifier.</summary>
+            <remarks>
+            For the <see cref="T:Part"/>, <see cref="T:PartModule"/> and <see cref="T:UnityEngine.Transform"/> objects
+            the identifier will be the most informative.
+            </remarks>
+            <param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param>
+            <param name="format">The format string for the log message.</param>
+            <param name="args">The arguments for the format string.</param>
+            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(System.Object,System.String,System.Object[])">
+            <summary>Logs a formatted WARNING message with a host indentifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])"/>
+            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Error(System.Object,System.String,System.Object[])">
+            <summary>Logs a formatted ERROR message with a host indentifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])"/>
+            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.GetHostName(System.Object)">
+            <summary>Helper method to make a user friendly host name for the logs.</summary>
+            <param name="host">The host object that "owns" the logging. It can be <c>null</c>.</param>
+            <returns>A human friendly string which identifies the host.</returns>
+        </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
             <summary>Helper methods to align transformations relative to each other.</summary>
         </member>
         <member name="M:KSPDev.ModelUtils.AlignTransforms.SnapAlign(UnityEngine.Transform,UnityEngine.Transform,UnityEngine.Transform)">
             <summary>
-            Aligns the source node so that it's located at the target, and source and target are "looking"
-            at each other.
+            Aligns the source node so that it's located at the target, and the source and target are
+            "looking" at the each other.
             </summary>
-            <param name="source">Node to align.</param>
-            <param name="sourceChild">Child node of the source to use as the align point.</param>
-            <param name="target">Target node to align with.</param>
+            <remarks>
+            The object's "look" direction is a <see cref="P:UnityEngine.Transform.forward"/> direction. The resulted
+            <see cref="P:UnityEngine.Transform.up"/> direction of the source will be the same as on the target.
+            </remarks>
+            <param name="source">The node to align.</param>
+            <param name="sourceChild">The child node of the source to use as the align point.</param>
+            <param name="target">The target node to align with.</param>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
         </member>
         <member name="T:KSPDev.ModelUtils.Colliders">
             <summary>Various tools to deal with procedural colliders.</summary>
@@ -2830,18 +2915,25 @@
             <param name="name">The name of the transfrom.</param>
             <returns>A transform or <c>null</c> if nothing is found.</returns>
         </member>
-        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String)">
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String,UnityEngine.Transform)">
             <summary>Finds a transform in the hirerachy by the provided path.</summary>
-            <remarks>See path format in <see cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>.</remarks>
+            <remarks>
+            See the path format in <see cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[],UnityEngine.Transform)"/>.
+            </remarks>
             <param name="parent">The transfrom to start looking from.</param>
             <param name="path">
-            The path to the target. The name components must be escaped if they contain special symbols.
+            The path to the target. The name components must be escaped if they contain the special
+            symbols.
+            </param>
+            <param name="defValue">
+            An object to return if the path is not found. This situation will be treated as a danger, and
+            a warning log record will be made.
             </param>
             <returns>A transform or <c>null</c> if nothing found.</returns>
-            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>
             <seealso cref="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)"/>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
         </member>
-        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])">
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[],UnityEngine.Transform)">
             <summary>Finds a transform in the hirerachy by the provided path.</summary>
             <remarks>
             Every element of the path may specify an exact transform name or a partial match pattern:
@@ -2879,7 +2971,11 @@
             </para>
             </remarks>
             <param name="parent">The transfrom to start looking from.</param>
-            <param name="names">The path elements. All special symbols must be unescaped.</param>
+            <param name="path">The path elements. All the special symbols must be unescaped.</param>
+            <param name="defValue">
+            An object to return if the path is not found. This situation will be treated as a danger, and
+            a warning log record will be made.
+            </param>
             <returns>Transform or <c>null</c> if nothing found.</returns>
             <example>
             Given the following hierarchy:
@@ -2914,6 +3010,13 @@
             ]]></code>
             </example>
             <seealso cref="M:KSPDev.ModelUtils.Hierarchy.UnescapeName(System.String)"/>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindPartModelByPath(Part,System.String,UnityEngine.Transform)">
+            <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String,UnityEngine.Transform)"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindPartModelByPath(Part,System.String[],UnityEngine.Transform)">
+            <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String,UnityEngine.Transform)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.GetPartModelTransform(Part)">
             <summary>Returns part's model transform.</summary>
@@ -2939,7 +3042,7 @@
             object.
             </param>
             <returns>A full path name components. The names are not escaped.</returns>
-            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[])"/>
+            <seealso cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[],UnityEngine.Transform)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.SplitAndUnescapePath(System.String)">
             <summary>Splits a path and unescapes the name elements.</summary>
@@ -2966,7 +3069,7 @@
             <summary>Escapes all the special symbols in the name.</summary>
             <remarks>
             For now the only specil symbol is <c>/</c> (slash) because of it's used as a name separator
-            in the hierarchy paths. The escaped separator symbol is simple doubled. I.e. string <c>a/b</c>
+            in the hierarchy paths. The escaped separator symbol is simply doubled. I.e. string <c>a/b</c>
             transforms into <c>a//b</c>.
             </remarks>
             <param name="unescapedName">The raw name with any symbols.</param>
@@ -3323,263 +3426,165 @@
             <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)"/>
         </member>
         <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1">
-             <summary>
-             Simple state machine that allows tracking states and checking basic conditions.
-             </summary>
-             <remarks>
-             If module has more that two modes (which can be controlled by a simple boolean) in makes sense
-             to define each mode as a state, and intorduce a definite state transition diagram. Once it's
-             done most of the mode changes logic can be mvoed in state transition callbacks. Such approach
-             significantly simplifies the code and makes it less error prone.
-             </remarks>
-             <typeparam name="T">
-             Enum to use as state constants. Note, that state machine won't consider any value of the enum as
-             a valid state. Valid states must be defined via <see cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>.
-             </typeparam>
-             <example>
-             Here is an example of a module with three states with the following logic:
-             <list type="bullet">
-             <item>State <c>One</c> can be transitioned into both <c>Two</c> and <c>Three</c>.</item>
-             <item>States <c>Two</c> and <c>Three</c> can only return back to <c>One</c>.</item>
-             <item>In states <c>Two</c> and <c>Three</c> different menu options are available.</item>
-             <item>In state <c>One</c> no menu options are available.</item>
-             </list>
-             <code><![CDATA[
-             class MyModule : PartModule {
-               enum MyState {
-                 One, Two, Three
-               }
-            
-               [KSPField(isPersistant = true)]
-               public MyState persistedState = MyState.One;  // ALWAYS provide a default value!
-            
-               SimpleStateMachine<MyState> linkStateMachine;
-            
-               [KSPEvent(guiName = "State: TWO")]
-               public void StateTwoMenuAction() {
-                 Debug.LogInfo("StateTwoMenuAction()");
-               }
-            
-               [KSPEvent(guiName = "State: THREE")]
-               public void StateThreeMenuAction() {
-                 Debug.LogInfo("StateThreeMenuAction()");
-               }
-            
-               public override OnAwake() {
-                 linkStateMachine = new SimpleStateMachine<MyState>(true /* strict */);
-                 linkStateMachine.SetTransitionConstraint(
-                     MyState.One,
-                     new[] {MyState.Two, MyState.Three});
-                 linkStateMachine.SetTransitionConstraint(
-                     MyState.Two,
-                     new[] {MyState.One});
-                 linkStateMachine.SetTransitionConstraint(
-                     MyState.Three,
-                     new[] {MyState.One});
-                 linkStateMachine.AddStateHandlers(
-                     MyState.One,
-                     enterHandler: x => {
-                       Events["StateTwoMenuAction"].active = false;
-                       Events["StateThreeMenuAction"].active = false;
-                     });
-                 linkStateMachine.AddStateHandlers(
-                     MyState.Two,
-                     enterHandler: x => {
-                       Events["StateTwoMenuAction"].active = true;
-                       Events["StateThreeMenuAction"].active = false;
-                     });
-                 linkStateMachine.AddStateHandlers(
-                     MyState.Three,
-                     enterHandler: x => {
-                       Events["StateTwoMenuAction"].active = false;
-                       Events["StateThreeMenuAction"].active = true;
-                     });
-               }
-            
-               public override void OnStart(PartModule.StartState state) {
-                 linkStateMachine.Start(persistedState);  // Restore state from the save file.
-               }
-            
-               void OnDestory() {
-                 // Usually, this isn't needed. But if code needs to do a cleanup job it makes sense to wrap
-                 // it into a handler, and stop the machine in Unity destructor.
-                 linkStateMachine.Stop();
-               }
-            
-               public override OnUpdate() {
-                 if (Input.GetKeyDown("1")) {
-                   // This transition will always succceed. 
-                   stateMachine.currentState = MyState.One;
-                 }
-                 if (Input.GetKeyDown("2")) {
-                   // This transition will only succceed if current state is MyState.One. 
-                   stateMachine.currentState = MyState.Two;
-                 }
-                 if (Input.GetKeyDown("3")) {
-                   // This transition will only succceed if current state is MyState.One. 
-                   stateMachine.currentState = MyState.Three;
-                 }
-               }
-             }
-             ]]></code>
-             <para>
-             The same logic could be achivied in a different way. Instead of enabling/disabling all the menu
-             items in every "enter" handler the code could define "leave" handlers that would disable the
-             related menu item. This way every state handler would control own menu item without interacting
-             with any existing or future items.
-             </para>
-             </example>
-             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">
-             KSP: KSPField</seealso>
-             <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_event.html">
-             KSP: KSPEvent</seealso>
-        </member>
-        <member name="F:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnDebugStateChange">
             <summary>
-            Debug handler for tracking state changes. Avoid using it in normal code logic.
+            Simple state machine that allows tracking of the states and checking the basic transition
+            conditions.
             </summary>
+            <remarks>
+            If a module has more that two modes (which can be controlled by a simple boolean) it makes sense
+            to define each mode as a state, and introduce a definite state transition diagram. Once it's
+            done, a state machine can be setup by defining which transitions are allowed. At this point the
+            module will be able to just react on the state change events instead of checking multiple
+            conditions.
+            </remarks>
+            <typeparam name="T">The enum to use as the state constants.</typeparam>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachine1"/></example>
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.#ctor(System.Boolean)">
-            <summary>Constructs new unstarted state machine.</summary>
-            <param name="strict">
-            If <c>true</c> then only transitions defined via <see cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/> will be
-            allowed.
-            </param>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Start(`0)">
-            <summary>Starts state machine and makes it available for state transitions.</summary>
-            <remarks>
-            Until machine is started state transitions are not possible. Attempt to change to any state
-            will result in <see cref="T:System.InvalidOperationException"/>.
-            <para>Starting of the machine will trigger enter state event.</para>
-            </remarks>
-            <param name="startState">Initial state of the machine.</param>
-            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStarted"/>
-            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)"/>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Stop">
-            <summary>Stops stat machine making it unavailable for any state transitions.</summary>
-            <remarks>
-            If machine is not started yet then this call is NO-OP.
-            <para>Stoping of the machine will trigger leave state event.</para>
-            </remarks>
+            <summary>Constructs a new uninitialized state machine.</summary>
+            <param name="strict">The strict mode.</param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineStrict"/></example>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])">
-            <summary>Defines source state and, optionally, allowed trasitions.</summary>
+            <summary>Defines a state and the allowed target states for it.</summary>
             <remarks>
-            State machine figures out full set the allowed states from the transitions. Even if transition
-            mode is not strict all the states must be defined via tarnsitions (eitehr as a source or a
-            target).
-            <para>In strict mode it's required that every transition is declared excplicitly.</para>
-            <para>If called multiple times then only last call's setup will be stored.</para>
-            <para>State machine must be in stopped state. Otherwise, an exception will thrown.</para>
+            In the strict mode it's required that every transition is declared excplicitly.
             </remarks>
-            <param name="fromState">Source state.</param>
-            <param name="toStates">
-            List of states that are allowed as targets for <paramref name="fromState"/>.
-            </param>
+            <param name="fromState">The source state.</param>
+            <param name="toStates">The list of the states that are allowed as the targets.</param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineStrict"/></example>
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ResetTransitionConstraint(`0)">
-            <summary>Clears transitions for the soucre state if any.</summary>
-            <remarks>
-            Note, that source state is cleared as well. If it's not mentioned in other transitions then
-            state machine will completely forget the state.
-            </remarks>
-            <param name="fromState">Source state to clear tarnsitions for.</param>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ForceSetState(`0)">
-            <summary>Changes current state bypassing any transition or state changes.</summary>
-            <remarks>
-            It's discouraged to use this method in normal flow. Though, you it may be handy when
-            recovering module from an unknown state (e.g. an unexpected exception in the middle of the
-            process).
-            </remarks>
-            <param name="newState">
-            New current state. It can be a state that is not mentioned in any state transition.
-            </param>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
-            <summary>Adds listeners for state enter/leave events.</summary>
-            <remarks>
-            Note, that code must not expect that handlers will be called in the same order as they were
-            added. Each handler must be independent from the others.
-            <para>Multiple calls for the same handler and state won't create multiple entries.</para>
-            </remarks>
-            <param name="state">State to call callbacke on.</param>
-            <param name="enterHandler">
-            Callback to call when state machine has switched to a new state. Callback is triggered
-            <i>after</i> the state has actually changed.
-            </param>
-            <param name="leaveHandler">
-            Callback to call when state machine is going to leave the current state. Callback is triggered
-            <i>before</i> the state has actually changed. 
-            </param>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.RemoveHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
-            <summary>Removes enter state change event handler.</summary>
-            <remarks>It's safe to call it for non-existing handler.</remarks>
-            <param name="state">State to delete handler for.</param>
-            <param name="enterHandler">Enter state handler to delete.</param>
-            <param name="leaveHandler">Leave state handler to delete.</param>
-        </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckCanSwitchTo(`0)">
-            <summary>Verifies if transition is allowed.</summary>
-            <param name="newState">State to check transition into.</param>
-            <returns><c>true</c> if transition is allowed.</returns>
-            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <summary>Clears the transitions for the source state if any.</summary>
+            <param name="fromState">The source state to clear the tarnsitions for.</param>
             <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
         </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
+            <summary>Adds a state change event.</summary>
+            <remarks>
+            <para>
+            When the state is changed by setting the <see cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/> property, the transition
+            callbacks are only called when the state has actually changed.
+            </para>
+            <para>
+            Note, that the code must not expect that the handlers will be called in the same order as they
+            were added. Each handler must be independent from the others.
+            </para>
+            </remarks>
+            <param name="state">The state to call a callback on.</param>
+            <param name="enterHandler">
+            The callback to call when the state machine has switched to a new state. The callback is
+            triggered <i>after</i> the state has actually changed. The callback's parameter is the
+            <i>old</i> state, from which the machine has switched.
+            </param>
+            <param name="leaveHandler">
+            The callback to call when the state machine is going to leave the current state. The callback
+            is triggered <i>before</i> the state has actually changed. The callback's parameter is the
+            <i>new</i> state, to which the machine is going to switch. 
+            </param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.RemoveHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)">
+            <summary>Removes a state change event handler.</summary>
+            <remarks>It's safe to call it for a non-existing handler.</remarks>
+            <param name="state">The state to delete a handler for.</param>
+            <param name="enterHandler">The enter state handler to delete.</param>
+            <param name="leaveHandler">The leave state handler to delete.</param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckCanSwitchTo(`0)">
+            <summary>Verifies if the machine can move into the desired state.</summary>
+            <param name="newState">The state to check the transition for.</param>
+            <returns><c>true</c> if the transition is allowed.</returns>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineStrict"/></example>
+        </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckIsStarted">
-            <summary>Verifies that state machine is started.</summary>
+            <summary>Verifies that the state machine is started.</summary>
             <exception cref="T:System.InvalidOperationException">If state machine is not yet started.</exception>
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckIsNotStarted">
-            <summary>Verifies that state machine is <i>not</i> started.</summary>
+            <summary>Verifies that the state machine is <i>not</i> started.</summary>
             <exception cref="T:System.InvalidOperationException">If state machine is already started.</exception>
         </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetState(`0)">
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetState(System.Nullable{`0})">
             <summary>
-            Changes machine's state if current and new states are different. Checks if transition is
-            allowed before actually changing state.
+            Changes the machine's state if the current and the new states are different. Checks if the
+            transition is allowed before actually changing the state.
             </summary>
-            <param name="newState">State to change to.</param>
+            <param name="newState">
+            The state to change to. If <c>null</c> then the machine will be stopped.
+            </param>
             <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.CheckCanSwitchTo(`0)"/>
-            <exception cref="T:System.InvalidOperationException">If transition is not allowed.</exception>
+            <exception cref="T:System.InvalidOperationException">If the transition is not allowed.</exception>
         </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireLeaveState">
-            <summary>Notifies all the leave handlers about leaving the current state.</summary>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireLeaveState(System.Nullable{`0})">
+            <summary>Notifies all the handlers about leaving the current state.</summary>
+            <param name="newState">The new state where the machine is going to.</param>
         </member>
-        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireEnterState">
-            <summary>Notifies all the enter handlers about entering the current state.</summary>
+        <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.FireEnterState(System.Nullable{`0})">
+            <summary>Notifies all the handlers about entering a new state.</summary>
+            <param name="oldState">The old state where the machine is going from.</param>
         </member>
         <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState">
             <summary>Current state of the machine.</summary>
             <remarks>
-            Setting same state as the current one is NO-OP. Setting of a new state may be blocked in
-            strict mode.
+            <para>
+            Setting the same state as the current one is a NO-OP. Setting of a new state may throw an
+            exception in the strict mode.
+            </para>
+            <para>
+            The initial state is always <c>null</c>, whiсh means <i>STOPPED</i>. The caller must set the
+            initial state before starting using the machine. In spite of the other transitions, the
+            initial state change is not restricted by the state transition constraints, regardless to the
+            <see cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/> setting.
+            </para>
+            <para>
+            To <i>STOP</i> the machine, just set the current state to <c>null</c>. No "enter state"
+            handlers will be executed in this case, but all the "leave state" handlers will do their job.
+            </para>
             </remarks>
+            <value>The current state. It can be <c>null</c>.</value>
             <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
-            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.ForceSetState(`0)"/>
-        </member>
-        <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStarted">
-            <summary>Tells if state machine is started.</summary>
-            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.Start(`0)"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
         </member>
         <member name="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict">
-            <summary>
-            Tells if invalid state transitions will be blocked.  
-            </summary>
+            <summary>Tells if all the transitions must be excplicitly declared.</summary>
+            <value>The strict mode state.</value>
             <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineStrict"/></example>
+        </member>
+        <member name="E:KSPDev.ProcessingUtils.SimpleStateMachine`1.onAfterTransition">
+            <summary>Event that fires when the state machine has changed its state.</summary>
+            <remarks>The event is fired <i>after</i> the actual state change.</remarks>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <seealso cref="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnStateChangeHandler"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
         </member>
         <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnChange">
-            <summary>Delegate for callback which notifies about state change.</summary>
-            <param name="state">Current state of the machine.</param>
+            <summary>Delegate for a callback which notifies about a state change.</summary>
+            <param name="state">
+            The state of the machine. Its exact meaning depends on the circumstances under which the
+            callback has been called.
+            </param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.AddStateHandlers(`0,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange,KSPDev.ProcessingUtils.SimpleStateMachine{`0}.OnChange)"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
         </member>
-        <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnDebugChange">
-            <summary>Special debug delegate to track state changes.</summary>
-            <remarks>This callback is called before actual state change.</remarks>
-            <param name="fromState">State before change.</param>
-            <param name="toState">State after change.</param>
+        <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1.OnStateChangeHandler">
+            <summary>Delegate to track an arbitrary state transition.</summary>
+            <param name="fromState">The state before the change.</param>
+            <param name="toState">The state after the change.</param>
+            <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
+            <seealso cref="E:KSPDev.ProcessingUtils.SimpleStateMachine`1.onAfterTransition"/>
+            <example><code source="Examples/ProcessingUtils/SimpleStateMachine-Examples.cs" region="SimpleStateMachineFree"/></example>
         </member>
         <member name="T:KSPDev.Types.PosAndRot">
             <summary>Type to hold position and rotation of a transform. It can be serialized.</summary>
@@ -3634,6 +3639,15 @@
         <member name="M:KSPDev.Types.PosAndRot.ToString">
             <summary>Shows a human readable representation.</summary>
             <returns>String value.</returns>
+        </member>
+        <member name="M:KSPDev.Types.PosAndRot.FromString(System.String,System.Boolean)">
+            <summary>Creates a new instance from the provided string.</summary>
+            <param name="strValue">The value to parse.</param>
+            <param name="failOnError">
+            If <c>true</c> then a parsing error will fail the creation. Otherwise, a default instance will
+            be returned.
+            </param>
+            <returns>An instance, intialized from the string.</returns>
         </member>
         <member name="M:KSPDev.Types.PosAndRot.NormlizeAngles">
             <summary>
