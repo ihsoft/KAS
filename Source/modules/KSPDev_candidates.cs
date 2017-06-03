@@ -128,34 +128,6 @@ public static class StockResourceNames {
 
 }  // namepsace
 
-namespace KSPDev.ModelUtils {
-
-/// TODO: Merge with KSPDev.ModelUtils.Hierarchy
-public static class Hierarchy2 {
-  /// TODO: Replace default FindTransformByPath version.
-  public static Transform FindTransformByPath(Transform parent, string path, Transform defValue = null) {
-    var obj = Hierarchy.FindTransformByPath(parent, path);
-    if (obj == null && defValue != null) {
-      Debug.LogWarningFormat(
-          "Cannot find model object: root={0}, path={1}. Using a fallback: {2}",
-          DbgFormatter.TranformPath(parent), path, DbgFormatter.TranformPath(defValue));
-      return defValue;
-    }
-    return obj;
-  }
-
-  /// <summary>Finds an object in the part's model.</summary>
-  /// <param name="part">The part to look for the objects in.</param>
-  /// <param name="path">The path to look for.</param>
-  /// <param name="defValue">The default value to return when no object found.</param>
-  /// <returns>The found object or <c>null</c>.</returns>
-  public static Transform FindPartModelByPath(Part part, string path, Transform defValue = null) {
-    return FindTransformByPath(Hierarchy.GetPartModelTransform(part), path, defValue: defValue);
-  }
-}
-  
-}  // namespace
-
 namespace KSPDev.LogUtils {
 
 /// TODO: Merge with KSPDev.LogUtils.DbgFormatter

@@ -850,7 +850,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </para>
   /// </remarks>
   void LoadOrCreateHeadModel() {
-    headModelObj = Hierarchy2.FindPartModelByPath(part, headModel);
+    headModelObj = Hierarchy.FindPartModelByPath(part, headModel);
     if (headModelObj != null) {
       headCableAnchor = Hierarchy.FindTransformByPath(headModelObj, headCableAttachAt);
       if (headCableAnchor == null) {
