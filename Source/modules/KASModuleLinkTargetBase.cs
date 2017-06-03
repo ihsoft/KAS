@@ -76,7 +76,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public LinkState linkState {
     get {
-      return linkStateMachine.isStarted ? linkStateMachine.currentState : persistedLinkState;
+      return linkStateMachine.currentState ?? persistedLinkState;
     }
     protected set {
       var oldState = linkStateMachine.currentState;
@@ -222,7 +222,7 @@ public class KASModuleLinkTargetBase :
         AsyncCall.CallOnEndOfFrame(this, RestoreSource);
       }
     } else {
-      linkStateMachine.Start(persistedLinkState);
+      linkStateMachine.currentState = persistedLinkState;
       linkState = linkState;  // Trigger state updates.
     }
   }
@@ -262,7 +262,7 @@ public class KASModuleLinkTargetBase :
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
-    linkStateMachine.Stop();
+    linkStateMachine.currentState = null;  // Stop.
   }
   #endregion
 
@@ -351,7 +351,7 @@ public class KASModuleLinkTargetBase :
   /// to catch the transition check for <paramref name="oldState"/>.
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
-  protected virtual void OnStateChange(LinkState oldState) {
+  protected virtual void OnStateChange(LinkState? oldState) {
     // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
     // over and link hasn't been established.
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
@@ -393,7 +393,7 @@ public class KASModuleLinkTargetBase :
       persistedLinkMode = LinkMode.DockVessels;
       startState = LinkState.Available;
     }
-    linkStateMachine.Start(startState);
+    linkStateMachine.currentState = startState;
     linkState = linkState;  // Trigger state updates.
   }
 

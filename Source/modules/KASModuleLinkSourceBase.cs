@@ -150,7 +150,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public LinkState linkState {
     get {
-      return linkStateMachine.isStarted ? linkStateMachine.currentState : persistedLinkState;
+      return linkStateMachine.currentState ?? persistedLinkState;
     }
     protected set {
       var oldState = linkStateMachine.currentState;
@@ -331,7 +331,7 @@ public class KASModuleLinkSourceBase : PartModule,
         AsyncCall.CallOnEndOfFrame(this, RestoreTarget);
       }
     } else {
-      linkStateMachine.Start(persistedLinkState);
+      linkStateMachine.currentState = persistedLinkState;
       linkState = linkState;  // Trigger state updates.
     }
   }
@@ -403,7 +403,7 @@ public class KASModuleLinkSourceBase : PartModule,
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
-    linkStateMachine.Stop();
+    linkStateMachine.currentState = null;  // Stop.
   }
   #endregion
 
@@ -572,7 +572,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// important to catch the transition, check for the <paramref name="oldState"/>.
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
-  protected virtual void OnStateChange(LinkState oldState) {
+  protected virtual void OnStateChange(LinkState? oldState) {
     // Start a renderer in a linked state with a valid target, and stop it in all the other states.
     if (isLinked && !linkRenderer.isStarted && linkTarget != null) {
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
@@ -684,7 +684,7 @@ public class KASModuleLinkSourceBase : PartModule,
           "Source {0} cannot restore link to target part id={1} on attach node {2}",
           DbgFormatter.PartId(part), persistedLinkTargetPartId, attachNodeName);
     }
-    linkStateMachine.Start(persistedLinkState);
+    linkStateMachine.currentState = persistedLinkState;
     linkState = linkState;  // Trigger state updates.
   }
   #endregion

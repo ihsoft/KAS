@@ -390,7 +390,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <value>The current winch state.</value>
   // TODO(ihsoft): DOCS: put state transitions here
   public virtual WinchState winchState {
-    get { return stateMachine.currentState; }
+    get { return stateMachine.currentState.Value; }
     set { stateMachine.currentState = value; }
   }
 
@@ -481,7 +481,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// The machine can be adjusted until it's started in the <see cref="OnStart"/> method.
   /// </remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  SimpleStateMachine2<WinchState> stateMachine;
+  SimpleStateMachine<WinchState> stateMachine;
 
   //FIXME: add comments to each field.
   SpringJoint cableJoint;
@@ -498,7 +498,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.OnAwake();
     LoadUIControlsCache();
 
-    stateMachine = new SimpleStateMachine2<WinchState>(strict: true);
+    stateMachine = new SimpleStateMachine<WinchState>(strict: true);
     stateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
     stateMachine.SetTransitionConstraint(
         WinchState.HeadLocked, new[] { WinchState.HeadDeployed });
@@ -544,7 +544,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    stateMachine.Start(WinchState.HeadLocked);
+    stateMachine.currentState = WinchState.HeadLocked;
     base.OnLoad(node);
     if (headMass > part.mass) {
       HostedDebugLog.Error(
@@ -582,7 +582,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
-  protected override void OnStateChange(LinkState oldState) {
+  protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
     UpdateContextMenu();
   }

@@ -161,7 +161,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  protected override void OnStateChange(LinkState oldState) {
+  protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
     Events[StartLinkMenuActionName].guiName = startLinkMenu;
     Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
