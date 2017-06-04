@@ -334,7 +334,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => t.linkSource == null && t.cfgLinkType == cfgLinkType);
       linkMode = LinkMode.TiePartsOnDifferentVessels;
-      if (kerbalTarget != null && StartLinking(GUILinkMode.API)) {
+      if (kerbalTarget != null && StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
         LinkToTarget(kerbalTarget);
         HostedDebugLog.Info(
             this, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName);

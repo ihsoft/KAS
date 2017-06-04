@@ -178,6 +178,9 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public GUILinkMode guiLinkMode { get; private set; }
+
+  /// <inheritdoc/>
+  public LinkActorType linkActor { get; private set; }
   #endregion
 
   #region Persistent fields
@@ -440,7 +443,7 @@ public class KASModuleLinkSourceBase : PartModule,
 
   #region ILinkSource implementation
   /// <inheritdoc/>
-  public virtual bool StartLinking(GUILinkMode mode) {
+  public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
       HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
       return false;
@@ -450,12 +453,12 @@ public class KASModuleLinkSourceBase : PartModule,
       return false;
     }
     linkState = LinkState.Linking;
-    StartLinkGUIMode(mode);
+    StartLinkGUIMode(mode, actor);
     return true;
   }
-  
+
   /// <inheritdoc/>
-  public virtual void CancelLinking() {
+  public virtual void CancelLinking(LinkActorType actor) {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Available)) {
       HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
       return;
@@ -470,10 +473,7 @@ public class KASModuleLinkSourceBase : PartModule,
       return false;
     }
     PhysicalLink(target);
-    var actorType = guiLinkMode == GUILinkMode.Eva || guiLinkMode == GUILinkMode.Interactive
-        ? LinkActorType.Player
-        : LinkActorType.API;
-    LogicalLink(target, actorType);
+    LogicalLink(target);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
     // must not be stopped before the link is created.
     StopLinkGUIMode();
@@ -586,9 +586,11 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
-  /// <param name="mode">Mode to start with.</param>
-  protected virtual void StartLinkGUIMode(GUILinkMode mode) {
+  /// <param name="mode">The mode to start with.</param>
+  /// <param name="actor">The actor, who has initiated the linking mode.</param>
+  protected virtual void StartLinkGUIMode(GUILinkMode mode, LinkActorType actor) {
     guiLinkMode = mode;
+    linkActor = actor;
     KASEvents.OnStartLinking.Fire(this);
   }
 
@@ -636,10 +638,9 @@ public class KASModuleLinkSourceBase : PartModule,
   /// before any physics changes.
   /// </remarks>
   /// <param name="target">Target to link with.</param>
-  /// <param name="actorType">Initator of the link.</param>
   /// <seealso cref="PhysicalLink"/>
-  protected virtual void LogicalLink(ILinkTarget target, LinkActorType actorType) {
-    var linkInfo = new KASEvents.LinkEvent(this, target, actorType);
+  protected virtual void LogicalLink(ILinkTarget target) {
+    var linkInfo = new KASEvents.LinkEvent(this, target, linkActor);
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;

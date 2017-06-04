@@ -99,7 +99,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
       // Handle link mode cancel.
       if (Input.GetKeyUp(KeyCode.Escape)) {
-        AsyncCall.CallOnEndOfFrame(this, CancelLinking);
+        AsyncCall.CallOnEndOfFrame(this, () => CancelLinking(LinkActorType.Player));
       }
       // Handle link action (mouse click).
       if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -122,17 +122,17 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
   #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
-  public override bool StartLinking(GUILinkMode mode) {
+  public override bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     // Don't allow EVA linking mode.
     if (mode != GUILinkMode.Interactive && mode != GUILinkMode.API) {
       return false;
     }
-    return base.StartLinking(mode);
+    return base.StartLinking(mode, actor);
   }
 
   /// <inheritdoc/>
-  protected override void StartLinkGUIMode(GUILinkMode mode) {
-    base.StartLinkGUIMode(mode);
+  protected override void StartLinkGUIMode(GUILinkMode mode, LinkActorType actor) {
+    base.StartLinkGUIMode(mode, actor);
     InputLockManager.SetControlLock(
         ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
     canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
@@ -193,7 +193,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
   [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
   public void StartLinkContextMenuAction() {
-    StartLinking(GUILinkMode.Interactive);
+    StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
   }
 
   /// <summary>Event handler. Breaks current link between source and target.</summary>
