@@ -4,13 +4,11 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KSPDev;
 using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.ProcessingUtils;
 using KSPDev.Types;
-using KSPDev.ConfigUtils;
 using System;
 using System.Linq;
 using UnityEngine;
