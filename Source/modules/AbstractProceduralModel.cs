@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using KSPDev.KSPInterfaces;
+using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using UnityEngine;
 
@@ -135,7 +136,7 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
       if (texture == null) {
         // Use a "red" texture if no file found.
-        Debug.LogWarningFormat("Cannot load texture: {0}", textureFileName);
+        HostedDebugLog.Warning(this, "Cannot load texture: {0}", textureFileName);
         texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
         texture.SetPixels(new[] {Color.red});
         texture.Apply();

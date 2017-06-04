@@ -331,8 +331,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     protected Transform GetTransformByName(string name) {
       var res = model.FindChild(name);
       if (res == null) {
-        Debug.LogErrorFormat(
-            "Cannot find transform '{0}' in '{1}'", name, DbgFormatter.TranformPath(model));
+        HostedDebugLog.Error(model, "Cannot find transform: {0}", name);
         res = model;  // Fallback.
       }
       return res;
@@ -553,7 +552,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
     if (isStarted) {
-      Debug.LogWarning("Renderer already started. Stopping...");
+      HostedDebugLog.Warning(this, "Renderer already started. Stopping...");
       StopRenderer();
     }
     sourceTransform = source;
@@ -621,7 +620,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
                                newPosition: config.pipeAttachAt.pos,
                                newRotation: config.pipeAttachAt.rot);
       } else {
-        Debug.LogErrorFormat("Cannot find model '{0}' in part '{1}'.",config.modelPath, part.name);
+        HostedDebugLog.Error(this, "Cannot find model: {0}", config.modelPath);
         config.type = PipeEndType.Simple;  // Fallback.
       }
     }
@@ -656,7 +655,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
         // No extra models are displayed at the joint, just attach the pipe to the part's node.
         if (config.type != PipeEndType.Simple) {
           // Normally, this error should never pop up.
-          Debug.LogError(DbgFormatter2.HostedLog(part, "Unknown joint type: {0}", config.type));
+          HostedDebugLog.Error(this, "Unknown joint type: {0}", config.type);
         }
         var pipeJoint = new GameObject(PipeJointTransformName);
         Hierarchy.MoveToParent(pipeJoint.transform, root);

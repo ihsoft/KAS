@@ -224,7 +224,7 @@ public abstract class AbstractJointModule : PartModule,
   /// <inheritdoc/>
   public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
     if (isLinked) {
-      Debug.LogWarningFormat("Joint on {0} is already linked", DbgFormatter.PartId(part));
+      HostedDebugLog.Warning(this, "Joint is already linked");
       return;
     }
     linkSource = source;
@@ -346,13 +346,11 @@ public abstract class AbstractJointModule : PartModule,
           AsyncCall.CallOnEndOfFrame(this, () => {
             // Ensure part's state hasn't been changed by the other modules.
             if (part.parent == oldParent) {
-              Debug.LogWarningFormat(
-                  "Detach part {0} from the parent since joint limits are not met: {1}",
-                  DbgFormatter.PartId(part), limitError);
+              HostedDebugLog.Warning(
+                  this, "Detach from the parent since joint limits are not met: {0}", limitError);
               source.BreakCurrentLink(LinkActorType.Physics);
             } else {
-              Debug.LogWarningFormat(
-                  "Skip detaching {0} since it's already detached", DbgFormatter.PartId(part));
+              HostedDebugLog.Warning(this, "Skip detaching since the part is already detached");
             }
           });
         } else {

@@ -6,6 +6,7 @@
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
+using KSPDev.LogUtils;
 using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
@@ -202,8 +203,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   public virtual float stretchRatio {
     get { return 1.0f; }
     set {
-      Debug.LogWarningFormat(
-          "Stretch ratio of the telescopic link is fixed and cannnot be changed to {0}", value);
+      HostedDebugLog.Warning(
+          this, "Stretch ratio of the telescopic link is fixed and cannnot be changed to {0}",
+          value);
     }
   }
 
@@ -411,9 +413,8 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     // Source pivot is fixed for this part. Do a safe check to verify if requestor asked for the
     // right coordinates.
     if (Vector3.SqrMagnitude(source.position - sourceTransform.position) > 0.0005f) {
-      Debug.LogErrorFormat(
-          "Part's source on {0} doesn't match renderer source: pivot={1}, source={2}, err={3}",
-          part.name,
+      HostedDebugLog.Error(
+          this, "Part's source doesn't match the renderer's source: pivot={0}, source={1}, err={2}",
           sourceTransform.position,
           source.position,
           Vector3.SqrMagnitude(source.position - sourceTransform.position));
@@ -512,10 +513,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     UpdateValuesFromModel();
     // Log basic part values to help part's designers.
     //FIXME: use info level
-    Debug.LogWarningFormat(
-        "Procedural part {0}: minLinkLength={1}, maxLinkLength={2}, attachNodePosition.Y={3},"
-        + " pistonLength={4}, outerPistonDiameter={5}",
-        part.name, minLinkLength, maxLinkLength,
+    HostedDebugLog.Warning(this,
+        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
+        + " pistonLength={3}, outerPistonDiameter={4}",
+        minLinkLength, maxLinkLength,
         Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
         pistonLength, outerPistonDiameter);
 
@@ -639,6 +640,20 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     return linkLength;
   }
 
+  /// <summary>Returns a direction vector for the parked string.</summary>
+  /// <param name="cfgSetting">String from the config of the following format:
+  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
+  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
+  /// <returns>Direction vector for the action.</returns>
+  protected Vector3 ExtractOrientationVector(string cfgSetting) {
+    var lastCommaPos = cfgSetting.LastIndexOf(',');
+    if (lastCommaPos == -1) {
+      HostedDebugLog.Warning(this, "Cannot extract direction from string: {0}", cfgSetting);
+      return Vector3.forward;
+    }
+    return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
+  }
+
   /// <summary>Returns a context menu item name from the packed string.</summary>
   /// <param name="cfgSetting">String from the config of the following format:
   /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
@@ -649,20 +664,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     return lastCommaPos != -1
         ? cfgSetting.Substring(lastCommaPos + 1)
         : cfgSetting;
-  }
-
-  /// <summary>Returns a direction vector for the parked string.</summary>
-  /// <param name="cfgSetting">String from the config of the following format:
-  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
-  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
-  /// <returns>Direction vector for the action.</returns>
-  protected static Vector3 ExtractOrientationVector(string cfgSetting) {
-    var lastCommaPos = cfgSetting.LastIndexOf(',');
-    if (lastCommaPos == -1) {
-      Debug.LogWarningFormat("Cannot extract direction from string: {0}", cfgSetting);
-      return Vector3.forward;
-    }
-    return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
   }
   #endregion
 

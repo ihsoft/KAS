@@ -314,12 +314,10 @@ public class KASModuleLinkSourceBase : PartModule,
     linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
         .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
     if (linkJoint == null) {
-      Debug.LogErrorFormat(
-          "KAS part {0} misses joint module. It won't work properly", part.name);
+      HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
     }
     if (linkRenderer == null) {
-      Debug.LogErrorFormat(
-          "KAS part {0} misses renderer module. It won't work properly", part.name);
+      HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
     }
 
     // Try to restore link to the target and update module's state.
@@ -350,15 +348,15 @@ public class KASModuleLinkSourceBase : PartModule,
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, euler={3}",
-                      nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.localPosition),
-                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+      HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
+                          nodeName,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, euler={3}",
-                      nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.localPosition),
-                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+      HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
+                          nodeName,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }
 
     // If source is docked to the target then we need actual attach node. Create it.
@@ -378,19 +376,17 @@ public class KASModuleLinkSourceBase : PartModule,
       LogicalUnlink(LinkActorType.None);
       ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
       if (linkMode == LinkMode.DockVessels) {
-        Debug.LogWarningFormat("Fix docking state for a bad link on part {0}...",
-                               DbgFormatter.PartId(part));
+        HostedDebugLog.Warning(this, "Fix the docking state for a bad link...");
         AsyncCall.CallOnEndOfFrame(this, UndockFromBadTarget);
       } else {
-        Debug.LogWarningFormat(
-            "Mark source part {0} as unlinked since link state cannot be restored.",
-            DbgFormatter.PartId(part));
+        HostedDebugLog.Warning(
+            this, "Mark the source as unlinked since the link state cannot be restored.");
       }
     } else if (linkTarget.linkSource == null) {
       ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
-      Debug.LogWarningFormat(
-          "Detach part {0} from target {1} since target failed to restore its state.",
-          DbgFormatter.PartId(part), DbgFormatter.PartId(linkTarget.part));
+      HostedDebugLog.Warning(
+          this, "Detach from the target {0} since it's failed to restore the state.",
+          DbgFormatter.PartId(linkTarget.part));
       AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.None));
     }
   }
@@ -446,11 +442,11 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode) {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
-      Debug.LogWarningFormat("Cannot start linking mode in state: {0}", linkState);
+      HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
       return false;
     }
     if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
-      Debug.LogWarning("Cannot start EVA linking mode since active vessel is not EVA");
+      HostedDebugLog.Warning(this, "Cannot start EVA linking mode since active vessel is not EVA");
       return false;
     }
     linkState = LinkState.Linking;
@@ -461,7 +457,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void CancelLinking() {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Available)) {
-      Debug.LogWarningFormat("Cannot stop linking mode in state: {0}", linkState);
+      HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
       return;
     }
     StopLinkGUIMode();
@@ -487,8 +483,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (!isLinked) {
-      Debug.LogWarningFormat(
-          "Cannot break link: part {0} is not linked to anything", DbgFormatter.PartId(part));
+      HostedDebugLog.Warning(this, "Cannot break a link: the part is not linked to anything");
       return;
     }
     // Logical unlink must be done first before doing actual decouple.
@@ -514,10 +509,9 @@ public class KASModuleLinkSourceBase : PartModule,
         ?? linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform);
     if (errorMsg != null) {
       if (reportToGUI || reportToLog) {
-        Debug.LogWarningFormat("Cannot link part {0} (type={1}) and part {2} (type={3}): {4}",
-                               DbgFormatter.PartId(part), cfgLinkType,
-                               DbgFormatter.PartId(target.part), target.cfgLinkType,
-                               errorMsg);
+        HostedDebugLog.Warning(
+            this, "Cannot link a part of type={0} with the part {1}/type={2}: {3}",
+            cfgLinkType, DbgFormatter.PartId(target.part), target.cfgLinkType, errorMsg);
       }
       if (reportToGUI) {
         ScreenMessaging.ShowScreenMessage(
@@ -621,8 +615,7 @@ public class KASModuleLinkSourceBase : PartModule,
   protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
     if (linkMode == LinkMode.DockVessels) {
-      Debug.LogFormat("Physically linking {0} to {1}",
-                      DbgFormatter.PartId(part), DbgFormatter.PartId(target.part));
+      HostedDebugLog.Info(this, "Physically linking to {0}", DbgFormatter.PartId(target.part));
       KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
     }
   }
@@ -632,8 +625,7 @@ public class KASModuleLinkSourceBase : PartModule,
   protected virtual void PhysicalUnink(ILinkTarget target) {
     // FIXME: restore vessels names/types
     if (linkMode == LinkMode.DockVessels) {
-      Debug.LogFormat("Physically unlinking {0} to {1}",
-                      DbgFormatter.PartId(part), DbgFormatter.PartId(target.part));
+      HostedDebugLog.Info(this, "Physically unlinking from {0}", DbgFormatter.PartId(target.part));
       KASAPI.LinkUtils.DecoupleParts(part, target.part);
     }
   }
@@ -680,9 +672,9 @@ public class KASModuleLinkSourceBase : PartModule,
   protected virtual void RestoreTarget() {
     linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
     if (linkTarget == null) {
-      Debug.LogErrorFormat(
-          "Source {0} cannot restore link to target part id={1} on attach node {2}",
-          DbgFormatter.PartId(part), persistedLinkTargetPartId, attachNodeName);
+      HostedDebugLog.Error(
+          this, "Source cannot restore link to target part id={0} on the attach node {1}",
+          persistedLinkTargetPartId, attachNodeName);
     }
     linkStateMachine.currentState = persistedLinkState;
     linkState = linkState;  // Trigger state updates.
@@ -762,8 +754,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// </summary>
   void UndockFromBadTarget() {
     if (attachNode == null || attachNode.attachedPart == null) {
-      Debug.LogWarningFormat("Cannot decouple part {0} because target candidate is not found.",
-                             DbgFormatter.PartId(part));
+      HostedDebugLog.Warning(this, "Cannot decouple because the target candidate is not found.");
       return;
     }
     Part partToDecouple;
@@ -772,12 +763,11 @@ public class KASModuleLinkSourceBase : PartModule,
     } else if (attachNode.attachedPart.parent == part) {
       partToDecouple = attachNode.attachedPart;
     } else {
-      Debug.LogErrorFormat(
-          "Unexpected setup of attach node on part {0}", DbgFormatter.PartId(part));
+      HostedDebugLog.Error(this, "Unexpected setup of еру attach node");
       return;
     }
-    Debug.LogWarningFormat(
-        "Decouple part {0} from {1} since the link state cannot be restored.",
+    HostedDebugLog.Warning(
+        this, "Decouple {0} from {1} since the link state cannot be restored.",
         DbgFormatter.PartId(partToDecouple), DbgFormatter.PartId(partToDecouple.parent));
     partToDecouple.decouple();
   }

@@ -241,15 +241,15 @@ public class KASModuleLinkTargetBase :
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      Debug.LogFormat("Create attach node transform {0} for part {1}: pos={2}, euler={3}",
-                      nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.localPosition),
-                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+      HostedDebugLog.Info(this, "Create attach node transform {0} for part {1}: pos={2}, euler={3}",
+                          nodeName, part.name,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      Debug.LogFormat("Use attach node transform {0} for part {1}: pos={2}, euler={3}",
-                      nodeName, part.name,
-                      DbgFormatter.Vector(nodeTransform.localPosition),
-                      DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+      HostedDebugLog.Info(this, "Use attach node transform {0} for part {1}: pos={2}, euler={3}",
+                          nodeName, part.name,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }
 
     // If target is linked and docked then we need actual attach node. Create it.
@@ -385,10 +385,9 @@ public class KASModuleLinkTargetBase :
     _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
     var startState = persistedLinkState;
     if (_linkSource == null) {
-      Debug.LogErrorFormat(
-          "Target {0} cannot restore link to source part id={1} on attach node {2}."
-          + " Make it unlinked.",
-          DbgFormatter.PartId(part), persistedLinkSourcePartId, attachNodeName);
+      HostedDebugLog.Error(
+          this, "Cannot restore link to the source part id={0} on the attach node {1}",
+          persistedLinkSourcePartId, attachNodeName);
       persistedLinkSourcePartId = 0;
       persistedLinkMode = LinkMode.DockVessels;
       startState = LinkState.Available;
