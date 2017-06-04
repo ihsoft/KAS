@@ -212,25 +212,25 @@ public interface ILinkSource {
   bool isLocked { get; set; }
 
   /// <summary>Mode in which the link between source and target is created.</summary>
-  /// <value>GUI mode.</value>
+  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
+  /// <value>The GUI mode.</value>
   /// <seealso cref="StartLinking"/>
+  /// <seealso cref="linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   GUILinkMode guiLinkMode { get; }
 
   /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
-  /// Only one source at time can be linking. If the part has more sources or targets, they will all
-  /// get <see cref="LinkState.Locked"/>.
+  /// <para>
+  /// Only one source at the time can be linking. If the part has more sources or targets, they are
+  /// expected to become <see cref="LinkState.Locked"/>.
+  /// </para>
+  /// <para>A module can refuse the mode by returning <c>false</c>.</para>
   /// </remarks>
   /// <param name="mode">
   /// Defines how the pending link should be displayed. See <see cref="GUILinkMode"/> for more
   /// details.
   /// </param>
-  /// <para>
-  /// The module can refuse the mode by returning <c>false</c>. Refusing the mode
-  /// <see cref="GUILinkMode.API"/> is allowed but strongly discouraged. Only refuse this mode when
-  /// all the other modes are refused too (i.e. the source cannot be linked at all).
-  /// </para>
   /// <returns><c>true</c> if the mode has successfully started.</returns>
   /// <seealso cref="guiLinkMode"/>
   /// <seealso cref="CancelLinking"/>
