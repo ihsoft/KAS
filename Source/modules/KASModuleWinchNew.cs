@@ -388,7 +388,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <value>The current winch state.</value>
   // TODO(ihsoft): DOCS: put state transitions here
   public virtual WinchState winchState {
-    get { return stateMachine.currentState.Value; }
+    get { return stateMachine.currentState ?? WinchState.HeadLocked; }
     set { stateMachine.currentState = value; }
   }
 
