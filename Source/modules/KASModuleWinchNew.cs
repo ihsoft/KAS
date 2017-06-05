@@ -7,6 +7,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.SoundsUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.Types;
 using System;
@@ -233,6 +234,27 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float motorPowerDrain = 0.5f;
+
+  /// <summary>URL of the sound for the working winch motor.</summary>
+  /// <remarks>This sound will be looped while the motor is active.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathMotor = "";
+
+  /// <summary>URL of the sound for the starting winch motor.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathMotorStart = "";
+
+  /// <summary>URL of the sound for the stopping winch motor.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathMotorStop = "";
+
+  /// <summary>URL of the sound for the winch head lock event.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathHeadLock = "";
   #endregion
 
   #region The context menu fields
@@ -488,6 +510,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   Transform headPartAnchor;
   float motorCurrentSpeed;
   float motorTargetSpeed;
+
+  AudioSource sndMotor;
+  AudioSource sndMotorStart;
+  AudioSource sndMotorStop;
+  AudioSource sndHeadLock;
   #endregion
 
   #region PartModule overrides
@@ -495,6 +522,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public override void OnAwake() {
     base.OnAwake();
     LoadUIControlsCache();
+
+    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+    sndHeadLock = SpatialSounds.Create3dSound(part.gameObject, sndPathHeadLock);
 
     stateMachine = new SimpleStateMachine<WinchState>(strict: true);
     stateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
@@ -532,11 +564,23 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchState.CableExtending,
         enterHandler: oldState => {
           motorTargetSpeed = motorMaxSpeed;
+          sndMotorStart.Play();
+          sndMotor.Play();
+        },
+        leaveHandler: newState => {
+          sndMotorStop.Play();
+          sndMotor.Stop();
         });
     stateMachine.AddStateHandlers(
         WinchState.CableRetracting,
         enterHandler: oldState => {
           motorTargetSpeed = -motorMaxSpeed;
+          sndMotorStart.Play();
+          sndMotor.Play();
+        },
+        leaveHandler: newState => {
+          sndMotorStop.Play();
+          sndMotor.Stop();
         });
   }
 
@@ -810,7 +854,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     cableJoint.connectedAnchor = part.rb.transform.InverseTransformPoint(nodeTransform.position);
     
     linkRenderer.StartRenderer(nodeTransform, headCableAnchor);
-    
     HostedDebugLog.Info(this, "Winch head is deployed");
   }
 
@@ -832,6 +875,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
     linkRenderer.StopRenderer();
 
+    sndHeadLock.Play();
     HostedDebugLog.Info(this, "Winch head is locked");
   }
 
