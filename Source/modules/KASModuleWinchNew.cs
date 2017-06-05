@@ -877,13 +877,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // Ensure the head is aligned as we expect it to be.    
     AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
   }
-  
-  string DumpAxis(Transform trf) {
-    return string.Format("(fwd={0}, up={1}, right={2})",
-                         DbgFormatter.Vector(trf.forward),
-                         DbgFormatter.Vector(trf.up),
-                         DbgFormatter.Vector(trf.right));
-  }
   #endregion
 }
 
