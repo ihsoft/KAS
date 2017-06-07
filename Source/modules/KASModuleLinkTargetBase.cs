@@ -180,6 +180,8 @@ public class KASModuleLinkTargetBase :
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
+    base.OnAwake();
+
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
@@ -213,6 +215,8 @@ public class KASModuleLinkTargetBase :
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+
     // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {
       if (persistedLinkMode == LinkMode.DockVessels) {
