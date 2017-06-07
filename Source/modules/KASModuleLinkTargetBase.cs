@@ -74,7 +74,7 @@ public class KASModuleLinkTargetBase :
   public uint linkSourcePartId { get { return persistedLinkSourcePartId; } }
 
   /// <inheritdoc/>
-  public LinkState linkState {
+  public virtual LinkState linkState {
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
