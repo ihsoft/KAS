@@ -216,6 +216,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
+    InitNodeTransform();  // Kerbal models may skip OnLoad event.
 
     // Try to restore link to the target.
     if (persistedLinkState == LinkState.Linked) {
@@ -234,27 +235,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
-
-    // Create attach node transform. It will become a part of the model.
-    var nodeName = attachNodeTransformName != ""
-        ? attachNodeTransformName
-        : attachNodeName + "-node";
-    nodeTransform = Hierarchy.FindTransformInChildren(part.transform, nodeName);
-    if (nodeTransform == null) {
-      nodeTransform = new GameObject(nodeName).transform;
-      Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
-                             newPosition: attachNodePosition,
-                             newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      HostedDebugLog.Info(this, "Create attach node transform {0} for part {1}: pos={2}, euler={3}",
-                          nodeName, part.name,
-                          DbgFormatter.Vector(nodeTransform.localPosition),
-                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
-    } else {
-      HostedDebugLog.Info(this, "Use attach node transform {0} for part {1}: pos={2}, euler={3}",
-                          nodeName, part.name,
-                          DbgFormatter.Vector(nodeTransform.localPosition),
-                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
-    }
+    InitNodeTransform();
 
     // If target is linked and docked then we need actual attach node. Create it.
     if (persistedLinkState == LinkState.Linked && persistedLinkMode == LinkMode.DockVessels) {
@@ -442,6 +423,29 @@ public class KASModuleLinkTargetBase :
         part.FindModulesImplementing<ILinkStateEventListener>()
             .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
       }
+    }
+  }
+
+  /// <summary>Finds the attach node transform or creates one.</summary>
+  void InitNodeTransform() {
+    var nodeName = attachNodeTransformName != ""
+        ? attachNodeTransformName
+        : attachNodeName + "-node";
+    nodeTransform = Hierarchy.FindTransformInChildren(part.transform, nodeName);
+    if (nodeTransform == null) {
+      nodeTransform = new GameObject(nodeName).transform;
+      Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
+                             newPosition: attachNodePosition,
+                             newRotation: Quaternion.LookRotation(attachNodeOrientation));
+      HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
+                          nodeName,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+    } else {
+      HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
+                          nodeTransform,
+                          DbgFormatter.Vector(nodeTransform.localPosition),
+                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }
   }
   #endregion
