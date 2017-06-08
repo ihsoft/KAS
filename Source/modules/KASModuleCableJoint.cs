@@ -183,6 +183,7 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
     springJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
     springJoint.maxDistance = originalLength;
     springJoint.connectedBody = source.part.rb;
+    //TODO: Adjust anchor to the attch node.
     springJoint.enablePreprocessing = false;
     
     // Move plug head to the target and adhere it there at the attach node transform.

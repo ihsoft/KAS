@@ -85,6 +85,7 @@ public interface ILinkSource {
   /// </remarks>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
+  // TODO(ihsoft): Deprecate in favor of linkRenderer
   string cfgLinkRendererName { get; }
 
   /// <summary>Attach node used for linking with the target part.</summary>
