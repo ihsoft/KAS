@@ -1914,12 +1914,13 @@
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.Play(System.String)">
             <summary>Plays the specified sound.</summary>
             <remarks>
-            Every request is cached unless requested otherwise. The subsequent calls to the play method
-            won't require the audio clip loading. However, the same cached sound cannot be played
-            simultaneously from the different calls: every next call will abort the previous play action
-            of the same sound.
+            Every request is cached so that the subsequent calls to play the same sound won't require the
+            audio clip to load. However, the same cached sound cannot be played simultaneously from the
+            different calls - each call will abort the previous play action of the sound.
             </remarks>
-            <param name="audioPath">File path relative to <c>GameData</c>.</param>
+            <param name="audioPath">
+            The file path relative to <c>GameData</c>. It can be empty, in which case nothing is played.
+            </param>
         </member>
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.CacheSound(System.String)">
             <summary>Loads the sound into cache but doesn't play it.</summary>
@@ -2721,25 +2722,27 @@
         <member name="M:KSPDev.LogUtils.DbgFormatter.Nullable``1(System.Nullable{``0},System.String)">
             <summary>Prints out a content if the nullable type.</summary>
             <param name="value">The value to print.</param>
-            <param name="defStr">A string to present when the value is <c>null</c>.</param>
-            <returns>The content of the non-null value, or <paramref name="defStr"/>, or "NULL".</returns>
+            <param name="nullStr">A string to present when the value is <c>null</c>.</param>
+            <returns>The content of a non-null value or <paramref name="nullStr"/>.</returns>
         </member>
         <member name="T:KSPDev.LogUtils.HostedDebugLog">
             <summary>Helper class to log a record which is bound to a specific object.</summary>
             <remarks>
+            <para>
             It may be useful when there are situations that relate to a specific instance of the commong
             KSP objects. Like <see cref="T:Part"/>, <see cref="T:PartModule"/>, <see cref="T:UnityEngine.Transform"/>, etc.
             With the hosted logging there will be no need to manually designate for which object the
             record is being logged.
+            </para>
+            <para>
+            This class has many methods that do exactly the same stuff. They are added for the sake of
+            better type checking to eliminate the case when the call has no host object provided.
+            </para>
             </remarks>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
         </member>
-        <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])">
-            <summary>Logs a formatted INFO message with a host indentifier.</summary>
-            <remarks>
-            For the <see cref="T:Part"/>, <see cref="T:PartModule"/> and <see cref="T:UnityEngine.Transform"/> objects
-            the identifier will be the most informative.
-            </remarks>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])">
+            <summary>Logs a formatted INFO message with a host identifier.</summary>
             <param name="host">
             The host object which is bound to the log record. It can be <c>null</c>.
             </param>
@@ -2747,19 +2750,52 @@
             <param name="args">The arguments for the format string.</param>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
         </member>
-        <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(System.Object,System.String,System.Object[])">
-            <summary>Logs a formatted WARNING message with a host indentifier.</summary>
-            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])"/>
-            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(PartModule,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
         </member>
-        <member name="M:KSPDev.LogUtils.HostedDebugLog.Error(System.Object,System.String,System.Object[])">
-            <summary>Logs a formatted ERROR message with a host indentifier.</summary>
-            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(System.Object,System.String,System.Object[])"/>
-            <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(UnityEngine.Transform,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
         </member>
-        <member name="M:KSPDev.LogUtils.HostedDebugLog.GetHostName(System.Object)">
-            <summary>Helper method to make a user friendly host name for the logs.</summary>
-            <param name="host">The host object that "owns" the logging. It can be <c>null</c>.</param>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(Part,System.String,System.Object[])">
+            <summary>Logs a formatted WARNING message with a host identifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(PartModule,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Warning(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(UnityEngine.Transform,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Warning(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Error(Part,System.String,System.Object[])">
+            <summary>Logs a formatted ERROR message with a host identifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Error(PartModule,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Error(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Error(UnityEngine.Transform,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Error(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])">
+            <summary>Generic method to emit a hosted log record.</summary>
+            <remarks>
+            For the <see cref="T:Part"/>, <see cref="T:PartModule"/> and <see cref="T:UnityEngine.Transform"/> objects
+            the identifier will be the most informative.
+            </remarks>
+            <param name="type">The type of the log record.</param>
+            <param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param>
+            <param name="format">The format string for the log message.</param>
+            <param name="args">The arguments for the format string.</param>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)">
+            <summary>Helper method to make a user friendly object name for the logs.</summary>
+            <remarks>
+            This method is much more intelligent than a regular <c>ToString()</c>, it can detect some
+            common types and give a bit more context on them while keeping the output short.
+            </remarks>
+            <param name="obj">The object to stringify. It can be <c>null</c>.</param>
             <returns>A human friendly string which identifies the host.</returns>
         </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
@@ -3682,6 +3718,16 @@
             <summary>Returns a user friendly name of the resource.</summary>
             <param name="resourceId">The resource ID.</param>
             <returns>A user friendly string that identifies the resource.</returns>
+        </member>
+        <member name="T:KSPDev.SoundsUtils.SpatialSounds">
+            <summary>Helper class to deal with the sounds attached to a game object.</summary>
+        </member>
+        <member name="M:KSPDev.SoundsUtils.SpatialSounds.Create3dSound(UnityEngine.GameObject,System.String,System.Boolean,System.Single)">
+            <summary>Sets up a sound FX group with an audio clip .</summary>
+            <param name="obj">The game object to attach sound to.</param>
+            <param name="sndPath">The URL to the audio clip.</param>
+            <param name="loop">Specifies if the clip playbac kshoold be looped.</param>
+            <param name="maxDistance">The mximum distance at which the sound is hearable.</param>
         </member>
         <member name="T:KSPDev.Types.PosAndRot">
             <summary>Type to hold position and rotation of a transform. It can be serialized.</summary>

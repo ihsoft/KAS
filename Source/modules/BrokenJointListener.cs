@@ -37,7 +37,7 @@ public class BrokenJointListener : MonoBehaviour,
 
   /// <inheritdoc/>
   public void OnJointBreak(float breakForce) {
-    HostedDebugLog.Info(gameObject, "Joint is broken with force {0}. Notifying part {1}",
+    HostedDebugLog.Info(gameObject.transform, "Joint is broken with force {0}. Notifying part {1}",
                         breakForce, DbgFormatter.PartId(hostPart));
     hostPart.FindModulesImplementing<IKasJointEventsListener>()
         .ForEach(x => x.OnKASJointBreak(gameObject, breakForce));
