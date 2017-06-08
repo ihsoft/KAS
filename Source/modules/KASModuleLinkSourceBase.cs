@@ -389,7 +389,7 @@ public class KASModuleLinkSourceBase : PartModule,
       ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
       HostedDebugLog.Warning(
           this, "Detach from the target {0} since it's failed to restore the state.",
-          DbgFormatter.PartId(linkTarget.part));
+          linkTarget.part);
       AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.None));
     }
   }
@@ -511,7 +511,7 @@ public class KASModuleLinkSourceBase : PartModule,
       if (reportToGUI || reportToLog) {
         HostedDebugLog.Warning(
             this, "Cannot link a part of type={0} with the part {1}/type={2}: {3}",
-            cfgLinkType, DbgFormatter.PartId(target.part), target.cfgLinkType, errorMsg);
+            cfgLinkType, target.part, target.cfgLinkType, errorMsg);
       }
       if (reportToGUI) {
         ScreenMessaging.ShowScreenMessage(
@@ -617,7 +617,7 @@ public class KASModuleLinkSourceBase : PartModule,
   protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
     if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Physically linking to {0}", DbgFormatter.PartId(target.part));
+      HostedDebugLog.Info(this, "Physically linking to {0}", target.part);
       KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
     }
   }
@@ -627,7 +627,7 @@ public class KASModuleLinkSourceBase : PartModule,
   protected virtual void PhysicalUnink(ILinkTarget target) {
     // FIXME: restore vessels names/types
     if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Physically unlinking from {0}", DbgFormatter.PartId(target.part));
+      HostedDebugLog.Info(this, "Physically unlinking from {0}", target.part);
       KASAPI.LinkUtils.DecoupleParts(part, target.part);
     }
   }
@@ -767,9 +767,8 @@ public class KASModuleLinkSourceBase : PartModule,
       HostedDebugLog.Error(this, "Unexpected setup of еру attach node");
       return;
     }
-    HostedDebugLog.Warning(
-        this, "Decouple {0} from {1} since the link state cannot be restored.",
-        DbgFormatter.PartId(partToDecouple), DbgFormatter.PartId(partToDecouple.parent));
+    HostedDebugLog.Warning(this, "Decouple {0} from {1} since the link state cannot be restored.",
+                           partToDecouple, partToDecouple.parent);
     partToDecouple.decouple();
   }
 
