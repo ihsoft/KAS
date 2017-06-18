@@ -88,15 +88,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message StopExtendingMenuTxt = "Stop extending";
 
-  /// <summary>Name of the menu item that starts the cable extending.</summary>
+  /// <summary>Name of the context menu item that starts the cable extending.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message ExtendCableMenuTxt = "Extend cable";
 
-  /// <summary>Name of the menu item that stops the cable retracting.</summary>
+  /// <summary>Name of the context menu item that stops the cable retracting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message StopRetractingMenuTxt = "Stop retracting";
 
-  /// <summary>Name of the menu item that starts the cable extending.</summary>
+  /// <summary>Name of the context menu item that starts the cable extending.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message RetractCableMenuTxt = "Retract cable";
   #endregion
@@ -258,19 +258,21 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region The context menu fields
-  /// <summary>Status field to display the current wimch status.</summary>
+  /// <summary>Status field to display the current winch status in the context menu.</summary>
   /// <see cref="winchState"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Winch state", guiActive = true)]
   public string headDeployStateMenuInfo = "";
 
-  /// <summary>Presents the real cable length that connects the winch and the head.</summary>
+  /// <summary>
+  /// Presents the real cable length that connects the winch and the head in the context menu.
+  /// </summary>
   /// <seealso cref="realHeadDistance"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Actual lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
   public float cableLengthMenuInfo = 0.0f;
 
-  /// <summary>Presents the maximum allowed cable length.</summary>
+  /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="maxAllowedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Deployed lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
@@ -278,7 +280,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Context menu events/actions
-  /// <summary>Starts extending the cable.</summary>
+  /// <summary>A context menu item that starts extending the cable.</summary>
   /// <remarks>
   /// If the head was locked it will be deployed. This method does nothing is the cable cannot be
   /// extended for any reason.
@@ -328,7 +330,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Allows the cable be retracted at the maximum length.</summary>
+  /// <summary>
+  /// A context menu item that sets the cable length ot the maximum, and unlocks the head if it was
+  /// locked.
+  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Release cable", guiActive = true)]
   public virtual void ReleaseCableEvent() {
@@ -338,7 +343,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Sets the cable length to the current distance of the head.</summary>
+  /// <summary>
+  /// A context menu event that sets the cable length to the current distance to the head.
+  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Instant stretch", guiActive = true)]
   public virtual void InstantStretchEvent() {
@@ -367,7 +374,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Detaches the head from the kerbal and puts it back into the winch.</summary>
+  /// <summary>Detaches the head from the kerbal and puts it back to the winch.</summary>
   /// <remarks>The active vessel must be a kerbal holding a headof this winch.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Lock head", guiActiveUnfocused = true, externalToEVAOnly = false)]

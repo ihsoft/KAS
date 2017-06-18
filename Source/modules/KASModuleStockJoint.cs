@@ -35,7 +35,7 @@ public class KASModuleStockJoint :
   #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    // It's not absolutely required since part will get decoupled anyways, but pro-active link
+    // It's not absolutely required since part will get decoupled anyways, but a pro-active link
     // break allows specifying the right actor.
     linkSource.BreakCurrentLink(KASAPIv1.LinkActorType.Physics);
   }
