@@ -1,5 +1,5 @@
 <!-- Index file for KSP core methods help -->
-<!-- v2, 05.27.2017 -->
+<!-- v3, 06.07.2017 -->
 <index>
 
 <item name="T:KSPField">
@@ -10,6 +10,9 @@
 </item>
 <item name="T:BaseField">
   <seealso href="https://kerbalspaceprogram.com/api/class_base_field.html">KSP: BaseField</seealso>
+</item>
+<item name="T:KSP.Localization.Localizer">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
 </item>
 
 </index>

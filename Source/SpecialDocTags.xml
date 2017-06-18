@@ -1,5 +1,5 @@
 <!-- Special KSP tags help -->
-<!-- v1, 05.27.2017 -->
+<!-- v2, 06.09.2017 -->
 <Tags>
 
 <ConfigSetting>
@@ -82,9 +82,19 @@
   <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_2']/*"/>
 </Message2>
 
-<MessageEnumValue>
-  <summary-prefix><i>GUI message (Enum translation).</i><br/></summary-prefix>
-  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.MessageEnumValue_1']/*"/>
-</MessageEnumValue>
+<Message3>
+  <summary-prefix><i>GUI message (3 parameters).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_3']/*"/>
+</Message3>
+
+<Message4>
+  <summary-prefix><i>GUI message (4 parameters).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_4']/*"/>
+</Message4>
+
+<Message5>
+  <summary-prefix><i>GUI message (5 parameters).</i><br/></summary-prefix>
+  <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.Message_5']/*"/>
+</Message5>
 
 </Tags>

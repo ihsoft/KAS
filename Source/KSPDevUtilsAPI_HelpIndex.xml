@@ -1,5 +1,5 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v3, 05.23.2017 -->
+<!-- v4, 06.09.2017 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -18,8 +18,14 @@
 <item name="T:KSPDev.GUIUtils.Message_2">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_2.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2&gt;</seealso>
 </item>
-<item name="T:KSPDev.GUIUtils.MessageEnumValue_1">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MessageEnumValue_1.htm">KSPDev Utils: GUIUtils.MessageEnumValue&lt;T1&gt;</seealso>
+<item name="T:KSPDev.GUIUtils.Message_3">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_3.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3&gt;</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.Message_4">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_4.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4&gt;</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.Message_5">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_5.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4, T5&gt;</seealso>
 </item>
 <item name="T:KSPDev.KSPInterfaces.IPartModule">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_KSPInterfaces_IPartModule.htm">KSPDev Utils: KSPInterfaces.IPartModule</seealso>
