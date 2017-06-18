@@ -6,10 +6,10 @@
 using System;
 using UnityEngine;
 
-namespace KAS {
+namespace KASAPIv1 {
 
 /// <summary>Interface that notifies listeners about joints breaking.</summary>
-/// <seealso cref="BrokenJointListener"/>
+/// <seealso cref="KAS.BrokenJointListener"/>
 /// <example><code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/></example>
 public interface IKasJointEventsListener {
   /// <summary>Triggers when connection is broken due to too strong force applied.</summary>
