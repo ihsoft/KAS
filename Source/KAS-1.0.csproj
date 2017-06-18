@@ -56,8 +56,8 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.23.1-pre">
-      <HintPath>..\Binaries\KSPDev_Utils.0.23.1-pre.dll</HintPath>
+    <Reference Include="KSPDev_Utils.0.24-pre">
+      <HintPath>..\Binaries\KSPDev_Utils.0.24-pre.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>

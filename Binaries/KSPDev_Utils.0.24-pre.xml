@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.23.1-pre</name>
+        <name>KSPDev_Utils.0.24-pre</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -43,7 +43,7 @@
              </code>
              </example>
              <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
-             <seealso cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>
+             <seealso cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.#ctor(System.Type)">
             <param name="containerType">A type of the collection (i.e. an immediate field's type).</param>
@@ -93,7 +93,7 @@
             </code>
             </example>
             <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
-            <seealso cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.#ctor">
             <summary>Default constructor must be the only constructor of the proto.</summary>
@@ -117,10 +117,10 @@
             <returns>A new and initialized instance of the requested type.</returns>
             <exception cref="T:System.ArgumentException">If value cannot be parsed.</exception>
         </member>
-        <member name="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute">
+        <member name="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute">
              <summary>A base for any persitent field annotation.</summary>
-             <remarks>Descendands must initialize at least <see cref="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._ordinaryTypeProto"/> field. If
-             <see cref="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._collectionTypeProto"/> is set then the field is considered a persistent
+             <remarks>Descendands must initialize at least <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.ordinaryTypeProto"/> field. If
+             <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto"/> is set then the field is considered a persistent
              collection of values.
              <para>See more examples in <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>.</para>
              </remarks>
@@ -128,14 +128,14 @@
              <code>
              class MyTypeAttribute : AbstractPersistentFieldAttribute {
                public MyTypeAttribute(string cfgPath) : base(cfgPath) {
-                 _ordinaryTypeProto = typeof(PrimitiveTypesProto);
+                 ordinaryTypeProto = typeof(PrimitiveTypesProto);
                }
              }
             
              class MyTypesCollectionAttribute : AbstractPersistentFieldAttribute {
                public MyTypesCollectionAttribute(string cfgPath) : base(cfgPath) {
-                 _ordinaryTypeProto = typeof(PrimitiveTypesProto);
-                 _collectionTypeProto = typeof(GenericCollectionTypeProto);
+                 ordinaryTypeProto = typeof(PrimitiveTypesProto);
+                 collectionTypeProto = typeof(GenericCollectionTypeProto);
                }
              }
              </code>
@@ -144,31 +144,36 @@
              <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
              <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
         </member>
-        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.path">
+        <member name="F:KSPDev.ConfigUtils.BasePersistentFieldAttribute.path">
             <summary>Relative path to the value or node. Case-insensitive.</summary>
             <remarks>Absolute path depends on the context.</remarks>
         </member>
-        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.group">
+        <member name="F:KSPDev.ConfigUtils.BasePersistentFieldAttribute.group">
             <summary>A tag for a group of fields.</summary>
-            <remarks>Group can be used when reading/writing values via <see cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
-            to process only a subset of the persistent fields of the class. It's case-insensitive.
+            <remarks>
+            Group can be used when reading/writing values via <see cref="T:KSPDev.ConfigUtils.ConfigAccessor"/> to process only
+            a subset of the persistent fields of the class. It's case-insensitive.
             </remarks>
         </member>
-        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._ordinaryTypeProto">
+        <member name="M:KSPDev.ConfigUtils.BasePersistentFieldAttribute.#ctor(System.String)">
+            <param name="cfgPath">
+            A path to the fields's value in the config. Components must be separated by symbol <c>/</c>.
+            The path is relative, the absolute path is determined when doing actual (de)serialization.
+            The path is case-insensitive.
+            </param>
+        </member>
+        <member name="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.ordinaryTypeProto">
             <summary>A proto that (de)serializes field's value as a simple string.</summary>
-            <remarks>This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.
+            <remarks>
+            This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.
             </remarks>
         </member>
-        <member name="F:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute._collectionTypeProto">
+        <member name="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto">
             <summary>A proto that handles field's value as a collection of persistent values.</summary>
             <remarks>If it's <c>null</c> then field is assumed to be not a collection.</remarks>
-            <para>This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
+            <para>
+            This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
             </para>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute.#ctor(System.String)">
-            <param name="cfgPath">A path to the fields's value in the config. Components must be separated
-            by symbol '/'. The path is relative, the absolute path is determined when doing actual
-            (de)serialization. The path is case-insensitive.</param>
         </member>
         <member name="T:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute">
             <summary>A base for any persistent fields file annotation.</summary>
@@ -512,7 +517,7 @@
             <param name="nodePath">
             An optional path in the file. All type's field will be read relative to this part.
             </param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromDatabase(System.String,System.Type,System.Object,System.String)">
@@ -521,7 +526,7 @@
             <param name="type">A type to load fields for.</param>
             <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
             only static fields will be loaded.</param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromNode(ConfigNode,System.Type,System.Object,System.String)">
@@ -530,7 +535,7 @@
             <param name="type">A type to load fields for.</param>
             <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
             only static fields will be loaded.</param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)">
@@ -570,7 +575,7 @@
             <param name="mergeMode">
             If <c>true</c> and the file already exists then only will be created.
             </param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsIntoNode(ConfigNode,System.Type,System.Object,System.String)">
@@ -582,7 +587,7 @@
             <param name="type">A type to write fields for.</param>
             <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
             only static fields will be written.</param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/>).</param>
+            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsFromType(System.Type,System.Object,System.String)">
@@ -854,14 +859,15 @@
         <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
              <summary>A simple attribute for the fields that need (de)serialization.</summary>
              <remarks>
-             This form allows adjusting any <see cref="T:KSPDev.ConfigUtils.AbstractPersistentFieldAttribute"/> property
+             This form allows adjusting any <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/> property
              in the annotation, and has a shortcut to mark a field as a collection
              (<c><see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection"/> = true</c>).
              <para>
              By default the ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
              and the collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
              be changed in the annotation by assigning properties
-             <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto"/> and/or <see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto"/>.
+             <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.ordinaryTypeProto"/> and/or
+             <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto"/>.
              </para>
              </remarks>
              <example>
@@ -1036,18 +1042,9 @@
         <member name="M:KSPDev.ConfigUtils.PersistentFieldAttribute.#ctor(System.String)">
             <inheritdoc/>
         </member>
-        <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.ordinaryTypeProto">
-            <summary>A proto for handling the annotated field.</summary>
-            <remarks>If field is a collection then this proto will be used to handle values of the
-            collection items.</remarks>
-        </member>
-        <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.collectionTypeProto">
-            <summary>A proto for handling collection fields.</summary>
-            <remarks>If this property is not <c>null</c> than the annotated field is trreated as a
-            collection of values.</remarks>
-        </member>
         <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection">
             <summary>Specifies if the annotated field is a collection of values.</summary>
+            <value><c>true</c> if the field is a collection.</value>
         </member>
         <member name="T:KSPDev.ConfigUtils.KspTypesProto">
             <summary>A proto for handling all KSP specific types.</summary>
@@ -1088,6 +1085,24 @@
         </member>
         <member name="F:KSPDev.FSUtils.KspPaths.pluginsRootFolder">
             <summary>Standard plug-ins folder.</summary>
+        </member>
+        <member name="F:KSPDev.FSUtils.KspPaths.PluginFolderName">
+            <summary>A standard directory name to place the mod's binary.</summary>
+            <remarks>
+            This name is not mandatory, and is not enforced by the game's core. It's a community adopted
+            name.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.FSUtils.KspPaths.PluginDataFolderName">
+            <summary>
+            A standard name to place the configs that should be ignored by the game's core.
+            </summary>
+            <remarks>
+            The files in this directory will be ignored by the game during the loading process. This
+            is a common palce to put tghe mod's settings. A directory with such name can be placed
+            anywhere within the <c>GameData</c> folder. However, it's usually a subfolder of
+            <see cref="F:KSPDev.FSUtils.KspPaths.PluginFolderName"/>.
+            </remarks>
         </member>
         <member name="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])">
             <summary>
@@ -1144,51 +1159,160 @@
             </example>
             <seealso cref="M:KSPDev.FSUtils.KspPaths.NormalizePath(System.String)"/>
         </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Type)">
+            <summary>Returns a relative game's path to the mod's root folder.</summary>
+            <example>
+            <para>
+            Given the mod's assembly was loaded from
+            <c>GameData/ModFolder1/ModFolder2/Plugins/mod.dll</c>, the returned path will be
+            <c>GameData/ModFolder1/ModFolder2/</c> because of <c>Plugins</c> folder name is considered to
+            be a common name for the mod's  binaries.
+            </para>
+            <para>
+            If the mod's DLL is located in the folder other than <c>Plugins</c>, then just the parent
+            folder is returned. E.g. for <c>GameData/ModFolder1/ModFolder2/MyDLLs/mod.dll</c>, the result
+            would be <c>GameData/ModFolder1/ModFolder2/MyDLLs/</c>.
+            </para>
+            </example>
+            <param name="target">The target to resolve the assembly for.</param>
+            <returns>
+            An absolute path. There is always a trailing directory separator symbol.
+            </returns>
+        </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Object)">
+            <inheritdoc cref="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Type)"/>
+        </member>
+        <member name="M:KSPDev.FSUtils.KspPaths.GetModsDataFilePath(System.Object,System.String,System.Boolean)">
+            <summary>Returns a relative game's path to the file located in the data folder.</summary>
+            <param name="obj">The object instance to use to resolve the mod's assembly.</param>
+            <param name="fileName">The data file name.</param>
+            <param name="createMissingDirs">
+            Instructs the method to create all the directories and subdirectories in the specified path,
+            should they not already exist.
+            </param>
+            <returns>An absolute path.</returns>
+        </member>
         <member name="P:KSPDev.FSUtils.KspPaths.pluginsRoot">
             <summary>Returns full path to the plugins root folder (a.k.a. <c>GameData</c>).</summary>
+            <value>The full path to the plugins folder.</value>
         </member>
-        <member name="T:KSPDev.GUIUtils.Formatter">
-            <summary>Helper to format various values.</summary>
+        <member name="T:KSPDev.GUIUtils.DistanceType">
+            <summary>
+            Localized message formatting class for a numeric value that represents a <i>distance</i>.
+            </summary>
+            <remarks>
+            <para>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </para>
+            <para>
+            The class uses the unit name localizations from the stock module <c>ModuleEnviroSensor</c>. In
+            case of this module is deprecated or the tags are changed, the default English values will be
+            used for the unit names.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatFixed"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Single,System.String,System.Single,System.String)">
-            <summary>Formats float number that has special meaning for a predefined value.</summary>
-            <param name="number">Number to format.</param>
-            <param name="fmt">Format string for the number.</param>
-            <param name="specialValue">Special value of the number.</param>
-            <param name="specialString">String to show for the special value.</param>
-            <returns>Formatted string.</returns>
-            <example>
-            <code><![CDATA[
-            var fmt = "Value: {0}";
-            var spcFmt = "SPECIAL VALUE!";
-            Debug.LogFormat(Formatter.SpecialValue(0.5f, fmt, 0.5f, spcFmt);
-            // Outputs:
-            // SPECIAL VALUE!
-            Debug.LogFormat(Formatter.SpecialValue(0.4f, fmt, 0.5f, spcFmt);
-            // Outputs:
-            // Value: 0.4
-            ]]></code>
-            </example>
+        <member name="F:KSPDev.GUIUtils.DistanceType.meter">
+            <summary>Localized suffix for the "meter" units. Scale x1.</summary>
         </member>
-        <member name="M:KSPDev.GUIUtils.Formatter.SpecialValue(System.Int32,System.String,System.Int32,System.String)">
-            <summary>Formats integer number that has special meaning for a predefined value.</summary>
-            <param name="number">Number to format.</param>
-            <param name="fmt">Format string for the number.</param>
-            <param name="specialValue">Special value of the number.</param>
-            <param name="specialString">String to show for the special value.</param>
-            <returns>Formatted string.</returns>
-            <example>
-            <code><![CDATA[
-            var fmt = "Value: {0}";
-            var spcFmt = "SPECIAL VALUE!";
-            Debug.Log(Formatter.SpecialValue(100, fmt, 100, spcFmt);
-            // Outputs:
-            // SPECIAL VALUE!
-            Debug.Log(Formatter.SpecialValue(101, fmt, 100, spcFmt);
-            // Outputs:
-            // Value: 101
-            ]]></code>
-            </example>
+        <member name="F:KSPDev.GUIUtils.DistanceType.kilometer">
+            <summary>Localized suffix for the "kilometer" untis. Scale x1000</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.DistanceType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.DistanceType.#ctor(System.Double)">
+            <summary>Constructs a distance type object.</summary>
+            <param name="value">The numeric value in meters.</param>
+            <seealso cref="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.DistanceType.op_Implicit(System.Double)~KSPDev.GUIUtils.DistanceType">
+            <summary>Coverts a numeric value into a distance type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>A distance type object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.DistanceType.op_Implicit(KSPDev.GUIUtils.DistanceType)~System.Double">
+            <summary>Converts a distance type object into a numeric value.</summary>
+            <param name="distanceObj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)">
+            <summary>Formats the distance to a human friendly string.</summary>
+            <remarks>
+            <para>
+            The method tries to keep the resulted string meaningful and as short as possible. For this
+            reason the big values may be scaled down and/or rounded.
+            </para>
+            </remarks>
+            <param name="value">The numeric value to format.</param>
+            <param name="scale">
+            The fixed scale to apply to the value before formatting. The formatting method can uderstand
+            only a few scales: metters (x1) and kilometers (x1000). Unknown scales will be rounded to the
+            closest known scale. If this parameter is omitted, then the best scale for the value will be
+            choosen automatically.
+            </param>
+            <param name="format">
+            The specific float number format to use. If this parameter is specified, then the method
+            doesn't try to guess the right scale. Instead, it uses either the provided scale, or <c>x1</c>
+            if nothing is provided.
+            </param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.DistanceType.ToString">
+            <summary>Returns a string formatted as a human friendly distance specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
+        </member>
+        <member name="T:KSPDev.GUIUtils.EnumType`1">
+            <summary>Localized message formatting class for a enum value.</summary>
+            <remarks>
+            <para>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants. In
+            spite of the regular enum type, this wrapper returns an integer representation of the value when
+            casted to a string. This is vital for the Lingoona templates since they don't recognize the enum
+            values.
+            </para>
+            <para>
+            The conversion between the enum value and the wrapper can be done implicitly. The wrapper can be
+            used in the places where the enum value would normally be used, and vise versa.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
+            <example><code source="Examples/GUIUtils/EnumType-Examples.cs" region="EnumTypeDemo1"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.EnumType`1.#ctor(`0)">
+            <summary>Constructs a wrapper from the enum value.</summary>
+            <param name="value">The enum value to wrap.</param>
+            <example><code source="Examples/GUIUtils/EnumType-Examples.cs" region="EnumTypeDemo1"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.EnumType`1.op_Implicit(`0)~KSPDev.GUIUtils.EnumType{`0}">
+            <summary>Converts the enum value into a wrapper.</summary>
+            <param name="value">The enum value to wrap.</param>
+            <returns>A wrapped value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.EnumType`1.op_Implicit(KSPDev.GUIUtils.EnumType{`0})~`0">
+            <summary>Converts the wrapper into a enum value.</summary>
+            <param name="enumObj">The wrapper to convert.</param>
+            <returns>A enum value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.EnumType`1.ToString">
+            <summary>Returns the int value converted into a string.</summary>
+            <returns>A string representing the value.</returns>
         </member>
         <member name="T:KSPDev.GUIUtils.IHasContextMenu">
             <summary>Generic interface for the modules that implement a UI context menu.</summary>
@@ -1214,156 +1338,203 @@
             </para>
             </remarks>
         </member>
-        <member name="T:KSPDev.GUIUtils.MessageBoolValue">
-             <summary>A class to wrap a UI string for a boolean value.</summary>
-             <remarks>
-             <para>
-             When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageBoolValue.Format(System.Boolean)"/> to make the parameter substitute.
-             </para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>MessageBoolValue</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               static readonly MessageBoolValue SwitchMsg = new MessageBoolValue("ON", "OFF");
-               static readonly MessageBoolValue StateMsg = new MessageBoolValue("Enabled", "Disabled");
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", SwitchMsg.Format(true));  // ON
-                 Debug.LogFormat("Localized: {0}", StateMsg.Format(false));  // Disabled
-               }
-             }
-             ]]></code>
-             </example>
+        <member name="T:KSPDev.GUIUtils.LocalizableItemAttribute">
+            <summary>Attribute for the various game items that support localization.</summary>
+            <remarks>
+            <para>
+            This attribute alone doesn't make the annotated item localized. There should be a code executed
+            that understands the type of the item. However, it still makes sense to add this attribute to
+            <i>any</i> game item that needs localization, it will help the <c>LocalizationTool</c> to
+            extract the information.
+            </para>
+            <para>
+            See the "seealso" section for the types and methods that are aware of this attribute.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)"/>
+            <seealso href="https://github.com/ihsoft/KSPDev/tree/master/Sources/LocalizationTool">KSPDev: LocalizationTool</seealso>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField"/></example>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemEvent"/></example>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemAction"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageBoolValue.#ctor(System.String,System.String)">
-            <summary>Creates a message.</summary>
-            <param name="positiveStr">Message string for <c>true</c> value.</param>
-            <param name="negativeStr">Message string for <c>false</c> value.</param>
+        <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.defaultTemplate">
+            <inheritdoc cref="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate"/>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageBoolValue.Format(System.Boolean)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+        <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.description">
+            <inheritdoc cref="F:KSPDev.GUIUtils.LocalizableMessage.description"/>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField"/></example>
         </member>
-        <member name="T:KSPDev.GUIUtils.MessageEnumValue`1">
-             <summary>A class to wrap a UI string for an enum value.</summary>
-             <typeparam name="T">Enum type to define the strings for.</typeparam>
-             <remarks>
-             <para>
-             When a string needs to be presented, use <see cref="M:KSPDev.GUIUtils.MessageEnumValue`1.Format(`0)"/> to make the parameter substitute.
-             </para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of doing switches when an enum value should be presented on UI, just define a message
-             that declares a map between the values and their UI representations. You don't need to specify
-             every single value in the map, there is an option to set a UI string for an unknown value.  
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               enum MyEnum {
-                 Disabled,
-                 Enabled,
-                 UnusedValue1,
-                 UnusedValue2,
-                 UnusedValue3,
-               }
-            
-               // Lookup with a custom value for an unknown key.
-               static readonly MessageEnumValue<MyEnum> Msg1 =
-                   new MessageEnumValue<MyEnum>("UNKNOWN") {
-                     {MyEnum.Enabled, "ENABLED"},
-                     {MyEnum.Disabled, "DISABLED"},
-                   };
-            
-               // A more extended lookup.
-               static readonly MessageEnumValue<MyEnum> Msg2 =
-                   new MessageEnumValue<MyEnum>() {
-                     {MyEnum.Enabled, "ENABLED"},
-                     {MyEnum.Disabled, "DISABLED"},
-                     {MyEnum.UnusedValue1, "Value1"},
-                     {MyEnum.UnusedValue2, "Value2"},
-                   };
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", Msg1.Format(MyEnum.Disabled));  // DISABLED
-                 Debug.LogFormat("Localized: {0}", Msg1.Format(MyEnum.UnusedValue1));  // UNKNOWN
-            
-                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue1));  // Value1
-                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue2));  // Value2
-                 Debug.LogFormat("Localized: {0}", Msg2.Format(MyEnum.UnusedValue3));  // "" (null)
-               }
-             }
-             ]]></code>
-             </example>
+        <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.tag">
+            <inheritdoc cref="F:KSPDev.GUIUtils.LocalizableMessage.tag"/>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.#ctor(System.String)">
-            <summary>Creates an empty message with a default value for the unknown entries.</summary>
-            <param name="unknownKeyValue">
-            Value to return if the lookup dictionary doesn't have the requested key.
+        <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.spec">
+            <summary>
+            A key to distinguish attributes when there are multiple of them attached to a member. 
+            </summary>
+            <remarks>The meaning of this key depends on the attributed member.</remarks>
+            <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)"/>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_WithUnits"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizableItemAttribute.GetLocalizedString">
+            <summary>Returns the localized string.</summary>
+            <remarks>
+            This method is primary designed for the KSPDev localization code. There are no good use cases
+            for the application code to invoke it.
+            </remarks>
+            <returns>
+            The localized string of the <see cref="F:KSPDev.GUIUtils.LocalizableItemAttribute.defaultTemplate"/> if no localization content found.
+            </returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.LocalizableMessage">
+            <summary>Base class for the messages that support localization.</summary>
+            <remarks>
+            This class is not intended for the use on its own. See the "seealso" section for the classes
+            that inherit it.
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate">
+            <summary>Template to use if no localized template found.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.description">
+            <summary>Description for the message.</summary>
+            <remarks>
+            This string is not presented anywhere in the game, but it can be presented to the people who
+            will be translating the template into a different language.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.example">
+            <summary>Example usage and the output.</summary>
+            <remarks>
+            This string is not presented anywhere in the game, but it can be presented to the people who
+            will be translating the template into a different language.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.tag">
+            <summary>Tag to use when resolving the string via the Localizer.</summary>
+            <item name="T:KSP.Localization.Localizer">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP: Localization.Localizer</seealso>
+</item>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization">
+            <summary>Instructs the implementation to load a localized template.</summary>
+            <remarks>If there is a value cached, it will be reloaded.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>Constructs a localizable message.</summary>
+            <param name="tag">The tag to use when getting the localized version of the template.</param>
+            <param name="defaultTemplate">
+            <para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para>
+            <para>
+            If this parameter is omitted, then the <paramref name="tag"/> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para>
             </param>
+            <param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param>
+            <param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate"/>. Provide it to illustrate the non-obvious cases. 
+            </param>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.GetEnumerator">
-            <summary>Returns a key/pair enumerator.</summary>
-            <returns>Key/value enumerator.</returns>
+        <member name="P:KSPDev.GUIUtils.LocalizableMessage.localizedTemplate">
+            <summary>Localized Lingoona Grammar template for the <c>tag</c>.</summary>
+            <remarks>
+            <para>
+            The template is resolved via the Localizer only once. The resolved value is cached and
+            re-sued.
+            </para>
+            <para>
+            If there is no string defined for the tag, then a <see cref="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate"/> will be used.
+            A warning record will be logged to help tracking such issues.
+            </para>
+            <para>
+            When current language is changed the cached version needs to be reloaded. Call
+            the <see cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/> method to force it. However, as of KSP 1.3.0 the langauge
+            cannot be changed while the game is running.
+            </para>
+            </remarks>
+            <value>
+            A Lingoona Grammar template in the
+            <see cref="P:KSP.Localization.Localizer.CurrentLanguage">current languge</see>.
+            </value>
+            <seealso cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/>
+            <item name="T:KSP.Localization.Localizer">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP: Localization.Localizer</seealso>
+</item>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.Add(`0,System.String)">
-            <summary>Adds a new lookup for the key.</summary>
-            <param name="key">Unique key.</param>
-            <param name="value">GUI string for the key.</param>
+        <member name="T:KSPDev.GUIUtils.LocalizationLoader">
+            <summary>A utility class to localize annotated members</summary>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
+            <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo1"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.Format(`0)">
-            <summary>Formats a message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+        <member name="F:KSPDev.GUIUtils.LocalizationLoader.KspFieldUnitsSpec">
+            <summary>
+            Specification for the <see cref="T:KSPField"/> <c>guiUnits</c> localization. 
+            </summary>
+            <remarks>
+            Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a field with the units.
+            </remarks>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_WithUnits"/></example>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageEnumValue`1.System#Collections#IEnumerable#GetEnumerator">
-            <summary>Returns an untyped key/value enumerator.</summary>
-            <returns>Key/value enumerator.</returns>
-        </member>
-        <member name="T:KSPDev.GUIUtils.MessageSpecialFloatValue">
-             <summary>
-             A class to wrap a UI string with one parameter which may have special meaning.
-             </summary>
-             <remarks>
-             <para>When string needs to be presented use <see cref="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)"/> to make the parameter
-             substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               MessageSpecialFloatValue MyMessage =
-                   new MessageSpecialFloatValue("Param: {0}", 0, "Param is ZERO");
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format(1));  // Param: 1
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format(0));  // Param is ZERO
-               }
-             }
-             ]]></code>
-             </example>
-        </member>
-        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.#ctor(System.String,System.Single,System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
-            <param name="specialValue">Value to use a special message string for.</param>
-            <param name="specialString">Special message string for the value.</param>
-        </member>
-        <member name="M:KSPDev.GUIUtils.MessageSpecialFloatValue.Format(System.Single)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)">
+            <summary>Localizes the <see cref="T:PartModule"/> items.</summary>
+            <remarks>
+            <para>
+            The localizable items must be declared as non-static public members. The following items are
+            supported:
+            <list type="bullet">
+            <item>
+            <see cref="T:KSPField"/>. This type may have multiple localization items: for <c>guiName</c>
+            (spec=<c>null</c>) and for <c>guiUnits</c> (spec=<see cref="F:KSPDev.GUIUtils.LocalizationLoader.KspFieldUnitsSpec"/>).
+            </item>
+            <item><see cref="T:KSPEvent"/>.</item>
+            <item><see cref="T:KSPAction"/>.</item>
+            </list>
+            </para>
+            <para>
+            The original KSP attributes don't need to specify <c>guiName</c> field since it will be
+            overwritten anyways. However, it's a good idea to give a default value just in case.
+            </para>
+            <para>
+            This method can be called at any time during the module's life. However, the
+            <see cref="M:PartModule.OnAwake"/> method looks the most appropriate since it's called each time
+            the module is created. The other methods may be called differently depending on the loaded
+            scene.
+            </para>
+            </remarks>
+            <param name="module">The module instance to localize.</param>
+            <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo1"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
+            <item name="T:KSPEvent">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_event.html">KSP: KSPEvent</seealso>
+</item>
+            <item name="T:KSPAction">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_action.html">KSP: KSPAction</seealso>
+</item>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
@@ -1558,274 +1729,325 @@
         </member>
         <member name="P:KSPDev.GUIUtils.HintOverlay.text">
             <summary>The hint overlay text.</summary>
-            <remarks>Linefeed symbols are correctly handled. Use them to make multiline content. Setting
-            text is an expensive operation since it results in window size recalculation. Don't update it
-            more frequently than the underlaying data does.</remarks>
+            <remarks>
+            Linefeed symbols are correctly handled. Use them to make multiline content. Setting text is an
+            expensive operation since it results in window size recalculation. Don't update it more
+            frequently than the underlaying data does.
+            </remarks>
+            <value>The text to be show as a hint.</value>
         </member>
         <member name="T:KSPDev.GUIUtils.Message">
-             <summary>A class to wrap a simple UI string.</summary>
-             <remarks>
-             <para>Messages of this type don't have parameters and can be just casted to a string.</para> 
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message MyMessage = "This is a message without parameters";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage);
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a simple localizable UI string.</summary>
+            <remarks>
+            Messages of this type don't have placeholders and can be just casted to a string. 
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="messageString">A message string.</param>
+        <member name="M:KSPDev.GUIUtils.Message.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message.op_Implicit(System.String)~KSPDev.GUIUtils.Message">
-            <summary>Allows casting string to message.</summary>
-            <remarks>Instead of creating new insatnce for every string just do the cast as it was a
-            regular literal constant.</remarks>
-            <param name="messageString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a localization tag to the message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message.op_Implicit(KSPDev.GUIUtils.Message)~System.String">
             <summary>Allows casting messages to string.</summary>
             <param name="msg">A message to cast.</param>
             <returns>Message value.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message.Format">
             <summary>Returns the message string.</summary>
-            <remarks>
-            This is just a compatibility method to make all message classes work in the same way.
-            </remarks>
-            <returns>Complete message string.</returns>
+            <returns>A complete message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`1">
-             <summary>A class to wrap a UI string with one parameter.</summary>
-             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
-             <remarks>
-             <para>Define parameter type via generic argument. When string needs to be presented use
-             <see cref="M:KSPDev.GUIUtils.Message`1.Format(`0)"/> to make the parameter substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message<string> MyMessage = "Param: {0}";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!"));
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a localizable UI string with parameter(s).</summary>
+            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <remarks>
+            <para>
+            Define the parameter(s) type via the generic argument(s). When the string needs to be
+            presented, use the <see cref="M:KSPDev.GUIUtils.Message`1.Format(`0)"/> method to get the final value.
+            </para>
+            <para>
+            The arguments can be complex types that override the <c>ToString()</c> method. This approach
+            can be used to customize the output format of the specific argument types. E.g. such values as
+            "distance" can be formatted in a user friendly manner using <see cref="T:KSPDev.GUIUtils.DistanceType"/>.
+            </para>
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
+        <member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`1.Format(`0)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+            <summary>Formats the message template string with the provided arguments.</summary>
+            <remarks>
+            The string parameter(s) can be template tags. If the type of the argument is <c>string</c>,
+            and the value matches a tag, then the localized string of this tag is used instead. Keep it
+            in mind when defining the tags to avoid the collisions.
+            </remarks>
+            <param name="arg1">The substitute for the <![CDATA[<<1>>]]> argument.</param>
+            <returns>A complete and localized message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`1.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0}">
-            <summary>Allows casting strings to message.</summary>
-            <param name="fmtString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a string to a message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`2">
-             <summary>A class to wrap a UI string with two parameters.</summary>
-             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
-             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
-             <remarks>
-             <para>Define parameter types via generic argument. When string needs to be presented use
-             <see cref="M:KSPDev.GUIUtils.Message`2.Format(`0,`1)"/> to make parameters substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message<string, int> MyMessage = "Params: {0}, {1}";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123));
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a localizable UI string with parameter(s).</summary>
+            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
+            <remarks>
+            <para>
+            Define the parameter(s) type via the generic argument(s). When the string needs to be
+            presented, use the <see cref="M:KSPDev.GUIUtils.Message`2.Format(`0,`1)"/> method to get the final value.
+            </para>
+            <para>
+            The arguments can be complex types that override the <c>ToString()</c> method. This approach
+            can be used to customize the output format of the specific argument types. E.g. such values as
+            "distance" can be formatted in a user friendly manner using <see cref="T:KSPDev.GUIUtils.DistanceType"/>.
+            </para>
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
+        <member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`2.Format(`0,`1)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <param name="arg2">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+            <summary>Formats the message template string with the provided arguments.</summary>
+            <remarks>
+            The string parameter(s) can be template tags. If the type of the argument is <c>string</c>,
+            and the value matches a tag, then the localized string of this tag is used instead. Keep it
+            in mind when defining the tags to avoid the collisions.
+            </remarks>
+            <param name="arg1">The substitute for the <![CDATA[<<1>>]]> argument.</param>
+            <param name="arg2">The substitute for the <![CDATA[<<2>>]]> argument.</param>
+            <returns>A complete and localized message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`2.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1}">
-            <summary>Allows casting strings to message.</summary>
-            <param name="fmtString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a string to a message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`3">
-             <summary>A class to wrap a UI string with three parameters.</summary>
-             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
-             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
-             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
-             <remarks>
-             <para>Define parameter types via generic argument. When string needs to be presented use
-             <see cref="M:KSPDev.GUIUtils.Message`3.Format(`0,`1,`2)"/> to make parameters substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message<string, int, float> MyMessage = "Params: {0}, {1}, {2}";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f));
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a localizable UI string with parameter(s).</summary>
+            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
+            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
+            <remarks>
+            <para>
+            Define the parameter(s) type via the generic argument(s). When the string needs to be
+            presented, use the <see cref="M:KSPDev.GUIUtils.Message`3.Format(`0,`1,`2)"/> method to get the final value.
+            </para>
+            <para>
+            The arguments can be complex types that override the <c>ToString()</c> method. This approach
+            can be used to customize the output format of the specific argument types. E.g. such values as
+            "distance" can be formatted in a user friendly manner using <see cref="T:KSPDev.GUIUtils.DistanceType"/>.
+            </para>
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
+        <member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`3.Format(`0,`1,`2)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <param name="arg2">An argument to substitute.</param>
-            <param name="arg3">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+            <summary>Formats the message template string with the provided arguments.</summary>
+            <remarks>
+            The string parameter(s) can be template tags. If the type of the argument is <c>string</c>,
+            and the value matches a tag, then the localized string of this tag is used instead. Keep it
+            in mind when defining the tags to avoid the collisions.
+            </remarks>
+            <param name="arg1">The substitute for the <![CDATA[<<1>>]]> argument.</param>
+            <param name="arg2">The substitute for the <![CDATA[<<2>>]]> argument.</param>
+            <param name="arg3">The substitute for the <![CDATA[<<3>>]]> argument.</param>
+            <returns>A complete and localized message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`3.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2}">
-            <summary>Allows casting strings to message.</summary>
-            <param name="fmtString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a string to a message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`4">
-             <summary>A class to wrap a UI string with four parameters.</summary>
-             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
-             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
-             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
-             <typeparam name="T4">Type of the fourth substitute argument in the string.</typeparam>
-             <remarks>
-             <para>Define parameter types via generic argument. When string needs to be presented use
-             <see cref="M:KSPDev.GUIUtils.Message`4.Format(`0,`1,`2,`3)"/> to make parameters substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message<string, int, float, int> MyMessage = "Params: {0}, {1}, {2}, {3}";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456));
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a localizable UI string with parameter(s).</summary>
+            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
+            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
+            <typeparam name="T4">Type of the <![CDATA[<<4>>]]> argument in the template.</typeparam>
+            <remarks>
+            <para>
+            Define the parameter(s) type via the generic argument(s). When the string needs to be
+            presented, use the <see cref="M:KSPDev.GUIUtils.Message`4.Format(`0,`1,`2,`3)"/> method to get the final value.
+            </para>
+            <para>
+            The arguments can be complex types that override the <c>ToString()</c> method. This approach
+            can be used to customize the output format of the specific argument types. E.g. such values as
+            "distance" can be formatted in a user friendly manner using <see cref="T:KSPDev.GUIUtils.DistanceType"/>.
+            </para>
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
+        <member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`4.Format(`0,`1,`2,`3)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <param name="arg2">An argument to substitute.</param>
-            <param name="arg3">An argument to substitute.</param>
-            <param name="arg4">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+            <summary>Formats the message template string with the provided arguments.</summary>
+            <remarks>
+            The string parameter(s) can be template tags. If the type of the argument is <c>string</c>,
+            and the value matches a tag, then the localized string of this tag is used instead. Keep it
+            in mind when defining the tags to avoid the collisions.
+            </remarks>
+            <param name="arg1">The substitute for the <![CDATA[<<1>>]]> argument.</param>
+            <param name="arg2">The substitute for the <![CDATA[<<2>>]]> argument.</param>
+            <param name="arg3">The substitute for the <![CDATA[<<3>>]]> argument.</param>
+            <param name="arg4">The substitute for the <![CDATA[<<4>>]]> argument.</param>
+            <returns>A complete and localized message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`4.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2,`3}">
-            <summary>Allows casting strings to message.</summary>
-            <param name="fmtString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a string to a message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.Message`5">
-             <summary>A class to wrap a UI string with five parameters.</summary>
-             <typeparam name="T1">Type of the first substitute argument in the string.</typeparam>
-             <typeparam name="T2">Type of the second substitute argument in the string.</typeparam>
-             <typeparam name="T3">Type of the third substitute argument in the string.</typeparam>
-             <typeparam name="T4">Type of the fourth substitute argument in the string.</typeparam>
-             <typeparam name="T5">Type of the fifth substitute argument in the string.</typeparam>
-             <remarks>
-             <para>Define parameter types via generic argument. When string needs to be presented use
-             <see cref="M:KSPDev.GUIUtils.Message`5.Format(`0,`1,`2,`3,`4)"/> to make parameters substitute.</para>
-             <para>
-             In the future it may support localization but for now it's only a convinience wrapper.
-             </para>
-             </remarks>
-             <example>
-             Instead of presenting hardcoded strings on UI move them all into a special section, and assign
-             to fields of type <c>Message</c>.
-             <code><![CDATA[
-             class MyMod : MonoBehaviour {
-               Message<string, int, float, int, float> MyMessage = "Params: {0}, {1}, {2}, {3}, {4}";
-            
-               void Awake() {
-                 Debug.LogFormat("Localized: {0}", MyMessage.Format("Blah!", 123, 321f, 456, 456f));
-               }
-             }
-             ]]></code>
-             </example>
+            <summary>A class to wrap a localizable UI string with parameter(s).</summary>
+            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
+            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
+            <typeparam name="T4">Type of the <![CDATA[<<4>>]]> argument in the template.</typeparam>
+            <typeparam name="T5">Type of the <![CDATA[<<5>>]]> argument in the template.</typeparam>
+            <remarks>
+            <para>
+            Define the parameter(s) type via the generic argument(s). When the string needs to be
+            presented, use the <see cref="M:KSPDev.GUIUtils.Message`5.Format(`0,`1,`2,`3,`4)"/> method to get the final value.
+            </para>
+            <para>
+            The arguments can be complex types that override the <c>ToString()</c> method. This approach
+            can be used to customize the output format of the specific argument types. E.g. such values as
+            "distance" can be formatted in a user friendly manner using <see cref="T:KSPDev.GUIUtils.DistanceType"/>.
+            </para>
+            </remarks>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo"/></example>
+            <seealso cref="T:KSPDev.GUIUtils.Message"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
+            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
         </member>
-        <member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String)">
-            <summary>Creates a message.</summary>
-            <param name="fmtString">A message format string.</param>
+        <member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String,System.String,System.String,System.String)">
+            <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`5.Format(`0,`1,`2,`3,`4)">
-            <summary>Formats message string with the provided arguments.</summary>
-            <param name="arg1">An argument to substitute.</param>
-            <param name="arg2">An argument to substitute.</param>
-            <param name="arg3">An argument to substitute.</param>
-            <param name="arg4">An argument to substitute.</param>
-            <param name="arg5">An argument to substitute.</param>
-            <returns>Complete message string.</returns>
+            <summary>Formats the message template string with the provided arguments.</summary>
+            <remarks>
+            The string parameter(s) can be template tags. If the type of the argument is <c>string</c>,
+            and the value matches a tag, then the localized string of this tag is used instead. Keep it
+            in mind when defining the tags to avoid the collisions.
+            </remarks>
+            <param name="arg1">The substitute for the <![CDATA[<<1>>]]> argument.</param>
+            <param name="arg2">The substitute for the <![CDATA[<<2>>]]> argument.</param>
+            <param name="arg3">The substitute for the <![CDATA[<<3>>]]> argument.</param>
+            <param name="arg4">The substitute for the <![CDATA[<<4>>]]> argument.</param>
+            <param name="arg5">The substitute for the <![CDATA[<<5>>]]> argument.</param>
+            <returns>A complete and localized message string.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`5.op_Implicit(System.String)~KSPDev.GUIUtils.Message{`0,`1,`2,`3,`4}">
-            <summary>Allows casting strings to message.</summary>
-            <param name="fmtString">A string value to assign.</param>
-            <returns>Message instance.</returns>
+            <summary>Allows casting a string to a message.</summary>
+            <remarks>
+            It can be used to create a message by simply assigning a localization tag. However, it's
+            highly recommended to create a message via the constructor and provide all the arguments.
+            </remarks>
+            <param name="tag">The tag string to use for getting the localized content.</param>
+            <returns>A message instance.</returns>
+            <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo"/></example>
         </member>
         <member name="T:KSPDev.GUIUtils.GuiActionsList">
              <summary>A helper to accumulate GUI actions.</summary>
-             <remarks>Unity may issue multiple GUI passes during a frame, and it requires number of UI
+             <remarks>Unity may issue multiple GUI passes during a frame, and it requires the number of UI
              elements not to change between the passes. Unity expects the number of UI
              controls in every pass to be exactly the same as in the very first one:
              <see href="http://docs.unity3d.com/ScriptReference/EventType.Layout.html">EventType.Layout</see>.
-             When UI interactions affect representation all the changes must be postponed till the frame
-             rendering is ended. This helper can be used to store actions that will be executed at the
-             beginning of the next frame.</remarks>
+             When the UI interactions affect the representation, all the changes must be postponed till the
+             frame rendering is ended. This helper can be used to store the actions that will be executed at
+             the beginning of the next frame.</remarks>
              <example>
              <code>
              public class MyUI : MonoBehaviour {
@@ -2182,6 +2404,7 @@
             the same version of the utils DLL, this property will truly say if any in the <i>game</i> is
             in the hold state.
             </remarks>
+            <value><c>true</c> if any <i>switch</i> key is being hold.</value>
         </member>
         <member name="P:KSPDev.InputUtils.KeyboardInputSwitch.isHold">
             <summary>Defines the current hold state of the switch.</summary>
@@ -2189,6 +2412,7 @@
             This property may not represent the actual keyboard key hold state since it can be assigned
             from the code.
             </remarks>
+            <value><c>true</c> if this switch is being hold.</value>
             <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.SetHoldState(System.Boolean)"/>
         </member>
         <member name="E:KSPDev.InputUtils.KeyboardInputSwitch.OnStateChanged">
@@ -2721,6 +2945,7 @@
         </member>
         <member name="M:KSPDev.LogUtils.DbgFormatter.Nullable``1(System.Nullable{``0},System.String)">
             <summary>Prints out a content if the nullable type.</summary>
+            <typeparam name="T">Type of the nullable value.</typeparam>
             <param name="value">The value to print.</param>
             <param name="nullStr">A string to present when the value is <c>null</c>.</param>
             <returns>The content of a non-null value or <paramref name="nullStr"/>.</returns>
@@ -3728,6 +3953,7 @@
             <param name="sndPath">The URL to the audio clip.</param>
             <param name="loop">Specifies if the clip playbac kshoold be looped.</param>
             <param name="maxDistance">The mximum distance at which the sound is hearable.</param>
+            <returns>An audio source object attached to the <paramref name="obj"/>.</returns>
         </member>
         <member name="T:KSPDev.Types.PosAndRot">
             <summary>Type to hold position and rotation of a transform. It can be serialized.</summary>
@@ -3802,9 +4028,11 @@
             <remarks>
             The rotation angles are automatically adjusted to stay within the [0; 360) range.
             </remarks>
+            <value>The Euler angles of the rotation.</value>
         </member>
         <member name="P:KSPDev.Types.PosAndRot.rot">
             <summary>Orientation of the transform.</summary>
+            <value>The rotation of the transfrom.</value>
         </member>
         <member name="T:VersionLogger">
             <summary>
