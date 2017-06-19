@@ -26,10 +26,14 @@
   <xsl:template match="//member[descendant::summary-prefix]/summary[1]">
     <summary>
       <xsl:apply-templates select="../summary-prefix/node()" />
+      <br/>
       <xsl:apply-templates select="node()" />
     </summary>
   </xsl:template>
 
   <xsl:template match="//member/summary-prefix">
+    <summary>
+      <xsl:apply-templates select="../summary-prefix/node()" />
+    </summary>
   </xsl:template>
 </xsl:stylesheet>
