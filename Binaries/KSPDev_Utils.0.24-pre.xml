@@ -1196,9 +1196,69 @@
             <summary>Returns full path to the plugins root folder (a.k.a. <c>GameData</c>).</summary>
             <value>The full path to the plugins folder.</value>
         </member>
+        <member name="T:KSPDev.GUIUtils.AngleType">
+            <summary>
+            Localized message formatting class for a numeric value that represents an <i>angle</i>. The
+            resulted message may have a unit specification.
+            </summary>
+            <remarks>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.AngleType.unitName">
+            <summary>Suffix for the "angle" units (degrees).</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.AngleType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.AngleType.#ctor(System.Double)">
+            <summary>Constructs an angle type object.</summary>
+            <param name="value">The numeric value in degrees.</param>
+            <seealso cref="M:KSPDev.GUIUtils.AngleType.Format(System.Double,System.String)"/>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.AngleType.op_Implicit(System.Double)~KSPDev.GUIUtils.AngleType">
+            <summary>Coverts a numeric value into a type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>A type object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.AngleType.op_Implicit(KSPDev.GUIUtils.AngleType)~System.Double">
+            <summary>Converts an angle type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.AngleType.Format(System.Double,System.String)">
+            <summary>Formats the value into a human friendly string with a unit specification.</summary>
+            <remarks>
+            The method tries to keep the resulted string meaningful and as short as possible. For this
+            reason the big values may be scaled down and/or rounded.
+            </remarks>
+            <param name="value">The numeric value to format.</param>
+            <param name="format">
+            The specific float number format to use. If the format is not specified, then it's choosen
+            basing on the value.
+            </param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/AngleType-Examples.cs" region="AngleTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.AngleType.ToString">
+            <summary>Returns a string formatted as a human friendly angle specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.AngleType.Format(System.Double,System.String)"/>
+        </member>
         <member name="T:KSPDev.GUIUtils.DistanceType">
             <summary>
-            Localized message formatting class for a numeric value that represents a <i>distance</i>.
+            Localized message formatting class for a numeric value that represents a <i>distance</i>. The
+            resulted message may have a unit specification.
             </summary>
             <remarks>
             <para>
@@ -1210,8 +1270,8 @@
             used for the unit names.
             </para>
             </remarks>
-            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo1"/></example>
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatWithScale"/></example>
@@ -1228,7 +1288,7 @@
             <remarks>This is the original non-rounded and unscaled value.</remarks>
         </member>
         <member name="M:KSPDev.GUIUtils.DistanceType.#ctor(System.Double)">
-            <summary>Constructs a distance type object.</summary>
+            <summary>Constructs an object from a numeric value.</summary>
             <param name="value">The numeric value in meters.</param>
             <seealso cref="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo1"/></example>
@@ -1237,34 +1297,39 @@
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatFixed"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.DistanceType.op_Implicit(System.Double)~KSPDev.GUIUtils.DistanceType">
-            <summary>Coverts a numeric value into a distance type object.</summary>
+            <summary>Coverts a numeric value into a type object.</summary>
             <param name="value">The numeric value to convert.</param>
-            <returns>A distance type object.</returns>
+            <returns>An object.</returns>
         </member>
         <member name="M:KSPDev.GUIUtils.DistanceType.op_Implicit(KSPDev.GUIUtils.DistanceType)~System.Double">
-            <summary>Converts a distance type object into a numeric value.</summary>
-            <param name="distanceObj">The object type to convert.</param>
+            <summary>Converts a type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
             <returns>A numeric value.</returns>
         </member>
         <member name="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)">
-            <summary>Formats the distance to a human friendly string.</summary>
+            <summary>Formats the value into a human friendly string with a unit specification.</summary>
             <remarks>
-            <para>
             The method tries to keep the resulted string meaningful and as short as possible. For this
             reason the big values may be scaled down and/or rounded.
-            </para>
             </remarks>
-            <param name="value">The numeric value to format.</param>
+            <param name="value">The unscaled numeric value to format.</param>
             <param name="scale">
             The fixed scale to apply to the value before formatting. The formatting method can uderstand
-            only a few scales: metters (x1) and kilometers (x1000). Unknown scales will be rounded to the
-            closest known scale. If this parameter is omitted, then the best scale for the value will be
-            choosen automatically.
+            only a few scales:
+            <list type="bullet">
+            <item>Meters: scale=<c>1.0</c>. <i>It's a base distance unit in the game.</i></item>
+            <item>Kilometers: scale=<c>1.0e+3</c>.</item>
+            </list>
+            <para>
+            The unknown scales will be rounded <i>down</i> to the closest known scale. If this parameter
+            is omitted, then the best scale for the value will be choosen automatically.
+            </para>
             </param>
             <param name="format">
-            The specific float number format to use. If this parameter is specified, then the method
-            doesn't try to guess the right scale. Instead, it uses either the provided scale, or <c>x1</c>
-            if nothing is provided.
+            The specific numeric number format to use. If this parameter is specified, then the method
+            doesn't try to guess the right scale. Instead, it uses either the provided
+            <paramref name="scale"/>, or <c>1.0</c> if nothing is provided. If the format is not
+            specified, then it's choosen basing on the scale.
             </param>
             <returns>A formatted and localized string</returns>
             <example><code source="Examples/GUIUtils/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
@@ -1278,6 +1343,7 @@
         </member>
         <member name="T:KSPDev.GUIUtils.EnumType`1">
             <summary>Localized message formatting class for a enum value.</summary>
+            <typeparam name="T">Type of the enum to wrap.</typeparam>
             <remarks>
             <para>
             Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants. In
@@ -1290,8 +1356,8 @@
             used in the places where the enum value would normally be used, and vise versa.
             </para>
             </remarks>
-            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
             <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
             <example><code source="Examples/GUIUtils/EnumType-Examples.cs" region="EnumTypeDemo1"/></example>
         </member>
@@ -1313,6 +1379,78 @@
         <member name="M:KSPDev.GUIUtils.EnumType`1.ToString">
             <summary>Returns the int value converted into a string.</summary>
             <returns>A string representing the value.</returns>
+        </member>
+        <member name="T:KSPDev.GUIUtils.ForceType">
+            <summary>
+            Localized message formatting class for a numeric value that represents a <i>force</i>. The
+            resulted message may have a unit specification.
+            </summary>
+            <remarks>
+            <para>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </para>
+            <para>
+            The class uses the unit name localizations from the stock module <c>ModuleEnviroSensor</c>. In
+            case of this module is deprecated or the tags are changed, the default English values will be
+            used for the unit names.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.ForceType.kiloNewton">
+            <summary>Localized suffix for the "kilonewton" untis. Scale x1.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.ForceType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ForceType.#ctor(System.Double)">
+            <summary>Constructs an object from a numeric value.</summary>
+            <param name="value">The numeric value in kilonewtons.</param>
+            <seealso cref="M:KSPDev.GUIUtils.ForceType.Format(System.Double,System.String)"/>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ForceType.op_Implicit(System.Double)~KSPDev.GUIUtils.ForceType">
+            <summary>Coverts a numeric value into a type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ForceType.op_Implicit(KSPDev.GUIUtils.ForceType)~System.Double">
+            <summary>Converts a type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ForceType.Format(System.Double,System.String)">
+            <summary>Formats the value into a human friendly string with a unit specification.</summary>
+            <remarks>
+            <para>
+            The method tries to keep the resulted string meaningful and as short as possible. For this
+            reason the big values may be scaled down and/or rounded.
+            </para>
+            <para>
+            The base force unit in the game is <i>kilonewton</i>. I.e. value <c>1.0</c> in the game
+            units is <i>one kilonewton</i>. Keep it in mind when passing the argument.
+            </para>
+            </remarks>
+            <param name="value">The numeric value to format.</param>
+            <param name="format">
+            The specific float number format to use. If the format is not specified, then it's choosen
+            basing on the value.
+            </param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/ForceType-Examples.cs" region="ForceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.ForceType.ToString">
+            <summary>Returns a string formatted as a human friendly force specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.ForceType.Format(System.Double,System.String)"/>
         </member>
         <member name="T:KSPDev.GUIUtils.IHasContextMenu">
             <summary>Generic interface for the modules that implement a UI context menu.</summary>
@@ -1368,7 +1506,13 @@
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.tag">
             <inheritdoc cref="F:KSPDev.GUIUtils.LocalizableMessage.tag"/>
+            <remarks>
+            It can be set to <c>null</c> to indicate that the attributed item doesn't need localization.
+            Such attributes are NO-OP during the game, but for the localization tool it's a signal to not
+            include the item into the localization config.
+            </remarks>
             <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField"/></example>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_NullTag"/></example>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.spec">
             <summary>
@@ -1391,15 +1535,9 @@
         <member name="T:KSPDev.GUIUtils.LocalizableMessage">
             <summary>Base class for the messages that support localization.</summary>
             <remarks>
-            This class is not intended for the use on its own. See the "seealso" section for the classes
+            This class is not intended for the use on its own. See the inheritance hierarchy for the classes
             that inherit it.
             </remarks>
-            <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
             <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate">
@@ -1535,6 +1673,158 @@
             <item name="T:KSPAction">
   <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_action.html">KSP: KSPAction</seealso>
 </item>
+        </member>
+        <member name="T:KSPDev.GUIUtils.MassType">
+            <summary>
+            Localized message formatting class for a numeric value that represents a <i>mass</i>. The
+            resulted message may have a unit specification.
+            </summary>
+            <remarks>
+            <para>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </para>
+            <para>
+            The class uses the unit name localizations from the stock module <c>ModuleEnviroSensor</c>. In
+            case of this module is deprecated or the tags are changed, the default English values will be
+            used for the unit names.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.gram">
+            <summary>Localized suffix for the "gram" units. Scale <c>0.000001</c>.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.kilogram">
+            <summary>Localized suffix for the "kilogram" untis. Scale <c>0.001</c></summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.ton">
+            <summary>Localized suffix for the "ton" untis. Scale <c>1.0</c>.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MassType.#ctor(System.Double)">
+            <summary>Constructs an object from a numeric value.</summary>
+            <param name="value">The numeric value in meters.</param>
+            <seealso cref="M:KSPDev.GUIUtils.MassType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MassType.op_Implicit(System.Double)~KSPDev.GUIUtils.MassType">
+            <summary>Coverts a numeric value into a type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MassType.op_Implicit(KSPDev.GUIUtils.MassType)~System.Double">
+            <summary>Converts a type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MassType.Format(System.Double,System.Nullable{System.Double},System.String)">
+            <summary>Formats the value into a human friendly string with a unit specification.</summary>
+            <remarks>
+            The method tries to keep the resulted string meaningful and as short as possible. For this
+            reason the big values may be scaled down and/or rounded.
+            </remarks>
+            <param name="value">The unscaled numeric value to format.</param>
+            <param name="scale">
+            The fixed scale to apply to the value before formatting. The formatting method can uderstand
+            only a few scales:
+            <list type="bullet">
+            <item>Tons: scale=<c>1.0</c>. <i>It's a base mass unit in the game.</i></item>
+            <item>Kilograms: scale=<c>1.0e-3</c>.</item>
+            <item>Grams: scale=<c>1.0e-6</c>.</item>
+            </list>
+            <para>
+            The unknown scales will be rounded <i>up</i> to the closest known scale. If this parameter
+            is omitted, then the best scale for the value will be choosen automatically.
+            </para>
+            </param>
+            <param name="format">
+            The specific numeric number format to use. If this parameter is specified, then the method
+            doesn't try to guess the right scale. Instead, it uses either the provided
+            <paramref name="scale"/>, or <c>1.0</c> if nothing is provided. If the format is not
+            specified, then it's choosen basing on the scale.
+            </param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatWithScale"/></example>
+            <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.MassType.ToString">
+            <summary>Returns a string formatted as a human friendly distance specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.MassType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
+        </member>
+        <member name="T:KSPDev.GUIUtils.PercentType">
+            <summary>
+            Localized message formatting class for a numeric value that represents a <i>percentage</i>. The
+            resulted message may have a unit specification.
+            </summary>
+            <remarks>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.PercentType.unitName">
+            <summary>Suffix for the "percent" units (%).</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.PercentType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.PercentType.#ctor(System.Double)">
+            <summary>Constructs a precentage type object.</summary>
+            <param name="value">
+            The numeric value which defines the ratio. Value <c>0.0</c> is <c>100%</c>.
+            </param>
+            <seealso cref="M:KSPDev.GUIUtils.PercentType.Format(System.Double,System.String)"/>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo1"/></example>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.PercentType.op_Implicit(System.Double)~KSPDev.GUIUtils.PercentType">
+            <summary>Coverts a numeric value into a type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>A type object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.PercentType.op_Implicit(KSPDev.GUIUtils.PercentType)~System.Double">
+            <summary>Converts a type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.PercentType.Format(System.Double,System.String)">
+            <summary>Formats the value into a human friendly string with a unit specification.</summary>
+            <remarks>
+            The method tries to keep the resulted string meaningful and as short as possible. For this
+            reason the big values may be scaled down and/or rounded.
+            </remarks>
+            <param name="value">The numeric value to format.</param>
+            <param name="format">
+            The specific float number format to use. If the format is not specified, then it's choosen
+            basing on the value. Note, that the <paramref name="value"/> is multiplied by <c>100.0</c>
+            before formatting. 
+            </param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatDefault"/></example>
+            <example><code source="Examples/GUIUtils/PercentType-Examples.cs" region="PercentTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.PercentType.ToString">
+            <summary>Returns a string formatted as a human friendly percentage specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.PercentType.Format(System.Double,System.String)"/>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
@@ -1742,11 +2032,7 @@
             Messages of this type don't have placeholders and can be just casted to a string. 
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo"/></example>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
         </member>
         <member name="M:KSPDev.GUIUtils.Message.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
@@ -1776,7 +2062,7 @@
         </member>
         <member name="T:KSPDev.GUIUtils.Message`1">
             <summary>A class to wrap a localizable UI string with parameter(s).</summary>
-            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
+            <typeparam name="T1">Type of argument <![CDATA[<<1>>]]> in the Lingoona template.</typeparam>
             <remarks>
             <para>
             Define the parameter(s) type via the generic argument(s). When the string needs to be
@@ -1790,12 +2076,9 @@
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo"/></example>
             <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
@@ -1825,8 +2108,8 @@
         </member>
         <member name="T:KSPDev.GUIUtils.Message`2">
             <summary>A class to wrap a localizable UI string with parameter(s).</summary>
-            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
-            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
+            <typeparam name="T1">Type of argument <![CDATA[<<1>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T2">Type of argument <![CDATA[<<2>>]]> in the Lingoona template.</typeparam>
             <remarks>
             <para>
             Define the parameter(s) type via the generic argument(s). When the string needs to be
@@ -1840,12 +2123,9 @@
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo"/></example>
             <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
@@ -1876,9 +2156,9 @@
         </member>
         <member name="T:KSPDev.GUIUtils.Message`3">
             <summary>A class to wrap a localizable UI string with parameter(s).</summary>
-            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
-            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
-            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
+            <typeparam name="T1">Type of argument <![CDATA[<<1>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T2">Type of argument <![CDATA[<<2>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T3">Type of argument <![CDATA[<<3>>]]> in the Lingoona template.</typeparam>
             <remarks>
             <para>
             Define the parameter(s) type via the generic argument(s). When the string needs to be
@@ -1892,12 +2172,9 @@
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo"/></example>
             <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
@@ -1929,10 +2206,10 @@
         </member>
         <member name="T:KSPDev.GUIUtils.Message`4">
             <summary>A class to wrap a localizable UI string with parameter(s).</summary>
-            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
-            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
-            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
-            <typeparam name="T4">Type of the <![CDATA[<<4>>]]> argument in the template.</typeparam>
+            <typeparam name="T1">Type of argument <![CDATA[<<1>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T2">Type of argument <![CDATA[<<2>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T3">Type of argument <![CDATA[<<3>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T4">Type of argument <![CDATA[<<4>>]]> in the Lingoona template.</typeparam>
             <remarks>
             <para>
             Define the parameter(s) type via the generic argument(s). When the string needs to be
@@ -1946,12 +2223,9 @@
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo"/></example>
             <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`5"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
@@ -1984,11 +2258,11 @@
         </member>
         <member name="T:KSPDev.GUIUtils.Message`5">
             <summary>A class to wrap a localizable UI string with parameter(s).</summary>
-            <typeparam name="T1">Type of the <![CDATA[<<1>>]]> argument in the template.</typeparam>
-            <typeparam name="T2">Type of the <![CDATA[<<2>>]]> argument in the template.</typeparam>
-            <typeparam name="T3">Type of the <![CDATA[<<3>>]]> argument in the template.</typeparam>
-            <typeparam name="T4">Type of the <![CDATA[<<4>>]]> argument in the template.</typeparam>
-            <typeparam name="T5">Type of the <![CDATA[<<5>>]]> argument in the template.</typeparam>
+            <typeparam name="T1">Type of argument <![CDATA[<<1>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T2">Type of argument <![CDATA[<<2>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T3">Type of argument <![CDATA[<<3>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T4">Type of argument <![CDATA[<<4>>]]> in the Lingoona template.</typeparam>
+            <typeparam name="T5">Type of argument <![CDATA[<<5>>]]> in the Lingoona template.</typeparam>
             <remarks>
             <para>
             Define the parameter(s) type via the generic argument(s). When the string needs to be
@@ -2002,12 +2276,9 @@
             </remarks>
             <example><code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo"/></example>
             <seealso cref="T:KSPDev.GUIUtils.Message"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`1"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`2"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`3"/>
-            <seealso cref="T:KSPDev.GUIUtils.Message`4"/>
-            <seealso cref="T:KSPDev.GUIUtils.DistanceType"/>
-            <seealso cref="T:KSPDev.GUIUtils.EnumType`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.EnumType`1"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String,System.String,System.String,System.String)">
             <inheritdoc cref="M:KSPDev.GUIUtils.LocalizableMessage.#ctor(System.String,System.String,System.String,System.String)"/>
