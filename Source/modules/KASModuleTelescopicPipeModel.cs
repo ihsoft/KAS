@@ -20,7 +20,9 @@ namespace KAS {
 /// </summary>
 public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     // KAS interfaces.
-    ILinkRenderer {
+    ILinkRenderer,
+    // KSPDev interfaces.
+    IHasContextMenu {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -382,13 +384,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    UpdateMenuItems();  // For editor mode.
+    UpdateContextMenu();  // For editor mode.
   }
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
-    UpdateMenuItems();  // For flight mode.
+    UpdateContextMenu();  // For flight mode.
   }
 
   /// <inheritdoc/>
@@ -396,7 +398,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     base.OnStart(state);
     linkSource = part.FindModulesImplementing<ILinkSource>()
         .FirstOrDefault(x => x.cfgLinkRendererName == rendererName);
-    UpdateMenuItems();
+    UpdateContextMenu();
     UpdateLinkLengthAndOrientation();
   }
 
@@ -422,13 +424,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
           Vector3.SqrMagnitude(source.position - sourceTransform.position));
     }
     targetTransform = target;
-    UpdateMenuItems();
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
     targetTransform = null;
-    UpdateMenuItems();
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
@@ -453,6 +455,20 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       }
     }
     return null;
+  }
+  #endregion
+
+  #region IHasContextMenu implemenation
+  /// <inheritdoc/>
+  public virtual void UpdateContextMenu() {
+    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
+    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
+    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
+    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
+    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
+    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
+    Events[ExtendAtMaxMenuActionName].active = !isLinked;
+    Events[RetractToMinMenuActionName].active = !isLinked;
   }
   #endregion
 
@@ -610,18 +626,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
         pistons[i].transform.localPosition = new Vector3(0, 0, offset);
       }
     }
-  }
-
-  /// <summary>Updates menu item names and visibility states.</summary>
-  protected virtual void UpdateMenuItems() {
-    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
-    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
-    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
-    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
-    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
-    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
-    Events[ExtendAtMaxMenuActionName].active = !isLinked;
-    Events[RetractToMinMenuActionName].active = !isLinked;
   }
   #endregion
 
