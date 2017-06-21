@@ -197,16 +197,12 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region Persistent fields
-  /// <summary>
-  /// Source link state in the last save action.
-  /// </summary>
+  /// <summary>Source link state in the last save action.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
 
-  /// <summary>
-  /// Target part flight ID.
-  /// </summary>
+  /// <summary>Target part flight ID.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkTargetPartId;
