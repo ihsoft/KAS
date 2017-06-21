@@ -25,13 +25,20 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
     IsPhysicalObject {
 
   #region Localizable strings
-  /// <summary>Message to show when cable stretch is checked, and it's close to zero.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message NotStretchedMsg = "Cable is not stretched";
+  static readonly Message NotStretchedMsg = new Message(
+      "#kasLOC_06000",
+      defaultTemplate: "Cable is not stretched",
+      description: "Message to show when cable stretch is checked, and it's close to zero.");
 
-  /// <summary>Message to report cable stretch ratio when it's not zero.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<float> StretchRatioMsg = "Cable stretch: {0:0.##}%";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.PercentType']/*"/>
+  static readonly Message<PercentType> StretchRatioMsg = new Message<PercentType>(
+      "#kasLOC_06001",
+      defaultTemplate: "Cable stretch: <<1>>",
+      description: "Message to report the cable stretch ratio when it's not zero."
+      + "\nArgument <<1>> is a ratio between the joint limit and the actual length.",
+      example: "Cable stretch: 1.25%");
   #endregion
 
   #region Part's config fields

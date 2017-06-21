@@ -36,13 +36,18 @@ public class KASModuleLinkTargetBase :
     IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  /// <summary>Info string in the editor for link type setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<string> AcceptsLinkTypeInfo = "Accepts link type: {0}";
+  protected static readonly Message<string> AcceptsLinkTypeInfo = new Message<string>(
+      "#kasLOC_03000",
+      defaultTemplate: "Accepts link type: <<1>>",
+      description: "Info string in the editor for the link type setting."
+      + "\nArgument <<1>> is the type string from the part's config.");
 
-  /// <summary>Title of the module to present in the editor details window.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ModuleTitleInfo = "KAS Joint Target";
+  protected static readonly Message ModuleTitleInfo = new Message(
+      "#kasLOC_03001",
+      defaultTemplate: "KAS Joint Target",
+      description: "Title of the module to present in the editor details window.");
   #endregion
 
   #region ILinkTarget config properties implementation

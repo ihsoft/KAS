@@ -23,18 +23,20 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     ILinkRenderer {
 
   #region Localizable GUI strings
-  /// <summary>
-  /// Message to display when link cannot be created due to an obstacle in the way. 
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<string> LinkCollidesWithObjectMsg = "Link collides with {0}";
+  protected static readonly Message<string> LinkCollidesWithObjectMsg = new Message<string>(
+      "#kasLOC_04000",
+      defaultTemplate: "Link collides with: <<1>>",
+      description: "Message to display when the link cannot be created due to an obstacle."
+      + "\nArgument <<1>> is a title of the part that would collide with the proposed link.",
+      example: "Link collides with: Mk2 Cockpit");
 
-  /// <summary>
-  /// Message to display when link strut orientation cannot be changed due to it would hit the
-  /// surface.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message LinkCollidesWithSurfaceMsg = "Link collides with the surface";
+  protected static readonly Message LinkCollidesWithSurfaceMsg = new Message(
+      "#kasLOC_04001",
+      defaultTemplate: "Link collides with the surface",
+      description: "Message to display when the link strut orientation cannot be changed due to it"
+      + " would hit the surface.");
   #endregion
 
   #region Persistent fields

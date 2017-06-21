@@ -47,66 +47,79 @@ public class KASModuleLinkSourceBase : PartModule,
     IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  /// <summary>Message to display when target link type doesn't match source type.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message IncompatibleTargetLinkTypeMsg =
-      "Incompatible target link type";
+  protected readonly static Message IncompatibleTargetLinkTypeMsg = new Message(
+      "#kasLOC_02000",
+      defaultTemplate: "Incompatible target link type",
+      description: "Message to display when the target link type doesn't match the source type.");
 
-  /// <summary>
-  /// Message to display when link mode requires different vessels but target belongs to the same
-  /// vessel as the source.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message CannotLinkToTheSameVesselMsg =
-      "Cannot link to the same vessel";
+  protected readonly static Message CannotLinkToTheSameVesselMsg = new Message(
+      "#kasLOC_02001",
+      defaultTemplate:  "Cannot link to the same vessel",
+      description: "Message to display when the link mode requires the target to belong to a"
+      + " different vessel but it belongs to the same vessel as the source.");
 
-  /// <summary>
-  /// Message to display when link mode requires parts to belong to the same vessel but source and
-  /// target are onwed by different crafts.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message CannotLinkDifferentVesselsMsg =
-      "Cannot link different vessels";
+  protected readonly static Message CannotLinkDifferentVesselsMsg = new Message(
+      "#kasLOC_02002",
+      defaultTemplate: "Cannot link different vessels",
+      description: "Message to display when the link mode requires the target to belong to the same"
+      + " vessel but it belongs to a different vessel.");
 
-  /// <summary>Message to display when source refuses to start the link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message SourceIsNotAvailableForLinkMsg =
-      "Source is not available for link";
+  protected readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
+      "#kasLOC_02003",
+      defaultTemplate: "Source is not available for a link",
+      description: "Message to display when a source is refusing to start the link.");
 
-  /// <summary>Message to display when target refuses to accept the link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message TargetDoesntAcceptLinksMsg =
-      "Target doesn't accept links";
+  protected readonly static Message TargetDoesntAcceptLinksMsg = new Message(
+      "#kasLOC_02004",
+      defaultTemplate: "Target doesn't accept links",
+      description: "Message to display when the target is refusing to accept the link.");
 
-  /// <summary>Message to display when linked source and target cannot be matched on laod.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<string> CannotRestoreLinkMsg =
-      "Cannot restore link for: {0}";
+  protected readonly static Message<string> CannotRestoreLinkMsg = new Message<string>(
+      "#kasLOC_02005",
+      defaultTemplate: "Cannot restore link for: <<1>>",
+      description: "Message to display when a linked source and target cannot be matched on load."
+      + "\nArgument <<1>> is a name of the SOURCE part.",
+      example: "Cannot restore link for: KAS.TJ1");
 
-  /// <summary>Info string in the editor for link type setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<string> LinksWithSocketTypeInfo =
-      "Links with socket type: {0}";
+  protected readonly static Message<string> LinksWithSocketTypeInfo = new Message<string>(
+      "#kasLOC_02006",
+      defaultTemplate: "Links with socket type: <<1>>",
+      description: "Info string in the editor for the link type setting."
+      + "\nArgument <<1>> is the type string from the part's config.");
 
-  /// <summary>Title of the module to present in the editor details window.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message ModuleTitleInfo =
-      "KAS Joint Source";
+  protected readonly static Message ModuleTitleInfo = new Message(
+      "#kasLOC_02007",
+      defaultTemplate: "KAS Joint Source",
+      description: "Title of the module to present in the editor details window.");
 
-  /// <summary>Info string in the editor to identify if part can link with another vessel.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
-  protected readonly static MessageEnumValue<LinkMode> LinkModeInfo =
-      new MessageEnumValue<LinkMode>() {
-        {LinkMode.DockVessels,
-         "<color=#00ffff>Only docks to <b>another</b> vessel</color>"},
-        {LinkMode.TiePartsOnDifferentVessels,
-         "<color=#00ffff>Links to <b>another</b> vessel only</color>"},
-        {LinkMode.TiePartsOnSameVessel,
-         "<color=#00ffff>Links to the <b>same</b> vessel only</color>"},
-        {LinkMode.TieAnyParts,
-         "<color=#00ffff>Links to the <b>same</b> vessel</color>"
-         + "\n<color=#00ffff>Links to <b>another</b> vessel</color>"},
-      };
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected readonly static Message LinkModeDockVesselsInfo = new Message(
+      "#kasLOC_02008",
+      defaultTemplate: "Can dock the vessels",
+      description: "Info string in the editor that tells if the part can joint two vessels into one"
+      + " (dock one vessel to another).");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected readonly static Message LinkModeTiePartsOnDifferentVesselsInfo = new Message(
+      "#kasLOC_02009",
+      defaultTemplate: "Links to another vessel",
+      description: "Info string in the editor that tells if the part acn establish a link to"
+      + " another vessel without docking.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected readonly static Message LinkModeTiePartsOnSameVesselInfo = new Message(
+      "#kasLOC_02010",
+      defaultTemplate: "Links to the same vessel",
+      description: "Info string in the editor that tells if the part can establish a link to"
+      + " another part of the same vessel,");
   #endregion
 
   #region ILinkSource config properties implementation
@@ -421,7 +434,19 @@ public class KASModuleLinkSourceBase : PartModule,
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
     sb.AppendLine();
-    sb.AppendLine(LinkModeInfo.Format(linkMode));
+
+    if (linkMode == LinkMode.DockVessels) {
+      sb.AppendLine(ScreenMessaging.SetColorToRichText(
+          LinkModeDockVesselsInfo, Color.cyan));
+    }
+    if (linkMode == LinkMode.TiePartsOnDifferentVessels || linkMode == LinkMode.TieAnyParts) {
+      sb.AppendLine(ScreenMessaging.SetColorToRichText(
+          LinkModeTiePartsOnDifferentVesselsInfo, Color.cyan));
+    }
+    if (linkMode == LinkMode.TiePartsOnSameVessel || linkMode == LinkMode.TieAnyParts) {
+      sb.AppendLine(ScreenMessaging.SetColorToRichText(
+          LinkModeTiePartsOnSameVesselInfo, Color.cyan));
+    }
     return sb.ToString();
   }
 

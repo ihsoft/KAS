@@ -30,59 +30,115 @@ public abstract class AbstractJointModule : PartModule,
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
-  /// <summary>Message to display when link cannot be established because it's too short.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  protected readonly static Message<float, float> MinLengthLimitReachedMsg =
-      "Link is too short: {0:F2}m < {1:F2}m";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  protected readonly static Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
+      new Message<DistanceType, DistanceType>(
+          "#kasLOC_00000",
+          defaultTemplate: "Link is too short: <<1>> < <<2>>",
+          description: "Message to display when the link cannot be established because it's too"
+          + " short."
+          + "\nArgument <<1>> is the current link length of type DistanceType."
+          + "\nArgument <<2>> is the part's config setting of type DistanceType.",
+          example: "Link is too short: 1.22 m < 2.33 m");
 
-  /// <summary>Message to display when link cannot be established because it's too long.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  protected readonly static Message<float, float> MaxLengthLimitReachedMsg =
-      "Link is too long: {0:F2}m > {1:F2}m";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  protected readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
+      new Message<DistanceType, DistanceType>(
+          "#kasLOC_00001",
+          defaultTemplate: "Link is too long: <<1>> > <<2>>",
+          description: "Message to display when the link cannot be established because it's too"
+          + " long."
+          + "\nArgument <<1>> is the current link length of type DistanceType."
+          + "\nArgument <<2>> is the part's config setting of type DistanceType.",
+          example: "Link is too long: 2.33 m > 1.22 m");
 
-  /// <summary>
-  /// Message to display when link cannot be established because maximum angle between link vector
-  /// and the joint normal at the source part is to big.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  protected readonly static Message<float, int> SourceNodeAngleLimitReachedMsg =
-      "Source angle limit reached: {0:F0}deg > {1}deg";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  protected readonly static Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
+      new Message<AngleType, AngleType>(
+          "#kasLOC_00002",
+          defaultTemplate: "Source angle limit reached: <<1>> > <<2>>",
+          description: "Message to display when the link cannot be established because the maximum"
+          + " angle between the link vector and the joint normal at the SOURCE part is to big."
+          + "\nArgument <<1>> is the current link angle of type AngleType."
+          + "\nArgument <<2>> is the part's config setting of type AngleType.",
+          example: "Source angle limit reached: 3° > 2.5°");
 
-  /// <summary>
-  /// Message to display when link cannot be established because maximum angle between link vector
-  /// and the joint normal at the target part is to big.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  protected readonly static Message<float, int> TargetNodeAngleLimitReachedMsg =
-      "Target angle limit reached: {0:F0}deg > {1}deg";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  protected readonly static Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
+      new Message<AngleType, AngleType>(
+          "#kasLOC_00003",
+          defaultTemplate: "Target angle limit reached: <<1>> > <<2>>",
+          description: "Message to display when the link cannot be established because the maximum"
+          + " angle between the link vector and the joint normal at the TARGET part is to big."
+          + "\nArgument <<1>> is the current link angle of type AngleType."
+          + "\nArgument <<2>> is the part's config setting of type AngleType.",
+          example: "Target angle limit reached: 3° > 2.5°");
 
-  /// <summary>Info string in the editor for link break force setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> LinkLinearStrengthInfo = "Link break force: {0:F1}N";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  protected readonly static Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
+      "#kasLOC_00004",
+      defaultTemplate: "Link break force: <<1>>",
+      description: "Info string in the editor for the link break force setting. The argument is of"
+      + " type ForceType.",
+      example: "Link break force: 1.2 kN");
 
-  /// <summary>Info string in the editor for link break torque setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> LinkBreakStrengthInfo = "Link torque force: {0:F1}N";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  protected readonly static Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
+      "#kasLOC_00005",
+      defaultTemplate: "Link torque force: <<1>>",
+      description: "Info string in the editor for the link break torque setting. The argument is of"
+      + " type ForceType.",
+      example: "Link torque force: 1.2 kN");
 
-  /// <summary>Info string in the editor for minimum link length setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> MinimumLinkLengthInfo = "Minimum link length: {0:F1}m";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  protected readonly static Message<DistanceType> MinimumLinkLengthInfo =
+      new Message<DistanceType>(
+          "#kasLOC_00006",
+          defaultTemplate: "Minimum link length: <<1>>",
+          description: "Info string in the editor for the minimum link length setting."
+          + "\nArgument <<1>> is the part's config setting of type DistanceType.",
+          example: "Minimum link length: 1.22 m");
 
-  /// <summary>Info string in the editor for maximum link length setting.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> MaximumLinkLengthInfo = "Maximum link length: {0:F1}m";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  protected readonly static Message<DistanceType> MaximumLinkLengthInfo =
+      new Message<DistanceType>(
+          "#kasLOC_00007",
+          defaultTemplate: "Maximum link length: <<1>>",
+          description: "Info string in the editor for the maximum link length setting."
+          + "\nArgument <<1>> is the part's config setting of type DistanceType.",
+          example: "Maximum link length: 1.22 m");
 
-  /// <summary>Info string in the editor for maximum allowed angle at the source.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> SourceJointFreedomInfo = "Source angle limit: {0}deg";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  protected readonly static Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
+      "#kasLOC_00008",
+      defaultTemplate: "Source angle limit: <<1>>",
+      description: "Info string in the editor for the maximum allowed angle at the source."
+      + "\nArgument <<1>> is the part's config setting of type AngleType.",
+      example: "Source angle limit: 1.2°");
 
-  /// <summary>Info string in the editor for maximum allowed angle at the target.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected readonly static Message<float> TargetJointFreedomInfo = "Target angle limit: {0}deg";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  protected readonly static Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
+      "#kasLOC_00009",
+      defaultTemplate: "Target angle limit: <<1>>",
+      description: "Info string in the editor for the maximum allowed angle at the target."
+      + "\nArgument <<1>> is the part's config setting of type AngleType.",
+      example: "Target angle limit: 1.2°");
 
-  /// <summary>Title of the module to present in the editor details window.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message ModuleTitle = "KAS Joint";
+  protected readonly static Message ModuleTitle = new Message(
+      "#kasLOC_00010",
+      defaultTemplate: "KAS Joint",
+      description: "Title of the module to present in the editor details window.");
   #endregion
 
   #region ILinkJoint CFG properties

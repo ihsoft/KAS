@@ -26,37 +26,38 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
     IsPhysicalObject {
 
   #region Localizable strings
-  /// <summary>
-  /// Message to display when a tow bar is not locked but the locking process has been started.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<float> LockingStatusMsg = "Tow bar is locking: diff {0:F1} deg";
+  static readonly Message<AngleType> LockingStatusMsg = new Message<AngleType>(
+      "#kasLOC_05000",
+      defaultTemplate: "Tow bar is locking: diff <<1>>",
+      description: "Message to display when a tow bar is not locked but the locking process has"
+      + " been started."
+      + " The <<1>> argument shows the current locking error and is formatted as an angle type.",
+      example: "Tow bar is locking: diff 1.5°");
 
-  /// <summary>
-  /// Message to display when a tow bar locking process successfully ends with locking.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LockedStatusMsg = "Tow bar is LOCKED!";
+  static readonly Message LockedStatusMsg = new Message(
+      "#kasLOC_05001",
+      defaultTemplate: "Tow bar is LOCKED!",
+      description: "Message to display when a tow bar locking process successfully ends with"
+      + " locking.");
 
-  /// <summary>Steering status value GUI decoding.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
-  static readonly MessageEnumValue<SteeringStatus> SteeringStatusMsg =
-      new MessageEnumValue<SteeringStatus>() {
-        {SteeringStatus.Disabled, "Disabled"},
-        {SteeringStatus.Active, "Active"},
-        {SteeringStatus.CurrentVesselIsTarget, "Target is active vessel"},
-        {SteeringStatus.TargetIsNotControllable, "Target is uncontrollable"},
-        {SteeringStatus.NotLocked, "Not locked"},
-      };
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<EnumType<SteeringStatus>> SteeringStatusMsg =
+      new Message<EnumType<SteeringStatus>>(
+          "#kasLOC_05002",
+          defaultTemplate: "<<1[Disabled/Active/Target is active vessel"
+          + "/Target is uncontrollable/Not locked]>>",
+          description: "Represents the active steering status in the context menu info",
+          example: "Target is active vessel");
 
-  /// <summary>Lock status GUI decoding.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
-  static readonly MessageEnumValue<LockMode> LockStatusMsg =
-      new MessageEnumValue<LockMode>() {
-        {LockMode.Disabled, "Disabled"},
-        {LockMode.Locked, "Locked"},
-        {LockMode.Locking, "Locking"},
-      };
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<EnumType<LockMode>> LockStatusMsg = new Message<EnumType<LockMode>>(
+      "#kasLOC_05003",
+      defaultTemplate: "<<1[Disabled/Locking/Locked]>>",
+      description: "Represents the current status of the tow bar locking process in the context"
+      + " menu info",
+      example: "Locking");
   
   /// <summary>Status screen message to be displayed during the locking process.</summary>
   ScreenMessage lockStatusScreenMessage;

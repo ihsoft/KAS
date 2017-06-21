@@ -24,15 +24,22 @@ namespace KAS {
 public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
   #region Localizable strings
-  /// <summary>Message to display when a compatible target part is hevred over.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<float> CanBeConnectedMsg = "Click to establish a link (length {0:F2} m)";
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType> CanBeConnectedMsg = new Message<DistanceType>(
+      "#kasLOC_01000",
+      defaultTemplate: "Click to establish a link (length <<1>>)",
+      description: "Message to display when a compatible target part is hovered over and the source"
+      + " is in the linking mode."
+      + "\nArgument <<1>> is the possible link length of type DistanceType.",
+      example: "Click to establish a link (length 1.22 m)");
 
-  /// <summary>
-  /// Message to dsiplay as a help string when interactive linking mode is started.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LinkingInProgressMsg = "Select a compatible socket or press ESC";
+  static readonly Message LinkingInProgressMsg = new Message(
+      "#kasLOC_01001",
+      defaultTemplate: "Select a compatible socket or press ESC",
+      description: "Message to display as a help string when an interactive linking mode has"
+      + " started.");
   #endregion
 
   #region Local members
