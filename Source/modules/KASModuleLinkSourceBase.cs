@@ -255,9 +255,6 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
   protected ILinkRenderer linkRenderer { get; private set; }
 
-  /// <summary>Timeout to show various onload errors. Seconds.</summary>
-  protected const float BadLinkStatusTimeout = 10f;
-
   /// <summary>Tells if this source is currectly linked with a target.</summary>
   /// <value>The current state of the link.</value>
   protected bool isLinked {
