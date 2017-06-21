@@ -1,5 +1,5 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v4, 06.09.2017 -->
+<!-- v5, 06.20.2017 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -8,6 +8,21 @@
 </item>
 <item name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.AngleType">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_AngleType.htm">KSPDev Utils: GUIUtils.AngleType</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.DistanceType">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_DistanceType.htm">KSPDev Utils: GUIUtils.DistanceType</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.EnumType_1">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_EnumType_1.htm">KSPDev Utils: GUIUtils.EnumType&lt;T&gt;</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.ForceType">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_ForceType.htm">KSPDev Utils: GUIUtils.ForceType</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.MassType">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MassType.htm">KSPDev Utils: GUIUtils.MassType</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message.htm">KSPDev Utils: GUIUtils.Message</seealso>
