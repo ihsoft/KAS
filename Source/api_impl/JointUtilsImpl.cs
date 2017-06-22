@@ -23,6 +23,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("xMotion: ").Append(joint.xMotion).AppendLine();
     msg.Append("angularXMotion: ").Append(joint.angularXMotion).AppendLine();
     msg.Append("angularXLimitSpring: ").Append(Dump(joint.angularXLimitSpring)).AppendLine();
+    msg.Append("angularXDrive: ").Append(Dump(joint.angularXDrive)).AppendLine();
     msg.Append("lowAngularXLimit: ").Append(Dump(joint.lowAngularXLimit)).AppendLine();
     msg.Append("highAngularXLimit: ").Append(Dump(joint.highAngularXLimit)).AppendLine();
     // Y axis settings.
@@ -38,7 +39,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     // Multiple axis settings.
     msg.Append("linearLimit: ").Append(Dump(joint.linearLimit)).AppendLine();
     msg.Append("linearLimitSpring: ").Append(Dump(joint.linearLimitSpring)).AppendLine();
-    msg.Append("angularYZDrive").Append(Dump(joint.angularYZDrive)).AppendLine();
+    msg.Append("angularYZDrive: ").Append(Dump(joint.angularYZDrive)).AppendLine();
     msg.Append("angularYZLimitSpring: ").Append(Dump(joint.angularYZLimitSpring)).AppendLine();
 
     return msg.ToString();
@@ -93,7 +94,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
                                   float distanceLimit = Mathf.Infinity,
                                   float distanceLimitForce = 0,
                                   float distanceLimitDamperRatio = 0.1f) {
-    // Swap X&Z axes so what joint's forward vector becomes a primary axis.
+    // Swap X&Z axes so that the joint's forward vector becomes a primary axis.
     joint.axis = Vector3.forward;
     joint.secondaryAxis = Vector3.right;
     // Setup linear joint parameters.

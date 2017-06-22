@@ -221,7 +221,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
-    joint.angularXMotion = ConfigurableJointMotion.Locked;
     joint.enablePreprocessing = true;
     joint.connectedBody = ownerRb;
     SetBreakForces(joint, linkBreakForce, linkBreakTorque);
