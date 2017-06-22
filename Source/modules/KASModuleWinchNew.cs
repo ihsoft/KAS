@@ -432,7 +432,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
       if (kerbalTarget != null) {
-        BreakCurrentLink(LinkActorType.Player);
+        // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
+        BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
         winchState = WinchState.HeadLocked;
         HostedDebugLog.Info(
             this, "{0} has returned the winch head", FlightGlobals.ActiveVessel.vesselName);
