@@ -383,7 +383,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that sets the cable length to the current distance to the"
       + " head.")]
   public virtual void InstantStretchEvent() {
-    if (SetStateIfPossible(WinchState.HeadDeployed)) {
+    if (winchState != WinchState.HeadLocked && SetStateIfPossible(WinchState.HeadDeployed)) {
       maxAllowedCableLength = Mathf.Min(realHeadDistance, maxAllowedCableLength);
     }
   }
