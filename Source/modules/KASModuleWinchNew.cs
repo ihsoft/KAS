@@ -577,6 +577,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    LocalizationLoader.LoadItemsInModule(this);
     LoadUIControlsCache();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
@@ -702,8 +703,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void UpdateContextMenu() {
     //TODO: Move to the state preview handler.
     headDeployStateMenuInfo = WinchStatesMsg.Format(winchState);
-    cableLengthMenuInfo = realHeadDistance;
-    deployedCableLengthMenuInfo = maxAllowedCableLength;
+    cableLengthMenuInfo = DistanceType.Format(realHeadDistance);
+    deployedCableLengthMenuInfo = DistanceType.Format(maxAllowedCableLength);
     // Keep the visibility states so that the context menu is not "jumping" when the state is
     // changed. In general, if a menu item disappears then another one should show up. 
     uiExtendCableEvent.active = true;
