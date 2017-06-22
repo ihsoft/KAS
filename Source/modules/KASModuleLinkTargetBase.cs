@@ -347,7 +347,7 @@ public class KASModuleLinkTargetBase :
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
-    if (oldState == LinkState.AcceptingLinks && isLinked && attachNode != null) {
+    if (oldState == LinkState.AcceptingLinks && !isLinked && attachNode != null) {
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
