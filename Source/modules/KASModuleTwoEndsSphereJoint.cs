@@ -213,13 +213,13 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// </para>
   /// </remarks>
   /// <param name="nodeTransform">The tranform to orient new joint to.</param>
-  /// <param name="ownerRb">The rigid body to attach the joint to.</param>
+  /// <param name="targetRb">The rigid body to attach the joint to.</param>
   /// <param name="objName">The name of the game object for the joint.</param>
   /// <param name="angleLimit">The degree of freedom of the joint.</param>
   /// <returns>Joint object.</returns>
   ConfigurableJoint CreateJointEnd(
-      Transform nodeTransform, Rigidbody ownerRb, string objName, float angleLimit) {
-    if (ownerRb == null) {
+      Transform nodeTransform, Rigidbody targetRb, string objName, float angleLimit) {
+    if (targetRb == null) {
       throw new InvalidOperationException(string.Format(
           "Cannot create a joint to {0} since it doesn't have rigidbody (physicsless?)",
           nodeTransform));
@@ -228,12 +228,12 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     jointObj.transform.position = nodeTransform.position;
     jointObj.transform.rotation = nodeTransform.rotation;
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), ownerRb);
+    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), targetRb);
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
     joint.enablePreprocessing = true;
-    joint.connectedBody = ownerRb;
+    joint.connectedBody = targetRb;
     SetBreakForces(joint, linkBreakForce, linkBreakTorque);
     return joint;
   }
