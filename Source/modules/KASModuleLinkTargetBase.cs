@@ -140,7 +140,12 @@ public class KASModuleLinkTargetBase :
   public string attachNodeName = "";
 
   /// <summary>Name of object in the model that defines attach node.</summary>
+  /// <remarks>
+  /// The value is a <see cref="Hierarchy.FindPartModelByPath(Part,string,Transform)"/> search
+  /// path. The path is looked starting from the part's model root.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
   [KSPField]
   public string attachNodeTransformName = "";
 
@@ -436,7 +441,7 @@ public class KASModuleLinkTargetBase :
     var nodeName = attachNodeTransformName != ""
         ? attachNodeTransformName
         : attachNodeName + "-node";
-    nodeTransform = Hierarchy.FindTransformInChildren(part.transform, nodeName);
+    nodeTransform = Hierarchy.FindPartModelByPath(part, nodeName);
     if (nodeTransform == null) {
       nodeTransform = new GameObject(nodeName).transform;
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
