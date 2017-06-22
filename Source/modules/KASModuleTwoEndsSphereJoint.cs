@@ -86,7 +86,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onProtoPartSnapshotSave.Add(onProtoPartSnapshotSave);
+    GameEvents.onProtoPartSnapshotSave.Add(OnProtoPartSnapshotSave);
   }
 
   /// <inheritdoc/>
@@ -104,7 +104,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// <inheritdoc/>
   public override void OnDestroy() {
     base.OnDestroy();
-    GameEvents.onProtoPartSnapshotSave.Remove(onProtoPartSnapshotSave);
+    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
   }
   #endregion
 
@@ -127,7 +127,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
       source.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
       target.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
     }
-    
+
     // Create end spherical joints.
     srcJoint = CreateJointEnd(
         source.nodeTransform, source.part.rb, "KASJointSrc", sourceLinkAngleLimit);
@@ -243,7 +243,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// Fixes part's stored org position and rotation since they are saved before UpdateOrgPosAndRot
   /// happens.
   /// </summary>
-  void onProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {
+  void OnProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {
     if (isUnlockedJoint && isLinked && action.to != null && action.from.partRef == part) {
       var node = action.to;
       node.SetValue("position", part.orgPos);
