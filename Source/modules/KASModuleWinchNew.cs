@@ -269,6 +269,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sndPathHeadLock = "";
+
+  /// <summary>URL of the sound for the winch head grab event.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathGrabLock = "";
   #endregion
 
   #region The context menu fields
@@ -403,6 +408,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       linkMode = LinkMode.TiePartsOnDifferentVessels;
       if (kerbalTarget != null && StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
         LinkToTarget(kerbalTarget);
+        UISoundPlayer.instance.Play(sndPathGrabLock);
         HostedDebugLog.Info(
             this, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName);
       } else {
