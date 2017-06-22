@@ -186,6 +186,18 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   }
   #endregion
 
+  #region Inheritable static methods
+  /// <summary>Sets up a rigidbody so what it has little or none physics effect.</summary>
+  /// <param name="targetRb">The rigidbody to adjust.</param>
+  /// <param name="refRb">The rigidbody to get copy physics from.</param>
+  protected static void SetupNegligibleRb(Rigidbody targetRb, Rigidbody refRb) {
+    targetRb.mass = 0.001f;
+    targetRb.useGravity = false;
+    targetRb.velocity = refRb.velocity;
+    targetRb.angularVelocity = refRb.angularVelocity;
+  }
+  #endregion
+
   #region Private utility methods
   /// <summary>
   /// Creates a game object joined with the attach node via a spherical joint. The joint is locked
@@ -217,7 +229,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     jointObj.transform.position = nodeTransform.position;
     jointObj.transform.rotation = nodeTransform.rotation;
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    jointObj.AddComponent<Rigidbody>();
+    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), ownerRb);
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
