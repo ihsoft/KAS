@@ -146,7 +146,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     strutJoint.angularXMotion = ConfigurableJointMotion.Free;
     strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     strutJoint.enablePreprocessing = true;
-    // FIXME: adjust src/trg anchors to put joint center in the middile of the connection bar.
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
   }
 
@@ -213,10 +212,10 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// need to adjust the properties.
   /// </para>
   /// </remarks>
-  /// <param name="nodeTransform">Tranform to orient new joint to.</param>
-  /// <param name="ownerRb">Rigid body to attch the joint to.</param>
-  /// <param name="objName">Name of the game object for the joint.</param>
-  /// <param name="angleLimit">Degree of freedom for the joint.</param>
+  /// <param name="nodeTransform">The tranform to orient new joint to.</param>
+  /// <param name="ownerRb">The rigid body to attach the joint to.</param>
+  /// <param name="objName">The name of the game object for the joint.</param>
+  /// <param name="angleLimit">The degree of freedom of the joint.</param>
   /// <returns>Joint object.</returns>
   ConfigurableJoint CreateJointEnd(
       Transform nodeTransform, Rigidbody ownerRb, string objName, float angleLimit) {
