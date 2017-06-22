@@ -315,7 +315,7 @@ public class KASModuleLinkSourceBase : PartModule,
   public override void OnInitialize() {
     base.OnInitialize();
     if (isLinked && linkTarget.part.vessel != vessel) {
-      // When target is at the different vessel there is no automatic collision ignore set.
+      // When the target is at the different vessel, there is no automatic collision ignore set.
       StartCoroutine(WaitAndSetCollisionIgnores());
     }
   }
@@ -363,12 +363,12 @@ public class KASModuleLinkSourceBase : PartModule,
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
       HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
-                          nodeName,
+                          nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
       HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
-                          nodeName,
+                          nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }

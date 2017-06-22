@@ -347,12 +347,12 @@ public class KASModuleLinkTargetBase :
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState? oldState) {
-    // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
-    // over and link hasn't been established.
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
+      // Create an attach node to allow coupling.
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
     if (oldState == LinkState.AcceptingLinks && !isLinked && attachNode != null) {
+      // Drop the node once linking mode is over and the link hasn't been established.
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
@@ -448,7 +448,7 @@ public class KASModuleLinkTargetBase :
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
       HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
-                          nodeName,
+                          nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
