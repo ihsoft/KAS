@@ -44,61 +44,75 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     IHasContextMenu, IsPhysicalObject {
 
   #region Localizable UI strings  
-  /// <summary>Info string in the part's context menu for the winch state.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/MessageEnumValue/*"/>
-  protected static readonly MessageEnumValue<WinchState> WinchStatesMsg =
-      new MessageEnumValue<WinchState>() {
-          {WinchState.HeadLocked, "Head is locked"},
-          {WinchState.HeadDeployed, "Idle"},
-          {WinchState.CableExtending, "Extending"},
-          {WinchState.CableRetracting, "Retracting"},
-      };
-
-  /// <summary>Error message to present when the electricity charge has exhausted.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message NoEnergyMsg = "No energy!";
-
-  /// <summary>
-  /// Error message to present when an improperly aligned cable head has attempted to lock with the
-  /// winch.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message LockHeadNotAlignedMsg = "Cannot lock the head: not aligned";
-
-  /// <summary>
-  /// Info message to present when an cable head has successfully locked to the winch.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message HeadLockedMsg = "Head locked!";
-
-  /// <summary>
-  /// An info message to present when the cable is extended at its maximum length.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<float> MaxLengthReachedMsg =
-      "Maximum cable length reached: {0:F2}m";
+  protected static readonly Message<EnumType<WinchState>> WinchStatesMsg =
+      new Message<EnumType<WinchState>>(
+          "#kasLOC_08001",
+          defaultTemplate: "<<1[Head is locked/Idle/Extending/Retracting]>>",
+          description: "Info string in the part's context menu for the winch state."
+          + "\nArgument <<1>> is an int value of one of the FOUR states.",
+          example: "Head is locked");
 
-  /// <summary>
-  /// An info message to present when the cable retract action is attempted on a locked head.
-  /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message HeadIsAlreadyLockedMsg = "The head is already locked";
+  protected static readonly Message NoEnergyMsg = new Message(
+      "#kasLOC_08002",
+      defaultTemplate: "No energy!",
+      description: "Error message to present when the electricity charge has exhausted.");
 
-  /// <summary>Name of the menu item that stops the cable extending.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message StopExtendingMenuTxt = "Stop extending";
+  protected static readonly Message LockHeadNotAlignedMsg = new Message(
+      "#kasLOC_08003",
+      defaultTemplate: "Cannot lock the head: not aligned",
+      description: "Error message to present when an improperly aligned cable head has attempted"
+      + " to lock with the winch.");
 
-  /// <summary>Name of the context menu item that starts the cable extending.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ExtendCableMenuTxt = "Extend cable";
+  protected static readonly Message HeadLockedMsg = new Message(
+      "#kasLOC_08004",
+      defaultTemplate: "Head locked!",
+      description: "Info message to present when a cable head has successfully locked to the"
+      + " winch.");
 
-  /// <summary>Name of the context menu item that stops the cable retracting.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message StopRetractingMenuTxt = "Stop retracting";
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  protected static readonly Message<DistanceType> MaxLengthReachedMsg = new Message<DistanceType>(
+      "#kasLOC_08005",
+      defaultTemplate: "Maximum cable length reached: <<1>>",
+      description: "An info message to present when the cable is extended at its maximum length."
+      + "\nArgument <<1>> is the current cable length of type DistanceType.",
+      example: "Maximum cable length reached: 1.23 m");
 
-  /// <summary>Name of the context menu item that starts the cable extending.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message RetractCableMenuTxt = "Retract cable";
+  //FIXME: drop in favor of HeadLockedMsg
+  protected static readonly Message HeadIsAlreadyLockedMsg = new Message(
+      "#kasLOC_08006",
+      defaultTemplate: "The head is already locked",
+      description: "An info message to present when the cable retract action is attempted on a"
+      + " locked head.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message StopExtendingMenuTxt = new Message(
+      "#kasLOC_08007",
+      defaultTemplate: "Stop extending",
+      description: "Name of the context menu item that stops the cable extending.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message ExtendCableMenuTxt = new Message(
+      "#kasLOC_08008",
+      defaultTemplate: "Extend cable",
+      description: "Name of the context menu item that starts the cable extending.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message StopRetractingMenuTxt = new Message(
+      "#kasLOC_08009",
+      defaultTemplate: "Stop retracting",
+      description: "Name of the context menu item that stops the cable retracting.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message RetractCableMenuTxt = new Message(
+      "#kasLOC_08010",
+      defaultTemplate: "Retract cable",
+      description: "Name of the context menu item that starts the cable retracting.");
   #endregion
 
   #region Part's config fields
@@ -262,6 +276,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <see cref="winchState"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Winch state", guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08011",
+      defaultTemplate = "Winch state",
+      description = "Status field to display the current winch status in the context menu.")]
   public string headDeployStateMenuInfo = "";
 
   /// <summary>
@@ -275,8 +293,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="maxAllowedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Deployed lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
-  public float deployedCableLengthMenuInfo = 0.0f;
+  [KSPField(guiName = "Deployed length", guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08012",
+      defaultTemplate = "Deployed length",
+      description = "A context menu item that presents the maximum allowed cable length.")]
+  public string deployedCableLengthMenuInfo = "";
   #endregion
 
   #region Context menu events/actions
@@ -286,7 +308,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// extended for any reason.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Extend cable", guiActive = true)]
+  [KSPEvent(guiActive = true)]
+  [LocalizableItem(tag = null)]
   public virtual void ExtentCableEvent() {
     if (Mathf.Approximately(maxAllowedCableLength, cableMaxLenght)) {
       // Already at the maximum length.
@@ -309,7 +332,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// head. It does nothing is the cable cannot be retracted for any reason.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Retract cable", guiActive = true)]
+  [KSPEvent(guiActive = true)]
+  [LocalizableItem(tag = null)]
   public virtual void RetractCableEvent() {
     if (winchState == WinchState.HeadLocked) {
       ShowMessageForActiveVessel(HeadIsAlreadyLockedMsg);
@@ -336,6 +360,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Release cable", guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08013",
+      defaultTemplate = "Release cable",
+      description = "A context menu item that sets the cable length ot the maximum, and unlocks"
+      + " the head if it was locked.")]
   public virtual void ReleaseCableEvent() {
     if (SetStateIfPossible(WinchState.HeadDeployed)) {
       maxAllowedCableLength = cableMaxLenght;
@@ -348,6 +377,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Instant stretch", guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08014",
+      defaultTemplate = "Instant stretch",
+      description = "A context menu event that sets the cable length to the current distance to the"
+      + " head.")]
   public virtual void InstantStretchEvent() {
     if (SetStateIfPossible(WinchState.HeadDeployed)) {
       maxAllowedCableLength = Mathf.Min(realHeadDistance, maxAllowedCableLength);
@@ -358,6 +392,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <remarks>The active vessel must be a kerbal.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Grab head", guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_08015",
+      defaultTemplate = "Grab head",
+      description = "A context menu event that attaches the head to the EVA kerbal.")]
   public virtual void GrabHeadEvent() {
     if (FlightGlobals.ActiveVessel.isEVA && winchState == WinchState.HeadLocked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
@@ -378,6 +416,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <remarks>The active vessel must be a kerbal holding a headof this winch.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiName = "Lock head", guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_08016",
+      defaultTemplate = "Lock head",
+      description = "A context menu event that detaches the head from the kerbal and puts it back"
+      + " to the winch.")]
   public virtual void LockHeadEvent() {
     if (FlightGlobals.ActiveVessel.isEVA && isCableHeadOnKerbal) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()

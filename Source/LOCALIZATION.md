@@ -25,4 +25,5 @@ KASModuleTelescopicPipeModel | 4 | #kasLOC_04000 | #kasLOC_04999
 KASModuleTowBarActiveJoint | 5 | #kasLOC_05000 | #kasLOC_05999
 KASModuleCableJoint | 6 | #kasLOC_06000 | #kasLOC_06999
 KASModulePipeRenderer | 7 | #kasLOC_07000 | #kasLOC_07999
-_Next available value_ | 8 | #kasLOC_08000 | #kasLOC_08999
+KASModuleWinchNew | 8 | #kasLOC_08000 | #kasLOC_08999
+_Next available value_ | 9 | #kasLOC_08000 | #kasLOC_08999
