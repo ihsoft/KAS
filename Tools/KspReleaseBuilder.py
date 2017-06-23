@@ -421,8 +421,8 @@ class Builder(object):
       exit(-1)
     content['VERSION']['MAJOR'] = self.VERSION[0]
     content['VERSION']['MINOR'] = self.VERSION[1]
-    content['VERSION']['PATCH'] = self.VERSION[2]
-    content['VERSION']['BUILD'] = self.VERSION[3]
+    content['VERSION']['BUILD'] = self.VERSION[2]
+    content['VERSION']['PATCH'] = self.VERSION[3]
     with open(version_file, 'w') as fp:
       json.dump(content, fp, indent=4, sort_keys=True)
   
