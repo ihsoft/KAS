@@ -1,4 +1,4 @@
-# 1.0 (pre-release):
+# 1.0 (June 23rd, 2017):
 * [Fix #204] Link status is not restored on load.
 * [Fix #205] Bad link state doesn't restore on load.
 * [Fix #206] TJ-2 applies momentum on the vessel when linked.
