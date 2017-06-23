@@ -1,3 +1,8 @@
+# 1.0 (pre-release):
+* [Fix #204] Link status is not restored on load.
+* [Fix #205] Bad link state doesn't restore on load.
+* [Fix #206] TJ-2 applies momentum on the vessel when linked.
+
 # 0.7.4 (May 26th, 2017):
 * [Enhancement] A brand new model for CH-1.
 * [Enhancement] PCB-1 cable now has a head that plugs into CH-1 model.
