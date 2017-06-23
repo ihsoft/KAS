@@ -1,8 +1,10 @@
 ﻿// Kerbal Attachment System - Examples
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
+
 using System;
 using KAS;
+using KASAPIv1;
 using UnityEngine;
 
 namespace Examples {

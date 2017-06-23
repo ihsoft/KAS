@@ -50,9 +50,9 @@ public class ILinkSourceExample  {
     }
     // GUILinkMode.API mode tells the implementation to not execute any user facing effects on the
     // link. See GUILinkMode for more details. 
-    if (!source.StartLinking(GUILinkMode.API) || !source.LinkToTarget(target)) {
+    if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking();
+      source.CancelLinking(LinkActorType.API);
       return false;
     }
     Debug.LogFormat("Established link with part: id={0}, mode={1}",
@@ -75,9 +75,9 @@ public class ILinkSourceExample  {
       Debug.Log("Link is obstructed. Silently cancel the action");
       return false;
     }
-    if (!source.StartLinking(GUILinkMode.API) || !source.LinkToTarget(target)) {
+    if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking();
+      source.CancelLinking(LinkActorType.API);
       return false;
     }
     return true;
@@ -100,9 +100,9 @@ public class ILinkSourceExample  {
     }
     // GUILinkMode.API mode tells the implementation to not execute any user facing effects on the
     // link. See GUILinkMode for more details. 
-    if (!source.StartLinking(GUILinkMode.API) || !source.LinkToTarget(target)) {
+    if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking();
+      source.CancelLinking(LinkActorType.API);
       return false;
     }
     return true;
