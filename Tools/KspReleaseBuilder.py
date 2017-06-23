@@ -1,11 +1,13 @@
 # Public domain license.
 # Author: igor.zavoychinskiy@gmail.com
 # GitHub: https://github.com/ihsoft/KSPDev/tree/master/Sources/ReleaseBuilder
-SCRIPT_VERSION = "2.0"  # (check if SUPPORTED_JSON_SCHEMA_VERSION needs to be updated!)
+SCRIPT_VERSION = "2.1"  # (check if SUPPORTED_JSON_SCHEMA_VERSION needs to be updated!)
 
 # A very simple class to produce a .ZIP archive with a KSP mod distribution.
 
 import argparse
+import array
+import ctypes
 import glob
 import json
 import os.path
@@ -16,13 +18,14 @@ import sys
 import textwrap
 
 
-# Version of the settings JSON file. When release script changes its interpretation of
-# the values in the file this version must be adjusted:
-# - Increase minor part when change is backward-comptible. I.e. new script version can
-#   handle old minor versions with the same output as the old script would produce.
-# - Increase major part and reset minor part if change is NOT backward-comptible.
-# Preserve old versions as comments to keep the history.
-SUPPORTED_JSON_SCHEMA_VERSION = "1.0"  # Starting from script version "2.0"
+# Version of the settings JSON file. When a new version of the script changes the way of
+# interpreting the configuration file, the supported version cobnstant must be extended.
+# - Increase the minor part when the change is backward-comptible. I.e. the new script version can
+#   handle the old minor versions with the same output as the old script would produce.
+# - Increase the major part and reset the minor part if the change is NOT backward-comptible.
+# Preserve the old versions as comments to keep the history.
+#SUPPORTED_JSON_SCHEMA_VERSION = "1.0"  # Starting from script version "2.0"
+SUPPORTED_JSON_SCHEMA_VERSION = "1.1"  # Starting from script version "2.1"
 
 
 class Builder(object):
@@ -73,11 +76,17 @@ class Builder(object):
   ARCHIVE_DEST = ''
 
   # Format string which accepts MAJOR, MINOR and PATCH numbers as arguments and
-  # returns realese package file name with no extension.
+  # returns release package file name with no extension.
   RELEASE_NAME_FMT = '{PACKAGE_NAME}_v%d.%d.%d'
 
   # File name format for releases with build field other than zero.
   RELEASE_NAME_WITH_BUILD_FMT = '{PACKAGE_NAME}_v%d.%d.%d_build%d'
+
+  # Formatting string with the positional arguments for a release package file name.
+  # If specified, then the other formatting parameters are ignored. The free format can have any
+  # of the following arguments:
+  # {0} - major, {1} - minor, {2} - build, {3} - revision.
+  RELEASE_NAME_FREE_FORMAT = None
 
   # Definition of the main release structure:
   # - KEY is a path in the {RELEASE} folder. Keys are sorted before handling.
@@ -113,6 +122,7 @@ class Builder(object):
     'RELEASE_MOD_FOLDER',
     'RELEASE_NAME_FMT',
     'RELEASE_NAME_WITH_BUILD_FMT',
+    'RELEASE_NAME_FREE_FORMAT',
     'SHELL_COMPILE_BINARY_SCRIPT',
     'SOURCE',
     'STRUCTURE',
@@ -192,7 +202,7 @@ class Builder(object):
 
     def parse_macros(value):
       return re.sub(
-          r'\{(\w+)}',
+          r'\{(\D\w*)}',
           lambda x: parse_macros(get_macro_value(x.group(1))),
           value)
 
@@ -312,7 +322,7 @@ class Builder(object):
     for (dest_folder, src_patterns) in sorted_targets:
       dest_path = self.__MakeDestPath(dest_folder)
       print 'Release folder:', dest_path
-      copy_sources = []
+      copy_sources = None
       drop_patterns = []
       for src_pattern in src_patterns:
         allow_no_matches = False
@@ -339,14 +349,16 @@ class Builder(object):
             print 'ERROR: Nothing is found for pattern:', pattern
             print 'HINT: If this pattern is allowed to return nothing then add prefix "?"'
             exit(-1)
+        if copy_sources is None:
+          copy_sources = []
         copy_sources.extend(entry_sources)
 
       # Copy files.
-      if copy_sources:
+      if copy_sources is not None:
         for source in copy_sources:
           self.__OsSafeCopyToRelease(source, dest_path)
-      else:
-        print '=> skip release folder due to it\'s EMPTY'
+        if not copy_sources:
+          print '=> skip empty folder:', source
 
       # Drop files.
       for pattern in drop_patterns:
@@ -381,21 +393,19 @@ class Builder(object):
       if line.lstrip().startswith('//'):
         continue
       # Expect: [assembly: AssemblyVersion("X.Y.Z")]
-      matches = re.match(r'\[assembly: AssemblyVersion.*\("(\d+)\.(\d+)\.(\d+)(.(\d+))?"\)\]',
-                         line)
+      matches = re.match(
+          r'\[assembly: AssemblyVersion.*\("(\d+)\.(\d+)\.(\*|\d+)(.(\*|\d+))?"\)\]', line)
       if matches:
-        self.VERSION = (int(matches.group(1)),  # MAJOR
-                        int(matches.group(2)),  # MINOR
-                        int(matches.group(3)),  # PATCH
-                        int(matches.group(5) or 0))  # BUILD, optional.
+        self.__MakeVersion(
+            matches.group(1), matches.group(2), matches.group(3), matches.group(5) or 0)
         break
         
     if self.VERSION is None:
       print 'ERROR: Cannot extract version from: %s' % file_path
       exit(-1)
-    print '=> found version: v%d.%d.%d build %d' % self.VERSION
-  
-  
+    print '=> found version: v%d.%d, build %d, revision %d' % self.VERSION
+
+
   # Updates the source files with the version info.
   def __Step_UpdateVersionInSources(self):
     print 'Update MiniAVC info...'
@@ -420,9 +430,12 @@ class Builder(object):
   # Creates a package for re-destribution.
   def __Step_MakePackage(self, overwrite_existing):
     print 'Making %s package...' % (self.PACKAGE_NAME or '<NONE>')
-    release_name = (self.VERSION[3]
-        and self.__ParseMacros(self.RELEASE_NAME_WITH_BUILD_FMT % self.VERSION)
-        or self.__ParseMacros(self.RELEASE_NAME_FMT % self.VERSION[:3]))
+    if self.RELEASE_NAME_FREE_FORMAT:
+      release_name = self.__ParseMacros(self.RELEASE_NAME_FREE_FORMAT).format(*self.VERSION)
+    else:
+      release_name = (self.VERSION[3]
+          and self.__ParseMacros(self.RELEASE_NAME_WITH_BUILD_FMT % self.VERSION)
+          or self.__ParseMacros(self.RELEASE_NAME_FMT % self.VERSION[:3]))
     package_file_name = self.__MakeSrcPath(os.path.join('/', self.ARCHIVE_DEST, release_name))
     archive_name = package_file_name + '.zip'
     if os.path.exists(archive_name): 
@@ -435,6 +448,28 @@ class Builder(object):
     print '=> stored in:', package_file_name
 
 
+  # Fills VERSION given the string or int compinents. The build and revision could be "*".
+  def __MakeVersion(self, major, minor, build, revision):
+    # Get build/rev from the binary if it's auto generated.
+    if build == '*' or revision == '*':
+      filename = self.__MakeSrcPath(self.COMPILED_BINARY)
+      version = self.__GetFileInfo(filename) or ''
+      parts = version.split('.')
+      if build == '*' and len(parts) >= 3:
+        build = parts[2]
+      if len(parts) >= 4:
+        revision = parts[3]
+    # Handle fallbacks in case of the version wasn't extracted.
+    if build == '*':
+      print 'WARNING: Couldn\'t resolve version BUILD, fallback to 0'
+      build = 0
+    if revision == '*':
+      print 'WARNING: Couldn\'t resolve version REVISION, fallback to 0'
+      revision = 0
+    # Fill the version
+    self.VERSION = (int(major), int(minor), int(build), int(revision))
+
+ 
   # Checks if path doesn't try to address file above the root. All path arguments can contain
   # macros.
   #
@@ -494,6 +529,30 @@ class Builder(object):
       print '=> drop folder:', abs_path
       shutil.rmtree(abs_path, True)
 
+  # Extracts information from a DLL file.
+  def __GetFileInfo(self, filename):
+    filename = u'' + filename  # Ensure it's wide-string encoding.
+    size = ctypes.windll.version.GetFileVersionInfoSizeW(filename, None)
+    if not size:
+      return None
+    res = ctypes.create_string_buffer(size)
+    if not ctypes.windll.version.GetFileVersionInfoW(filename, None, size, res):
+      return None
+    l = ctypes.c_uint()
+    r = ctypes.c_void_p()
+    if not ctypes.windll.version.VerQueryValueA(
+        res, '\\VarFileInfo\\Translation', ctypes.byref(r), ctypes.byref(l)):
+      return None
+    if not l.value:
+      return None
+    codepages = array.array('H', ctypes.string_at(r.value, l.value))
+    codepage = tuple(codepages[:2].tolist())
+    r = ctypes.c_char_p()
+    if not ctypes.windll.version.VerQueryValueA(
+        res, ('\\StringFileInfo\\%04x%04x\\FileVersion') % codepage,
+        ctypes.byref(r), ctypes.byref(l)):
+      return None
+    return ctypes.string_at(r)
 
 
 # Default JSON settings file to search in the current folder when "-J"

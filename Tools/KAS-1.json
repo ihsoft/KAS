@@ -1,9 +1,11 @@
 {
-  "JSON_SCHEMA_VERSION": "1.0",
+  "JSON_SCHEMA_VERSION": "1.1",
 
   "PACKAGE_NAME": "KAS-1.0",
 
   "SHELL_COMPILE_BINARY_SCRIPT" : "make_binary-1.0.cmd",
+
+  "RELEASE_NAME_FREE_FORMAT" : "KAS_v{0}.{1}",
 
   "STRUCTURE" : {
     "" : [
