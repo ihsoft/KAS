@@ -65,6 +65,9 @@
     <Reference Include="System.Core">
       <HintPath>Q:\KSP_x64_Data\Managed\System.Core.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>Q:\KSP_Data\Managed\System.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>True</Private>
