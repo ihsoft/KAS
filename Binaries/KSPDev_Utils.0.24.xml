@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.24-pre</name>
+        <name>KSPDev_Utils.0.24</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1461,18 +1461,27 @@
         </member>
         <member name="M:KSPDev.GUIUtils.IHasContextMenu.UpdateContextMenu">
             <summary>
-            A callback that is called every time the module's conetxt menu items need to update. 
+            A callback which is called every time the module's context menu items need to update. 
             </summary>
             <remarks>
             <para>
             When a part needs to update its context menu, it must not be doing it in the methods other
-            this one. By doing the update in a just one method, the part ensures there will be a
+            this one. By doing the update in a single method, the part ensures there will be a
             consistency.
             </para>
             <para>
             It's very implementation dependent when and why the update is needed. However, at the very
             least this callback must be called from the <see cref="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)">OnLoad</see> method
             to let the module to update the state and the titles.
+            </para>
+            <para>
+            The method implemenation must expect to be called at any arbitrary moment of the module's
+            life. If there are members that can be null, then they must be checked in this method to not
+            throw an NPE.
+            </para>
+            <para>
+            Unless the implementing class is <i>sealed</i>, the method must be declared as <i>virtual</i>.
+            The descendants may want to react on the callback as well.
             </para>
             </remarks>
         </member>
@@ -3231,11 +3240,18 @@
             record is being logged.
             </para>
             <para>
+            Another benefit of this logging class is that it can better resolve the aruments of certain
+            types. E.g. when logging out a value referring a <see cref="T:UnityEngine.Transform"/> type, the resulted
+            record will represent a full hierrachy path instead of just the object name. See
+            <see cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/> for the full list of the supported types.
+            </para>
+            <para>
             This class has many methods that do exactly the same stuff. They are added for the sake of
             better type checking to eliminate the case when the call has no host object provided.
             </para>
             </remarks>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])">
             <summary>Logs a formatted INFO message with a host identifier.</summary>
@@ -3245,6 +3261,7 @@
             <param name="format">The format string for the log message.</param>
             <param name="args">The arguments for the format string.</param>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
+            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(PartModule,System.String,System.Object[])">
             <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
@@ -3274,25 +3291,43 @@
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])">
             <summary>Generic method to emit a hosted log record.</summary>
-            <remarks>
-            For the <see cref="T:Part"/>, <see cref="T:PartModule"/> and <see cref="T:UnityEngine.Transform"/> objects
-            the identifier will be the most informative.
-            </remarks>
             <param name="type">The type of the log record.</param>
             <param name="host">
             The host object which is bound to the log record. It can be <c>null</c>.
             </param>
             <param name="format">The format string for the log message.</param>
             <param name="args">The arguments for the format string.</param>
+            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)">
             <summary>Helper method to make a user friendly object name for the logs.</summary>
             <remarks>
             This method is much more intelligent than a regular <c>ToString()</c>, it can detect some
-            common types and give a bit more context on them while keeping the output short.
+            common types and give a more context on them while keeping the output short. The currently
+            supported object types are:
+            <list type="bullet">
+            <item><see cref="T:Part"/>. The string will have a part ID.</item>
+            <item><see cref="T:PartModule"/>. The string will have a part ID and a module index.</item>
+            <item>
+            <see cref="T:UnityEngine.Component"/>. The string will have a full path in the game objects hirerachy.
+            </item>
+            </list>
+            <para>The other types are stringified via a regular <c>ToString()</c> call.</para>
             </remarks>
             <param name="obj">The object to stringify. It can be <c>null</c>.</param>
             <returns>A human friendly string which identifies the host.</returns>
+            <item name="T:Part">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
+</item>
+            <item name="T:PartModule">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule</seealso>
+</item>
+            <item name="T:UnityEngine.Transform">
+  <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
+</item>
+            <item name="T:UnityEngine.GameObject">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">Untiy3D: GameObject</seealso>
+</item>
         </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
             <summary>Helper methods to align transformations relative to each other.</summary>
