@@ -329,7 +329,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [LocalizableItem(
       tag = "#kasLOC_08012",
       defaultTemplate = "Deployed length",
-      description = "A context menu item that presents the maximum allowed cable length.")]
+      description = "A context menu item that presents the length of the currently deployed"
+      + "cable.")]
   public string deployedCableLengthMenuInfo = "";
   #endregion
 
@@ -603,6 +604,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region PartModule overrides
   /// <inheritdoc/>
+  //FIXME deal with link kerbal going IVA
   public override void OnAwake() {
     base.OnAwake();
     LoadUIControlsCache();
@@ -727,7 +729,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
-    //TODO: Move to the state preview handler.
     headDeployStateMenuInfo = WinchStatesMsgLookup.Lookup(winchState);
     deployedCableLengthMenuInfo = DistanceType.Format(maxAllowedCableLength);
     // Keep the visibility states so that the context menu is not "jumping" when the state is
