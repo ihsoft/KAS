@@ -320,13 +320,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "Status field to display the current winch status in the context menu.")]
   public string headDeployStateMenuInfo = "";
 
-  /// <summary>
-  /// Presents the real cable length that connects the winch and the head in the context menu.
-  /// </summary>
-  /// <seealso cref="realHeadDistance"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Actual lenght", guiActive = true, guiFormat = "F2", guiUnits = "m")]
-  public float cableLengthMenuInfo = 0.0f;
+  //FIXME: try adding actions.
 
   /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="maxAllowedCableLength"/>
@@ -707,7 +701,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       // Apply to the head the same forces as are affecting the part.
       headModelObj.GetComponent<Rigidbody>()
           .AddForce(vessel.precalc.integrationAccel, ForceMode.Acceleration);
-      UpdateContextMenu();  // The real cable length may have changed.
     }
   }
   #endregion
@@ -736,7 +729,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void UpdateContextMenu() {
     //TODO: Move to the state preview handler.
     headDeployStateMenuInfo = WinchStatesMsgLookup.Lookup(winchState);
-    cableLengthMenuInfo = DistanceType.Format(realHeadDistance);
     deployedCableLengthMenuInfo = DistanceType.Format(maxAllowedCableLength);
     // Keep the visibility states so that the context menu is not "jumping" when the state is
     // changed. In general, if a menu item disappears then another one should show up. 
