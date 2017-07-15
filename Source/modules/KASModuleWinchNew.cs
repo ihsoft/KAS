@@ -611,7 +611,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    LocalizationLoader.LoadItemsInModule(this);
     LoadUIControlsCache();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
