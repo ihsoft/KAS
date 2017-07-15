@@ -1,5 +1,5 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v5, 06.20.2017 -->
+<!-- v6, 07.14.2017 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -17,6 +17,9 @@
 </item>
 <item name="T:KSPDev.GUIUtils.EnumType_1">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_EnumType_1.htm">KSPDev Utils: GUIUtils.EnumType&lt;T&gt;</seealso>
+</item>
+<item name="T:KSPDev.GUIUtils.PercentType">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_PercentType.htm">KSPDev Utils: GUIUtils.EnumType&lt;T&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.ForceType">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_ForceType.htm">KSPDev Utils: GUIUtils.ForceType</seealso>
