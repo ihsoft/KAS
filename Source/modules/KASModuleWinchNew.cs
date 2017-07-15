@@ -11,6 +11,7 @@ using KSPDev.SoundsUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KSPDev.LogUtils;
@@ -39,19 +40,51 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
+// Next localization ID: #kasLOC_08020.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IsPhysicalObject {
 
-  #region Localizable UI strings  
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<EnumType<WinchState>> WinchStatesMsg =
-      new Message<EnumType<WinchState>>(
-          "#kasLOC_08001",
-          defaultTemplate: "<<1[Head is locked/Idle/Extending/Retracting]>>",
-          description: "Info string in the part's context menu for the winch state."
-          + "\nArgument <<1>> is an int value of one of the FOUR states.",
-          example: "Head is locked");
+  #region Localizable UI strings
+
+  #region WinchState enum values
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message WinchStateMsg_HeadLocked = new Message(
+      "#kasLOC_08001",
+      defaultTemplate: "Head is locked",
+      description: "A string in the context menu that tells that the winch head is rigidly attached"
+      + " to the and is not movable.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message WinchStateMsg_HeadDeployed = new Message(
+      "#kasLOC_08017",
+      defaultTemplate: "Idle",
+      description: "A string in the context menu that tells that the winch head is deployed and"
+      + " attached to the winch via a cable.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message WinchStateMsg_CableExtending = new Message(
+      "#kasLOC_08018",
+      defaultTemplate: "Extending",
+      description: "A string in the context menu that tells that the winch head is deployed and"
+      + " the cable is being extended.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message WinchStateMsg_CableRetracting = new Message(
+      "#kasLOC_08019",
+      defaultTemplate: "Retracting",
+      description: "A string in the context menu that tells that the winch head is deployed and"
+      + " the cable size being retracted.");
+  #endregion
+
+  /// <summary>Translates <see cref="WinchState"/> enum into a localized message.</summary>
+  protected static readonly MessageLookup<WinchState> WinchStatesMsgLookup =
+      new MessageLookup<WinchState>(new Dictionary<WinchState, Message>() {
+          {WinchState.HeadLocked, WinchStateMsg_HeadLocked},
+          {WinchState.HeadDeployed, WinchStateMsg_HeadDeployed},
+          {WinchState.CableExtending, WinchStateMsg_CableExtending},
+          {WinchState.CableRetracting, WinchStateMsg_CableRetracting},
+      });
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message NoEnergyMsg = new Message(
@@ -703,7 +736,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
     //TODO: Move to the state preview handler.
-    headDeployStateMenuInfo = WinchStatesMsg.Format(winchState);
+    headDeployStateMenuInfo = WinchStatesMsgLookup.Lookup(winchState);
     cableLengthMenuInfo = DistanceType.Format(realHeadDistance);
     deployedCableLengthMenuInfo = DistanceType.Format(maxAllowedCableLength);
     // Keep the visibility states so that the context menu is not "jumping" when the state is
