@@ -433,15 +433,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (FlightGlobals.ActiveVessel.isEVA && winchState == WinchState.HeadLocked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => t.linkSource == null && t.cfgLinkType == cfgLinkType);
-      linkMode = LinkMode.TiePartsOnDifferentVessels;
-      if (kerbalTarget != null && StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
-        LinkToTarget(kerbalTarget);
-        UISoundPlayer.instance.Play(sndPathGrabLock);
-        HostedDebugLog.Info(
-            this, "{0} has grabbed the winch head", FlightGlobals.ActiveVessel.vesselName);
-      } else {
+      if (kerbalTarget == null) {
         HostedDebugLog.Error(
             this, "{0} cannot grab the winch head", FlightGlobals.ActiveVessel.vesselName);
+        return;
+      }
+      linkMode = LinkMode.TiePartsOnDifferentVessels;
+      if (StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
+        if (!LinkToTarget(kerbalTarget)) {
+          CancelLinking(LinkActorType.API);
+          //TODO(ihsoft): Play "bip worng" sound.
+          HostedDebugLog.Error(this, "Cannot link the winch head to kerbal {0}",
+                               FlightGlobals.ActiveVessel.vesselName);
+        }
       }
     }
   }
@@ -712,6 +716,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
     UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
+  protected override void LogicalLink(ILinkTarget target) {
+    base.LogicalLink(target);
+    if (guiLinkMode != GUILinkMode.API) {
+      UISoundPlayer.instance.Play(sndPathGrabLock);
+    }
+    HostedDebugLog.Info(this, "{0} has grabbed the winch head", target.part.vessel.vesselName);
   }
 
   /// <inheritdoc/>
