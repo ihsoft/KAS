@@ -190,7 +190,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public float headMass = 0.01f;
 
-  /// <summary>Object that is used to align the cable head against the target part.</summary>
+  /// <summary>
+  /// Name of the object that is used to align the cable head against the target part.
+  /// </summary>
   /// <remarks>
   /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
   /// path. The path is looked starting from the head model.
@@ -215,7 +217,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public string headPartAttachAtPosAndRot = "";
 
-  /// <summary>Object that is used to align the cable mesh to the cable head.</summary>
+  /// <summary>Name of the object that is used to align the cable mesh to the cable head.</summary>
   /// <remarks>
   /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
   /// path. The path is looked starting from the head model.
@@ -442,7 +444,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
         if (!LinkToTarget(kerbalTarget)) {
           CancelLinking(LinkActorType.API);
-          //TODO(ihsoft): Play "bip worng" sound.
           HostedDebugLog.Error(this, "Cannot link the winch head to kerbal {0}",
                                FlightGlobals.ActiveVessel.vesselName);
         }
@@ -680,7 +681,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.OnLoad(node);
     if (headMass > part.mass) {
       HostedDebugLog.Error(
-          this, "Head mass is greater that the part's mass: {0} > {1}", headMass, part.mass);
+          this, "Head mass is greater than the part's mass: {0} > {1}", headMass, part.mass);
       headMass = 0.1f * part.mass;  // A fail safe value. 
     }
     LoadOrCreateHeadModel();
@@ -978,11 +979,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Intializes the head model object and its anchors.</summary>
   /// <remarks>
   /// <para>
-  /// If the head model is not found than a stub object will be created. There will be no visual
+  /// If the head model is not found then a stub object will be created. There will be no visual
   /// representation but the overall functionality of the winch should keep working.
   /// </para>
   /// <para>
-  /// If the head doesn't have the anchors then the missed onces will be created basing on the
+  /// If the head doesn't have the anchors then the missed ones will be created basing on the
   /// provided position/rotation. If the config file doesn't provide anything then the anchors will
   /// have a zero position and a random rotation.
   /// </para>
@@ -992,7 +993,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (headModelObj != null) {
       headCableAnchor = Hierarchy.FindTransformByPath(headModelObj, headCableAttachAt);
       if (headCableAnchor == null) {
-        HostedDebugLog.Info(this, "Creating cable transform");
+        HostedDebugLog.Info(this, "Creating head's cable transform");
         headCableAnchor = new GameObject(headCableAttachAt).transform;
         var posAndRot = PosAndRot.FromString(headCableAttachAtPosAndRot);
         Hierarchy.MoveToParent(headCableAnchor, headModelObj,
@@ -1000,7 +1001,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
       headPartAnchor = Hierarchy.FindTransformByPath(headModelObj, headPartAttachAt);
       if (headPartAnchor == null) {
-        HostedDebugLog.Info(this, "Creating part transform");
+        HostedDebugLog.Info(this, "Creating head's part transform");
         headPartAnchor = new GameObject(headPartAttachAt).transform;
         var posAndRot = PosAndRot.FromString(headPartAttachAtPosAndRot);
         Hierarchy.MoveToParent(headPartAnchor, headModelObj,
@@ -1008,7 +1009,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
     } else {
       HostedDebugLog.Error(this, "Cannot find a head model: {1}", headModel);
-      // Fallback to not have the whole code to crush. 
+      // Fallback to not have the whole code to crash. 
       headModelObj = new GameObject().transform;
       headCableAnchor = headModelObj;
       headPartAnchor = headModelObj;
