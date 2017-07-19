@@ -15,11 +15,11 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Module that controls joint on a KAS part.</summary>
+/// <summary>Module that controls a physical joint on a KAS part.</summary>
 /// <remarks>
-/// This module reacts on KAS initated events to created/remove a physical joint between soucre and
-/// target. This module only deals with joining two parts together. It does not deal with
-/// collider(s) or rigid body masses (see <see cref="ILinkRenderer"/>).
+/// This module reacts on the KAS initated events to create/remove a physical joint between the
+/// source and target. This module only deals with the joining of two parts together. It does not
+/// deal with the collider(s) (see <see cref="ILinkRenderer"/>).
 /// </remarks>
 public abstract class AbstractJointModule : PartModule,
     // KSP interfaces.

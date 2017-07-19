@@ -52,12 +52,13 @@ public interface ILinkJoint {
   /// If parts are docked then there is a <c>attachJoint</c> created by the KSP core for the source
   /// part. The implementation must either adjust it or drop it altogether.
   /// <para>
-  /// <paramref name="source"/> and <paramref name="target"/> may be not linked at this moment.
-  /// Do <b>not</b> expect them to be aware about each other.
+  /// The <paramref name="source"/> and <paramref name="target"/> may <i>not</i> be linked at the
+  /// moment of this method call. Do not expect them to be aware about each other. However, it's OK
+  /// to expect that these modules have fully loaded their state.
   /// </para>
   /// </remarks>
-  /// <param name="source">Link source. This part owns the joint.</param>
-  /// <param name="target">Link target.</param>
+  /// <param name="source">The link's source. This part owns the joint module.</param>
+  /// <param name="target">The link's target.</param>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
   /// KSP: PartJoint</seealso>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html">
@@ -67,7 +68,7 @@ public interface ILinkJoint {
   /// <summary>Destroys a physical link between source and target.</summary>
   /// <remarks>
   /// This is a cleanup method. It must be safe to execute in any joint state, and should not throw
-  /// any errors. E.g. it may get called when part's state is incomplete.
+  /// any errors. E.g. it may get called when the part's state is incomplete.
   /// </remarks>
   void DropJoint();
 

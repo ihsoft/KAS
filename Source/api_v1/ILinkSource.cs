@@ -117,13 +117,13 @@ public interface ILinkSource {
 
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>
-  /// <remarks>Only defined for an established link.</remarks>
+  /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   ILinkTarget linkTarget { get; }
 
   /// <summary>ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
-  /// <remarks>It only makes sense when the link is connected to the target.</remarks>
+  /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   uint linkTargetPartId { get; }
 

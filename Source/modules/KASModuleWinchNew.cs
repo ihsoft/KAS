@@ -1014,8 +1014,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       headCableAnchor = headModelObj;
       headPartAnchor = headModelObj;
     }
-
-    // Ensure the head is aligned as we expect it to be.    
+    // Ensure the head is aligned as we expect it to be. 
     AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
   }
   #endregion
