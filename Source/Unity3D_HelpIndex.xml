@@ -1,10 +1,19 @@
-<!-- Index file for Unity3D methods help -->
-<!-- v4, 07.20.2017 -->
+<!--
+  Index file for the Unity3D methods help.
+  See: https://github.com/ihsoft/KSPHelpIndex
+  Version: v6, 07.21.2017
+ -->
 <index>
 
 <!--************ TYPES ************-->
+<item name="T:UnityEngine.GameObject">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">Untiy3D: GameObject</seealso>
+</item>
 <item name="T:UnityEngine.Renderer">
   <seealso href="https://docs.unity3d.com/ScriptReference/Renderer.html">Untiy3D: Renderer</seealso>
+</item>
+<item name="T:UnityEngine.Rigidbody">
+  <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
 </item>
 <item name="T:UnityEngine.Transform">
   <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
@@ -12,8 +21,20 @@
 <item name="T:UnityEngine.Vector3">
   <seealso href="https://docs.unity3d.com/ScriptReference/Vector3.html">Untiy3D: Vector3</seealso>
 </item>
-<item name="T:UnityEngine.Rigidbody">
-  <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
+
+
+<!--************ MEMBERS ************-->
+<item name="T:UnityEngine.GUI.backgroundColor">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GUI-backgroundColor.html">Untiy3D: GUI.backgroundColor</seealso>
+</item>
+<item name="T:UnityEngine.GUI.color">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GUI-color.html">Untiy3D: GUI.color</seealso>
+</item>
+<item name="T:UnityEngine.GUI.contentColor">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GUI-contentColor.html">Untiy3D: GUI.contentColor</seealso>
+</item>
+<item name="T:UnityEngine.GUI.DragWindow">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GUI.DragWindow.html">Untiy3D: GUI.DragWindow</seealso>
 </item>
 
 </index>
