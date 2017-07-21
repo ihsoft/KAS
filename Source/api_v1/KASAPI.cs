@@ -31,6 +31,9 @@ public static class KASAPI {
 
   /// <summary>KAS link utils.</summary>
   public static ILinkUtils LinkUtils;
+
+  /// <summary>KAS physics utils.</summary>
+  public static IPhysicsUtils PhysicsUtils;
 }
 
 }  // namespace
