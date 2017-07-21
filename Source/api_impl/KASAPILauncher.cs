@@ -3,20 +3,24 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
+using KSPDev.FSUtils;
 using UnityEngine;
 
 namespace KASAPIv1 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
 class KASAPILauncher : MonoBehaviour {
-  public static void LoadApi() {
+  void LoadApi() {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();
       KASAPI.AttachNodesUtils = new KASImpl.AttachNodesUtilsImpl();
       KASAPI.LinkUtils = new KASImpl.LinkUtilsImpl();
       KASAPI.isLoaded = true;
-      Debug.LogWarning("KAS API v1 LOADED");
+
+      var assembly = GetType().Assembly;
+      Debug.LogWarningFormat("Loading KAS API v1 from: {0} (v{1})",
+                             KspPaths.MakeRelativePathToGameData(assembly.Location),
+                             assembly.GetName().Version);
     }
   }
   
