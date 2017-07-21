@@ -1,5 +1,5 @@
 <!-- Index file for Unity3D methods help -->
-<!-- v3, 05.24.2017 -->
+<!-- v4, 07.20.2017 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -11,6 +11,9 @@
 </item>
 <item name="T:UnityEngine.Vector3">
   <seealso href="https://docs.unity3d.com/ScriptReference/Vector3.html">Untiy3D: Vector3</seealso>
+</item>
+<item name="T:UnityEngine.Rigidbody">
+  <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
 </item>
 
 </index>
