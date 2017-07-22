@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv1;
 using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
@@ -35,9 +36,9 @@ public class KASModuleStockJoint :
   #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    // It's not absolutely required since part will get decoupled anyways, but a pro-active link
-    // break allows specifying the right actor.
-    linkSource.BreakCurrentLink(KASAPIv1.LinkActorType.Physics);
+    linkSource.BreakCurrentLink(
+        LinkActorType.Physics,
+        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
   }
   #endregion
 }
