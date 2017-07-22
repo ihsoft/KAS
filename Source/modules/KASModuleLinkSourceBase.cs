@@ -12,6 +12,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.ModelUtils;
 using KSPDev.LogUtils;
+using KSPDev.Types;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 
@@ -187,6 +188,11 @@ public class KASModuleLinkSourceBase : PartModule,
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
+  public PosAndRot physicalAnchor {
+    get { return PosAndRot.FromString(physicalAnchorAtSourcePosAndRot); }
+  }
+
+  /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
 
   /// <inheritdoc/>
@@ -194,6 +200,11 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public LinkActorType linkActor { get; private set; }
+
+  /// <inheritdoc/>
+  public PosAndRot targetPhysicalAnchor {
+    get { return PosAndRot.FromString(physicalAnchorAtTargetPosAndRot); }
+  }
   #endregion
 
   #region Persistent fields
@@ -248,6 +259,18 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
+
+  /// <summary>See <see cref="physicalAnchor"/>.</summary>
+  /// <remarks>The value is a serialized <see cref="PosAndRot"/> instance.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string physicalAnchorAtSourcePosAndRot = new PosAndRot().SerializeToString();
+
+  /// <summary>See <see cref="targetPhysicalAnchor"/>.</summary>
+  /// <remarks>The value is a serialized <see cref="PosAndRot"/> instance.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string physicalAnchorAtTargetPosAndRot = new PosAndRot().SerializeToString();
   #endregion
 
   #region Inheritable properties

@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.Types;
 using System;
 using UnityEngine;
 
@@ -70,6 +71,16 @@ public interface ILinkTarget {
   /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
+
+  /// <summary>Position and rotation offsets of the physical joint anchor at the target.</summary>
+  /// <remarks>
+  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
+  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// </remarks>
+  /// <value>
+  /// The position/rotation in the local space of the target's <see cref="nodeTransform"/>.
+  /// </value>
+  PosAndRot physicalAnchor { get; }
 
   /// <summary>Source that maintains the link.</summary>
   /// <value>Source or <c>null</c> if nothing is linked.</value>

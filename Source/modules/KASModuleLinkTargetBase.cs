@@ -6,10 +6,11 @@
 using System;
 using System.Text;
 using KASAPIv1;
-using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
-using KSPDev.ModelUtils;
+using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
+using KSPDev.Types;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -66,9 +67,18 @@ public class KASModuleLinkTargetBase :
       if (_linkSource != value) {
         var oldSource = _linkSource;
         _linkSource = value;
-        persistedLinkSourcePartId = value != null ? value.part.flightID : 0;
-        persistedLinkMode = value != null ? value.cfgLinkMode : LinkMode.DockVessels;
-        linkState = value != null ? LinkState.Linked : LinkState.Available;
+        if (value != null) {
+          persistedLinkSourcePartId = value.part.flightID;
+          persistedLinkMode = value.cfgLinkMode;
+          physicalAnchor = value.targetPhysicalAnchor.Clone();
+          linkState = LinkState.Linked;
+        } else {
+          persistedLinkSourcePartId = 0;
+          persistedLinkMode = LinkMode.DockVessels;  // Simply a default value.
+          physicalAnchor = new PosAndRot();
+          linkState = LinkState.Available;
+        }
+        persistedPhysicalAnchor = physicalAnchor.SerializeToString();
         TriggerSourceChangeEvents(oldSource);
       }
     }
@@ -83,7 +93,7 @@ public class KASModuleLinkTargetBase :
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
+    private set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -103,6 +113,13 @@ public class KASModuleLinkTargetBase :
 
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
+
+  /// <inheritdoc/>
+  public PosAndRot physicalAnchor {
+    get { return _physicalAnchor; }
+    private set { _physicalAnchor = value; }
+  }
+  PosAndRot _physicalAnchor = new PosAndRot();
 
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
@@ -126,6 +143,11 @@ public class KASModuleLinkTargetBase :
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkMode persistedLinkMode = LinkMode.DockVessels;
+
+  /// <summary>Physical anchor relative to the node trasfrom.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public string persistedPhysicalAnchor = "";
   #endregion
 
   #region Part's config fields
@@ -385,8 +407,10 @@ public class KASModuleLinkTargetBase :
           persistedLinkSourcePartId, attachNodeName);
       persistedLinkSourcePartId = 0;
       persistedLinkMode = LinkMode.DockVessels;
+      persistedPhysicalAnchor = new PosAndRot().SerializeToString();
       startState = LinkState.Available;
     }
+    physicalAnchor = PosAndRot.FromString(persistedPhysicalAnchor);
     linkStateMachine.currentState = startState;
     linkState = linkState;  // Trigger state updates.
   }

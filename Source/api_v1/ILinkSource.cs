@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.Types;
 using System;
 using UnityEngine;
 
@@ -114,6 +115,16 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   // TODO(ihsoft): Add example from a joint module.
   Transform nodeTransform { get; }
+
+  /// <summary>Position and rotation offsets of the physical joint anchor at the source.</summary>
+  /// <remarks>
+  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
+  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// </remarks>
+  /// <value>
+  /// The position/rotation in the local space of the source's <see cref="nodeTransform"/>.
+  /// </value>
+  PosAndRot physicalAnchor { get; }
 
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>
@@ -227,6 +238,22 @@ public interface ILinkSource {
   /// <seealso cref="linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   LinkActorType linkActor { get; }
+
+  /// <summary>Position and rotation offsets of the physical joint anchor at the target.</summary>
+  /// <remarks>
+  /// <para>
+  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
+  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// </para>
+  /// <para>
+  /// It only makes sense when the state is <seealso cref="LinkState.Linking"/>. Once the link is
+  /// established, the target is responsible to report the correct anchor.
+  /// </para>
+  /// </remarks>
+  /// <value>
+  /// The position/rotation in the local space of the target's <see cref="nodeTransform"/>.
+  /// </value>
+  PosAndRot targetPhysicalAnchor { get; }
 
   /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
