@@ -309,6 +309,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sndPathGrabLock = "";
+
+  /// <summary>URL of the sound for the cable emergency deatch event (link broken).</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathBroke = "";
   #endregion
 
   #region The context menu fields
@@ -730,12 +735,24 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  protected override void LogicalLink(ILinkTarget target) {
-    base.LogicalLink(target);
-    if (guiLinkMode != GUILinkMode.API) {
+  public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
+    base.OnKASLinkCreatedEvent(info);
+    if (info.actor == LinkActorType.Player) {
       UISoundPlayer.instance.Play(sndPathGrabLock);
+      HostedDebugLog.Info(this, "{0} has grabbed the winch head",
+                          info.target.part.vessel.vesselName);
+    } else if (info.actor == LinkActorType.API) {
+      HostedDebugLog.Info(this, "Winch has linked to {0}", info.target.part.vessel.vesselName);
     }
-    HostedDebugLog.Info(this, "{0} has grabbed the winch head", target.part.vessel.vesselName);
+  }
+
+  /// <inheritdoc/>
+  public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
+    base.OnKASLinkBrokenEvent(info);
+    if (info.actor == LinkActorType.Physics) {
+      UISoundPlayer.instance.Play(sndPathBroke);
+    }
+    HostedDebugLog.Info(this, "Winch has unlinked from {0}", info.target.part.vessel.vesselName);
   }
 
   /// <inheritdoc/>
