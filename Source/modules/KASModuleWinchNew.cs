@@ -599,6 +599,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <seealso cref="WinchState"/>
   /// <seealso cref="headRb"/>
   protected Transform headModelObj { get; private set; }
+
+  /// <summary>Rigidbody of the deployed head.</summary>
+  /// <remarks>The <see cref="WinchState.HeadLocked">locked</see> head has no rigid body. When it's
+  /// unlocked but not linked it's an independed physical object which is affected by the celestial
+  /// body gravity force and the atmospheric drag.
+  /// </remarks>
+  /// <value>The head's <see cref="Rigidbody"/>.</value>
+  /// <seealso cref="WinchState"/>
+  /// <seealso cref="headModelObj"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
+  protected Rigidbody headRb { get; private set; }
   #endregion
 
   #region Local properties and fields
@@ -719,10 +730,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (CheckIfDrainsElectricity()) {
       UpdateMotor();
     }
-    if (winchState != WinchState.HeadLocked) {
-      // Apply to the head the same forces as are affecting the part.
-      headModelObj.GetComponent<Rigidbody>()
-          .AddForce(vessel.precalc.integrationAccel, ForceMode.Acceleration);
+    if (headRb != null) {
+      //FIXME: update the stretch to cable
+      KASAPI.PhysicsUtils.ApplyGravity(headRb, part.vessel);
     }
   }
   #endregion
@@ -954,10 +964,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void DeployCableHead() {
     headModelObj.parent = headModelObj;
     //TODO(ihsoft): Make a KAS shared method.
-    var headRb = headModelObj.gameObject.AddComponent<Rigidbody>();
+    headRb = headModelObj.gameObject.AddComponent<Rigidbody>();
     headRb.useGravity = false;
     headRb.velocity = part.rb.velocity;
     headRb.angularVelocity = part.rb.angularVelocity;
+    headRb.ResetInertiaTensor();
+    headRb.ResetCenterOfMass();
     headRb.mass = headMass;
     part.mass -= headRb.mass;
     part.rb.mass -= headRb.mass;
@@ -984,13 +996,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Turns a physical head back into a physicsless mesh within the part's model.</summary>
   void LockCableHead() {
     // Turn the head into a physicsless object.
-    var headRb = headModelObj.gameObject.GetComponent<Rigidbody>();
     part.mass += headRb.mass;
     part.rb.mass += headRb.mass;
     // We want the immediate destruction to not get affected by the physics left-offs.
     UnityEngine.Object.DestroyImmediate(cableJoint);
-    UnityEngine.Object.DestroyImmediate(headRb);
     cableJoint = null;
+    UnityEngine.Object.DestroyImmediate(headRb);
+    headRb = null;
 
     // Bring the head back into the part's model.
     headModelObj.parent = Hierarchy.GetPartModelTransform(part);
