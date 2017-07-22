@@ -515,7 +515,7 @@ public class KASModuleLinkSourceBase : PartModule,
     LogicalUnlink(actorType);
     PhysicalUnink(oldTarget);
     // If either source or target part after the separation belong to the active vessel then adjust
-    // the focus. Otherwise, actor was external (e.g. EVA).
+    // the focus. Otherwise, the actor was external (e.g. EVA).
     if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
       FlightGlobals.ForceSetActiveVessel(targetRootPart.vessel);
     } else if (!moveFocusOnTarget && FlightGlobals.ActiveVessel == targetRootPart.vessel) {

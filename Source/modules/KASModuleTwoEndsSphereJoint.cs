@@ -186,7 +186,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   #endregion
 
   #region Inheritable static methods
-  /// <summary>Sets up a rigidbody so what it has little or none physics effect.</summary>
+  /// <summary>Sets up a rigidbody so that it has little or none physics effect.</summary>
   /// <param name="targetRb">The rigidbody to adjust.</param>
   /// <param name="refRb">The rigidbody to get copy physics from.</param>
   protected static void SetupNegligibleRb(Rigidbody targetRb, Rigidbody refRb) {

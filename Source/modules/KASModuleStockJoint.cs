@@ -11,9 +11,9 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>
-/// Module that offers normal KAS joint logic basing on joint created by KSP. The joint is not
-/// modified in any way, and it behavior is very similar to the behavior of a regular joint that
-/// normally connects two parts together.
+/// Module that offers normal KAS joint logic basing on the joint created by KSP. The joint is not
+/// modified in any way, and its behavior is very similar to the behavior of a regular joint that
+/// would normally connect two parts together.
 /// </summary>
 public class KASModuleStockJoint :
     // KAS parents.

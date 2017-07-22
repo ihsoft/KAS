@@ -525,7 +525,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         UpdateContextMenu();
       } else {
         HostedDebugLog.Error(
-            this, "Setting of the cable length length to {0} on a non-existing joint object");
+            this, "Setting the cable length to {0} on a non-existing joint object", value);
       }
     }
   }

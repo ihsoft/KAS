@@ -275,8 +275,8 @@ public interface ILinkSource {
   /// <summary>Breaks the link between the source and target.</summary>
   /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
   /// <param name="actorType">
-  /// Specifies what initiates the action. Final result of the action doesn't depend on it but
-  /// visual and sound representation may differ for different actors.
+  /// Specifies what initiates the action. The final result of the action doesn't depend on it but
+  /// visual and sound representation may differ for the different actors.
   /// </param>
   /// <param name="moveFocusOnTarget">
   /// If <c>true</c> then upon decoupling current vessel focus will be set on the vessel that owns

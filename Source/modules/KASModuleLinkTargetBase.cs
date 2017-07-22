@@ -372,7 +372,7 @@ public class KASModuleLinkTargetBase :
 
   /// <summary>Finds linked source for the target, and updates the state.</summary>
   /// <remarks>
-  /// Depending on link mode this method may be called synchronously when part is started or
+  /// Depending on the link mode this method may be called synchronously when the part is started or
   /// asynchronously at the end of frame.
   /// </remarks>
   /// <seealso cref="persistedLinkMode"/>
