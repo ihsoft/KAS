@@ -80,22 +80,37 @@ public interface ILinkJoint {
   /// <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
   void AdjustJoint(bool isUnbreakable = false);
 
-  /// <summary>Checks if link length is within the limits.</summary>
-  /// <param name="source">Source that probes the link.</param>
-  /// <param name="targetTransform">Target of the link to check the length of.</param>
+  /// <summary>Checks if the link's length is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the angle against.</param>
   /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
   string CheckLengthLimit(ILinkSource source, Transform targetTransform);
 
-  /// <summary>Checks if link angle at the source joint is within the limits.</summary>
-  /// <param name="source">Source that probes the link.</param>
-  /// <param name="targetTransform">Target of the link to check the angle against.</param>
+  /// <summary>Checks if the link's angle at the source joint is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the angle against.</param>
   /// <returns>An error message if angle is over limit or <c>null</c> otherwise.</returns>
   string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform);
 
-  /// <summary>Checks if link angle at the target joint is within the limits.</summary>
-  /// <param name="source">Source that probes the link.</param>
-  /// <param name="targetTransform">Target of the link to check the angle against.</param>
-  /// <returns>An error message if angle is over limit or <c>null</c> otherwise.</returns>
+  /// <summary>Checks if the link's angle at the target joint is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <returns>An error message if the angle is over limit or <c>null</c> otherwise.</returns>
   string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform);
 }
 
