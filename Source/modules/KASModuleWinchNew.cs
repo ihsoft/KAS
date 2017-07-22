@@ -585,6 +585,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected BaseEvent uiInstantStretchEvent { get; private set; }
   #endregion
 
+  #region Inheritable fileds and properties
+  /// <summary>Winch head model transformation object.</summary>
+  /// <remarks>
+  /// Depending on the current state this model can be a child to the part's model or a standalone
+  /// object.
+  /// </remarks>
+  /// <seealso cref="WinchState"/>
+  /// <seealso cref="headRb"/>
+  protected Transform headModelObj { get; private set; }
+  #endregion
+
   #region Local properties and fields
   /// <summary>State machine that defines and controls the winch state.</summary>
   /// <remarks>
@@ -595,7 +606,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   //FIXME: add comments to each field.
   SpringJoint cableJoint;
-  Transform headModelObj;
   Transform headCableAnchor;
   Transform headPartAnchor;
   float motorCurrentSpeed;
