@@ -4,12 +4,10 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KSPDev.Extensions;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
-using KSPDev.Types;
 using System;
 using System.Linq;
 using System.Text;
@@ -292,8 +290,8 @@ public abstract class AbstractJointModule : PartModule,
       part.attachJoint = null;
     }
     originalLength = Vector3.Distance(
-        source.nodeTransform.TransformPosAndRot(source.physicalAnchor).pos,
-        target.nodeTransform.TransformPosAndRot(target.physicalAnchor).pos);
+        source.nodeTransform.TransformPoint(source.physicalAnchor),
+        target.nodeTransform.TransformPoint(target.physicalAnchor));
     isLinked = true;
   }
 
@@ -311,8 +309,8 @@ public abstract class AbstractJointModule : PartModule,
   /// <inheritdoc/>
   public virtual string CheckLengthLimit(ILinkSource source, Transform targetNodeTransform) {
     var length = Vector3.Distance(
-        source.nodeTransform.TransformPoint(source.physicalAnchor.pos),
-        targetNodeTransform.TransformPoint(source.targetPhysicalAnchor.pos));
+        source.nodeTransform.TransformPoint(source.physicalAnchor),
+        targetNodeTransform.TransformPoint(source.targetPhysicalAnchor));
     if (maxLinkLength > 0 && length > maxLinkLength) {
       return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
     }
@@ -324,10 +322,8 @@ public abstract class AbstractJointModule : PartModule,
 
   /// <inheritdoc/>
   public virtual string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
-    var sourcePar = source.nodeTransform.TransformPosAndRot(source.physicalAnchor);
-    var targetPar = targetTransform.TransformPosAndRot(source.targetPhysicalAnchor);
-    var linkVector = targetPar.pos - sourcePar.pos;
-    var angle = Vector3.Angle(sourcePar.rot * Vector3.forward, linkVector);
+    var linkVector = targetTransform.position - source.nodeTransform.position;
+    var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
     return sourceLinkAngleLimit > 0 && angle > sourceLinkAngleLimit
         ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
         : null;
@@ -335,10 +331,8 @@ public abstract class AbstractJointModule : PartModule,
 
   /// <inheritdoc/>
   public virtual string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
-    var sourcePar = source.nodeTransform.TransformPosAndRot(source.physicalAnchor);
-    var targetPar = targetTransform.TransformPosAndRot(source.targetPhysicalAnchor);
-    var linkVector = sourcePar.pos - targetPar.pos;
-    var angle = Vector3.Angle(targetPar.rot * Vector3.forward, linkVector);
+    var linkVector = source.nodeTransform.position - targetTransform.position;
+    var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
     return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
         ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
         : null;

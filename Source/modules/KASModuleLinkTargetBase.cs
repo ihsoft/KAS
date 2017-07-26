@@ -10,7 +10,6 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
-using KSPDev.Types;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -70,15 +69,15 @@ public class KASModuleLinkTargetBase :
         if (value != null) {
           persistedLinkSourcePartId = value.part.flightID;
           persistedLinkMode = value.cfgLinkMode;
-          physicalAnchor = value.targetPhysicalAnchor.Clone();
+          physicalAnchor = value.targetPhysicalAnchor;
           linkState = LinkState.Linked;
         } else {
           persistedLinkSourcePartId = 0;
           persistedLinkMode = LinkMode.DockVessels;  // Simply a default value.
-          physicalAnchor = new PosAndRot();
+          physicalAnchor = Vector3.zero;
           linkState = LinkState.Available;
         }
-        persistedPhysicalAnchor = physicalAnchor.SerializeToString();
+        persistedPhysicalAnchor = physicalAnchor;
         TriggerSourceChangeEvents(oldSource);
       }
     }
@@ -115,11 +114,7 @@ public class KASModuleLinkTargetBase :
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public PosAndRot physicalAnchor {
-    get { return _physicalAnchor; }
-    private set { _physicalAnchor = value; }
-  }
-  PosAndRot _physicalAnchor = new PosAndRot();
+  public Vector3 physicalAnchor { get; private set; }
 
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
@@ -147,7 +142,7 @@ public class KASModuleLinkTargetBase :
   /// <summary>Physical anchor relative to the node trasfrom.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public string persistedPhysicalAnchor = "";
+  public Vector3 persistedPhysicalAnchor;
   #endregion
 
   #region Part's config fields
@@ -407,10 +402,10 @@ public class KASModuleLinkTargetBase :
           persistedLinkSourcePartId, attachNodeName);
       persistedLinkSourcePartId = 0;
       persistedLinkMode = LinkMode.DockVessels;
-      persistedPhysicalAnchor = new PosAndRot().SerializeToString();
+      persistedPhysicalAnchor = Vector3.zero;
       startState = LinkState.Available;
     }
-    physicalAnchor = PosAndRot.FromString(persistedPhysicalAnchor);
+    physicalAnchor = persistedPhysicalAnchor;
     linkStateMachine.currentState = startState;
     linkState = linkState;  // Trigger state updates.
   }
