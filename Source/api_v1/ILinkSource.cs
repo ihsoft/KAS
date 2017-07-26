@@ -298,8 +298,16 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool LinkToTarget(ILinkTarget target);
 
-  /// <summary>Breaks the link between the source and target.</summary>
-  /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
+  /// <summary>Breaks the link between the source and the target.</summary>
+  /// <remarks>
+  /// <para>
+  /// It must not be called from the physics update methods (e.g. <c>FixedUpdate</c> or
+  /// <c>OnJointBreak</c>) since the link's physical objects may be deleted immediately. If the link
+  /// needs to be broken from these methods, use a coroutine to postpone the call till the end of
+  /// the frame.
+  /// </para>
+  /// <para>Does nothing if there is no link but a warning will be logged in this case.</para>
+  /// </remarks>
   /// <param name="actorType">
   /// Specifies what initiates the action. The final result of the action doesn't depend on it but
   /// visual and sound representation may differ for the different actors.
@@ -310,6 +318,9 @@ public interface ILinkSource {
   /// </param>
   /// <seealso cref="LinkToTarget"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.Joint.OnJointBreak']"/>
   void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>

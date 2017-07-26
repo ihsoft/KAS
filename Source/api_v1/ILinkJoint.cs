@@ -10,9 +10,15 @@ namespace KASAPIv1 {
 
 /// <summary>Base interface for a KAS joint.</summary>
 /// <remarks>
+/// <para>
 /// Every KAS part <b>must</b> have a joint module that controls how KAS joints are maintained. If
-/// part doesn't implement any special joint logic then <see cref="KAS.KASModuleStockJoint"/> can be
-/// used.
+/// the part doesn't implement any special joint logic then a <see cref="KAS.KASModuleStockJoint"/>
+/// can be used.
+/// </para>
+/// <para>
+/// This interface is primarily designed for use form the <see cref="ILinkSource"/> implementations.
+/// A third-party code must not interact with it directly.
+/// </para>
 /// </remarks>
 public interface ILinkJoint {
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
@@ -87,7 +93,7 @@ public interface ILinkJoint {
   /// calculations.
   /// </remarks>
   /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <param name="targetTransform">The target of the link to check the length against.</param>
   /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
   string CheckLengthLimit(ILinkSource source, Transform targetTransform);
 
