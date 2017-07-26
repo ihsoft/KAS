@@ -4,13 +4,14 @@
 
 using KASAPIv1;
 using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using KSPDev.ProcessingUtils;
 
 namespace Examples {
 
-public class ILinkSourceExample  {
+public class ILinkSourceExample1  {
 
   #region StateModel
   // Sets up a sample state machine for the source states.
@@ -219,5 +220,22 @@ public class ILinkSourceExample  {
   }
   #endregion
 }
+
+#region ILinkSourceExample_BreakFromPhysyicalMethod
+public class ILinkSourceExample_BreakFromPhysyicalMethod : MonoBehaviour {
+  public ILinkSource linkSource;
+
+  // This method is called by Unity core during the physics update.
+  IEnumerable OnJointBreak(float force) {
+    Debug.LogWarningFormat("Link is broken with force: {0}", force);
+    // Don't break the link from the physics methods! 
+    yield return new WaitForEndOfFrame();
+    // Now it's safe to change the physical objects.
+    if (linkSource != null && linkSource.linkTarget != null) {
+      linkSource.BreakCurrentLink(LinkActorType.Physics);
+    }
+  }
+}
+#endregion
 
 };  // namespace
