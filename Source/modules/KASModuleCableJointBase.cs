@@ -42,11 +42,11 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<ForceType> CableMaxLengthInfo = new Message<ForceType>(
+  protected readonly static Message<DistanceType> CableMaxLengthInfo = new Message<DistanceType>(
       "#kasLOC_09001",
       defaultTemplate: "Cable length: <<1>>",
       description: "Info string in the editor for the maximum cable length setting. The argument is"
-      + " of type ForceDistance.",
+      + " of type DistanceType.",
       example: "Cable length: 12.5 m");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
