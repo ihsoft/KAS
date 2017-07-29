@@ -121,10 +121,6 @@ public class KASModuleCableJointBase : PartModule,
     get {
       var source = headSource ?? linkSource;
       if (cableJointObj != null && source != null) {
-        
-        Debug.LogWarningFormat("*** trace: sourceRb={0}, connectedBody={1}", source.part.rb, cableJointObj.connectedBody);
-        
-        
         return Vector3.Distance(
             source.part.rb.transform.TransformPoint(cableJointObj.anchor),
             cableJointObj.connectedBody.transform.TransformPoint(cableJointObj.connectedAnchor));
@@ -133,10 +129,6 @@ public class KASModuleCableJointBase : PartModule,
     }
   }
   #endregion
-
-  /// <summary>Tells if the physical head is started and active.</summary>
-  /// <value>The status of the physical head.</value>
-  protected bool isHeadStarted { get { return headSource != null; } }
 
   #region Part's config fields
   /// <summary>See <see cref="cfgJointName"/>.</summary>
@@ -177,9 +169,13 @@ public class KASModuleCableJointBase : PartModule,
   /// <summary>Tells if there is a physical joint created.</summary>
   /// <value><c>true</c> if the source and target parts are physically linked.</value>
   protected bool isLinked { get; private set; }
+
+  /// <summary>Tells if the physical head is started and active.</summary>
+  /// <value>The status of the physical head.</value>
+  protected bool isHeadStarted { get { return headSource != null; } }
   #endregion
 
-  #region ILinkCableJoint implementation - FIXME
+  #region ILinkCableJoint implementation
   /// <inheritdoc/>
   public virtual bool CreateJoint(ILinkSource source, ILinkTarget target) {
     var errors = CheckConstraints(source, target.nodeTransform);
