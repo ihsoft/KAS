@@ -272,7 +272,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <summary>Name of the joint to use with this source.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string joinName = "";
+  public string jointName = "";
   #endregion
 
   #region Inheritable properties
@@ -349,7 +349,7 @@ public class KASModuleLinkSourceBase : PartModule,
     base.OnStart(state);
 
     linkJoint = part.FindModulesImplementing<ILinkJointBase>()
-        .FirstOrDefault(x => x.cfgJointName == joinName);
+        .FirstOrDefault(x => x.cfgJointName == jointName);
     if (linkJoint == null) {
       HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
     }
