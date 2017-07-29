@@ -34,9 +34,14 @@ public interface ILinkCableJoint : ILinkJointBase {
   SpringJoint cableJointObj { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
-  /// <value>The rigibody object or <c>null</c> if there is no physical head started.</value>
+  /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   Rigidbody headRb { get; }
+
+  /// <summary>Source that owns the physical head.</summary>
+  /// <value>The source, or <c>null</c> if the head is not started.</value>
+  /// <seealso cref="ILinkSource"/>
+  ILinkSource headSource { get; }
 
   /// <summary>Head's transform at which the cable is attached.</summary>
   /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
