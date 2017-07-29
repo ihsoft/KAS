@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.ProcessingUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -36,9 +37,9 @@ public class KASModuleStockJoint :
   #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    linkSource.BreakCurrentLink(
+    AsyncCall.CallOnEndOfFrame(this, () => linkSource.BreakCurrentLink(
         LinkActorType.Physics,
-        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel));
   }
   #endregion
 }
