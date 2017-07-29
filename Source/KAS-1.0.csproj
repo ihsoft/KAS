@@ -92,7 +92,9 @@
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
     <Compile Include="api_v1\IKasJointEventsListener.cs" />
+    <Compile Include="api_v1\ILinkCableJoint.cs" />
     <Compile Include="api_v1\ILinkJoint.cs" />
+    <Compile Include="api_v1\ILinkJointBase.cs" />
     <Compile Include="api_v1\ILinkRenderer.cs" />
     <Compile Include="api_v1\ILinkSource.cs" />
     <Compile Include="api_v1\ILinkStateEventListener.cs" />
