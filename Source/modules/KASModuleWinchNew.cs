@@ -45,7 +45,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IsPhysicalObject {
 
-  #region Localizable UI strings
+  #region Localizable GUI strings. Next ID=#kasLOC_08012
 
   #region WinchState enum values
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -146,6 +146,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       "#kasLOC_08010",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message CableLinkBrokenMsg = new Message(
+      "#kasLOC_08011",
+      defaultTemplate: "The head is detached due to the cable strength is exceeded",
+      description: "A message to display when a too string force has broke the link between the"
+      + "winch and it's target.");
   #endregion
 
   #region Part's config fields
@@ -397,7 +404,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// locked.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Release cable", guiActive = true)]
+  [KSPEvent(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08013",
       defaultTemplate = "Release cable",
@@ -759,6 +766,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.OnKASLinkBrokenEvent(info);
     if (info.actor == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
+      ScreenMessaging.ShowPriorityScreenMessage(CableLinkBrokenMsg);
     }
     HostedDebugLog.Info(this, "Winch has unlinked from {0}", info.target.part.vessel.vesselName);
   }
