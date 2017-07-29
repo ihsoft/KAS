@@ -87,12 +87,14 @@ public interface ILinkRenderer {
 
   /// <summary>Starts rendering a link between the objects.</summary>
   /// <remarks>
+  /// <para>
   /// This method only indicates that the link is to be drawn between the specified points. The
-  /// renderer is allowed to draw meshes even when not started. E.g. if there are constants parts of
+  /// renderer is allowed to draw meshes even when not started. E.g. if there are constant parts of
   /// the link like the joint pivots.
+  /// </para>
   /// <para>
   /// The ends of the link are not required to be located at the surface of the owning parts. It's
-  /// up to the renderer to decide how to draw the joint.
+  /// up to the renderer to decide how to draw the link.
   /// </para>
   /// <para>
   /// It's OK to call this method multiple times with different or the same source/target arguments:
@@ -101,9 +103,8 @@ public interface ILinkRenderer {
   /// (e.g. on every frame update).
   /// </para>
   /// </remarks>
-  /// <param name="source">Source node.</param>
-  /// <param name="target">Target node.</param>
-  // TODO(ihsoft): Migrate the arguments to ILinkSource & ILinkTarget.
+  /// <param name="source">The source node.</param>
+  /// <param name="target">The target node.</param>
   void StartRenderer(Transform source, Transform target);
 
   /// <summary>Cancells rendering the link.</summary>

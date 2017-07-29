@@ -576,7 +576,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region PartModule overrides
   /// <inheritdoc/>
-  //FIXME deal with link kerbal going IVA
+  //FIXME deal with the link kerbal going IVA
   public override void OnAwake() {
     base.OnAwake();
     LoadUIControlsCache();

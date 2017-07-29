@@ -679,7 +679,6 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <param name="target">The target to break a physical link with.</param>
   /// <see cref="LogicalUnlink"/>
   protected virtual void PhysicalUnink(ILinkTarget target) {
-    // FIXME: restore vessels names/types
     if (linkMode == LinkMode.DockVessels) {
       HostedDebugLog.Info(this, "Undock from vessel: {0}", target.part.vessel);
       // FIXME: restore vessels names/types

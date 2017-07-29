@@ -135,6 +135,7 @@ public interface ILinkSource {
   /// <value>Flight ID.</value>
   /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  /// TODO(ihsoft): Deprecate. One an get the ID from the target part.
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
