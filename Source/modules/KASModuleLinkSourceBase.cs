@@ -709,13 +709,14 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <summary>Finds linked target for the source, and updates the state.</summary>
   /// <remarks>
-  /// Depending on link mode this method may be called synchronously when part is started or
-  /// asynchronously at the end of frame.
+  /// Depending on the link mode, this method may be called either synchronously when the part is
+  /// started, or asynchronously at the end of frame.
   /// </remarks>
   /// <seealso cref="linkMode"/>
   protected virtual void RestoreTarget() {
     linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
     if (linkTarget == null) {
+      // Only report the bad state, it will be fixed in OnPartUnpack.
       HostedDebugLog.Error(
           this, "Source cannot restore link to target part id={0} on the attach node {1}",
           persistedLinkTargetPartId, attachNodeName);

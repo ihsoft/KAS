@@ -12,16 +12,16 @@ namespace KASAPIv1 {
 public interface ILinkUtils {
   /// <summary>Finds linked target given the link source.</summary>
   /// <remarks>
-  /// Any number of targets can be linked on the part but only one is linked with a particular
-  /// source. This method goes over all targets on the target part, and returns the one that is
-  /// linked with the provided source.
+  /// Any number of targets can be linked to the source part but only one can be linked with a
+  /// particular source. This method goes over the all targets on the target part, and returns the
+  /// target that is linked with the provided source.
   /// <para>
-  /// It's discouraged to implement this logic in own code since linking approach may change in the
-  /// future versions.
+  /// It's discouraged to implement this logic in own code since the linking approach may change in
+  /// the future versions.
   /// </para>
   /// </remarks>
-  /// <param name="source">Source to get target for.</param>
-  /// <returns>Target or <c>null</c> if no valid target was found.</returns>
+  /// <param name="source">The source to get the target for.</param>
+  /// <returns>The target or <c>null</c> if no valid target was found.</returns>
   ILinkTarget FindLinkTargetFromSource(ILinkSource source);
 
   /// <summary>Finds linked source given the link target.</summary>

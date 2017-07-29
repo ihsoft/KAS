@@ -203,7 +203,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public string headPartAttachAt = "";
 
-  /// <summary>Position and rotation of the target part-to-head attach point.</summary>
+  /// <summary>Position and rotation of the target head-to-part attach point.</summary>
   /// <remarks>
   /// <para>
   /// The values must be given in the coordinates local to the head. This value will only be used
@@ -326,8 +326,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate = "Winch state",
       description = "Status field to display the current winch status in the context menu.")]
   public string headDeployStateMenuInfo = "";
-
-  //FIXME: try adding actions.
 
   /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="maxAllowedCableLength"/>
@@ -815,7 +813,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region Inheritable utility methods
   /// <summary>Shows a message in GUI if the reporting part belongs to the active vessel.</summary>
   /// <remarks>
-  /// Use this method to a present an update which is only important when the player is in control
+  /// Use this method to present an update which is only important when the player is in control
   /// of the owner vessel. In general, when an update happens on an inactive vessel, the GUI message
   /// will look confusing since the player may not have the context.
   /// </remarks>

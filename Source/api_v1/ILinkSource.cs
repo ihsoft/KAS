@@ -283,17 +283,21 @@ public interface ILinkSource {
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>
   /// <para>
-  /// The source and the target parts become tied with a joint but are not required to be joined
-  /// into a single vessel in terms of the parts hierarchy.
+  /// The <see cref="LinkState.Linking"/> mode must be started for this method to succeed.
+  /// </para>
+  /// <para>
+  /// The source and the target parts become associated with each other. How this link is reflected
+  /// in the game's physics depends on the parts configuration (the modules it defines).
   /// </para>
   /// <para>
   /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
-  /// If the were errorsm they will be reported to the GUI and the link aborted. However, the
+  /// If the were errors, they will be reported to the GUI and the link aborted. However, the
   /// linking mode is only ended in case of the successful linking.
   /// </para>
   /// </remarks>
-  /// <param name="target">Target to link with.</param>
+  /// <param name="target">The target to link with.</param>
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
+  /// <seealso cref="StartLinking"/>
   /// <seealso cref="BreakCurrentLink"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool LinkToTarget(ILinkTarget target);
