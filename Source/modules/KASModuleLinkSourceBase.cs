@@ -538,11 +538,9 @@ public class KASModuleLinkSourceBase : PartModule,
       HostedDebugLog.Warning(this, "Cannot break a link: the part is not linked to anything");
       return;
     }
-    // Logical unlink must be done first before doing actual decouple.
-    var oldTarget = linkTarget;
     var targetRootPart = linkTarget.part;
+    PhysicalUnink(linkTarget);
     LogicalUnlink(actorType);
-    PhysicalUnink(oldTarget);
     // If either source or target part after the separation belong to the active vessel then adjust
     // the focus. Otherwise, the actor was external (e.g. EVA).
     if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
@@ -665,35 +663,34 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Links source and target in the physical world.</summary>
-  /// <remarks>
-  /// Usually linked parts are physically related in the game's world but it's not required. E.g.
-  /// implementation may choose to handle the relation procedurally.
-  /// </remarks>
-  /// <param name="target">Target to physically link with.</param>
+  /// <remarks>It's always called before any logical link updates.</remarks>
+  /// <param name="target">The target to physically link with.</param>
+  /// <see cref="LogicalLink"/>
   protected virtual void PhysicalLink(ILinkTarget target) {
     // FIXME: store source vessel info. needs to be restored on decouple.
     if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Physically linking to {0}", target.part);
+      HostedDebugLog.Info(this, "Dock to vessel: {0}", target.part.vessel);
       KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
     }
   }
 
   /// <summary>Breaks link with the target in the physical world.</summary>
-  /// <param name="target">Target to break physical link with.</param>
+  /// <remarks>It's always called before any logical link updates.</remarks>
+  /// <param name="target">The target to break a physical link with.</param>
+  /// <see cref="LogicalUnlink"/>
   protected virtual void PhysicalUnink(ILinkTarget target) {
     // FIXME: restore vessels names/types
     if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Physically unlinking from {0}", target.part);
+      HostedDebugLog.Info(this, "Undock from vessel: {0}", target.part.vessel);
+      // FIXME: restore vessels names/types
       KASAPI.LinkUtils.DecoupleParts(part, target.part);
+      HostedDebugLog.Info(this, "Undocked as vessel: {0}", part.vessel);
     }
   }
 
   /// <summary>Logically links source and target.</summary>
-  /// <remarks>
-  /// No actual joint or connection is created in the game. Though, this method is always called
-  /// before any physics changes.
-  /// </remarks>
-  /// <param name="target">Target to link with.</param>
+  /// <remarks>It's always called before any physical link updates.</remarks>
+  /// <param name="target">The target to link with.</param>
   /// <seealso cref="PhysicalLink"/>
   protected virtual void LogicalLink(ILinkTarget target) {
     var linkInfo = new KASEvents.LinkEvent(this, target, linkActor);
@@ -706,8 +703,9 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Logically unlinks source and the current target.</summary>
-  /// <remarks>Physics state is undetermined at this moment.</remarks>
-  /// <param name="actorType">Actor who intiated the unlinking.</param>
+  /// <remarks>It's always called before any physical link updates.</remarks>
+  /// <param name="actorType">The actor which has intiated the unlinking.</param>
+  /// <see cref="PhysicalUnink"/>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     if (linkTarget != null) {
