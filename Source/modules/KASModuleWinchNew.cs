@@ -402,7 +402,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// A context menu event that sets the cable length to the current distance to the head.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Instant stretch", guiActive = true)]
+  [KSPEvent(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08014",
       defaultTemplate = "Instant stretch",
@@ -417,7 +417,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Attaches the head to the EVA kerbal.</summary>
   /// <remarks>The active vessel must be a kerbal.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Grab head", guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
   [LocalizableItem(
       tag = "#kasLOC_08015",
       defaultTemplate = "Grab head",
@@ -445,7 +445,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Detaches the head from the kerbal and puts it back to the winch.</summary>
   /// <remarks>The active vessel must be a kerbal holding a headof this winch.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiName = "Lock head", guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
   [LocalizableItem(
       tag = "#kasLOC_08016",
       defaultTemplate = "Lock head",
