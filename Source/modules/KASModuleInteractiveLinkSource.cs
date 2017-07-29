@@ -226,11 +226,11 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
         if (targetCandidate != null) {
           var linkStatusErrors = new[] {
               CheckBasicLinkConditions(targetCandidate),
-              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform),
-              linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform),
-              linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform),
-              linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
-          }.Where(x => x != null).ToArray();
+              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform)
+          };
+          linkStatusErrors = linkStatusErrors
+              .Concat(linkJoint.CheckConstraints(this, targetCandidate.nodeTransform))
+              .Where(x => x != null).ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
             statusScreenMessage.message = CanBeConnectedMsg.Format(

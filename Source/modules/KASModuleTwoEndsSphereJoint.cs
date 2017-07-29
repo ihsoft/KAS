@@ -118,8 +118,10 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   #region ILinkJoint implementation
   /// <inheritdoc/>
   // FIXME(ihsoft): Handle mass!  
-  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    base.CreateJoint(source, target);
+  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
+    if (!base.CreateJoint(source, target)) {
+      return false;
+    }
     DropStockJoint();  // Stock joint is not used.
 
     // Let other mods know if this joint allows parts moving.
@@ -147,6 +149,8 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+
+    return true;
   }
 
   /// <inheritdoc/>

@@ -241,10 +241,13 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    base.CreateJoint(source, target);
+  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
+    if (!base.CreateJoint(source, target)) {
+      return false;
+    }
     SetLockingMode(lockingMode);
     SetActiveSteeringState(activeSteeringEnabled);
+    return true;
   }
 
   /// <inheritdoc/>

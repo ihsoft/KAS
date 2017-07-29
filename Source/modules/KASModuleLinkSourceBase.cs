@@ -268,13 +268,17 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 physicalAnchorAtTarget;
+
+  /// <summary>Name of the joint to use with this source.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string joinName = "";
   #endregion
 
   #region Inheritable properties
   /// <summary>Joint module that manages a physical link.</summary>
   /// <value>The physical joint module on the part.</value>
-  /// <remarks>A part must have exactly one joint module.</remarks>
-  protected ILinkJoint linkJoint { get; private set; }
+  protected ILinkJointBase linkJoint { get; private set; }
 
   /// <summary>Renderer of the link meshes.</summary>
   /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
@@ -344,12 +348,13 @@ public class KASModuleLinkSourceBase : PartModule,
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
 
-    linkJoint = part.FindModuleImplementing<ILinkJoint>();
-    linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
-        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
+    linkJoint = part.FindModulesImplementing<ILinkJointBase>()
+        .FirstOrDefault(x => x.cfgJointName == joinName);
     if (linkJoint == null) {
       HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
     }
+    linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
+        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
     if (linkRenderer == null) {
       HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
     }
@@ -512,6 +517,10 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
+    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
+      HostedDebugLog.Warning(this, "Cannot link in mode: {0}", linkState);
+      return false;
+    }
     if (!CheckCanLinkTo(target)) {
       return false;
     }
@@ -546,25 +555,29 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual bool CheckCanLinkTo(
       ILinkTarget target, bool reportToGUI = false, bool reportToLog = true) {
-    string errorMsg =
-        CheckBasicLinkConditions(target)
-        ?? CheckJointLimits(target.nodeTransform)
-        ?? linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform);
-    if (errorMsg != null) {
+    var errors = new[] {
+        CheckBasicLinkConditions(target),
+        linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform),
+    };
+    errors = errors
+        .Where(x => x != null)
+        .Concat(linkJoint.CheckConstraints(this, target.nodeTransform))
+        .ToArray();
+    if (errors.Length > 0) {
       if (reportToGUI || reportToLog) {
         HostedDebugLog.Warning(
-            this, "Cannot link a part of type={0} with the part {1}/type={2}: {3}",
-            cfgLinkType, target.part, target.cfgLinkType, errorMsg);
+            this, "Cannot link a part of type={0} with: part={1}, type={2}, errors={3}",
+            cfgLinkType, target.part, target.cfgLinkType, DbgFormatter.C2S(errors));
       }
       if (reportToGUI) {
         ScreenMessaging.ShowScreenMessage(
             ScreenMessageStyle.UPPER_CENTER,
             ScreenMessaging.DefaultMessageTimeout,
             ScreenMessaging.ErrorColor,
-            errorMsg);
+            DbgFormatter.C2S(errors, separator: "\n"));
       }
     }
-    return errorMsg == null;
+    return errors.Length == 0;
   }
   #endregion
 
@@ -748,16 +761,6 @@ public class KASModuleLinkSourceBase : PartModule,
       return TargetDoesntAcceptLinksMsg;
     }
     return null;
-  }
-
-  /// <summary>Checks if joint module would allow linking with the specified transform.</summary>
-  /// <param name="targetTransform">Target transform of the link being checked.</param>
-  /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
-  protected string CheckJointLimits(Transform targetTransform) {
-    return
-        linkJoint.CheckLengthLimit(this, targetTransform)
-        ?? linkJoint.CheckAngleLimitAtSource(this, targetTransform)
-        ?? linkJoint.CheckAngleLimitAtTarget(this, targetTransform);
   }
   #endregion
 
