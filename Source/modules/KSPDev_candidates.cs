@@ -3,6 +3,7 @@
 // when new functionality lives here and not in KSPDev.
 
 using KSPDev.Types;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KSPDev.ModelUtils {
@@ -57,6 +58,70 @@ public static class PosAndRotExtensions {
   public static PosAndRot TransformPosAndRot(this Transform node, PosAndRot posAndRot) {
     return new PosAndRot(node.position + node.rotation * posAndRot.pos,
                          (node.rotation * posAndRot.rot).eulerAngles);
+  }
+}
+
+}  // namespace
+
+namespace KSPDev.GUIUtils {
+
+///FIXME: docs
+public sealed class KeyboardEventType {
+  /// <summary>A wrapped event value.</summary>
+  public readonly Event value;
+
+  /// <summary>Constructs an object from an event.</summary>
+  /// <param name="value">The keyboard event.</param>
+  /// <seealso cref="Format"/>
+  //FIXME examples
+  public KeyboardEventType(Event value) {
+    this.value = value;
+  }
+
+  /// <summary>Converts a numeric value into a type object.</summary>
+  /// <param name="value">The event value to convert.</param>
+  /// <returns>An object.</returns>
+  public static implicit operator KeyboardEventType(Event value) {
+    return new KeyboardEventType(value);
+  }
+
+  /// <summary>Converts a type object into an event value.</summary>
+  /// <param name="obj">The object type to convert.</param>
+  /// <returns>A numeric value.</returns>
+  public static implicit operator Event(KeyboardEventType obj) {
+    return obj.value;
+  }
+
+  /// <summary>Formats the value into a human friendly string.</summary>
+  /// <param name="value">The keyboard event value to format.</param>
+  /// <returns>A formatted and localized string</returns>
+  //FIXME: examples
+  public static string Format(Event value) {
+    if (value.type != EventType.KeyDown) {
+      return "<non-keyboard event>";
+    }
+    var parts = new List<string>();
+    if ((value.modifiers & EventModifiers.Control) != 0) {
+      parts.Add("Ctrl");
+    }
+    if ((value.modifiers & EventModifiers.Shift) != 0) {
+      parts.Add("Shift");
+    }
+    if ((value.modifiers & EventModifiers.Alt) != 0) {
+      parts.Add("Alt");
+    }
+    if ((value.modifiers & EventModifiers.Command) != 0) {
+      parts.Add("Cmd");
+    }
+    parts.Add(value.keyCode.ToString());
+    return string.Join("+", parts.ToArray());
+  }
+
+  /// <summary>Returns a string formatted as a human friendly key specification.</summary>
+  /// <returns>A string representing the value.</returns>
+  /// <seealso cref="Format"/>
+  public override string ToString() {
+    return Format(value);
   }
 }
 
