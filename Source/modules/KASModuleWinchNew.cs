@@ -707,15 +707,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void PhysicalLink(ILinkTarget target) {
     winchState = WinchState.HeadDeployed;  // Ensure the head is deployed and not moving.
     TurnHeadPhysics(false);
+    base.PhysicalLink(target);
+    SetCableLength(cableJointObj.cfgMaxCableLength);  // Link in the released state.
     AlignTransforms.SnapAlign(headModelObj, headPartAnchor, target.nodeTransform);
     headModelObj.parent = target.nodeTransform;
-    SetCableLength(cableJointObj.cfgMaxCableLength);  // Link in the released state.
-    base.PhysicalLink(target);
   }
 
   /// <inheritdoc/>
-  protected override void PhysicalUnink(ILinkTarget target) {
-    base.PhysicalUnink(target);
+  protected override void LogicalUnlink(LinkActorType actorType) {
+    base.LogicalUnlink(actorType);
     DeployCableHead();
     var headDistanceAtBreak = Vector3.Distance(nodeTransform.TransformPoint(physicalAnchor),
                                                headCableAnchor.position);
