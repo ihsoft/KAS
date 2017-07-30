@@ -238,6 +238,10 @@ public class KASModuleLinkTargetBase :
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linked,
+        enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
+        leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
   }
 
   /// <inheritdoc/>
@@ -357,12 +361,15 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region New inheritable methods
-  /// <summary>Triggers when state has being assigned with a value.</summary>
+  /// <summary>Triggers when the state has been assigned with a value.</summary>
   /// <remarks>
-  /// This method triggers even when new state doesn't differ from the old one. When it's important
-  /// to catch the transition check for <paramref name="oldState"/>.
+  /// This method triggers even when the new state doesn't differ from the old one. When it's
+  /// important to catch the transition, check for the <paramref name="oldState"/>.
   /// </remarks>
-  /// <param name="oldState">State prior to the change.</param>
+  /// <param name="oldState">
+  /// The state prior to the change. If it's <c>null</c>, then it's an initial state on the module
+  /// creation.
+  /// </param>
   protected virtual void OnStateChange(LinkState? oldState) {
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
       // Create an attach node to allow coupling.
@@ -372,6 +379,15 @@ public class KASModuleLinkTargetBase :
       // Drop the node once linking mode is over and the link hasn't been established.
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
+    }
+
+    // Install vessel destruction events.
+    if (oldState != linkState) {
+      if (linkState == LinkState.Linked) {
+        GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
+      } else if (oldState == LinkState.Linked) {
+        GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
+      }
     }
 
     // Adjust compatible part highlight.
@@ -475,6 +491,15 @@ public class KASModuleLinkTargetBase :
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+    }
+  }
+
+  /// <summary>Reacts on the vessel destcurtion and break the link if needed.</summary>
+  /// <param name="targetVessel">The vessel that is being destroyed.</param>
+  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
+    if (isLinked && targetVessel == part.vessel && targetVessel != linkSource.part.vessel) {
+      HostedDebugLog.Info(this, "Drop the link due to the owner vessel destruction");
+      linkSource.BreakCurrentLink(LinkActorType.Physics);
     }
   }
   #endregion
