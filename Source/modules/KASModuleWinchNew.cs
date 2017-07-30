@@ -39,12 +39,12 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
-// Next localization ID: #kasLOC_08020.
+// Next localization ID: #kasLOC_08021.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IsPhysicalObject {
 
-  #region Localizable GUI strings. Next ID=#kasLOC_08012
+  #region Localizable GUI strings.
 
   #region WinchState enum values
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -56,21 +56,21 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchStateMsg_HeadDeployed = new Message(
-      "#kasLOC_08017",
+      "#kasLOC_08018",
       defaultTemplate: "Idle",
       description: "A string in the context menu that tells that the winch head is deployed and"
       + " attached to the winch via a cable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchStateMsg_CableExtending = new Message(
-      "#kasLOC_08018",
+      "#kasLOC_08019",
       defaultTemplate: "Extending",
       description: "A string in the context menu that tells that the winch head is deployed and"
       + " the cable is being extended.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchStateMsg_CableRetracting = new Message(
-      "#kasLOC_08019",
+      "#kasLOC_08020",
       defaultTemplate: "Retracting",
       description: "A string in the context menu that tells that the winch head is deployed and"
       + " the cable size being retracted.");
@@ -307,7 +307,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Winch state", guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08011",
+      tag = "#kasLOC_08012",
       defaultTemplate = "Winch state",
       description = "Status field to display the current winch status in the context menu.")]
   public string headDeployStateMenuInfo = "";
@@ -317,7 +317,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Deployed length", guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08012",
+      tag = "#kasLOC_08013",
       defaultTemplate = "Deployed length",
       description = "A context menu item that presents the length of the currently deployed"
       + "cable.")]
@@ -386,7 +386,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08013",
+      tag = "#kasLOC_08014",
       defaultTemplate = "Release cable",
       description = "A context menu item that sets the cable length ot the maximum, and unlocks"
       + " the head if it was locked.")]
@@ -404,7 +404,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08014",
+      tag = "#kasLOC_08015",
       defaultTemplate = "Instant stretch",
       description = "A context menu event that sets the cable length to the current distance to the"
       + " head.")]
@@ -419,7 +419,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
   [LocalizableItem(
-      tag = "#kasLOC_08015",
+      tag = "#kasLOC_08016",
       defaultTemplate = "Grab head",
       description = "A context menu event that attaches the head to the EVA kerbal.")]
   public virtual void GrabHeadEvent() {
@@ -431,6 +431,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
             this, "{0} cannot grab the winch head", FlightGlobals.ActiveVessel.vesselName);
         return;
       }
+      //FIXME: move it into parameter
+      //FIXME: check if part's config allows TiePartsOnDifferentVessels
       linkMode = LinkMode.TiePartsOnDifferentVessels;
       if (StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
         if (!LinkToTarget(kerbalTarget)) {
@@ -447,7 +449,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
   [LocalizableItem(
-      tag = "#kasLOC_08016",
+      tag = "#kasLOC_08017",
       defaultTemplate = "Lock head",
       description = "A context menu event that detaches the head from the kerbal and puts it back"
       + " to the winch.")]
