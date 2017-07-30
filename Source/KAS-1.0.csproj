@@ -114,6 +114,7 @@
     <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleCableJoint.cs" />
     <Compile Include="modules\KASModuleInteractiveLinkSource.cs" />
+    <Compile Include="modules\KASModuleKerbalLinkTarget.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModulePipeRendererWithHead.cs" />

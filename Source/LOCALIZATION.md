@@ -27,4 +27,5 @@ KASModuleCableJoint | 6 | #kasLOC_06000 | #kasLOC_06999
 KASModulePipeRenderer | 7 | #kasLOC_07000 | #kasLOC_07999
 KASModuleWinchNew | 8 | #kasLOC_08000 | #kasLOC_08999
 AbstractCableJointModule | 9 | #kasLOC_09000 | #kasLOC_09999
-_Next available value_ | 10 | #kasLOC_10000 | #kasLOC_10999
+KASModuleKerbalLinkTarget | 10 | #kasLOC_10000 | #kasLOC_10999
+_Next available value_ | 11 | #kasLOC_10000 | #kasLOC_10999
