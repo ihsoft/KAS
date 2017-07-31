@@ -147,8 +147,9 @@ public static class PartModuleUtils {
   /// <param name="partModule">The module to get the event for.</param>
   /// <param name="eventFn">The signature of the event in scope of the module.</param>
   /// <returns>An event, or <c>null</c> if nothing found.</returns>
+  /// <seealso cref="SetupEvent"/>
   //FIXME: example + refs to the module and events 
-  public static BaseEvent GetModuleEvent(PartModule partModule, Action eventFn) {
+  public static BaseEvent GetEvent(PartModule partModule, Action eventFn) {
     return partModule.Events[eventFn.Method.Name];
   }
 
@@ -159,7 +160,8 @@ public static class PartModuleUtils {
   /// <returns>
   /// <c>true</c> if the event was found and the action was applied, <c>false</c> otherwise.
   /// </returns>
-  public static bool SetupModuleEvent(
+  /// <seealso cref="GetEvent"/>
+  public static bool SetupEvent(
       PartModule partModule, Action eventFn, Action<BaseEvent> actionFn) {
     var moduleEvent = partModule.Events[eventFn.Method.Name];
     if (moduleEvent == null) {

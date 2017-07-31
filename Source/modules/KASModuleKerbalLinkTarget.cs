@@ -15,7 +15,7 @@ namespace KAS {
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
 // Next localization ID: #kasLOC_10003.
 // FIXME: adjust nodeTransform to follow the bones.
-public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
+public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
     // KSPDev sugar interafces.
@@ -45,7 +45,7 @@ public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       tag = "#kasLOC_10000",
       defaultTemplate = "Drop head",
       description = "A context menu item that drops the cable head attached to the kerbal.")]
-  public virtual void DropHeadEvent() {
+  public void DropHeadEvent() {
     if (isLinked) {
       linkSource.BreakCurrentLink(
           LinkActorType.Player,
@@ -61,7 +61,7 @@ public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       tag = "#kasLOC_10001",
       defaultTemplate = "Pickup the head",
       description = "A context menu item that picks up the cable head in range.")]
-  public virtual void PickupHeadEvent() {
+  public void PickupHeadEvent() {
     //FIXME: implement
     HostedDebugLog.Error(this, "Not implemented");
   }
@@ -69,7 +69,7 @@ public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
 
   #region IHasGUI implementation
   /// <inheritdoc/>
-  public virtual void OnGUI() {
+  public void OnGUI() {
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
     // Remove hints if any.
     if (carryingStatusScreenMessage != null && (!isLinked || !thisVesselIsActive)) {
@@ -104,9 +104,9 @@ public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   
   #region IHasContextMenu implementation
   /// <inheritdoc/>
-  public virtual void UpdateContextMenu() {
-    PartModuleUtils.SetupModuleEvent(this, PickupHeadEvent, x => x.guiActive = hasCableHeadInRange);
-    PartModuleUtils.SetupModuleEvent(this, DropHeadEvent, x => x.guiActive = isLinked);
+  public void UpdateContextMenu() {
+    PartModuleUtils.SetupEvent(this, PickupHeadEvent, x => x.guiActive = hasCableHeadInRange);
+    PartModuleUtils.SetupEvent(this, DropHeadEvent, x => x.guiActive = isLinked);
   }
   #endregion
 
@@ -121,11 +121,13 @@ public class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   }
   #endregion
 
+  #region KASModuleLinkTargetBase overrides
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
     UpdateContextMenu();
   }
+  #endregion
 }
 
 }  // namespace
