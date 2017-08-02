@@ -583,7 +583,7 @@ public class KASModuleLinkSourceBase : PartModule,
   #region ILinkStateEventListener implementation
   /// <inheritdoc/>
   public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    // Lock this source if another source on the part made the link.
+    // Lock this source if another source on the part has made the link.
     if (!isLocked && !ReferenceEquals(info.source, this)) {
       isLocked = true;
     }
@@ -591,7 +591,7 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    // Unlock this source if link with another source one the part has broke.
+    // Unlock this source if link with the another source one the part has broke.
     if (isLocked && !ReferenceEquals(info.source, this)) {
       isLocked = false;
     }
