@@ -229,14 +229,7 @@ public class KASModuleCableJointBase : PartModule,
           isLinked, isHeadStarted, source.linkState);
       return false;
     }
-    var headRbObj = headObjAnchor;
-    while (headRbObj != null) {
-      headRb = headRbObj.GetComponent<Rigidbody>();
-      if (headRb != null) {
-        break;
-      }
-      headRbObj = headRbObj.transform.parent;
-    }
+    headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (headRb == null) {
       HostedDebugLog.Error(this, "Cannot find rigid body from: {0}", headObjAnchor);
       return false;
