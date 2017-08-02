@@ -557,7 +557,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
       if (sourceTransform == source && targetTransform == target) {
         return;  // NO-OP
       }
-      HostedDebugLog.Warning(this, "Renderer already started. Stopping...");
       StopRenderer();
     }
     sourceTransform = source;
