@@ -492,8 +492,9 @@ public class KASModuleLinkSourceBase : PartModule,
   #region ILinkSource implementation
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
-    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
-      HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
+    if (isLocked || !linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
+      HostedDebugLog.Warning(
+          this, "Cannot start linking mode: isLocked={0}, state={1}", isLocked, linkState);
       return false;
     }
     if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
@@ -734,10 +735,22 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region New utility methods
-  /// <summary>Checks if basic source and target states allows linking.</summary>
+  /// <summary>
+  /// Performs a check to ensure that the linkbetween thу source and the target, if it's made, will
+  /// be consistent.
+  /// </summary>
+  /// <remarks>This method must pass for both started and not started linking mode.</remarks>
   /// <param name="target">Target of the tube to check link with.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
   protected string CheckBasicLinkConditions(ILinkTarget target) {
+    if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {
+      return SourceIsNotAvailableForLinkMsg;
+    }
+    if (linkState == LinkState.Available && target.linkState != LinkState.Available
+        || linkState == LinkState.Linking && target.linkState != LinkState.AcceptingLinks
+        || target.isLocked) {
+      return TargetDoesntAcceptLinksMsg;
+    }
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
@@ -747,12 +760,6 @@ public class KASModuleLinkSourceBase : PartModule,
     }
     if (linkMode == LinkMode.TiePartsOnSameVessel && part.vessel != target.part.vessel) {
       return CannotLinkDifferentVesselsMsg;
-    }
-    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
-      return SourceIsNotAvailableForLinkMsg;
-    }
-    if (target.linkState != LinkState.AcceptingLinks) {
-      return TargetDoesntAcceptLinksMsg;
     }
     return null;
   }
