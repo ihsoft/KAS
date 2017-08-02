@@ -440,7 +440,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       //FIXME: move it into parameter
       //FIXME: check if part's config allows TiePartsOnDifferentVessels
       linkMode = LinkMode.TiePartsOnDifferentVessels;
-      if (StartLinking(GUILinkMode.Eva, LinkActorType.Player)) {
+      if (StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!LinkToTarget(kerbalTarget)) {
           CancelLinking(LinkActorType.API);
           HostedDebugLog.Error(this, "Cannot link the winch head to kerbal {0}",
