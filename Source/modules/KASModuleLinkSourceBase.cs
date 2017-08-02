@@ -621,13 +621,6 @@ public class KASModuleLinkSourceBase : PartModule,
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState? oldState) {
-    // Start a renderer in a linked state with a valid target, and stop it in all the other states.
-    if (isLinked && !linkRenderer.isStarted && linkTarget != null) {
-      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    }
-    if (!isLinked && linkRenderer.isStarted) {
-      linkRenderer.StopRenderer();
-    }
     // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
     // over and link hasn't been established.
     if (linkState == LinkState.Linking && attachNode == null) {
@@ -687,7 +680,7 @@ public class KASModuleLinkSourceBase : PartModule,
     }
   }
 
-  /// <summary>Logically links source and target.</summary>
+  /// <summary>Logically links the source and the target, and starts the renderer.</summary>
   /// <remarks>It's always called before any physical link updates.</remarks>
   /// <param name="target">The target to link with.</param>
   /// <seealso cref="PhysicalLink"/>
@@ -696,12 +689,15 @@ public class KASModuleLinkSourceBase : PartModule,
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
+    linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
   }
 
-  /// <summary>Logically unlinks source and the current target.</summary>
+  /// <summary>
+  /// Logically unlinks the source and the current target, and stops the renderer.
+  /// </summary>
   /// <remarks>It's always called before any physical link updates.</remarks>
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
   /// <see cref="PhysicalUnink"/>
@@ -712,6 +708,7 @@ public class KASModuleLinkSourceBase : PartModule,
       linkTarget = null;
     }
     linkState = LinkState.Available;
+    linkRenderer.StopRenderer();
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
