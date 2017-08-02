@@ -1000,7 +1000,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
     } else {
-      HostedDebugLog.Error(this, "Cannot find a head model: {1}", headModel);
+      HostedDebugLog.Error(this, "Cannot find a head model: {0}", headModel);
       // Fallback to not have the whole code to crash. 
       headModelObj = new GameObject().transform;
       headCableAnchor = headModelObj;
