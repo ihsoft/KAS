@@ -25,7 +25,7 @@ public class KASModuleCableJointBase : PartModule,
     // KAS interfaces.
     ILinkCableJoint,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPhysicalObject, IsDestroyable, IKSPDevModuleInfo {
+    IPartModule, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings. Next ID=#kasLOC_09005
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -285,15 +285,6 @@ public class KASModuleCableJointBase : PartModule,
   public virtual void OnDestroy() {
     // This can happen in case of the part external destruction (e.g. explosion).
     DropJoint();
-  }
-  #endregion
-
-  #region IsPhysicalObject implementation
-  /// <inheritdoc/>
-  public virtual void FixedUpdate() {
-    if (headRb != null) {
-      KASAPI.PhysicsUtils.ApplyGravity(headRb, headSource.part.vessel);
-    }
   }
   #endregion
 

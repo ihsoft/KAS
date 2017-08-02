@@ -251,6 +251,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField]
   public float headLockMaxErrorDir = 1;
 
+  /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
+  /// <seealso cref="InternalKASModulePhysicalConnector"/>
+  /// <seealso cref="KASModuleKerbalLinkTarget"/>
+  [KSPField]
+  public float connectorInteractDistance = 0.3f;
+
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -537,19 +543,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// object.
   /// </remarks>
   /// <seealso cref="WinchState"/>
-  /// <seealso cref="headRb"/>
   protected Transform headModelObj { get; private set; }
-
-  /// <summary>Rigidbody of the deployed head.</summary>
-  /// <remarks>The <see cref="WinchState.HeadLocked">locked</see> head has no rigid body. When it's
-  /// unlocked but not linked it's an independed physical object which is affected by the celestial
-  /// body gravity force and the atmospheric drag.
-  /// </remarks>
-  /// <value>The head's <see cref="Rigidbody"/>.</value>
-  /// <seealso cref="WinchState"/>
-  /// <seealso cref="headModelObj"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
-  protected Rigidbody headRb { get; private set; }
   #endregion
 
   #region Local properties and fields
@@ -708,11 +702,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void PhysicalLink(ILinkTarget target) {
     winchState = WinchState.HeadDeployed;  // Ensure the head is deployed and not moving.
-    TurnHeadPhysics(false);
+    TurnHeadPhysics(false, newConnectorOwner: target.nodeTransform);
+    AlignTransforms.SnapAlign(headModelObj, headPartAnchor, target.nodeTransform);
     base.PhysicalLink(target);
     SetCableLength(cableJointObj.cfgMaxCableLength);  // Link in the released state.
-    AlignTransforms.SnapAlign(headModelObj, headPartAnchor, target.nodeTransform);
-    headModelObj.parent = target.nodeTransform;
   }
 
   /// <inheritdoc/>
@@ -926,43 +919,48 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     TurnHeadPhysics(true);
     //FIXME: consider phisycal anchors
     linkRenderer.StartRenderer(nodeTransform, headCableAnchor);
-    headModelObj.parent = null;  // Detach from the part's model hierarchy.
     HostedDebugLog.Info(this, "Winch head is deployed");
   }
 
   /// <summary>Turns a physical head back into a physicsless mesh within the part's model.</summary>
   void LockCableHead() {
     TurnHeadPhysics(false);
-    linkRenderer.StopRenderer();
-
-    // Bring the head back into the part's model.
-    headModelObj.parent = Hierarchy.GetPartModelTransform(part);
     AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    linkRenderer.StopRenderer();
 
     //FIXME: only play it if it's a player/eva action
     sndHeadLock.Play();
     HostedDebugLog.Info(this, "Winch head is locked");
   }
 
-  void TurnHeadPhysics(bool state) {
-    if (state && headRb == null) {
-      HostedDebugLog.Info(this, "Make the cable head physical");
-      //TODO(ihsoft): Make a KAS shared method.
-      headRb = headModelObj.gameObject.AddComponent<Rigidbody>();
-      headRb.useGravity = false;
-      headRb.velocity = part.rb.velocity;
-      headRb.angularVelocity = part.rb.angularVelocity;
-      headRb.ResetInertiaTensor();
-      headRb.ResetCenterOfMass();
-      headRb.mass = headMass;
+  /// <summary>
+  /// Makes the winch connector an idependent physcal onbject or returns it into a part's model as
+  /// a physicsless object.
+  /// </summary>
+  /// <remarks>
+  /// Note, that physics obejcts on the connector don't die in this method call. They will be
+  /// cleaned up at the frame end. The caller must consider it when dealing with the connector.
+  /// </remarks>
+  /// <param name="state">The physical state of the connector: <c>true</c> means "physical".</param>
+  /// <param name="newConnectorOwner">
+  /// The new parent of the physicsless connector model. If it's <c>null</c>, then the part's model
+  /// will be the parent. This parameter has no meaning when <paramref name="state"/> is
+  /// <c>true</c>.
+  /// </param>
+  void TurnHeadPhysics(bool state, Transform newConnectorOwner = null) {
+    if (state && cableJointObj.headRb == null) {
+      HostedDebugLog.Info(this, "Make the cable connector physical");
+      var head = InternalKASModulePhysicalConnector.Promote(
+          this, headModelObj.gameObject, headMass, connectorInteractDistance);
+      cableJointObj.StartPhysicalHead(this, headCableAnchor);
       part.mass -= headMass;
       part.rb.mass -= headMass;
-      cableJointObj.StartPhysicalHead(this, headCableAnchor);
-    } else if (!state && headRb != null) {
+    } else if (!state && cableJointObj.headRb != null) {
       HostedDebugLog.Info(this, "Make the cable head non-physical");
       cableJointObj.StopPhysicalHead();
-      DestroyImmediate(headRb);  // Must be immediate to eliminate any movements on lock!
-      headRb = null;
+      InternalKASModulePhysicalConnector.Demote(
+          headModelObj.gameObject,
+          newOwner: newConnectorOwner ?? Hierarchy.GetPartModelTransform(part));
       part.mass += headMass;
       part.rb.mass += headMass;
     }
