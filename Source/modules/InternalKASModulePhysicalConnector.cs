@@ -11,8 +11,15 @@ namespace KAS {
 
 /// <summary>Module for handling physics on a flexible link connector.</summary>
 /// <remarks>
+/// <para>
 /// This is an <i>internal</i> module. It must not be instantiated or accessed outside of the KAS
 /// mod. The module must only be created thru a factory method.
+/// </para>
+/// <para>
+/// The promoted object becomes independent from the creator. When the module is destoyed, it's
+/// rigidbody gets destroyed as well, and the model returns back to the owner part. The position has
+/// to be adjusted by the caller.
+/// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
 sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
@@ -52,6 +59,23 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     return connectorModule;
   }
 
+  /// <summary>Removes the physical behavior from the connector object.</summary>
+  /// <param name="obj">The connector object to remove the behavior from.</param>
+  /// <param name="newOwner">
+  /// The owner which will the ownership over the model. If it's not specified, then the ownership
+  /// is transferred back to the owner module.
+  /// </param>
+  /// <returns></returns>
+  public static bool Demote(GameObject obj, Transform newOwner = null) {
+    var connectorModule = obj.GetComponent<InternalKASModulePhysicalConnector>();
+    if (connectorModule == null) {
+      return false;
+    }
+    connectorModule.CleanupModule(newOwner);
+    Destroy(connectorModule);
+    return true;
+  }
+
   /// <summary>Module which controls this head.</summary>
   /// <value>The module instance.</value>
   public PartModule ownerModule { get; private set; }
@@ -75,9 +99,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   }
 
   void OnDestroy() {
-    if (interactionTriggerObj != null) {
-      Destroy(interactionTriggerObj);
-    }
+    CleanupModule(null);
   }
 
   void FixedUpdate() {
@@ -86,6 +108,25 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     }
   }
   #endregion
+
+  /// <summary>Destroys all the module's physical objects.</summary>
+  /// <remarks>It doesn't (and must not) do it immediately.</remarks>
+  /// <param name="newOwnerModel"></param>
+  void CleanupModule(Transform newOwnerModel) {
+    if (newOwnerModel != null || ownerModule != null) {
+      // Bring the model back to the part or to the new host.
+      gameObject.transform.parent =
+          newOwnerModel ?? Hierarchy.GetPartModelTransform(ownerModule.part);
+    }
+    if (headRb) {
+      headRb.isKinematic = true;  // To nullify any residual momentum.
+    }
+    Destroy(interactionTriggerObj);
+    interactionTriggerObj = null;
+    Destroy(headRb);
+    headRb = null;
+    ownerModule = null;
+  }
 }
 
 }  // namespace
