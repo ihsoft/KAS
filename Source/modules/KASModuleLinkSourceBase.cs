@@ -427,6 +427,11 @@ public class KASModuleLinkSourceBase : PartModule,
           this, "Detach from the target {0} since it's failed to restore the state.",
           linkTarget.part);
       AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.None));
+    } else {
+      // FIXME(ihsoft): Remove this temp hack.
+      if (linkJoint is KASModuleCableJointBase) {
+        linkJoint.CreateJoint(this, linkTarget);
+      }
     }
   }
 
@@ -666,6 +671,10 @@ public class KASModuleLinkSourceBase : PartModule,
       HostedDebugLog.Info(this, "Dock to vessel: {0}", target.part.vessel);
       KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
     }
+    // FIXME(ihsoft): Remove this temp hack.
+    if (linkJoint is KASModuleCableJointBase) {
+      linkJoint.CreateJoint(this, target);
+    }
   }
 
   /// <summary>Breaks link with the target in the physical world.</summary>
@@ -678,6 +687,10 @@ public class KASModuleLinkSourceBase : PartModule,
       // FIXME: restore vessels names/types
       KASAPI.LinkUtils.DecoupleParts(part, target.part);
       HostedDebugLog.Info(this, "Undocked as vessel: {0}", part.vessel);
+    }
+    // FIXME(ihsoft): Remove this temp hack.
+    if (linkJoint is KASModuleCableJointBase) {
+      linkJoint.DropJoint();
     }
   }
 
