@@ -88,7 +88,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       linkSource.BreakCurrentLink(
           LinkActorType.Player,
           moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
-      HostedDebugLog.Warning(this, "Link head dropped from the EVA kerbal");
+      HostedDebugLog.Info(this, "Link head dropped from the EVA kerbal");
     }
   }
 
