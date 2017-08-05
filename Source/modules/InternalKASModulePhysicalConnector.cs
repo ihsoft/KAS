@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
 using UnityEngine;
 
 namespace KAS {

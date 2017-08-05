@@ -3,6 +3,7 @@
 // when new functionality lives here and not in KSPDev.
 
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using KSPDev.Types;
 using System;
 using System.Linq;
@@ -176,7 +177,7 @@ public static class PartModuleUtils {
   
 }  // namespace
 
-namespace KSPDev.ModelUtils {
+namespace KSPDev.PartUtils {
 
 /// <summary>Helper methods to deal with the part models.</summary>
 public static class PartModel {
