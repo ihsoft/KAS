@@ -89,7 +89,9 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   /// </remarks>
   public const string InteractionAreaCollider = "InternalKASModulePhysicalHead_InteractionCollider";
 
-  Rigidbody headRb;
+  /// <summary>Connector's rigidbody.</summary>
+  public Rigidbody headRb { get; private set; }
+
   GameObject interactionTriggerObj;
 
   #region MonoBehaviour messages
