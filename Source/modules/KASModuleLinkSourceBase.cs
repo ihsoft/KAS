@@ -530,8 +530,8 @@ public class KASModuleLinkSourceBase : PartModule,
     if (!CheckCanLinkTo(target)) {
       return false;
     }
-    PhysicalLink(target);
     LogicalLink(target);
+    PhysicalLink(target);
     // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
     // must not be stopped before the link is created.
     StopLinkGUIMode();
@@ -662,7 +662,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Links source and target in the physical world.</summary>
-  /// <remarks>It's always called before any logical link updates.</remarks>
+  /// <remarks>It's always called <i>after</i> the logical link updates.</remarks>
   /// <param name="target">The target to physically link with.</param>
   /// <see cref="LogicalLink"/>
   protected virtual void PhysicalLink(ILinkTarget target) {
@@ -678,7 +678,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Breaks link with the target in the physical world.</summary>
-  /// <remarks>It's always called before any logical link updates.</remarks>
+  /// <remarks>It's always called <i>before</i> the logical link updates.</remarks>
   /// <param name="target">The target to break a physical link with.</param>
   /// <see cref="LogicalUnlink"/>
   protected virtual void PhysicalUnink(ILinkTarget target) {
@@ -695,7 +695,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Logically links the source and the target, and starts the renderer.</summary>
-  /// <remarks>It's always called before any physical link updates.</remarks>
+  /// <remarks>It's always called <i>before</i> the physical link updates.</remarks>
   /// <param name="target">The target to link with.</param>
   /// <seealso cref="PhysicalLink"/>
   protected virtual void LogicalLink(ILinkTarget target) {
@@ -712,7 +712,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <summary>
   /// Logically unlinks the source and the current target, and stops the renderer.
   /// </summary>
-  /// <remarks>It's always called before any physical link updates.</remarks>
+  /// <remarks>It's always called <i>after</i> the physical link updates.</remarks>
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
   /// <see cref="PhysicalUnink"/>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
