@@ -5,6 +5,7 @@
 using KSPDev.LogUtils;
 using KSPDev.Types;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -170,6 +171,46 @@ public static class PartModuleUtils {
     }
     actionFn.Invoke(moduleEvent);
     return true;
+  }
+}
+  
+}  // namespace
+
+namespace KSPDev.ModelUtils {
+
+/// <summary>Helper methods to deal with the part models.</summary>
+public static class PartModel {
+  /// <summary>Refreshes the highlighters on the part that owns the provided model.</summary>
+  /// <remarks>
+  /// When a part is highlighted (e.g. due to the mouse hover event), it highlights its models via a
+  /// pre-cached set of the highlighter components. This cache is constructed on the part creation.
+  /// If a model is added or removed from the part, the cache needs to be updated. This method does
+  /// it by finding the part from the game objects hirerachy. If there is a part found, then its
+  /// highlighters are updated.
+  /// </remarks>
+  /// <param name="modelObj">The game object which needs an update. It can be <c>null</c>.</param>
+  public static void UpdatePartHighlighters(Transform modelObj) {
+    if (modelObj == null) {
+      return;
+    }
+    var ownerPart = modelObj.GetComponentInParent<Part>();
+    if (ownerPart != null) {
+      ownerPart.RefreshHighlighter();
+      var partModel = Hierarchy.GetPartModelTransform(ownerPart);
+      ownerPart.HighlightRenderer.RemoveAll(x => x == null || !x.transform.IsChildOf(partModel));
+      ownerPart.HighlightRenderer.AddRange(modelObj.GetComponentsInChildren<Renderer>());
+    }
+  }
+
+  /// <summary>Sets a new parent of the model and updates the parts highlighters.</summary>
+  /// <remarks>The parent is changed so that the worlds transformation is preserved.</remarks>
+  /// <param name="modelObj">The model to change parent for.</param>
+  /// <param name="newParent">The new model parent.</param>
+  public static void SetModelParent(Transform modelObj, Transform newParent) {
+    var formerParent = modelObj.parent;
+    modelObj.parent = newParent;
+    UpdatePartHighlighters(formerParent);
+    UpdatePartHighlighters(newParent);
   }
 }
   
