@@ -90,14 +90,14 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   public const string InteractionAreaCollider = "InternalKASModulePhysicalHead_InteractionCollider";
 
   /// <summary>Connector's rigidbody.</summary>
-  public Rigidbody headRb { get; private set; }
+  public Rigidbody connectorRb { get; private set; }
 
   GameObject interactionTriggerObj;
 
   #region MonoBehaviour messages
   void Awake() {
-    headRb = GetComponent<Rigidbody>();
-    PartModel.SetModelParent(headRb.gameObject.transform, null);  // Detach from the hierarchy.
+    connectorRb = GetComponent<Rigidbody>();
+    PartModel.SetModelParent(connectorRb.gameObject.transform, null);  // Detach from the hierarchy.
   }
 
   void OnDestroy() {
@@ -105,8 +105,8 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   }
 
   void FixedUpdate() {
-    if (headRb != null && ownerModule != null && !headRb.isKinematic) {
-      KASAPI.PhysicsUtils.ApplyGravity(headRb, ownerModule.vessel);
+    if (connectorRb != null && ownerModule != null && !connectorRb.isKinematic) {
+      KASAPI.PhysicsUtils.ApplyGravity(connectorRb, ownerModule.vessel);
     }
   }
   #endregion
@@ -120,13 +120,13 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
       PartModel.SetModelParent(gameObject.transform, 
                                newOwnerModel ?? Hierarchy.GetPartModelTransform(ownerModule.part));
     }
-    if (headRb) {
-      headRb.isKinematic = true;  // To nullify any residual momentum.
+    if (connectorRb) {
+      connectorRb.isKinematic = true;  // To nullify any residual momentum.
     }
     Destroy(interactionTriggerObj);
     interactionTriggerObj = null;
-    Destroy(headRb);
-    headRb = null;
+    Destroy(connectorRb);
+    connectorRb = null;
     ownerModule = null;
   }
 }
