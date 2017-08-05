@@ -97,7 +97,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   #region MonoBehaviour messages
   void Awake() {
     headRb = GetComponent<Rigidbody>();
-    headRb.gameObject.transform.parent = null;  // Detach from the hierarchy.
+    PartModel.SetModelParent(headRb.gameObject.transform, null);  // Detach from the hierarchy.
   }
 
   void OnDestroy() {
@@ -117,8 +117,8 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   void CleanupModule(Transform newOwnerModel) {
     if (newOwnerModel != null || ownerModule != null) {
       // Bring the model back to the part or to the new host.
-      gameObject.transform.parent =
-          newOwnerModel ?? Hierarchy.GetPartModelTransform(ownerModule.part);
+      PartModel.SetModelParent(gameObject.transform, 
+                               newOwnerModel ?? Hierarchy.GetPartModelTransform(ownerModule.part));
     }
     if (headRb) {
       headRb.isKinematic = true;  // To nullify any residual momentum.
