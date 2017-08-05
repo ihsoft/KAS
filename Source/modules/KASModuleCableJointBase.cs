@@ -222,17 +222,21 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public bool StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
-    if (isLinked || isHeadStarted || source.linkState == LinkState.Linked) {
-      HostedDebugLog.Warning(this,
-          "Bad state to start a physical head: isLinked={0}, isHeadStarted={1}, sourceState={2}",
-          isLinked, isHeadStarted, source.linkState);
-      return false;
+  public void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
+    //FIXME: add the physical head module here.
+    if (isHeadStarted) {
+      HostedDebugLog.Warning(
+          this, "Physical head is already started. Stopping the old one.");
+      StopPhysicalHead();
+    }
+    if (isLinked) {
+      HostedDebugLog.Warning(this, "Joint is alreadfy estabslished. Break it!");
+      DropJoint();
     }
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (headRb == null) {
-      HostedDebugLog.Error(this, "Cannot find rigid body from: {0}", headObjAnchor);
-      return false;
+      HostedDebugLog.Warning(this, "Cannot find rigid body from: {0}. Adding new.", headObjAnchor);
+      headRb = headObjAnchor.gameObject.AddComponent<Rigidbody>();
     }
     headSource = source;
     headPhysicalAnchorObj = headObjAnchor;
@@ -241,7 +245,6 @@ public class KASModuleCableJointBase : PartModule,
     CreateCableJoint(
         source.part.gameObject, source.nodeTransform.TransformPoint(source.physicalAnchor),
         headRb, headObjAnchor.position);
-    return true;
   }
 
   /// <inheritdoc/>

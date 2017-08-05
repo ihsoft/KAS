@@ -87,12 +87,11 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// The transform at the head object to attach the cable to. It's also used as a starting point
   /// to find the rigidbody.
   /// </param>
-  /// <returns><c>true</c> if the physical head was successfully started.</returns>
   /// <seealso cref="StopPhysicalHead"/>
   /// <seealso cref="ILinkSource"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  bool StartPhysicalHead(ILinkSource source, Transform headObjAnchor);
+  void StartPhysicalHead(ILinkSource source, Transform headObjAnchor);
 
   /// <summary>Stops handling the physical head.</summary>
   /// <remarks>
