@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
@@ -506,36 +507,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  // Don't access the part's GUI fields via the `Fields` and `Events` properties. Instead, refer
-  // the specific control via a property defined in this section. It will allow your code to have
-  // a compile time checking for the right names. If some field is not exposed here, then it wasn't
-  // supposed to be exposed at all.
-  #region UI control cache
-  /// <summary>Field instance for <see cref="ExtentCableEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiExtendCableEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="RetractCableEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiRetractCableEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="GrabHeadEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiGrabHeadEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="LockHeadEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiLockHeadEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="ReleaseCableEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiReleaseCableEvent { get; private set; }
-
-  /// <summary>Field instance for <see cref="InstantStretchEvent"/>.</summary>
-  /// <seealso cref="LoadUIControlsCache"/>
-  protected BaseEvent uiInstantStretchEvent { get; private set; }
-  #endregion
-
   #region Inheritable fileds and properties
   /// <summary>Winch head model transformation object.</summary>
   /// <remarks>
@@ -574,7 +545,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    LoadUIControlsCache();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
@@ -723,31 +693,26 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     headDeployStateMenuInfo = WinchStatesMsgLookup.Lookup(winchState);
     deployedCableLengthMenuInfo = DistanceType.Format(
         cableJointObj != null ? cableJointObj.maxAllowedCableLength : 0);
-    uiExtendCableEvent.active = true;
-    uiExtendCableEvent.guiName = winchState == WinchState.CableExtending
-        ? StopExtendingMenuTxt
-        : ExtendCableMenuTxt;
-    uiRetractCableEvent.active = true;
-    uiRetractCableEvent.guiName = winchState == WinchState.CableRetracting
-        ? StopRetractingMenuTxt
-        : RetractCableMenuTxt;
-    uiReleaseCableEvent.active = true;
-    uiInstantStretchEvent.active = true;
+    
+    PartModuleUtils.SetupEvent(this, ExtentCableEvent, e => {
+      e.active = true;
+      e.guiName = winchState == WinchState.CableExtending
+          ? StopExtendingMenuTxt
+          : ExtendCableMenuTxt;
+    });
+    PartModuleUtils.SetupEvent(this, RetractCableEvent, e => {
+      e.active = true;
+      e.guiName = winchState == WinchState.CableRetracting
+          ? StopRetractingMenuTxt
+          : RetractCableMenuTxt;
+    });
+    PartModuleUtils.SetupEvent(this, ReleaseCableEvent, e => e.active = true);
+    PartModuleUtils.SetupEvent(this, InstantStretchEvent, e => e.active = true);
     // These events are only available for an EVA kerbal.
-    uiGrabHeadEvent.active = winchState == WinchState.HeadLocked;
-    uiLockHeadEvent.active = isCableHeadOnKerbal;
-  }
-  #endregion
-
-  #region Overridable methods
-  /// <summary>Caches the UI elements into the local state.</summary>
-  protected virtual void LoadUIControlsCache() {
-    uiExtendCableEvent = Events["ExtentCableEvent"];
-    uiRetractCableEvent = Events["RetractCableEvent"];
-    uiGrabHeadEvent = Events["GrabHeadEvent"];
-    uiLockHeadEvent = Events["LockHeadEvent"];
-    uiReleaseCableEvent = Events["ReleaseCableEvent"];
-    uiInstantStretchEvent = Events["InstantStretchEvent"];
+    PartModuleUtils.SetupEvent(
+        this, GrabHeadEvent, e => e.active = winchState == WinchState.HeadLocked);
+    PartModuleUtils.SetupEvent(
+        this, LockHeadEvent, e => e.active = isCableHeadOnKerbal);
   }
   #endregion
 
