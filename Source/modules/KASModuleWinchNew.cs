@@ -695,19 +695,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         cableJointObj != null ? cableJointObj.maxAllowedCableLength : 0);
     
     PartModuleUtils.SetupEvent(this, ExtentCableEvent, e => {
-      e.active = true;
       e.guiName = winchState == WinchState.CableExtending
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, RetractCableEvent, e => {
-      e.active = true;
       e.guiName = winchState == WinchState.CableRetracting
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
-    PartModuleUtils.SetupEvent(this, ReleaseCableEvent, e => e.active = true);
-    PartModuleUtils.SetupEvent(this, InstantStretchEvent, e => e.active = true);
     // These events are only available for an EVA kerbal.
     PartModuleUtils.SetupEvent(
         this, GrabHeadEvent, e => e.active = winchState == WinchState.HeadLocked);
