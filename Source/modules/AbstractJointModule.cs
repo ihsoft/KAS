@@ -297,9 +297,8 @@ public abstract class AbstractJointModule : PartModule,
       stockJoint = part.attachJoint;
       part.attachJoint = null;
     }
-    originalLength = Vector3.Distance(
-        source.nodeTransform.TransformPoint(source.physicalAnchor),
-        target.nodeTransform.TransformPoint(target.physicalAnchor));
+    originalLength = Vector3.Distance(source.physicalAnchorTransform.position,
+                                      target.physicalAnchorTransform.position);
     isLinked = true;
     return true;
   }
@@ -540,7 +539,7 @@ public abstract class AbstractJointModule : PartModule,
   /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
   protected string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
     var length = Vector3.Distance(
-        source.nodeTransform.TransformPoint(source.physicalAnchor),
+        source.physicalAnchorTransform.position,
         targetTransform.TransformPoint(source.targetPhysicalAnchor));
     if (maxLinkLength > 0 && length > maxLinkLength) {
       return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);

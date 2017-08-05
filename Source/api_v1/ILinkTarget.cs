@@ -71,15 +71,13 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
 
-  /// <summary>Position offset of the physical joint anchor at the target.</summary>
+  /// <summary>Transform of the physical joint anchor at the node.</summary>
   /// <remarks>
-  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
-  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// When logical and physical positions match, this property can return
+  /// <see cref="nodeTransform"/>.
   /// </remarks>
-  /// <value>
-  /// The position in the local space of the target's <see cref="nodeTransform"/>.
-  /// </value>
-  Vector3 physicalAnchor { get; }
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
+  Transform physicalAnchorTransform { get; }
 
   /// <summary>Source that maintains the link.</summary>
   /// <value>Source or <c>null</c> if nothing is linked.</value>

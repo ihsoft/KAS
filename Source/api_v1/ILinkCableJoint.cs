@@ -62,8 +62,8 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// started.
   /// </value>
   /// <seealso cref="headRb"/>
-  /// <seealso cref="ILinkSource.physicalAnchor"/>
-  /// <seealso cref="ILinkTarget.physicalAnchor"/>
+  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
+  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   /// <seealso cref="headPhysicalAnchorObj"/>
   float maxAllowedCableLength { get; set; }
 
@@ -74,8 +74,8 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// The distance in meters or <c>0</c> if the link is not established and there is no head
   /// started.
   /// </value>
-  /// <seealso cref="ILinkSource.physicalAnchor"/>
-  /// <seealso cref="ILinkTarget.physicalAnchor"/>
+  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
+  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   /// <seealso cref="headPhysicalAnchorObj"/>
   float realCableLength { get; }
 

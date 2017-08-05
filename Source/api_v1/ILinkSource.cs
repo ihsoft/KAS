@@ -100,30 +100,31 @@ public interface ILinkSource {
   AttachNode attachNode { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
-  /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <remarks>This transform must exist even when no actual attach node is created on the part.
-  /// <list type="bullet">
-  /// <item>
+  /// <remarks>
+  /// <para>
   /// When connecting the parts, this transform will be used to create a part's attach node.
-  /// </item>
-  /// <item>The renderer uses this transform to align the meshes.</item>
-  /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
-  /// </list>
+  /// </para>
+  /// <para>
+  /// <i>IMPORTANT</i>. The node always has world's scale <c>(1, 1, 1)</c> regardless to the scale
+  /// of the part.
+  /// </para>
   /// </remarks>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
+  /// <seealso cref="physicalAnchorTransform"/>
   // TODO(ihsoft): Add example from a joint module.
   Transform nodeTransform { get; }
 
-  /// <summary>Position offset of the physical joint anchor at the source.</summary>
+  /// <summary>Transform of the physical joint anchor at the node.</summary>
   /// <remarks>
-  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
-  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// Normally, the anchor must be a child of the <see cref="nodeTransform"/>. However, wWhen the
+  /// logical and the physical positions match are the same, this property can return just
+  /// <see cref="nodeTransform"/>.
   /// </remarks>
-  /// <value>
-  /// The position in the local space of the source's <see cref="nodeTransform"/>.
-  /// </value>
-  Vector3 physicalAnchor { get; }
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
+  /// <seealso cref="nodeTransform"/>
+  Transform physicalAnchorTransform { get; }
 
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>

@@ -711,7 +711,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void LogicalUnlink(LinkActorType actorType) {
     base.LogicalUnlink(actorType);
     DeployCableHead();
-    var headDistanceAtBreak = Vector3.Distance(nodeTransform.TransformPoint(physicalAnchor),
+    var headDistanceAtBreak = Vector3.Distance(physicalAnchorTransform.position,
                                                headCableAnchor.position);
     SetCableLength(Mathf.Min(headDistanceAtBreak, cableJointObj.cfgMaxCableLength));
   }
@@ -917,14 +917,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void DeployCableHead() {
     TurnHeadPhysics(true);
     //FIXME: consider phisycal anchors
-    linkRenderer.StartRenderer(nodeTransform, headCableAnchor);
+    linkRenderer.StartRenderer(physicalAnchorTransform, headCableAnchor);
     HostedDebugLog.Info(this, "Winch head is deployed");
   }
 
   /// <summary>Turns a physical head back into a physicsless mesh within the part's model.</summary>
   void LockCableHead() {
     TurnHeadPhysics(false);
-    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, physicalAnchorTransform);
     linkRenderer.StopRenderer();
 
     //FIXME: only play it if it's a player/eva action
@@ -1003,8 +1003,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       headCableAnchor = headModelObj;
       headPartAnchor = headModelObj;
     }
-    // Ensure the head is aligned as we expect it to be. 
-    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, nodeTransform);
+    // Ensure the head is aligned as we expect it to be.
+    AlignTransforms.SnapAlign(headModelObj, headCableAnchor, physicalAnchorTransform);
   }
   #endregion
 }

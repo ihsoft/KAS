@@ -194,8 +194,8 @@ public class KASModuleCableJointBase : PartModule,
     linkSource = source;
     linkTarget = target;
     CreateCableJoint(
-        source.part.gameObject, source.nodeTransform.TransformPoint(source.physicalAnchor),
-        target.part.rb, target.nodeTransform.TransformPoint(target.physicalAnchor));
+        source.part.gameObject, source.physicalAnchorTransform.position,
+        target.part.rb, target.physicalAnchorTransform.position);
     isLinked = true;
     return true;
   }
@@ -214,7 +214,7 @@ public class KASModuleCableJointBase : PartModule,
   /// <inheritdoc/>
   public virtual string[] CheckConstraints(ILinkSource source, Transform targetNodeTransform) {
     var length = Vector3.Distance(
-        source.nodeTransform.TransformPoint(source.physicalAnchor),
+        source.physicalAnchorTransform.position,
         targetNodeTransform.TransformPoint(source.targetPhysicalAnchor));
     return length > cfgMaxCableLength
         ? new[] { MaxLengthLimitReachedMsg.Format(length, cfgMaxCableLength) }
@@ -243,7 +243,7 @@ public class KASModuleCableJointBase : PartModule,
 
     // Attach the head to the source.
     CreateCableJoint(
-        source.part.gameObject, source.nodeTransform.TransformPoint(source.physicalAnchor),
+        source.part.gameObject, source.physicalAnchorTransform.position,
         headRb, headObjAnchor.position);
   }
 

@@ -57,7 +57,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   #endregion
-  
+
   #region ILinkTarget properties implementation
   /// <inheritdoc/>
   public virtual ILinkSource linkSource {
@@ -69,15 +69,23 @@ public class KASModuleLinkTargetBase :
         if (value != null) {
           persistedLinkSourcePartId = value.part.flightID;
           persistedLinkMode = value.cfgLinkMode;
-          physicalAnchor = value.targetPhysicalAnchor;
+          // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
+          // a different scale.
+          var sourceScale = value.nodeTransform.lossyScale;
+          var targetScale = nodeTransform.lossyScale;
+          var translateScale = new Vector3(sourceScale.x / targetScale.x,
+                                           sourceScale.y / targetScale.y,
+                                           sourceScale.z / targetScale.z);
+          physicalAnchorTransform.localPosition =
+              Vector3.Scale(value.targetPhysicalAnchor, translateScale);
           linkState = LinkState.Linked;
         } else {
           persistedLinkSourcePartId = 0;
           persistedLinkMode = LinkMode.DockVessels;  // Simply a default value.
-          physicalAnchor = Vector3.zero;
+          physicalAnchorTransform.localPosition = Vector3.zero;
           linkState = LinkState.Available;
         }
-        persistedPhysicalAnchor = physicalAnchor;
+        persistedPhysicalAnchor = physicalAnchorTransform.localPosition;
         TriggerSourceChangeEvents(oldSource);
       }
     }
@@ -114,7 +122,7 @@ public class KASModuleLinkTargetBase :
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public Vector3 physicalAnchor { get; private set; }
+  public Transform physicalAnchorTransform { get; private set; }
 
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
@@ -421,7 +429,7 @@ public class KASModuleLinkTargetBase :
       persistedPhysicalAnchor = Vector3.zero;
       startState = LinkState.Available;
     }
-    physicalAnchor = persistedPhysicalAnchor;
+    physicalAnchorTransform.localPosition = persistedPhysicalAnchor;
     linkStateMachine.currentState = startState;
     linkState = linkState;  // Trigger state updates.
   }
@@ -491,6 +499,16 @@ public class KASModuleLinkTargetBase :
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+    }
+
+    // Create a physical anchor node transform. It will become a part of the model.
+    const string PhysicalAnchorName = "physicalAnchor";
+    physicalAnchorTransform = nodeTransform.FindChild(PhysicalAnchorName);
+    if (physicalAnchorTransform == null) {
+      physicalAnchorTransform = new GameObject(PhysicalAnchorName).transform;
+      Hierarchy.MoveToParent(
+          physicalAnchorTransform, nodeTransform,
+          newPosition: persistedPhysicalAnchor);
     }
   }
 

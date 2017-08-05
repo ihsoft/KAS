@@ -187,9 +187,7 @@ public class KASModuleLinkSourceBase : PartModule,
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public Vector3 physicalAnchor {
-    get { return physicalAnchorAtSource; }
-  }
+  public Transform physicalAnchorTransform { get; private set; }
 
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
@@ -259,7 +257,7 @@ public class KASModuleLinkSourceBase : PartModule,
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
 
-  /// <summary>See <see cref="physicalAnchor"/>.</summary>
+  /// <summary>See <see cref="physicalAnchorTransform"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Vector3 physicalAnchorAtSource;
@@ -398,7 +396,16 @@ public class KASModuleLinkSourceBase : PartModule,
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     }
 
-    // If source is docked to the target then we need actual attach node. Create it.
+    // Create physical anchor node transform. It will become a part of the model.
+    const string anchorName = "physicalAnchor";
+    physicalAnchorTransform = nodeTransform.FindChild(anchorName);
+    if (physicalAnchorTransform == null) {
+      physicalAnchorTransform = new GameObject(anchorName).transform;
+      Hierarchy.MoveToParent(
+          physicalAnchorTransform, nodeTransform, newPosition: physicalAnchorAtSource);
+    }
+
+    // If source is docked to the target then we need the actual attach node. Create it.
     if (persistedLinkState == LinkState.Linked && linkMode == LinkMode.DockVessels) {
       attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
     }
@@ -703,7 +710,7 @@ public class KASModuleLinkSourceBase : PartModule,
     linkTarget = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
-    linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+    linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
