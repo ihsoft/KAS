@@ -775,10 +775,10 @@ public class KASModuleLinkSourceBase : PartModule,
       return IncompatibleTargetLinkTypeMsg;
     }
     if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TiePartsOnDifferentVessels)
-        && part.vessel == target.part.vessel) {
+        && vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
     }
-    if (linkMode == LinkMode.TiePartsOnSameVessel && part.vessel != target.part.vessel) {
+    if (linkMode == LinkMode.TiePartsOnSameVessel && vessel != target.part.vessel) {
       return CannotLinkDifferentVesselsMsg;
     }
     return null;
