@@ -303,6 +303,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public string sndPathGrabLock = "";
 
   /// <summary>URL of the sound for the cable emergency deatch event (link broken).</summary>
+  /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathPlugConnector = "";
+  
+  /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathUnplugConnector = "";
+
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sndPathBroke = "";
@@ -650,12 +660,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
     if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(sndPathGrabLock);
-      HostedDebugLog.Info(this, "{0} has grabbed the winch head",
-                          info.target.part.vessel.vesselName);
-    } else if (info.actor == LinkActorType.API) {
-      HostedDebugLog.Info(this, "Winch has linked to {0}", info.target.part.vessel.vesselName);
+      UISoundPlayer.instance.Play(info.target.part.vessel.isEVA
+          ? sndPathGrabConnector
+          : sndPathPlugConnector);
     }
+    HostedDebugLog.Info(this, "Winch has linked to {0}", info.target.part);
   }
 
   /// <inheritdoc/>
@@ -664,6 +673,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (info.actor == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ScreenMessaging.ShowPriorityScreenMessage(CableLinkBrokenMsg);
+    } else if (info.actor == LinkActorType.Player && !info.target.part.vessel.isEVA) {
+      UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
     HostedDebugLog.Info(this, "Winch has unlinked from {0}", info.target.part.vessel.vesselName);
   }
