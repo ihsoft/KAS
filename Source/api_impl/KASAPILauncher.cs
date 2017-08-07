@@ -16,6 +16,7 @@ class KASAPILauncher : MonoBehaviour {
       KASAPI.AttachNodesUtils = new KASImpl.AttachNodesUtilsImpl();
       KASAPI.LinkUtils = new KASImpl.LinkUtilsImpl();
       KASAPI.PhysicsUtils = new KASImpl.PhysicsUtilsImpl();
+      CommonConfig.Load();
       KASAPI.isLoaded = true;
 
       var assembly = GetType().Assembly;

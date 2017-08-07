@@ -90,6 +90,7 @@
     <Compile Include="api_impl\KASAPILauncher.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="api_v1\CommonConfig.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
     <Compile Include="api_v1\IKasJointEventsListener.cs" />
     <Compile Include="api_v1\ILinkCableJoint.cs" />
