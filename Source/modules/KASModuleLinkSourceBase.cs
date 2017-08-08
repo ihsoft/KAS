@@ -548,7 +548,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (!isLinked) {
-      HostedDebugLog.Warning(this, "Cannot break a link: the part is not linked to anything");
+      HostedDebugLog.Warning(this, "Cannot break link in state: {0}", linkState);
       return;
     }
     var targetRootPart = linkTarget.part;
@@ -756,7 +756,7 @@ public class KASModuleLinkSourceBase : PartModule,
 
   #region New utility methods
   /// <summary>
-  /// Performs a check to ensure that the linkbetween thу source and the target, if it's made, will
+  /// Performs a check to ensure that the link between the source and the target, if it's made, will
   /// be consistent.
   /// </summary>
   /// <remarks>This method must pass for both started and not started linking mode.</remarks>
