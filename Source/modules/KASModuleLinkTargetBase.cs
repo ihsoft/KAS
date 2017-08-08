@@ -4,12 +4,14 @@
 // License: Public Domain
 
 using System;
+using System.Linq;
 using System.Text;
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -27,6 +29,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // TODO(ihsoft): Add code samples.
+// Next localization ID: #kasLOC_03004.
 public class KASModuleLinkTargetBase :
     // KSP parents.
     PartModule, IModuleInfo, IActivateOnDecouple,
@@ -197,6 +200,49 @@ public class KASModuleLinkTargetBase :
   public Color highlightColor = Color.cyan;
   #endregion
 
+  #region Context menu events/actions
+  /// <summary>
+  /// Context menu item to have the EVA carried connector attached to the target part.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, externalToEVAOnly = true,
+            guiActiveUnfocused = true, guiActiveUncommand = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_03002",
+      defaultTemplate = "Attach connector",
+      description = "Context menu item to have the EVA carried connector attached to the target"
+      + " part.")]
+  public void LinkWithCarriableConnectorEvent() {
+    var kerbalTarget = FindEvaTargetWithConnector();
+    if (kerbalTarget != null) {
+      var connectorSource = kerbalTarget.linkSource;
+      connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
+      if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
+          && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
+        if (connectorSource.LinkToTarget(this)) {
+          connectorSource.CancelLinking(LinkActorType.API);
+        }
+      } else {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      }
+    }
+  }
+
+  /// <summary>Context menu item to break the currently established link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_03003",
+      defaultTemplate = "Detach connector",
+      description = "Context menu item to break the currently established link.")]
+  public void BreakLinkEvent() {
+    if (linkSource != null) {
+      linkSource.BreakCurrentLink(LinkActorType.Player,
+                                  moveFocusOnTarget: FlightGlobals.ActiveVessel == vessel);
+    }
+  }
+  #endregion
+
   /// <summary>State machine that controls the module update in different states.</summary>
   /// <remarks>
   /// The primary usage of the machine is managing the subscriptions to the different game events
@@ -236,8 +282,15 @@ public class KASModuleLinkTargetBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartConnecting),
-        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartConnecting));
+        enterHandler: x => {
+          KASEvents.OnStartLinking.Add(OnStartConnecting);
+          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
+        },
+        leaveHandler: x => {
+          KASEvents.OnStartLinking.Remove(OnStartConnecting);
+          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
+          PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent, e => e.active = false);
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
@@ -248,8 +301,14 @@ public class KASModuleLinkTargetBase :
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
-        enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
-        leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
+        enterHandler: x => {
+          GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
+          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = true);
+        },
+        leaveHandler: x => {
+          GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
+          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = false);
+        });
   }
 
   /// <inheritdoc/>
@@ -510,6 +569,26 @@ public class KASModuleLinkTargetBase :
       HostedDebugLog.Info(this, "Drop the link due to the owner vessel destruction");
       linkSource.BreakCurrentLink(LinkActorType.Physics);
     }
+  }
+
+  /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
+  /// <param name="menuOwnerPart">The part for which the UI is created.</param>
+  void OnPartGUIStart(Part menuOwnerPart) {
+    if (menuOwnerPart == part) {
+      PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent,
+                                 x => x.active = FindEvaTargetWithConnector() != null);
+    }
+  }
+
+  /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
+  /// <returns>The source or <c>null</c> if nothing found.</returns>
+  ILinkTarget FindEvaTargetWithConnector() {
+    if (!FlightGlobals.ActiveVessel.isEVA) {
+      return null;
+    }
+    return FlightGlobals.ActiveVessel
+        .FindPartModulesImplementing<ILinkTarget>()
+        .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
   }
   #endregion
 }
