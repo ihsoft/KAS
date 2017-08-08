@@ -49,11 +49,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pickupConnectorKey = "Y";
-
-  /// <summary>URL of the sound for the impossible action.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathBipWrong = "KAS-1.0/Sounds/bipwrong";
   #endregion
 
   #region Local fields and properties
@@ -114,7 +109,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
               this, "Pickup physical connector of: {0}", closestSource as PartModule);
         }
       } else {
-        UISoundPlayer.instance.Play(sndPathBipWrong);
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
     }
   }
