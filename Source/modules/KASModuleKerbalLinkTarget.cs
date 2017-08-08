@@ -13,7 +13,7 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
-// Next localization ID: #kasLOC_10004.
+// Next localization ID: #kasLOC_10003.
 // FIXME: adjust nodeTransform to follow the bones.
 public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // KAS interfaces.
@@ -23,7 +23,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<KeyboardEventType> DropConnectorHintMsg= new Message<KeyboardEventType>(
-      "#kasLOC_100002",
+      "#kasLOC_100001",
       defaultTemplate: "To drop the connector press: [<<1>>]",
       description: "A hint string, instructing what to press in order to drop the currently carried"
       + "cable connector.\nArgument <<1>> is the current key binding of type KeyboardEventType.",
@@ -31,7 +31,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<KeyboardEventType> PickupConnectorHintMsg= new Message<KeyboardEventType>(
-      "#kasLOC_100003",
+      "#kasLOC_100002",
       defaultTemplate: "[<<1>>]: Pickup connector",
       description: "A hint string, instructing what to press in order to pickup a cable connector"
       + "which is currently in range.\nArgument <<1>> is the current key binding of type"
@@ -54,6 +54,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region Local fields and properties
   static Event dropConnectorKeyEvent;
   static Event pickupConnectorKeyEvent;
+  //FIXME: refatcor to list due to the items can become null
   readonly HashSet<InternalKASModulePhysicalConnector> connectorsInRange =
       new HashSet<InternalKASModulePhysicalConnector>();
   ScreenMessage persistentTopCenterMessage;
@@ -75,7 +76,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_10001",
+      tag = "#kasLOC_10000",
       defaultTemplate = "Pickup connector",
       description = "A context menu item that picks up the cable connector in range.")]
   public void PickupConnectorEvent() {
