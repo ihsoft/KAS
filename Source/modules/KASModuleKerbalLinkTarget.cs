@@ -52,17 +52,35 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #endregion
 
   #region Local fields and properties
+  /// <summary>Returns a valid source of the closest connector in range.</summary>
+  /// <value>The source or <c>null</c>.</value>
+  ILinkSource closestConnectorSource {
+    get {
+      return connectorsInRange
+          .Select(x => x == null ? null : x.ownerModule as ILinkSource)
+          .Where(x => x != null && x.linkState == LinkState.Available && x.cfgLinkType == linkType)
+          .OrderBy(x => Vector3.Distance(gameObject.transform.position,
+                                         x.part.gameObject.transform.position))
+          .FirstOrDefault();
+    }
+  }
+
+  /// <summary>List of all the connectors that triggered the interaction collision event.</summary>
+  /// <remarks>
+  /// This collection must be a list since the items in it can become <c>null</c> in case of Unity
+  /// has destroyed the owner object.
+  /// </remarks>
+  readonly List<InternalKASModulePhysicalConnector> connectorsInRange =
+      new List<InternalKASModulePhysicalConnector>();
+
   static Event dropConnectorKeyEvent;
   static Event pickupConnectorKeyEvent;
-  //FIXME: refatcor to list due to the items can become null
-  readonly HashSet<InternalKASModulePhysicalConnector> connectorsInRange =
-      new HashSet<InternalKASModulePhysicalConnector>();
   ScreenMessage persistentTopCenterMessage;
   ScreenMessage persistentBottomCenterMessage;
   
   bool canPickupConnector {
     get {
-      return !isLinked && connectorsInRange.Count > 0;
+      return !isLinked && closestConnectorSource != null;
     }
   }
 
@@ -80,11 +98,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       defaultTemplate = "Pickup connector",
       description = "A context menu item that picks up the cable connector in range.")]
   public void PickupConnectorEvent() {
-    if (connectorsInRange.Count > 0) {
-      var closestSource = connectorsInRange
-          .OrderBy(x => Vector3.Distance(gameObject.transform.position, x.transform.position))
-          .Select(x => x.ownerModule as ILinkSource)
-          .First();
+    var closestSource = closestConnectorSource;
+    if (closestSource != null) {
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
           && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!closestSource.LinkToTarget(this)) {
@@ -103,11 +118,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    // HACK: Prior to the Unity 5.6, the core doesn't send the collider exit messages for the
-    // destroyed objects. So explicitly cleanup the destroyed instances here.
-    // Also, remove the connectors that became ineligible after they were added.
-    connectorsInRange.RemoveWhere(x => !IsValidConnector(x));
-
     // Remove hints if any.
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
     if (!canDropConnector || !thisVesselIsActive) {
@@ -177,30 +187,17 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #endregion
 
   #region Local utility methods
-  bool IsValidConnector(InternalKASModulePhysicalConnector connector) {
-    if (connector == null || connector.ownerModule == null) {
-      return false;
-    }
-    var source = connector.ownerModule as ILinkSource;
-    return source != null && source.cfgLinkType == linkType
-        && source.linkState == LinkState.Available;
-  }
-  
   void OnTriggerEnter(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      var connector = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
-      if (IsValidConnector(connector)) {
-        connectorsInRange.Add(connector);
-      }
+      connectorsInRange.Add(
+          other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>());
     }
   }
 
   void OnTriggerExit(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      var physicalHead = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
-      if (physicalHead != null) {
-        connectorsInRange.Remove(physicalHead);
-      }
+      connectorsInRange.Remove(
+          other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>());
     }
   }
 
