@@ -197,12 +197,12 @@ public class KASModuleLinkTargetBase :
   public Color highlightColor = Color.cyan;
   #endregion
 
-  /// <summary>State machine that controls event reaction in different states.</summary>
+  /// <summary>State machine that controls the module update in different states.</summary>
   /// <remarks>
-  /// Primary usage of the machine is managing subscriptions to the different game events. It's
-  /// highly discouraged to use it for firing events or taking actions. Initial state can be setup
-  /// under different circumstances, and the associated events and actions may get triggered at the
-  /// inappropriate moment.
+  /// The primary usage of the machine is managing the subscriptions to the different game events
+  /// and updating GUI. It's highly discouraged to use it for firing events or taking actions.
+  /// The initial state can be setup under different circumstances, and the associated events and
+  /// actions may get triggered in an inappropriate moment.
   /// </remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
 
