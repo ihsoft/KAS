@@ -514,7 +514,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Tells if the winch connector is picked up by an EVA kerbal.</summary>
   /// <value><c>true</c> if the connector is being carried by a kerbal.</value>
   public bool isConnectorOnKerbal {
-    get { return isLinked && linkTarget.part.vessel.isEVA; }
+    get { return linkTarget != null && linkTarget.part.vessel.isEVA; }
   }
   #endregion
 
