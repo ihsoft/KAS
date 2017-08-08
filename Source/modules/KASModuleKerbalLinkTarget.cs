@@ -100,13 +100,12 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   public void PickupConnectorEvent() {
     var closestSource = closestConnectorSource;
     if (closestSource != null) {
+      HostedDebugLog.Info(
+          this, "Try picking up a physical connector of: {0}...", closestSource as PartModule);
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
           && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!closestSource.LinkToTarget(this)) {
           closestSource.CancelLinking(LinkActorType.API);
-        } else {
-          HostedDebugLog.Info(
-              this, "Pickup physical connector of: {0}", closestSource as PartModule);
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
@@ -205,7 +204,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     linkSource.BreakCurrentLink(
         LinkActorType.Player,
         moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
-    HostedDebugLog.Info(this, "Link head dropped from the EVA kerbal");
   }
   #endregion
 }

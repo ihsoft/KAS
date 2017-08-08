@@ -665,7 +665,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           ? sndPathGrabConnector
           : sndPathPlugConnector);
     }
-    HostedDebugLog.Info(this, "Winch has linked to {0}", info.target.part);
   }
 
   /// <inheritdoc/>
@@ -677,7 +676,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     } else if (info.actor == LinkActorType.Player && !info.target.part.vessel.isEVA) {
       UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
-    HostedDebugLog.Info(this, "Winch has unlinked from {0}", info.target.part.vessel.vesselName);
   }
 
   /// <inheritdoc/>
