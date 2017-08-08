@@ -506,7 +506,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     if (linkState != LinkState.Available) {
-      HostedDebugLog.Warning(this, "Cannot start linking mode is state: {1}", linkState);
+      HostedDebugLog.Warning(this, "Cannot start linking mode is state: {0}", linkState);
       return false;
     }
     if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
