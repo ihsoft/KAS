@@ -293,8 +293,14 @@ public class KASModuleLinkTargetBase :
         });
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => {
+          SetEligiblePartHighlighting(true);
+          KASEvents.OnStopLinking.Add(OnStopConnecting);
+        },
+        leaveHandler: x => {
+          SetEligiblePartHighlighting(false);
+          KASEvents.OnStopLinking.Remove(OnStopConnecting);
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
@@ -447,18 +453,6 @@ public class KASModuleLinkTargetBase :
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
-
-    // Adjust compatible part highlight.
-    // TODO(ihsoft): Handle mutliple targets on part to not override settings.
-    if (highlightCompatibleTargets && oldState != linkState) {
-      if (linkState == LinkState.AcceptingLinks) {
-        part.SetHighlightType(Part.HighlightType.AlwaysOn);
-        part.SetHighlightColor(highlightColor);
-        part.SetHighlight(true, false);
-      } else if (oldState == LinkState.AcceptingLinks) {
-        part.SetHighlightDefault();
-      }
-    }
   }
 
   /// <summary>Finds linked source for the target, and updates the state.</summary>
@@ -589,6 +583,24 @@ public class KASModuleLinkTargetBase :
     return FlightGlobals.ActiveVessel
         .FindPartModulesImplementing<ILinkTarget>()
         .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+  }
+
+  /// <summary>Sets the highlighter state on the part.</summary>
+  /// <remarks>
+  /// Does nothing if the <see cref="highlightCompatibleTargets"/> settings is set to <c>false</c>.
+  /// </remarks>
+  /// <param name="isHighlighted">The highlighting state.</param>
+  /// <seealso cref="highlightCompatibleTargets"/>
+  void SetEligiblePartHighlighting(bool isHighlighted) {
+    if (highlightCompatibleTargets) {
+      if (isHighlighted) {
+        part.SetHighlightType(Part.HighlightType.AlwaysOn);
+        part.SetHighlightColor(highlightColor);
+        part.SetHighlight(true, false);
+      } else {
+        part.SetHighlightDefault();
+      }
+    }
   }
   #endregion
 }
