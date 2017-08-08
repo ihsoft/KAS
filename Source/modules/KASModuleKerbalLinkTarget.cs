@@ -127,9 +127,11 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
     if (!canDropConnector || !thisVesselIsActive) {
       ScreenMessages.RemoveMessage(persistentTopCenterMessage);
+      UpdateContextMenu();
     }
     if (!canPickupConnector || !thisVesselIsActive) {
       ScreenMessages.RemoveMessage(persistentBottomCenterMessage);
+      UpdateContextMenu();
     }
     if (!thisVesselIsActive) {
       return;  // No GUI for the inactive vessel.
@@ -154,6 +156,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       persistentBottomCenterMessage.message = PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
       ScreenMessages.PostScreenMessage(persistentBottomCenterMessage);
     }
+
+    UpdateContextMenu();
   }
   #endregion
 
