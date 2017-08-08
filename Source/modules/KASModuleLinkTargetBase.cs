@@ -389,15 +389,6 @@ public class KASModuleLinkTargetBase :
       attachNode = null;
     }
 
-    // Install vessel destruction events.
-    if (oldState != linkState) {
-      if (linkState == LinkState.Linked) {
-        GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
-      } else if (oldState == LinkState.Linked) {
-        GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
-      }
-    }
-
     // Adjust compatible part highlight.
     // TODO(ihsoft): Handle mutliple targets on part to not override settings.
     if (highlightCompatibleTargets && oldState != linkState) {
