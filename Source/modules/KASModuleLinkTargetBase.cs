@@ -219,7 +219,7 @@ public class KASModuleLinkTargetBase :
       connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
       if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
           && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (connectorSource.LinkToTarget(this)) {
+        if (!connectorSource.LinkToTarget(this)) {
           connectorSource.CancelLinking(LinkActorType.API);
         }
       } else {
