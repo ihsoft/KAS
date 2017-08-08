@@ -177,7 +177,8 @@ public class KASModuleLinkSourceBase : PartModule,
   public virtual bool isLocked {
     get { return linkState == LinkState.Locked; }
     set {
-      if (value != isLocked) {  // Don't trigger state change events when value hasn't changed.
+      // Don't trigger state change events when the value hasn't changed.
+      if (value != (linkState == LinkState.Locked)) {
         linkState = value ? LinkState.Locked : LinkState.Available;
       }
     }
@@ -504,9 +505,8 @@ public class KASModuleLinkSourceBase : PartModule,
   #region ILinkSource implementation
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
-    if (isLocked || !linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
-      HostedDebugLog.Warning(
-          this, "Cannot start linking mode: isLocked={0}, state={1}", isLocked, linkState);
+    if (linkState != LinkState.Available) {
+      HostedDebugLog.Warning(this, "Cannot start linking mode is state: {1}", linkState);
       return false;
     }
     if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
@@ -520,7 +520,7 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public virtual void CancelLinking(LinkActorType actor) {
-    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Available)) {
+    if (linkState != LinkState.Linking) {
       HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
       return;
     }
@@ -530,8 +530,8 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
-    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
-      HostedDebugLog.Warning(this, "Cannot link in mode: {0}", linkState);
+    if (linkState != LinkState.Linking) {
+      HostedDebugLog.Warning(this, "Cannot link in state: {0}", linkState);
       return false;
     }
     if (!CheckCanLinkTo(target)) {
