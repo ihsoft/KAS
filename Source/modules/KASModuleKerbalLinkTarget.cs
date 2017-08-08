@@ -71,23 +71,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #endregion
 
   #region Context menu events/actions
-  /// <summary>A context menu item that drops the cable head attached to the kerbal.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_10000",
-      defaultTemplate = "Drop connector",
-      description = "A context menu item that drops the cable connector attached to the kerbal.")]
-  public void DropConnectorEvent() {
-    if (isLinked) {
-      linkSource.BreakCurrentLink(
-          LinkActorType.Player,
-          moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
-      HostedDebugLog.Info(this, "Link head dropped from the EVA kerbal");
-    }
-  }
-
-  /// <summary>A context menu item that picks up the cable head in range.</summary>
+  /// <summary>A context menu item that picks up the cable connector in range.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(
@@ -140,7 +124,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // Handle the cable head drop/pickup events. 
     if (Event.current.Equals(dropConnectorKeyEvent) && canDropConnector) {
       Event.current.Use();
-      DropConnectorEvent();
+      DropConnector();
     }
     if (Event.current.Equals(pickupConnectorKeyEvent) && canPickupConnector) {
       Event.current.Use();
@@ -165,7 +149,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <inheritdoc/>
   public void UpdateContextMenu() {
     PartModuleUtils.SetupEvent(this, PickupConnectorEvent, x => x.guiActive = canPickupConnector);
-    PartModuleUtils.SetupEvent(this, DropConnectorEvent, x => x.guiActive = canDropConnector);
   }
   #endregion
 
@@ -218,6 +201,13 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         connectorsInRange.Remove(physicalHead);
       }
     }
+  }
+
+  void DropConnector() {
+    linkSource.BreakCurrentLink(
+        LinkActorType.Player,
+        moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+    HostedDebugLog.Info(this, "Link head dropped from the EVA kerbal");
   }
   #endregion
 }
