@@ -320,6 +320,8 @@ public class KASModuleCableJointBase : PartModule,
   /// <param name="tgtAnchor">The anchor point for the joint at the target in world space.</param>
   void CreateCableJoint(GameObject srcObj, Vector3 srcAnchor, Rigidbody tgtRb, Vector3 tgtAnchor) {
     cableJointObj = srcObj.gameObject.AddComponent<SpringJoint>();
+    cableJointObj.spring = cableSpringForce;
+    cableJointObj.damper = cableSpringDamper;
     cableJointObj.autoConfigureConnectedAnchor = false;
     cableJointObj.anchor = srcObj.transform.InverseTransformPoint(srcAnchor);
     cableJointObj.connectedBody = tgtRb;
