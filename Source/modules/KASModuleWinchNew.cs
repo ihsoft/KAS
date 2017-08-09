@@ -343,7 +343,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Context menu events/actions
-  /// <summary>A context menu item that starts extending the cable.</summary>
+  /// <summary>A context menu item that starts/stops extending the cable.</summary>
   /// <remarks>
   /// If the connector was locked it will be deployed. This method does nothing is the cable cannot
   /// be extended for any reason.
@@ -351,7 +351,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
-  public virtual void ExtentCableEvent() {
+  public virtual void ToggleExtendCableEvent() {
     if (Mathf.Approximately(cableJointObj.maxAllowedCableLength, cableJointObj.cfgMaxCableLength)) {
       // Already at the maximum length.
       ScreenMessaging.ShowPriorityScreenMessage(
@@ -368,7 +368,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Starts retracting the cable.</summary>
+  /// <summary>A context menu item that starts/stops retracting the cable.</summary>
   /// <remarks>
   /// If the cable length is zero but the connector is not locked, then this method will try to lock
   /// the connector. It does nothing is the cable cannot be retracted for any reason.
@@ -376,7 +376,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
-  public virtual void RetractCableEvent() {
+  public virtual void ToggleRetractCableEvent() {
     if (winchState == WinchState.ConnectorLocked) {
       ShowMessageForActiveVessel(ConnectorIsAlreadyLockedMsg);
       return;  // Nothing to do.
@@ -708,13 +708,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     deployedCableLengthMenuInfo = DistanceType.Format(
         cableJointObj != null ? cableJointObj.maxAllowedCableLength : 0);
     
-    PartModuleUtils.SetupEvent(this, ExtentCableEvent, e => {
       e.guiName = winchState == WinchState.CableExtending
+    PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
-    PartModuleUtils.SetupEvent(this, RetractCableEvent, e => {
       e.guiName = winchState == WinchState.CableRetracting
+    PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
