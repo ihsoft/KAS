@@ -758,7 +758,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     TurnConnectorPhysics(false, newConnectorOwner: target.nodeTransform);
     AlignTransforms.SnapAlign(connectorModelObj, connectorPartAnchor, target.nodeTransform);
     base.PhysicalLink(target);
-    //FIXME
     if (target.part.vessel.isEVA) {
       // When kerbal grabs the lock, link in the released state.
       SetCableLength(cableJointObj.cfgMaxCableLength);
@@ -931,7 +930,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <summary>Changes the winch state if the transition is allowed.</summary>
-  /// <remarks>Transition to the same state is always allowed.</remarks>
+  /// <remarks>The transition to the same state is always allowed.</remarks>
   /// <param name="newState">The new state of the winch to set.</param>
   /// <param name="reportNegative">
   /// If <c>true</c> then the negative responses will be logged as a warning in the logs. Set this
@@ -955,7 +954,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </summary>
   void DeployConnector() {
     TurnConnectorPhysics(true);
-    //FIXME: consider phisycal anchors
     linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
     HostedDebugLog.Info(this, "Winch connector is deployed");
   }
