@@ -384,11 +384,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
       return;
     }
-    // Bring the winch into the inital state for the extending cable action.
-    if (!TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
-      return;  // Unexpected.
-    }
-    motorState = motorState == MotorState.Extending ? MotorState.Idle : MotorState.Extending;
+    if (TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
+      motorState = motorState == MotorState.Extending ? MotorState.Idle : MotorState.Extending;
+    };
   }
 
   /// <summary>A context menu item that starts/stops retracting the cable.</summary>
@@ -411,11 +409,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       TryLockingConnector();
       return;
     }
-    // Bring the winch into the inital state for the retract cable action.
-    if (!TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
-      return;  // Unexpected.
+    if (TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
+      motorState = motorState == MotorState.Retracting ? MotorState.Idle : MotorState.Retracting;
     }
-    motorState = motorState == MotorState.Retracting ? MotorState.Idle : MotorState.Retracting;
   }
 
   /// <summary>
@@ -526,7 +522,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual ConnectorState connectorState {
     get { return stateMachine.currentState ?? ConnectorState.Locked; }
     private set {
-      motorState = MotorState.Idle;
+      if (stateMachine.currentState != value) {
+        motorState = MotorState.Idle;
+      }
       stateMachine.currentState = value;
     }
   }
@@ -941,18 +939,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </param>
   /// <returns><c>true</c> if state change was successful.</returns>
   bool TrySetConnectorState(ConnectorState newState, bool reportNegative = false) {
-    if (newState == connectorState) {
-      return true;
+    if (newState != connectorState && !stateMachine.CheckCanSwitchTo(newState)) {
+      if (reportNegative) {
+        HostedDebugLog.Warning(
+            this, "Ignore impossible state transition: {0} => {1}", connectorState, newState);
+      }
+      return false;
     }
-    if (stateMachine.CheckCanSwitchTo(newState)) {
-      connectorState = newState;
-      return true;
-    }
-    if (reportNegative) {
-      HostedDebugLog.Warning(
-          this, "Ignore impossible state transition: {0} => {1}", connectorState, newState);
-    }
-    return false;
+    connectorState = newState;
+    return true;
   }
   
   /// <summary>
