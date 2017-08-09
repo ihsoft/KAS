@@ -126,14 +126,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       example: "Maximum cable length reached: 1.23 m");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  //FIXME: drop in favor of ConnectorLockedMsg
-  protected static readonly Message ConnectorIsAlreadyLockedMsg = new Message(
-      "#kasLOC_08006",
-      defaultTemplate: "The connector is already locked",
-      description: "An info message to present when the cable retract action is attempted on a"
-      + " locked connector.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message StopExtendingMenuTxt = new Message(
       "#kasLOC_08007",
       defaultTemplate: "Stop extending",
@@ -400,7 +392,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [LocalizableItem(tag = null)]
   public virtual void ToggleRetractCableEvent() {
     if (connectorState == ConnectorState.Locked) {
-      ShowMessageForActiveVessel(ConnectorIsAlreadyLockedMsg);
+      ShowMessageForActiveVessel(ConnectorLockedMsg);
       return;  // Nothing to do.
     }
     // If the whole cable has been retracted, then just try to lock.
