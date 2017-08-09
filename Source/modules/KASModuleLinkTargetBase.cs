@@ -205,8 +205,8 @@ public class KASModuleLinkTargetBase :
   /// Context menu item to have the EVA carried connector attached to the target part.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, externalToEVAOnly = true,
-            guiActiveUnfocused = true, guiActiveUncommand = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true,
+            externalToEVAOnly = true, active = false)]
   [LocalizableItem(
       tag = "#kasLOC_03002",
       defaultTemplate = "Attach connector",
