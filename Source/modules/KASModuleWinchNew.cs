@@ -509,12 +509,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Controls the state of the winch.</summary>
   /// <value>The current winch state.</value>
   public virtual ConnectorState connectorState {
-    get { return stateMachine.currentState ?? ConnectorState.Locked; }
+    get { return connectorStateMachine.currentState ?? ConnectorState.Locked; }
     private set {
-      if (stateMachine.currentState != value) {
+      if (connectorStateMachine.currentState != value) {
         motorState = MotorState.Idle;
       }
-      stateMachine.currentState = value;
+      connectorStateMachine.currentState = value;
     }
   }
 
@@ -597,7 +597,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// The machine can be adjusted until it's started in the <see cref="OnStart"/> method.
   /// </remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  SimpleStateMachine<ConnectorState> stateMachine;
+  SimpleStateMachine<ConnectorState> connectorStateMachine;
 
   /// <summary>State machine that controls the motor states.</summary>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
@@ -628,14 +628,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
 
-    stateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
-    stateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-    stateMachine.SetTransitionConstraint(
+    connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
+    connectorStateMachine.onAfterTransition += (start, end) => {
+      UpdateContextMenu();
+      HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
+    };
+    connectorStateMachine.SetTransitionConstraint(
         ConnectorState.Locked, new[] { ConnectorState.Deployed });
-    stateMachine.SetTransitionConstraint(
+    connectorStateMachine.SetTransitionConstraint(
         ConnectorState.Deployed,
         new[] { ConnectorState.Locked  });
-    stateMachine.AddStateHandlers(
+    connectorStateMachine.AddStateHandlers(
         ConnectorState.Locked,
         enterHandler: oldState => {
           // The module's default state is "locked". Skip the state's machine start.
@@ -651,7 +654,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         });
     
     motorStateMachine = new SimpleStateMachine<MotorState>(strict: false);
-    motorStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+    motorStateMachine.onAfterTransition += (start, end) => {
+      UpdateContextMenu();
+      HostedDebugLog.Info(this, "Motor state changed: {0} => {1}", start, end);
+    };
     motorStateMachine.AddStateHandlers(
         MotorState.Idle,
         enterHandler: oldState => {
@@ -683,7 +689,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    stateMachine.currentState = ConnectorState.Locked;
+    connectorStateMachine.currentState = ConnectorState.Locked;
     base.OnLoad(node);
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(
@@ -927,7 +933,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </param>
   /// <returns><c>true</c> if state change was successful.</returns>
   bool TrySetConnectorState(ConnectorState newState, bool reportNegative = false) {
-    if (newState != connectorState && !stateMachine.CheckCanSwitchTo(newState)) {
+    if (newState != connectorState && !connectorStateMachine.CheckCanSwitchTo(newState)) {
       if (reportNegative) {
         HostedDebugLog.Warning(
             this, "Ignore impossible state transition: {0} => {1}", connectorState, newState);
@@ -944,7 +950,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void DeployConnector() {
     TurnConnectorPhysics(true);
     linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
-    HostedDebugLog.Info(this, "Winch connector is deployed");
   }
 
   /// <summary>
@@ -955,7 +960,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
     linkRenderer.StopRenderer();
     sndConnectorLock.Play();
-    HostedDebugLog.Info(this, "Winch connector is locked");
   }
 
   /// <summary>
