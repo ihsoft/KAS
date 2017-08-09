@@ -458,9 +458,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
             this, "{0} cannot grab the winch connector", FlightGlobals.ActiveVessel.vesselName);
         return;
       }
-      //FIXME: move it into parameter
-      //FIXME: check if part's config allows TiePartsOnDifferentVessels
-      //linkMode = LinkMode.TiePartsOnDifferentVessels;
       if (StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!LinkToTarget(kerbalTarget)) {
           CancelLinking(LinkActorType.API);
@@ -957,9 +954,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     TurnConnectorPhysics(false);
     AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
     linkRenderer.StopRenderer();
-
-    //FIXME: only play it if it's a player/eva action
-    //FIXME: turn into UI sound
     sndConnectorLock.Play();
     HostedDebugLog.Info(this, "Winch connector is locked");
   }
