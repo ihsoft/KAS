@@ -36,50 +36,64 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
-// Next localization ID: #kasLOC_08021.
+// Next localization ID: #kasLOC_08023.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IsPhysicalObject {
 
   #region Localizable GUI strings.
 
-  #region WinchState enum values
+  #region ConnectorState enum values
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message WinchStateMsg_ConnectorLocked = new Message(
+  static readonly Message ConnectorStateMsg_Locked = new Message(
       "#kasLOC_08001",
-      defaultTemplate: "Connector is locked",
+      defaultTemplate: "Connector locked",
       description: "A string in the context menu that tells that the winch connector is rigidly"
       + " attached to the and is not movable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message WinchStateMsg_ConnectorDeployed = new Message(
+  static readonly Message ConnectorStateMsg_Deployed = new Message(
       "#kasLOC_08018",
-      defaultTemplate: "Idle",
+      defaultTemplate: "Connector deployed",
       description: "A string in the context menu that tells that the winch connector is deployed"
       + " and attached to the winch via a cable.");
+  #endregion
+
+  /// <summary>Translates <see cref="ConnectorState"/> enum into a localized message.</summary>
+  protected static readonly MessageLookup<ConnectorState> ConnectorStatesMsgLookup =
+      new MessageLookup<ConnectorState>(new Dictionary<ConnectorState, Message>() {
+          {ConnectorState.Locked, ConnectorStateMsg_Locked},
+          {ConnectorState.Deployed, ConnectorStateMsg_Deployed},
+      });
+
+  #region MotorState enum values
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message MotorStateMsg_Idle = new Message(
+      "#kasLOC_08022",
+      defaultTemplate: "Idle",
+      description: "A string in the context menu that tells that the winch the motor is inactive.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message WinchStateMsg_CableExtending = new Message(
+  static readonly Message MotorStateMsg_Extending = new Message(
       "#kasLOC_08019",
       defaultTemplate: "Extending",
       description: "A string in the context menu that tells that the winch connector is deployed"
       + " and the cable is being extended.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message WinchStateMsg_CableRetracting = new Message(
+  static readonly Message MotorStateMsg_Retracting = new Message(
       "#kasLOC_08020",
       defaultTemplate: "Retracting",
       description: "A string in the context menu that tells that the winch connector is deployed"
       + " and the cable size being retracted.");
   #endregion
 
-  /// <summary>Translates <see cref="WinchState"/> enum into a localized message.</summary>
-  protected static readonly MessageLookup<WinchState> WinchStatesMsgLookup =
-      new MessageLookup<WinchState>(new Dictionary<WinchState, Message>() {
-          {WinchState.ConnectorLocked, WinchStateMsg_ConnectorLocked},
-          {WinchState.ConnectorDeployed, WinchStateMsg_ConnectorDeployed},
-          {WinchState.CableExtending, WinchStateMsg_CableExtending},
-          {WinchState.CableRetracting, WinchStateMsg_CableRetracting},
+  /// <summary>Translates <see cref="MotorState"/> enum into a localized message.</summary>
+  protected static readonly MessageLookup<MotorState> MotorStatesMsgLookup =
+      new MessageLookup<MotorState>(new Dictionary<MotorState, Message>() {
+          {MotorState.Idle, MotorStateMsg_Idle},
+          {MotorState.Extending, MotorStateMsg_Extending},
+          {MotorState.Retracting, MotorStateMsg_Retracting},
       });
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -320,25 +334,36 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region The context menu fields
-  /// <summary>Status field to display the current winch status in the context menu.</summary>
-  /// <see cref="winchState"/>
+  /// <summary>Status field to display the current connector status in the context menu.</summary>
+  /// <see cref="connectorState"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Winch state", guiActive = true)]
+  [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08012",
-      defaultTemplate = "Winch state",
-      description = "Status field to display the current winch status in the context menu.")]
-  public string connectorDeployStateMenuInfo = "";
+      defaultTemplate = "Connector state",
+      description = "Status field to display the current winch connector status in the context"
+      + " menu.")]
+  public string connectorStateMenuInfo = "";
+
+  /// <summary>Status field to display the current motor status in the context menu.</summary>
+  /// <see cref="motorState"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  [KSPField(guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08021",
+      defaultTemplate = "Motor state",
+      description = "Status field to display the current motor status in the context menu.")]
+  public string motorStateMenuInfo = "";
 
   /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="KASModuleCableJointBase.maxAllowedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Deployed length", guiActive = true)]
+  [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08013",
       defaultTemplate = "Deployed length",
       description = "A context menu item that presents the length of the currently deployed"
-      + "cable.")]
+      + " cable.")]
   public string deployedCableLengthMenuInfo = "";
   #endregion
 
@@ -348,6 +373,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// If the connector was locked it will be deployed. This method does nothing is the cable cannot
   /// be extended for any reason.
   /// </remarks>
+  /// <seealso cref="UpdateContextMenu"/>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
@@ -359,13 +385,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;
     }
     // Bring the winch into the inital state for the extending cable action.
-    var oldState = winchState;
-    if (!SetStateIfPossible(WinchState.ConnectorDeployed, reportNegative: true)) {
+    if (!TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
       return;  // Unexpected.
     }
-    if (oldState != WinchState.CableExtending) {
-      winchState = WinchState.CableExtending;  // Override any other state except the self.
-    }
+    motorState = motorState == MotorState.Extending ? MotorState.Idle : MotorState.Extending;
   }
 
   /// <summary>A context menu item that starts/stops retracting the cable.</summary>
@@ -373,28 +396,26 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// If the cable length is zero but the connector is not locked, then this method will try to lock
   /// the connector. It does nothing is the cable cannot be retracted for any reason.
   /// </remarks>
+  /// <seealso cref="UpdateContextMenu"/>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleRetractCableEvent() {
-    if (winchState == WinchState.ConnectorLocked) {
+    if (connectorState == ConnectorState.Locked) {
       ShowMessageForActiveVessel(ConnectorIsAlreadyLockedMsg);
       return;  // Nothing to do.
     }
     // If the whole cable has been retracted, then just try to lock.
-    if (winchState == WinchState.ConnectorDeployed
+    if (connectorState == ConnectorState.Deployed
         && cableJointObj.maxAllowedCableLength < Mathf.Epsilon) {
       TryLockingConnector();
       return;
     }
     // Bring the winch into the inital state for the retract cable action.
-    var oldState = winchState;
-    if (!SetStateIfPossible(WinchState.ConnectorDeployed, reportNegative: true)) {
+    if (!TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
       return;  // Unexpected.
     }
-    if (oldState != WinchState.CableRetracting) {
-      winchState = WinchState.CableRetracting;  // Override any other state except the self.
-    }
+    motorState = motorState == MotorState.Retracting ? MotorState.Idle : MotorState.Retracting;
   }
 
   /// <summary>
@@ -409,7 +430,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu item that sets the cable length ot the maximum, and unlocks"
       + " the connector if it was locked.")]
   public virtual void ReleaseCableEvent() {
-    if (SetStateIfPossible(WinchState.ConnectorDeployed)) {
+    if (TrySetConnectorState(ConnectorState.Deployed)) {
       SetCableLength(cableJointObj.cfgMaxCableLength);
       ScreenMessaging.ShowPriorityScreenMessage(
           MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
@@ -427,7 +448,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that sets the cable length to the current distance to the"
       + " connector.")]
   public virtual void InstantStretchEvent() {
-    if (winchState != WinchState.ConnectorLocked && SetStateIfPossible(WinchState.ConnectorDeployed)) {
+    if (connectorState != ConnectorState.Locked && TrySetConnectorState(ConnectorState.Deployed)) {
       SetCableLength(Mathf.Min(cableJointObj.realCableLength, cableJointObj.maxAllowedCableLength));
     }
   }
@@ -441,7 +462,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate = "Grab connector",
       description = "A context menu event that attaches the connector to the EVA kerbal.")]
   public virtual void GrabConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA && winchState == WinchState.ConnectorLocked) {
+    if (FlightGlobals.ActiveVessel.isEVA && connectorState == ConnectorState.Locked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => t.linkSource == null && t.cfgLinkType == cfgLinkType);
       if (kerbalTarget == null) {
@@ -478,7 +499,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (kerbalTarget != null) {
         // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
         BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
-        winchState = WinchState.ConnectorLocked;
+        connectorState = ConnectorState.Locked;
         HostedDebugLog.Info(
             this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
       } else {
@@ -488,28 +509,83 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region Externally visible state of the winch 
-  /// <summary>State of the motor.</summary>
-  /// <seealso cref="FixedUpdate"/>
-  public enum WinchState {
+  #region Externally visible state of the winch
+  /// <summary>State of the winch connector.</summary>
+  public enum ConnectorState {
     /// <summary>The connector is rigidly attached to the winch's body.</summary>
-    ConnectorLocked,
+    /// <remarks>In this state the model is a parent of the winch.</remarks>
+    Locked,
+
     /// <summary>The motor is not moving, and the connector is hanging free on the cable.</summary>
-    ConnectorDeployed,
-    /// <summary>The motor is spinning, giving an extra length of the available cable.</summary>
-    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
-    CableExtending,
-    /// <summary>The motor is spinning, reducing the length of the available cable.</summary>
-    /// <remarks>In this mode the electric charge resource is consumed.</remarks>
-    CableRetracting,
+    /// <remarks>In this state the model is a standalone physical object.</remarks>
+    Deployed,
   }
 
   /// <summary>Controls the state of the winch.</summary>
   /// <value>The current winch state.</value>
-  public virtual WinchState winchState {
-    get { return stateMachine.currentState ?? WinchState.ConnectorLocked; }
-    private set { stateMachine.currentState = value; }
+  public virtual ConnectorState connectorState {
+    get { return stateMachine.currentState ?? ConnectorState.Locked; }
+    private set {
+      motorState = MotorState.Idle;
+      stateMachine.currentState = value;
+    }
   }
+
+  #region IWinchControl candidates
+  /// <summary>State of the motor.</summary>
+  public enum MotorState {
+    /// <summary>The motor is not spinning.</summary>
+    /// <remarks>In this mode the electric charge is <i>not</i> consumed.</remarks>
+    Idle,
+    /// <summary>The motor is spinning, giving an extra length of the available cable.</summary>
+    /// <remarks>In this mode the electric charge is consumed.</remarks>
+    Extending,
+    /// <summary>The motor is spinning, reducing the length of the available cable.</summary>
+    /// <remarks>In this mode the electric charge is consumed.</remarks>
+    Retracting,
+  }
+
+  /// <summary>Current state of the winch motor.</summary>
+  /// <remarks>
+  /// If state is changed to <see cref="MotorState.Idle"/>, then the motor stops immediately. It
+  /// may result in the physical effects. When the mass on the cable is big and the speed is fast,
+  /// it's better to set the motor speed to <c>0</c> and wait until the state is reset.
+  /// </remarks>
+  /// <value>The state.</value>
+  /// <seealso cref="cfgMotorMaxSpeed"/>
+  public MotorState motorState {
+    get { return motorStateMachine.currentState ?? MotorState.Idle; }
+    set {
+      if (value != MotorState.Idle && connectorState != ConnectorState.Deployed) {
+        HostedDebugLog.Warning(this, "Cannot start motor is state: {0}", connectorState);
+        return;
+      }
+      motorStateMachine.currentState = value;
+    }
+  }
+
+  /// <summary>Cable extend/retract speed.</summary>
+  /// <remarks>
+  /// When the motor starts from an idle state, it may need some time to get to the speed. If the
+  /// speed is changed on the active motor, then the actual speed will change with respect to the
+  /// <see cref="cfgMotorAcceleration"/>. When the motor need to be shut-off immediately, set the
+  /// motor state to <see cref="MotorState.Idle"/>.
+  /// </remarks>
+  /// <value>Speed in meters per second.</value>
+  /// <seealso cref="cfgMotorAcceleration"/>
+  /// <seealso cref="motorState"/>
+  public float cfgMotorMaxSpeed {
+    get { return motorMaxSpeed; }
+    set { motorMaxSpeed = value; }
+  }
+
+  /// <summary>Acceleration to apply when changin the actual winch motor speed.</summary>
+  /// <value>Acceleration in meters per second squared.</value>
+  public float cfgMotorAcceleration {
+    get { return motorAcceleration; }
+    set { motorAcceleration = value; }
+  }
+  #endregion
 
   /// <summary>Tells if the winch connector is picked up by an EVA kerbal.</summary>
   /// <value><c>true</c> if the connector is being carried by a kerbal.</value>
@@ -524,7 +600,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// Depending on the current state this model can be a child to the part's model or a standalone
   /// object.
   /// </remarks>
-  /// <seealso cref="WinchState"/>
+  /// <seealso cref="ConnectorState"/>
   protected Transform connectorModelObj { get; private set; }
   #endregion
 
@@ -534,13 +610,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// The machine can be adjusted until it's started in the <see cref="OnStart"/> method.
   /// </remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  SimpleStateMachine<WinchState> stateMachine;
+  SimpleStateMachine<ConnectorState> stateMachine;
+
+  /// <summary>State machine that controls the motor states.</summary>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
+  SimpleStateMachine<MotorState> motorStateMachine;
 
   //FIXME: add comments to each field.
   Transform connectorCableAnchor;
   Transform connectorPartAnchor;
   float motorCurrentSpeed;
-  float motorTargetSpeed;
 
   AudioSource sndMotor;
   AudioSource sndMotorStart;
@@ -562,26 +641,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
 
-    stateMachine = new SimpleStateMachine<WinchState>(strict: true);
+    stateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
     stateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
     stateMachine.SetTransitionConstraint(
-        WinchState.ConnectorLocked, new[] { WinchState.ConnectorDeployed });
+        ConnectorState.Locked, new[] { ConnectorState.Deployed });
     stateMachine.SetTransitionConstraint(
-        WinchState.ConnectorDeployed,
-        new[] { WinchState.ConnectorLocked, WinchState.CableExtending, WinchState.CableRetracting });
-    stateMachine.SetTransitionConstraint(
-        WinchState.CableExtending, new[] { WinchState.ConnectorDeployed });
-    stateMachine.SetTransitionConstraint(
-        WinchState.CableRetracting, new[] { WinchState.ConnectorDeployed });
-
+        ConnectorState.Deployed,
+        new[] { ConnectorState.Locked  });
     stateMachine.AddStateHandlers(
-        WinchState.ConnectorDeployed,
-        enterHandler: oldState => {
-          motorTargetSpeed = 0;
-          motorCurrentSpeed = 0;
-        });
-    stateMachine.AddStateHandlers(
-        WinchState.ConnectorLocked,
+        ConnectorState.Locked,
         enterHandler: oldState => {
           // The module's default state is "locked". Skip the state's machine start.
           if (oldState.HasValue) {
@@ -594,33 +662,41 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
             DeployConnector();
           }
         });
-    stateMachine.AddStateHandlers(
-        WinchState.CableExtending,
+    
+    motorStateMachine = new SimpleStateMachine<MotorState>(strict: false);
+    motorStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+    motorStateMachine.AddStateHandlers(
+        MotorState.Idle,
         enterHandler: oldState => {
-          motorTargetSpeed = motorMaxSpeed;
-          sndMotorStart.Play();
-          sndMotor.Play();
-        },
-        leaveHandler: newState => {
-          sndMotorStop.Play();
-          sndMotor.Stop();
+          motorCurrentSpeed = 0;
         });
-    stateMachine.AddStateHandlers(
-        WinchState.CableRetracting,
+    motorStateMachine.AddStateHandlers(
+        MotorState.Extending,
         enterHandler: oldState => {
-          motorTargetSpeed = -motorMaxSpeed;
           sndMotorStart.Play();
           sndMotor.Play();
         },
         leaveHandler: newState => {
           sndMotorStop.Play();
           sndMotor.Stop();
+          motorCurrentSpeed = 0;
+        });
+    motorStateMachine.AddStateHandlers(
+        MotorState.Retracting,
+        enterHandler: oldState => {
+          sndMotorStart.Play();
+          sndMotor.Play();
+        },
+        leaveHandler: newState => {
+          sndMotorStop.Play();
+          sndMotor.Stop();
+          motorCurrentSpeed = 0;
         });
   }
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    stateMachine.currentState = WinchState.ConnectorLocked;
+    stateMachine.currentState = ConnectorState.Locked;
     base.OnLoad(node);
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(
@@ -644,7 +720,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (HighLogic.LoadedSceneIsEditor) {
       return;
     }
-    if (CheckIfDrainsElectricity()) {
+    if (motorState != MotorState.Idle) {
       UpdateMotor();
     }
   }
@@ -680,7 +756,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   protected override void PhysicalLink(ILinkTarget target) {
-    winchState = WinchState.ConnectorDeployed;  // Ensure the connector is deployed and not moving.
+    connectorState = ConnectorState.Deployed;  // Ensure the connector is deployed and not moving.
     TurnConnectorPhysics(false, newConnectorOwner: target.nodeTransform);
     AlignTransforms.SnapAlign(connectorModelObj, connectorPartAnchor, target.nodeTransform);
     base.PhysicalLink(target);
@@ -704,22 +780,23 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
-    connectorDeployStateMenuInfo = WinchStatesMsgLookup.Lookup(winchState);
+    connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
+    motorStateMenuInfo = MotorStatesMsgLookup.Lookup(motorState);
     deployedCableLengthMenuInfo = DistanceType.Format(
         cableJointObj != null ? cableJointObj.maxAllowedCableLength : 0);
     
-      e.guiName = winchState == WinchState.CableExtending
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
+      e.guiName = motorState == MotorState.Extending
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
-      e.guiName = winchState == WinchState.CableRetracting
     PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
+      e.guiName = motorState == MotorState.Retracting
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(
-        this, GrabConnectorEvent, e => e.active = winchState == WinchState.ConnectorLocked);
+        this, GrabConnectorEvent, e => e.active = connectorState == ConnectorState.Locked);
     PartModuleUtils.SetupEvent(
         this, LockConnectorEvent, e => e.active = isConnectorOnKerbal);
   }
@@ -741,12 +818,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Tells if the winch is a state that requires the electricity charge.</summary>
-  /// <returns><c>true</c> if winch is consuming electricity.</returns>
-  protected bool CheckIfDrainsElectricity() {
-    return winchState == WinchState.CableExtending || winchState == WinchState.CableRetracting;
-  }
-
   /// <summary>Sets the the maximum cable length and updates the winch state as needed.</summary>
   /// <param name="newLength">The new length in meters.</param>
   protected void SetCableLength(float newLength) {
@@ -756,20 +827,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Local utility methods
-  /// <summary>Updates the winch state according to the current motor movements.</summary>
-  /// <remarks>This method is only called when the winch is consuming electricity.</remarks>
-  /// <seealso cref="CheckIfDrainsElectricity"/>
+  /// <summary>Updates the winch connector cable according to the current motor movements.</summary>
+  /// <remarks>This method is only called when the motor is consuming electricity.</remarks>
   void UpdateMotor() {
     // Adjust the motor speed to the target.
-    if (motorCurrentSpeed < motorTargetSpeed) {
+    if (motorState == MotorState.Extending) {
       motorCurrentSpeed += motorAcceleration * Time.fixedDeltaTime;
-      if (motorCurrentSpeed > motorTargetSpeed) {
-        motorCurrentSpeed = motorTargetSpeed;
+      if (motorCurrentSpeed > cfgMotorMaxSpeed) {
+        motorCurrentSpeed = cfgMotorMaxSpeed;
       }
-    } else if (motorCurrentSpeed > motorTargetSpeed) {
+    } else if (motorState == MotorState.Retracting) {
       motorCurrentSpeed -= motorAcceleration * Time.fixedDeltaTime;
-      if (motorCurrentSpeed < motorTargetSpeed) {
-        motorCurrentSpeed = motorTargetSpeed;
+      if (motorCurrentSpeed < -cfgMotorMaxSpeed) {
+        motorCurrentSpeed = -cfgMotorMaxSpeed;
       }
     }
 
@@ -782,16 +852,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (motorCurrentSpeed > 0
           && cableJointObj.maxAllowedCableLength >= cableJointObj.cfgMaxCableLength) {
         SetCableLength(cableJointObj.cfgMaxCableLength);
-        winchState = WinchState.ConnectorDeployed;
+        motorState = MotorState.Idle;
         ScreenMessaging.ShowPriorityScreenMessage(
             MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
       } else if (motorCurrentSpeed < 0 && cableJointObj.maxAllowedCableLength <= 0) {
         SetCableLength(0);
-        winchState = WinchState.ConnectorDeployed;  // Stop the motor.
+        motorState = MotorState.Idle;
         TryLockingConnector();
       }
     } else {
-      winchState = WinchState.ConnectorDeployed;
+      motorState = MotorState.Idle;
       ScreenMessaging.ShowErrorScreenMessage(NoEnergyMsg);
     }
   }
@@ -857,7 +927,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
       return false;
     }
-    winchState = WinchState.ConnectorLocked;
+    connectorState = ConnectorState.Locked;
     ShowMessageForActiveVessel(ConnectorLockedMsg);
     return true;
   }
@@ -870,17 +940,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// parameter if the call is done for a sanity check.
   /// </param>
   /// <returns><c>true</c> if state change was successful.</returns>
-  bool SetStateIfPossible(WinchState newState, bool reportNegative = false) {
-    if (newState == winchState) {
+  bool TrySetConnectorState(ConnectorState newState, bool reportNegative = false) {
+    if (newState == connectorState) {
       return true;
     }
     if (stateMachine.CheckCanSwitchTo(newState)) {
-      winchState = newState;
+      connectorState = newState;
       return true;
     }
     if (reportNegative) {
       HostedDebugLog.Warning(
-          this, "Ignore impossible state transition: {0} => {1}", winchState, newState);
+          this, "Ignore impossible state transition: {0} => {1}", connectorState, newState);
     }
     return false;
   }
