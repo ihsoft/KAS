@@ -689,7 +689,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    connectorStateMachine.currentState = ConnectorState.Locked;
     base.OnLoad(node);
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(
@@ -702,6 +701,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
+    connectorStateMachine.currentState = ConnectorState.Locked;
+    motorStateMachine.currentState = MotorState.Idle;
     UpdateContextMenu();
   }
   #endregion
