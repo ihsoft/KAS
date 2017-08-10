@@ -205,7 +205,7 @@ public class KASModuleCableJointBase : PartModule,
     linkSource = null;
     linkTarget = null;
     isLinked = false;
-    UnityEngine.Object.Destroy(cableJointObj);
+    Object.Destroy(cableJointObj);
     cableJointObj = null;
     headSource = null;
     headRb = null;
