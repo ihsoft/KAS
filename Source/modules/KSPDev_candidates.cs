@@ -195,7 +195,7 @@ public static class PartModel {
       return;
     }
     var ownerPart = modelObj.GetComponentInParent<Part>();
-    if (ownerPart != null) {
+    if (ownerPart != null && ownerPart.HighlightRenderer != null) {
       ownerPart.RefreshHighlighter();
       var partModel = Hierarchy.GetPartModelTransform(ownerPart);
       ownerPart.HighlightRenderer.RemoveAll(x => x == null || !x.transform.IsChildOf(partModel));
