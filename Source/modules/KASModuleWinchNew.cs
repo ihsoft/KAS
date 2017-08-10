@@ -497,13 +497,26 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region Externally visible state of the winch
   /// <summary>State of the winch connector.</summary>
   public enum ConnectorState {
-    /// <summary>The connector is rigidly attached to the winch's body.</summary>
-    /// <remarks>In this state the model is a parent of the winch.</remarks>
+    /// <summary>
+    /// The connector is rigidly attached to the winch's body. The model is a parent of the winch
+    /// model.
+    /// </summary>
     Locked,
 
-    /// <summary>The motor is not moving, and the connector is hanging free on the cable.</summary>
-    /// <remarks>In this state the model is a standalone physical object.</remarks>
+    /// <summary>
+    /// The connector is a standalone physical object, attached to the winch via the cable.
+    /// </summary>
     Deployed,
+    
+    /// <summary>
+    /// The connector is plugged to a link target. It doesn't have physics, and its model is part of
+    /// the target's model.
+    /// </summary>
+    /// <remarks>
+    /// This state can only exist if the winch's link source is linked to a target.
+    /// </remarks>
+    /// <seealso cref="KASModuleLinkSourceBase"/>
+    Plugged,
   }
 
   /// <summary>Controls the state of the winch.</summary>
@@ -629,31 +642,58 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
 
+    #region Connector state machine
     connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
       UpdateContextMenu();
       HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
     };
     connectorStateMachine.SetTransitionConstraint(
-        ConnectorState.Locked, new[] { ConnectorState.Deployed });
+        ConnectorState.Locked, new[] { ConnectorState.Deployed, ConnectorState.Plugged });
     connectorStateMachine.SetTransitionConstraint(
-        ConnectorState.Deployed,
-        new[] { ConnectorState.Locked  });
+        ConnectorState.Deployed, new[] { ConnectorState.Locked, ConnectorState.Plugged });
+    connectorStateMachine.SetTransitionConstraint(
+        ConnectorState.Plugged, new[] { ConnectorState.Deployed });
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Locked,
         enterHandler: oldState => {
-          // The module's default state is "locked". Skip the state's machine start.
-          if (oldState.HasValue) {
-            LockConnector();
+          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
+          AlignTransforms.SnapAlign(
+              connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
+          if (oldState.HasValue) {  // Skip when restoring state.
+            sndConnectorLock.Play();
+          }
+        });
+    connectorStateMachine.AddStateHandlers(
+        ConnectorState.Deployed,
+        enterHandler: oldState => {
+          TurnConnectorPhysics(true);
+          linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
+          if (!oldState.HasValue) {  // Restore state.
+            connectorModelObj.position = persistedConnectorPosAndRot.pos;
+            connectorModelObj.rotation = persistedConnectorPosAndRot.rot;
+            SetCableLength(persistedCableLength);
           }
         },
         leaveHandler: newState => {
-          // Don't deploy if it's just the state machine stopping.
-          if (newState.HasValue) {
-            DeployConnector();
-          }
+          TurnConnectorPhysics(false);
+          linkRenderer.StopRenderer();
         });
-    
+    connectorStateMachine.AddStateHandlers(
+        ConnectorState.Plugged,
+        enterHandler: oldState => {
+          connectorModelObj.parent = linkTarget.nodeTransform;
+          AlignTransforms.SnapAlign(
+              connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
+          linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
+        },
+        leaveHandler: newState => {
+          connectorModelObj.parent = nodeTransform;  // Back to the model.
+          linkRenderer.StopRenderer();
+        });
+    #endregion
+
+    #region Motor state machine
     motorStateMachine = new SimpleStateMachine<MotorState>(strict: false);
     motorStateMachine.onAfterTransition += (start, end) => {
       UpdateContextMenu();
@@ -686,6 +726,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           sndMotor.Stop();
           motorCurrentSpeed = 0;
         });
+    #endregion
   }
 
   /// <inheritdoc/>
@@ -744,10 +785,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
+  protected override void LogicalLink(ILinkTarget target) {
+    base.LogicalLink(target);
+    connectorState = ConnectorState.Plugged;
+  }
+
+  /// <inheritdoc/>
   protected override void PhysicalLink(ILinkTarget target) {
-    connectorState = ConnectorState.Deployed;  // Ensure the connector is deployed and not moving.
-    TurnConnectorPhysics(false, newConnectorOwner: target.nodeTransform);
-    AlignTransforms.SnapAlign(connectorModelObj, connectorPartAnchor, target.nodeTransform);
     base.PhysicalLink(target);
     if (target.part.vessel.isEVA) {
       // When kerbal grabs the lock, link in the released state.
@@ -758,7 +802,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
     base.LogicalUnlink(actorType);
-    DeployConnector();
+    connectorState = ConnectorState.Deployed;
     var connectorDistanceAtBreak = Vector3.Distance(physicalAnchorTransform.position,
                                                     connectorCableAnchor.position);
     SetCableLength(Mathf.Min(connectorDistanceAtBreak, cableJointObj.cfgMaxCableLength));
@@ -941,24 +985,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   
   /// <summary>
-  /// Turns the connector into a physical object that's linked to the winch via a cable.
-  /// </summary>
-  void DeployConnector() {
-    TurnConnectorPhysics(true);
-    linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
-  }
-
-  /// <summary>
-  /// Turns a physical connector back into a physicsless mesh within the part's model.
-  /// </summary>
-  void LockConnector() {
-    TurnConnectorPhysics(false);
-    AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
-    linkRenderer.StopRenderer();
-    sndConnectorLock.Play();
-  }
-
-  /// <summary>
   /// Makes the winch connector an idependent physcal onbject or returns it into a part's model as
   /// a physicsless object.
   /// </summary>
@@ -1030,8 +1056,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       connectorCableAnchor = connectorModelObj;
       connectorPartAnchor = connectorModelObj;
     }
-    // Ensure the connector is aligned as we expect it to be.
-    AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
   }
   #endregion
 }
