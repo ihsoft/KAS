@@ -319,7 +319,9 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
+    linkStateMachine = new SimpleStateMachine<LinkState>(strict: true);
+    linkStateMachine.onAfterTransition +=
+        (start, end) => HostedDebugLog.Info(this, "Link state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.Linking, LinkState.RejectingLinks});
