@@ -606,9 +606,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region Local properties and fields
   /// <summary>State machine that defines and controls the winch state.</summary>
-  /// <remarks>
-  /// The machine can be adjusted until it's started in the <see cref="OnStart"/> method.
-  /// </remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   SimpleStateMachine<ConnectorState> connectorStateMachine;
 
@@ -733,13 +730,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     if (connectorMass > part.mass) {
-      HostedDebugLog.Error(
-          this, "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
+      HostedDebugLog.Error(this,
+          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
     }
     LoadOrCreateConnectorModel();
   }
-  
+
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
