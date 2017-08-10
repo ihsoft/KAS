@@ -993,12 +993,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// cleaned up at the frame end. The caller must consider it when dealing with the connector.
   /// </remarks>
   /// <param name="state">The physical state of the connector: <c>true</c> means "physical".</param>
-  /// <param name="newConnectorOwner">
-  /// The new parent of the physicsless connector model. If it's <c>null</c>, then the part's model
-  /// will be the parent. This parameter has no meaning when <paramref name="state"/> is
-  /// <c>true</c>.
-  /// </param>
-  void TurnConnectorPhysics(bool state, Transform newConnectorOwner = null) {
+  void TurnConnectorPhysics(bool state) {
     if (state && cableJointObj.headRb == null) {
       HostedDebugLog.Info(this, "Make the cable connector physical");
       var connector = InternalKASModulePhysicalConnector.Promote(
@@ -1010,9 +1005,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     } else if (!state && cableJointObj.headRb != null) {
       HostedDebugLog.Info(this, "Make the cable connector non-physical");
       cableJointObj.StopPhysicalHead();
-      InternalKASModulePhysicalConnector.Demote(
-          connectorModelObj.gameObject,
-          newOwner: newConnectorOwner ?? Hierarchy.GetPartModelTransform(part));
+      InternalKASModulePhysicalConnector.Demote(connectorModelObj.gameObject);
       part.mass += connectorMass;
       part.rb.mass += connectorMass;
     }

@@ -62,17 +62,13 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
 
   /// <summary>Removes the physical behavior from the connector object.</summary>
   /// <param name="obj">The connector object to remove the behavior from.</param>
-  /// <param name="newOwner">
-  /// The owner which will the ownership over the model. If it's not specified, then the ownership
-  /// is transferred back to the owner module.
-  /// </param>
   /// <returns></returns>
-  public static bool Demote(GameObject obj, Transform newOwner = null) {
+  public static bool Demote(GameObject obj) {
     var connectorModule = obj.GetComponent<InternalKASModulePhysicalConnector>();
     if (connectorModule == null) {
       return false;
     }
-    connectorModule.CleanupModule(newOwner);
+    connectorModule.CleanupModule();
     Destroy(connectorModule);
     return true;
   }
@@ -102,7 +98,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   }
 
   void OnDestroy() {
-    CleanupModule(null);
+    CleanupModule();
   }
 
   void FixedUpdate() {
@@ -114,12 +110,11 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
 
   /// <summary>Destroys all the module's physical objects.</summary>
   /// <remarks>It doesn't (and must not) do it immediately.</remarks>
-  /// <param name="newOwnerModel"></param>
-  void CleanupModule(Transform newOwnerModel) {
-    if (newOwnerModel != null || ownerModule != null) {
+  void CleanupModule() {
+    if (ownerModule != null) {
       // Bring the model back to the part or to the new host.
-      PartModel.SetModelParent(gameObject.transform, 
-                               newOwnerModel ?? Hierarchy.GetPartModelTransform(ownerModule.part));
+      PartModel.SetModelParent(
+          gameObject.transform, Hierarchy.GetPartModelTransform(ownerModule.part));
     }
     if (connectorRb) {
       connectorRb.isKinematic = true;  // To nullify any residual momentum.
