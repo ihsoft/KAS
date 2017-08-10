@@ -107,12 +107,12 @@ public interface ILinkRenderer {
   /// <param name="target">The target node.</param>
   void StartRenderer(Transform source, Transform target);
 
-  /// <summary>Cancells rendering the link.</summary>
+  /// <summary>Cancels rendering the link.</summary>
   /// <remarks>
-  /// THe stopped renderers are not required to not render anything. The stopped state only tells
-  /// that the source and the target position provided to the <see cref="StartRenderer"/> method
+  /// The stopped renderer is not required to not render anything. The stopped state only tells
+  /// that the source and the target positions provided to the <see cref="StartRenderer"/> method
   /// must not be respresented as connected anymore. A specific renderer implementation is free to
-  /// choose how to represent this situation.
+  /// choose how to represent this mode.
   /// <para>
   /// It's OK to call this method multiple time. If the renderer is already stopped the call must be
   /// treated as NO-OP with a little or no performance cost.
