@@ -288,16 +288,32 @@ public class KASModuleLinkSourceBase : PartModule,
   protected bool isLinked {
     get { return linkState == LinkState.Linked; }
   }
-  #endregion
 
-  /// <summary>State machine that controls event reaction in different states.</summary>
+  /// <summary>
+  /// State machine that controls the source state tranistions and defines the reaction on these
+  /// changes.
+  /// </summary>
   /// <remarks>
-  /// Primary usage of the machine is managing subscriptions to the different game events. It's
-  /// highly discouraged to use it for firing events or taking actions. Initial state can be setup
-  /// under different circumstances, and the associated events and actions may get triggered at the
-  /// inappropriate moment.
+  /// When the state is restored form a config file, it can be set to any arbitrary value. To
+  /// properly handle it, the state transition handlers behavior must be consistent:  
+  /// <list type="bullet">
+  /// <item>
+  /// Define the "default" state which is set on the module in the <c>OnAwake</c> method.
+  /// </item>
+  /// <item>
+  /// In the <c>enterState</c> handlers assume the current state is the "default", and do <i>all</i>
+  /// the adjustment to set the new state. Do <i>not</i> assume the transition has happen from
+  /// another known state.
+  /// </item>
+  /// <item>
+  /// In the <c>leaveState</c> handlers reset all the settings to bring the module back to the
+  /// "default" state. Don't leave anything behind!
+  /// </item>
+  /// </list>
   /// </remarks>
-  SimpleStateMachine<LinkState> linkStateMachine;
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
+  protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
+  #endregion
 
   #region PartModule overrides
   /// <inheritdoc/>
