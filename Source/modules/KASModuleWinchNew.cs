@@ -622,6 +622,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
@@ -721,12 +722,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region KASModuleLikSourceBase overrides
-  /// <inheritdoc/>
-  protected override void OnStateChange(LinkState? oldState) {
-    base.OnStateChange(oldState);
-    UpdateContextMenu();
-  }
-
   /// <inheritdoc/>
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
