@@ -36,7 +36,7 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
-// Next localization ID: #kasLOC_08023.
+// Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IsPhysicalObject {
@@ -47,16 +47,23 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
       "#kasLOC_08001",
-      defaultTemplate: "Connector locked",
+      defaultTemplate: "Locked",
       description: "A string in the context menu that tells that the winch connector is rigidly"
       + " attached to the and is not movable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Deployed = new Message(
       "#kasLOC_08018",
-      defaultTemplate: "Connector deployed",
+      defaultTemplate: "Deployed",
       description: "A string in the context menu that tells that the winch connector is deployed"
       + " and attached to the winch via a cable.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsg_Plugged = new Message(
+      "#kasLOC_08023",
+      defaultTemplate: "Plugged in",
+      description: "A string in the context menu that tells that the winch connector is plugged in"
+      + " a socked or is being carried by a kerbal, and attached to the winch via a cable.");
   #endregion
 
   /// <summary>Translates <see cref="ConnectorState"/> enum into a localized message.</summary>
@@ -64,6 +71,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       new MessageLookup<ConnectorState>(new Dictionary<ConnectorState, Message>() {
           {ConnectorState.Locked, ConnectorStateMsg_Locked},
           {ConnectorState.Deployed, ConnectorStateMsg_Deployed},
+          {ConnectorState.Plugged, ConnectorStateMsg_Plugged},
       });
 
   #region MotorState enum values
