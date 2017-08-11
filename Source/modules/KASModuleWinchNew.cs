@@ -376,7 +376,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
       return;
     }
-    if (TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
+    if (connectorState == ConnectorState.Locked) {
+      connectorState = ConnectorState.Deployed;
+    }
+    if (connectorState == ConnectorState.Deployed) {
       motorState = motorState == MotorState.Extending ? MotorState.Idle : MotorState.Extending;
     };
   }
@@ -396,12 +399,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;  // Nothing to do.
     }
     // If the whole cable has been retracted, then just try to lock.
-    if (connectorState == ConnectorState.Deployed
-        && cableJointObj.maxAllowedCableLength < Mathf.Epsilon) {
-      TryLockingConnector();
-      return;
-    }
-    if (TrySetConnectorState(ConnectorState.Deployed, reportNegative: true)) {
+    if (connectorState == ConnectorState.Deployed) {
+      if (cableJointObj.maxAllowedCableLength < Mathf.Epsilon) {
+        TryLockingConnector();
+        return;
+      }
       motorState = motorState == MotorState.Retracting ? MotorState.Idle : MotorState.Retracting;
     }
   }
@@ -418,7 +420,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu item that sets the cable length ot the maximum, and unlocks"
       + " the connector if it was locked.")]
   public virtual void ReleaseCableEvent() {
-    if (TrySetConnectorState(ConnectorState.Deployed)) {
+    if (connectorState == ConnectorState.Locked) {
+      connectorState = ConnectorState.Deployed;
+    }
+    if (connectorState == ConnectorState.Deployed) {
       SetCableLength(cableJointObj.cfgMaxCableLength);
       ScreenMessaging.ShowPriorityScreenMessage(
           MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
@@ -436,7 +441,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that sets the cable length to the current distance to the"
       + " connector.")]
   public virtual void InstantStretchEvent() {
-    if (connectorState != ConnectorState.Locked && TrySetConnectorState(ConnectorState.Deployed)) {
+    if (connectorState == ConnectorState.Deployed) {
       SetCableLength(Mathf.Min(cableJointObj.realCableLength, cableJointObj.maxAllowedCableLength));
     }
   }
@@ -961,26 +966,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     return true;
   }
 
-  /// <summary>Changes the winch state if the transition is allowed.</summary>
-  /// <remarks>The transition to the same state is always allowed.</remarks>
-  /// <param name="newState">The new state of the winch to set.</param>
-  /// <param name="reportNegative">
-  /// If <c>true</c> then the negative responses will be logged as a warning in the logs. Set this
-  /// parameter if the call is done for a sanity check.
-  /// </param>
-  /// <returns><c>true</c> if state change was successful.</returns>
-  bool TrySetConnectorState(ConnectorState newState, bool reportNegative = false) {
-    if (newState != connectorState && !connectorStateMachine.CheckCanSwitchTo(newState)) {
-      if (reportNegative) {
-        HostedDebugLog.Warning(
-            this, "Ignore impossible state transition: {0} => {1}", connectorState, newState);
-      }
-      return false;
-    }
-    connectorState = newState;
-    return true;
-  }
-  
   /// <summary>
   /// Makes the winch connector an idependent physcal onbject or returns it into a part's model as
   /// a physicsless object.
