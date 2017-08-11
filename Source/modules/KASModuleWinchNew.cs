@@ -152,7 +152,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message CableLinkBrokenMsg = new Message(
       "#kasLOC_08011",
-      defaultTemplate: "The connectior is detached due to the cable strength is exceeded",
+      defaultTemplate: "The connector is detached due to the cable strength is exceeded",
       description: "A message to display when a too string force has broke the link between the"
       + "winch and it's target.");
   #endregion

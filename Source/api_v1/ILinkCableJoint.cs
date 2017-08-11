@@ -49,8 +49,7 @@ public interface ILinkCableJoint : ILinkJointBase {
   Transform headPhysicalAnchorObj { get; }
 
   /// <summary>
-  /// Tells/defines the maximum possible distance between the source's physical anchor and 
-  /// head/target physical anchor.
+  /// Maximum possible distance between the source's physical and head/target physical anchors.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -74,10 +73,11 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// <summary>
   /// Returns the actual distance between the source and target/head physical anchors.
   /// </summary>
-  /// <value>
-  /// The distance in meters or <c>0</c> if the link is not established and there is no head
+  /// <remarks>
+  /// It's always <c>0</c> if the link is not established and there is no head
   /// started.
-  /// </value>
+  /// </remarks>
+  /// <value>The distance in meters.</value>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   /// <seealso cref="headPhysicalAnchorObj"/>

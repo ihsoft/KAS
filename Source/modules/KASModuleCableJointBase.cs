@@ -308,7 +308,7 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   #region Utility methods
-  /// <summary>Connects two rigid bodies with a spring joint).</summary>
+  /// <summary>Connects two rigidbodies with a spring joint.</summary>
   /// <remarks>
   /// The link max length is set to <see cref="maxAllowedCableLength"/>. If it's shorter than the
   /// real distance between the objects, then the actual length is used to avoid the physical
@@ -318,7 +318,7 @@ public class KASModuleCableJointBase : PartModule,
   /// The game object owns the source rigid body. It will also own the joint.
   /// </param>
   /// <param name="srcAnchor">The anchor point for the joint at the source in world space.</param>
-  /// <param name="tgtRb">The rigid body of the target.</param>
+  /// <param name="tgtRb">The rigidbody of the target.</param>
   /// <param name="tgtAnchor">The anchor point for the joint at the target in world space.</param>
   void CreateCableJoint(GameObject srcObj, Vector3 srcAnchor, Rigidbody tgtRb, Vector3 tgtAnchor) {
     cableJointObj = srcObj.gameObject.AddComponent<SpringJoint>();
