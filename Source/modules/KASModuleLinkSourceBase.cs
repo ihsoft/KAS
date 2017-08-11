@@ -570,7 +570,7 @@ public class KASModuleLinkSourceBase : PartModule,
       return;
     }
     var targetRootPart = linkTarget.part;
-    PhysicalUnink(linkTarget);
+    PhysicalUnlink(linkTarget);
     LogicalUnlink(actorType);
     // If either source or target part after the separation belong to the active vessel then adjust
     // the focus. Otherwise, the actor was external (e.g. EVA).
@@ -706,7 +706,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <remarks>It's always called <i>before</i> the logical link updates.</remarks>
   /// <param name="target">The target to break a physical link with.</param>
   /// <see cref="LogicalUnlink"/>
-  protected virtual void PhysicalUnink(ILinkTarget target) {
+  protected virtual void PhysicalUnlink(ILinkTarget target) {
     if (linkMode == LinkMode.DockVessels) {
       HostedDebugLog.Info(this, "Undock from vessel: {0}", target.part.vessel);
       // FIXME: restore vessels names/types
@@ -741,7 +741,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// </summary>
   /// <remarks>It's always called <i>after</i> the physical link updates.</remarks>
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
-  /// <see cref="PhysicalUnink"/>
+  /// <see cref="PhysicalUnlink"/>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
     HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}...",
                         linkTarget as PartModule, actorType);
