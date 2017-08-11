@@ -103,18 +103,15 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public virtual float maxAllowedCableLength {
-    get {
-      return cableJointObj != null ? cableJointObj.maxDistance : 0;
-    }
+    get { return _maxAllowedCableLength; }
     set {
+      _maxAllowedCableLength = value;
       if (cableJointObj != null) {
         cableJointObj.maxDistance = value;
-      } else {
-        HostedDebugLog.Error(
-            this, "Setting the cable length to {0} on a non-existing joint object", value);
       }
     }
   }
+  float _maxAllowedCableLength;
 
   /// <inheritdoc/>
   public float realCableLength {
@@ -312,6 +309,11 @@ public class KASModuleCableJointBase : PartModule,
 
   #region Utility methods
   /// <summary>Connects two rigid bodies with a spring joint).</summary>
+  /// <remarks>
+  /// The link max length is set to <see cref="maxAllowedCableLength"/>. If it's shorter than the
+  /// real distance between the objects, then the actual length is used to avoid the physical
+  /// effects.
+  /// </remarks>
   /// <param name="srcObj">
   /// The game object owns the source rigid body. It will also own the joint.
   /// </param>
@@ -326,7 +328,7 @@ public class KASModuleCableJointBase : PartModule,
     cableJointObj.anchor = srcObj.transform.InverseTransformPoint(srcAnchor);
     cableJointObj.connectedBody = tgtRb;
     cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
-    cableJointObj.maxDistance = realCableLength;
+    cableJointObj.maxDistance = Mathf.Max(realCableLength, maxAllowedCableLength);
     cableJointObj.breakForce = cableBreakForce;
     cableJointObj.breakTorque = Mathf.Infinity;  // Cable is not sensitive to the rotations. 
   }

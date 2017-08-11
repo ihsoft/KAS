@@ -53,18 +53,22 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// head/target physical anchor.
   /// </summary>
   /// <remarks>
-  /// Reducing the value of this property may affect the physical joint object. When setting a value
-  /// less than <see cref="realCableLength"/>, a physical effect will trigger. Don't reduce the
-  /// value too rapidly to avoid the destructive physical effects. 
+  /// <para>
+  /// Reducing the value of this property may trigger the physical effects if the value is less than
+  /// <see cref="realCableLength"/>, a physical effect will trigger. Don't reduce the value too
+  /// rapidly since it will apply a higher force on the connected objects.
+  /// </para>
+  /// <para>
+  /// This value will be used when establishing a link to a physical head. If it's lower than the
+  /// actual distance between the objects, then the real distance will be used instead.   
+  /// </para>
   /// </remarks>
-  /// <value>
-  /// The length in meters or <c>0</c> if the link is not established and there is no head
-  /// started.
-  /// </value>
+  /// <value>The length in meters.</value>
   /// <seealso cref="headRb"/>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   /// <seealso cref="headPhysicalAnchorObj"/>
+  /// <seealso cref="StartPhysicalHead"/>
   float maxAllowedCableLength { get; set; }
 
   /// <summary>
