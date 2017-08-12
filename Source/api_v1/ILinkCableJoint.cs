@@ -8,6 +8,18 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 /// <summary>
+/// The full set of all the public properties that fires the
+/// <see cref="IKasPropertyChangeListener.OnKASPropertyChanged"/> event on the
+/// <see cref="ILinkCableJoint"/> interface.
+/// </summary>
+/// <remarks>Keep the property names matching their actual names in teh code.</remarks>
+// disable once ConvertToStaticType
+public class ILinkCableJoint_Properties {
+  /// <summary>See <see cref="ILinkCableJoint.maxAllowedCableLength"/></summary>
+  public const string maxAllowedCableLength = "maxAllowedCableLength";
+}
+
+/// <summary>
 /// Interafce for a physical cable link. Such links keep the dsitance between the object below the
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
@@ -60,6 +72,10 @@ public interface ILinkCableJoint : ILinkJointBase {
   /// <para>
   /// This value will be used when establishing a link to a physical head. If it's lower than the
   /// actual distance between the objects, then the real distance will be used instead.   
+  /// </para>
+  /// <para>
+  /// When this property is changed, it fires a notification for name
+  /// <see cref="ILinkCableJoint_Properties.maxAllowedCableLength"/>.
   /// </para>
   /// </remarks>
   /// <value>The length in meters.</value>

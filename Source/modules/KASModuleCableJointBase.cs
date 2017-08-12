@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using System.Collections;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -109,6 +110,9 @@ public class KASModuleCableJointBase : PartModule,
       if (cableJointObj != null) {
         cableJointObj.maxDistance = value;
       }
+      part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
+          x.OnKASPropertyChanged(this as ILinkCableJoint,
+                                 ILinkCableJoint_Properties.maxAllowedCableLength));
     }
   }
   float _maxAllowedCableLength;
