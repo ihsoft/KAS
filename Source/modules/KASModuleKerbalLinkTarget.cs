@@ -104,7 +104,13 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
           this, "Try picking up a physical connector of: {0}...", closestSource as PartModule);
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
           && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (!closestSource.LinkToTarget(this)) {
+        if (closestSource.LinkToTarget(this)) {
+          //FIXME: Migrate to the interface when ready.
+          var winch = closestSource as KASModuleWinchNew;
+          if (winch != null) {
+            winch.cableJoint.maxAllowedCableLength = winch.cableJoint.cfgMaxCableLength;
+          }
+        } else {
           closestSource.CancelLinking(LinkActorType.API);
         }
       } else {
