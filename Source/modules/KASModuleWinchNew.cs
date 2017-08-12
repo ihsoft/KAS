@@ -39,8 +39,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu, IsPhysicalObject {
-
+    IHasContextMenu, IsPhysicalObject, IKasPropertyChangeListener {
   #region Localizable GUI strings.
 
   #region ConnectorState enum values
@@ -768,6 +767,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
     if (motorState != MotorState.Idle) {
       UpdateMotor();
+    }
+  }
+  #endregion
+
+  #region IKASPropertyChangeListener implementation
+  /// <inheritdoc/>
+  public void OnKASPropertyChanged(object owner, string name) {
+    if (ReferenceEquals(owner, cableJoint)) {
+      UpdateContextMenu();
     }
   }
   #endregion
