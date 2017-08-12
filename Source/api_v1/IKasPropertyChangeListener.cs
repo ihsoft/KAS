@@ -20,16 +20,16 @@ namespace KASAPIv1 {
 /// </para>
 /// </remarks>
 public interface IKasPropertyChangeListener {
-  /// <summary>Notifies that the property change is about to happen.</summary>
-  /// <param name="module">The module which property value has changed.</param>
+  /// <summary>Notifies that the property value has changed.</summary>
+  /// <param name="owner">
+  /// The owner of the property which value has changed. The type of this object must be the type
+  /// that declares the property. And this type must be a descendant of <c>PartModule</c>.  
+  /// </param>
   /// <param name="name">
   /// The name of the property. It isn't required to be the real name of the property in the code.
+  /// However, it's highlty encouraged to keep the consistency.
   /// </param>
-  /// <param name="oldValue">The current value of the prioperty.</param>
-  /// <param name="newValue">
-  /// The new value which will be set once the notification is handled.
-  /// </param>
-  void OnKASPropertyChanged(PartModule module, string name, object oldValue, object newValue);
+  void OnKASPropertyChanged(object owner, string name);
 }
 
 }  // namespace
