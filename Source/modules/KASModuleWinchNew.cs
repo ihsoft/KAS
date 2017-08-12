@@ -377,10 +377,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleExtendCableEvent() {
-    if (Mathf.Approximately(cableJointObj.maxAllowedCableLength, cableJointObj.cfgMaxCableLength)) {
+    if (Mathf.Approximately(cableJoint.maxAllowedCableLength, cableJoint.cfgMaxCableLength)) {
       // Already at the maximum length.
       ScreenMessaging.ShowPriorityScreenMessage(
-          MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
+          MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       return;
     }
     if (connectorState == ConnectorState.Locked) {
@@ -407,7 +407,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
     // If the whole cable has been retracted, then just try to lock.
     if (connectorState == ConnectorState.Deployed) {
-      if (cableJointObj.maxAllowedCableLength < Mathf.Epsilon) {
+      if (cableJoint.maxAllowedCableLength < Mathf.Epsilon) {
         TryLockingConnector();
         return;
       }
@@ -431,9 +431,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       connectorState = ConnectorState.Deployed;
     }
     if (connectorState == ConnectorState.Deployed) {
-      SetCableLength(cableJointObj.cfgMaxCableLength);
+      cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
       ScreenMessaging.ShowPriorityScreenMessage(
-          MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
+          MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
     }
   }
 
@@ -449,7 +449,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     if (connectorState == ConnectorState.Deployed) {
-      SetCableLength(Mathf.Min(cableJointObj.realCableLength, cableJointObj.maxAllowedCableLength));
+      cableJoint.maxAllowedCableLength =
+          Mathf.Min(cableJoint.realCableLength, cableJoint.maxAllowedCableLength);
     }
   }
 
@@ -471,7 +472,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         return;
       }
       if (StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (!LinkToTarget(kerbalTarget)) {
+        if (LinkToTarget(kerbalTarget)) {
+          cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
+        } else {
           CancelLinking(LinkActorType.API);
           HostedDebugLog.Error(this, "Cannot link the winch connector to kerbal {0}",
                                FlightGlobals.ActiveVessel.vesselName);
@@ -597,6 +600,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     get { return motorAcceleration; }
     set { motorAcceleration = value; }
   }
+
+  /// <summary>Physical joint module that control the cable.</summary>
+  /// <remarks>
+  /// Note, that the winch will <i>not</i> notice any changes done to the joint. Always call
+  /// <see cref="UpdateContextMenu"/> on the winch after the update.
+  /// </remarks>
+  /// <value>The module instance.</value>
+  public ILinkCableJoint cableJoint {
+    get { return linkJoint as ILinkCableJoint; }
+  }
   #endregion
 
   /// <summary>Tells if the winch connector is picked up by an EVA kerbal.</summary>
@@ -634,10 +647,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   AudioSource sndMotorStart;
   AudioSource sndMotorStop;
   AudioSource sndConnectorLock;
-
-  ILinkCableJoint cableJointObj {
-    get { return linkJoint as ILinkCableJoint; }
-  }
   #endregion
 
   #region PartModule overrides
@@ -809,21 +818,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  protected override void PhysicalLink(ILinkTarget target) {
-    base.PhysicalLink(target);
-    if (target.part.vessel.isEVA) {
-      // When kerbal grabs the lock, link in the released state.
-      SetCableLength(cableJointObj.cfgMaxCableLength);
-    }
+  protected override void PhysicalUnlink(ILinkTarget target) {
+    cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
+    base.PhysicalUnlink(target);
   }
 
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
     base.LogicalUnlink(actorType);
     connectorState = ConnectorState.Deployed;
-    var connectorDistanceAtBreak = Vector3.Distance(physicalAnchorTransform.position,
-                                                    connectorCableAnchor.position);
-    SetCableLength(Mathf.Min(connectorDistanceAtBreak, cableJointObj.cfgMaxCableLength));
   }
   #endregion
 
@@ -833,7 +836,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
     motorStateMenuInfo = MotorStatesMsgLookup.Lookup(motorState);
     deployedCableLengthMenuInfo = DistanceType.Format(
-        cableJointObj != null ? cableJointObj.maxAllowedCableLength : 0);
+        cableJoint != null ? cableJoint.maxAllowedCableLength : 0);
     
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
       e.guiName = motorState == MotorState.Extending
@@ -867,13 +870,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       ScreenMessaging.ShowPriorityScreenMessage(message);
     }
   }
-
-  /// <summary>Sets the the maximum cable length and updates the winch state as needed.</summary>
-  /// <param name="newLength">The new length in meters.</param>
-  protected void SetCableLength(float newLength) {
-    cableJointObj.maxAllowedCableLength = newLength;
-    UpdateContextMenu();
-  }
   #endregion
 
   #region Local utility methods
@@ -897,16 +893,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
-      SetCableLength(
-          cableJointObj.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
+      cableJoint.maxAllowedCableLength =
+          cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime;
       if (motorCurrentSpeed > 0
-          && cableJointObj.maxAllowedCableLength >= cableJointObj.cfgMaxCableLength) {
-        SetCableLength(cableJointObj.cfgMaxCableLength);
+          && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
+        cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
         motorState = MotorState.Idle;
         ScreenMessaging.ShowPriorityScreenMessage(
-            MaxLengthReachedMsg.Format(cableJointObj.cfgMaxCableLength));
-      } else if (motorCurrentSpeed < 0 && cableJointObj.maxAllowedCableLength <= 0) {
-        SetCableLength(0);
+            MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
+      } else if (motorCurrentSpeed < 0 && cableJoint.maxAllowedCableLength <= 0) {
+        cableJoint.maxAllowedCableLength = 0;
         motorState = MotorState.Idle;
         TryLockingConnector();
       }
@@ -928,14 +924,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </returns>
   bool CheckIsConnectorAligned(bool logCheckResult) {
     // Check the pre-conditions. 
-    if (cableJointObj.maxAllowedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
-        || cableJointObj.realCableLength > connectorLockMaxErrorDist  // Not close enough.
+    if (cableJoint.maxAllowedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
+        || cableJoint.realCableLength > connectorLockMaxErrorDist  // Not close enough.
         || isConnectorOnKerbal) {  // A live being is on the cable.
       if (logCheckResult) {
         HostedDebugLog.Info(this, "Connector is not aligned: preconditions failed:"
                             + " maxLengh={0}, realLength={1}, isOnKerbal={2}",
-                            cableJointObj.maxAllowedCableLength,
-                            cableJointObj.realCableLength,
+                            cableJoint.maxAllowedCableLength,
+                            cableJoint.realCableLength,
                             isConnectorOnKerbal);
       }
       return false;
@@ -992,17 +988,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <param name="state">The physical state of the connector: <c>true</c> means "physical".</param>
   void TurnConnectorPhysics(bool state) {
-    if (state && cableJointObj.headRb == null) {
+    if (state && cableJoint.headRb == null) {
       HostedDebugLog.Info(this, "Make the cable connector physical");
       var connector = InternalKASModulePhysicalConnector.Promote(
           this, connectorModelObj.gameObject, connectorMass, connectorInteractDistance);
-      cableJointObj.StartPhysicalHead(this, connectorCableAnchor);
+      cableJoint.StartPhysicalHead(this, connectorCableAnchor);
       connector.connectorRb.mass = connectorMass;
       part.mass -= connectorMass;
       part.rb.mass -= connectorMass;
-    } else if (!state && cableJointObj.headRb != null) {
+    } else if (!state && cableJoint.headRb != null) {
       HostedDebugLog.Info(this, "Make the cable connector non-physical");
-      cableJointObj.StopPhysicalHead();
+      cableJoint.StopPhysicalHead();
       InternalKASModulePhysicalConnector.Demote(connectorModelObj.gameObject);
       part.mass += connectorMass;
       part.rb.mass += connectorMass;
