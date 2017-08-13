@@ -506,7 +506,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate = "Return connector",
       description = "A context menu event that detaches the connector from the kerbal and puts it"
       + " back to the winch.")]
-  public virtual void LockConnectorEvent() {
+  public virtual void ReturnConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
@@ -891,7 +891,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     PartModuleUtils.SetupEvent(
         this, GrabConnectorEvent, e => e.active = connectorState == ConnectorState.Locked);
     PartModuleUtils.SetupEvent(
-        this, LockConnectorEvent, e => e.active = isConnectorOnKerbal);
+        this, ReturnConnectorEvent, e => e.active = isConnectorOnKerbal);
   }
   #endregion
 
