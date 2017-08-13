@@ -31,17 +31,15 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   /// </remarks>
   /// <param name="ownerModule">The part's module which will control the connector.</param>
   /// <param name="obj">The object to be promoted.</param>
-  /// <param name="connectorMass">The mass of the connector.</param>
   /// <param name = "interactionDistance"></param>
   public static InternalKASModulePhysicalConnector Promote(
-      PartModule ownerModule, GameObject obj, float connectorMass, float interactionDistance = 0) {
+      PartModule ownerModule, GameObject obj, float interactionDistance = 0) {
     var connectorRb = obj.GetComponent<Rigidbody>() ?? obj.AddComponent<Rigidbody>();
     connectorRb.useGravity = false;
     connectorRb.velocity = ownerModule.part.rb.velocity;
     connectorRb.angularVelocity = ownerModule.part.rb.angularVelocity;
     connectorRb.ResetInertiaTensor();
     connectorRb.ResetCenterOfMass();
-    connectorRb.mass = connectorMass;
     var connectorModule = obj.AddComponent<InternalKASModulePhysicalConnector>();
     connectorModule.ownerModule = ownerModule;
 

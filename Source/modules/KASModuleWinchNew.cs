@@ -1034,7 +1034,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (state && cableJoint.headRb == null) {
       HostedDebugLog.Info(this, "Make the cable connector physical");
       var connector = InternalKASModulePhysicalConnector.Promote(
-          this, connectorModelObj.gameObject, connectorMass, connectorInteractDistance);
+          this, connectorModelObj.gameObject, connectorInteractDistance);
       cableJoint.StartPhysicalHead(this, connectorCableAnchor);
       connector.connectorRb.mass = connectorMass;
       part.mass -= connectorMass;
