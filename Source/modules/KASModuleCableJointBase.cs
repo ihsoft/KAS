@@ -339,6 +339,10 @@ public class KASModuleCableJointBase : PartModule,
     cableJointObj.connectedBody = tgtRb;
     cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
     cableJointObj.maxDistance = Mathf.Max(realCableLength, maxAllowedCableLength);
+    if (cableJointObj.maxDistance > maxAllowedCableLength) {
+      // Keep it consistent in case of an adjustment has been made.
+      maxAllowedCableLength = cableJointObj.maxDistance;
+    }
     cableJointObj.breakForce = cableBreakForce;
     cableJointObj.breakTorque = Mathf.Infinity;  // Cable is not sensitive to the rotations. 
   }
