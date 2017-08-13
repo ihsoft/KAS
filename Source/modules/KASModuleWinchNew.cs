@@ -624,11 +624,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  /// <summary>Tells if the winch connector is picked up by an EVA kerbal.</summary>
-  /// <value><c>true</c> if the connector is being carried by a kerbal.</value>
-  public bool isConnectorOnKerbal {
-    get { return linkTarget != null && linkTarget.part.vessel.isEVA; }
-  }
   #endregion
 
   #region Inheritable fileds and properties
@@ -888,10 +883,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
-    PartModuleUtils.SetupEvent(
-        this, GrabConnectorEvent, e => e.active = connectorState == ConnectorState.Locked);
-    PartModuleUtils.SetupEvent(
-        this, ReturnConnectorEvent, e => e.active = isConnectorOnKerbal);
+    PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
+      e.active = connectorState == ConnectorState.Locked;
+    });
+    PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
+      e.active = IsActiveEvaHoldingConnector();
+    });
   }
   #endregion
 
@@ -918,6 +915,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <returns><c>true</c> if there is a deployed cable.</returns>
   protected bool IsCableDeployed() {
     return connectorState == ConnectorState.Deployed || connectorState == ConnectorState.Plugged;
+  }
+
+  /// <summary>
+  /// Tells if the currently active vessel is an EVA kerbal who carries this winch connector.
+  /// </summary>
+  /// <returns><c>true</c> if the connector on the kerbal.</returns>
+  protected bool IsActiveEvaHoldingConnector() {
+    return FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
+        && FlightGlobals.ActiveVessel.isEVA
+        && linkTarget != null && linkTarget.part != null
+        && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
   }
   #endregion
 
@@ -974,14 +982,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   bool CheckIsConnectorAligned(bool logCheckResult) {
     // Check the pre-conditions. 
     if (cableJoint.maxAllowedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
-        || cableJoint.realCableLength > connectorLockMaxErrorDist  // Not close enough.
-        || isConnectorOnKerbal) {  // A live being is on the cable.
+        || cableJoint.realCableLength > connectorLockMaxErrorDist) {  // Not close enough.
       if (logCheckResult) {
-        HostedDebugLog.Info(this, "Connector is not aligned: preconditions failed:"
-                            + " maxLengh={0}, realLength={1}, isOnKerbal={2}",
+        HostedDebugLog.Info(this, "Connector cannot lock, the preconditions failed:"
+                            + " maxLengh={0}, realLength={1}, isLinked={2}",
                             cableJoint.maxAllowedCableLength,
                             cableJoint.realCableLength,
-                            isConnectorOnKerbal);
+                            isLinked);
       }
       return false;
     }
@@ -1016,6 +1023,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </param>
   /// <returns><c>true</c> if the connector was successfully locked.</returns>
   bool TryLockingConnector(bool reportIfCannot = true) {
+    //TODO(ihsoft): Implement docking.
+    if (isLinked) {
+      if (linkTarget.part.vessel.isEVA) {
+        return false;  // Silently don't not allow docking with a kerbal.
+      }
+      if (reportIfCannot) {
+        ShowMessageForActiveVessel("Docking to the winch is not yet implemented");
+      }
+      return false;
+    }
     if (!CheckIsConnectorAligned(reportIfCannot)) {
       if (reportIfCannot) {
         ShowMessageForActiveVessel(LockConnectorNotAlignedMsg);
