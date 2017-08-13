@@ -75,6 +75,13 @@ public class KASModuleCableJointBase : PartModule,
       description: "Title of the module to present in the editor details window.");
   #endregion
 
+  #region Persistent fields
+  /// <summary>Maximum length of the cable on the joint.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  float cableLength;
+  #endregion
+
   #region ILinkCableJoint CFG properties
   /// <inheritdoc/>
   public string cfgJointName { get { return jointName; } }
@@ -104,9 +111,9 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public virtual float maxAllowedCableLength {
-    get { return _maxAllowedCableLength; }
+    get { return cableLength; }
     set {
-      _maxAllowedCableLength = value;
+      cableLength = value;
       if (cableJointObj != null) {
         cableJointObj.maxDistance = value;
       }
@@ -115,7 +122,6 @@ public class KASModuleCableJointBase : PartModule,
                                  ILinkCableJoint_Properties.maxAllowedCableLength));
     }
   }
-  float _maxAllowedCableLength;
 
   /// <inheritdoc/>
   public float realCableLength {
