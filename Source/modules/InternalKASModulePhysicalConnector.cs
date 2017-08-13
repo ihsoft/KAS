@@ -36,6 +36,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
       PartModule ownerModule, GameObject obj, float interactionDistance = 0) {
     var connectorRb = obj.GetComponent<Rigidbody>() ?? obj.AddComponent<Rigidbody>();
     connectorRb.useGravity = false;
+    connectorRb.isKinematic = ownerModule.part.packed;
     connectorRb.velocity = ownerModule.part.rb.velocity;
     connectorRb.angularVelocity = ownerModule.part.rb.angularVelocity;
     connectorRb.ResetInertiaTensor();
@@ -93,10 +94,14 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   void Awake() {
     connectorRb = GetComponent<Rigidbody>();
     PartModel.SetModelParent(connectorRb.gameObject.transform, null);  // Detach from the hierarchy.
+    GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+    GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
   }
 
   void OnDestroy() {
     CleanupModule();
+    GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+    GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
   }
 
   void FixedUpdate() {
@@ -106,6 +111,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   }
   #endregion
 
+  #region Local utility methods
   /// <summary>Destroys all the module's physical objects.</summary>
   /// <remarks>It doesn't (and must not) do it immediately.</remarks>
   void CleanupModule() {
@@ -123,6 +129,22 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     connectorRb = null;
     ownerModule = null;
   }
+
+
+  void OnVesselGoOffRails(Vessel v) {
+    if (connectorRb != null && ownerModule != null && v == ownerModule.vessel) {
+      connectorRb.isKinematic = false;
+      connectorRb.transform.parent = null;
+    }
+  }
+
+  void OnVesselGoOnRails(Vessel v) {
+    if (connectorRb != null && ownerModule != null && v == ownerModule.vessel) {
+      connectorRb.isKinematic = true;
+      connectorRb.transform.parent = ownerModule.gameObject.transform;
+    }
+  }
+  #endregion
 }
 
 }  // namespace
