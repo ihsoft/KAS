@@ -507,18 +507,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that detaches the connector from the kerbal and puts it"
       + " back to the winch.")]
   public virtual void LockConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA && isConnectorOnKerbal) {
+    if (FlightGlobals.ActiveVessel.isEVA
+        && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
-      if (kerbalTarget != null) {
-        // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
-        BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
-        connectorState = ConnectorState.Locked;
-        HostedDebugLog.Info(
-            this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
-      } else {
-        HostedDebugLog.Error(this, "Wrong target for the lock connector action");
-      }
+      // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
+      BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
+      connectorState = ConnectorState.Locked;
+      HostedDebugLog.Info(
+          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
     }
   }
   #endregion
