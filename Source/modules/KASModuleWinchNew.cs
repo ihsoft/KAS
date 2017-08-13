@@ -4,7 +4,9 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.Extensions;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
@@ -332,6 +334,18 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public string sndPathBroke = "";
   #endregion
 
+  #region Persistent fields
+  /// <summary>Connector state in the last save action.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public ConnectorState persistedConnectorState = ConnectorState.Locked;
+
+  /// <summary>Position and rotation of the deployed connector.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [PersistentField("connectorPosAndRot", group = PersistentGroup)]
+  PosAndRot persistedConnectorPosAndRot;
+  #endregion
+
   #region The context menu fields
   /// <summary>Status field to display the current connector status in the context menu.</summary>
   /// <see cref="connectorState"/>
@@ -536,13 +550,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Controls the state of the winch.</summary>
   /// <value>The current winch state.</value>
-  public virtual ConnectorState connectorState {
-    get { return connectorStateMachine.currentState ?? ConnectorState.Locked; }
+  public ConnectorState connectorState {
+    get { return connectorStateMachine.currentState ?? persistedConnectorState; }
     private set {
       if (connectorStateMachine.currentState != value) {
         motorState = MotorState.Idle;
       }
       connectorStateMachine.currentState = value;
+      persistedConnectorState = value;
     }
   }
 
@@ -620,6 +635,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Inheritable fileds and properties
+  /// <summary>
+  /// Name of persistent fields group that needs saving/load during the normal part's phases.
+  /// </summary>
+  /// <seealso cref="OnLoad"/>
+  /// <seealso cref="OnSave"/>
+  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+  protected const string PersistentGroup = "persistent";
+
   /// <summary>Winch connector model transformation object.</summary>
   /// <remarks>
   /// Depending on the current state this model can be a child to the part's model or a standalone
@@ -687,10 +710,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         enterHandler: oldState => {
           TurnConnectorPhysics(true);
           linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
+          //FIXME: Adjust the position earlier.
           if (!oldState.HasValue) {  // Restore state.
-            connectorModelObj.position = persistedConnectorPosAndRot.pos;
-            connectorModelObj.rotation = persistedConnectorPosAndRot.rot;
-            SetCableLength(persistedCableLength);
+            var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
+            var connectorRb = connectorModelObj.GetComponent<Rigidbody>();
+            connectorRb.position = world.pos;
+            connectorRb.rotation = world.rot;
           }
         },
         leaveHandler: newState => {
@@ -755,15 +780,33 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
     }
+
+    // Restore the connector data only if its position is not fixed to the winch model.
+    //TODO(ihsoft): Handle docked case.
+    if (persistedConnectorState == ConnectorState.Deployed) {
+      ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
+                                        group: PersistentGroup);
+    }
     LoadOrCreateConnectorModel();
   }
 
   /// <inheritdoc/>
-  public override void OnStart(StartState state) {
-    base.OnStart(state);
-    connectorStateMachine.currentState = ConnectorState.Locked;
-    motorStateMachine.currentState = MotorState.Idle;
-    UpdateContextMenu();
+  public override void OnSave(ConfigNode node) {
+    base.OnSave(node);
+    // Persist the connector data only if its position is not fixed to the winch model.
+    //TODO(ihsoft): Handle docked case.
+    if (connectorStateMachine.currentState == ConnectorState.Deployed) {
+      persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
+          new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
+      ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
+                                         group: PersistentGroup);
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnPartUnpack() {
+    base.OnPartUnpack();
+    connectorState = persistedConnectorState;
   }
   #endregion
 
