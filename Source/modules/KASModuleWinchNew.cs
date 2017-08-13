@@ -400,7 +400,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (connectorState == ConnectorState.Locked) {
       connectorState = ConnectorState.Deployed;
     }
-    if (connectorState == ConnectorState.Deployed) {
+    if (IsCableDeployed()) {
       motorState = motorState == MotorState.Extending ? MotorState.Idle : MotorState.Extending;
     };
   }
@@ -420,7 +420,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;  // Nothing to do.
     }
     // If the whole cable has been retracted, then just try to lock.
-    if (connectorState == ConnectorState.Deployed) {
+    if (IsCableDeployed()) {
       if (cableJoint.maxAllowedCableLength < Mathf.Epsilon) {
         TryLockingConnector();
         return;
@@ -444,7 +444,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (connectorState == ConnectorState.Locked) {
       connectorState = ConnectorState.Deployed;
     }
-    if (connectorState == ConnectorState.Deployed) {
+    if (IsCableDeployed()) {
       cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
       ScreenMessaging.ShowPriorityScreenMessage(
           MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
@@ -462,7 +462,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that sets the cable length to the current distance to the"
       + " connector.")]
   public virtual void InstantStretchEvent() {
-    if (connectorState == ConnectorState.Deployed) {
+    if (IsCableDeployed()) {
       cableJoint.maxAllowedCableLength =
           Mathf.Min(cableJoint.realCableLength, cableJoint.maxAllowedCableLength);
     }
@@ -583,7 +583,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public MotorState motorState {
     get { return motorStateMachine.currentState ?? MotorState.Idle; }
     set {
-      if (value != MotorState.Idle && connectorState != ConnectorState.Deployed) {
+      if (value != MotorState.Idle && !IsCableDeployed()) {
         HostedDebugLog.Warning(this, "Cannot start motor is state: {0}", connectorState);
         return;
       }
@@ -909,6 +909,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (vessel.isActiveVessel) {
       ScreenMessaging.ShowPriorityScreenMessage(message);
     }
+  }
+
+  /// <summary>
+  /// Tells if the winch is not rigidly attached to the winch, and there is an active cable link to
+  /// the connector.
+  /// </summary>
+  /// <returns><c>true</c> if there is a deployed cable.</returns>
+  protected bool IsCableDeployed() {
+    return connectorState == ConnectorState.Deployed || connectorState == ConnectorState.Plugged;
   }
   #endregion
 
