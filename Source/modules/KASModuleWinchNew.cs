@@ -702,13 +702,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         enterHandler: oldState => {
           TurnConnectorPhysics(true);
           linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
-          //FIXME: Adjust the position earlier.
-          if (!oldState.HasValue) {  // Restore state.
-            var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
-            var connectorRb = connectorModelObj.GetComponent<Rigidbody>();
-            connectorRb.position = world.pos;
-            connectorRb.rotation = world.rot;
-          }
         },
         leaveHandler: newState => {
           TurnConnectorPhysics(false);
@@ -772,22 +765,38 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
     }
-
-    // Restore the connector data only if its position is not fixed to the winch model.
-    //TODO(ihsoft): Handle docked case.
+    LoadOrCreateConnectorModel();
     if (persistedConnectorState == ConnectorState.Deployed) {
       ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
                                         group: PersistentGroup);
+      // In case of the connector is not locked to either the winch or the target part, adjust its
+      // model position and rotation. The rest of the state will be erstored in the state machine. 
+      if (persistedConnectorPosAndRot != null) {
+        var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
+        connectorModelObj.position = world.pos;
+        connectorModelObj.rotation = world.rot;
+      }
     }
-    LoadOrCreateConnectorModel();
+  }
+
+  /// <inheritdoc/>
+  public override void OnStartFinished(PartModule.StartState state) {
+    base.OnStartFinished(state);
+
+    // The renderer will be started anyways in the state machine, which starts when the physics
+    // kicks in. We start it here only to improve the visual representation during the loading.
+    if (persistedConnectorState == ConnectorState.Deployed) {
+      linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
+    }
   }
 
   /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
     // Persist the connector data only if its position is not fixed to the winch model.
-    //TODO(ihsoft): Handle docked case.
-    if (connectorStateMachine.currentState == ConnectorState.Deployed) {
+    // It must be the peristsent state since the state machine can be in a different state at this
+    // moment (e.g. during the vessel backup).
+    if (persistedConnectorState == ConnectorState.Deployed) {
       persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
           new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
       ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
