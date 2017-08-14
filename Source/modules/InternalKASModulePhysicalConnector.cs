@@ -130,16 +130,23 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     ownerModule = null;
   }
 
-
-  void OnVesselGoOffRails(Vessel v) {
-    if (connectorRb != null && ownerModule != null && v == ownerModule.vessel) {
+  /// <summary>
+  /// Makes the connector object physical and ensures it's not atatched to any parent model.
+  /// </summary>
+  /// <param name="vessel">The vessel which went physical.</param>
+  void OnVesselGoOffRails(Vessel vessel) {
+    if (connectorRb != null && ownerModule != null && vessel == ownerModule.vessel) {
       connectorRb.isKinematic = false;
       connectorRb.transform.parent = null;
     }
   }
 
-  void OnVesselGoOnRails(Vessel v) {
-    if (connectorRb != null && ownerModule != null && v == ownerModule.vessel) {
+  /// <summary>
+  /// Freezes the physics on the connector and ensures the model is atatched to the owner.
+  /// </summary>
+  /// <param name="vessel">The vessel which went kinematic.</param>
+  void OnVesselGoOnRails(Vessel vessel) {
+    if (connectorRb != null && ownerModule != null && vessel == ownerModule.vessel) {
       connectorRb.isKinematic = true;
       connectorRb.transform.parent = ownerModule.gameObject.transform;
     }
