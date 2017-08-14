@@ -676,6 +676,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
 
     #region Connector state machine
+    // The default state is "Locked". All the enter state handlers rely on it, and all the exit
+    // state handlers reset the state back to the default.
     connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
       UpdateContextMenu();
