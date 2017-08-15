@@ -116,3 +116,4 @@ KAS_*.zip
 *.pyc
 
 *.wrk.*
+*.wrk
