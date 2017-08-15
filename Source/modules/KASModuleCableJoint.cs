@@ -103,11 +103,14 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    base.CreateJoint(source, target);
-    renderer = part.FindModuleImplementing<ILinkRenderer>();
-    CreateDistanceJoint(source, target);
-    UpdateMenuItems();
+  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
+    var res = base.CreateJoint(source, target);
+    if (res) {
+      renderer = part.FindModuleImplementing<ILinkRenderer>();
+      CreateDistanceJoint(source, target);
+      UpdateMenuItems();
+    }
+    return res;
   }
 
   /// <inheritdoc/>

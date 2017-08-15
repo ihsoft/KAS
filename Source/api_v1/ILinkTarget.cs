@@ -71,6 +71,14 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
 
+  /// <summary>Transform of the physical joint anchor at the node.</summary>
+  /// <remarks>
+  /// When logical and physical positions match, this property can return
+  /// <see cref="nodeTransform"/>.
+  /// </remarks>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
+  Transform physicalAnchorTransform { get; }
+
   /// <summary>Source that maintains the link.</summary>
   /// <value>Source or <c>null</c> if nothing is linked.</value>
   /// <remarks>

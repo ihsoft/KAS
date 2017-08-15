@@ -3,7 +3,9 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.ProcessingUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -11,9 +13,9 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>
-/// Module that offers normal KAS joint logic basing on joint created by KSP. The joint is not
-/// modified in any way, and it behavior is very similar to the behavior of a regular joint that
-/// normally connects two parts together.
+/// Module that offers normal KAS joint logic basing on the joint created by KSP. The joint is not
+/// modified in any way, and its behavior is very similar to the behavior of a regular joint that
+/// would normally connect two parts together.
 /// </summary>
 public class KASModuleStockJoint :
     // KAS parents.
@@ -35,9 +37,9 @@ public class KASModuleStockJoint :
   #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    // It's not absolutely required since part will get decoupled anyways, but a pro-active link
-    // break allows specifying the right actor.
-    linkSource.BreakCurrentLink(KASAPIv1.LinkActorType.Physics);
+    AsyncCall.CallOnEndOfFrame(this, () => linkSource.BreakCurrentLink(
+        LinkActorType.Physics,
+        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel));
   }
   #endregion
 }

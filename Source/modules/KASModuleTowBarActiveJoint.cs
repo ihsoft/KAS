@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using System;
+using System.Collections.Generic;
 using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace KAS {
 /// </item>
 /// </list>
 /// </remarks>
+// Next localization ID: #kasLOC_05010.
 public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
@@ -42,22 +44,81 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
       description: "Message to display when a tow bar locking process successfully ends with"
       + " locking.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<EnumType<SteeringStatus>> SteeringStatusMsg =
-      new Message<EnumType<SteeringStatus>>(
-          "#kasLOC_05002",
-          defaultTemplate: "<<1[Disabled/Active/Target is active vessel"
-          + "/Target is uncontrollable/Not locked]>>",
-          description: "Represents the active steering status in the context menu info",
-          example: "Target is active vessel");
+  #region SteeringStatus enum values
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsg_Disabled = new Message(
+      "#kasLOC_05002",
+      defaultTemplate: "Disabled",
+      description: "A string in the context menu that tells that the active steering mode is not"
+      + " enabled.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<EnumType<LockMode>> LockStatusMsg = new Message<EnumType<LockMode>>(
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsg_Active = new Message(
       "#kasLOC_05003",
-      defaultTemplate: "<<1[Disabled/Locking/Locked]>>",
-      description: "Represents the current status of the tow bar locking process in the context"
-      + " menu info",
-      example: "Locking");
+      defaultTemplate: "Active",
+      description: "A string in the context menu that tells that the active steering mode is ready"
+      + " and working.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsg_CurrentVesselIsTarget = new Message(
+      "#kasLOC_05004",
+      defaultTemplate: "Target is active vessel",
+      description: "A string in the context menu that tells that the active steering mode cannot"
+      + " work due to the bar's target vessel is currently under player's control.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsg_TargetIsNotControllable = new Message(
+      "#kasLOC_05005",
+      defaultTemplate: "Target is uncontrollable",
+      description: "A string in the context menu that tells that the active steering mode cannot"
+      + " work due to the linked vessel is remotely controlled.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsg_NotLocked = new Message(
+      "#kasLOC_05006",
+      defaultTemplate: "Not locked",
+      description: "A string in the context menu that tells that the active steering mode is"
+      + " activated but cannot start working due to the constraints.");
+  #endregion
+
+  /// <summary>Translates <see cref="SteeringStatus"/> enum into a localized message.</summary>
+  static readonly MessageLookup<SteeringStatus> SteeringStatusMsgLookup =
+      new MessageLookup<SteeringStatus>(new Dictionary<SteeringStatus, Message>() {
+          {SteeringStatus.Disabled, SteeringStatusMsg_Disabled},
+          {SteeringStatus.Active, SteeringStatusMsg_Active},
+          {SteeringStatus.CurrentVesselIsTarget, SteeringStatusMsg_CurrentVesselIsTarget},
+          {SteeringStatus.TargetIsNotControllable, SteeringStatusMsg_TargetIsNotControllable},
+          {SteeringStatus.NotLocked, SteeringStatusMsg_NotLocked},
+      });
+
+  #region LockMode enum values
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsg_Disabled = new Message(
+      "#kasLOC_05007",
+      defaultTemplate: "Disabled",
+      description: "A string in the context menu that tells that the bar joints are unlocked.");
+  
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsg_Locked = new Message(
+      "#kasLOC_05008",
+      defaultTemplate: "Locked",
+      description: "A string in the context menu that tells that the bar joints are locked.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsg_Locking = new Message(
+      "#kasLOC_05009",
+      defaultTemplate: "Locking",
+      description: "A string in the context menu that tells that the bar joints are unlocked but"
+      + " the part is trying to lock them.");
+  #endregion
+  
+  /// <summary>Translates <see cref="LockMode"/> enum into a localized message.</summary>
+  static readonly MessageLookup<LockMode> LockStatusMsgLookup =
+      new MessageLookup<LockMode>(new Dictionary<LockMode, Message>() {
+          {LockMode.Disabled, LockStatusMsg_Disabled},
+          {LockMode.Locked, LockStatusMsg_Locked},
+          {LockMode.Locking, LockStatusMsg_Locking},
+      });
   
   /// <summary>Status screen message to be displayed during the locking process.</summary>
   ScreenMessage lockStatusScreenMessage;
@@ -180,10 +241,13 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    base.CreateJoint(source, target);
+  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
+    if (!base.CreateJoint(source, target)) {
+      return false;
+    }
     SetLockingMode(lockingMode);
     SetActiveSteeringState(activeSteeringEnabled);
+    return true;
   }
 
   /// <inheritdoc/>
@@ -279,7 +343,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   /// <param name="mode"></param>
   void SetLockingMode(LockMode mode) {
     lockingMode = mode;
-    lockStatus = LockStatusMsg.Format(lockingMode);
+    lockStatus = LockStatusMsgLookup.Lookup(lockingMode);
 
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
@@ -307,7 +371,7 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   /// <param name="state"></param>
   void SetActiveSteeringState(bool state) {
     activeSteeringEnabled = state;
-    steeringStatus = SteeringStatusMsg.Format(
+    steeringStatus = SteeringStatusMsgLookup.Lookup(
         activeSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
     if (isLinked && linkTarget != null && !activeSteeringEnabled) {
       linkTarget.part.vessel.ctrlState.wheelSteer = 0;
@@ -336,13 +400,13 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
   /// </summary>
   void UpdateActiveSteering() {
     if (linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      steeringStatus = SteeringStatusMsg.Format(SteeringStatus.CurrentVesselIsTarget);
+      steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.CurrentVesselIsTarget);
     } else if (!linkTarget.part.vessel.IsControllable) {
-      steeringStatus = SteeringStatusMsg.Format(SteeringStatus.TargetIsNotControllable);
+      steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.TargetIsNotControllable);
     } else if (lockingMode != LockMode.Locked) {
-      steeringStatus = SteeringStatusMsg.Format(SteeringStatus.NotLocked);
+      steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.NotLocked);
     } else if (activeSteeringEnabled) {
-      steeringStatus = SteeringStatusMsg.Format(SteeringStatus.Active);
+      steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.Active);
       var srcJointYaw = GetYawAngle(linkSource.nodeTransform, linkTarget.nodeTransform);
       if (steeringInvert) {
         srcJointYaw = -srcJointYaw;

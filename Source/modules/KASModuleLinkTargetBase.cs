@@ -4,12 +4,14 @@
 // License: Public Domain
 
 using System;
+using System.Linq;
 using System.Text;
 using KASAPIv1;
-using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
-using KSPDev.ModelUtils;
+using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -27,6 +29,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // TODO(ihsoft): Add code samples.
+// Next localization ID: #kasLOC_03004.
 public class KASModuleLinkTargetBase :
     // KSP parents.
     PartModule, IModuleInfo, IActivateOnDecouple,
@@ -57,7 +60,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
   #endregion
-  
+
   #region ILinkTarget properties implementation
   /// <inheritdoc/>
   public virtual ILinkSource linkSource {
@@ -66,9 +69,26 @@ public class KASModuleLinkTargetBase :
       if (_linkSource != value) {
         var oldSource = _linkSource;
         _linkSource = value;
-        persistedLinkSourcePartId = value != null ? value.part.flightID : 0;
-        persistedLinkMode = value != null ? value.cfgLinkMode : LinkMode.DockVessels;
-        linkState = value != null ? LinkState.Linked : LinkState.Available;
+        if (value != null) {
+          persistedLinkSourcePartId = value.part.flightID;
+          persistedLinkMode = value.cfgLinkMode;
+          // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
+          // a different scale.
+          var sourceScale = value.nodeTransform.lossyScale;
+          var targetScale = nodeTransform.lossyScale;
+          var translateScale = new Vector3(sourceScale.x / targetScale.x,
+                                           sourceScale.y / targetScale.y,
+                                           sourceScale.z / targetScale.z);
+          physicalAnchorTransform.localPosition =
+              Vector3.Scale(value.targetPhysicalAnchor, translateScale);
+          linkState = LinkState.Linked;
+        } else {
+          persistedLinkSourcePartId = 0;
+          persistedLinkMode = LinkMode.DockVessels;  // Simply a default value.
+          physicalAnchorTransform.localPosition = Vector3.zero;
+          linkState = LinkState.Available;
+        }
+        persistedPhysicalAnchor = physicalAnchorTransform.localPosition;
         TriggerSourceChangeEvents(oldSource);
       }
     }
@@ -83,7 +103,7 @@ public class KASModuleLinkTargetBase :
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
+    private set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -103,6 +123,9 @@ public class KASModuleLinkTargetBase :
 
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
+
+  /// <inheritdoc/>
+  public Transform physicalAnchorTransform { get; private set; }
 
   /// <inheritdoc/>
   public AttachNode attachNode { get; private set; }
@@ -126,6 +149,11 @@ public class KASModuleLinkTargetBase :
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LinkMode persistedLinkMode = LinkMode.DockVessels;
+
+  /// <summary>Physical anchor relative to the node trasfrom.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public Vector3 persistedPhysicalAnchor;
   #endregion
 
   #region Part's config fields
@@ -172,12 +200,55 @@ public class KASModuleLinkTargetBase :
   public Color highlightColor = Color.cyan;
   #endregion
 
-  /// <summary>State machine that controls event reaction in different states.</summary>
+  #region Context menu events/actions
+  /// <summary>
+  /// Context menu item to have the EVA carried connector attached to the target part.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true,
+            externalToEVAOnly = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_03002",
+      defaultTemplate = "Attach connector",
+      description = "Context menu item to have the EVA carried connector attached to the target"
+      + " part.")]
+  public void LinkWithCarriableConnectorEvent() {
+    var kerbalTarget = FindEvaTargetWithConnector();
+    if (kerbalTarget != null) {
+      var connectorSource = kerbalTarget.linkSource;
+      connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
+      if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
+          && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
+        if (!connectorSource.LinkToTarget(this)) {
+          connectorSource.CancelLinking(LinkActorType.API);
+        }
+      } else {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      }
+    }
+  }
+
+  /// <summary>Context menu item to break the currently established link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_03003",
+      defaultTemplate = "Detach connector",
+      description = "Context menu item to break the currently established link.")]
+  public void BreakLinkEvent() {
+    if (linkSource != null) {
+      linkSource.BreakCurrentLink(LinkActorType.Player,
+                                  moveFocusOnTarget: FlightGlobals.ActiveVessel == vessel);
+    }
+  }
+  #endregion
+
+  /// <summary>State machine that controls the module update in different states.</summary>
   /// <remarks>
-  /// Primary usage of the machine is managing subscriptions to the different game events. It's
-  /// highly discouraged to use it for firing events or taking actions. Initial state can be setup
-  /// under different circumstances, and the associated events and actions may get triggered at the
-  /// inappropriate moment.
+  /// The primary usage of the machine is managing the subscriptions to the different game events
+  /// and updating GUI. It's highly discouraged to use it for firing events or taking actions.
+  /// The initial state can be setup under different circumstances, and the associated events and
+  /// actions may get triggered in an inappropriate moment.
   /// </remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
 
@@ -211,16 +282,39 @@ public class KASModuleLinkTargetBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartConnecting),
-        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartConnecting));
+        enterHandler: x => {
+          KASEvents.OnStartLinking.Add(OnStartConnecting);
+          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
+        },
+        leaveHandler: x => {
+          KASEvents.OnStartLinking.Remove(OnStartConnecting);
+          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
+          PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent, e => e.active = false);
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => {
+          SetEligiblePartHighlighting(true);
+          KASEvents.OnStopLinking.Add(OnStopConnecting);
+        },
+        leaveHandler: x => {
+          SetEligiblePartHighlighting(false);
+          KASEvents.OnStopLinking.Remove(OnStopConnecting);
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linked,
+        enterHandler: x => {
+          GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
+          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = true);
+        },
+        leaveHandler: x => {
+          GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
+          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = false);
+        });
   }
 
   /// <inheritdoc/>
@@ -340,12 +434,15 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region New inheritable methods
-  /// <summary>Triggers when state has being assigned with a value.</summary>
+  /// <summary>Triggers when the state has been assigned with a value.</summary>
   /// <remarks>
-  /// This method triggers even when new state doesn't differ from the old one. When it's important
-  /// to catch the transition check for <paramref name="oldState"/>.
+  /// This method triggers even when the new state doesn't differ from the old one. When it's
+  /// important to catch the transition, check for the <paramref name="oldState"/>.
   /// </remarks>
-  /// <param name="oldState">State prior to the change.</param>
+  /// <param name="oldState">
+  /// The state prior to the change. If it's <c>null</c>, then it's an initial state on the module
+  /// creation.
+  /// </param>
   protected virtual void OnStateChange(LinkState? oldState) {
     if (linkState == LinkState.AcceptingLinks && attachNode == null) {
       // Create an attach node to allow coupling.
@@ -356,23 +453,11 @@ public class KASModuleLinkTargetBase :
       KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
       attachNode = null;
     }
-
-    // Adjust compatible part highlight.
-    // TODO(ihsoft): Handle mutliple targets on part to not override settings.
-    if (highlightCompatibleTargets && oldState != linkState) {
-      if (linkState == LinkState.AcceptingLinks) {
-        part.SetHighlightType(Part.HighlightType.AlwaysOn);
-        part.SetHighlightColor(highlightColor);
-        part.SetHighlight(true, false);
-      } else if (oldState == LinkState.AcceptingLinks) {
-        part.SetHighlightDefault();
-      }
-    }
   }
 
   /// <summary>Finds linked source for the target, and updates the state.</summary>
   /// <remarks>
-  /// Depending on link mode this method may be called synchronously when part is started or
+  /// Depending on the link mode this method may be called synchronously when the part is started or
   /// asynchronously at the end of frame.
   /// </remarks>
   /// <seealso cref="persistedLinkMode"/>
@@ -385,8 +470,10 @@ public class KASModuleLinkTargetBase :
           persistedLinkSourcePartId, attachNodeName);
       persistedLinkSourcePartId = 0;
       persistedLinkMode = LinkMode.DockVessels;
+      persistedPhysicalAnchor = Vector3.zero;
       startState = LinkState.Available;
     }
+    physicalAnchorTransform.localPosition = persistedPhysicalAnchor;
     linkStateMachine.currentState = startState;
     linkState = linkState;  // Trigger state updates.
   }
@@ -456,6 +543,63 @@ public class KASModuleLinkTargetBase :
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
+    }
+
+    // Create a physical anchor node transform. It will become a part of the model.
+    const string PhysicalAnchorName = "physicalAnchor";
+    physicalAnchorTransform = nodeTransform.FindChild(PhysicalAnchorName);
+    if (physicalAnchorTransform == null) {
+      physicalAnchorTransform = new GameObject(PhysicalAnchorName).transform;
+      Hierarchy.MoveToParent(
+          physicalAnchorTransform, nodeTransform,
+          newPosition: persistedPhysicalAnchor);
+    }
+  }
+
+  /// <summary>Reacts on the vessel destcurtion and break the link if needed.</summary>
+  /// <param name="targetVessel">The vessel that is being destroyed.</param>
+  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
+    if (isLinked && targetVessel == part.vessel && targetVessel != linkSource.part.vessel) {
+      HostedDebugLog.Info(this, "Drop the link due to the owner vessel destruction");
+      linkSource.BreakCurrentLink(LinkActorType.Physics);
+    }
+  }
+
+  /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
+  /// <param name="menuOwnerPart">The part for which the UI is created.</param>
+  void OnPartGUIStart(Part menuOwnerPart) {
+    if (menuOwnerPart == part) {
+      PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent,
+                                 x => x.active = FindEvaTargetWithConnector() != null);
+    }
+  }
+
+  /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
+  /// <returns>The source or <c>null</c> if nothing found.</returns>
+  ILinkTarget FindEvaTargetWithConnector() {
+    if (!FlightGlobals.ActiveVessel.isEVA) {
+      return null;
+    }
+    return FlightGlobals.ActiveVessel
+        .FindPartModulesImplementing<ILinkTarget>()
+        .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+  }
+
+  /// <summary>Sets the highlighter state on the part.</summary>
+  /// <remarks>
+  /// Does nothing if the <see cref="highlightCompatibleTargets"/> settings is set to <c>false</c>.
+  /// </remarks>
+  /// <param name="isHighlighted">The highlighting state.</param>
+  /// <seealso cref="highlightCompatibleTargets"/>
+  void SetEligiblePartHighlighting(bool isHighlighted) {
+    if (highlightCompatibleTargets) {
+      if (isHighlighted) {
+        part.SetHighlightType(Part.HighlightType.AlwaysOn);
+        part.SetHighlightColor(highlightColor);
+        part.SetHighlight(true, false);
+      } else {
+        part.SetHighlightDefault();
+      }
     }
   }
   #endregion

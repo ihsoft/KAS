@@ -100,31 +100,43 @@ public interface ILinkSource {
   AttachNode attachNode { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
-  /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <remarks>This transform must exist even when no actual attach node is created on the part.
-  /// <list type="bullet">
-  /// <item>
+  /// <remarks>
+  /// <para>
   /// When connecting the parts, this transform will be used to create a part's attach node.
-  /// </item>
-  /// <item>The renderer uses this transform to align the meshes.</item>
-  /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
-  /// </list>
+  /// </para>
+  /// <para>
+  /// <i>IMPORTANT</i>. The node always has world's scale <c>(1, 1, 1)</c> regardless to the scale
+  /// of the part.
+  /// </para>
   /// </remarks>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
+  /// <seealso cref="physicalAnchorTransform"/>
   // TODO(ihsoft): Add example from a joint module.
   Transform nodeTransform { get; }
 
+  /// <summary>Transform of the physical joint anchor at the node.</summary>
+  /// <remarks>
+  /// Normally, the anchor must be a child of the <see cref="nodeTransform"/>. However, wWhen the
+  /// logical and the physical positions match are the same, this property can return just
+  /// <see cref="nodeTransform"/>.
+  /// </remarks>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
+  /// <seealso cref="nodeTransform"/>
+  Transform physicalAnchorTransform { get; }
+
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>
-  /// <remarks>Only defined for an established link.</remarks>
+  /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   ILinkTarget linkTarget { get; }
 
   /// <summary>ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
-  /// <remarks>It only makes sense when the link is connected to the target.</remarks>
+  /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  /// TODO(ihsoft): Deprecate. One an get the ID from the target part.
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
@@ -228,6 +240,22 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   LinkActorType linkActor { get; }
 
+  /// <summary>Position offset of the physical joint anchor at the target.</summary>
+  /// <remarks>
+  /// <para>
+  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
+  /// <see cref="nodeTransform"/>. If this is the case, this property gives the adjustment.
+  /// </para>
+  /// <para>
+  /// It only makes sense when the state is <seealso cref="LinkState.Linking"/>. Once the link is
+  /// established, the target is responsible to report the correct anchor.
+  /// </para>
+  /// </remarks>
+  /// <value>
+  /// The position in the local space of the target's <see cref="nodeTransform"/>.
+  /// </value>
+  Vector3 targetPhysicalAnchor { get; }
+
   /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
   /// <para>
@@ -257,26 +285,38 @@ public interface ILinkSource {
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>
   /// <para>
-  /// The source and the target parts become tied with a joint but are not required to be joined
-  /// into a single vessel in terms of the parts hierarchy.
+  /// The <see cref="LinkState.Linking"/> mode must be started for this method to succeed.
+  /// </para>
+  /// <para>
+  /// The source and the target parts become associated with each other. How this link is reflected
+  /// in the game's physics depends on the parts configuration (the modules it defines).
   /// </para>
   /// <para>
   /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
-  /// If the were errorsm they will be reported to the GUI and the link aborted. However, the
+  /// If the were errors, they will be reported to the GUI and the link aborted. However, the
   /// linking mode is only ended in case of the successful linking.
   /// </para>
   /// </remarks>
-  /// <param name="target">Target to link with.</param>
+  /// <param name="target">The target to link with.</param>
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
+  /// <seealso cref="StartLinking"/>
   /// <seealso cref="BreakCurrentLink"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool LinkToTarget(ILinkTarget target);
 
-  /// <summary>Breaks the link between the source and target.</summary>
-  /// <remarks>Does nothing if there is no link but a warning will be logged in this case.</remarks>
+  /// <summary>Breaks the link between the source and the target.</summary>
+  /// <remarks>
+  /// <para>
+  /// It must not be called from the physics update methods (e.g. <c>FixedUpdate</c> or
+  /// <c>OnJointBreak</c>) since the link's physical objects may be deleted immediately. If the link
+  /// needs to be broken from these methods, use a coroutine to postpone the call till the end of
+  /// the frame.
+  /// </para>
+  /// <para>Does nothing if there is no link but a warning will be logged in this case.</para>
+  /// </remarks>
   /// <param name="actorType">
-  /// Specifies what initiates the action. Final result of the action doesn't depend on it but
-  /// visual and sound representation may differ for different actors.
+  /// Specifies what initiates the action. The final result of the action doesn't depend on it but
+  /// visual and sound representation may differ for the different actors.
   /// </param>
   /// <param name="moveFocusOnTarget">
   /// If <c>true</c> then upon decoupling current vessel focus will be set on the vessel that owns
@@ -284,6 +324,9 @@ public interface ILinkSource {
   /// </param>
   /// <seealso cref="LinkToTarget"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.Joint.OnJointBreak']"/>
   void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>

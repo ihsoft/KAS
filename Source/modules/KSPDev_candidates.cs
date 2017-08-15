@@ -2,6 +2,6 @@
 // KSPDev Utilities. Ideally, this module is always empty but there may be short period of time
 // when new functionality lives here and not in KSPDev.
 
-using KSPDev.LogUtils;
-using UnityEngine;
+using System;
+using System.Linq;
 

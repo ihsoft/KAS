@@ -87,12 +87,14 @@ public interface ILinkRenderer {
 
   /// <summary>Starts rendering a link between the objects.</summary>
   /// <remarks>
+  /// <para>
   /// This method only indicates that the link is to be drawn between the specified points. The
-  /// renderer is allowed to draw meshes even when not started. E.g. if there are constants parts of
+  /// renderer is allowed to draw meshes even when not started. E.g. if there are constant parts of
   /// the link like the joint pivots.
+  /// </para>
   /// <para>
   /// The ends of the link are not required to be located at the surface of the owning parts. It's
-  /// up to the renderer to decide how to draw the joint.
+  /// up to the renderer to decide how to draw the link.
   /// </para>
   /// <para>
   /// It's OK to call this method multiple times with different or the same source/target arguments:
@@ -101,17 +103,16 @@ public interface ILinkRenderer {
   /// (e.g. on every frame update).
   /// </para>
   /// </remarks>
-  /// <param name="source">Source node.</param>
-  /// <param name="target">Target node.</param>
-  // TODO(ihsoft): Migrate the arguments to ILinkSource & ILinkTarget.
+  /// <param name="source">The source node.</param>
+  /// <param name="target">The target node.</param>
   void StartRenderer(Transform source, Transform target);
 
-  /// <summary>Cancells rendering the link.</summary>
+  /// <summary>Cancels rendering the link.</summary>
   /// <remarks>
-  /// THe stopped renderers are not required to not render anything. The stopped state only tells
-  /// that the source and the target position provided to the <see cref="StartRenderer"/> method
+  /// The stopped renderer is not required to not render anything. The stopped state only tells
+  /// that the source and the target positions provided to the <see cref="StartRenderer"/> method
   /// must not be respresented as connected anymore. A specific renderer implementation is free to
-  /// choose how to represent this situation.
+  /// choose how to represent this mode.
   /// <para>
   /// It's OK to call this method multiple time. If the renderer is already stopped the call must be
   /// treated as NO-OP with a little or no performance cost.

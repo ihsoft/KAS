@@ -554,7 +554,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
     if (isStarted) {
-      HostedDebugLog.Warning(this, "Renderer already started. Stopping...");
+      if (sourceTransform == source && targetTransform == target) {
+        return;  // NO-OP
+      }
       StopRenderer();
     }
     sourceTransform = source;
@@ -797,7 +799,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     var linkVector = target.position - source.position;
     var hits = Physics.SphereCastAll(
         source.position, radius, linkVector, linkVector.magnitude,
-        (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
+        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
       var hitPart = hit.transform.root.GetComponent<Part>();

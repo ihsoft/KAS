@@ -56,8 +56,8 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.24">
-      <HintPath>..\Binaries\KSPDev_Utils.0.24.dll</HintPath>
+    <Reference Include="KSPDev_Utils.0.26">
+      <HintPath>..\..\KSPDev\Binaries\KSPDev_Utils.0.26.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
@@ -89,13 +89,18 @@
     <Compile Include="api_impl\JointUtilsImpl.cs" />
     <Compile Include="api_impl\KASAPILauncher.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
+    <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="api_v1\CommonConfig.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
     <Compile Include="api_v1\IKasJointEventsListener.cs" />
+    <Compile Include="api_v1\ILinkCableJoint.cs" />
     <Compile Include="api_v1\ILinkJoint.cs" />
+    <Compile Include="api_v1\ILinkJointBase.cs" />
     <Compile Include="api_v1\ILinkRenderer.cs" />
     <Compile Include="api_v1\ILinkSource.cs" />
     <Compile Include="api_v1\ILinkStateEventListener.cs" />
     <Compile Include="api_v1\ILinkTarget.cs" />
+    <Compile Include="api_v1\IKasPropertyChangeListener.cs" />
     <Compile Include="api_v1\KASAPI.cs" />
     <Compile Include="api_v1\KASEvents.cs" />
     <Compile Include="api_v1\LinkActorType.cs" />
@@ -104,11 +109,15 @@
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
+    <Compile Include="api_v1\Utils\IPhysicsUtils.cs" />
+    <Compile Include="modules\InternalKASModulePhysicalConnector.cs" />
+    <Compile Include="modules\KASModuleCableJointBase.cs" />
     <Compile Include="modules\AbstractJointModule.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleCableJoint.cs" />
     <Compile Include="modules\KASModuleInteractiveLinkSource.cs" />
+    <Compile Include="modules\KASModuleKerbalLinkTarget.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModulePipeRendererWithHead.cs" />

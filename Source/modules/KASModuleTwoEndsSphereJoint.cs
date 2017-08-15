@@ -118,8 +118,10 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   #region ILinkJoint implementation
   /// <inheritdoc/>
   // FIXME(ihsoft): Handle mass!  
-  public override void CreateJoint(ILinkSource source, ILinkTarget target) {
-    base.CreateJoint(source, target);
+  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
+    if (!base.CreateJoint(source, target)) {
+      return false;
+    }
     DropStockJoint();  // Stock joint is not used.
 
     // Let other mods know if this joint allows parts moving.
@@ -147,6 +149,8 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+
+    return true;
   }
 
   /// <inheritdoc/>
@@ -186,11 +190,12 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   #endregion
 
   #region Inheritable static methods
-  /// <summary>Sets up a rigidbody so what it has little or none physics effect.</summary>
+  /// <summary>Sets up a rigidbody so that it has little or none physics effect.</summary>
   /// <param name="targetRb">The rigidbody to adjust.</param>
   /// <param name="refRb">The rigidbody to get copy physics from.</param>
   protected static void SetupNegligibleRb(Rigidbody targetRb, Rigidbody refRb) {
     targetRb.mass = 0.001f;
+    targetRb.inertiaTensor = Vector3.zero;
     targetRb.useGravity = false;
     targetRb.velocity = refRb.velocity;
     targetRb.angularVelocity = refRb.angularVelocity;

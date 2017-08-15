@@ -443,7 +443,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     var linkVector = target.position - source.position;
     var hits = Physics.SphereCastAll(
         source.position, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
-        (int)(KspLayerMask.PARTS | KspLayerMask.SURFACE | KspLayerMask.KERBALS),
+        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
       if (hit.transform.root != source.root && hit.transform.root != target.root) {

@@ -5,9 +5,9 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
-using KSPDev.KSPInterfaces;
 using System;
 using System.Linq;
 using System.Text;
@@ -15,11 +15,11 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Module that controls joint on a KAS part.</summary>
+/// <summary>Module that controls a physical joint on a KAS part.</summary>
 /// <remarks>
-/// This module reacts on KAS initated events to created/remove a physical joint between soucre and
-/// target. This module only deals with joining two parts together. It does not deal with
-/// collider(s) or rigid body masses (see <see cref="ILinkRenderer"/>).
+/// This module reacts on the KAS initated events to create/remove a physical joint between the
+/// source and target. This module only deals with the joining of two parts together. It does not
+/// deal with the collider(s) (see <see cref="ILinkRenderer"/>).
 /// </remarks>
 public abstract class AbstractJointModule : PartModule,
     // KSP interfaces.
@@ -143,6 +143,9 @@ public abstract class AbstractJointModule : PartModule,
 
   #region ILinkJoint CFG properties
   /// <inheritdoc/>
+  public string cfgJointName { get { return jointName; } }
+
+  /// <inheritdoc/>
   /// <remarks>
   /// When calculating the strength, the minimum of the source and the target breaking forces is
   /// used as a base. Then, the value is scaled to the node size assuming it's a stack node.
@@ -172,6 +175,11 @@ public abstract class AbstractJointModule : PartModule,
   #endregion
 
   #region Part's config fields
+  /// <summary>See <see cref="cfgJointName"/>.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string jointName = "";
+
   /// <summary>Defines how the physics joint breaking force and torque are scaled.</summary>
   /// <remarks>
   /// The larger is the scale, the higher are the actual values used in physics. Size <c>0</c>
@@ -278,10 +286,10 @@ public abstract class AbstractJointModule : PartModule,
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
-  public virtual void CreateJoint(ILinkSource source, ILinkTarget target) {
+  public virtual bool CreateJoint(ILinkSource source, ILinkTarget target) {
     if (isLinked) {
       HostedDebugLog.Warning(this, "Joint is already linked");
-      return;
+      return false;
     }
     linkSource = source;
     linkTarget = target;
@@ -289,8 +297,10 @@ public abstract class AbstractJointModule : PartModule,
       stockJoint = part.attachJoint;
       part.attachJoint = null;
     }
-    originalLength = Vector3.Distance(source.nodeTransform.position, target.nodeTransform.position);
+    originalLength = Vector3.Distance(source.physicalAnchorTransform.position,
+                                      target.physicalAnchorTransform.position);
     isLinked = true;
+    return true;
   }
 
   /// <inheritdoc/>
@@ -305,33 +315,13 @@ public abstract class AbstractJointModule : PartModule,
   public abstract void AdjustJoint(bool isUnbreakable = false);
 
   /// <inheritdoc/>
-  public virtual string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
-    var length = Vector3.Distance(source.nodeTransform.position, targetTransform.position);
-    if (maxLinkLength > 0 && length > maxLinkLength) {
-      return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
-    }
-    if (minLinkLength > 0 && length < minLinkLength) {
-      return MinLengthLimitReachedMsg.Format(length, minLinkLength);
-    }
-    return null;
-  }
-
-  /// <inheritdoc/>
-  public virtual string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
-    var linkVector = targetTransform.position - source.nodeTransform.position;
-    var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
-    return sourceLinkAngleLimit > 0 && angle > sourceLinkAngleLimit
-        ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
-        : null;
-  }
-
-  /// <inheritdoc/>
-  public virtual string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
-    var linkVector = source.nodeTransform.position - targetTransform.position;
-    var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
-    return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
-        ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
-        : null;
+  public string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
+    var errors = new[] {
+        CheckLengthLimit(source, targetTransform),
+        CheckAngleLimitAtSource(source, targetTransform),
+        CheckAngleLimitAtTarget(source, targetTransform),
+    };
+    return errors.Where(x => x != null).ToArray();
   }
   #endregion
 
@@ -392,18 +382,16 @@ public abstract class AbstractJointModule : PartModule,
           .FirstOrDefault(x => x.linkState == LinkState.Linked);
       var target = source != null ? source.linkTarget : null;
       if (source != null && target != null) {
-        var limitError =
-            CheckAngleLimitAtSource(source, target.nodeTransform)
-            ?? CheckAngleLimitAtTarget(source, target.nodeTransform)
-            ?? CheckLengthLimit(source, target.nodeTransform);
-        if (limitError != null) {
-          ScreenMessaging.ShowErrorScreenMessage(limitError);
+        var errors = CheckConstraints(source, target.nodeTransform);
+        if (errors.Length > 0) {
+          ScreenMessaging.ShowErrorScreenMessage(DbgFormatter.C2S(errors, separator: "\n"));
           var oldParent = part.parent;
           AsyncCall.CallOnEndOfFrame(this, () => {
             // Ensure part's state hasn't been changed by the other modules.
             if (part.parent == oldParent) {
-              HostedDebugLog.Warning(
-                  this, "Detach from the parent since joint limits are not met: {0}", limitError);
+              HostedDebugLog.Warning(this,
+                  "Detach from the parent since joint limits are not met: {0}",
+                  DbgFormatter.C2S(errors));
               source.BreakCurrentLink(LinkActorType.Physics);
             } else {
               HostedDebugLog.Warning(this, "Skip detaching since the part is already detached");
@@ -442,7 +430,7 @@ public abstract class AbstractJointModule : PartModule,
   #endregion
 
   #region Utility methods
-  /// <summary>Destroys stock joint on the part if one exists.</summary>
+  /// <summary>Destroys the stock joint on the part if one exists.</summary>
   /// <remarks>
   /// Note, that this will trigger <see cref="GameEvents.onPartJointBreak"/> event.
   /// </remarks>
@@ -538,6 +526,62 @@ public abstract class AbstractJointModule : PartModule,
   /// KSP: PartJoint</seealso>
   protected float ScaleForceToNode(float force, bool isStack = true) {
     return force * (1.0f + attachNodeSize) * (isStack ? 2.0f : 0.8f);
+  }
+
+  /// <summary>Checks if the link's length is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the length against.</param>
+  /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
+  protected string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
+    var length = Vector3.Distance(
+        source.physicalAnchorTransform.position,
+        targetTransform.TransformPoint(source.targetPhysicalAnchor));
+    if (maxLinkLength > 0 && length > maxLinkLength) {
+      return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
+    }
+    if (minLinkLength > 0 && length < minLinkLength) {
+      return MinLengthLimitReachedMsg.Format(length, minLinkLength);
+    }
+    return null;
+  }
+
+  /// <summary>Checks if the link's angle at the source joint is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <returns>An error message if angle is over limit or <c>null</c> otherwise.</returns>
+  protected string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
+    var linkVector = targetTransform.position - source.nodeTransform.position;
+    var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
+    return sourceLinkAngleLimit > 0 && angle > sourceLinkAngleLimit
+        ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
+        : null;
+  }
+
+  /// <summary>Checks if the link's angle at the target joint is within the limits.</summary>
+  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
+  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
+  /// calculations.
+  /// </remarks>
+  /// <param name="source">The source that probes the link.</param>
+  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <returns>An error message if the angle is over limit or <c>null</c> otherwise.</returns>
+  protected string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
+    var linkVector = source.nodeTransform.position - targetTransform.position;
+    var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
+    return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
+        ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
+        : null;
   }
   #endregion
 }

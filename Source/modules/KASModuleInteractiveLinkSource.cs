@@ -81,11 +81,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   [KSPField]
   public string unplugSndPath = "KAS/Sounds/unplugdocked";
 
-  /// <summary>Audio sample to play when parts are undocked by physics.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string brokeSndPath = "KAS/Sounds/broke";
-
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -190,7 +185,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
     if (info.actor == LinkActorType.Player) {
       UISoundPlayer.instance.Play(unplugSndPath);
     } else if (info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(brokeSndPath);
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
     }
   }
   #endregion
@@ -226,11 +221,11 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
         if (targetCandidate != null) {
           var linkStatusErrors = new[] {
               CheckBasicLinkConditions(targetCandidate),
-              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform),
-              linkJoint.CheckAngleLimitAtSource(this, targetCandidate.nodeTransform),
-              linkJoint.CheckAngleLimitAtTarget(this, targetCandidate.nodeTransform),
-              linkJoint.CheckLengthLimit(this, targetCandidate.nodeTransform)
-          }.Where(x => x != null).ToArray();
+              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform)
+          };
+          linkStatusErrors = linkStatusErrors
+              .Concat(linkJoint.CheckConstraints(this, targetCandidate.nodeTransform))
+              .Where(x => x != null).ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
             statusScreenMessage.message = CanBeConnectedMsg.Format(
