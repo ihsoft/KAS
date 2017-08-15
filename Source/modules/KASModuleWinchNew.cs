@@ -714,12 +714,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         ConnectorState.Plugged,
         enterHandler: oldState => {
           connectorModelObj.parent = linkTarget.nodeTransform;
+          PartModel.UpdateHighlighters(part);
+          PartModel.UpdateHighlighters(linkTarget.part);
           AlignTransforms.SnapAlign(
               connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
           linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
         },
         leaveHandler: newState => {
+          var oldParent = connectorModelObj.parent;
           connectorModelObj.parent = nodeTransform;  // Back to the model.
+          PartModel.UpdateHighlighters(part);
+          PartModel.UpdateHighlighters(oldParent);
           linkRenderer.StopRenderer();
         });
     #endregion

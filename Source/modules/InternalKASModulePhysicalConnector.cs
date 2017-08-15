@@ -93,7 +93,16 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   #region MonoBehaviour messages
   void Awake() {
     connectorRb = GetComponent<Rigidbody>();
-    PartModel.SetModelParent(connectorRb.gameObject.transform, null);  // Detach from the hierarchy.
+    // Update the highlighters. For this we need changing the hierarchy.
+    var oldParent = connectorRb.gameObject.transform.parent;
+    connectorRb.gameObject.transform.parent = null;
+    PartModel.UpdateHighlighters(oldParent);
+    PartModel.UpdateHighlighters(connectorRb.gameObject.transform);
+    if (connectorRb.isKinematic) {
+      // The kinematic RB must be parented, or else it's considered static.
+      connectorRb.transform.parent = ownerModule.gameObject.transform;
+    }
+
     GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
     GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
   }
@@ -117,8 +126,10 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   void CleanupModule() {
     if (ownerModule != null) {
       // Bring the model back to the part or to the new host.
-      PartModel.SetModelParent(
-          gameObject.transform, Hierarchy.GetPartModelTransform(ownerModule.part));
+      var oldParent = gameObject.transform.parent;
+      gameObject.transform.parent = Hierarchy.GetPartModelTransform(ownerModule.part);
+      PartModel.UpdateHighlighters(oldParent);
+      PartModel.UpdateHighlighters(ownerModule.part);
     }
     if (connectorRb) {
       connectorRb.isKinematic = true;  // To nullify any residual momentum.
