@@ -11,14 +11,12 @@
     "" : [
       "/README.md",
       "/LICENSE-1.0.md",
+      "/Lang",
       "/Models",
       "/Parts",
       "/Patches",
       "/Sounds",
       "/Textures"
-    ],
-    "Parts" : [
-      "-Winch1"
     ],
     "Plugins" : [
       "{COMPILED_BINARY}",
