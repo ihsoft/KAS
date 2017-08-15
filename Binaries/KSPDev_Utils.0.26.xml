@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.25</name>
+        <name>KSPDev_Utils.0.26</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -167,6 +167,7 @@
             <remarks>
             This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>.
             </remarks>
+            <value>The prototype's class type.</value>
         </member>
         <member name="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto">
             <summary>A proto that handles field's value as a collection of persistent values.</summary>
@@ -174,6 +175,7 @@
             <para>
             This type must be a descendant of <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
             </para>
+            <value>The prototype's class type.</value>
         </member>
         <member name="T:KSPDev.ConfigUtils.AbstractPersistentFieldsFileAttribute">
             <summary>A base for any persistent fields file annotation.</summary>
@@ -1080,6 +1082,37 @@
             <code source="Examples/Extensions/DictExtensions-Examples.cs" region="SetDefaultAddToDict"/>
             </example>
         </member>
+        <member name="T:KSPDev.Extensions.PosAndRotExtensions">
+            <summary>Helper extensions to deal with <see cref="T:KSPDev.Types.PosAndRot"/> type.</summary>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToLocal"/>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToWorld"/>
+            </example>
+        </member>
+        <member name="M:KSPDev.Extensions.PosAndRotExtensions.InverseTransformPosAndRot(UnityEngine.Transform,KSPDev.Types.PosAndRot)">
+            <summary>
+            Transforms a pos&amp;rot object from the world space to the local space. The opposite to
+            <see cref="M:KSPDev.Extensions.PosAndRotExtensions.TransformPosAndRot(UnityEngine.Transform,KSPDev.Types.PosAndRot)"/>.
+            </summary>
+            <param name="node">The node to use as a parent.</param>
+            <param name="posAndRot">The object in world space.</param>
+            <returns>A new pos&amp;rot object in the local space.</returns>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToLocal"/>
+            </example>
+        </member>
+        <member name="M:KSPDev.Extensions.PosAndRotExtensions.TransformPosAndRot(UnityEngine.Transform,KSPDev.Types.PosAndRot)">
+            <summary>
+            Transforms a pos&amp;rot object from the local space to the world space. The opposite to
+            <see cref="M:KSPDev.Extensions.PosAndRotExtensions.InverseTransformPosAndRot(UnityEngine.Transform,KSPDev.Types.PosAndRot)"/>.
+            </summary>
+            <param name="node">The node to use as a parent.</param>
+            <param name="posAndRot">The object in local space.</param>
+            <returns>A new pos&amp;rot object in the wold space.</returns>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToWorld"/>
+            </example>
+        </member>
         <member name="T:KSPDev.Extensions.RectExtensions">
             <summary>Helper extensions to handel Unity rectangles.</summary>
             <example><code source="Examples/Extensions/RectExtensions-Examples.cs" region="Intersect"/></example>
@@ -1352,6 +1385,64 @@
             <returns>A string representing the value.</returns>
             <seealso cref="M:KSPDev.GUIUtils.DistanceType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
         </member>
+        <member name="T:KSPDev.GUIUtils.IHasGUI">
+            <summary>Generic interface for the modules that implement a GUI events handling.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.IHasGUI.OnGUI">
+            <summary>A callback which is called for every GUI event.</summary>
+            <remarks>
+            <para>
+            On the every frame update Unity sends at least two events to every handler:
+            <see cref="F:UnityEngine.EventType.Layout"/> and <see cref="F:UnityEngine.EventType.Repaint"/>. There can be more input
+            events sent. The implementation must not change the number of controls in the view after the
+            layout event.
+            </para>
+            <para>
+            The modules don't need to implement this intefrace to be notified. It's called by the Unity
+            core via messanging. However, implementing the interface make the inheritance and the overall
+            code maintainability better.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:KSPDev.GUIUtils.KeyboardEventType">
+            <summary>Localized message formatting class for a Unity keyboard event.</summary>
+            <remarks>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/><seealso cref="T:KSPDev.GUIUtils.MessageLookup`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.AngleType"/><seealso cref="T:KSPDev.GUIUtils.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.ForceType"/><seealso cref="T:KSPDev.GUIUtils.PercentType"/><seealso cref="T:KSPDev.GUIUtils.MassType"/>
+            <example><code source="Examples/GUIUtils/KeyboardEventType-Examples.cs" region="KeyboardEventTypeDemo1"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.KeyboardEventType.value">
+            <summary>A wrapped event value.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.KeyboardEventType.#ctor(UnityEngine.Event)">
+            <summary>Constructs an object from an event.</summary>
+            <param name="value">The keyboard event.</param>
+            <seealso cref="M:KSPDev.GUIUtils.KeyboardEventType.Format(UnityEngine.Event)"/>
+            <example><code source="Examples/GUIUtils/KeyboardEventType-Examples.cs" region="KeyboardEventTypeDemo1"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.KeyboardEventType.op_Implicit(UnityEngine.Event)~KSPDev.GUIUtils.KeyboardEventType">
+            <summary>Converts a numeric value into a type object.</summary>
+            <param name="value">The event value to convert.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.KeyboardEventType.op_Implicit(KSPDev.GUIUtils.KeyboardEventType)~UnityEngine.Event">
+            <summary>Converts a type object into an event value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.KeyboardEventType.Format(UnityEngine.Event)">
+            <summary>Formats the value into a human friendly string.</summary>
+            <param name="value">The keyboard event value to format.</param>
+            <returns>A formatted and localized string</returns>
+            <example><code source="Examples/GUIUtils/KeyboardEventType-Examples.cs" region="KeyboardEventTypeDemo1"/></example>
+        </member>
+        <member name="M:KSPDev.GUIUtils.KeyboardEventType.ToString">
+            <summary>Returns a string formatted as a human friendly key specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.KeyboardEventType.Format(UnityEngine.Event)"/>
+        </member>
         <member name="T:KSPDev.GUIUtils.MessageLookup`1">
             <summary>Holds a mapping of a value to a localized message.</summary>
             <typeparam name="T">Type of the key. It must be non-nullable.</typeparam>
@@ -1500,7 +1591,7 @@
             <seealso href="https://docs.unity3d.com/ScriptReference/GUI-backgroundColor.html">Untiy3D: GUI.backgroundColor</seealso>
         </member>
         <member name="M:KSPDev.GUIUtils.GuiColorScope.Dispose">
-            <inheritdoc/>
+            <summary>Restores the colors that were set before the scope started.</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.GuiEnabledStateScope">
             <summary>A utility class to render big disabled bloacks of GUI.</summary>
@@ -1512,7 +1603,7 @@
             <example><code source="Examples/GUIUtils/GuiEnabledStateScope-Examples.cs" region="GuiEnabledStateScopeDemo1_OnGUI"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.GuiEnabledStateScope.Dispose">
-            <inheritdoc/>
+            <summary>Restores the enabled state that was set before the scope started.</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.GuiWindow">
             <summary>A utility class to deal with the GUI windows.</summary>
@@ -1683,7 +1774,7 @@
             <see cref="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate"/> will be used as text.
             </remarks>
             <item name="T:KSP.Localization.Localizer">
-  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP: Localization.Localizer</seealso>
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
 </item>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.loadedLocVersion">
@@ -1750,18 +1841,20 @@
             </value>
             <seealso cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/>
             <item name="T:KSP.Localization.Localizer">
-  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP: Localization.Localizer</seealso>
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
 </item>
         </member>
         <member name="T:KSPDev.GUIUtils.LocalizationLoader">
             <summary>A utility class to localize the annotated members</summary>
             <remarks>
+            <para>
             It also monitors if a new localizable module is created or loaded, or if the
             <see cref="F:KSPDev.GUIUtils.LocalizableMessage.systemLocVersion">localization version</see> has changed. If this
             is the case, then all the modules will be automatically updated.
+            </para>
+            <para>This module is initialized from the KSPDev Utils loader.</para>
             </remarks>
             <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
-            <seealso cref="T:KSPDev.GUIUtils.LibraryLoader"/>
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo1"/></example>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizationLoader.KspFieldUnitsSpec">
@@ -1838,9 +1931,17 @@
             <param name="shipConstruct">The ship's parts data.</param>
             <param name="loadType">Unused.</param>
         </member>
-        <member name="M:KSPDev.GUIUtils.LocalizationLoader.OnNewVessel(Vessel)">
-            <summary>Loads all the localizable strings in a vessel.</summary>
-            <param name="vessel">The vessel to load strings in.</param>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.OnProtoPartSnapshotLoad(GameEvents.FromToAction{ProtoPartSnapshot,ConfigNode})">
+            <summary>Reacts on creating a part from a proto.</summary>
+            <param name="action">The snapshot and node data.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.OnCrewEva(GameEvents.FromToAction{Part,Part})">
+            <summary>Reacts on creating an EVA kerbal.</summary>
+            <remarks>
+            Kerbals are created in a different way from a regular vessel. So the regular update events are
+            not fired.
+            </remarks>
+            <param name="action">The source and target parts data.</param>
         </member>
         <member name="M:KSPDev.GUIUtils.LocalizationLoader.OnUpdateLocalizationVersion">
             <summary>Invalidates all the localization caches and updates the current vessels.</summary>
@@ -1913,7 +2014,7 @@
             <example><code source="Examples/GUIUtils/MassType-Examples.cs" region="MassTypeDemo2_FormatFixed"/></example>
         </member>
         <member name="M:KSPDev.GUIUtils.MassType.op_Implicit(System.Double)~KSPDev.GUIUtils.MassType">
-            <summary>Coverts a numeric value into a type object.</summary>
+            <summary>Converts a numeric value into a type object.</summary>
             <param name="value">The numeric value to convert.</param>
             <returns>An object.</returns>
         </member>
@@ -2574,8 +2675,8 @@
             In case of the very first usage of the sound is latency restricted, the sound resource can be
             pre-cached via the <see cref="M:KSPDev.GUIUtils.UISoundPlayer.CacheSound(System.String)"/> method. It will increase the loading time, though.
             </para>
+            <para>This module is initialized from the KSPDev Utils loader.</para>
             </remarks>
-            <seealso cref="T:KSPDev.GUIUtils.LibraryLoader"/>
             <example><code source="Examples/GUIUtils/UISoundPlayer-Examples.cs" region="UISoundPlayerDemo1"/></example>
         </member>
         <member name="F:KSPDev.GUIUtils.UISoundPlayer.audioCache">
@@ -2606,7 +2707,7 @@
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.Awake">
             <summary>Initializes the <see cref="P:KSPDev.GUIUtils.UISoundPlayer.instance"/>.</summary>
             <remarks>It's expected to be called only once.</remarks>
-            <seealso cref="T:KSPDev.GUIUtils.LibraryLoader"/>
+            <seealso cref="T:KSPDev.LibraryLoader"/>
         </member>
         <member name="M:KSPDev.GUIUtils.UISoundPlayer.GetOrLoadAudio(System.String)">
             <summary>Loads the audio sample and plays it.</summary>
@@ -2988,7 +3089,7 @@
             <summary>Called when two parts decouple.</summary>
             <remarks>
             The callback is only called on the part if it has an attach node that connects it to the other
-            part. For this event to fire a decoupling logic must be executed. A s imple removal from the
+            part. For this event to fire a decoupling logic must be executed. A simple removal from the
             vessel hierarchy won't trigger the event.
             </remarks>
             <param name="nodeName">The attach node name that has been detached.</param>
@@ -3191,12 +3292,21 @@
             <summary>Initializes module's state after all other modules have been created.</summary>
             <remarks>
             Note, that this is not the right place to start physics on the part. This callback is good to
-            establish connections between the other modules on the part.
+            acquire references to the the other modules on the part, and for establishing the internal
+            state of the module.
             </remarks>
             <para>See more details on the calling sequence in <see cref="T:KSPDev.KSPInterfaces.IPartModule"/>.</para>
             <param name="state">State that specifies the situation of the vessel.</param>
             <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html#ac6597127392e002b92f7427cf50244d3">
             KSP: PartModule.StartState</seealso>
+        </member>
+        <member name="M:KSPDev.KSPInterfaces.IPartModule.OnStartFinished(PartModule.StartState)">
+            <summary>Notifies that all the modules on the part have been started.</summary>
+            <remarks>
+            This is the right place to <i>interact</i> with the other modules on the part. At this moment
+            they all are assumed to be properly setup.
+            </remarks>
+            <param name="state">State that specifies the situation of the vessel.</param>
         </member>
         <member name="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize">
             <summary>
@@ -3353,7 +3463,7 @@
             objects and modules that need the physics updates. It makes the code more readable.
             </remarks>
         </member>
-        <member name="T:KSPDev.GUIUtils.LibraryLoader">
+        <member name="T:KSPDev.LibraryLoader">
             <summary>
             Initialization class that installs the game event listeners needed by the library.
             </summary>
@@ -3364,10 +3474,10 @@
             libraries/versions in the game.
             </remarks>
         </member>
-        <member name="F:KSPDev.GUIUtils.LibraryLoader.loaded">
+        <member name="F:KSPDev.LibraryLoader.loaded">
             <summary>Tells if the loader has already initialized.</summary>
         </member>
-        <member name="P:KSPDev.GUIUtils.LibraryLoader.assemblyVersionStr">
+        <member name="P:KSPDev.LibraryLoader.assemblyVersionStr">
             <summary>Loaded library indentifier.</summary>
         </member>
         <member name="T:KSPDev.LogUtils.DbgFormatter">
@@ -3451,6 +3561,7 @@
             <param name="args">The arguments for the format string.</param>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
             <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
+            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(PartModule,System.String,System.Object[])">
             <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
@@ -3495,6 +3606,7 @@
             common types and give a more context on them while keeping the output short. The currently
             supported object types are:
             <list type="bullet">
+            <item>The primitive types and strings are returned as is.</item>
             <item><see cref="T:Part"/>. The string will have a part ID.</item>
             <item><see cref="T:PartModule"/>. The string will have a part ID and a module index.</item>
             <item>
@@ -3504,7 +3616,7 @@
             <para>The other types are stringified via a regular <c>ToString()</c> call.</para>
             </remarks>
             <param name="obj">The object to stringify. It can be <c>null</c>.</param>
-            <returns>A human friendly string which identifies the host.</returns>
+            <returns>A human friendly string or the original object.</returns>
             <item name="T:Part">
   <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
 </item>
@@ -3855,34 +3967,64 @@
             <param name="unescapedName">The raw name with any symbols.</param>
             <returns>A name where all the special symbols are properly escaped.</returns>
         </member>
-        <member name="T:KSPDev.ModelUtils.KspLayerMask">
-            <summary>Flags for the collision layers in KSP.</summary>
+        <member name="T:KSPDev.ModelUtils.KspLayer">
+            <summary>Defines various layers used in the game.</summary>
             <remarks>
             It's not a full set of the layers. More investigation is needed to reveal all of them.
             </remarks>
+            <seealso cref="T:KSPDev.ModelUtils.KspLayerMask"/>
         </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.NONE">
-            <summary>Just a default value that doesn't match any layer.</summary>
+        <member name="F:KSPDev.ModelUtils.KspLayer.Part">
+            <summary>The layer for a regular part.</summary>
         </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.PARTS">
-            <summary>Layer for a regular part.</summary>
-        </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.SERVICE_LAYER">
-            <summary>Layer to set bounds of a celestial body.</summary>
+        <member name="F:KSPDev.ModelUtils.KspLayer.Service">
+            <summary>The layer to set bounds of a celestial body.</summary>
             <remarks>
-            A very rough boundary of a planet, moon or asteroid. Used for macro objects detection.
+            It's a very rough boundary of a planet, moon or asteroid. Used for macro objects detection.
             </remarks>
         </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.SURFACE">
-            <summary>"Zero" level of a static structure on the surface.</summary>
+        <member name="F:KSPDev.ModelUtils.KspLayer.SurfaceCollider">
+            <summary>The "zero" level collider of a static structure on the surface.</summary>
             <remarks>E.g. a launchpad.</remarks>
         </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.KERBALS">
-            <summary>Layer of kerbonaut models.</summary>
+        <member name="F:KSPDev.ModelUtils.KspLayer.Kerbal">
+            <summary>The layer for the kerbonaut models.</summary>
         </member>
-        <member name="F:KSPDev.ModelUtils.KspLayerMask.FX">
-            <summary>A layer for FX.</summary>
+        <member name="F:KSPDev.ModelUtils.KspLayer.TriggerCollider">
+            <summary>The layer for the various interaction colliders.</summary>
+            <remarks>
+            The meshes on this layer are not rendered. They are only used to trigger collision events when
+            a kerbal model is in range.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayer.Fx">
+            <summary>The layer for FX objects.</summary>
             <remarks>E.g. <c>PadFXReceiver</c> on the Kerbins VAB launchpad.</remarks>
+        </member>
+        <member name="T:KSPDev.ModelUtils.KspLayerMask">
+            <summary>A convinience type to deal with the <see cref="T:KSPDev.ModelUtils.KspLayer">layers</see>.</summary>
+            <seealso cref="T:KSPDev.ModelUtils.KspLayer"/>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.None">
+            <summary>Just a default value that doesn't match any layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.Part">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.Part"/> layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.Service">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.Service"/> layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.SurfaceCollider">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.SurfaceCollider"/> layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.Kerbal">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.Kerbal"/> layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.TriggerCollider">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.TriggerCollider"/> layer.</summary>
+        </member>
+        <member name="F:KSPDev.ModelUtils.KspLayerMask.Fx">
+            <summary>Mask for the <see cref="F:KSPDev.ModelUtils.KspLayer.Fx"/> layer.</summary>
         </member>
         <member name="T:KSPDev.ModelUtils.Meshes">
             <summary>Various tools to deal with procedural meshes.</summary>
@@ -4010,6 +4152,63 @@
             <param name="scale">
             Scale for the vertex positions. If not specified then the scale is not affected.
             </param>
+        </member>
+        <member name="T:KSPDev.PartUtils.PartModel">
+            <summary>Helper methods to deal with the part models.</summary>
+        </member>
+        <member name="M:KSPDev.PartUtils.PartModel.UpdateHighlighters(UnityEngine.Transform)">
+            <summary>Refreshes the highlighters on the part that owns the provided model.</summary>
+            <remarks>
+            When a part is highlighted (e.g. due to the mouse hover event), it highlights its models via a
+            pre-cached set of the highlighter components. This cache is constructed on the part creation.
+            If a model is added or removed from the part in runtime, the cache needs to be updated. This
+            method does it by finding the part from the game objects hirerachy. If there is a part found,
+            then its highlighters are updated.
+            </remarks>
+            <param name="modelObj">The game object which needs an update. It can be <c>null</c>.</param>
+        </member>
+        <member name="M:KSPDev.PartUtils.PartModel.UpdateHighlighters(Part)">
+            <summary>Refreshes the highlighters on the part.</summary>
+            <remarks>
+            It goes thru the highlighters cache and drops all the renderers that are no more in the part's
+            model hierarchy. Then, it gets all the renderers in the hierarchy and enusrrs all of them are
+            in the cache. It's not a cheap operation performance wise.
+            </remarks>
+            <param name="part">The part to refresh the highlighters for. It can be <c>null</c>.</param>
+        </member>
+        <member name="T:KSPDev.PartUtils.PartModuleUtils">
+            <summary>
+            Utility class to deals with the attributed fields and methods of the KPS part modules.
+            </summary>
+            <example><code source="Examples/PartUtils/PartModuleUtils-Examples.cs" region="PartModuleUtils_SetupEvent"/></example>
+            <example><code source="Examples/PartUtils/PartModuleUtils-Examples.cs" region="PartModuleUtils_GetEvent"/></example>
+        </member>
+        <member name="M:KSPDev.PartUtils.PartModuleUtils.GetEvent(PartModule,System.Action)">
+            <summary>Returns an event for the requested method.</summary>
+            <remarks>
+            This method requests a KPS event of the part's module by its signature instead of a string
+            literal name. The same result could be achieved by accessing the <c>Events</c> field of the
+            <c>PartModule</c> object. However, in case of using a string literal the refactoring and the
+            source tracking tools won't be able to track the reference. The main goal of this method is to
+            provide a compile time checking mechanism for the cases when the exact method is known at the
+            compile time (e.g. in the class descendants).
+            </remarks>
+            <param name="partModule">The module to get the event for.</param>
+            <param name="eventFn">The signature of the event in scope of the module.</param>
+            <returns>An event, or <c>null</c> if nothing found for the method provided.</returns>
+            <seealso cref="M:KSPDev.PartUtils.PartModuleUtils.SetupEvent(PartModule,System.Action,System.Action{BaseEvent})"/>
+            <example><code source="Examples/PartUtils/PartModuleUtils-Examples.cs" region="PartModuleUtils_GetEvent"/></example>
+        </member>
+        <member name="M:KSPDev.PartUtils.PartModuleUtils.SetupEvent(PartModule,System.Action,System.Action{BaseEvent})">
+            <summary>Applies a setup function on a KSP part module event.</summary>
+            <param name="partModule">The module to find the event in.</param>
+            <param name="eventFn">The event's method signature.</param>
+            <param name="setupFn">The function to apply to the event if the one is found.</param>
+            <returns>
+            <c>true</c> if the event was found and the function was applied, <c>false</c> otherwise.
+            </returns>
+            <seealso cref="M:KSPDev.PartUtils.PartModuleUtils.GetEvent(PartModule,System.Action)"/>
+            <example><code source="Examples/PartUtils/PartModuleUtils-Examples.cs" region="PartModuleUtils_SetupEvent"/></example>
         </member>
         <member name="T:KSPDev.ProcessingUtils.AsyncCall">
             <summary>Set of tools to execute a delayed code.</summary>
@@ -4222,7 +4421,7 @@
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.#ctor(System.Boolean)">
             <summary>Constructs a new uninitialized state machine.</summary>
-            <param name="strict">The strict mode.</param>
+            <param name="strict">Tells if all the transitions must be excplicitly declared.</param>
             <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
             <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
             <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
@@ -4446,8 +4645,8 @@
             <summary>Sets up a sound FX group with an audio clip .</summary>
             <param name="obj">The game object to attach sound to.</param>
             <param name="sndPath">The URL to the audio clip.</param>
-            <param name="loop">Specifies if the clip playbac kshoold be looped.</param>
-            <param name="maxDistance">The mximum distance at which the sound is hearable.</param>
+            <param name="loop">Specifies if the clip playback shold be looped.</param>
+            <param name="maxDistance">The maximum distance at which the sound is hearable.</param>
             <returns>An audio source object attached to the <paramref name="obj"/>.</returns>
         </member>
         <member name="T:KSPDev.Types.PosAndRot">
@@ -4461,6 +4660,10 @@
             </item>
             </list>
             </remarks>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToLocal"/>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToWorld"/>
+            </example>
         </member>
         <member name="F:KSPDev.Types.PosAndRot.pos">
             <summary>Position of the transform.</summary>
@@ -4512,6 +4715,26 @@
             be returned.
             </param>
             <returns>An instance, intialized from the string.</returns>
+        </member>
+        <member name="M:KSPDev.Types.PosAndRot.Transform(UnityEngine.Transform)">
+            <summary>
+            Transforms the object from the world space to the local space of a reference transform.
+            </summary>
+            <param name="parent">The transfrom to assume as a parent.</param>
+            <returns>A new object in the world space of <paramref name="parent"/>.</returns>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToWorld"/>
+            </example>
+        </member>
+        <member name="M:KSPDev.Types.PosAndRot.InverseTransform(UnityEngine.Transform)">
+            <summary>
+            Transforms the object from world space to local space of a reference transform.
+            </summary>
+            <param name="parent">The transfrom to assume as a parent.</param>
+            <returns>A new object in the local space of <paramref name="parent"/>.</returns>
+            <example>
+            <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToLocal"/>
+            </example>
         </member>
         <member name="M:KSPDev.Types.PosAndRot.NormlizeAngles">
             <summary>
