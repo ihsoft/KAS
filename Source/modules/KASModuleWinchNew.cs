@@ -695,6 +695,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
           AlignTransforms.SnapAlign(
               connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
+          cableJoint.maxAllowedCableLength = 0;
           if (oldState.HasValue) {  // Skip when restoring state.
             sndConnectorLock.Play();
           }
