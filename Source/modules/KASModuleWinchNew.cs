@@ -479,21 +479,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void GrabConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA && connectorState == ConnectorState.Locked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
-          .FirstOrDefault(t => t.linkSource == null && t.cfgLinkType == cfgLinkType);
-      if (kerbalTarget == null) {
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType);
+      if (kerbalTarget != null
+          && CheckCanLinkTo(kerbalTarget, reportToGUI: true)
+          && StartLinking(GUILinkMode.API, LinkActorType.Player)) {
+        LinkToTarget(kerbalTarget);
+      } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-        HostedDebugLog.Error(
-            this, "{0} cannot grab the winch connector", FlightGlobals.ActiveVessel.vesselName);
-        return;
-      }
-      if (StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (LinkToTarget(kerbalTarget)) {
-          cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
-        } else {
-          CancelLinking(LinkActorType.API);
-          HostedDebugLog.Error(this, "Cannot link the winch connector to kerbal {0}",
-                               FlightGlobals.ActiveVessel.vesselName);
-        }
       }
     }
   }
