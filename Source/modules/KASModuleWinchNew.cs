@@ -484,6 +484,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true)
           && StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         LinkToTarget(kerbalTarget);
+        cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
