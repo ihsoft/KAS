@@ -481,6 +481,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
           .FirstOrDefault(t => t.linkSource == null && t.cfgLinkType == cfgLinkType);
       if (kerbalTarget == null) {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
         HostedDebugLog.Error(
             this, "{0} cannot grab the winch connector", FlightGlobals.ActiveVessel.vesselName);
         return;
