@@ -403,7 +403,7 @@ class Builder(object):
     if self.VERSION is None:
       print 'ERROR: Cannot extract version from: %s' % file_path
       exit(-1)
-    print '=> found version: v%d.%d, build %d, revision %d' % self.VERSION
+    print '=> found version: v%d.%d, patch %d, build %d' % self.VERSION
 
 
   # Updates the source files with the version info.
@@ -421,8 +421,8 @@ class Builder(object):
       exit(-1)
     content['VERSION']['MAJOR'] = self.VERSION[0]
     content['VERSION']['MINOR'] = self.VERSION[1]
-    content['VERSION']['BUILD'] = self.VERSION[2]
-    content['VERSION']['PATCH'] = self.VERSION[3]
+    content['VERSION']['PATCH'] = self.VERSION[2]
+    content['VERSION']['BUILD'] = self.VERSION[3]
     with open(version_file, 'w') as fp:
       json.dump(content, fp, indent=4, sort_keys=True)
   
@@ -448,26 +448,26 @@ class Builder(object):
     print '=> stored in:', package_file_name
 
 
-  # Fills VERSION given the string or int compinents. The build and revision could be "*".
-  def __MakeVersion(self, major, minor, build, revision):
+  # Fills VERSION given the string or int compinents. The patch and build could be "*".
+  def __MakeVersion(self, major, minor, patch, build):
     # Get build/rev from the binary if it's auto generated.
-    if build == '*' or revision == '*':
+    if build == '*' or patch == '*':
       filename = self.__MakeSrcPath(self.COMPILED_BINARY)
       version = self.__GetFileInfo(filename) or ''
       parts = version.split('.')
-      if build == '*' and len(parts) >= 3:
-        build = parts[2]
+      if patch == '*' and len(parts) >= 3:
+        patch = parts[2]
       if len(parts) >= 4:
-        revision = parts[3]
+        build = parts[3]
     # Handle fallbacks in case of the version wasn't extracted.
+    if patch == '*':
+      print 'WARNING: Couldn\'t resolve version PATCH, fallback to 0'
+      patch = 0
     if build == '*':
       print 'WARNING: Couldn\'t resolve version BUILD, fallback to 0'
       build = 0
-    if revision == '*':
-      print 'WARNING: Couldn\'t resolve version REVISION, fallback to 0'
-      revision = 0
     # Fill the version
-    self.VERSION = (int(major), int(minor), int(build), int(revision))
+    self.VERSION = (int(major), int(minor), int(patch), int(build))
 
  
   # Checks if path doesn't try to address file above the root. All path arguments can contain
