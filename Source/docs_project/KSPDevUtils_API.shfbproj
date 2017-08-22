@@ -19,8 +19,8 @@
     <HtmlHelpName>KPSDev_Utils_API</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\Binaries\KSPDev_Utils.0.24-pre.dll" />
-<DocumentationSource sourceFile="..\..\Binaries\KSPDev_Utils.0.24-pre.xml" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\..\Binaries\KSPDev_Utils.0.26.dll" />
+<DocumentationSource sourceFile="..\..\Binaries\KSPDev_Utils.0.26.xml" /></DocumentationSources>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <BuildAssemblerVerbosity>OnlyErrors</BuildAssemblerVerbosity>
     <HelpFileFormat>Website</HelpFileFormat>
