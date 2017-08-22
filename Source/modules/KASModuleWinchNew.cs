@@ -41,7 +41,9 @@ namespace KAS {
 // Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu, IsPhysicalObject, IKasPropertyChangeListener {
+    IHasContextMenu, IKasPropertyChangeListener,
+    // KSPDev syntax sugar interfaces.
+    IPartModule, IsPhysicalObject {
   #region Localizable GUI strings.
 
   #region ConnectorState enum values
@@ -248,7 +250,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// increase the force at which the connector hits the winch on locking. A too small value of the
   /// allowed error will make the locking harder, up to not being able to lock at all.
   /// </remarks>
-  /// <seealso cref="CheckIsConnectorAligned"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float connectorLockMaxErrorDist = 0.05f;
@@ -262,14 +263,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <c>forward</c> and <c>up</c> vectors of the connector can differ from the winch's attach node
   /// direction.
   /// </remarks>
-  /// <seealso cref="CheckIsConnectorAligned"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
   public float connectorLockMaxErrorDir = 1;
 
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
-  /// <seealso cref="InternalKASModulePhysicalConnector"/>
   /// <seealso cref="KASModuleKerbalLinkTarget"/>
   [KSPField]
   public float connectorInteractDistance = 0.3f;
@@ -634,6 +633,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// Depending on the current state this model can be a child to the part's model or a standalone
   /// object.
   /// </remarks>
+  /// <value>The root transformation of the connector object.</value>
   /// <seealso cref="ConnectorState"/>
   protected Transform connectorModelObj { get; private set; }
   #endregion

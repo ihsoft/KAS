@@ -219,10 +219,10 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual string[] CheckConstraints(ILinkSource source, Transform targetNodeTransform) {
+  public virtual string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
     var length = Vector3.Distance(
         source.physicalAnchorTransform.position,
-        targetNodeTransform.TransformPoint(source.targetPhysicalAnchor));
+        targetTransform.TransformPoint(source.targetPhysicalAnchor));
     return length > cfgMaxCableLength
         ? new[] { MaxLengthLimitReachedMsg.Format(length, cfgMaxCableLength) }
         : new string[0];

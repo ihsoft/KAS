@@ -12,9 +12,8 @@ namespace KASAPIv1 {
 /// <see cref="IKasPropertyChangeListener.OnKASPropertyChanged"/> event on the
 /// <see cref="ILinkCableJoint"/> interface.
 /// </summary>
-/// <remarks>Keep the property names matching their actual names in teh code.</remarks>
-// disable once ConvertToStaticType
-public class ILinkCableJoint_Properties {
+/// <remarks>Keep the property names matching their actual names in the code.</remarks>
+public static class ILinkCableJoint_Properties {
   /// <summary>See <see cref="ILinkCableJoint.maxAllowedCableLength"/></summary>
   public const string maxAllowedCableLength = "maxAllowedCableLength";
 }
