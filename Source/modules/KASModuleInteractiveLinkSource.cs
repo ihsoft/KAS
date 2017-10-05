@@ -94,6 +94,23 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string breakLinkMenu = "Break the link";
+  // TODO(ihsoft): Disallow non-eva control.
+  #region Context menu events/actions
+  /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(tag = null)]
+  public void StartLinkContextMenuAction() {
+    StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
+  }
+
+  /// <summary>Event handler. Breaks current link between source and target.</summary>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(tag = null)]
+  public void BreakLinkContextMenuAction() {
+    BreakCurrentLink(LinkActorType.Player);
+  }
+  #endregion
+
   #endregion
 
   #region PartModule overrides
@@ -206,21 +223,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     } else if (info.actor == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
     }
-  }
-  #endregion
-
-  // TODO(ihsoft): Disallow non-eva control.
-  #region Action handlers
-  /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
-  [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
-  public void StartLinkContextMenuAction() {
-    StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
-  }
-
-  /// <summary>Event handler. Breaks current link between source and target.</summary>
-  [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
-  public void BreakLinkContextMenuAction() {
-    BreakCurrentLink(LinkActorType.Player);
   }
   #endregion
 
