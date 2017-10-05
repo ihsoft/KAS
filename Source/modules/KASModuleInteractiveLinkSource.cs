@@ -71,6 +71,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   // TODO(ihsoft): Disallow non-eva control.
   #region Context menu events/actions
   /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public void StartLinkContextMenuAction() {
@@ -78,6 +79,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
 
   /// <summary>Event handler. Breaks current link between source and target.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public void BreakLinkContextMenuAction() {
