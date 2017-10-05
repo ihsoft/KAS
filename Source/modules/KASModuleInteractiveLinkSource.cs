@@ -46,23 +46,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " started.");
   #endregion
 
-  #region Local members
-  /// <summary>Color of pipe in the linking mode when link can be established.</summary>
-  static readonly Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
-  /// <summary>Color of pipe in the linking mode when link cannot be established.</summary>
-  static readonly Color BadLinkColor = new Color(1, 0, 0, 0.5f);
-  /// <summary>A lock that restricts anything but camera positioning.</summary>
-  const string TotalControlLock = "KASInteractiveJointUberLock";
-  /// <summary>Shader that reders pipe during linking.</summary>
-  const string InteractiveShaderName = "Transparent/Diffuse";  
-  /// <summary>Compativle target under mouse cursor.</summary>
-  ILinkTarget targetCandidate;
-  /// <summary>Tells if connection with the candidate will be sucessfull.</summary>
-  bool targetCandidateIsGood;
-  /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
-  Part lastHoveredPart;
-  /// <summary>Displayed during interactive linking.</summary>
-  ScreenMessage statusScreenMessage;
   #endregion
 
 
@@ -103,6 +86,32 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
   #endregion
 
+  #region Local properties and fields
+  /// <summary>Color of the pipe in the linking mode when the link can be established.</summary>
+  static readonly Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
+
+  /// <summary>Color of the pipe in the linking mode when the link cannot be established.</summary>
+  static readonly Color BadLinkColor = new Color(1, 0, 0, 0.5f);
+
+  /// <summary>The lock name that restricts anything but the camera positioning.</summary>
+  const string TotalControlLock = "KASInteractiveJointUberLock";
+
+  /// <summary>Shader that reders the pipe during linking.</summary>
+  const string InteractiveShaderName = "Transparent/Diffuse";  
+
+  /// <summary>The compatible target under the mouse cursor.</summary>
+  ILinkTarget targetCandidate;
+
+  /// <summary>Tells if the connection with the candidate will be successful.</summary>
+  bool targetCandidateIsGood;
+
+  /// <summary>
+  /// The last known hovered part. Used to trigger the detection of the target candidate.
+  /// </summary>
+  Part lastHoveredPart;
+
+  /// <summary>The message, displayed during the interactive linking.</summary>
+  ScreenMessage statusScreenMessage;
   #endregion
 
   #region PartModule overrides
