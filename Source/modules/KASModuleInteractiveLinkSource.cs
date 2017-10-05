@@ -50,12 +50,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string plugSndPath = "KAS/Sounds/plugdocked";
+  public string plugSndPath = "";
 
   /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string unplugSndPath = "KAS/Sounds/unplugdocked";
+  public string unplugSndPath = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
