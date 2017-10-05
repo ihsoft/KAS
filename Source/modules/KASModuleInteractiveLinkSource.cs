@@ -65,14 +65,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   ScreenMessage statusScreenMessage;
   #endregion
 
-  #region Event names. Keep them in sync with the event names!
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="StartLinkContextMenuAction"/>
-  const string StartLinkMenuActionName = "StartLinkContextMenuAction";  
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="BreakLinkContextMenuAction"/>
-  const string BreakLinkMenuActionName = "BreakLinkContextMenuAction";
-  #endregion
 
   #region Part's config fields
   /// <summary>Audio sample to play when parts are docked by the player.</summary>
