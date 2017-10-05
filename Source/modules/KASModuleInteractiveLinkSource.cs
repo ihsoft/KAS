@@ -22,11 +22,12 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
+// Next localization ID: #kasLOC_01002.
 public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     // KSPDev interfaces.
     IHasContextMenu {
 
-  #region Localizable strings
+  #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   static readonly Message<DistanceType> CanBeConnectedMsg = new Message<DistanceType>(
@@ -79,7 +80,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   [KSPField]
   public string plugSndPath = "KAS/Sounds/plugdocked";
 
-  /// <summary>Audio sample to play when parts are undocked by the player.</summary>
+  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string unplugSndPath = "KAS/Sounds/unplugdocked";
