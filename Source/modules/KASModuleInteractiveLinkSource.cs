@@ -50,12 +50,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
 
   #region Part's config fields
-  /// <summary>Audio sample to play when parts are docked by the player.</summary>
+  /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string plugSndPath = "KAS/Sounds/plugdocked";
 
-  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
+  /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string unplugSndPath = "KAS/Sounds/unplugdocked";
@@ -227,7 +227,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region Local utilities
+  #region Local utility methods
   /// <summary>Displays linking status in real time.</summary>
   void UpdateLinkingState() {
     // Catch the hovered part, a possible target on it, and the link feasibility.
