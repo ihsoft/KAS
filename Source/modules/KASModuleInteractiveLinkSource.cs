@@ -111,6 +111,11 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
   /// <summary>The message, displayed during the interactive linking.</summary>
   ScreenMessage statusScreenMessage;
+
+  /// <summary>
+  /// A variable to store the auto save state before starting the interactive mode.
+  /// </summary>
+  bool canAutoSaveState;
   #endregion
 
   #region PartModule overrides
@@ -141,8 +146,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
   #endregion
 
-  /// <summary>Variable to store auto save state before starting interactive mode.</summary>
-  bool canAutoSaveState;
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
