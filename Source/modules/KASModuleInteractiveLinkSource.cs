@@ -60,12 +60,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string startLinkMenu = "Start a link";
+  public string startLinkMenu = "";
 
   /// <summary>Name of the menu item to break currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string breakLinkMenu = "Break the link";
+  public string breakLinkMenu = "";
   #endregion
 
   // TODO(ihsoft): Disallow non-eva control.
