@@ -46,9 +46,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " started.");
   #endregion
 
-  #endregion
-
-
   #region Part's config fields
   /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -69,6 +66,8 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string breakLinkMenu = "Break the link";
+  #endregion
+
   // TODO(ihsoft): Disallow non-eva control.
   #region Context menu events/actions
   /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
