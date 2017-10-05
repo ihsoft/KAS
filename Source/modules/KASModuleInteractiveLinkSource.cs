@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KSPDev.GUIUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 using System;
@@ -21,7 +22,9 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
+public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
+    // KSPDev interfaces.
+    IHasContextMenu {
 
   #region Localizable strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -116,11 +119,29 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
     statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
+    UpdateContextMenu();
   }
   #endregion
 
   /// <summary>Variable to store auto save state before starting interactive mode.</summary>
   bool canAutoSaveState;
+  #region IHasContextMenu implementation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
+    PartModuleUtils.SetupEvent(this, StartLinkContextMenuAction, e => {
+                                 e.guiName = startLinkMenu;
+                                 e.active = linkState == LinkState.Available;
+                               });
+    PartModuleUtils.SetupEvent(this, BreakLinkContextMenuAction, e => {
+                                 e.guiName = breakLinkMenu;
+                                 e.active = linkState == LinkState.Linked;
+                               });
+    PartModuleUtils.SetupEvent(this, DockVesselsContextMenuAction,
+                               e => e.active = isLinked && !linkJoint.isDockOnLink);
+    PartModuleUtils.SetupEvent(this, UndockVesselsContextMenuAction,
+                               e => e.active = isLinked && linkJoint.isDockOnLink);
+  }
+  #endregion
 
   #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
@@ -165,10 +186,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
-    Events[StartLinkMenuActionName].guiName = startLinkMenu;
-    Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
-    Events[StartLinkMenuActionName].active = linkState == LinkState.Available;
-    Events[BreakLinkMenuActionName].active = linkState == LinkState.Linked;
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
