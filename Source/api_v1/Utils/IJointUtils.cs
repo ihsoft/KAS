@@ -31,19 +31,19 @@ public interface IJointUtils {
   /// <item>All linear and angular drive modes set to <see cref="ConfigurableJointMotion.Locked"/>.
   /// </item>
   /// <item>All drives, springs and limits are zeroed.</item>
-  /// <item>Coordinate system is reset to local. Y looks up, and X looks right.</item>
+  /// <item>The coordinate system is reset to local. Y looks up, and X looks right.</item>
   /// <item>
-  /// Connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
+  /// The connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
   /// </item>
   /// <item>
-  /// Any state accumulated so far (e.g. relative rotation or position) will be lost, and joint will
-  /// remember new relative rotation/position of the connected objects.
+  /// Any state accumulated so far (e.g. relative rotation or position) will be lost, and the joint
+  /// will remember the new relative rotation/position of the connected objects.
   /// </item>
   /// </list>
   /// </para>
   /// <para>
-  /// Use this method before setting up a new or existing joint. By resetting the joint you ensure
-  /// it's in a consistent state, and further adjustments will always give the same result
+  /// Use this method before setting up a new or existing joint. By resetting the joint, you ensure
+  /// it's in a consistent state, and the further adjustments will always give the same result
   /// regardless to how the joint was created and what components were affecting it.
   /// </para>
   /// </remarks>

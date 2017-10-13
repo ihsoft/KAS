@@ -165,7 +165,7 @@ public class KASModuleLinkSourceBase : PartModule,
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
+    private set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -174,7 +174,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual bool isLocked {
+  public bool isLocked {
     get { return linkState == LinkState.Locked; }
     set {
       // Don't trigger state change events when the value hasn't changed.
@@ -321,7 +321,7 @@ public class KASModuleLinkSourceBase : PartModule,
     base.OnAwake();
     linkStateMachine = new SimpleStateMachine<LinkState>(strict: true);
     linkStateMachine.onAfterTransition +=
-        (start, end) => HostedDebugLog.Info(this, "Link state changed: {0} => {1}", start, end);
+        (start, end) => HostedDebugLog.Fine(this, "Link state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.Linking, LinkState.RejectingLinks});
@@ -404,12 +404,12 @@ public class KASModuleLinkSourceBase : PartModule,
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Create attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Use attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
@@ -549,7 +549,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
     if (linkState != LinkState.Linking) {
-      HostedDebugLog.Warning(this, "Cannot link in state: {0}", linkState);
+      HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
     if (!CheckCanLinkTo(target)) {
@@ -557,8 +557,8 @@ public class KASModuleLinkSourceBase : PartModule,
     }
     LogicalLink(target);
     PhysicalLink(target);
-    // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
-    // must not be stopped before the link is created.
+    // When GUI linking mode is stopped, all the targets stop accepting the link requests.
+    // I.e. the mode must not be stopped before the link is created.
     StopLinkGUIMode();
     return true;
   }
@@ -566,7 +566,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (!isLinked) {
-      HostedDebugLog.Warning(this, "Cannot break link in state: {0}", linkState);
+      HostedDebugLog.Error(this, "Cannot break link in state: {0}", linkState);
       return;
     }
     var targetRootPart = linkTarget.part;
@@ -757,7 +757,7 @@ public class KASModuleLinkSourceBase : PartModule,
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
   }
 
-  /// <summary>Finds linked target for the source, and updates the state.</summary>
+  /// <summary>Finds linked target for the source, and updates the related states.</summary>
   /// <remarks>
   /// Depending on the link mode, this method may be called either synchronously when the part is
   /// started, or asynchronously at the end of frame.
@@ -782,7 +782,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// be consistent.
   /// </summary>
   /// <remarks>This method must pass for both started and not started linking mode.</remarks>
-  /// <param name="target">Target of the tube to check link with.</param>
+  /// <param name="target">Target of the pipe to check link with.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
   protected string CheckBasicLinkConditions(ILinkTarget target) {
     if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {

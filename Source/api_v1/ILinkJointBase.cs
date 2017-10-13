@@ -27,11 +27,10 @@ public interface ILinkJointBase {
   /// <para>
   /// This method will call the <see cref="CheckConstraints"/> method to ensure there are no errors.
   /// If there are some, then the link is not created and the errors are reported to the logs as
-  /// errors, and the joint will not be created. However, in case of the joint refresh, the check is
-  /// not performed.
+  /// errors. However, in case of the joint refresh, the check is not performed.
   /// </para>
   /// </remarks>
-  /// <returns><c>true</c> if joint was successfully created.</returns>
+  /// <returns><c>true</c> if joint was successfully created or refreshed.</returns>
   /// <param name="source">The link's source. This part owns the joint module.</param>
   /// <param name="target">The link's target.</param>
   /// <seealso cref="CheckConstraints"/>

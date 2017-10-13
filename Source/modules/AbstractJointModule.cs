@@ -456,8 +456,7 @@ public abstract class AbstractJointModule : PartModule,
   /// Break torque from the config. If it's <c>0</c> then maxium acceptable torque will be used.
   /// </param>
   /// <seealso cref="GetClampedBreakingForce"/>
-  protected void SetBreakForces(
-      ConfigurableJoint joint, float forceFromConfig, float torqueFromConfig) {
+  protected void SetBreakForces(Joint joint, float forceFromConfig, float torqueFromConfig) {
     joint.breakForce = GetClampedBreakingForce(forceFromConfig);
     joint.breakTorque = GetClampedBreakingTorque(torqueFromConfig);
   }

@@ -118,8 +118,8 @@ public interface ILinkSource {
 
   /// <summary>Transform of the physical joint anchor at the node.</summary>
   /// <remarks>
-  /// Normally, the anchor must be a child of the <see cref="nodeTransform"/>. However, wWhen the
-  /// logical and the physical positions match are the same, this property can return just
+  /// Normally, the anchor must be a child of the <see cref="nodeTransform"/>. However, when the
+  /// logical and the physical positions are the same, this property can return just a
   /// <see cref="nodeTransform"/>.
   /// </remarks>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
@@ -224,7 +224,7 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="HighlightLocked"/></example>
   bool isLocked { get; set; }
 
-  /// <summary>Mode in which the link between source and target is created.</summary>
+  /// <summary>Mode in which a link between the source and target is being created.</summary>
   /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
   /// <value>The GUI mode.</value>
   /// <seealso cref="StartLinking"/>
