@@ -25,7 +25,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_01004.
 public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     // KSPDev interfaces.
-    IHasContextMenu {
+    IHasContextMenu, IsLocalizableModule {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -159,6 +159,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
   #region PartModule overrides
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    LocalizeModule();
+  }
+
+  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     if (linkState == LinkState.Linking && guiLinkMode == GUILinkMode.Interactive) {
@@ -182,6 +188,13 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     // Update method.
     statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
     UpdateContextMenu();
+  }
+  #endregion
+
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
