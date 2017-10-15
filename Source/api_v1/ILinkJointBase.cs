@@ -17,6 +17,14 @@ public interface ILinkJointBase {
   /// <value>An arbitary string that identifies this joint.</value>
   string cfgJointName { get; }
 
+  /// <summary>Tells the current link source.</summary>
+  /// <value>The link's source or <c>null</c> if the link is not established.</value>
+  ILinkSource linkSource { get; }
+
+  /// <summary>Tells the current link target.</summary>
+  /// <value>The link's target or <c>null</c> if the link is not established.</value>
+  ILinkTarget linkTarget { get; }
+
   /// <summary>Sets up a physical joint between the source and target.</summary>
   /// <remarks>
   /// <para>
