@@ -195,7 +195,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// <param name="refRb">The rigidbody to get copy physics from.</param>
   protected static void SetupNegligibleRb(Rigidbody targetRb, Rigidbody refRb) {
     targetRb.mass = 0.001f;
-    targetRb.inertiaTensor = Vector3.zero;
     targetRb.useGravity = false;
     targetRb.velocity = refRb.velocity;
     targetRb.angularVelocity = refRb.angularVelocity;
