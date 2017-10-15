@@ -879,7 +879,7 @@ public class KASModuleLinkSourceBase : PartModule,
     yield return new WaitForFixedUpdate();
     if (isLinked) {  // Link may get broken during the physics easyment.
       CollisionManager.IgnoreCollidersOnVessel(
-          linkTarget.part.vessel, part.GetComponentInChildren<Collider>());
+          linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
     }
   }
 }
