@@ -80,22 +80,29 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public Vessel DecoupleParts(Part part1, Part part2) {
-    Vessel inactiveVessel;
+  public Part DecoupleParts(Part part1, Part part2) {
+    Part decoupledPart;
     if (part1.parent == part2) {
+      Debug.LogFormat("Decouple {0} from {1}",
+                      HostedDebugLog.ObjectToString(part1),
+                      HostedDebugLog.ObjectToString(part2));
       part1.decouple();
-      inactiveVessel = part2.vessel;
+      decoupledPart = part1;
     } else if (part2.parent == part1) {
+      Debug.LogFormat("Decouple {0} from {1}",
+                      HostedDebugLog.ObjectToString(part2),
+                      HostedDebugLog.ObjectToString(part1));
       part2.decouple();
-      inactiveVessel = part1.vessel;
+      decoupledPart = part2;
     } else {
-      Debug.LogWarningFormat("Cannot decouple since parts belong to different vessels: {0} != {1}",
-                             part1.vessel, part2.vessel);
+      Debug.LogWarningFormat("Cannot decouple {0} <=> {1} - not coupled!",
+                             HostedDebugLog.ObjectToString(part1),
+                             HostedDebugLog.ObjectToString(part2));
       return null;
     }
     part1.vessel.CycleAllAutoStrut();
     part2.vessel.CycleAllAutoStrut();
-    return inactiveVessel;
+    return decoupledPart;
   }
 }
 

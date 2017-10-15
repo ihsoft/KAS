@@ -69,8 +69,8 @@ public interface ILinkUtils {
   /// The second part of the connection. It must be a direct parent or a child of the
   /// <paramref name="part1"/>.
   /// </param>
-  /// <returns>Inactive vessel that was created as a result of decoupling.</returns>
-  Vessel DecoupleParts(Part part1, Part part2);
+  /// <returns>The child part that has decoupled from the owner vessel.</returns>
+  Part DecoupleParts(Part part1, Part part2);
 }
 
 }  // namespace
