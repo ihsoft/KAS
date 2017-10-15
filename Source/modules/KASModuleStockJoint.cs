@@ -21,7 +21,7 @@ namespace KAS {
 // FIXME deprecate the module
 public class KASModuleStockJoint :
     // KAS parents.
-    AbstractJointModule {
+    KASModuleJointBase {
 }
 
 }  // namespace

@@ -18,7 +18,7 @@ namespace KAS {
 /// <remarks>
 /// It can link either parts of the same vessel or parts of two different vessels.
 /// </remarks>
-public sealed class KASModuleCableJoint : AbstractJointModule,
+public sealed class KASModuleCableJoint : KASModuleJointBase,
     // KAS interfaces.
     IKasJointEventsListener,
     // KSPDev sugar interfaces.

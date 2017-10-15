@@ -109,7 +109,7 @@
     <Compile Include="api_v1\Utils\IPhysicsUtils.cs" />
     <Compile Include="modules\InternalKASModulePhysicalConnector.cs" />
     <Compile Include="modules\KASModuleCableJointBase.cs" />
-    <Compile Include="modules\AbstractJointModule.cs" />
+    <Compile Include="modules\KASModuleJointBase.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\BrokenJointListener.cs" />
     <Compile Include="modules\KASModuleCableJoint.cs" />

@@ -24,7 +24,7 @@ namespace KAS {
 /// deal with the collider(s) (see <see cref="ILinkRenderer"/>).
 /// </remarks>
 // Next localization ID: #kasLOC_00011.
-public abstract class AbstractJointModule : PartModule,
+public class KASModuleJointBase : PartModule,
     // KSP interfaces.
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
@@ -399,6 +399,7 @@ public abstract class AbstractJointModule : PartModule,
         DetachParts();
       }
     }
+    CleanupCustomJoints();
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -586,11 +587,7 @@ public abstract class AbstractJointModule : PartModule,
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
   /// <seealso cref="AttachParts"/>
   protected virtual void DetachParts() {
-    if (customJoints != null) {  // Cleanup all the existing joints.
-      HostedDebugLog.Fine(this, "Drop the rigids link(s) to: {0}", linkTarget);
-      customJoints.ForEach(UnityEngine.Object.Destroy);
-      customJoints = null;
-    }
+    CleanupCustomJoints();
   }
   #endregion
 
@@ -756,6 +753,15 @@ public abstract class AbstractJointModule : PartModule,
                         linkCandidates.Count, srcVessel, tgtVessel);
     foreach (var linkCandidate in linkCandidates) {
       linkCandidate.SetCoupleOnLinkMode(linkCandidate.coupleOnLinkMode, LinkActorType.API);
+    }
+  }
+
+  /// <summary>Drops and cleanup any custom joints.</summary>
+  void CleanupCustomJoints() {
+    if (customJoints != null) {
+      HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
+      customJoints.ForEach(UnityEngine.Object.Destroy);
+      customJoints = null;
     }
   }
   #endregion

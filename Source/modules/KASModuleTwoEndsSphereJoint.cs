@@ -31,7 +31,7 @@ namespace KAS {
 /// PhysX: Prismatic joint</seealso>
 // TODO(ihsoft): Add an image.
 // FIXME(ihsoft): Fix initial state setup for the sphere joints.
-public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
+public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.
@@ -60,13 +60,13 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// <summary>Source sphere joint.</summary>
   /// <value>PhysX joint at the source part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="AbstractJointModule.cfgSourceLinkAngleLimit"/>.
+  /// <seealso cref="KASModuleJointBase.cfgSourceLinkAngleLimit"/>.
   protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
   /// <value>PhysX joint at the target part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="AbstractJointModule.cfgTargetLinkAngleLimit"/>
+  /// <seealso cref="KASModuleJointBase.cfgTargetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Joint that ties two sphere joints together.</summary>
@@ -79,8 +79,8 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   /// limits are set via config settings.
   /// </remarks>
   /// <seealso cref="strutSpringForce"/>
-  /// <seealso cref="AbstractJointModule.cfgMinLinkLength"/>
-  /// <seealso cref="AbstractJointModule.cfgMaxLinkLength"/>
+  /// <seealso cref="KASModuleJointBase.cfgMinLinkLength"/>
+  /// <seealso cref="KASModuleJointBase.cfgMaxLinkLength"/>
   protected ConfigurableJoint strutJoint { get; private set; }
   #endregion
 
