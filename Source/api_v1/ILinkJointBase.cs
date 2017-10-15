@@ -21,16 +21,15 @@ public interface ILinkJointBase {
   /// <remarks>
   /// <para>
   /// This method can be called either to establish a new joint or to restore an existing link on
-  /// load. The joint module should consider the repetative calls as an intent to "refresh" the
-  /// joint settings.
+  /// load.
   /// </para>
   /// <para>
   /// This method will call the <see cref="CheckConstraints"/> method to ensure there are no errors.
   /// If there are some, then the link is not created and the errors are reported to the logs as
-  /// errors. However, in case of the joint refresh, the check is not performed.
+  /// errors. However, in case of the part loading, the check is not performed.
   /// </para>
   /// </remarks>
-  /// <returns><c>true</c> if joint was successfully created or refreshed.</returns>
+  /// <returns><c>true</c> if joint was successfully created or updated.</returns>
   /// <param name="source">The link's source. This part owns the joint module.</param>
   /// <param name="target">The link's target.</param>
   /// <seealso cref="CheckConstraints"/>
