@@ -116,41 +116,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   }
   #endregion
 
-  #region ILinkJoint implementation
-  /// <inheritdoc/>
-  // FIXME(ihsoft): Handle mass!  
-  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
-    if (!base.CreateJoint(source, target)) {
-      return false;
-    }
-    return true;
-  }
-
-  /// <inheritdoc/>
-  public override void DropJoint() {
-    base.DropJoint();
-    Destroy(srcJoint);
-    srcJoint = null;
-    Destroy(trgJoint);
-    trgJoint = null;
-    strutJoint = null;
-  }
-
-  /// <inheritdoc/>
-  public override void AdjustJoint(bool isUnbreakable = false) {
-    if (isUnbreakable) {
-      // Update parts relative position and rotation to remember pivot state. 
-      vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
-      SetBreakForces(srcJoint, Mathf.Infinity, Mathf.Infinity);
-      SetBreakForces(trgJoint, Mathf.Infinity, Mathf.Infinity);
-      SetBreakForces(strutJoint, Mathf.Infinity, Mathf.Infinity);
-    } else {
-      SetBreakForces(srcJoint, linkBreakForce, linkBreakTorque);
-      SetBreakForces(trgJoint, linkBreakForce, linkBreakTorque);
-      SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-    }
-  }
-
+  #region ILinkJoint overrides
   /// <inheritdoc/>
   protected override void AttachParts() {
     // Explicitly not calling the base since it would create a rigid joint!
