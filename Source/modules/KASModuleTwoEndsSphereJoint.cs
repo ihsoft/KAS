@@ -123,27 +123,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
     if (!base.CreateJoint(source, target)) {
       return false;
     }
-
-    // Create end spherical joints.
-    srcJoint = CreateJointEnd(
-        source.nodeTransform, source.part.rb, "KASJointSrc", sourceLinkAngleLimit);
-    trgJoint = CreateJointEnd(
-        target.nodeTransform, target.part.rb, "KASJointTrg", targetLinkAngleLimit);
-    srcJoint.transform.LookAt(trgJoint.transform, source.nodeTransform.up);
-    trgJoint.transform.LookAt(srcJoint.transform, target.nodeTransform.up);
-
-    // Link end joints with a prismatic joint.
-    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(strutJoint);
-    KASAPI.JointUtils.SetupPrismaticJoint(
-        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
-    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
-    // joints rotations.
-    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
-    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
-    strutJoint.enablePreprocessing = true;
-    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-
     return true;
   }
 
