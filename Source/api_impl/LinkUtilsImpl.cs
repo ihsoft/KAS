@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.LogUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -49,11 +50,23 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode) {
+  public DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode,
+                                      bool toDominantVessel = false) {
+    if (toDominantVessel) {
+      var dominantVessel =
+          Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
+      if (dominantVessel != targetNode.owner.vessel) {
+        var tmp = sourceNode;
+        sourceNode = targetNode;
+        targetNode = tmp;
+      }
+    }
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
-    var trgPart = targetNode.owner;
-    var trgVessel = trgPart.vessel;
+    var tgtPart = targetNode.owner;
+    var tgtVessel = tgtPart.vessel;
+    Debug.LogFormat("Couple {0} to {1}",
+                    HostedDebugLog.ObjectToString(srcPart), HostedDebugLog.ObjectToString(tgtPart));
 
     var vesselInfo = new DockedVesselInfo();
     vesselInfo.name = srcVessel.vesselName;
@@ -61,13 +74,13 @@ class LinkUtilsImpl : ILinkUtils {
     vesselInfo.rootPartUId = srcVessel.rootPart.flightID;
 
     GameEvents.onActiveJointNeedUpdate.Fire(srcVessel);
-    GameEvents.onActiveJointNeedUpdate.Fire(trgVessel);
-    sourceNode.attachedPart = trgPart;
-    sourceNode.attachedPartId = trgPart.flightID;
+    GameEvents.onActiveJointNeedUpdate.Fire(tgtVessel);
+    sourceNode.attachedPart = tgtPart;
+    sourceNode.attachedPartId = tgtPart.flightID;
     targetNode.attachedPart = srcPart;
     targetNode.attachedPartId = srcPart.flightID;
     srcPart.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
-    srcPart.Couple(trgPart);
+    srcPart.Couple(tgtPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
     // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
     // FYI: This logic was taken from ModuleDockingNode.DockToVessel.
