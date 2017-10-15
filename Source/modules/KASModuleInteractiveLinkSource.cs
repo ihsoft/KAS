@@ -57,6 +57,16 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   [KSPField]
   public string unplugSndPath = "";
 
+  /// <summary>Audio sample to play when the parts are docked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string dockSndPath = "";
+
+  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string undockSndPath = "";
+
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -216,7 +226,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
     if (info.actor == LinkActorType.Player || info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(plugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? dockSndPath : plugSndPath);
     }
   }
 
@@ -224,7 +234,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkBrokenEvent(info);
     if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(unplugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? undockSndPath : unplugSndPath);
     } else if (info.actor == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
     }
