@@ -46,16 +46,6 @@ public interface ILinkTarget {
   // TODO(ihsoft): Give examples with the different scale models.
   string cfgAttachNodeName { get; }
 
-  /// <summary>Attach node used for linking with the source part.</summary>
-  /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
-  /// <remarks>
-  /// The node is required to exist only when the target is linked to a source. For the not linked
-  /// parts the attach node may not actually exist in the target part.
-  /// </remarks>
-  /// <seealso cref="cfgAttachNodeName"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetAtAttachNode"/></example>
-  AttachNode attachNode { get; }
-
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>This transform must exist even when no actual attach node is created on the part:
@@ -67,7 +57,6 @@ public interface ILinkTarget {
   /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
   /// </list>
   /// </remarks>
-  /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
 

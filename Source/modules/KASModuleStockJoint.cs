@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using System;
 using System.Linq;
@@ -17,31 +18,10 @@ namespace KAS {
 /// modified in any way, and its behavior is very similar to the behavior of a regular joint that
 /// would normally connect two parts together.
 /// </summary>
+// FIXME deprecate the module
 public class KASModuleStockJoint :
     // KAS parents.
-    AbstractJointModule,
-    // Syntax sugar parents.
-    IJointEventsListener {
-
-  #region ILinkJoint implementation
-  /// <inheritdoc/>
-  public override void AdjustJoint(bool isUnbreakable = false) {
-    if (isUnbreakable) {
-      SetBreakForces(stockJoint.Joint, Mathf.Infinity, Mathf.Infinity);
-    } else {
-      SetBreakForces(stockJoint.Joint, cfgLinkBreakForce, cfgLinkBreakTorque);
-    }
-  }
-  #endregion
-
-  #region IJointEventsListener implementation
-  /// <inheritdoc/>
-  public virtual void OnJointBreak(float breakForce) {
-    AsyncCall.CallOnEndOfFrame(this, () => linkSource.BreakCurrentLink(
-        LinkActorType.Physics,
-        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel));
-  }
-  #endregion
+    AbstractJointModule {
 }
 
 }  // namespace

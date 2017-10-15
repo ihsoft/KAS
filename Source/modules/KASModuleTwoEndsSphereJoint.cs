@@ -5,7 +5,9 @@
 
 using KASAPIv1;
 using KSPDev.KSPInterfaces;
+using KSPDev.LogUtils;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KAS {
@@ -102,8 +104,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
 
   #region IsDestroyable implementation
   /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
+  public virtual void OnDestroy() {
     GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
   }
   #endregion
@@ -121,13 +122,6 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
     if (!base.CreateJoint(source, target)) {
       return false;
-    }
-    DropStockJoint();  // Stock joint is not used.
-
-    // Let other mods know if this joint allows parts moving.
-    if (isUnlockedJoint && source.attachNode != null && target.attachNode != null) {
-      source.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
-      target.attachNode.attachMethod = AttachNodeMethod.HINGE_JOINT;
     }
 
     // Create end spherical joints.
@@ -177,7 +171,55 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
       SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
     }
   }
+
+  /// <inheritdoc/>
+  protected override void AttachParts() {
+    // Explicitly not calling the base since it would create a rigid joint!
+    SetupJoints();
+  }
+
+  /// <inheritdoc/>
+  protected override void CoupleParts() {
+    base.CoupleParts();
+    if (isLinked) {
+      // The stock joint is rigid, drop it.
+      if (partJoint != null) {
+        HostedDebugLog.Fine(this, "Dropping the stock joint on: {0}", partJoint.Parent);
+        partJoint.DestroyJoint();
+        partJoint.Parent.attachJoint = null;
+      }
+      SetupJoints();
+    }
+  }
   #endregion
+
+  void SetupJoints() {
+    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
+    // Create end spherical joints.
+    srcJoint = CreateJointEnd(
+      linkSource.nodeTransform, linkSource.part.rb, "KASJointSrc", sourceLinkAngleLimit);
+    trgJoint = CreateJointEnd(
+      linkTarget.nodeTransform, linkTarget.part.rb, "KASJointTrg", targetLinkAngleLimit);
+    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
+    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
+
+    // Link end joints with a prismatic joint.
+    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(strutJoint);
+    KASAPI.JointUtils.SetupPrismaticJoint(
+        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
+    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
+    // joints rotations.
+    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
+    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
+    strutJoint.enablePreprocessing = true;
+    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(srcJoint);
+    customJoints.Add(trgJoint);
+    customJoints.Add(strutJoint);
+  }
 
   #region IKasJointEventsListener implementation
   /// <inheritdoc/>

@@ -7,8 +7,10 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using KSPDev.ProcessingUtils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -21,13 +23,14 @@ namespace KAS {
 /// source and target. This module only deals with the joining of two parts together. It does not
 /// deal with the collider(s) (see <see cref="ILinkRenderer"/>).
 /// </remarks>
+// Next localization ID: #kasLOC_00011.
 public abstract class AbstractJointModule : PartModule,
     // KSP interfaces.
-    IModuleInfo,
+    IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
-    ILinkJoint, ILinkStateEventListener,
+    ILinkJoint,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
+    IPartModule, IsPackable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -239,23 +242,29 @@ public abstract class AbstractJointModule : PartModule,
   public float maxLinkLength = 0;
   #endregion
 
+  #region ILinkJoint implementation
+  /// <inheritdoc/>
+  public ILinkSource linkSource { get; private set; }
+
+  /// <inheritdoc/>
+  public ILinkTarget linkTarget { get; private set; }
+
+  /// <inheritdoc/>
+  public bool coupleOnLinkMode {
+    get { return persistentCoupleOnLinkMode; }
+    private set { persistentCoupleOnLinkMode = value; }
+  }
+  #endregion
+
+  #region Persistent fields
+  /// <summary>Couple mode of the joint.</summary>
+  /// <seealso cref="coupleOnLinkMode"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public bool persistentCoupleOnLinkMode;
+  #endregion
+
   #region Inheritable properties
-  /// <summary>Source of the link.</summary>
-  /// <value>Link module on the source part.</value>
-  /// <remarks>
-  /// When a vessel is loaded, the joint is restored in the "physics" method
-  /// <see cref="OnPartUnpack"/>. Before this method had a chance to work the source is <c>null</c>.
-  /// </remarks>
-  protected ILinkSource linkSource { get; private set; }
-
-  /// <summary>Target of the link.</summary>
-  /// <value>Link module on the target part.</value>
-  /// <remarks>
-  /// When a vessel is loaded, the joint is restored in the "physics" method
-  /// <see cref="OnPartUnpack"/>. Before this method had a chance to work the target is <c>null</c>.
-  /// </remarks>
-  protected ILinkTarget linkTarget { get; private set; }
-
   /// <summary>Length at the moment of creating the joint.</summary>
   /// <value>Distance in meters.</value>
   /// <remarks>
@@ -267,52 +276,144 @@ public abstract class AbstractJointModule : PartModule,
   /// <value><c>true</c> if the source and target parts are physically linked.</value>
   protected bool isLinked { get; private set; }
 
-  /// <summary>Joint that was created by the KSP core to connect the two parts.</summary>
-  /// <value>Joint object.</value>
+  /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
+  /// <value>
+  /// <c>true</c> if either the source part is coupled to the target, or the vise versa.
+  /// </value>
+  protected bool isCoupled {
+    get {
+      return linkSource.part.parent == linkTarget.part || linkTarget.part.parent == linkSource.part;
+    }
+  }
+
+  /// <summary>Returns the PartJoint which manages this connection.</summary>
+  /// <value>The joint or <c>null</c> if the link is not established or not coupled.</value>
+  protected PartJoint partJoint {
+    get {
+      if (isCoupled) {
+        return linkSource.part.parent == linkTarget.part
+            ? linkSource.part.attachJoint
+            : linkTarget.part.attachJoint;
+      }
+      return null;
+    }
+  }
+
+  /// <summary>All the joints that keep the source and the target together.</summary>
+  /// <remarks>The list can be empty if there are no physical joints existing.</remarks>
+  /// <value>List of the joints or <c>null</c> if not linked.</value>
+  /// <seealso cref="customJoints"/>
+  protected List<ConfigurableJoint> joints {
+    get {
+      if (isLinked) {
+        if (partJoint != null) {
+          return partJoint.joints;
+        }
+        return customJoints ?? new List<ConfigurableJoint>();
+      }
+      return null;
+    }
+  }
+
+  /// <summary>The physical joints that were created for the not coupling mode.</summary>
   /// <remarks>
-  /// Once the physics starts on part, the KSP core creates a joint and assigns it to
-  /// <see cref="Part.attachJoint"/>. This module resets the stock joint to <c>null</c> to prevent
-  /// the KSP logic on it, but it <i>does not</i> change the joint component on the part.
-  /// The descendants must take care of the stock joint either by delegating the relevant events to
-  /// it or by destroying it altogether.
+  /// This value is simply ignored if there is a <c>PartJoint</c> that connects the parts. The good
+  /// approach is to clear eitehr the custom joints or the part joint. Having them both in action is
+  /// almost always a bad idea.
   /// </remarks>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_part.html#aa5a1e018fa5b47c5723aa0879e23c647">
-  /// KSP: Part.attachJoint</seealso>
-  protected PartJoint stockJoint { get; private set; }
+  /// <value>The list of the joints or <c>null</c> if there are none.</value>
+  /// <seealso cref="joints"/>
+  protected List<ConfigurableJoint> customJoints;
   #endregion
 
-  // Internal setting to determine if the joint has restored its state on the physics start.
-  bool isRestored;
+  #region Local members
+  bool selfDecoupledAction;
+  #endregion    
+
+  #region IActivateOnDecouple implementation
+  /// <inheritdoc/>
+  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
+    if (isLinked && linkSource.cfgAttachNodeName == nodeName) {
+      var srcPart = linkSource.part;
+      var tgtPart = linkTarget.part;
+      KASAPI.AttachNodesUtils.DropAttachNode(srcPart, linkSource.cfgAttachNodeName);
+      KASAPI.AttachNodesUtils.DropAttachNode(tgtPart, linkTarget.cfgAttachNodeName);
+      if (!selfDecoupledAction) {
+        linkSource.BreakCurrentLink(LinkActorType.Physics);
+      }
+      //FIXME: do it in a global vessel modified event? and only refresh the colliders
+      // Refresh all the links between the former vessels.
+      AsyncCall.CallOnEndOfFrame(this, () => RefreshAllLinks(srcPart.vessel, tgtPart.vessel));
+    }
+  }
+  #endregion
+
+  #region IJointEventsListener implementation
+  /// <inheritdoc/>
+  public virtual void OnJointBreak(float breakForce) {
+    if (!isLinked || isCoupled || customJoints == null) {
+      return;  // In the coupled mode we'd get DecoupleAction().
+    }
+    // The break event is sent for *any* joint on the game object that got broken. However, it may
+    // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
+    AsyncCall.CallOnFixedUpdate(this, () => {
+      if (customJoints != null && customJoints.Any(x => x == null)) {
+        linkSource.BreakCurrentLink(
+            LinkActorType.Physics,
+            moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+      }
+    });
+  }
+  #endregion
 
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public virtual bool CreateJoint(ILinkSource source, ILinkTarget target) {
     if (isLinked) {
-      HostedDebugLog.Warning(this, "Joint is already linked");
+      HostedDebugLog.Error(
+          this, "Cannot link the joint which is already linked to: {0}", linkTarget);
+      return false;
+    }
+    if (CheckConstraints(source, target.physicalAnchorTransform).Length > 0) {
       return false;
     }
     linkSource = source;
     linkTarget = target;
-    if (part.attachJoint != null && part.attachJoint.Target == target.part) {
-      stockJoint = part.attachJoint;
-      part.attachJoint = null;
-    }
     originalLength = Vector3.Distance(source.physicalAnchorTransform.position,
                                       target.physicalAnchorTransform.position);
     isLinked = true;
+    if (coupleOnLinkMode) {
+      CoupleParts();
+    } else {
+      AttachParts();
+    }
     return true;
   }
 
   /// <inheritdoc/>
   public virtual void DropJoint() {
+    if (isLinked) {
+      if (isCoupled) {
+        DecoupleParts();
+      } else {
+        DetachParts();
+      }
+    }
     linkSource = null;
     linkTarget = null;
-    DropStockJoint();
     isLinked = false;
   }
 
   /// <inheritdoc/>
-  public abstract void AdjustJoint(bool isUnbreakable = false);
+  public virtual void AdjustJoint(bool isUnbreakable = false) {
+    if (!isCoupled) {
+      if (isUnbreakable) {
+        joints.ForEach(j => SetBreakForces(j, Mathf.Infinity, Mathf.Infinity));
+      } else {
+        joints.ForEach(j => SetBreakForces(j, cfgLinkBreakForce, cfgLinkBreakTorque));
+      }
+    }
+  }
 
   /// <inheritdoc/>
   public string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
@@ -322,6 +423,23 @@ public abstract class AbstractJointModule : PartModule,
         CheckAngleLimitAtTarget(source, targetTransform),
     };
     return errors.Where(x => x != null).ToArray();
+  }
+
+  /// <inheritdoc/>
+  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor) {
+    coupleOnLinkMode = isCoupleOnLink;
+    if (!isLinked) {
+      HostedDebugLog.Fine(
+          this, "Coupling mode updated in a non-linked module: {0}", isCoupleOnLink);
+      return;
+    }
+    // Refresh the couple state by simply re-linking.
+    var oldSource = linkSource;
+    var oldTarget = linkTarget;
+    linkSource.BreakCurrentLink(actor);
+    if (oldSource.StartLinking(GUILinkMode.API, actor) && !oldSource.LinkToTarget(oldTarget)) {
+      oldSource.CancelLinking(actor);
+    }
   }
   #endregion
 
@@ -366,44 +484,9 @@ public abstract class AbstractJointModule : PartModule,
   }
   #endregion
 
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    DropJoint();
-  }
-  #endregion
-
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    // Restore joint state. Don't do it in OnStart since we need partJoint created.
-    if (!isRestored) {
-      var source = part.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(x => x.linkState == LinkState.Linked);
-      var target = source != null ? source.linkTarget : null;
-      if (source != null && target != null) {
-        var errors = CheckConstraints(source, target.nodeTransform);
-        if (errors.Length > 0) {
-          ScreenMessaging.ShowErrorScreenMessage(DbgFormatter.C2S(errors, separator: "\n"));
-          var oldParent = part.parent;
-          AsyncCall.CallOnEndOfFrame(this, () => {
-            // Ensure part's state hasn't been changed by the other modules.
-            if (part.parent == oldParent) {
-              HostedDebugLog.Warning(this,
-                  "Detach from the parent since joint limits are not met: {0}",
-                  DbgFormatter.C2S(errors));
-              source.BreakCurrentLink(LinkActorType.Physics);
-            } else {
-              HostedDebugLog.Warning(this, "Skip detaching since the part is already detached");
-            }
-          });
-        } else {
-          CreateJoint(source, target);  // Restore joint state.
-        }
-      }
-      isRestored = true;
-    }
-
     if (isLinked) {
       AdjustJoint();
     }
@@ -417,30 +500,101 @@ public abstract class AbstractJointModule : PartModule,
   }
   #endregion
 
-  #region ILinkEventListener implementation
-  /// <inheritdoc/>
-  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    CreateJoint(info.source, info.target);
+  #region Inheritable methods
+  /// <summary>Sets the attach node properties.</summary>
+  /// <param name="attachNode">The node to set properties for.</param>
+  /// <param name="isSource">Tells if the node belings to the source or to the target part.</param>
+  protected virtual void SetupAttachNode(AttachNode attachNode, bool isSource) {
+    attachNode.attachMethod = AttachNodeMethod.FIXED_JOINT;
+    attachNode.size = attachNodeSize;
+    attachNode.breakingForce = linkBreakForce;
+    attachNode.breakingTorque = linkBreakTorque;
+    if (isSource) {
+      attachNode.attachedPart = linkTarget.part;
+      attachNode.attachedPartId = linkTarget.part.flightID;
+    } else {
+      attachNode.attachedPart = linkSource.part;
+      attachNode.attachedPartId = linkSource.part.flightID;
+    }
   }
 
-  /// <inheritdoc/>
-  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    DropJoint();
+  /// <summary>Couples the source and the target parts merging them into a single vessel.</summary>
+  /// <remarks>
+  /// It's OK to call this method if the parts are already coupled. It's a normal way to have the
+  /// attach nodes created on the vessel load.
+  /// </remarks>
+  /// <seealso cref="DecoupleParts"/>
+  protected virtual void CoupleParts() {
+    if (isLinked && isCoupled) {
+      // Ensure the docking nodes are existing. This may not be the case if the vessel has just been
+      // restored from the save file.
+      HostedDebugLog.Fine(this, "Refreshing nodes. Already coupled: {0} <=> {1}",
+                          linkSource, linkTarget);
+      //FIXME: create nodes at the physical offset/rotation
+      if (linkSource.part.FindAttachNode(linkSource.cfgAttachNodeName) == null) {
+        SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
+            linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform),
+            isSource: true);
+      }
+      if (linkTarget.part.FindAttachNode(linkTarget.cfgAttachNodeName) == null) {
+        SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
+            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform),
+            isSource: false);
+      }
+      return;
+    }
+    if (!isLinked || linkSource.part.vessel == linkTarget.part.vessel) {
+      HostedDebugLog.Fine(this, "Skip coupling: {0} <=> {1}", linkSource, linkTarget);
+      return;
+    }
+    var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
+        linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform);
+    SetupAttachNode(srcNode, isSource: true);
+    var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
+        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform);
+    SetupAttachNode(srcNode, isSource: false);
+    // TODO(ihsoft): Store the vessel info into the source.
+    KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
+  }
+
+  /// <summary>Creates a physical link between the source and the target parts.</summary>
+  /// <seealso cref="DetachParts"/>
+  protected virtual void AttachParts() {
+    customJoints = new List<ConfigurableJoint>();
+    var rigidJoint =  linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(rigidJoint);
+    rigidJoint.connectedBody = linkTarget.part.rb;
+    customJoints.Add(rigidJoint);
+    SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
+    HostedDebugLog.Fine(this, "Create a rigid link to: {0}", linkTarget);
+  }
+
+  /// <summary>
+  /// Decouples the source and the target parts turning them into the separate vessels.
+  /// </summary>
+  /// <seealso cref="CoupleParts"/>
+  protected virtual void DecoupleParts() {
+    if (!isCoupled) {
+      HostedDebugLog.Error(this, "Cannot decouple - bad link/part state");
+      return;
+    }
+    selfDecoupledAction = true;
+    KASAPI.LinkUtils.DecoupleParts(linkSource.part, linkTarget.part);
+    selfDecoupledAction = false;
+  }
+
+  /// <summary>Destroys the physical link between the source and the target parts.</summary>
+  /// <seealso cref="AttachParts"/>
+  protected virtual void DetachParts() {
+    if (customJoints != null) {  // Cleanup all the existing joints.
+      HostedDebugLog.Fine(this, "Drop the rigids link(s) to: {0}", linkTarget);
+      customJoints.ForEach(UnityEngine.Object.Destroy);
+      customJoints = null;
+    }
   }
   #endregion
 
   #region Utility methods
-  /// <summary>Destroys the stock joint on the part if one exists.</summary>
-  /// <remarks>
-  /// Note, that this will trigger <see cref="GameEvents.onPartJointBreak"/> event.
-  /// </remarks>
-  protected void DropStockJoint() {
-    if (stockJoint != null) {
-      stockJoint.DestroyJoint();
-    }
-    stockJoint = null;
-  }
-
   /// <summary>
   /// Setups joint break force and torque while handling special values from config.
   /// </summary>
@@ -581,6 +735,28 @@ public abstract class AbstractJointModule : PartModule,
     return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
         ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
         : null;
+  }
+  #endregion
+
+  #region Local utility methods
+  /// <summary>Reconnects all the links between the vesseles to refresh their state.</summary>
+  /// <remarks>It's called when the vessels on the end have changed.</remarks>
+  /// <param name="srcVessel"></param>
+  /// <param name="tgtVessel"></param>
+  void RefreshAllLinks(Vessel srcVessel, Vessel tgtVessel) {
+    // Make a list copy since it may change as the parts are re-linking. 
+    var linkCandidates = srcVessel.parts
+        .SelectMany(x => x.FindModulesImplementing<ILinkJointBase>())
+        .Where(x => x.linkSource != null && x.linkTarget != null)
+        .Where(x =>
+             x.linkSource.part.vessel == srcVessel && x.linkTarget.part.vessel == tgtVessel
+             || x.linkSource.part.vessel == tgtVessel && x.linkTarget.part.vessel == srcVessel)
+        .ToList();
+    HostedDebugLog.Fine(this, "Refreshing {0} links between {1} and {2}",
+                        linkCandidates.Count, srcVessel, tgtVessel);
+    foreach (var linkCandidate in linkCandidates) {
+      linkCandidate.SetCoupleOnLinkMode(linkCandidate.coupleOnLinkMode, LinkActorType.API);
+    }
   }
   #endregion
 }

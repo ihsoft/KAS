@@ -17,6 +17,16 @@ public interface ILinkJointBase {
   /// <value>An arbitary string that identifies this joint.</value>
   string cfgJointName { get; }
 
+  /// <summary>Tells the current coupling mode.</summary>
+  /// <remarks>
+  /// Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled thru
+  /// this specific joint module. Iy only means that the parts, linked via this joint, are
+  /// guaranteed to be coupled, but the actual docking can be done by any other joint or part.
+  /// </remarks>
+  /// <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
+  /// <seealso cref="SetCoupleOnLinkMode"/>
+  bool coupleOnLinkMode { get; }
+
   /// <summary>Tells the current link source.</summary>
   /// <value>The link's source or <c>null</c> if the link is not established.</value>
   ILinkSource linkSource { get; }
@@ -44,6 +54,7 @@ public interface ILinkJointBase {
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="ILinkTarget"/>
   /// <seealso cref="DropJoint"/>
+  /// <seealso cref="coupleOnLinkMode"/>
   bool CreateJoint(ILinkSource source, ILinkTarget target);
 
   /// <summary>Destroys a physical link between the source and the target.</summary>
@@ -53,6 +64,18 @@ public interface ILinkJointBase {
   /// </remarks>
   /// <seealso cref="CreateJoint"/>
   void DropJoint();
+
+  /// <summary>Changes the current parts couple mode.</summary>
+  /// <remarks>
+  /// If the link is established, then a re-linking event occurs regardless to the current state.
+  /// I.e. the source and target are first get unlinked, and then immediately linked back in the new
+  /// mode. If the link is not established, then the mode changes on the source without side
+  /// effects.
+  /// </remarks>
+  /// <param name="isCoupleOnLink">The new settings of the mode.</param>
+  /// <param name="actor">The actor who initiated the change.</param>
+  /// <seealso cref="coupleOnLinkMode"/>
+  void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible

@@ -219,6 +219,18 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   /// <inheritdoc/>
+  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor) {
+    if (isCoupleOnLink) {
+      HostedDebugLog.Error(this, "Coupling mode is not supported!");
+    }
+  }
+
+  /// <inheritdoc/>
+  public bool coupleOnLinkMode {
+    get { return false; }
+  }
+
+  /// <inheritdoc/>
   public virtual string[] CheckConstraints(ILinkSource source, Transform targetNodeTransform) {
     var length = Vector3.Distance(
         source.physicalAnchorTransform.position,

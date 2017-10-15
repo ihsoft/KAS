@@ -88,17 +88,6 @@ public interface ILinkSource {
   // TODO(ihsoft): Deprecate in favor of linkRenderer
   string cfgLinkRendererName { get; }
 
-  /// <summary>Attach node used for linking with the target part.</summary>
-  /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
-  /// <remarks>
-  /// The node is required to exist only when the source is linked to a compatible target. For the
-  /// not linked parts the attach node may not actually exist in the source part.
-  /// </remarks>
-  /// <seealso cref="cfgAttachNodeName"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindSourceAtAttachNode"/></example>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetAtAttachNode"/></example>
-  AttachNode attachNode { get; }
-
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <remarks>
   /// <para>
@@ -110,7 +99,6 @@ public interface ILinkSource {
   /// </para>
   /// </remarks>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   /// <seealso cref="physicalAnchorTransform"/>
   // TODO(ihsoft): Add example from a joint module.
