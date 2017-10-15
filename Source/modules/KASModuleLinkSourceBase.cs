@@ -665,8 +665,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <param name="target">The target to link with.</param>
   /// <seealso cref="PhysicalLink"/>
   protected virtual void LogicalLink(ILinkTarget target) {
-    HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}...",
-                        target as PartModule, linkActor);
+    HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}", target, linkActor);
     var linkInfo = new KASEvents.LinkEvent(this, target, linkActor);
     linkTarget = target;
     linkTarget.linkSource = this;
@@ -684,8 +683,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
   /// <see cref="PhysicalUnlink"/>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
-    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}...",
-                        linkTarget as PartModule, actorType);
+    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     if (linkTarget != null) {
       linkTarget.linkSource = null;

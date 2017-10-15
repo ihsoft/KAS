@@ -56,7 +56,7 @@ public interface ILinkUtils {
   /// significant vessel of the two, and couple it with the <i>most</i> significant one. The least
   /// signficant vessel will be destroyed.
   /// </param>
-  /// <returns>The info of the vessel that gets destroyed on couple.</returns>
+  /// <returns>The info of the vessel that was destroyed on couple.</returns>
   DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode,
                                bool toDominantVessel = false);
 

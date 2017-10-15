@@ -285,7 +285,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractJointModule,
   }
 
   /// <summary>
-  /// Fixes part's stored org position and rotation since they are saved before UpdateOrgPosAndRot
+  /// Fixes the stored org position and rotation since they are saved before UpdateOrgPosAndRot
   /// happens.
   /// </summary>
   void OnProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {

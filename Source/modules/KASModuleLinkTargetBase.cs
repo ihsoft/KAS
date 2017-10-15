@@ -72,7 +72,7 @@ public class KASModuleLinkTargetBase :
         if (value != null) {
           persistedLinkSourcePartId = value.part.flightID;
           // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
-          // a different scale.
+          // a different scale, so do a transformation.
           var sourceScale = value.nodeTransform.lossyScale;
           var targetScale = nodeTransform.lossyScale;
           var translateScale = new Vector3(sourceScale.x / targetScale.x,
@@ -317,7 +317,7 @@ public class KASModuleLinkTargetBase :
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
-    linkStateMachine.currentState = null;  // Stop.
+    linkStateMachine.currentState = null;  // Stop the machine to let the cleanup handlers working.
   }
   #endregion
 
