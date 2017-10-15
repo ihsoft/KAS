@@ -22,7 +22,7 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-// Next localization ID: #kasLOC_01002.
+// Next localization ID: #kasLOC_01004.
 public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     // KSPDev interfaces.
     IHasContextMenu {
@@ -94,6 +94,33 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   [LocalizableItem(tag = null)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink(LinkActorType.Player);
+  }
+
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_01002",
+      defaultTemplate = "Link mode: DOCKED",
+      description = "The name of the part's context menu event that triggers a separtation of the"
+      + " linked parts into two different vessels if they are coupled thru this joint. At the same"
+      + " time, the name of the event gives a currently selected state.")]
+  public void UndockVesselsContextMenuAction() {
+    linkJoint.SetCoupleOnLinkMode(false, LinkActorType.Player);
+    UpdateContextMenu();
+  }
+
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// FIXME: review caption string
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_01003",
+      defaultTemplate = "Link mode: UNDOCKED",
+      description = "The name of the part's context menu event that triggers a merging of the"
+      + " linked parts if they were not coupled before. At  the same time, the name of the event"
+      + " gives a currently selected state.")]
+  public void DockVesselsContextMenuAction() {
+    linkJoint.SetCoupleOnLinkMode(true, LinkActorType.Player);
+    UpdateContextMenu();
   }
   #endregion
 
@@ -170,9 +197,9 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                                  e.active = linkState == LinkState.Linked;
                                });
     PartModuleUtils.SetupEvent(this, DockVesselsContextMenuAction,
-                               e => e.active = isLinked && !linkJoint.isDockOnLink);
+                               e => e.active = !linkJoint.coupleOnLinkMode);
     PartModuleUtils.SetupEvent(this, UndockVesselsContextMenuAction,
-                               e => e.active = isLinked && linkJoint.isDockOnLink);
+                               e => e.active = linkJoint.coupleOnLinkMode);
   }
   #endregion
 
