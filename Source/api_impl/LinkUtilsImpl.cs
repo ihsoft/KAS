@@ -7,7 +7,6 @@ using KASAPIv1;
 using KSPDev.LogUtils;
 using System;
 using System.Linq;
-using UnityEngine;
 
 namespace KASImpl {
 
@@ -48,8 +47,7 @@ class LinkUtilsImpl : ILinkUtils {
     var srcVessel = srcPart.vessel;
     var tgtPart = targetNode.owner;
     var tgtVessel = tgtPart.vessel;
-    Debug.LogFormat("Couple {0} to {1}",
-                    HostedDebugLog.ObjectToString(srcPart), HostedDebugLog.ObjectToString(tgtPart));
+    DebugEx.Fine("Couple {0} to {1}", srcPart, tgtPart);
 
     var vesselInfo = new DockedVesselInfo();
     vesselInfo.name = srcVessel.vesselName;
@@ -83,21 +81,15 @@ class LinkUtilsImpl : ILinkUtils {
   public Part DecoupleParts(Part part1, Part part2) {
     Part decoupledPart;
     if (part1.parent == part2) {
-      Debug.LogFormat("Decouple {0} from {1}",
-                      HostedDebugLog.ObjectToString(part1),
-                      HostedDebugLog.ObjectToString(part2));
+      DebugEx.Fine("Decouple {0} from {1}", part1, part2);
       part1.decouple();
       decoupledPart = part1;
     } else if (part2.parent == part1) {
-      Debug.LogFormat("Decouple {0} from {1}",
-                      HostedDebugLog.ObjectToString(part2),
-                      HostedDebugLog.ObjectToString(part1));
+      DebugEx.Fine("Decouple {0} from {1}", part2, part1);
       part2.decouple();
       decoupledPart = part2;
     } else {
-      Debug.LogWarningFormat("Cannot decouple {0} <=> {1} - not coupled!",
-                             HostedDebugLog.ObjectToString(part1),
-                             HostedDebugLog.ObjectToString(part2));
+      DebugEx.Warning("Cannot decouple {0} <=> {1} - not coupled!", part1, part2);
       return null;
     }
     part1.vessel.CycleAllAutoStrut();
