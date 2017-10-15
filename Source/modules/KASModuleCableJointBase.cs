@@ -135,6 +135,12 @@ public class KASModuleCableJointBase : PartModule,
       return 0;
     }
   }
+
+  /// <inheritdoc/>
+  public ILinkSource linkSource { get; private set; }
+
+  /// <inheritdoc/>
+  public ILinkTarget linkTarget { get; private set; }
   #endregion
 
   #region Part's config fields
@@ -165,14 +171,6 @@ public class KASModuleCableJointBase : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Source of the link.</summary>
-  /// <value>The link module on the source part.</value>
-  protected ILinkSource linkSource { get; private set; }
-
-  /// <summary>Target of the link.</summary>
-  /// <value>The link module on the target part.</value>
-  protected ILinkTarget linkTarget { get; private set; }
-
   /// <summary>Tells if there is a physical joint created.</summary>
   /// <value><c>true</c> if the source and target parts are physically linked.</value>
   protected bool isLinked { get; private set; }
