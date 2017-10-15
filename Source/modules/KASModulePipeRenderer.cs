@@ -806,7 +806,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
       if (hit.transform.root != source.root && hit.transform.root != target.root) {
         return hitPart != null
             ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
-            : LinkCollidesWithSurfaceMsg.ToString();
+            : LinkCollidesWithSurfaceMsg.Format();
       }
     }
     return null;
