@@ -50,27 +50,27 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string plugSndPath = "";
+  public string sndPathPlug = "";
 
   /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string unplugSndPath = "";
+  public string sndPathUnplug = "";
 
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string dockSndPath = "";
+  public string sndPathDock = "";
 
   /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string undockSndPath = "";
+  public string sndPathUndock = "";
 
   /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string brokenSndPath = "";
+  public string sndPathBroken = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -271,7 +271,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
     if (info.actor == LinkActorType.Player || info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? dockSndPath : plugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathPlug);
     }
   }
 
@@ -279,9 +279,9 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkBrokenEvent(info);
     if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? undockSndPath : unplugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathUndock : sndPathUnplug);
     } else if (info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(brokenSndPath);
+      UISoundPlayer.instance.Play(sndPathBroken);
     }
   }
   #endregion
