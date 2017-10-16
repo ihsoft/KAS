@@ -34,7 +34,7 @@ public class KASModuleLinkTargetBase :
     // KSP parents.
     PartModule, IModuleInfo,
     // KAS parents.
-    ILinkTarget, ILinkStateEventListener,
+    ILinkTarget, ILinkStateEventListener, IsLocalizableModule,
     // Syntax sugar parents.
     IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
 
@@ -243,6 +243,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    LocalizeModule();
 
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     linkStateMachine.SetTransitionConstraint(
@@ -311,6 +312,13 @@ public class KASModuleLinkTargetBase :
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     InitNodeTransform();
+  }
+  #endregion
+
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 

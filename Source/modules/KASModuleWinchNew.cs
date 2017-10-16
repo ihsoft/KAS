@@ -41,7 +41,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu, IsPhysicalObject, IKasPropertyChangeListener {
+    IHasContextMenu, IsPhysicalObject, IKasPropertyChangeListener, IsLocalizableModule {
   #region Localizable GUI strings.
 
   #region ConnectorState enum values
@@ -662,6 +662,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    LocalizeModule();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
@@ -810,6 +811,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public override void OnPartUnpack() {
     base.OnPartUnpack();
     connectorState = persistedConnectorState;
+  }
+  #endregion
+
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
