@@ -129,9 +129,9 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     if (isLinked) {
       // The stock joint is rigid, drop it.
       if (partJoint != null) {
-        HostedDebugLog.Fine(this, "Dropping the stock joint on: {0}", partJoint.Parent);
+        HostedDebugLog.Fine(this, "Dropping the stock joint on: {0}", partJoint.Child);
         partJoint.DestroyJoint();
-        partJoint.Parent.attachJoint = null;
+        partJoint.Child.attachJoint = null;
       }
       SetupJoints();
     }
