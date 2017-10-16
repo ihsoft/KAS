@@ -10,9 +10,7 @@ namespace KASAPIv1 {
 /// <summary>Base interface for a KAS joint.</summary>
 /// <remarks>
 /// <para>
-/// Every KAS part <b>must</b> have a joint module that controls how KAS joints are maintained. If
-/// the part doesn't implement any special joint logic then a <see cref="KAS.KASModuleStockJoint"/>
-/// can be used.
+/// Every KAS part <b>must</b> have a joint module that controls how KAS joints are maintained.
 /// </para>
 /// <para>
 /// This interface is primarily designed for use form the <see cref="ILinkSource"/> implementations.

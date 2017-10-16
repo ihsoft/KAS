@@ -118,7 +118,6 @@
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
     <Compile Include="modules\KASModuleLinkTargetBase.cs" />
     <Compile Include="modules\KASModulePipeRendererWithHead.cs" />
-    <Compile Include="modules\KASModuleStockJoint.cs" />
     <Compile Include="modules\KASModuleTelescopicPipeModel.cs" />
     <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
     <Compile Include="modules\KASModulePipeRenderer.cs" />
