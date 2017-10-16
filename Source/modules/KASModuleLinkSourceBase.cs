@@ -508,10 +508,6 @@ public class KASModuleLinkSourceBase : PartModule,
       HostedDebugLog.Warning(this, "Cannot start linking mode is state: {0}", linkState);
       return false;
     }
-    if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
-      HostedDebugLog.Warning(this, "Cannot start EVA linking mode since active vessel is not EVA");
-      return false;
-    }
     linkState = LinkState.Linking;
     StartLinkGUIMode(mode, actor);
     return true;
