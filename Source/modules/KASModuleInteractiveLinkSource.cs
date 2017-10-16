@@ -67,6 +67,11 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   [KSPField]
   public string undockSndPath = "";
 
+  /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string brokenSndPath = "";
+
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -276,7 +281,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     if (info.actor == LinkActorType.Player) {
       UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? undockSndPath : unplugSndPath);
     } else if (info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(brokenSndPath);
     }
   }
   #endregion
