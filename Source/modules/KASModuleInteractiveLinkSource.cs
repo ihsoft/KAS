@@ -81,6 +81,14 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string breakLinkMenu = "";
+
+  /// <summary>
+  /// Tells if there should be a UI menu item that allows switching the docked (coupled) mode of the
+  /// joint.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public bool allowChanginDockingMode;
   #endregion
 
   // TODO(ihsoft): Disallow non-eva control.
@@ -214,10 +222,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                                  e.guiName = breakLinkMenu;
                                  e.active = linkState == LinkState.Linked;
                                });
-    PartModuleUtils.SetupEvent(this, DockVesselsContextMenuAction,
-                               e => e.active = !linkJoint.coupleOnLinkMode);
-    PartModuleUtils.SetupEvent(this, UndockVesselsContextMenuAction,
-                               e => e.active = linkJoint.coupleOnLinkMode);
+    PartModuleUtils.SetupEvent(
+        this, DockVesselsContextMenuAction,
+        e => e.active = allowChanginDockingMode && !linkJoint.coupleOnLinkMode);
+    PartModuleUtils.SetupEvent(
+        this, UndockVesselsContextMenuAction,
+        e => e.active = allowChanginDockingMode && linkJoint.coupleOnLinkMode);
   }
   #endregion
 
