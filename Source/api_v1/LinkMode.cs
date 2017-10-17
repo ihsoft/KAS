@@ -8,11 +8,6 @@ namespace KASAPIv1 {
 /// <summary>Defines how source connects to the target in terms of part hierarchy.</summary>
 public enum LinkMode {
   /// <summary>
-  /// Merge two different vessels into one. This mode is not allowed on the parts that belong to the
-  /// same vessel.
-  /// </summary>
-  DockVessels,
-  /// <summary>
   /// Tie two parts given they belong to the different vessels. This mode is not allowed on the
   /// parts that belong to the same vessel.
   /// </summary>

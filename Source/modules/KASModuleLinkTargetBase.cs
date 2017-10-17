@@ -443,8 +443,7 @@ public class KASModuleLinkTargetBase :
     }
     // Check if different vessel part links are enabled. 
     if (source.part.vessel != vessel
-        && (source.cfgLinkMode == LinkMode.DockVessels
-            || source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
+        && (source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
             || source.cfgLinkMode == LinkMode.TieAnyParts)) {
       return true;
     }

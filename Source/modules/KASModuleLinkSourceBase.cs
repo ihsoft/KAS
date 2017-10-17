@@ -100,13 +100,6 @@ public class KASModuleLinkSourceBase : PartModule,
       description: "Title of the module to present in the editor details window.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message LinkModeDockVesselsInfo = new Message(
-      "#kasLOC_02008",
-      defaultTemplate: "Can dock the vessels",
-      description: "Info string in the editor that tells if the part can joint two vessels into one"
-      + " (dock one vessel to another).");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message LinkModeTiePartsOnDifferentVesselsInfo = new Message(
       "#kasLOC_02009",
       defaultTemplate: "Links to another vessel",
@@ -233,7 +226,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <summary>See <see cref="cfgLinkMode"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public LinkMode linkMode = LinkMode.DockVessels;
+  public LinkMode linkMode = LinkMode.TieAnyParts;
 
   /// <summary>See <see cref="cfgLinkRendererName"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -470,10 +463,6 @@ public class KASModuleLinkSourceBase : PartModule,
     sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
     sb.AppendLine();
 
-    if (linkMode == LinkMode.DockVessels) {
-      sb.AppendLine(ScreenMessaging.SetColorToRichText(
-          LinkModeDockVesselsInfo, Color.cyan));
-    }
     if (linkMode == LinkMode.TiePartsOnDifferentVessels || linkMode == LinkMode.TieAnyParts) {
       sb.AppendLine(ScreenMessaging.SetColorToRichText(
           LinkModeTiePartsOnDifferentVesselsInfo, Color.cyan));
@@ -713,7 +702,7 @@ public class KASModuleLinkSourceBase : PartModule,
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
-    if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TiePartsOnDifferentVessels)
+    if (linkMode == LinkMode.TiePartsOnDifferentVessels
         && vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
     }
