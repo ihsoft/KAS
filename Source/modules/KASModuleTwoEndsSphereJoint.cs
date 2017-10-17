@@ -59,13 +59,13 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// <summary>Source sphere joint.</summary>
   /// <value>PhysX joint at the source part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="KASModuleJointBase.cfgSourceLinkAngleLimit"/>.
+  /// <seealso cref="KASModuleJointBase.sourceLinkAngleLimit"/>.
   protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
   /// <value>PhysX joint at the target part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="KASModuleJointBase.cfgTargetLinkAngleLimit"/>
+  /// <seealso cref="KASModuleJointBase.targetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Joint that ties two sphere joints together.</summary>
@@ -78,8 +78,8 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// limits are set via config settings.
   /// </remarks>
   /// <seealso cref="strutSpringForce"/>
-  /// <seealso cref="KASModuleJointBase.cfgMinLinkLength"/>
-  /// <seealso cref="KASModuleJointBase.cfgMaxLinkLength"/>
+  /// <seealso cref="KASModuleJointBase.minLinkLength"/>
+  /// <seealso cref="KASModuleJointBase.maxLinkLength"/>
   protected ConfigurableJoint strutJoint { get; private set; }
   #endregion
 

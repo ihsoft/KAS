@@ -23,7 +23,7 @@ public class ILinkCableJoint_Properties {
 /// Interafce for a physical cable link. Such links keep the dsitance between the object below the
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
-public interface ILinkCableJoint : ILinkJointBase {
+public interface ILinkCableJoint {
   /// <summary>Maximum allowed distance between the parts to establish a link.</summary>
   /// <value>Distance in meters.</value>
   float cfgMaxCableLength { get; }

@@ -277,7 +277,7 @@ public class KASModuleLinkSourceBase : PartModule,
   #region Inheritable properties
   /// <summary>Joint module that manages a physical link.</summary>
   /// <value>The physical joint module on the part.</value>
-  protected ILinkJointBase linkJoint { get; private set; }
+  protected ILinkJoint linkJoint { get; private set; }
 
   /// <summary>Renderer of the link meshes.</summary>
   /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
@@ -369,7 +369,7 @@ public class KASModuleLinkSourceBase : PartModule,
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
 
-    linkJoint = part.FindModulesImplementing<ILinkJointBase>()
+    linkJoint = part.FindModulesImplementing<ILinkJoint>()
         .FirstOrDefault(x => x.cfgJointName == jointName);
     if (linkJoint == null) {
       HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");

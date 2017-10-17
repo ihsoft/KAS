@@ -147,34 +147,6 @@ public class KASModuleJointBase : PartModule,
   #region ILinkJoint CFG properties
   /// <inheritdoc/>
   public string cfgJointName { get { return jointName; } }
-
-  /// <inheritdoc/>
-  /// <remarks>
-  /// When calculating the strength, the minimum of the source and the target breaking forces is
-  /// used as a base. Then, the value is scaled to the node size assuming it's a stack node.
-  /// </remarks>
-  /// <seealso cref="ScaleForceToNode"/>
-  public float cfgLinkBreakForce { get { return linkBreakForce; } }
-
-  /// <inheritdoc/>
-  /// <remarks>
-  /// When calculating the torque, the minimum of the source and the target breaking torque is
-  /// used as a base. Then, the value is scaled to the node size assuming it's a stack node.
-  /// </remarks>
-  /// <seealso cref="ScaleForceToNode"/>
-  public float cfgLinkBreakTorque { get { return linkBreakTorque; } }
-
-  /// <inheritdoc/>
-  public int cfgSourceLinkAngleLimit { get { return sourceLinkAngleLimit; } }
-
-  /// <inheritdoc/>
-  public int cfgTargetLinkAngleLimit { get { return targetLinkAngleLimit; } }
-
-  /// <inheritdoc/>
-  public float cfgMinLinkLength { get { return minLinkLength; } }
-
-  /// <inheritdoc/>
-  public float cfgMaxLinkLength { get { return maxLinkLength; } }
   #endregion
 
   #region Part's config fields
@@ -195,20 +167,22 @@ public class KASModuleJointBase : PartModule,
   [KSPField]
   public int attachNodeSize = 0;
 
-  /// <summary>
-  /// The unscaled maximum force that can be applied on the joint before it breaks.
-  /// </summary>
+  /// <summary>Breaking force for the strut connecting the two parts.</summary>
+  /// <remarks>
+  /// Force is in kilonewtons. If <c>0</c>, then the joint strength is calculated automatically,
+  /// basing on the strengths of the source and the target parts.
+  /// </remarks>
   /// <seealso cref="attachNodeSize"/>
-  /// <seealso cref="cfgLinkBreakForce"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakForce = 0;
 
-  /// <summary>
-  /// The unscaled maximum torque that can be applied on the joint before it breaks.
-  /// </summary>
+  /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
+  /// <value>
+  /// Force is in kilonewtons. If <c>0</c>, then the joint strength is calculated automatically,
+  /// basing on the strengths of the source and the target parts.
+  /// </value>
   /// <seealso cref="attachNodeSize"/>
-  /// <seealso cref="cfgLinkBreakTorque"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakTorque = 0;
@@ -216,7 +190,7 @@ public class KASModuleJointBase : PartModule,
   /// <summary>
   /// Maximum allowed angle between the attach node normal and the link at the source part.
   /// </summary>
-  /// <seealso cref="cfgSourceLinkAngleLimit"/>
+  /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int sourceLinkAngleLimit = 0;
@@ -224,19 +198,23 @@ public class KASModuleJointBase : PartModule,
   /// <summary>
   /// Maximum allowed angle between the attach node normal and the link at the target part.
   /// </summary>
-  /// <seealso cref="cfgTargetLinkAngleLimit"/>
+  /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int targetLinkAngleLimit = 0;
 
-  /// <summary>Minumum allowed distance between the source and target parts.</summary>
-  /// <seealso cref="cfgMinLinkLength"/>
+  /// <summary>Minimum allowed distance between parts to establish a link.</summary>
+  /// <remarks>
+  /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float minLinkLength = 0;
 
-  /// <summary>Maximum allowed distance between the source and target parts.</summary>
-  /// <seealso cref="cfgMaxLinkLength"/>
+  /// <summary>Maximum allowed distance between parts to establish a link.</summary>
+  /// <remarks>
+  /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float maxLinkLength = 0;
@@ -414,7 +392,7 @@ public class KASModuleJointBase : PartModule,
       if (isUnbreakable) {
         joints.ForEach(j => SetBreakForces(j, Mathf.Infinity, Mathf.Infinity));
       } else {
-        joints.ForEach(j => SetBreakForces(j, cfgLinkBreakForce, cfgLinkBreakTorque));
+        joints.ForEach(j => SetBreakForces(j, linkBreakForce, linkBreakTorque));
       }
     }
   }
@@ -745,7 +723,7 @@ public class KASModuleJointBase : PartModule,
   void RefreshAllLinks(Vessel srcVessel, Vessel tgtVessel) {
     // Make a list copy since it may change as the parts are re-linking. 
     var linkCandidates = srcVessel.parts
-        .SelectMany(x => x.FindModulesImplementing<ILinkJointBase>())
+        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
         .Where(x => x.linkSource != null && x.linkTarget != null)
         .Where(x =>
              x.linkSource.part.vessel == srcVessel && x.linkTarget.part.vessel == tgtVessel
