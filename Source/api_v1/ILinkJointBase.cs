@@ -65,6 +65,14 @@ public interface ILinkJointBase {
   /// <seealso cref="CreateJoint"/>
   void DropJoint();
 
+  /// <summary>Requests the joint to become unbreakable or normal.</summary>
+  /// <remarks>
+  /// Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
+  /// moment. In unbreakable state joint must behave as a hard connection that cannot be changed or
+  /// destructed by any force.</remarks>
+  /// <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
+  void AdjustJoint(bool isUnbreakable = false);
+
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
   /// If the link is established, then a re-linking event occurs regardless to the current state.

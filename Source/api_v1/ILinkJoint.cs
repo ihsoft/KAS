@@ -49,14 +49,6 @@ public interface ILinkJoint : ILinkJointBase {
   /// </summary>
   /// <value>Angle in degrees. <c>0</c> if angle is not checked.</value>
   int cfgTargetLinkAngleLimit { get; }
-
-  /// <summary>Requests the joint to become unbreakable or normal.</summary>
-  /// <remarks>
-  /// Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
-  /// moment. In unbreakable state joint must behave as a hard connection that cannot be changed or
-  /// destructed by any force.</remarks>
-  /// <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
-  void AdjustJoint(bool isUnbreakable = false);
 }
 
 }  // namespace

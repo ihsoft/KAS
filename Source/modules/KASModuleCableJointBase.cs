@@ -217,8 +217,14 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   /// <inheritdoc/>
+  public virtual void AdjustJoint(bool isUnbreakable = false) {
+    // Nothing to do with the cable.
+  }
+
+  /// <inheritdoc/>
   public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor) {
     if (isCoupleOnLink) {
+      //FIXME: Update AdjustJoint() if the coupling mode is allowed.
       HostedDebugLog.Error(this, "Coupling mode is not supported!");
     }
   }
