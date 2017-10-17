@@ -203,7 +203,7 @@ public class ILinkSourceExample1  {
   // Finds the KAS source at the specified part's attach node.
   public static ILinkSource FindSourceAtAttachNode(AttachNode an) {
     return an.owner.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(s => s.attachNode != null & s.attachNode.id == an.id);
+        .FirstOrDefault(s => s.cfgAttachNodeName == an.id);
   }
   #endregion
 
@@ -216,7 +216,7 @@ public class ILinkSourceExample1  {
       return null;
     }
     return otherAn.owner.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.attachNode != null && t.attachNode.id == otherAn.id);
+        .FirstOrDefault(t => t.cfgAttachNodeName == otherAn.id);
   }
   #endregion
 }
