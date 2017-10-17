@@ -100,7 +100,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     // Setup linear joint parameters.
     joint.xDrive = new JointDrive() {
       positionSpring = springForce,
-      positionDamper = springForce * springDamperRatio,
+      positionDamper = float.IsInfinity(springForce) ? 0 : springForce * springDamperRatio,
       maximumForce = maxSpringForce
     };
     joint.linearLimit = new SoftJointLimit() {
@@ -108,7 +108,9 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     };
     joint.linearLimitSpring = new SoftJointLimitSpring() {
       spring = distanceLimitForce,
-      damper = distanceLimitForce * distanceLimitDamperRatio
+      damper = float.IsInfinity(distanceLimitForce)
+          ? 0
+          : distanceLimitForce * distanceLimitDamperRatio
     };
     // Optimize mode basing on the input parameters.
     if (float.IsInfinity(springForce) || Mathf.Approximately(distanceLimit, 0)) {
@@ -137,7 +139,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.angularXMotion = ConfigurableJointMotion.Free;
     joint.angularYZDrive = new JointDrive() {
       positionSpring = springForce,
-      positionDamper = springForce * springDamperRatio,
+      positionDamper = float.IsInfinity(springForce) ? 0 :  springForce * springDamperRatio,
       maximumForce = maxSpringForce
     };
     joint.angularYZLimitSpring = new SoftJointLimitSpring() {
