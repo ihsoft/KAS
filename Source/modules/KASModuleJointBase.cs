@@ -534,15 +534,14 @@ public class KASModuleJointBase : PartModule,
       // restored from the save file.
       HostedDebugLog.Fine(this, "Refreshing nodes. Already coupled: {0} <=> {1}",
                           linkSource, linkTarget);
-      //FIXME: create nodes at the physical offset/rotation
       if (linkSource.part.FindAttachNode(linkSource.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform),
+            linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform),
             isSource: true);
       }
       if (linkTarget.part.FindAttachNode(linkTarget.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform),
+            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform),
             isSource: false);
       }
       return;
@@ -552,10 +551,10 @@ public class KASModuleJointBase : PartModule,
       return;
     }
     var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform);
+        linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform);
     SetupAttachNode(srcNode, isSource: true);
     var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform);
+        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform);
     SetupAttachNode(srcNode, isSource: false);
     // TODO(ihsoft): Store the vessel info into the source.
     KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
