@@ -530,8 +530,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     CreatePistonModels();
     UpdateValuesFromModel();
     // Log basic part values to help part's designers.
-    //FIXME: use info level
-    HostedDebugLog.Warning(this,
+    HostedDebugLog.Info(this,
         "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
         + " pistonLength={3}, outerPistonDiameter={4}",
         minLinkLength, maxLinkLength,
