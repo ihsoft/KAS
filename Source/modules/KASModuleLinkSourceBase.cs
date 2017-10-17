@@ -505,7 +505,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void CancelLinking() {
     if (linkState != LinkState.Linking) {
-      HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
+      HostedDebugLog.Fine(this, "Ignore linking mode cancel in state: {0}", linkState);
       return;
     }
     StopLinkGUIMode();
