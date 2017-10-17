@@ -24,7 +24,7 @@ namespace KAS {
 /// children classes.
 /// </para>
 /// </remarks>
-/// <seealso cref="CreateJoint"/>
+/// <seealso cref="KASModuleJointBase.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
