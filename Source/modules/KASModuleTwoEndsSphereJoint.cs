@@ -30,7 +30,6 @@ namespace KAS {
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
 // TODO(ihsoft): Add an image.
-// FIXME(ihsoft): Fix initial state setup for the sphere joints.
 public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     // KSP interfaces.
     IJointLockState,

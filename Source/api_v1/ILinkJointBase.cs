@@ -20,8 +20,8 @@ public interface ILinkJointBase {
   /// <summary>Tells the current coupling mode.</summary>
   /// <remarks>
   /// Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled thru
-  /// this specific joint module. Iy only means that the parts, linked via this joint, are
-  /// guaranteed to be coupled, but the actual docking can be done by any other joint or part.
+  /// this specific joint module. It only means that the parts, linked via this joint, are
+  /// guaranteed to be coupled, but the actual docking can be done by other joint or part.
   /// </remarks>
   /// <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
   /// <seealso cref="SetCoupleOnLinkMode"/>

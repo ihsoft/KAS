@@ -308,8 +308,11 @@ public interface ILinkSource {
   /// visual and sound representation may differ for the different actors.
   /// </param>
   /// <param name="moveFocusOnTarget">
-  /// If <c>true</c> then upon decoupling current vessel focus will be set on the vessel that owns
-  /// the link's <i>target</i>. Otherwise, the focus will stay at the source part vessel.
+  /// Tells what to do when the link is being borken on an active vessel: upon the separation, the
+  /// vessel on either the source or the target part will get the focus. If the link doesn't belong
+  /// to the active vessel, then the focus is not affected. If this parameter is <c>true</c>, then
+  /// upon the decoupling, the vessel focus will be set on the vessel that owns the link's
+  /// <i>target</i>. Otherwise, the focus will be set to the source part vessel.
   /// </param>
   /// <seealso cref="LinkToTarget"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>

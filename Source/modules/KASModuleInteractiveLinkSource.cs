@@ -123,7 +123,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
 
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  /// FIXME: review caption string
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_01003",
