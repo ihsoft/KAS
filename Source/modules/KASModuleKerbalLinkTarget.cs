@@ -172,6 +172,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
     dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
     pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
     useGUILayout = false;
@@ -179,14 +180,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
     persistentBottomCenterMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
-    UpdateContextMenu();
-  }
-  #endregion
-
-  #region KASModuleLinkTargetBase overrides
-  /// <inheritdoc/>
-  protected override void OnStateChange(LinkState? oldState) {
-    base.OnStateChange(oldState);
     UpdateContextMenu();
   }
   #endregion
