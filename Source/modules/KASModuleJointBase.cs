@@ -242,6 +242,17 @@ public class KASModuleJointBase : PartModule,
   public float maxLinkLength = 0;
   #endregion
 
+  #region CFG/persistent fields
+  /// <summary>
+  /// Tells if the source and the target parts should couple when making a link between the
+  /// different vessels.
+  /// </summary>
+  /// <seealso cref="coupleOnLinkMode"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public bool coupleWhenLinked;
+  #endregion
+
   #region ILinkJoint implementation
   /// <inheritdoc/>
   public ILinkSource linkSource { get; private set; }
@@ -251,17 +262,9 @@ public class KASModuleJointBase : PartModule,
 
   /// <inheritdoc/>
   public bool coupleOnLinkMode {
-    get { return persistentCoupleOnLinkMode; }
-    private set { persistentCoupleOnLinkMode = value; }
+    get { return coupleWhenLinked; }
+    private set { coupleWhenLinked = value; }
   }
-  #endregion
-
-  #region Persistent fields
-  /// <summary>Couple mode of the joint.</summary>
-  /// <seealso cref="coupleOnLinkMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public bool persistentCoupleOnLinkMode;
   #endregion
 
   #region Inheritable properties
