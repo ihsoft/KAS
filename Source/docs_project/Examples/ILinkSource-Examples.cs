@@ -53,7 +53,7 @@ public class ILinkSourceExample1  {
     // link. See GUILinkMode for more details. 
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     Debug.LogFormat("Established link with part: id={0}, mode={1}",
@@ -78,7 +78,7 @@ public class ILinkSourceExample1  {
     }
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     return true;
@@ -103,7 +103,7 @@ public class ILinkSourceExample1  {
     // link. See GUILinkMode for more details. 
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     return true;

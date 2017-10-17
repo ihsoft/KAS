@@ -263,12 +263,13 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool StartLinking(GUILinkMode mode, LinkActorType actor);
 
-  /// <summary>Cancels linking mode without creating a link.</summary>
-  /// <remarks>All sources and targets that were locked on mode start will be unlocked.</remarks>
-  /// <param name="actor">Specifies how the action has been initiated.</param>
+  /// <summary>Cancels the linking mode without creating a link.</summary>
+  /// <remarks>
+  /// All the sources and targets, that got locked on the mode start, will be unlocked.
+  /// </remarks>
   /// <seealso cref="StartLinking"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  void CancelLinking(LinkActorType actor);
+  void CancelLinking();
 
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>

@@ -439,7 +439,7 @@ public class KASModuleJointBase : PartModule,
     var oldTarget = linkTarget;
     linkSource.BreakCurrentLink(actor);
     if (oldSource.StartLinking(GUILinkMode.API, actor) && !oldSource.LinkToTarget(oldTarget)) {
-      oldSource.CancelLinking(actor);
+      oldSource.CancelLinking();
     }
   }
   #endregion

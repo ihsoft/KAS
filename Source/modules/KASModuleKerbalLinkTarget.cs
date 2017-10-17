@@ -111,7 +111,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
             winch.cableJoint.maxAllowedCableLength = winch.cableJoint.cfgMaxCableLength;
           }
         } else {
-          closestSource.CancelLinking(LinkActorType.API);
+          closestSource.CancelLinking();
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);

@@ -177,7 +177,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
       // Handle link mode cancel.
       if (Input.GetKeyUp(KeyCode.Escape)) {
-        AsyncCall.CallOnEndOfFrame(this, () => CancelLinking(LinkActorType.Player));
+        AsyncCall.CallOnEndOfFrame(this, () => CancelLinking());
       }
       // Handle link action (mouse click).
       if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {

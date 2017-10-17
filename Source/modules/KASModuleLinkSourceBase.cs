@@ -503,7 +503,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual void CancelLinking(LinkActorType actor) {
+  public virtual void CancelLinking() {
     if (linkState != LinkState.Linking) {
       HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
       return;

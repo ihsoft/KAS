@@ -201,7 +201,7 @@ public class KASModuleLinkTargetBase :
       if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
           && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!connectorSource.LinkToTarget(this)) {
-          connectorSource.CancelLinking(LinkActorType.API);
+          connectorSource.CancelLinking();
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
