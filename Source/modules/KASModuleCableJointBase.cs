@@ -88,12 +88,6 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public float cfgMaxCableLength { get { return maxCableLength; } }
-
-  /// <inheritdoc/>
-  public float cfgCableSpringForce { get { return cableSpringForce; } }
-
-  /// <inheritdoc/>
-  public float cfgCableBreakForce { get { return cableBreakForce; } }
   #endregion
 
   #region ILinkCableJoint properties
@@ -154,17 +148,23 @@ public class KASModuleCableJointBase : PartModule,
   [KSPField]
   public float maxCableLength;
 
-  /// <summary>See <see cref="cfgCableSpringForce"/>.</summary>
+  /// <summary>Spring force of the cable which connects the two parts.</summary>
+  /// <remarks>
+  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
+  /// distance. The force is measured in kilonewtons.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
+  /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringDamper = 0.1f;
 
-  /// <summary>See <see cref="cfgCableBreakForce"/>.</summary>
+  /// <summary>Linear breaking force for the cable connecting the two parts.</summary>
+  /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableBreakForce;
