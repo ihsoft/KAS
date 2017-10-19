@@ -137,34 +137,6 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   }
   #endregion
 
-  void SetupJoints() {
-    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
-    // Create end spherical joints.
-    srcJoint = CreateJointEnd(
-      linkSource.nodeTransform, linkSource.part.rb, "KASJointSrc", sourceLinkAngleLimit);
-    trgJoint = CreateJointEnd(
-      linkTarget.nodeTransform, linkTarget.part.rb, "KASJointTrg", targetLinkAngleLimit);
-    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
-    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
-
-    // Link end joints with a prismatic joint.
-    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(strutJoint);
-    KASAPI.JointUtils.SetupPrismaticJoint(
-        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
-    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
-    // joints rotations.
-    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
-    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
-    strutJoint.enablePreprocessing = true;
-    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-
-    customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(srcJoint);
-    customJoints.Add(trgJoint);
-    customJoints.Add(strutJoint);
-  }
-
   #region IKasJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnKASJointBreak(GameObject hostObj, float breakForce) {
@@ -238,6 +210,35 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
       node.SetValue("position", part.orgPos);
       node.SetValue("rotation", part.orgRot);
     }
+  }
+
+  /// <summary>Creates the joins to form the physical link.</summary>
+  void SetupJoints() {
+    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
+    // Create end spherical joints.
+    srcJoint = CreateJointEnd(
+      linkSource.nodeTransform, linkSource.part.rb, "KASJointSrc", sourceLinkAngleLimit);
+    trgJoint = CreateJointEnd(
+      linkTarget.nodeTransform, linkTarget.part.rb, "KASJointTrg", targetLinkAngleLimit);
+    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
+    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
+
+    // Link end joints with a prismatic joint.
+    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(strutJoint);
+    KASAPI.JointUtils.SetupPrismaticJoint(
+        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
+    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
+    // joints rotations.
+    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
+    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
+    strutJoint.enablePreprocessing = true;
+    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(srcJoint);
+    customJoints.Add(trgJoint);
+    customJoints.Add(strutJoint);
   }
   #endregion
 }
