@@ -243,6 +243,9 @@ public class KASModuleJointBase : PartModule,
     get { return coupleWhenLinked; }
     private set { coupleWhenLinked = value; }
   }
+
+  /// <inheritdoc/>
+  public bool isLinked { get; private set; }
   #endregion
 
   #region Inheritable properties
@@ -252,10 +255,6 @@ public class KASModuleJointBase : PartModule,
   /// The elastic joints may allow the length deviation. This value can be used as a base.
   /// </remarks>
   protected float originalLength { get; private set; }
-
-  /// <summary>Tells if there is a physical joint created.</summary>
-  /// <value><c>true</c> if the source and target parts are physically linked.</value>
-  protected bool isLinked { get; private set; }
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>

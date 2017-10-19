@@ -33,6 +33,10 @@ public interface ILinkJoint {
   /// <seealso cref="SetCoupleOnLinkMode"/>
   bool coupleOnLinkMode { get; }
 
+  /// <summary>Tells if there is a physical joint created.</summary>
+  /// <value><c>true</c> if the source and target parts are physically linked.</value>
+  bool isLinked { get; }
+
   /// <summary>Tells the current link source.</summary>
   /// <value>The link's source or <c>null</c> if the link is not established.</value>
   ILinkSource linkSource { get; }

@@ -135,6 +135,9 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public ILinkTarget linkTarget { get; private set; }
+
+  /// <inheritdoc/>
+  public bool isLinked { get; private set; }
   #endregion
 
   #region Part's config fields
@@ -171,10 +174,6 @@ public class KASModuleCableJointBase : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Tells if there is a physical joint created.</summary>
-  /// <value><c>true</c> if the source and target parts are physically linked.</value>
-  protected bool isLinked { get; private set; }
-
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
   protected bool isHeadStarted { get { return headSource != null; } }
