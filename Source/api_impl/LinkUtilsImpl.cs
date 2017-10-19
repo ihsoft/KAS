@@ -54,8 +54,6 @@ class LinkUtilsImpl : ILinkUtils {
     vesselInfo.vesselType = srcVessel.vesselType;
     vesselInfo.rootPartUId = srcVessel.rootPart.flightID;
 
-    GameEvents.onActiveJointNeedUpdate.Fire(srcVessel);
-    GameEvents.onActiveJointNeedUpdate.Fire(tgtVessel);
     sourceNode.attachedPart = tgtPart;
     sourceNode.attachedPartId = tgtPart.flightID;
     targetNode.attachedPart = srcPart;
@@ -72,7 +70,6 @@ class LinkUtilsImpl : ILinkUtils {
       sourceNode.owner.vessel.MakeActive();
       FlightInputHandler.SetNeutralControls();
     }
-    GameEvents.onVesselWasModified.Fire(sourceNode.owner.vessel);
 
     return vesselInfo;
   }
