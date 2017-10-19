@@ -314,6 +314,10 @@ public class KASModuleJointBase : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (isLinked && linkSource.cfgAttachNodeName == nodeName) {
+      if (customJoints != null) {
+        customJoints.ForEach(UnityEngine.Object.Destroy);
+        customJoints = null;
+      }
       var srcPart = linkSource.part;
       var tgtPart = linkTarget.part;
       KASAPI.AttachNodesUtils.DropAttachNode(srcPart, linkSource.cfgAttachNodeName);
