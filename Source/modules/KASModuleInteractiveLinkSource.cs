@@ -119,6 +119,9 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " time, the name of the event gives a currently selected state.")]
   public void UndockVesselsContextMenuAction() {
     linkJoint.SetCoupleOnLinkMode(false);
+    if (linkJoint.isLinked && !linkJoint.coupleOnLinkMode) {
+      UISoundPlayer.instance.Play(sndPathPlug);
+    }
     UpdateContextMenu();
   }
 
@@ -132,6 +135,9 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " gives a currently selected state.")]
   public void DockVesselsContextMenuAction() {
     linkJoint.SetCoupleOnLinkMode(true);
+    if (linkJoint.isLinked && linkJoint.coupleOnLinkMode) {
+      UISoundPlayer.instance.Play(sndPathDock);
+    }
     UpdateContextMenu();
   }
   #endregion
