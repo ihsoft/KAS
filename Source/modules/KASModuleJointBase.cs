@@ -30,7 +30,7 @@ public class KASModuleJointBase : PartModule,
     // KAS interfaces.
     ILinkJoint,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IKSPDevModuleInfo {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -325,9 +325,6 @@ public class KASModuleJointBase : PartModule,
       if (!selfDecoupledAction) {
         linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
-      //FIXME: do it in a global vessel modified event? and only refresh the colliders
-      // Refresh all the links between the former vessels.
-      AsyncCall.CallOnEndOfFrame(this, () => RefreshAllLinks(srcPart.vessel, tgtPart.vessel));
     }
   }
   #endregion
@@ -347,6 +344,21 @@ public class KASModuleJointBase : PartModule,
             moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
       }
     });
+  }
+  #endregion
+
+  #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onVesselWasModified.Add(OnVesselWasModified);
+  }
+  #endregion
+
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
+  public virtual void OnDestroy() {
+    GameEvents.onVesselWasModified.Remove(OnVesselWasModified);
   }
   #endregion
 
@@ -370,6 +382,7 @@ public class KASModuleJointBase : PartModule,
       CoupleParts();
     } else {
       AttachParts();
+      SetCollisionIgnores(true);
     }
     return true;
   }
@@ -379,8 +392,11 @@ public class KASModuleJointBase : PartModule,
     if (isLinked) {
       if (isCoupled) {
         DecoupleParts();
+        //FIXME: move into the modified vessel callback, and will happen on decouple
+        AsyncCall.CallOnEndOfFrame(this, MaybeDelegateCouplingRole);
       } else {
         DetachParts();
+        SetCollisionIgnores(false);
       }
     }
     CleanupCustomJoints();
@@ -411,19 +427,28 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor) {
-    coupleOnLinkMode = isCoupleOnLink;
+  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink) {
     if (!isLinked) {
+      coupleOnLinkMode = isCoupleOnLink;
       HostedDebugLog.Fine(
           this, "Coupling mode updated in a non-linked module: {0}", isCoupleOnLink);
       return;
     }
-    // Refresh the couple state by simply re-linking.
-    var oldSource = linkSource;
-    var oldTarget = linkTarget;
-    linkSource.BreakCurrentLink(actor);
-    if (oldSource.StartLinking(GUILinkMode.API, actor) && !oldSource.LinkToTarget(oldTarget)) {
-      oldSource.CancelLinking();
+    if (isCoupleOnLink && linkSource.part.vessel != linkTarget.part.vessel) {
+      // Couple the parts, and drop the other link(s).
+      DetachParts();
+      SetCollisionIgnores(false);
+      coupleOnLinkMode = isCoupleOnLink;
+      CoupleParts();
+    } else if (!isCoupleOnLink && isCoupled) {
+      // Decouple the parts, and make the non-coupling link(s).
+      DecoupleParts();
+      coupleOnLinkMode = isCoupleOnLink;
+      AttachParts();
+      //FIXME: move into the modified vessel callback, and will happen on decouple
+      AsyncCall.CallOnEndOfFrame(this, MaybeDelegateCouplingRole);
+    } else {
+      coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
   }
   #endregion
@@ -719,23 +744,27 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local utility methods
-  /// <summary>Reconnects all the links between the vesseles to refresh their state.</summary>
-  /// <remarks>It's called when the vessels on the end have changed.</remarks>
-  /// <param name="srcVessel"></param>
-  /// <param name="tgtVessel"></param>
-  void RefreshAllLinks(Vessel srcVessel, Vessel tgtVessel) {
-    // Make a list copy since it may change as the parts are re-linking. 
-    var linkCandidates = srcVessel.parts
-        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
-        .Where(x => x.linkSource != null && x.linkTarget != null)
-        .Where(x =>
-             x.linkSource.part.vessel == srcVessel && x.linkTarget.part.vessel == tgtVessel
-             || x.linkSource.part.vessel == tgtVessel && x.linkTarget.part.vessel == srcVessel)
-        .ToList();
-    HostedDebugLog.Fine(this, "Refreshing {0} links between {1} and {2}",
-                        linkCandidates.Count, srcVessel, tgtVessel);
-    foreach (var linkCandidate in linkCandidates) {
-      linkCandidate.SetCoupleOnLinkMode(linkCandidate.coupleOnLinkMode, LinkActorType.API);
+  /// <summary>
+  /// Checks if there is another link that can couple the parts, and lets it doing so.
+  /// </summary>
+  /// <remarks>
+  /// This method must be called only when the source and the target parts are not coupled. And
+  /// it's best not to call it from a callback or an event handler to not interfere with the game's
+  /// logic.
+  /// </remarks>
+  void MaybeDelegateCouplingRole() {
+    var srcVessel = linkSource.part.vessel;
+    var tgtVessel = linkTarget.part.vessel;
+    var linkCandidate = srcVessel.parts
+        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>()
+            .Where(j => j.isLinked && j.coupleOnLinkMode))
+        .FirstOrDefault(x =>
+            x.linkSource.part.vessel == srcVessel && x.linkTarget.part.vessel == tgtVessel
+            || x.linkSource.part.vessel == tgtVessel && x.linkTarget.part.vessel == srcVessel);
+    HostedDebugLog.Info(this, "Delegate the coupling role to: {0}", linkCandidate);
+    if (linkCandidate != null) {
+      // Make the new candidate to take the ownership over the link.
+      linkCandidate.SetCoupleOnLinkMode(true);
     }
   }
 
@@ -745,6 +774,47 @@ public class KASModuleJointBase : PartModule,
       HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
       customJoints.ForEach(UnityEngine.Object.Destroy);
       customJoints = null;
+    }
+  }
+
+  /// <summary>Sets the colission state between the source part and the target vessel.</summary>
+  /// <remarks>
+  /// For a short period of time this method disables all the physical collisions on the source
+  /// part.
+  /// </remarks>
+  /// <param name="ignoreCollisions">Tells if the collisions should be ignored or triggered.</param>
+  void SetCollisionIgnores(bool ignoreCollisions) {
+    if (ignoreCollisions) {
+      // Set ignores on the new target part. It takes some time for the vessel to settle down.
+      // To be on a safe side, disable the physical effects of the colliders. In the game's core
+      // it's hardcoded to wait for 3 fixed frames before kicking in the physics. So we wait 6!
+      var colliders = linkSource.part.gameObject.GetComponentsInChildren<Collider>()
+          .Where(c => !c.isTrigger)
+          .ToList();  // Make a copy! We want the filter to be applied only once.
+      colliders.ForEach(x => x.isTrigger = true);
+      AsyncCall.WaitForPhysics(
+          this, 6, () => false,  // Use all the frames for the waiting.
+          failure: () => {
+            colliders
+                .Where(c => c != null)  // Some colliders could get destroyed during the wait.
+                .ToList().ForEach(c => c.isTrigger = false);
+            if (isLinked) {
+              Colliders.SetCollisionIgnores(linkSource.part, linkTarget.part.vessel, true);
+            }
+          });
+    } else {
+      Colliders.SetCollisionIgnores(linkSource.part, linkTarget.part.vessel, false);
+    }
+  }
+
+  /// <summary>Triggers when a vessel is changed.</summary>
+  /// <remarks>
+  /// If the affected vessel is the owber of the joint part, then update its colliders.
+  /// </remarks>
+  /// <param name="v">The vessel that changed.</param>
+  void OnVesselWasModified(Vessel v) {
+    if (vessel == v && isLinked) {
+      SetCollisionIgnores(linkTarget.part.vessel != linkSource.part.vessel);
     }
   }
   #endregion

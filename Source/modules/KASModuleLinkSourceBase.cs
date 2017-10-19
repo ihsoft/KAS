@@ -133,27 +133,6 @@ public class KASModuleLinkSourceBase : PartModule,
   public ILinkTarget linkTarget {
     get { return _linkTarget; }
     private set {
-      if (_linkTarget != value) {
-        if (value != null && value.part.vessel != vessel) {
-          // Set ignores on the new target part. It takes some time for the vessel to settle down.
-          // To be on a safe side, disable the physical effects of the colliders. In the game's core
-          // it's hardcoded to wait for 3 fixed frames before kicking in the physics. So we wait 6!
-          var colliders = gameObject.GetComponentsInChildren<Collider>()
-              .Where(c => !c.isTrigger)
-              .ToList();
-          colliders.ForEach(x => x.isTrigger = true);
-          AsyncCall.WaitForPhysics(
-              this, 6, () => false,  // Use all the frames for the waiting.
-              failure: () => {
-                colliders.ForEach(c => c.isTrigger = false);
-                Colliders.SetCollisionIgnores(part, value.part, true);
-              });
-        }
-        if (_linkTarget != null && _linkTarget.part.vessel != vessel) {
-          // Reset ignores on the old target part.
-          Colliders.SetCollisionIgnores(part, _linkTarget.part, false);
-        }
-      }
       _linkTarget = value;
       persistedLinkTargetPartId = value != null ? value.part.flightID : 0;
     }

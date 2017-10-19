@@ -118,7 +118,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " linked parts into two different vessels if they are coupled thru this joint. At the same"
       + " time, the name of the event gives a currently selected state.")]
   public void UndockVesselsContextMenuAction() {
-    linkJoint.SetCoupleOnLinkMode(false, LinkActorType.Player);
+    linkJoint.SetCoupleOnLinkMode(false);
     UpdateContextMenu();
   }
 
@@ -131,7 +131,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
       + " gives a currently selected state.")]
   public void DockVesselsContextMenuAction() {
-    linkJoint.SetCoupleOnLinkMode(true, LinkActorType.Player);
+    linkJoint.SetCoupleOnLinkMode(true);
     UpdateContextMenu();
   }
   #endregion

@@ -85,15 +85,14 @@ public interface ILinkJoint {
 
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
-  /// If the link is established, then a re-linking event occurs regardless to the current state.
-  /// I.e. the source and target are first get unlinked, and then immediately linked back in the new
-  /// mode. If the link is not established, then the mode changes on the source without side
-  /// effects.
+  /// If the new mode is "coupling", and the source and the target vessels are different, then a
+  /// coupling action will trigger. If the new mode is "don't couple", and the source and the target
+  /// parts are coupled, then a decoupling event is triggered. In all the other cases it's just a
+  /// boolean property change.
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
-  /// <param name="actor">The actor who initiated the change.</param>
   /// <seealso cref="coupleOnLinkMode"/>
-  void SetCoupleOnLinkMode(bool isCoupleOnLink, LinkActorType actor);
+  void SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible

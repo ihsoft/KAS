@@ -101,13 +101,6 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   }
   #endregion
 
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
-  }
-  #endregion
-
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
@@ -116,6 +109,12 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   #endregion
 
   #region ILinkJoint overrides
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
+  }
+
   /// <inheritdoc/>
   protected override void AttachParts() {
     // Explicitly not calling the base since it would create a rigid joint!
