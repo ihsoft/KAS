@@ -123,9 +123,6 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
-
-  /// <inheritdoc/>
-  public string cfgLinkRendererName { get { return linkRendererName; } }
   #endregion
 
   #region ILinkSource properties implementation
@@ -167,21 +164,28 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <inheritdoc/>
+  public bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
+
+  /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
   public Transform physicalAnchorTransform { get; private set; }
 
   /// <inheritdoc/>
-  public GUILinkMode guiLinkMode { get; private set; }
-
-  /// <inheritdoc/>
-  public LinkActorType linkActor { get; private set; }
-
-  /// <inheritdoc/>
   public Vector3 targetPhysicalAnchor {
     get { return physicalAnchorAtTarget; }
   }
+
+  /// <inheritdoc/>
+  /// <seealso cref="jointName"/>
+  public ILinkJoint linkJoint { get; private set; }
+
+  /// <inheritdoc/>
+  /// <seealso cref="linkRendererName"/>
+  public ILinkRenderer linkRenderer { get; private set; }
   #endregion
 
   #region Persistent fields
@@ -207,7 +211,16 @@ public class KASModuleLinkSourceBase : PartModule,
   [KSPField]
   public LinkMode linkMode = LinkMode.TieAnyParts;
 
-  /// <summary>See <see cref="cfgLinkRendererName"/>.</summary>
+  /// <summary>Name of the renderer that draws the link.</summary>
+  /// <value>Arbitrary string. Can be empty.</value>
+  /// <remarks>
+  /// The source will find a renderer module using this name as a key. It will be used to draw the
+  /// link when connected to the target. The behavior is undefined if there is no renderer found on
+  /// the part.
+  /// </remarks>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <seealso cref="linkRenderer"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkRendererName = "";
@@ -254,19 +267,21 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Joint module that manages a physical link.</summary>
-  /// <value>The physical joint module on the part.</value>
-  protected ILinkJoint linkJoint { get; private set; }
+  /// <summary>Mode in which a link between the source and target is being created.</summary>
+  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
+  /// <value>The GUI mode.</value>
+  /// <seealso cref="StartLinking"/>
+  /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  protected GUILinkMode guiLinkMode { get; private set; }
 
-  /// <summary>Renderer of the link meshes.</summary>
-  /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
-  protected ILinkRenderer linkRenderer { get; private set; }
-
-  /// <summary>Tells if this source is currectly linked with a target.</summary>
-  /// <value>The current state of the link.</value>
-  protected bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
+  /// <summary>Actor, who has initiated the link.</summary>
+  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
+  /// <value>The actor.</value>
+  /// <seealso cref="StartLinking"/>
+  /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  protected LinkActorType linkActor { get; private set; }
 
   /// <summary>
   /// State machine that controls the source state tranistions and defines the reaction on these

@@ -26,7 +26,7 @@ class LinkUtilsImpl : ILinkUtils {
     if (target.linkSourcePartId > 0) {
       var sourcePart = FlightGlobals.FindPartByID(target.linkSourcePartId);
       return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
-          s => s.linkState == LinkState.Linked && s.linkTargetPartId == target.part.flightID);
+          s => s.isLinked && s.linkTargetPartId == target.part.flightID);
     }
     return null;
   }

@@ -371,7 +371,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
   protected bool isLinked {
-    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
+    get { return linkSource != null && linkSource.isLinked; }
   }
 
   /// <summary>A link source module that operates on this part. There can be only one.</summary>
@@ -396,8 +396,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
+    //FIXME: it's a bad approach since the module can be used by multiple links 
     linkSource = part.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(x => x.cfgLinkRendererName == rendererName);
+        .FirstOrDefault(x => x.linkRenderer.cfgRendererName == rendererName);
     UpdateContextMenu();
     UpdateLinkLengthAndOrientation();
   }

@@ -55,8 +55,8 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   string cfgLinkType { get; }
 
-  /// <summary>Defines the link's effect on the vessel(s) hierarchy.</summary>
-  /// <value>Linking mode.</value>
+  /// <summary>Defines to what parts this source can link to.</summary>
+  /// <value>The linking mode.</value>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   LinkMode cfgLinkMode { get; }
   
@@ -75,18 +75,6 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectNodes"/></example>
   // TODO(ihsoft): Give examples with the different scale models.
   string cfgAttachNodeName { get; }
-
-  /// <summary>Name of the renderer that draws the link.</summary>
-  /// <value>Arbitrary string. Can be empty.</value>
-  /// <remarks>
-  /// The source will find a renderer module using this name as a key. It will be used to draw the
-  /// link when connected to the target. The behavior is undefined if there is no renderer found on
-  /// the part.
-  /// </remarks>
-  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
-  // TODO(ihsoft): Deprecate in favor of linkRenderer
-  string cfgLinkRendererName { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <remarks>
@@ -120,11 +108,10 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   ILinkTarget linkTarget { get; }
 
-  /// <summary>ID of the linked target part.</summary>
+  /// <summary>The persisted ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
-  /// <remarks>It only defined for an established link.</remarks>
+  /// <remarks>This value must be availabe during the vessel loading.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  /// TODO(ihsoft): Deprecate. One an get the ID from the target part.
   uint linkTargetPartId { get; }
 
   /// <summary>Current state of the source.</summary>
@@ -212,21 +199,12 @@ public interface ILinkSource {
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="HighlightLocked"/></example>
   bool isLocked { get; set; }
 
-  /// <summary>Mode in which a link between the source and target is being created.</summary>
-  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
-  /// <value>The GUI mode.</value>
-  /// <seealso cref="StartLinking"/>
-  /// <seealso cref="linkState"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  GUILinkMode guiLinkMode { get; }
-
-  /// <summary>Actor, who has initiated the link.</summary>
-  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
-  /// <value>The actor.</value>
-  /// <seealso cref="StartLinking"/>
-  /// <seealso cref="linkState"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  LinkActorType linkActor { get; }
+  /// <summary>Tells if this source is currectly linked with a target.</summary>
+  /// <remarks>
+  /// This is, basically, a shortcut to check the link state for the availabe state(s).
+  /// </remarks>
+  /// <value>The current state of the link.</value>
+  bool isLinked { get; }
 
   /// <summary>Position offset of the physical joint anchor at the target.</summary>
   /// <remarks>
@@ -244,6 +222,15 @@ public interface ILinkSource {
   /// </value>
   Vector3 targetPhysicalAnchor { get; }
 
+  /// <summary>Joint module that manages a physical link.</summary>
+  /// <value>The physical joint module on the part.</value>
+  ILinkJoint linkJoint { get; }
+
+  /// <summary>Renderer of the link meshes.</summary>
+  /// <value>The renderer that represents the link.</value>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
+  ILinkRenderer linkRenderer { get; }
+
   /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
   /// <para>
@@ -258,7 +245,6 @@ public interface ILinkSource {
   /// </param>
   /// <param name="actor">Specifies how the action has been initiated.</param>
   /// <returns><c>true</c> if the mode has successfully started.</returns>
-  /// <seealso cref="guiLinkMode"/>
   /// <seealso cref="CancelLinking"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool StartLinking(GUILinkMode mode, LinkActorType actor);
