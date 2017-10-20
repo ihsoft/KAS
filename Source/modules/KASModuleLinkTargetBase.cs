@@ -119,6 +119,11 @@ public class KASModuleLinkTargetBase :
   }
 
   /// <inheritdoc/>
+  public bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
+
+  /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
@@ -232,12 +237,6 @@ public class KASModuleLinkTargetBase :
   /// actions may get triggered in an inappropriate moment.
   /// </remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
-
-  /// <summary>Tells if this source is currectly linked with a target.</summary>
-  /// <value>The current state of the link.</value>
-  protected bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
 
   #region PartModule overrides
   /// <inheritdoc/>
@@ -516,7 +515,7 @@ public class KASModuleLinkTargetBase :
     }
     return FlightGlobals.ActiveVessel
         .FindPartModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.linkState == LinkState.Linked && t.cfgLinkType == cfgLinkType);
+        .FirstOrDefault(t => t.isLinked && t.cfgLinkType == cfgLinkType);
   }
 
   /// <summary>Sets the highlighter state on the part.</summary>

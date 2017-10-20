@@ -97,6 +97,10 @@ public interface ILinkTarget {
   /// <value>Flight ID.</value>
   uint linkSourcePartId { get; }
 
+  /// <summary>Tells if this target is currectly linked with a source.</summary>
+  /// <value>The current state of the link.</value>
+  bool isLinked { get; }
+
   /// <summary>Current state of the target.</summary>
   /// <value>The current state.</value>
   /// <remarks>
