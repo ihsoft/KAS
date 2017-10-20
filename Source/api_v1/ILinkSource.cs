@@ -110,7 +110,7 @@ public interface ILinkSource {
 
   /// <summary>The persisted ID of the linked target part.</summary>
   /// <value>Flight ID.</value>
-  /// <remarks>This value must be availabe during the vessel loading.</remarks>
+  /// <remarks>This value must be available during the vessel loading.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   uint linkTargetPartId { get; }
 

@@ -92,7 +92,8 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>
   ILinkSource linkSource { get; set; }
 
-  /// <summary>ID of the linked source part.</summary>
+  /// <summary>The persisted ID of the linked source part.</summary>
+  /// <remarks>This value must be available during the vessel loading.</remarks>
   /// <value>Flight ID.</value>
   uint linkSourcePartId { get; }
 
