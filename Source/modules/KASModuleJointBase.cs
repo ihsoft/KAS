@@ -391,9 +391,11 @@ public class KASModuleJointBase : PartModule,
   public virtual void DropJoint() {
     if (isLinked) {
       if (isCoupled) {
-        DecoupleParts();
         //FIXME: move into the modified vessel callback, and will happen on decouple
-        AsyncCall.CallOnEndOfFrame(this, MaybeDelegateCouplingRole);
+        var srcVessel = linkSource.part.vessel;  // Save for the lambda.
+        DecoupleParts();
+        var tgtVessel = linkTarget.part.vessel;  // Save for the lambda.
+        AsyncCall.CallOnEndOfFrame(this, () => MaybeDelegateCouplingRole(srcVessel, tgtVessel));
       } else {
         DetachParts();
         SetCollisionIgnores(false);
@@ -446,7 +448,8 @@ public class KASModuleJointBase : PartModule,
       coupleOnLinkMode = isCoupleOnLink;
       AttachParts();
       //FIXME: move into the modified vessel callback, and will happen on decouple
-      AsyncCall.CallOnEndOfFrame(this, MaybeDelegateCouplingRole);
+      AsyncCall.CallOnEndOfFrame(
+          this, () => MaybeDelegateCouplingRole(linkSource.part.vessel, linkTarget.part.vessel));
     } else {
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
@@ -748,23 +751,26 @@ public class KASModuleJointBase : PartModule,
   /// Checks if there is another joint that can couple the vessels, and lets it doing so.
   /// </summary>
   /// <remarks>
-  /// This method must be called only when the source and the target parts are not coupled. And
-  /// it's best not to call it from a callback or an event handler to not interfere with the game's
-  /// logic.
+  /// It's best not to call it from a callback or an event handler to not interfere with the game's
+  /// logic. This method may be called when the parts are unlinked, and that's why the source and
+  /// target vessels are parameters.
   /// </remarks>
-  void MaybeDelegateCouplingRole() {
-    var srcVessel = linkSource.part.vessel;
-    var tgtVessel = linkTarget.part.vessel;
-    var linkCandidate = srcVessel.parts
-        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>()
-            .Where(j => j.isLinked && j.coupleOnLinkMode))
-        .FirstOrDefault(x =>
-            x.linkSource.part.vessel == srcVessel && x.linkTarget.part.vessel == tgtVessel
-            || x.linkSource.part.vessel == tgtVessel && x.linkTarget.part.vessel == srcVessel);
-    HostedDebugLog.Info(this, "Delegate the coupling role to: {0}", linkCandidate);
-    if (linkCandidate != null) {
-      // Make the new candidate to take the ownership over the link.
-      linkCandidate.SetCoupleOnLinkMode(true);
+  /// <param name="srcVessel">The vessel that owns the link source.</param>
+  /// <param name="tgtVessel">The vessel that owns the link target.</param>
+  void MaybeDelegateCouplingRole(Vessel srcVessel, Vessel tgtVessel) {
+    var srcCandidates = srcVessel.parts
+        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
+        .Where(j => !ReferenceEquals(j, this) && j.isLinked && j.coupleOnLinkMode
+             && j.linkTarget.part.vessel == tgtVessel);
+    var tgtCandidates = tgtVessel.parts
+        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
+        .Where(j => j.isLinked && j.coupleOnLinkMode
+             && j.linkTarget.part.vessel == srcVessel);
+    var newJointOwner = srcCandidates.Union(tgtCandidates).FirstOrDefault();
+    if (newJointOwner != null) {
+      // Tell the new candidate to take the ownership over the link.
+      HostedDebugLog.Info(this, "Delegate the coupling role to: {0}", newJointOwner);
+      newJointOwner.SetCoupleOnLinkMode(true);
     }
   }
 
