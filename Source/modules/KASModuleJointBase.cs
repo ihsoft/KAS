@@ -745,7 +745,7 @@ public class KASModuleJointBase : PartModule,
 
   #region Local utility methods
   /// <summary>
-  /// Checks if there is another link that can couple the parts, and lets it doing so.
+  /// Checks if there is another joint that can couple the vessels, and lets it doing so.
   /// </summary>
   /// <remarks>
   /// This method must be called only when the source and the target parts are not coupled. And

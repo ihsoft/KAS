@@ -281,24 +281,22 @@ public interface ILinkSource {
 
   /// <summary>Breaks the link between the source and the target.</summary>
   /// <remarks>
-  /// <para>
   /// It must not be called from the physics update methods (e.g. <c>FixedUpdate</c> or
   /// <c>OnJointBreak</c>) since the link's physical objects may be deleted immediately. If the link
   /// needs to be broken from these methods, use a coroutine to postpone the call till the end of
   /// the frame.
-  /// </para>
-  /// <para>Does nothing if there is no link but a warning will be logged in this case.</para>
   /// </remarks>
   /// <param name="actorType">
-  /// Specifies what initiates the action. The final result of the action doesn't depend on it but
-  /// visual and sound representation may differ for the different actors.
+  /// Specifies what initiates the action. The final result of the action doesn't depend on it, but
+  /// the visual and sound representations may differ for the different actors.
   /// </param>
   /// <param name="moveFocusOnTarget">
-  /// Tells what to do when the link is being borken on an active vessel: upon the separation, the
-  /// vessel on either the source or the target part will get the focus. If the link doesn't belong
-  /// to the active vessel, then the focus is not affected. If this parameter is <c>true</c>, then
-  /// upon the decoupling, the vessel focus will be set on the vessel that owns the link's
-  /// <i>target</i>. Otherwise, the focus will be set to the source part vessel.
+  /// Tells what to do when the link is being broken on an active vessel: upon the separation, the
+  /// vessel on either the source or the target part may get the focus. If the link doesn't belong
+  /// to the active vessel at the moment of breaking, then the focus is not affected. If this
+  /// parameter is <c>true</c>, then upon the decoupling, the vessel focus will be set on the vessel
+  /// that owns the link's <i>target</i>. Otherwise, the focus will be set to the source part
+  /// vessel.
   /// </param>
   /// <seealso cref="LinkToTarget"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>

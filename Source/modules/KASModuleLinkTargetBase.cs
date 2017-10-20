@@ -516,7 +516,7 @@ public class KASModuleLinkTargetBase :
     }
     return FlightGlobals.ActiveVessel
         .FindPartModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+        .FirstOrDefault(t => t.linkState == LinkState.Linked && t.cfgLinkType == cfgLinkType);
   }
 
   /// <summary>Sets the highlighter state on the part.</summary>
