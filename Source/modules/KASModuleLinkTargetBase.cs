@@ -96,7 +96,7 @@ public class KASModuleLinkTargetBase :
   public uint linkSourcePartId { get { return persistedLinkSourcePartId; } }
 
   /// <inheritdoc/>
-  public virtual LinkState linkState {
+  public LinkState linkState {
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
@@ -109,7 +109,7 @@ public class KASModuleLinkTargetBase :
   }
 
   /// <inheritdoc/>
-  public virtual bool isLocked {
+  public bool isLocked {
     get { return linkState == LinkState.Locked; }
     set {
       if (value != isLocked) {
