@@ -439,7 +439,6 @@ public class KASModuleJointBase : PartModule,
     if (isCoupleOnLink && linkSource.part.vessel != linkTarget.part.vessel) {
       // Couple the parts, and drop the other link(s).
       DetachParts();
-      SetCollisionIgnores(false);
       coupleOnLinkMode = isCoupleOnLink;
       CoupleParts();
     } else if (!isCoupleOnLink && isCoupled) {
