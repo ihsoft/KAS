@@ -32,8 +32,8 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode,
-                                      bool toDominantVessel = false) {
+  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
+                          bool toDominantVessel = false) {
     if (toDominantVessel) {
       var dominantVessel =
           Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
@@ -49,10 +49,6 @@ class LinkUtilsImpl : ILinkUtils {
     var tgtVessel = tgtPart.vessel;
     DebugEx.Fine("Couple {0} to {1}", srcPart, tgtPart);
 
-    var vesselInfo = new DockedVesselInfo();
-    vesselInfo.name = srcVessel.vesselName;
-    vesselInfo.vesselType = srcVessel.vesselType;
-    vesselInfo.rootPartUId = srcVessel.rootPart.flightID;
 
     sourceNode.attachedPart = tgtPart;
     sourceNode.attachedPartId = tgtPart.flightID;
@@ -71,7 +67,7 @@ class LinkUtilsImpl : ILinkUtils {
       FlightInputHandler.SetNeutralControls();
     }
 
-    return vesselInfo;
+    return srcPart;
   }
 
   /// <inheritdoc/>

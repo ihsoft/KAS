@@ -56,9 +56,10 @@ public interface ILinkUtils {
   /// significant vessel of the two, and couple it with the <i>most</i> significant one. The least
   /// signficant vessel will be destroyed.
   /// </param>
-  /// <returns>The info of the vessel that was destroyed on couple.</returns>
-  DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode,
-                               bool toDominantVessel = false);
+  /// <returns>The part that atatched as a child into the new hierarchy.</returns>
+  /// <seealso cref="ILinkVesselInfo"/>
+  Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
+                   bool toDominantVessel = false);
 
   /// <summary>Decouples the connected parts and breaks down one vessel into two.</summary>
   /// <param name="part1">
