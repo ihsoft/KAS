@@ -391,11 +391,7 @@ public class KASModuleJointBase : PartModule,
   public virtual void DropJoint() {
     if (isLinked) {
       if (isCoupled) {
-        //FIXME: move into the modified vessel callback, and will happen on decouple
-        var srcVessel = linkSource.part.vessel;  // Save for the lambda.
         DecoupleParts();
-        var tgtVessel = linkTarget.part.vessel;  // Save for the lambda.
-        AsyncCall.CallOnEndOfFrame(this, () => MaybeDelegateCouplingRole(srcVessel, tgtVessel));
       } else {
         DetachParts();
         SetCollisionIgnores(false);
@@ -446,9 +442,6 @@ public class KASModuleJointBase : PartModule,
       DecoupleParts();
       coupleOnLinkMode = isCoupleOnLink;
       AttachParts();
-      //FIXME: move into the modified vessel callback, and will happen on decouple
-      AsyncCall.CallOnEndOfFrame(
-          this, () => MaybeDelegateCouplingRole(linkSource.part.vessel, linkTarget.part.vessel));
     } else {
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
@@ -818,8 +811,21 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <param name="v">The vessel that changed.</param>
   void OnVesselWasModified(Vessel v) {
-    if (vessel == v && isLinked) {
-      SetCollisionIgnores(linkTarget.part.vessel != linkSource.part.vessel);
+    if (!isLinked || vessel != v) {
+      return;  // Nothing to do.
+    }
+    // Adjust the colliders on the part in case of the parts are not coupled.
+    SetCollisionIgnores(linkTarget.part.vessel != linkSource.part.vessel);
+    // Try taking the coupling role if this part can do it. 
+    if (coupleOnLinkMode && linkSource.part.vessel != linkTarget.part.vessel) {
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        // Double check if the conditions haven't changed. They can, in case of this part is being
+        // unklinked or another joint taking the role.
+        if (isLinked && coupleOnLinkMode && linkSource.part.vessel != linkTarget.part.vessel) {
+          HostedDebugLog.Info(this, "Taking the coupling role to: {0}", linkTarget.part.vessel);
+          SetCoupleOnLinkMode(true);  // Kick the coupling logic.
+        }
+      });
     }
   }
   #endregion
