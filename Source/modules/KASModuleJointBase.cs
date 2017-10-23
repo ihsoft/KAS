@@ -318,10 +318,14 @@ public class KASModuleJointBase : PartModule,
         customJoints.ForEach(UnityEngine.Object.Destroy);
         customJoints = null;
       }
-      var srcPart = linkSource.part;
-      var tgtPart = linkTarget.part;
-      KASAPI.AttachNodesUtils.DropAttachNode(srcPart, linkSource.cfgAttachNodeName);
-      KASAPI.AttachNodesUtils.DropAttachNode(tgtPart, linkTarget.cfgAttachNodeName);
+      // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
+      // they will be null'ed on the link destrcution.
+      var source = linkSource;
+      var target = linkTarget;
+      AsyncCall.CallOnEndOfFrame(this, () => {
+          KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
+          KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
+      });
       if (!selfDecoupledAction) {
         linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
