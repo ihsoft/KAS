@@ -561,7 +561,6 @@ public class KASModuleJointBase : PartModule,
     var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
         linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform);
     SetupAttachNode(srcNode, isSource: false);
-    // TODO(ihsoft): Store the vessel info into the source.
     KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
   }
 

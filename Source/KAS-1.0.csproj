@@ -122,6 +122,7 @@
     <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
     <Compile Include="modules\KASModulePipeRenderer.cs" />
     <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
+    <Compile Include="modules\KASModuleVesselInfo.cs" />
     <Compile Include="modules\KASModuleWinchNew.cs" />
     <Compile Include="modules\KSPDev_candidates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
