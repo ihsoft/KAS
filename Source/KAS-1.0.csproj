@@ -97,6 +97,7 @@
     <Compile Include="api_v1\ILinkStateEventListener.cs" />
     <Compile Include="api_v1\ILinkTarget.cs" />
     <Compile Include="api_v1\IKasPropertyChangeListener.cs" />
+    <Compile Include="api_v1\ILinkVesselInfo.cs" />
     <Compile Include="api_v1\KASAPI.cs" />
     <Compile Include="api_v1\KASEvents.cs" />
     <Compile Include="api_v1\LinkActorType.cs" />
