@@ -39,9 +39,15 @@ public interface ILinkUtils {
 
   /// <summary>Couples two parts together given they belong to the different vessels.</summary>
   /// <remarks>
+  /// <para>
   /// Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
   /// other vessel. The new merged vessel will become active. Which vessel will be destroyed is
   /// determined by the <paramref name="toDominantVessel"/> parameter.
+  /// </para>
+  /// <para>
+  /// If the source or target parts has a <see cref="ILinkVesselInfo"/> module, then them will be
+  /// updated accordingly.
+  /// </para>
   /// </remarks>
   /// <para>The attach nodes must have a valid <c>owner</c> set.</para>
   /// <param name="sourceNode">
@@ -62,6 +68,10 @@ public interface ILinkUtils {
                    bool toDominantVessel = false);
 
   /// <summary>Decouples the connected parts and breaks down one vessel into two.</summary>
+  /// <remarks>
+  /// If the part, being decoupled, have a <see cref="ILinkVesselInfo"/> module with a non-null
+  /// vessel info, then this information will be used to restore the decoupled vessel state.
+  /// </remarks>
   /// <param name="part1">
   /// The first part of the connection. It must be a direct parent or a child of the
   /// <paramref name="part2"/>.
@@ -71,6 +81,7 @@ public interface ILinkUtils {
   /// <paramref name="part1"/>.
   /// </param>
   /// <returns>The child part that has decoupled from the owner vessel.</returns>
+  /// <seealso cref="ILinkVesselInfo"/>
   Part DecoupleParts(Part part1, Part part2);
 }
 
