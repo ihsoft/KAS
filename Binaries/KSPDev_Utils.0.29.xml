@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.28</name>
+        <name>KSPDev_Utils.0.29</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1226,7 +1226,7 @@
         <member name="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Object)">
             <inheritdoc cref="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Type)"/>
         </member>
-        <member name="M:KSPDev.FSUtils.KspPaths.GetModsDataFilePath(System.Object,System.String,System.Boolean)">
+        <member name="M:KSPDev.FSUtils.KspPaths.GetModsDataFilePath(System.Object,System.String,System.Boolean,System.String)">
             <summary>Returns a relative game's path to the file located in the data folder.</summary>
             <param name="obj">The object instance to use to resolve the mod's assembly.</param>
             <param name="fileName">The data file name.</param>
@@ -1234,6 +1234,7 @@
             Instructs the method to create all the directories and subdirectories in the specified path,
             should they not already exist.
             </param>
+            <param name="subFolder">The optional sub-folder name to add to the path.</param>
             <returns>An absolute path.</returns>
         </member>
         <member name="P:KSPDev.FSUtils.KspPaths.pluginsRoot">
@@ -1310,39 +1311,29 @@
         </member>
         <member name="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage">
             <summary>Message to return when the requested key is not found.</summary>
-            <seealso cref="F:KSPDev.GUIUtils.MessageLookup`1.stockDefaultMessage"/>
-        </member>
-        <member name="F:KSPDev.GUIUtils.MessageLookup`1.stockDefaultMessage">
-            <summary>Default message to return when the requested key is not found.</summary>
-            <seealso cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/>
         </member>
         <member name="M:KSPDev.GUIUtils.MessageLookup`1.#ctor(System.Collections.Generic.Dictionary{`0,KSPDev.GUIUtils.Message},KSPDev.GUIUtils.Message)">
             <summary>Constructs a lookup from the provided dictionary.</summary>
             <remarks>
             It's encouraged to construct the dictionary from a statically defined messages instead of
-            creating them in place. The <c>LocalizationTool</c> cann only find the static messages.
+            creating them in place. The <c>LocalizationTool</c> can only find the static messages.
             </remarks>
             <param name="initDict">
             The dictionary to use as the lookup. If <c>null</c> when a new empty dictionary will be
             created for <see cref="F:KSPDev.GUIUtils.MessageLookup`1.messages"/>.
             </param>
             <param name="defaultMessage">
-            The message to return from the <see cref="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0,System.Boolean)"/> method when no key found. If omitted then
-            the non-localizable  <see cref="F:KSPDev.GUIUtils.MessageLookup`1.stockDefaultMessage"/> will be returned.
+            The message to return from the <see cref="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0)"/> method when no key found.
             </param>
-            <seealso cref="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0,System.Boolean)"/>
+            <seealso cref="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0)"/>
             <example><code source="Examples/GUIUtils/MessageLookup-Examples.cs" region="MessageLookupDemo_Simple"/></example>
         </member>
-        <member name="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0,System.Boolean)">
-            <summary>Find and return a message for the provided key.</summary>
+        <member name="M:KSPDev.GUIUtils.MessageLookup`1.Lookup(`0)">
+            <summary>Finds and returns a message for the provided key.</summary>
             <param name="key">The key to find a message for.</param>
-            <param name="noDefault">
-            If <c>true</c> and no key was found, then <c>null</c> is returned instead of the
-            <see cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/>.
-            </param>
             <returns>
-            The relevant message if the <paramref name="key"/> is found. Otherwise, the
-            <see cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/> or <c>null</c>.
+            The relevant message if the <paramref name="key"/> is found. Otherwise, either the
+            <see cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/> or a string represenation of the key. It's never <c>null</c>. 
             </returns>
             <example><code source="Examples/GUIUtils/MessageLookup-Examples.cs" region="MessageLookupDemo_WithDefault"/></example>
             <example><code source="Examples/GUIUtils/MessageLookup-Examples.cs" region="MessageLookupDemo_WithStockDefault"/></example>
@@ -3866,28 +3857,106 @@
             <param name="nullStr">A string to present when the value is <c>null</c>.</param>
             <returns>The content of a non-null value or <paramref name="nullStr"/>.</returns>
         </member>
+        <member name="T:KSPDev.LogUtils.DebugEx">
+            <summary>An extended version of the logging capabilities in the game.</summary>
+            <remarks>
+            One of the benefit of this logging class is that it can better resolve the arguments of the
+            certain types. E.g. when logging out a value referring a <see cref="T:UnityEngine.Transform"/> type, the
+            resulted record will represent a full hierrachy path instead of just the object name. See
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/> for the full list of the supported types.
+            </remarks>
+            <seealso cref="T:KSPDev.LogUtils.HostedDebugLog"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.Info(System.String,System.Object[])">
+            <summary>
+            Logs a formatted INFO message giving a better context on the objects in the parameters.
+            </summary>
+            <remarks>
+            The arguments are not just transformed into the strings by using their <c>ToString</c> method.
+            Instead, this method tries to make a best guess of what the object is, and gives more context
+            when possible. Read the full list of the supported objects in the
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/> method docs.
+            </remarks>
+            <param name="format">The format string for the log message.</param>
+            <param name="args">The arguments for the format string.</param>
+            <seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/>
+            <seealso cref="M:KSPDev.LogUtils.DebugEx.Log(UnityEngine.LogType,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.Fine(System.String,System.Object[])">
+            <summary>
+            Logs a formatted INFO message with a host identifier when the <i>verbose</i> logging mode is
+            enabled.
+            </summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.DebugEx.Info(System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.Warning(System.String,System.Object[])">
+            <summary>Logs a formatted WARNING message with a host identifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.DebugEx.Info(System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.Error(System.String,System.Object[])">
+            <summary>Logs a formatted ERROR message with a host identifier.</summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.DebugEx.Info(System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.Log(UnityEngine.LogType,System.String,System.Object[])">
+            <summary>Generic method to emit a log record.</summary>
+            <remarks>
+            It also catches the improperly declared formatting strings, and reports the error instead of
+            throwing.
+            </remarks>
+            <param name="type">The type of the log record.</param>
+            <param name="format">The format string for the log message.</param>
+            <param name="args">The arguments for the format string.</param>
+            <seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)">
+            <summary>Helper method to make a user friendly object name for the logs.</summary>
+            <remarks>
+            This method is much more intelligent than a regular <c>ToString()</c>, it can detect some
+            common types and give a more context on them while keeping the output short. The currently
+            supported object types are:
+            <list type="bullet">
+            <item>The primitive types and strings are returned as is.</item>
+            <item><see cref="T:Part"/>. The string will have a part ID.</item>
+            <item><see cref="T:PartModule"/>. The string will have a part ID and a module index.</item>
+            <item>
+            <see cref="T:UnityEngine.Component"/>. The string will have a full path in the game objects hirerachy.
+            </item>
+            </list>
+            <para>The other types are stringified via a regular <c>ToString()</c> call.</para>
+            </remarks>
+            <param name="obj">The object to stringify. It can be <c>null</c>.</param>
+            <returns>A human friendly string or the original object.</returns>
+            <item name="T:Part">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
+</item>
+            <item name="T:PartModule">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule</seealso>
+</item>
+            <item name="T:UnityEngine.Transform">
+  <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
+</item>
+            <item name="T:UnityEngine.GameObject">
+  <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">Untiy3D: GameObject</seealso>
+</item>
+        </member>
         <member name="T:KSPDev.LogUtils.HostedDebugLog">
             <summary>Helper class to log a record which is bound to a specific object.</summary>
             <remarks>
             <para>
-            It may be useful when there are situations that relate to a specific instance of the commong
-            KSP objects. Like <see cref="T:Part"/>, <see cref="T:PartModule"/>, <see cref="T:UnityEngine.Transform"/>, etc.
-            With the hosted logging there will be no need to manually designate for which object the
+            It may be useful when there are situations that relate to a specific instance of a common
+            KSP object. Like <see cref="T:Part"/>, <see cref="T:PartModule"/>, <see cref="T:UnityEngine.Transform"/>, etc.
+            With the hosted logging, there will be no need to manually designate for which object the
             record is being logged.
             </para>
             <para>
-            Another benefit of this logging class is that it can better resolve the aruments of certain
+            Another benefit of this logging class is that it can better resolve the arguments of the certain
             types. E.g. when logging out a value referring a <see cref="T:UnityEngine.Transform"/> type, the resulted
             record will represent a full hierrachy path instead of just the object name. See
-            <see cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/> for the full list of the supported types.
-            </para>
-            <para>
-            This class has many methods that do exactly the same stuff. They are added for the sake of
-            better type checking to eliminate the case when the call has no host object provided.
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/> for the full list of the supported types.
             </para>
             </remarks>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
-            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
+            <seealso cref="T:KSPDev.LogUtils.DebugEx"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])">
             <summary>Logs a formatted INFO message with a host identifier.</summary>
@@ -3897,13 +3966,26 @@
             <param name="format">The format string for the log message.</param>
             <param name="args">The arguments for the format string.</param>
             <example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1"/></example>
-            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
+            <seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/>
             <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(PartModule,System.String,System.Object[])">
             <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Info(UnityEngine.Transform,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(Part,System.String,System.Object[])">
+            <summary>
+            Logs a formatted INFO message with a host identifier when the <i>verbose</i> logging mode is
+            enabled.
+            </summary>
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(PartModule,System.String,System.Object[])">
+            <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
+        </member>
+        <member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(UnityEngine.Transform,System.String,System.Object[])">
             <inheritdoc cref="M:KSPDev.LogUtils.HostedDebugLog.Info(Part,System.String,System.Object[])"/>
         </member>
         <member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(Part,System.String,System.Object[])">
@@ -3934,38 +4016,7 @@
             </param>
             <param name="format">The format string for the log message.</param>
             <param name="args">The arguments for the format string.</param>
-            <seealso cref="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)"/>
-        </member>
-        <member name="M:KSPDev.LogUtils.HostedDebugLog.ObjectToString(System.Object)">
-            <summary>Helper method to make a user friendly object name for the logs.</summary>
-            <remarks>
-            This method is much more intelligent than a regular <c>ToString()</c>, it can detect some
-            common types and give a more context on them while keeping the output short. The currently
-            supported object types are:
-            <list type="bullet">
-            <item>The primitive types and strings are returned as is.</item>
-            <item><see cref="T:Part"/>. The string will have a part ID.</item>
-            <item><see cref="T:PartModule"/>. The string will have a part ID and a module index.</item>
-            <item>
-            <see cref="T:UnityEngine.Component"/>. The string will have a full path in the game objects hirerachy.
-            </item>
-            </list>
-            <para>The other types are stringified via a regular <c>ToString()</c> call.</para>
-            </remarks>
-            <param name="obj">The object to stringify. It can be <c>null</c>.</param>
-            <returns>A human friendly string or the original object.</returns>
-            <item name="T:Part">
-  <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
-</item>
-            <item name="T:PartModule">
-  <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule</seealso>
-</item>
-            <item name="T:UnityEngine.Transform">
-  <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
-</item>
-            <item name="T:UnityEngine.GameObject">
-  <seealso href="https://docs.unity3d.com/ScriptReference/GameObject.html">Untiy3D: GameObject</seealso>
-</item>
+            <seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/>
         </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
             <summary>Helper methods to align transformations relative to each other.</summary>
@@ -4079,6 +4130,12 @@
             Unity3D: Collider</seealso>
             <seealso href="https://docs.unity3d.com/ScriptReference/Physics.IgnoreCollision.html">
             Unity3D: Physics.IgnoreCollision</seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.SetCollisionIgnores(Part,Vessel,System.Boolean)">
+            <summary>Disables/enables all the collidres between the part and a vessel.</summary>
+            <param name="part">The part to adjust colliders for.</param>
+            <param name="vessel">The vessel to start/stop colliding with.</param>
+            <param name="ignore">The desired state of the collision check.</param>
         </member>
         <member name="T:KSPDev.ModelUtils.Colliders.PrimitiveCollider">
             <summary>Defines how collisions should be checked on a primitive.</summary>
