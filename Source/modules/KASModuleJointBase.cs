@@ -318,17 +318,7 @@ public class KASModuleJointBase : PartModule,
         customJoints.ForEach(UnityEngine.Object.Destroy);
         customJoints = null;
       }
-      // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
-      // they will be null'ed on the link destrcution.
-      var source = linkSource;
-      var target = linkTarget;
-      AsyncCall.CallOnEndOfFrame(this, () => {
-          KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
-          KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
-      });
-      if (!selfDecoupledAction) {
-        linkSource.BreakCurrentLink(LinkActorType.Physics);
-      }
+      CleanupJoint(linkSource, linkTarget, !selfDecoupledAction);
     }
   }
   #endregion
@@ -830,6 +820,28 @@ public class KASModuleJointBase : PartModule,
         }
       });
     }
+  }
+
+  /// <summary>Cleanups atatch nodes and, optionally, breaks the link.</summary>
+  /// <remarks>
+  /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
+  /// event handler.
+  /// </remarks>
+  /// <param name="source">The link source at the moemnt of cleanup.</param>
+  /// <param name="target">The link target at the moment of cleanup.</param>
+  /// <param name="needsLinkBreak">
+  /// Tells if the link source needs to know the link is broken.
+  /// </param>
+  void CleanupJoint(ILinkSource source, ILinkTarget target, bool needsLinkBreak) {
+    // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
+    // they will be null'ed on the link destruction.
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
+      KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
+      if (needsLinkBreak) {
+        source.BreakCurrentLink(LinkActorType.Physics);
+      }
+    });
   }
   #endregion
 }
