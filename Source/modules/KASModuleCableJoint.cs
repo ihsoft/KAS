@@ -6,6 +6,7 @@
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.PartUtils;
 using System;
 using UnityEngine;
 
@@ -84,7 +85,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
-    Events["CheckCableStretchContextMenuAction"].active = isLinked;
+    PartModuleUtils.SetupEvent(
+        this, CheckCableStretchContextMenuAction, e => e.active = isLinked);
   }
   #endregion
 
