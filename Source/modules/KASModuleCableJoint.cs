@@ -20,7 +20,7 @@ namespace KAS {
 /// </remarks>
 public sealed class KASModuleCableJoint : KASModuleJointBase,
     // KAS interfaces.
-    IKasJointEventsListener,
+    IKasJointEventsListener, IHasContextMenu,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
 
@@ -81,6 +81,13 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     }
   }
 
+  #region IHasContextMenu implementation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
+    Events["CheckCableStretchContextMenuAction"].active = isLinked;
+  }
+  #endregion
+
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public void FixedUpdate() {
@@ -97,7 +104,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    UpdateMenuItems();
+    UpdateContextMenu();
   }
   #endregion
 
@@ -108,7 +115,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     if (res) {
       renderer = part.FindModuleImplementing<ILinkRenderer>();
       CreateDistanceJoint(source, target);
-      UpdateMenuItems();
+      UpdateContextMenu();
     }
     return res;
   }
@@ -121,7 +128,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     Destroy(jointObj);
     jointObj = null;
     renderer = null;
-    UpdateMenuItems();
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
@@ -204,11 +211,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     fixedJoint.breakForce = Mathf.Infinity;
     fixedJoint.breakTorque = Mathf.Infinity;
     jointObj.transform.parent = jointObj.transform;
-  }
-
-  /// <summary>Updates GUI context menu items to the current state of the module.</summary>
-  void UpdateMenuItems() {
-    Events["CheckCableStretchContextMenuAction"].active = isLinked;
   }
   #endregion
 }
