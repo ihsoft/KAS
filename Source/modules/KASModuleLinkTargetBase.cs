@@ -510,7 +510,7 @@ public class KASModuleLinkTargetBase :
   /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
   /// <returns>The source or <c>null</c> if nothing found.</returns>
   ILinkTarget FindEvaTargetWithConnector() {
-    if (!FlightGlobals.ActiveVessel.isEVA) {
+    if (!HighLogic.LoadedSceneIsFlight || !FlightGlobals.ActiveVessel.isEVA) {
       return null;
     }
     return FlightGlobals.ActiveVessel
