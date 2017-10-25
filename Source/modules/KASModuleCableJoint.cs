@@ -197,19 +197,22 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     jointObj.transform.parent = source.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
 
-    springJoint = jointObj.AddComponent<SpringJoint>();
-    springJoint.spring = cableStrength;
-    springJoint.damper = cableSpringDamper;
+    springJoint = jointObj.AddComponent<ConfigurableJoint>();
     springJoint.enableCollision = true;
+    springJoint.enablePreprocessing = false;
+    KASAPI.JointUtils.ResetJoint(springJoint);
+    KASAPI.JointUtils.SetupDistanceJoint(
+        springJoint,
+        springForce: cableStrength,
+        springDamper: cableSpringDamper,
+        maxDistance: originalLength);
     springJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
     springJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
-    springJoint.maxDistance = originalLength;
     springJoint.autoConfigureConnectedAnchor = false;
     springJoint.anchor = Vector3.zero;
     springJoint.connectedBody = source.part.Rigidbody;
     springJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
         source.physicalAnchorTransform.position);
-    springJoint.enablePreprocessing = false;
     
     // Move plug head to the target and adhere it there at the attach node transform.
     jointObj.transform.parent = target.physicalAnchorTransform;
