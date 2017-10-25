@@ -216,7 +216,11 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     // Move plug head to the target and adhere it there at the attach node transform.
     jointObj.transform.parent = target.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
-    var fixedJoint = jointObj.AddComponent<FixedJoint>();
+    var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
+    springJoint.enableCollision = true;
+    springJoint.enablePreprocessing = true;
+    KASAPI.JointUtils.ResetJoint(fixedJoint);
+    KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
     fixedJoint.autoConfigureConnectedAnchor = false;
     fixedJoint.anchor = Vector3.zero;
     fixedJoint.connectedBody = target.part.Rigidbody;
