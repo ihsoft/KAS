@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.PartUtils;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KAS {
@@ -64,7 +65,13 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   GameObject jointObj;
 
   /// <summary>Actual joint object.</summary>
-  ConfigurableJoint springJoint;
+  ConfigurableJoint springJoint {
+    get {
+      return customJoints != null && customJoints.Count > 0
+          ? customJoints[0]
+          : null;
+    }
+  }
 
   /// <summary>Renderer for the link. Can be <c>null</c>.</summary>
   ILinkRenderer renderer;
@@ -113,33 +120,19 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
 
   #region KASModuleJointBase overrides
   /// <inheritdoc/>
-  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
-    var res = base.CreateJoint(source, target);
-    if (res) {
-      renderer = part.FindModuleImplementing<ILinkRenderer>();
-      CreateDistanceJoint(source, target);
-      UpdateContextMenu();
-    }
-    return res;
-  }
-
-  /// <inheritdoc/>
-  public override void DropJoint() {
-    base.DropJoint();
-    Destroy(springJoint);
-    springJoint = null;
-    Destroy(jointObj);
-    jointObj = null;
-    renderer = null;
+  protected override void AttachParts() {
+    renderer = part.FindModuleImplementing<ILinkRenderer>();
+    CreateDistanceJoint(linkSource, linkTarget);
     UpdateContextMenu();
   }
 
   /// <inheritdoc/>
-  public override void AdjustJoint(bool isUnbreakable = false) {
-    springJoint.breakForce =
-        isUnbreakable ? Mathf.Infinity : GetClampedBreakingForce(linkBreakTorque);
-    springJoint.breakTorque =
-        isUnbreakable ? Mathf.Infinity : GetClampedBreakingTorque(linkBreakForce);
+  protected override void DetachParts() {
+    base.DetachParts();
+    Destroy(jointObj);
+    jointObj = null;
+    renderer = null;
+    UpdateContextMenu();
   }
   #endregion
 
@@ -195,30 +188,29 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     // Temporarily align to the source to have the spring joint remembered zero length.
     jointObj.transform.parent = source.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
-
-    springJoint = jointObj.AddComponent<ConfigurableJoint>();
-    springJoint.enableCollision = true;
-    springJoint.enablePreprocessing = false;
-    KASAPI.JointUtils.ResetJoint(springJoint);
+    var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
+    cableJoint.enableCollision = true;
+    cableJoint.enablePreprocessing = false;
+    KASAPI.JointUtils.ResetJoint(cableJoint);
     KASAPI.JointUtils.SetupDistanceJoint(
-        springJoint,
+        cableJoint,
         springForce: cableStrength,
         springDamper: cableSpringDamper,
         maxDistance: originalLength);
-    springJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
-    springJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
-    springJoint.autoConfigureConnectedAnchor = false;
-    springJoint.anchor = Vector3.zero;
-    springJoint.connectedBody = source.part.Rigidbody;
-    springJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
+    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
+    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
+    cableJoint.autoConfigureConnectedAnchor = false;
+    cableJoint.anchor = Vector3.zero;
+    cableJoint.connectedBody = source.part.Rigidbody;
+    cableJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
         source.physicalAnchorTransform.position);
     
     // Move plug head to the target and adhere it there at the attach node transform.
     jointObj.transform.parent = target.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
-    springJoint.enableCollision = true;
-    springJoint.enablePreprocessing = true;
+    cableJoint.enableCollision = true;
+    cableJoint.enablePreprocessing = true;
     KASAPI.JointUtils.ResetJoint(fixedJoint);
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
     fixedJoint.autoConfigureConnectedAnchor = false;
@@ -229,6 +221,11 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     fixedJoint.breakForce = Mathf.Infinity;
     fixedJoint.breakTorque = Mathf.Infinity;
     jointObj.transform.parent = jointObj.transform;
+
+    // The order of adding the joints is important!
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(cableJoint);
+    customJoints.Add(fixedJoint);
   }
   #endregion
 }
