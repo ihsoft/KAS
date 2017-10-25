@@ -557,13 +557,13 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Creates a physical link between the source and the target parts.</summary>
   /// <seealso cref="DetachParts"/>
   protected virtual void AttachParts() {
+    HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
     customJoints = new List<ConfigurableJoint>();
-    var rigidJoint =  linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
+    var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(rigidJoint);
-    rigidJoint.connectedBody = linkTarget.part.rb;
-    customJoints.Add(rigidJoint);
+    rigidJoint.connectedBody = linkTarget.part.Rigidbody;
     SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
-    HostedDebugLog.Fine(this, "Create a rigid link to: {0}", linkTarget);
+    customJoints.Add(rigidJoint);
   }
 
   /// <summary>
