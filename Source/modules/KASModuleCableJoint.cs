@@ -192,8 +192,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     var rb = jointObj.AddComponent<Rigidbody>();
     rb.mass = (source.part.mass + target.part.mass) / 2;
 
-    // Temporarily align to the source to have spring joint remembered zero length.
-    jointObj.transform.parent = source.nodeTransform;
+    // Temporarily align to the source to have the spring joint remembered zero length.
+    jointObj.transform.parent = source.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
 
     springJoint = jointObj.AddComponent<SpringJoint>();
@@ -203,15 +203,22 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     springJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
     springJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
     springJoint.maxDistance = originalLength;
-    springJoint.connectedBody = source.part.rb;
-    //TODO: Adjust anchor to the attch node.
+    springJoint.autoConfigureConnectedAnchor = false;
+    springJoint.anchor = Vector3.zero;
+    springJoint.connectedBody = source.part.Rigidbody;
+    springJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
+        source.physicalAnchorTransform.position);
     springJoint.enablePreprocessing = false;
     
     // Move plug head to the target and adhere it there at the attach node transform.
-    jointObj.transform.parent = target.nodeTransform;
+    jointObj.transform.parent = target.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<FixedJoint>();
-    fixedJoint.connectedBody = target.part.rb;
+    fixedJoint.autoConfigureConnectedAnchor = false;
+    fixedJoint.anchor = Vector3.zero;
+    fixedJoint.connectedBody = target.part.Rigidbody;
+    fixedJoint.connectedAnchor = target.part.Rigidbody.transform.InverseTransformPoint(
+        target.physicalAnchorTransform.position);
     fixedJoint.breakForce = Mathf.Infinity;
     fixedJoint.breakTorque = Mathf.Infinity;
     jointObj.transform.parent = jointObj.transform;
