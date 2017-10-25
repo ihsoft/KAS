@@ -78,7 +78,9 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   /// <summary>Gets current distance between the joint ends.</summary>
   float currentJointDistance {
     get {
-      return Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);
+      return Vector3.Distance(
+          linkTarget.part.rb.transform.TransformPoint(springJoint.anchor),
+          springJoint.connectedBody.transform.TransformPoint(springJoint.connectedAnchor));
     }
   }
 
