@@ -191,6 +191,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
     var rb = jointObj.AddComponent<Rigidbody>();
     rb.mass = (source.part.mass + target.part.mass) / 2;
+    rb.useGravity = false;
 
     // Temporarily align to the source to have the spring joint remembered zero length.
     jointObj.transform.parent = source.physicalAnchorTransform;
