@@ -192,11 +192,10 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     cableJoint.enableCollision = true;
     cableJoint.enablePreprocessing = false;
     KASAPI.JointUtils.ResetJoint(cableJoint);
-    KASAPI.JointUtils.SetupDistanceJoint(
-        cableJoint,
-        springForce: cableStrength,
-        springDamper: cableSpringDamper,
-        maxDistance: originalLength);
+    KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
+                                         springForce: cableStrength,
+                                         springDamper: cableSpringDamper,
+                                         maxDistance: originalLength);
     cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
     cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
     cableJoint.autoConfigureConnectedAnchor = false;
