@@ -167,23 +167,6 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     }
   }
 
-  StringBuilder DumpBaseJoint(Joint joint) {
-    var msg = new StringBuilder();
-    msg.Append("name: ").Append(joint.name).AppendLine();
-    // Collider setup.
-    msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
-    // Optimization.
-    msg.Append("enablePreprocessing: ").Append(joint.enablePreprocessing).AppendLine();
-    // Break forces.
-    msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
-    msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
-    // Geometry.
-    msg.Append("axis: ").Append(joint.axis).AppendLine();
-    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
-    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
-    return msg;
-  }
-
   /// <inheritdoc/>
   public void SetupDistanceJoint(ConfigurableJoint joint,
                                  float springForce = 0,
@@ -206,6 +189,23 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.angularYMotion = ConfigurableJointMotion.Free;
     joint.zMotion = ConfigurableJointMotion.Limited;
     joint.angularZMotion = ConfigurableJointMotion.Free;
+  }
+
+  StringBuilder DumpBaseJoint(Joint joint) {
+    var msg = new StringBuilder();
+    msg.Append("name: ").Append(joint.name).AppendLine();
+    // Collider setup.
+    msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
+    // Optimization.
+    msg.Append("enablePreprocessing: ").Append(joint.enablePreprocessing).AppendLine();
+    // Break forces.
+    msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
+    msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
+    // Geometry.
+    msg.Append("axis: ").Append(joint.axis).AppendLine();
+    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
+    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
+    return msg;
   }
 
   static string Dump(SoftJointLimitSpring limitSpring) {
