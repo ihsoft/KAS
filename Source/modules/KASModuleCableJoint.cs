@@ -103,7 +103,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
   #endregion
 
-  #region Override AbstractJointModule
+  #region PartModule overrides 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
@@ -111,7 +111,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
   #endregion
 
-  #region ILinkJoint implementation
+  #region KASModuleJointBase overrides
   /// <inheritdoc/>
   public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
     var res = base.CreateJoint(source, target);
