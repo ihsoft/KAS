@@ -183,6 +183,28 @@ public interface IJointUtils {
                            float angleLimit = Mathf.Infinity,
                            float angleLimitForce = 0,
                            float angleLimitDamperRatio = 0.1f);
+
+  /// <summary>Sets up a cannonical distance joint.</summary>
+  /// <remarks>
+  /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
+  /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this
+  /// method.
+  /// </remarks>
+  /// <param name="joint">The joint to setup.</param>
+  /// <param name="springForce">
+  /// The strength of the spring that keeps the two objects in range.
+  /// </param>
+  /// <param name="springDamper">The force to apply to calm down the oscillations.</param>
+  /// <param name="maxDistance">
+  /// The maximum distance to allow between the obejcts before applying the spring force.
+  /// </param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#distance-joint">
+  /// PhysX: Distant Joint
+  /// </seealso>
+  void SetupDistanceJoint(ConfigurableJoint joint,
+                          float springForce = 0,
+                          float springDamper = 0,
+                          float maxDistance = Mathf.Infinity);
 }
 
 }  // namespace

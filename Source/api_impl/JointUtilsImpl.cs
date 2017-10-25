@@ -184,6 +184,30 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     return msg;
   }
 
+  /// <inheritdoc/>
+  public void SetupDistanceJoint(ConfigurableJoint joint,
+                                 float springForce = 0,
+                                 float springDamper = 0,
+                                 float maxDistance = Mathf.Infinity) {
+    // Swap X&Z axes so that the joint's forward vector becomes a primary axis.
+    joint.axis = Vector3.forward;
+    joint.secondaryAxis = Vector3.right;
+    // Setup linear joint parameters.
+    joint.linearLimit = new SoftJointLimit() {
+      limit = maxDistance
+    };
+    joint.linearLimitSpring = new SoftJointLimitSpring() {
+      spring = springForce,
+      damper = springDamper
+    };
+    joint.xMotion = ConfigurableJointMotion.Limited;
+    joint.angularXMotion = ConfigurableJointMotion.Free;
+    joint.yMotion = ConfigurableJointMotion.Limited;
+    joint.angularYMotion = ConfigurableJointMotion.Free;
+    joint.zMotion = ConfigurableJointMotion.Limited;
+    joint.angularZMotion = ConfigurableJointMotion.Free;
+  }
+
   static string Dump(SoftJointLimitSpring limitSpring) {
     return string.Format("SoftJointLimitSpring(spring={0}, damper={1})",
                          limitSpring.spring, limitSpring.damper);
