@@ -205,6 +205,18 @@ public interface IJointUtils {
                           float springForce = 0,
                           float springDamper = 0,
                           float maxDistance = Mathf.Infinity);
+
+  /// <summary>Sets up a cannonical fixed joint.</summary>
+  /// <remarks>
+  /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
+  /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this
+  /// method.
+  /// </remarks>
+  /// <param name="joint">The joint to setup.</param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#fixed-joint">
+  /// PhysX: Fixed Joint
+  /// </seealso>
+  void SetupFixedJoint(ConfigurableJoint joint);
 }
 
 }  // namespace

@@ -191,6 +191,19 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.angularZMotion = ConfigurableJointMotion.Free;
   }
 
+  /// <inheritdoc/>
+  public void SetupFixedJoint(ConfigurableJoint joint) {
+    // Swap X&Z axes so that the joint's forward vector becomes a primary axis.
+    joint.axis = Vector3.forward;
+    joint.secondaryAxis = Vector3.right;
+    joint.xMotion = ConfigurableJointMotion.Locked;
+    joint.angularXMotion = ConfigurableJointMotion.Locked;
+    joint.yMotion = ConfigurableJointMotion.Locked;
+    joint.angularYMotion = ConfigurableJointMotion.Locked;
+    joint.zMotion = ConfigurableJointMotion.Locked;
+    joint.angularZMotion = ConfigurableJointMotion.Locked;
+  }
+
   StringBuilder DumpBaseJoint(Joint joint) {
     var msg = new StringBuilder();
     msg.Append("name: ").Append(joint.name).AppendLine();
