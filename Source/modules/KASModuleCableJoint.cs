@@ -64,15 +64,14 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   GameObject jointObj;
 
   /// <summary>Actual joint object.</summary>
-  SpringJoint springJoint;
+  ConfigurableJoint springJoint;
 
   /// <summary>Renderer for the link. Can be <c>null</c>.</summary>
   ILinkRenderer renderer;
 
   /// <summary>Maximum allowed distance between the linked objects.</summary>
   float maxJointDistance {
-    get { return springJoint.maxDistance; }
-    set { springJoint.maxDistance = value; }
+    get { return springJoint.linearLimit.limit; }
   }
 
   /// <summary>Gets current distance between the joint ends.</summary>
