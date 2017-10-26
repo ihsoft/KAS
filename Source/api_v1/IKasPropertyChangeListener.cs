@@ -11,7 +11,7 @@ namespace KASAPIv1 {
 /// </summary>
 /// <remarks>
 /// <para>
-/// The "public" property as a property which is visible to everyone and has a setter. It's up to
+/// The "public" property is a property which is visible to everyone and has a setter. It's up to
 /// the module implementation to decide if the notification should be sent.
 /// </para>
 /// <para>
