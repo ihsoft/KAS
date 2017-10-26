@@ -417,7 +417,7 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
+  public virtual string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
     var errors = new[] {
         CheckLengthLimit(source, targetTransform),
         CheckAngleLimitAtSource(source, targetTransform),
