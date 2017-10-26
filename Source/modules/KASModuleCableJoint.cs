@@ -196,22 +196,22 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
                                          springForce: cableStrength,
                                          springDamper: cableSpringDamper,
                                          maxDistance: originalLength);
-    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
-    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
     cableJoint.autoConfigureConnectedAnchor = false;
     cableJoint.anchor = Vector3.zero;
     cableJoint.connectedBody = source.part.Rigidbody;
     cableJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
         source.physicalAnchorTransform.position);
+    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
+    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
     
     // Move plug head to the target and adhere it there at the attach node transform.
     jointObj.transform.parent = target.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
     cableJoint.enableCollision = true;
-    cableJoint.enablePreprocessing = true;
     KASAPI.JointUtils.ResetJoint(fixedJoint);
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
+    cableJoint.enablePreprocessing = true;
     fixedJoint.autoConfigureConnectedAnchor = false;
     fixedJoint.anchor = Vector3.zero;
     fixedJoint.connectedBody = target.part.Rigidbody;
