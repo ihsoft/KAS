@@ -189,8 +189,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     jointObj.transform.parent = source.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
-    cableJoint.enableCollision = true;
-    cableJoint.enablePreprocessing = false;
     KASAPI.JointUtils.ResetJoint(cableJoint);
     KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
                                          springForce: cableStrength,
@@ -208,7 +206,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     jointObj.transform.parent = target.physicalAnchorTransform;
     jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
-    cableJoint.enableCollision = true;
     KASAPI.JointUtils.ResetJoint(fixedJoint);
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
     cableJoint.enablePreprocessing = true;
