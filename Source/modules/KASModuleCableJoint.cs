@@ -159,8 +159,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     fixedJoint.connectedBody = linkTarget.part.Rigidbody;
     fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
         linkTarget.physicalAnchorTransform.position);
-    fixedJoint.breakForce = Mathf.Infinity;
-    fixedJoint.breakTorque = Mathf.Infinity;
+    fixedJoint.breakForce = GetClampedBreakingTorque(linkBreakForce);
+    fixedJoint.breakTorque = GetClampedBreakingForce(linkBreakTorque);
     jointObj.transform.parent = jointObj.transform;
 
     // The order of adding the joints is important!
