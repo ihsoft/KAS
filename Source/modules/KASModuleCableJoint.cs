@@ -123,7 +123,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   protected override void AttachParts() {
     renderer = part.FindModuleImplementing<ILinkRenderer>();
     CreateDistanceJoint(linkSource, linkTarget);
-    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
@@ -132,6 +131,10 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     Destroy(jointObj);
     jointObj = null;
     renderer = null;
+  }
+
+  /// <inheritdoc/>
+  protected override void OnStateChanged(bool oldIsLinked) {
     UpdateContextMenu();
   }
   #endregion
