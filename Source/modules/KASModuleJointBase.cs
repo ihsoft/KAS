@@ -245,7 +245,15 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public bool isLinked { get; private set; }
+  public virtual bool isLinked {
+    get { return _isLinked; }
+    private set {
+      var oldValue = _isLinked;
+      _isLinked = value;
+      OnStateChanged(oldValue);
+    }
+  }
+  bool _isLinked;
   #endregion
 
   #region Inheritable properties
@@ -500,6 +508,13 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Inheritable methods
+  /// <summary>Called when the link state is assigned.</summary>
+  /// <remarks>The method is called even when the state is not actually changing.</remarks>
+  /// <param name="oldIsLinked">The previous link state.</param>
+  /// <seealso cref="isLinked"/>
+  protected virtual void OnStateChanged(bool oldIsLinked) {
+  }
+
   /// <summary>Sets the attach node properties.</summary>
   /// <param name="attachNode">The node to set properties for.</param>
   /// <param name="isSource">Tells if the node belings to the source or to the target part.</param>
