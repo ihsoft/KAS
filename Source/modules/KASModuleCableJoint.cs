@@ -208,21 +208,20 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
   #endregion
 
+  #region Local utility methods
   /// <summary>Returns ratio of the current cable stretch.</summary>
   /// <returns>
   /// <c>0</c> if cable is not stretched. Percentile of the stretching otherwsie. I.e. if cable's
   /// original length was <c>100</c> and the current length is <c>110</c> then stretch ratio is
   /// <c>0.1</c> (10%).
   /// </returns>
-  public float GetCableStretch() {
+  float GetCableStretch() {
     var stretch = currentJointDistance - maxJointDistance;
     if (stretch < MinViableStretch) {
       return 0f;
     }
     return stretch / maxJointDistance;
   }
-
-  #region Local utility methods
   #endregion
 }
 
