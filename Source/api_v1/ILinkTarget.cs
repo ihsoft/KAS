@@ -46,16 +46,6 @@ public interface ILinkTarget {
   // TODO(ihsoft): Give examples with the different scale models.
   string cfgAttachNodeName { get; }
 
-  /// <summary>Attach node used for linking with the source part.</summary>
-  /// <value>Fully initialized attach node. Can be <c>null</c>.</value>
-  /// <remarks>
-  /// The node is required to exist only when the target is linked to a source. For the not linked
-  /// parts the attach node may not actually exist in the target part.
-  /// </remarks>
-  /// <seealso cref="cfgAttachNodeName"/>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetAtAttachNode"/></example>
-  AttachNode attachNode { get; }
-
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>This transform must exist even when no actual attach node is created on the part:
@@ -67,7 +57,6 @@ public interface ILinkTarget {
   /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
   /// </list>
   /// </remarks>
-  /// <seealso cref="attachNode"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   Transform nodeTransform { get; }
 
@@ -103,9 +92,14 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>
   ILinkSource linkSource { get; set; }
 
-  /// <summary>ID of the linked source part.</summary>
+  /// <summary>The persisted ID of the linked source part.</summary>
+  /// <remarks>This value must be available during the vessel loading.</remarks>
   /// <value>Flight ID.</value>
   uint linkSourcePartId { get; }
+
+  /// <summary>Tells if this target is currectly linked with a source.</summary>
+  /// <value>The current state of the link.</value>
+  bool isLinked { get; }
 
   /// <summary>Current state of the target.</summary>
   /// <value>The current state.</value>

@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KSPDev.GUIUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 using System;
@@ -21,9 +22,12 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
+// Next localization ID: #kasLOC_01004.
+public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
+    // KSPDev interfaces.
+    IHasContextMenu, IsLocalizableModule {
 
-  #region Localizable strings
+  #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   static readonly Message<DistanceType> CanBeConnectedMsg = new Message<DistanceType>(
@@ -42,57 +46,142 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
       + " started.");
   #endregion
 
-  #region Local members
-  /// <summary>Color of pipe in the linking mode when link can be established.</summary>
-  static readonly Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
-  /// <summary>Color of pipe in the linking mode when link cannot be established.</summary>
-  static readonly Color BadLinkColor = new Color(1, 0, 0, 0.5f);
-  /// <summary>A lock that restricts anything but camera positioning.</summary>
-  const string TotalControlLock = "KASInteractiveJointUberLock";
-  /// <summary>Shader that reders pipe during linking.</summary>
-  const string InteractiveShaderName = "Transparent/Diffuse";  
-  /// <summary>Compativle target under mouse cursor.</summary>
-  ILinkTarget targetCandidate;
-  /// <summary>Tells if connection with the candidate will be sucessfull.</summary>
-  bool targetCandidateIsGood;
-  /// <summary>Last known hovered part. Used to trigger detection of the target candidate.</summary>
-  Part lastHoveredPart;
-  /// <summary>Displayed during interactive linking.</summary>
-  ScreenMessage statusScreenMessage;
-  #endregion
-
-  #region Event names. Keep them in sync with the event names!
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="StartLinkContextMenuAction"/>
-  const string StartLinkMenuActionName = "StartLinkContextMenuAction";  
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="BreakLinkContextMenuAction"/>
-  const string BreakLinkMenuActionName = "BreakLinkContextMenuAction";
-  #endregion
-
   #region Part's config fields
-  /// <summary>Audio sample to play when parts are docked by the player.</summary>
+  /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string plugSndPath = "KAS/Sounds/plugdocked";
+  public string sndPathPlug = "";
 
-  /// <summary>Audio sample to play when parts are undocked by the player.</summary>
+  /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string unplugSndPath = "KAS/Sounds/unplugdocked";
+  public string sndPathUnplug = "";
+
+  /// <summary>Audio sample to play when the parts are docked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathDock = "";
+
+  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathUndock = "";
+
+  /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathBroken = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string startLinkMenu = "Start a link";
+  public string startLinkMenu = "";
 
   /// <summary>Name of the menu item to break currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string breakLinkMenu = "Break the link";
+  public string breakLinkMenu = "";
+
+  /// <summary>
+  /// Tells if there should be a UI menu item that allows switching the docked (coupled) mode of the
+  /// joint.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public bool allowChanginDockingMode;
+  #endregion
+
+  // TODO(ihsoft): Disallow non-eva control.
+  #region Context menu events/actions
+  /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(tag = null)]
+  public void StartLinkContextMenuAction() {
+    StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
+  }
+
+  /// <summary>Event handler. Breaks current link between source and target.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(tag = null)]
+  public void BreakLinkContextMenuAction() {
+    BreakCurrentLink(LinkActorType.Player);
+  }
+
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_01002",
+      defaultTemplate = "Link mode: DOCKED",
+      description = "The name of the part's context menu event that triggers a separtation of the"
+      + " linked parts into two different vessels if they are coupled thru this joint. At the same"
+      + " time, the name of the event gives a currently selected state.")]
+  public void UndockVesselsContextMenuAction() {
+    linkJoint.SetCoupleOnLinkMode(false);
+    if (linkJoint.isLinked && !linkJoint.coupleOnLinkMode) {
+      UISoundPlayer.instance.Play(sndPathPlug);
+    }
+    UpdateContextMenu();
+  }
+
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_01003",
+      defaultTemplate = "Link mode: UNDOCKED",
+      description = "The name of the part's context menu event that triggers a merging of the"
+      + " linked parts if they were not coupled before. At  the same time, the name of the event"
+      + " gives a currently selected state.")]
+  public void DockVesselsContextMenuAction() {
+    linkJoint.SetCoupleOnLinkMode(true);
+    if (linkJoint.isLinked && linkJoint.coupleOnLinkMode) {
+      UISoundPlayer.instance.Play(sndPathDock);
+    }
+    UpdateContextMenu();
+  }
+  #endregion
+
+  #region Local properties and fields
+  /// <summary>Color of the pipe in the linking mode when the link can be established.</summary>
+  static readonly Color GoodLinkColor = new Color(0, 1, 0, 0.5f);
+
+  /// <summary>Color of the pipe in the linking mode when the link cannot be established.</summary>
+  static readonly Color BadLinkColor = new Color(1, 0, 0, 0.5f);
+
+  /// <summary>The lock name that restricts anything but the camera positioning.</summary>
+  const string TotalControlLock = "KASInteractiveJointUberLock";
+
+  /// <summary>Shader that reders the pipe during linking.</summary>
+  const string InteractiveShaderName = "Transparent/Diffuse";  
+
+  /// <summary>The compatible target under the mouse cursor.</summary>
+  ILinkTarget targetCandidate;
+
+  /// <summary>Tells if the connection with the candidate will be successful.</summary>
+  bool targetCandidateIsGood;
+
+  /// <summary>
+  /// The last known hovered part. Used to trigger the detection of the target candidate.
+  /// </summary>
+  Part lastHoveredPart;
+
+  /// <summary>The message, displayed during the interactive linking.</summary>
+  ScreenMessage statusScreenMessage;
+
+  /// <summary>
+  /// A variable to store the auto save state before starting the interactive mode.
+  /// </summary>
+  bool canAutoSaveState;
   #endregion
 
   #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    LocalizeModule();
+  }
+
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
@@ -101,7 +190,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
 
       // Handle link mode cancel.
       if (Input.GetKeyUp(KeyCode.Escape)) {
-        AsyncCall.CallOnEndOfFrame(this, () => CancelLinking(LinkActorType.Player));
+        AsyncCall.CallOnEndOfFrame(this, () => CancelLinking());
       }
       // Handle link action (mouse click).
       if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -116,11 +205,36 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
     statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
+    UpdateContextMenu();
   }
   #endregion
 
-  /// <summary>Variable to store auto save state before starting interactive mode.</summary>
-  bool canAutoSaveState;
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
+  }
+  #endregion
+
+  #region IHasContextMenu implementation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
+    PartModuleUtils.SetupEvent(this, StartLinkContextMenuAction, e => {
+                                 e.guiName = startLinkMenu;
+                                 e.active = linkState == LinkState.Available;
+                               });
+    PartModuleUtils.SetupEvent(this, BreakLinkContextMenuAction, e => {
+                                 e.guiName = breakLinkMenu;
+                                 e.active = linkState == LinkState.Linked;
+                               });
+    PartModuleUtils.SetupEvent(
+        this, DockVesselsContextMenuAction,
+        e => e.active = allowChanginDockingMode && !linkJoint.coupleOnLinkMode);
+    PartModuleUtils.SetupEvent(
+        this, UndockVesselsContextMenuAction,
+        e => e.active = allowChanginDockingMode && linkJoint.coupleOnLinkMode);
+  }
+  #endregion
 
   #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
@@ -165,17 +279,14 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   /// <inheritdoc/>
   protected override void OnStateChange(LinkState? oldState) {
     base.OnStateChange(oldState);
-    Events[StartLinkMenuActionName].guiName = startLinkMenu;
-    Events[BreakLinkMenuActionName].guiName = breakLinkMenu;
-    Events[StartLinkMenuActionName].active = linkState == LinkState.Available;
-    Events[BreakLinkMenuActionName].active = linkState == LinkState.Linked;
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
     if (info.actor == LinkActorType.Player || info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(plugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathPlug);
     }
   }
 
@@ -183,29 +294,14 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase {
   public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkBrokenEvent(info);
     if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(unplugSndPath);
+      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathUndock : sndPathUnplug);
     } else if (info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(sndPathBroken);
     }
   }
   #endregion
 
-  // TODO(ihsoft): Disallow non-eva control.
-  #region Action handlers
-  /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
-  [KSPEvent(guiName = "Start a link", guiActive = true, guiActiveUnfocused = true)]
-  public void StartLinkContextMenuAction() {
-    StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
-  }
-
-  /// <summary>Event handler. Breaks current link between source and target.</summary>
-  [KSPEvent(guiName = "Break the link", guiActive = true, guiActiveUnfocused = true)]
-  public void BreakLinkContextMenuAction() {
-    BreakCurrentLink(LinkActorType.Player);
-  }
-  #endregion
-
-  #region Local utilities
+  #region Local utility methods
   /// <summary>Displays linking status in real time.</summary>
   void UpdateLinkingState() {
     // Catch the hovered part, a possible target on it, and the link feasibility.

@@ -3,6 +3,7 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.LogUtils;
 using System;
 using UnityEngine;
 
@@ -14,8 +15,7 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   public AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform) {
     var attachNode = part.FindAttachNode(nodeName);
     if (attachNode != null) {
-      Debug.LogWarningFormat(
-          "Not creating attach node {0} for {1} - already exists", nodeName, part.name);
+      DebugEx.Warning("Not creating attach node {0} for {1} - already exists", nodeName, part);
     } else {
       attachNode = new AttachNode(nodeName, nodeTransform, 0, AttachNodeMethod.FIXED_JOINT,
                                   crossfeed: true, rigid: false);
@@ -32,14 +32,13 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   public void DropAttachNode(Part part, string nodeName) {
     var attachNode = part.FindAttachNode(nodeName);
     if (attachNode == null) {
-      Debug.LogWarningFormat(
-          "Not dropping attach node {0} on {1} - not found", nodeName, part.name);
+      DebugEx.Warning("Not dropping attach node {0} on {1} - not found", nodeName, part);
       return;
     }
     if (attachNode.attachedPart != null) {
-      Debug.LogWarningFormat(
+      DebugEx.Warning(
           "Attach node {0} on {1} is attached to {2} - decouple callbacks will be impacted",
-          nodeName, part.name, attachNode.attachedPart.name);
+          nodeName, part, attachNode.attachedPart);
     }
     part.attachNodes.Remove(attachNode);
   }

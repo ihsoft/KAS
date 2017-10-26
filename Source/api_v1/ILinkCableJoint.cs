@@ -22,22 +22,10 @@ public static class ILinkCableJoint_Properties {
 /// Interafce for a physical cable link. Such links keep the dsitance between the object below the
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
-public interface ILinkCableJoint : ILinkJointBase {
+public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Maximum allowed distance between the parts to establish a link.</summary>
   /// <value>Distance in meters.</value>
   float cfgMaxCableLength { get; }
-
-  /// <summary>Spring force for the cable connecting the two parts.</summary>
-  /// <remarks>
-  /// It's a force per meter of the strected distance ppalied to keep the object bewlo the maximum
-  /// distance.
-  /// </remarks>
-  /// <value>Force in kilonewtons.</value>
-  float cfgCableSpringForce { get; }
-
-  /// <summary>Linear breaking force for the cable connecting the two parts.</summary>
-  /// <value>Force in kilonewtons.</value>
-  float cfgCableBreakForce { get; }
 
   /// <summary>Physical joint object that connects source to the target.</summary>
   /// <value>The PhysX joint that connects the parts.</value>

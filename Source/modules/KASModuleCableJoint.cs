@@ -6,7 +6,9 @@
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.PartUtils;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KAS {
@@ -18,9 +20,9 @@ namespace KAS {
 /// <remarks>
 /// It can link either parts of the same vessel or parts of two different vessels.
 /// </remarks>
-public sealed class KASModuleCableJoint : AbstractJointModule,
+public sealed class KASModuleCableJoint : KASModuleJointBase,
     // KAS interfaces.
-    IKasJointEventsListener,
+    IKasJointEventsListener, IHasContextMenu,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
 
@@ -63,23 +65,38 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   GameObject jointObj;
 
   /// <summary>Actual joint object.</summary>
-  SpringJoint springJoint;
+  ConfigurableJoint springJoint {
+    get {
+      return customJoints != null && customJoints.Count > 0
+          ? customJoints[0]
+          : null;
+    }
+  }
 
   /// <summary>Renderer for the link. Can be <c>null</c>.</summary>
   ILinkRenderer renderer;
 
   /// <summary>Maximum allowed distance between the linked objects.</summary>
   float maxJointDistance {
-    get { return springJoint.maxDistance; }
-    set { springJoint.maxDistance = value; }
+    get { return springJoint.linearLimit.limit; }
   }
 
   /// <summary>Gets current distance between the joint ends.</summary>
   float currentJointDistance {
     get {
-      return Vector3.Distance(linkSource.nodeTransform.position, linkTarget.nodeTransform.position);
+      return Vector3.Distance(
+          linkTarget.part.rb.transform.TransformPoint(springJoint.anchor),
+          springJoint.connectedBody.transform.TransformPoint(springJoint.connectedAnchor));
     }
   }
+
+  #region IHasContextMenu implementation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
+    PartModuleUtils.SetupEvent(
+        this, CheckCableStretchContextMenuAction, e => e.active = isLinked);
+  }
+  #endregion
 
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
@@ -93,43 +110,76 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   }
   #endregion
 
-  #region Override AbstractJointModule
+  #region PartModule overrides 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    UpdateMenuItems();
+    UpdateContextMenu();
   }
   #endregion
 
-  #region ILinkJoint implementation
+  #region KASModuleJointBase overrides
   /// <inheritdoc/>
-  public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
-    var res = base.CreateJoint(source, target);
-    if (res) {
-      renderer = part.FindModuleImplementing<ILinkRenderer>();
-      CreateDistanceJoint(source, target);
-      UpdateMenuItems();
-    }
-    return res;
+  protected override void AttachParts() {
+    renderer = part.FindModuleImplementing<ILinkRenderer>();
+
+    jointObj = new GameObject("RopeConnectorHead");
+    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
+    // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
+    var rb = jointObj.AddComponent<Rigidbody>();
+    rb.mass = (linkSource.part.mass + linkTarget.part.mass) / 2;
+    rb.useGravity = false;
+
+    // Temporarily align to the source to have the spring joint remembered zero length.
+    jointObj.transform.parent = linkSource.physicalAnchorTransform;
+    jointObj.transform.localPosition = Vector3.zero;
+    var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(cableJoint);
+    KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
+                                         springForce: cableStrength,
+                                         springDamper: cableSpringDamper,
+                                         maxDistance: originalLength);
+    cableJoint.autoConfigureConnectedAnchor = false;
+    cableJoint.anchor = Vector3.zero;
+    cableJoint.connectedBody = linkSource.part.Rigidbody;
+    cableJoint.connectedAnchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
+        linkSource.physicalAnchorTransform.position);
+    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
+    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
+    
+    // Move plug head to the target and adhere it there at the attach node transform.
+    jointObj.transform.parent = linkTarget.physicalAnchorTransform;
+    jointObj.transform.localPosition = Vector3.zero;
+    var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(fixedJoint);
+    KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
+    cableJoint.enablePreprocessing = true;
+    fixedJoint.autoConfigureConnectedAnchor = false;
+    fixedJoint.anchor = Vector3.zero;
+    fixedJoint.connectedBody = linkTarget.part.Rigidbody;
+    fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
+        linkTarget.physicalAnchorTransform.position);
+    fixedJoint.breakForce = GetClampedBreakingTorque(linkBreakForce);
+    fixedJoint.breakTorque = GetClampedBreakingForce(linkBreakTorque);
+    jointObj.transform.parent = jointObj.transform;
+
+    // The order of adding the joints is important!
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(cableJoint);
+    customJoints.Add(fixedJoint);
   }
 
   /// <inheritdoc/>
-  public override void DropJoint() {
-    base.DropJoint();
-    Destroy(springJoint);
-    springJoint = null;
+  protected override void DetachParts() {
+    base.DetachParts();
     Destroy(jointObj);
     jointObj = null;
     renderer = null;
-    UpdateMenuItems();
   }
 
   /// <inheritdoc/>
-  public override void AdjustJoint(bool isUnbreakable = false) {
-    springJoint.breakForce =
-        isUnbreakable ? Mathf.Infinity : GetClampedBreakingForce(linkBreakTorque);
-    springJoint.breakTorque =
-        isUnbreakable ? Mathf.Infinity : GetClampedBreakingTorque(linkBreakForce);
+  protected override void OnStateChanged(bool oldIsLinked) {
+    UpdateContextMenu();
   }
   #endregion
 
@@ -158,57 +208,19 @@ public sealed class KASModuleCableJoint : AbstractJointModule,
   }
   #endregion
 
+  #region Local utility methods
   /// <summary>Returns ratio of the current cable stretch.</summary>
   /// <returns>
   /// <c>0</c> if cable is not stretched. Percentile of the stretching otherwsie. I.e. if cable's
   /// original length was <c>100</c> and the current length is <c>110</c> then stretch ratio is
   /// <c>0.1</c> (10%).
   /// </returns>
-  public float GetCableStretch() {
+  float GetCableStretch() {
     var stretch = currentJointDistance - maxJointDistance;
     if (stretch < MinViableStretch) {
       return 0f;
     }
     return stretch / maxJointDistance;
-  }
-
-  #region Local utility methods
-  /// <summary>Creates a distance joint between the source and the target.</summary>
-  void CreateDistanceJoint(ILinkSource source, ILinkTarget target) {
-    jointObj = new GameObject("RopeConnectorHead");
-    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
-    var rb = jointObj.AddComponent<Rigidbody>();
-    rb.mass = (source.part.mass + target.part.mass) / 2;
-
-    // Temporarily align to the source to have spring joint remembered zero length.
-    jointObj.transform.parent = source.nodeTransform;
-    jointObj.transform.localPosition = Vector3.zero;
-
-    springJoint = jointObj.AddComponent<SpringJoint>();
-    springJoint.spring = cableStrength;
-    springJoint.damper = cableSpringDamper;
-    springJoint.enableCollision = true;
-    springJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
-    springJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
-    springJoint.maxDistance = originalLength;
-    springJoint.connectedBody = source.part.rb;
-    //TODO: Adjust anchor to the attch node.
-    springJoint.enablePreprocessing = false;
-    
-    // Move plug head to the target and adhere it there at the attach node transform.
-    jointObj.transform.parent = target.nodeTransform;
-    jointObj.transform.localPosition = Vector3.zero;
-    var fixedJoint = jointObj.AddComponent<FixedJoint>();
-    fixedJoint.connectedBody = target.part.rb;
-    fixedJoint.breakForce = Mathf.Infinity;
-    fixedJoint.breakTorque = Mathf.Infinity;
-    jointObj.transform.parent = jointObj.transform;
-  }
-
-  /// <summary>Updates GUI context menu items to the current state of the module.</summary>
-  void UpdateMenuItems() {
-    Events["CheckCableStretchContextMenuAction"].active = isLinked;
   }
   #endregion
 }

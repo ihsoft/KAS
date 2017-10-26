@@ -371,13 +371,8 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
   protected bool isLinked {
-    get { return linkSource != null && linkSource.linkState == LinkState.Linked; }
+    get { return targetTransform != null; }
   }
-
-  /// <summary>A link source module that operates on this part. There can be only one.</summary>
-  /// <value>The first <see cref="ILinkSource"/> module on the part.</value>
-  /// <remarks>It's get populated in the <see cref="OnStart"/> method.</remarks>
-  protected ILinkSource linkSource { get; private set; }
   #endregion
 
   #region PartModule overrides
@@ -396,8 +391,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-    linkSource = part.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(x => x.cfgLinkRendererName == rendererName);
     UpdateContextMenu();
     UpdateLinkLengthAndOrientation();
   }
@@ -530,8 +523,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     CreatePistonModels();
     UpdateValuesFromModel();
     // Log basic part values to help part's designers.
-    //FIXME: use info level
-    HostedDebugLog.Warning(this,
+    HostedDebugLog.Info(this,
         "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
         + " pistonLength={3}, outerPistonDiameter={4}",
         minLinkLength, maxLinkLength,

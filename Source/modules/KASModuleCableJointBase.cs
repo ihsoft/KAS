@@ -88,12 +88,6 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public float cfgMaxCableLength { get { return maxCableLength; } }
-
-  /// <inheritdoc/>
-  public float cfgCableSpringForce { get { return cableSpringForce; } }
-
-  /// <inheritdoc/>
-  public float cfgCableBreakForce { get { return cableBreakForce; } }
   #endregion
 
   #region ILinkCableJoint properties
@@ -135,6 +129,15 @@ public class KASModuleCableJointBase : PartModule,
       return 0;
     }
   }
+
+  /// <inheritdoc/>
+  public ILinkSource linkSource { get; private set; }
+
+  /// <inheritdoc/>
+  public ILinkTarget linkTarget { get; private set; }
+
+  /// <inheritdoc/>
+  public bool isLinked { get; private set; }
   #endregion
 
   #region Part's config fields
@@ -148,35 +151,29 @@ public class KASModuleCableJointBase : PartModule,
   [KSPField]
   public float maxCableLength;
 
-  /// <summary>See <see cref="cfgCableSpringForce"/>.</summary>
+  /// <summary>Spring force of the cable which connects the two parts.</summary>
+  /// <remarks>
+  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
+  /// distance. The force is measured in kilonewtons.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
+  /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringDamper = 0.1f;
 
-  /// <summary>See <see cref="cfgCableBreakForce"/>.</summary>
+  /// <summary>Linear breaking force for the cable connecting the two parts.</summary>
+  /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableBreakForce;
   #endregion
 
   #region Inheritable properties
-  /// <summary>Source of the link.</summary>
-  /// <value>The link module on the source part.</value>
-  protected ILinkSource linkSource { get; private set; }
-
-  /// <summary>Target of the link.</summary>
-  /// <value>The link module on the target part.</value>
-  protected ILinkTarget linkTarget { get; private set; }
-
-  /// <summary>Tells if there is a physical joint created.</summary>
-  /// <value><c>true</c> if the source and target parts are physically linked.</value>
-  protected bool isLinked { get; private set; }
-
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
   protected bool isHeadStarted { get { return headSource != null; } }
@@ -219,10 +216,28 @@ public class KASModuleCableJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
+  public virtual void AdjustJoint(bool isUnbreakable = false) {
+    // Nothing to do with the cable.
+  }
+
+  /// <inheritdoc/>
+  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink) {
+    if (isCoupleOnLink) {
+      //FIXME: Update AdjustJoint() if the coupling mode is allowed.
+      HostedDebugLog.Error(this, "Coupling mode is not supported!");
+    }
+  }
+
+  /// <inheritdoc/>
+  public bool coupleOnLinkMode {
+    get { return false; }
+  }
+
+  /// <inheritdoc/>
+  public virtual string[] CheckConstraints(ILinkSource source, Transform targetNodeTransform) {
     var length = Vector3.Distance(
         source.physicalAnchorTransform.position,
-        targetTransform.TransformPoint(source.targetPhysicalAnchor));
+        targetNodeTransform.TransformPoint(source.targetPhysicalAnchor));
     return length > cfgMaxCableLength
         ? new[] { MaxLengthLimitReachedMsg.Format(length, cfgMaxCableLength) }
         : new string[0];

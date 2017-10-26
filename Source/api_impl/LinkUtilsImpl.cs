@@ -4,70 +4,60 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.LogUtils;
 using System;
 using System.Linq;
-using UnityEngine;
 
 namespace KASImpl {
 
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
-    // Docked parts must be connected via the attach nodes.
-    // Use them to doublecheck if the link is OK.
-    if (source.cfgLinkMode == LinkMode.DockVessels) {
-      if (source != null && source.attachNode != null && source.attachNode.attachedPart != null) {
-        return source.attachNode.attachedPart.FindModulesImplementing<ILinkTarget>()
-            .FirstOrDefault(s => s.attachNode != null && s.attachNode.attachedPart == source.part);
-      }
-      return null;
-    }
-    // The non-docked parts are bound via part IDs.
-    // Usen them to resolve the source<=>target relation.
     if (source.linkTargetPartId > 0) {
       var targetPart = FlightGlobals.FindPartByID(source.linkTargetPartId);
       return targetPart.FindModulesImplementing<ILinkTarget>().FirstOrDefault(
-          t => t.linkState == LinkState.Linked && t.linkSourcePartId == source.part.flightID);
+          t => t.isLinked && t.linkSourcePartId == source.part.flightID);
     }
     return null;
   }
 
   /// <inheritdoc/>
   public ILinkSource FindLinkSourceFromTarget(ILinkTarget target) {
-    // Docked parts must be connected via attach nodes. Use them to doublecheck if the link is OK.
-    if (target != null && target.attachNode != null && target.attachNode.attachedPart != null) {
-      return target.attachNode.attachedPart.FindModulesImplementing<ILinkSource>()
-          .FirstOrDefault(s => s.attachNode != null && s.attachNode.attachedPart == target.part);
-    }
-    // Non-docked parts are bound via part IDs. Usen them to resolve source<=>target relation.
     if (target.linkSourcePartId > 0) {
       var sourcePart = FlightGlobals.FindPartByID(target.linkSourcePartId);
       return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
-          s => s.linkState == LinkState.Linked && s.linkTargetPartId == target.part.flightID);
+          s => s.isLinked && s.linkTargetPartId == target.part.flightID);
     }
     return null;
   }
 
   /// <inheritdoc/>
-  public DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode) {
+  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
+                          bool toDominantVessel = false) {
+    if (toDominantVessel) {
+      var dominantVessel =
+          Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
+      if (dominantVessel != targetNode.owner.vessel) {
+        var tmp = sourceNode;
+        sourceNode = targetNode;
+        targetNode = tmp;
+      }
+    }
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
-    var trgPart = targetNode.owner;
-    var trgVessel = trgPart.vessel;
+    var tgtPart = targetNode.owner;
+    var tgtVessel = tgtPart.vessel;
+    DebugEx.Fine("Couple {0} to {1}", srcPart, tgtPart);
 
-    var vesselInfo = new DockedVesselInfo();
-    vesselInfo.name = srcVessel.vesselName;
-    vesselInfo.vesselType = srcVessel.vesselType;
-    vesselInfo.rootPartUId = srcVessel.rootPart.flightID;
+    UpdateVesselInfoOnPart(srcPart);
+    UpdateVesselInfoOnPart(tgtPart);
 
-    GameEvents.onActiveJointNeedUpdate.Fire(srcVessel);
-    GameEvents.onActiveJointNeedUpdate.Fire(trgVessel);
-    sourceNode.attachedPart = trgPart;
-    sourceNode.attachedPartId = trgPart.flightID;
+    sourceNode.attachedPart = tgtPart;
+    sourceNode.attachedPartId = tgtPart.flightID;
     targetNode.attachedPart = srcPart;
     targetNode.attachedPartId = srcPart.flightID;
     srcPart.attachMode = AttachModes.STACK;  // All KAS links are expected to be STACK.
-    srcPart.Couple(trgPart);
+    srcPart.Couple(tgtPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
     // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
     // FYI: This logic was taken from ModuleDockingNode.DockToVessel.
@@ -78,29 +68,68 @@ class LinkUtilsImpl : ILinkUtils {
       sourceNode.owner.vessel.MakeActive();
       FlightInputHandler.SetNeutralControls();
     }
-    GameEvents.onVesselWasModified.Fire(sourceNode.owner.vessel);
 
-    return vesselInfo;
+    return srcPart;
   }
 
   /// <inheritdoc/>
-  public Vessel DecoupleParts(Part part1, Part part2) {
-    Vessel inactiveVessel;
+  public Part DecoupleParts(Part part1, Part part2) {
+    Part partToDecouple;
     if (part1.parent == part2) {
-      part1.decouple();
-      inactiveVessel = part2.vessel;
+      DebugEx.Fine("Decouple {0} from {1}", part1, part2);
+      partToDecouple = part1;
     } else if (part2.parent == part1) {
-      part2.decouple();
-      inactiveVessel = part1.vessel;
+      DebugEx.Fine("Decouple {0} from {1}", part2, part1);
+      partToDecouple = part2;
     } else {
-      Debug.LogWarningFormat("Cannot decouple since parts belong to different vessels: {0} != {1}",
-                             part1.vessel, part2.vessel);
+      DebugEx.Warning("Cannot decouple {0} <=> {1} - not coupled!", part1, part2);
       return null;
+    }
+
+    var parentVesselInfoModule = partToDecouple.parent.FindModuleImplementing<ILinkVesselInfo>();
+    if (parentVesselInfoModule != null) {
+      parentVesselInfoModule.vesselInfo = null;
+    }
+    var childVesselInfoModule = partToDecouple.FindModuleImplementing<ILinkVesselInfo>();
+    if (childVesselInfoModule != null && childVesselInfoModule.vesselInfo != null) {
+      // Simulate the IActivateOnDecouple behaviour since Undock() doesn't do it.
+      var srcAttachNode = partToDecouple.FindAttachNodeByPart(partToDecouple.parent);
+      if (srcAttachNode != null) {
+        srcAttachNode.attachedPart = null;
+        partToDecouple.FindModulesImplementing<IActivateOnDecouple>()
+            .ForEach(m => m.DecoupleAction(srcAttachNode.id, true));
+      }
+      var tgtAttachNode = partToDecouple.parent.FindAttachNodeByPart(partToDecouple);
+      if (tgtAttachNode != null) {
+        tgtAttachNode.attachedPart = null;
+        partToDecouple.parent.FindModulesImplementing<IActivateOnDecouple>()
+            .ForEach(m => m.DecoupleAction(tgtAttachNode.id, false));
+      }
+      // Decouple and restore the name and hierarchy on the decoupled assembly.
+      partToDecouple.Undock(childVesselInfoModule.vesselInfo);
+      childVesselInfoModule.vesselInfo = null;
+    } else {
+      // Do simple decouple event which will screw the decoupled vessel root part.
+      partToDecouple.decouple();
     }
     part1.vessel.CycleAllAutoStrut();
     part2.vessel.CycleAllAutoStrut();
-    return inactiveVessel;
+    return partToDecouple;
   }
+
+  #region Local utility methods
+  /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
+  /// <param name="part">The part to search for the module on.</param>
+  void UpdateVesselInfoOnPart(Part part) {
+    var vesselInfoModule = part.FindModuleImplementing<ILinkVesselInfo>();
+    if (vesselInfoModule != null) {
+      vesselInfoModule.vesselInfo = new DockedVesselInfo();
+      vesselInfoModule.vesselInfo.name = part.vessel.vesselName;
+      vesselInfoModule.vesselInfo.vesselType = part.vessel.vesselType;
+      vesselInfoModule.vesselInfo.rootPartUId = part.vessel.rootPart.flightID;
+    }
+  }
+  #endregion
 }
 
 }  // namespace

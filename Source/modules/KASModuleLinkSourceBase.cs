@@ -39,12 +39,11 @@ namespace KAS {
 // TODO(ihsoft): Handle part staged action.
 public class KASModuleLinkSourceBase : PartModule,
     // KSP interfaces.
-    IModuleInfo, IActivateOnDecouple,
+    IModuleInfo,
     // KAS interfaces.
     ILinkSource, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IsPartDeathListener,
-    IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsPackable, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -101,13 +100,6 @@ public class KASModuleLinkSourceBase : PartModule,
       description: "Title of the module to present in the editor details window.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message LinkModeDockVesselsInfo = new Message(
-      "#kasLOC_02008",
-      defaultTemplate: "Can dock the vessels",
-      description: "Info string in the editor that tells if the part can joint two vessels into one"
-      + " (dock one vessel to another).");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected readonly static Message LinkModeTiePartsOnDifferentVesselsInfo = new Message(
       "#kasLOC_02009",
       defaultTemplate: "Links to another vessel",
@@ -131,9 +123,6 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public string cfgAttachNodeName { get { return attachNodeName; } }
-
-  /// <inheritdoc/>
-  public string cfgLinkRendererName { get { return linkRendererName; } }
   #endregion
 
   #region ILinkSource properties implementation
@@ -141,16 +130,6 @@ public class KASModuleLinkSourceBase : PartModule,
   public ILinkTarget linkTarget {
     get { return _linkTarget; }
     private set {
-      if (_linkTarget != value) {
-        if (value != null && value.part.vessel != vessel) {
-          // Set ignores on the new target part.
-          Colliders.SetCollisionIgnores(part, value.part, true);
-        }
-        if (_linkTarget != null && _linkTarget.part.vessel != vessel) {
-          // Reset ignores on the old target part.
-          Colliders.SetCollisionIgnores(part, _linkTarget.part, false);
-        }
-      }
       _linkTarget = value;
       persistedLinkTargetPartId = value != null ? value.part.flightID : 0;
     }
@@ -165,7 +144,7 @@ public class KASModuleLinkSourceBase : PartModule,
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
+    private set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -174,7 +153,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual bool isLocked {
+  public bool isLocked {
     get { return linkState == LinkState.Locked; }
     set {
       // Don't trigger state change events when the value hasn't changed.
@@ -185,24 +164,28 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <inheritdoc/>
+  public bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
+
+  /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
   public Transform physicalAnchorTransform { get; private set; }
 
   /// <inheritdoc/>
-  public AttachNode attachNode { get; private set; }
-
-  /// <inheritdoc/>
-  public GUILinkMode guiLinkMode { get; private set; }
-
-  /// <inheritdoc/>
-  public LinkActorType linkActor { get; private set; }
-
-  /// <inheritdoc/>
   public Vector3 targetPhysicalAnchor {
     get { return physicalAnchorAtTarget; }
   }
+
+  /// <inheritdoc/>
+  /// <seealso cref="jointName"/>
+  public ILinkJoint linkJoint { get; private set; }
+
+  /// <inheritdoc/>
+  /// <seealso cref="linkRendererName"/>
+  public ILinkRenderer linkRenderer { get; private set; }
   #endregion
 
   #region Persistent fields
@@ -226,9 +209,18 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <summary>See <see cref="cfgLinkMode"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public LinkMode linkMode = LinkMode.DockVessels;
+  public LinkMode linkMode = LinkMode.TieAnyParts;
 
-  /// <summary>See <see cref="cfgLinkRendererName"/>.</summary>
+  /// <summary>Name of the renderer that draws the link.</summary>
+  /// <value>Arbitrary string. Can be empty.</value>
+  /// <remarks>
+  /// The source will find a renderer module using this name as a key. It will be used to draw the
+  /// link when connected to the target. The behavior is undefined if there is no renderer found on
+  /// the part.
+  /// </remarks>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <seealso cref="linkRenderer"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkRendererName = "";
@@ -275,19 +267,21 @@ public class KASModuleLinkSourceBase : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Joint module that manages a physical link.</summary>
-  /// <value>The physical joint module on the part.</value>
-  protected ILinkJointBase linkJoint { get; private set; }
+  /// <summary>Mode in which a link between the source and target is being created.</summary>
+  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
+  /// <value>The GUI mode.</value>
+  /// <seealso cref="StartLinking"/>
+  /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  protected GUILinkMode guiLinkMode { get; private set; }
 
-  /// <summary>Renderer of the link meshes.</summary>
-  /// <value>A renderer module with name <see cref="cfgLinkRendererName"/>.</value>
-  protected ILinkRenderer linkRenderer { get; private set; }
-
-  /// <summary>Tells if this source is currectly linked with a target.</summary>
-  /// <value>The current state of the link.</value>
-  protected bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
+  /// <summary>Actor, who has initiated the link.</summary>
+  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
+  /// <value>The actor.</value>
+  /// <seealso cref="StartLinking"/>
+  /// <seealso cref="linkState"/>
+  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
+  protected LinkActorType linkActor { get; private set; }
 
   /// <summary>
   /// State machine that controls the source state tranistions and defines the reaction on these
@@ -322,7 +316,7 @@ public class KASModuleLinkSourceBase : PartModule,
     base.OnAwake();
     linkStateMachine = new SimpleStateMachine<LinkState>(strict: true);
     linkStateMachine.onAfterTransition +=
-        (start, end) => HostedDebugLog.Info(this, "Link state changed: {0} => {1}", start, end);
+        (start, end) => HostedDebugLog.Fine(this, "Link state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.Linking, LinkState.RejectingLinks});
@@ -351,6 +345,10 @@ public class KASModuleLinkSourceBase : PartModule,
         LinkState.Linking,
         enterHandler: x => KASEvents.OnLinkAccepted.Add(OnLinkActionAcceptedKASEvent),
         leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAcceptedKASEvent));
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linked,
+        enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
+        leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
   }
 
   /// <inheritdoc/>
@@ -366,7 +364,7 @@ public class KASModuleLinkSourceBase : PartModule,
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
 
-    linkJoint = part.FindModulesImplementing<ILinkJointBase>()
+    linkJoint = part.FindModulesImplementing<ILinkJoint>()
         .FirstOrDefault(x => x.cfgJointName == jointName);
     if (linkJoint == null) {
       HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
@@ -376,19 +374,15 @@ public class KASModuleLinkSourceBase : PartModule,
     if (linkRenderer == null) {
       HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
     }
+  }
 
-    // Try to restore link to the target and update module's state.
+  /// <inheritdoc/>
+  public override void OnStartFinished(PartModule.StartState state) {
     if (persistedLinkState == LinkState.Linked) {
-      if (linkMode == LinkMode.DockVessels) {
-        RestoreTarget();
-      } else {
-        // Target vessel may not be loaded yet. Wait for it.
-        AsyncCall.CallOnEndOfFrame(this, RestoreTarget);
-      }
-    } else {
-      linkStateMachine.currentState = persistedLinkState;
-      linkState = linkState;  // Trigger state updates.
+      RestoreTarget();
     }
+    linkStateMachine.currentState = persistedLinkState;
+    linkState = linkState;  // Trigger state updates.
   }
 
   /// <inheritdoc/>
@@ -405,12 +399,12 @@ public class KASModuleLinkSourceBase : PartModule,
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Create attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Use attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
@@ -424,41 +418,14 @@ public class KASModuleLinkSourceBase : PartModule,
       Hierarchy.MoveToParent(
           physicalAnchorTransform, nodeTransform, newPosition: physicalAnchorAtSource);
     }
-
-    // If source is docked to the target then we need the actual attach node. Create it.
-    if (persistedLinkState == LinkState.Linked && linkMode == LinkMode.DockVessels) {
-      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
-    }
   }
   #endregion
 
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    if (!isLinked) {
-      return;
-    }
-    if (linkTarget == null) {
-      LogicalUnlink(LinkActorType.None);
-      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
-      if (linkMode == LinkMode.DockVessels) {
-        HostedDebugLog.Warning(this, "Fix the docking state for a bad link...");
-        AsyncCall.CallOnEndOfFrame(this, UndockFromBadTarget);
-      } else {
-        HostedDebugLog.Warning(
-            this, "Mark the source as unlinked since the link state cannot be restored.");
-      }
-    } else if (linkTarget.linkSource == null) {
-      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
-      HostedDebugLog.Warning(
-          this, "Detach from the target {0} since it's failed to restore the state.",
-          linkTarget.part);
-      AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.None));
-    } else {
-      // FIXME(ihsoft): Remove this temp hack.
-      if (linkJoint is KASModuleCableJointBase) {
-        linkJoint.CreateJoint(this, linkTarget);
-      }
+    if (isLinked) {
+      linkJoint.CreateJoint(this, linkTarget);
     }
   }
 
@@ -478,6 +445,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void OnPartDie() {
     if (isLinked) {
+      HostedDebugLog.Info(this, "Part has died. Drop the link to: {0}", linkTarget);
       BreakCurrentLink(LinkActorType.Physics);
     }
   }
@@ -490,10 +458,6 @@ public class KASModuleLinkSourceBase : PartModule,
     sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
     sb.AppendLine();
 
-    if (linkMode == LinkMode.DockVessels) {
-      sb.AppendLine(ScreenMessaging.SetColorToRichText(
-          LinkModeDockVesselsInfo, Color.cyan));
-    }
     if (linkMode == LinkMode.TiePartsOnDifferentVessels || linkMode == LinkMode.TieAnyParts) {
       sb.AppendLine(ScreenMessaging.SetColorToRichText(
           LinkModeTiePartsOnDifferentVesselsInfo, Color.cyan));
@@ -528,19 +492,15 @@ public class KASModuleLinkSourceBase : PartModule,
       HostedDebugLog.Warning(this, "Cannot start linking mode is state: {0}", linkState);
       return false;
     }
-    if (mode == GUILinkMode.Eva && !FlightGlobals.ActiveVessel.isEVA) {
-      HostedDebugLog.Warning(this, "Cannot start EVA linking mode since active vessel is not EVA");
-      return false;
-    }
     linkState = LinkState.Linking;
     StartLinkGUIMode(mode, actor);
     return true;
   }
 
   /// <inheritdoc/>
-  public virtual void CancelLinking(LinkActorType actor) {
+  public virtual void CancelLinking() {
     if (linkState != LinkState.Linking) {
-      HostedDebugLog.Warning(this, "Cannot stop linking mode in state: {0}", linkState);
+      HostedDebugLog.Fine(this, "Ignore linking mode cancel in state: {0}", linkState);
       return;
     }
     StopLinkGUIMode();
@@ -550,16 +510,16 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
     if (linkState != LinkState.Linking) {
-      HostedDebugLog.Warning(this, "Cannot link in state: {0}", linkState);
+      HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
     if (!CheckCanLinkTo(target)) {
       return false;
     }
     LogicalLink(target);
-    PhysicalLink(target);
-    // When GUI linking mode is stopped all the targets stop accepting link requests. I.e. the mode
-    // must not be stopped before the link is created.
+    linkJoint.CreateJoint(this, target);
+    // When GUI linking mode is stopped, all the targets stop accepting the link requests.
+    // I.e. the mode must not be stopped before the link is created.
     StopLinkGUIMode();
     return true;
   }
@@ -567,11 +527,11 @@ public class KASModuleLinkSourceBase : PartModule,
   /// <inheritdoc/>
   public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (!isLinked) {
-      HostedDebugLog.Warning(this, "Cannot break link in state: {0}", linkState);
+      HostedDebugLog.Error(this, "Cannot break link in state: {0}", linkState);
       return;
     }
     var targetRootPart = linkTarget.part;
-    PhysicalUnlink(linkTarget);
+    linkJoint.DropJoint();
     LogicalUnlink(actorType);
     // If either source or target part after the separation belong to the active vessel then adjust
     // the focus. Otherwise, the actor was external (e.g. EVA).
@@ -629,22 +589,6 @@ public class KASModuleLinkSourceBase : PartModule,
   }
   #endregion
 
-  #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
-  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (nodeName == attachNodeName) {
-      if (isLinked) {
-        // In case of event was external to KAS.
-        LogicalUnlink(LinkActorType.None);
-      }
-      // Cleanup the node since once decoupled it's no more needed.
-      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-      attachNode = null;
-    }
-    //FIXME: restore source vessel info
-  }
-  #endregion
-
   #region Inheritable methods
   /// <summary>Triggers when a state has been assigned with a value.</summary>
   /// <remarks>
@@ -653,15 +597,6 @@ public class KASModuleLinkSourceBase : PartModule,
   /// </remarks>
   /// <param name="oldState">State prior to the change.</param>
   protected virtual void OnStateChange(LinkState? oldState) {
-    // Create attach node for linking state t oallow coupling. Drop the node once linking mode is
-    // over and link hasn't been established.
-    if (linkState == LinkState.Linking && attachNode == null) {
-      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
-    }
-    if (oldState == LinkState.Linking && !isLinked && attachNode != null) {
-      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-      attachNode = null;
-    }
   }
 
   /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
@@ -687,46 +622,11 @@ public class KASModuleLinkSourceBase : PartModule,
     }
   }
 
-  /// <summary>Links source and target in the physical world.</summary>
-  /// <remarks>It's always called <i>after</i> the logical link updates.</remarks>
-  /// <param name="target">The target to physically link with.</param>
-  /// <see cref="LogicalLink"/>
-  protected virtual void PhysicalLink(ILinkTarget target) {
-    // FIXME: store source vessel info. needs to be restored on decouple.
-    if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Dock to vessel: {0}", target.part.vessel);
-      KASAPI.LinkUtils.CoupleParts(attachNode, target.attachNode);
-    }
-    // FIXME(ihsoft): Remove this temp hack.
-    if (linkJoint is KASModuleCableJointBase) {
-      linkJoint.CreateJoint(this, target);
-    }
-  }
-
-  /// <summary>Breaks link with the target in the physical world.</summary>
-  /// <remarks>It's always called <i>before</i> the logical link updates.</remarks>
-  /// <param name="target">The target to break a physical link with.</param>
-  /// <see cref="LogicalUnlink"/>
-  protected virtual void PhysicalUnlink(ILinkTarget target) {
-    if (linkMode == LinkMode.DockVessels) {
-      HostedDebugLog.Info(this, "Undock from vessel: {0}", target.part.vessel);
-      // FIXME: restore vessels names/types
-      KASAPI.LinkUtils.DecoupleParts(part, target.part);
-      HostedDebugLog.Info(this, "Undocked as vessel: {0}", part.vessel);
-    }
-    // FIXME(ihsoft): Remove this temp hack.
-    if (linkJoint is KASModuleCableJointBase) {
-      linkJoint.DropJoint();
-    }
-  }
-
   /// <summary>Logically links the source and the target, and starts the renderer.</summary>
   /// <remarks>It's always called <i>before</i> the physical link updates.</remarks>
   /// <param name="target">The target to link with.</param>
-  /// <seealso cref="PhysicalLink"/>
   protected virtual void LogicalLink(ILinkTarget target) {
-    HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}...",
-                        target as PartModule, linkActor);
+    HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}", target, linkActor);
     var linkInfo = new KASEvents.LinkEvent(this, target, linkActor);
     linkTarget = target;
     linkTarget.linkSource = this;
@@ -742,10 +642,8 @@ public class KASModuleLinkSourceBase : PartModule,
   /// </summary>
   /// <remarks>It's always called <i>after</i> the physical link updates.</remarks>
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
-  /// <see cref="PhysicalUnlink"/>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
-    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}...",
-                        linkTarget as PartModule, actorType);
+    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     if (linkTarget != null) {
       linkTarget.linkSource = null;
@@ -758,22 +656,24 @@ public class KASModuleLinkSourceBase : PartModule,
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
   }
 
-  /// <summary>Finds linked target for the source, and updates the state.</summary>
+  /// <summary>Finds linked target for the source, and updates the related states.</summary>
   /// <remarks>
-  /// Depending on the link mode, this method may be called either synchronously when the part is
-  /// started, or asynchronously at the end of frame.
+  /// This method is only called if the part is linked. It's called ater all the modules in the
+  /// scene have properly set up. However, the other links at this point may not have the link state
+  /// set yet.
   /// </remarks>
-  /// <seealso cref="linkMode"/>
   protected virtual void RestoreTarget() {
     linkTarget = KASAPI.LinkUtils.FindLinkTargetFromSource(this);
-    if (linkTarget == null) {
-      // Only report the bad state, it will be fixed in OnPartUnpack.
+    if (linkTarget != null) {
+      HostedDebugLog.Fine(this, "Restored link to: {0}", linkTarget);
+      linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
+    } else {
+      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
       HostedDebugLog.Error(
           this, "Source cannot restore link to target part id={0} on the attach node {1}",
           persistedLinkTargetPartId, attachNodeName);
+      persistedLinkState = LinkState.Available;
     }
-    linkStateMachine.currentState = persistedLinkState;
-    linkState = linkState;  // Trigger state updates.
   }
   #endregion
 
@@ -783,7 +683,7 @@ public class KASModuleLinkSourceBase : PartModule,
   /// be consistent.
   /// </summary>
   /// <remarks>This method must pass for both started and not started linking mode.</remarks>
-  /// <param name="target">Target of the tube to check link with.</param>
+  /// <param name="target">Target of the pipe to check link with.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
   protected string CheckBasicLinkConditions(ILinkTarget target) {
     if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {
@@ -797,7 +697,7 @@ public class KASModuleLinkSourceBase : PartModule,
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
     }
-    if ((linkMode == LinkMode.DockVessels || linkMode == LinkMode.TiePartsOnDifferentVessels)
+    if (linkMode == LinkMode.TiePartsOnDifferentVessels
         && vessel == target.part.vessel) {
       return CannotLinkToTheSameVesselMsg;
     }
@@ -840,29 +740,7 @@ public class KASModuleLinkSourceBase : PartModule,
   }
   #endregion 
 
-  /// <summary>
-  /// Undocks source part from its probable target. Used to fix state when target cannot be resolved
-  /// from the config or it failed to properly re-link with source.
-  /// </summary>
-  void UndockFromBadTarget() {
-    if (attachNode == null || attachNode.attachedPart == null) {
-      HostedDebugLog.Warning(this, "Cannot decouple because the target candidate is not found.");
-      return;
-    }
-    Part partToDecouple;
-    if (part.parent == attachNode.attachedPart) {
-      partToDecouple = part;
-    } else if (attachNode.attachedPart.parent == part) {
-      partToDecouple = attachNode.attachedPart;
-    } else {
-      HostedDebugLog.Error(this, "Unexpected setup of еру attach node");
-      return;
-    }
-    HostedDebugLog.Warning(this, "Decouple {0} from {1} since the link state cannot be restored.",
-                           partToDecouple, partToDecouple.parent);
-    partToDecouple.decouple();
-  }
-
+  #region Local untility methods
   /// <summary>
   /// Waits till the physics easement logic warmed up and disables the collision between the source
   /// and target parts.
@@ -880,9 +758,26 @@ public class KASModuleLinkSourceBase : PartModule,
     yield return new WaitForFixedUpdate();
     if (isLinked) {  // Link may get broken during the physics easyment.
       CollisionManager.IgnoreCollidersOnVessel(
-          linkTarget.part.vessel, part.GetComponentInChildren<Collider>());
+          linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
     }
   }
+
+  /// <summary>Reacts on the vessel destruction and break the link if needed.</summary>
+  /// <remarks>
+  /// This event is pretty rare. It happens when the vessel needs to be destroyed in a non-physical
+  /// way. E.g. when an EVA kerbal boards the pod, he just "disappears" from the scene. By contrast,
+  /// the docked vessel is removed only logically, all its parts remain alive in the physical world.
+  /// </remarks>
+  /// <param name="targetVessel">The vessel that is being destroyed.</param>
+  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
+    if (isLinked && vessel != linkTarget.part.vessel
+        && (targetVessel == vessel || targetVessel == linkTarget.part.vessel)) {
+      HostedDebugLog.Info(
+          this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
+      BreakCurrentLink(LinkActorType.Physics);
+    }
+  }
+  #endregion
 }
 
 }  // namespace

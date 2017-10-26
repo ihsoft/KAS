@@ -662,6 +662,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    LocalizeModule();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
@@ -813,6 +814,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
+  }
+  #endregion
+
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public virtual void FixedUpdate() {
@@ -836,6 +844,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region KASModuleLikSourceBase overrides
+  /// <inheritdoc/>
+  public override void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
+    if (isLinked) { 
+      cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
+    }
+    base.BreakCurrentLink(actorType, moveFocusOnTarget);
+  }
+
   /// <inheritdoc/>
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
@@ -861,12 +877,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void LogicalLink(ILinkTarget target) {
     base.LogicalLink(target);
     connectorState = ConnectorState.Plugged;
-  }
-
-  /// <inheritdoc/>
-  protected override void PhysicalUnlink(ILinkTarget target) {
-    cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
-    base.PhysicalUnlink(target);
   }
 
   /// <inheritdoc/>

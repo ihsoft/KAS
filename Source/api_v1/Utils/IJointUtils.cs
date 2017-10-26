@@ -31,19 +31,19 @@ public interface IJointUtils {
   /// <item>All linear and angular drive modes set to <see cref="ConfigurableJointMotion.Locked"/>.
   /// </item>
   /// <item>All drives, springs and limits are zeroed.</item>
-  /// <item>Coordinate system is reset to local. Y looks up, and X looks right.</item>
+  /// <item>The coordinate system is reset to local. Y looks up, and X looks right.</item>
   /// <item>
-  /// Connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
+  /// The connected body is <i>not</i> touched. Connection, if any, won't be broken on the reset.
   /// </item>
   /// <item>
-  /// Any state accumulated so far (e.g. relative rotation or position) will be lost, and joint will
-  /// remember new relative rotation/position of the connected objects.
+  /// Any state accumulated so far (e.g. relative rotation or position) will be lost, and the joint
+  /// will remember the new relative rotation/position of the connected objects.
   /// </item>
   /// </list>
   /// </para>
   /// <para>
-  /// Use this method before setting up a new or existing joint. By resetting the joint you ensure
-  /// it's in a consistent state, and further adjustments will always give the same result
+  /// Use this method before setting up a new or existing joint. By resetting the joint, you ensure
+  /// it's in a consistent state, and the further adjustments will always give the same result
   /// regardless to how the joint was created and what components were affecting it.
   /// </para>
   /// </remarks>
@@ -183,6 +183,40 @@ public interface IJointUtils {
                            float angleLimit = Mathf.Infinity,
                            float angleLimitForce = 0,
                            float angleLimitDamperRatio = 0.1f);
+
+  /// <summary>Sets up a cannonical distance joint.</summary>
+  /// <remarks>
+  /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
+  /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this
+  /// method.
+  /// </remarks>
+  /// <param name="joint">The joint to setup.</param>
+  /// <param name="springForce">
+  /// The strength of the spring that keeps the two objects in range.
+  /// </param>
+  /// <param name="springDamper">The force to apply to calm down the oscillations.</param>
+  /// <param name="maxDistance">
+  /// The maximum distance to allow between the obejcts before applying the spring force.
+  /// </param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#distance-joint">
+  /// PhysX: Distant Joint
+  /// </seealso>
+  void SetupDistanceJoint(ConfigurableJoint joint,
+                          float springForce = 0,
+                          float springDamper = 0,
+                          float maxDistance = Mathf.Infinity);
+
+  /// <summary>Sets up a cannonical fixed joint.</summary>
+  /// <remarks>
+  /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
+  /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this
+  /// method.
+  /// </remarks>
+  /// <param name="joint">The joint to setup.</param>
+  /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#fixed-joint">
+  /// PhysX: Fixed Joint
+  /// </seealso>
+  void SetupFixedJoint(ConfigurableJoint joint);
 }
 
 }  // namespace

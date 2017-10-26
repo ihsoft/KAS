@@ -52,8 +52,10 @@ public class ILinkSourceExample1  {
     // GUILinkMode.API mode tells the implementation to not execute any user facing effects on the
     // link. See GUILinkMode for more details. 
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
+      // Here we can only fail due to the constraints. E.g. the link mode is not supported, or the
+      // joint module doesn't give the green light.
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     Debug.LogFormat("Established link with part: id={0}, mode={1}",
@@ -78,7 +80,7 @@ public class ILinkSourceExample1  {
     }
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     return true;
@@ -103,7 +105,7 @@ public class ILinkSourceExample1  {
     // link. See GUILinkMode for more details. 
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
-      source.CancelLinking(LinkActorType.API);
+      source.CancelLinking();
       return false;
     }
     return true;
@@ -190,7 +192,7 @@ public class ILinkSourceExample1  {
   public static void StartRendrer(Part part, ILinkSource source, ILinkTarget target) {
     // It's a good idea to pre-cache this module in OnStart() method.
     var renderer = part.FindModulesImplementing<ILinkRenderer>()
-        .FirstOrDefault(r => r.cfgRendererName == source.cfgLinkRendererName);
+        .FirstOrDefault(r => r.cfgRendererName == "MyRendererName");
     if (renderer == null) {
       Debug.LogError("Ops! No renderer found");
       return;
@@ -203,7 +205,7 @@ public class ILinkSourceExample1  {
   // Finds the KAS source at the specified part's attach node.
   public static ILinkSource FindSourceAtAttachNode(AttachNode an) {
     return an.owner.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(s => s.attachNode != null & s.attachNode.id == an.id);
+        .FirstOrDefault(s => s.cfgAttachNodeName == an.id);
   }
   #endregion
 
@@ -216,9 +218,45 @@ public class ILinkSourceExample1  {
       return null;
     }
     return otherAn.owner.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.attachNode != null && t.attachNode.id == otherAn.id);
+        .FirstOrDefault(t => t.cfgAttachNodeName == otherAn.id);
   }
   #endregion
+}
+
+public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, ILinkSource {
+  #region ILinkSourceExample_linkRenderer
+  public ILinkRenderer linkRenderer { get; private set; }
+
+  [KSPField]
+  public string rendererName = "";
+
+  void InitRenderer() {
+    linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
+        .FirstOrDefault(r => r.cfgRendererName == rendererName);
+  }
+  #endregion
+
+  public abstract bool StartLinking(GUILinkMode mode, LinkActorType actor);
+  public abstract void CancelLinking();
+  public abstract bool LinkToTarget(ILinkTarget target);
+  public abstract void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
+  public abstract bool CheckCanLinkTo(
+      ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
+  public Part part { get; private set; }
+  public string cfgLinkType { get; private set; }
+  public LinkMode cfgLinkMode { get; private set; }
+  public string cfgAttachNodeName { get; private set; }
+  public Transform nodeTransform { get; private set; }
+  public Transform physicalAnchorTransform { get; private set; }
+  public ILinkTarget linkTarget { get; private set; }
+  public uint linkTargetPartId { get; private set; }
+  public LinkState linkState { get; private set; }
+  public bool isLocked { get; set; }
+  public bool isLinked { get; private set; }
+  public GUILinkMode guiLinkMode { get; private set; }
+  public LinkActorType linkActor { get; private set; }
+  public Vector3 targetPhysicalAnchor { get; private set; }
+  public ILinkJoint linkJoint { get; private set; }
 }
 
 #region ILinkSourceExample_BreakFromPhysyicalMethod

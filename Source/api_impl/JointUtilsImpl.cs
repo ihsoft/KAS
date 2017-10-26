@@ -100,7 +100,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     // Setup linear joint parameters.
     joint.xDrive = new JointDrive() {
       positionSpring = springForce,
-      positionDamper = springForce * springDamperRatio,
+      positionDamper = float.IsInfinity(springForce) ? 0 : springForce * springDamperRatio,
       maximumForce = maxSpringForce
     };
     joint.linearLimit = new SoftJointLimit() {
@@ -108,7 +108,9 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     };
     joint.linearLimitSpring = new SoftJointLimitSpring() {
       spring = distanceLimitForce,
-      damper = distanceLimitForce * distanceLimitDamperRatio
+      damper = float.IsInfinity(distanceLimitForce)
+          ? 0
+          : distanceLimitForce * distanceLimitDamperRatio
     };
     // Optimize mode basing on the input parameters.
     if (float.IsInfinity(springForce) || Mathf.Approximately(distanceLimit, 0)) {
@@ -137,7 +139,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     joint.angularXMotion = ConfigurableJointMotion.Free;
     joint.angularYZDrive = new JointDrive() {
       positionSpring = springForce,
-      positionDamper = springForce * springDamperRatio,
+      positionDamper = float.IsInfinity(springForce) ? 0 :  springForce * springDamperRatio,
       maximumForce = maxSpringForce
     };
     joint.angularYZLimitSpring = new SoftJointLimitSpring() {
@@ -163,6 +165,43 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
       joint.angularYMotion = ConfigurableJointMotion.Limited;
       joint.angularZMotion = ConfigurableJointMotion.Limited;
     }
+  }
+
+  /// <inheritdoc/>
+  public void SetupDistanceJoint(ConfigurableJoint joint,
+                                 float springForce = 0,
+                                 float springDamper = 0,
+                                 float maxDistance = Mathf.Infinity) {
+    // Swap X&Z axes so that the joint's forward vector becomes a primary axis.
+    joint.axis = Vector3.forward;
+    joint.secondaryAxis = Vector3.right;
+    // Setup linear joint parameters.
+    joint.linearLimit = new SoftJointLimit() {
+      limit = maxDistance
+    };
+    joint.linearLimitSpring = new SoftJointLimitSpring() {
+      spring = springForce,
+      damper = springDamper
+    };
+    joint.xMotion = ConfigurableJointMotion.Limited;
+    joint.angularXMotion = ConfigurableJointMotion.Free;
+    joint.yMotion = ConfigurableJointMotion.Limited;
+    joint.angularYMotion = ConfigurableJointMotion.Free;
+    joint.zMotion = ConfigurableJointMotion.Limited;
+    joint.angularZMotion = ConfigurableJointMotion.Free;
+  }
+
+  /// <inheritdoc/>
+  public void SetupFixedJoint(ConfigurableJoint joint) {
+    // Swap X&Z axes so that the joint's forward vector becomes a primary axis.
+    joint.axis = Vector3.forward;
+    joint.secondaryAxis = Vector3.right;
+    joint.xMotion = ConfigurableJointMotion.Locked;
+    joint.angularXMotion = ConfigurableJointMotion.Locked;
+    joint.yMotion = ConfigurableJointMotion.Locked;
+    joint.angularYMotion = ConfigurableJointMotion.Locked;
+    joint.zMotion = ConfigurableJointMotion.Locked;
+    joint.angularZMotion = ConfigurableJointMotion.Locked;
   }
 
   StringBuilder DumpBaseJoint(Joint joint) {

@@ -32,11 +32,11 @@ namespace KAS {
 // Next localization ID: #kasLOC_03004.
 public class KASModuleLinkTargetBase :
     // KSP parents.
-    PartModule, IModuleInfo, IActivateOnDecouple,
+    PartModule, IModuleInfo,
     // KAS parents.
-    ILinkTarget, ILinkStateEventListener,
+    ILinkTarget, ILinkStateEventListener, IsLocalizableModule,
     // Syntax sugar parents.
-    IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -71,9 +71,8 @@ public class KASModuleLinkTargetBase :
         _linkSource = value;
         if (value != null) {
           persistedLinkSourcePartId = value.part.flightID;
-          persistedLinkMode = value.cfgLinkMode;
           // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
-          // a different scale.
+          // a different scale, so do a transformation.
           var sourceScale = value.nodeTransform.lossyScale;
           var targetScale = nodeTransform.lossyScale;
           var translateScale = new Vector3(sourceScale.x / targetScale.x,
@@ -84,12 +83,10 @@ public class KASModuleLinkTargetBase :
           linkState = LinkState.Linked;
         } else {
           persistedLinkSourcePartId = 0;
-          persistedLinkMode = LinkMode.DockVessels;  // Simply a default value.
           physicalAnchorTransform.localPosition = Vector3.zero;
           linkState = LinkState.Available;
         }
-        persistedPhysicalAnchor = physicalAnchorTransform.localPosition;
-        TriggerSourceChangeEvents(oldSource);
+        MaybeTriggerSourceChangeEvents(oldSource);
       }
     }
   }
@@ -99,7 +96,7 @@ public class KASModuleLinkTargetBase :
   public uint linkSourcePartId { get { return persistedLinkSourcePartId; } }
 
   /// <inheritdoc/>
-  public virtual LinkState linkState {
+  public LinkState linkState {
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
@@ -112,7 +109,7 @@ public class KASModuleLinkTargetBase :
   }
 
   /// <inheritdoc/>
-  public virtual bool isLocked {
+  public bool isLocked {
     get { return linkState == LinkState.Locked; }
     set {
       if (value != isLocked) {
@@ -122,13 +119,15 @@ public class KASModuleLinkTargetBase :
   }
 
   /// <inheritdoc/>
+  public bool isLinked {
+    get { return linkState == LinkState.Linked; }
+  }
+
+  /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
   public Transform physicalAnchorTransform { get; private set; }
-
-  /// <inheritdoc/>
-  public AttachNode attachNode { get; private set; }
   #endregion
 
   #region Persistent fields
@@ -141,19 +140,6 @@ public class KASModuleLinkTargetBase :
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkSourcePartId;
-
-  /// <summary>
-  /// Source link mode. It only makes sense when state is <see cref="LinkState.Linked"/>. Target
-  /// doesn't have own link mode until linked to a source.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public LinkMode persistedLinkMode = LinkMode.DockVessels;
-
-  /// <summary>Physical anchor relative to the node trasfrom.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public Vector3 persistedPhysicalAnchor;
   #endregion
 
   #region Part's config fields
@@ -220,7 +206,7 @@ public class KASModuleLinkTargetBase :
       if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
           && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (!connectorSource.LinkToTarget(this)) {
-          connectorSource.CancelLinking(LinkActorType.API);
+          connectorSource.CancelLinking();
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
@@ -252,16 +238,11 @@ public class KASModuleLinkTargetBase :
   /// </remarks>
   protected SimpleStateMachine<LinkState> linkStateMachine;
 
-  /// <summary>Tells if this source is currectly linked with a target.</summary>
-  /// <value>The current state of the link.</value>
-  protected bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
-
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    LocalizeModule();
 
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     linkStateMachine.SetTransitionConstraint(
@@ -307,51 +288,43 @@ public class KASModuleLinkTargetBase :
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
-        enterHandler: x => {
-          GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
-          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = true);
-        },
-        leaveHandler: x => {
-          GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
-          PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = false);
-        });
+        enterHandler: x => PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = true),
+        leaveHandler: x => PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = false));
   }
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     InitNodeTransform();  // Kerbal models may skip OnLoad event.
+  }
 
-    // Try to restore link to the target.
+  /// <inheritdoc/>
+  public override void OnStartFinished(PartModule.StartState state) {
     if (persistedLinkState == LinkState.Linked) {
-      if (persistedLinkMode == LinkMode.DockVessels) {
-        RestoreSource();
-      } else {
-        // Target vessel may not be loaded yet. Wait for it.
-        AsyncCall.CallOnEndOfFrame(this, RestoreSource);
-      }
-    } else {
-      linkStateMachine.currentState = persistedLinkState;
-      linkState = linkState;  // Trigger state updates.
+      RestoreSource();
     }
+    linkStateMachine.currentState = persistedLinkState;
+    linkState = linkState;  // Trigger state updates.
   }
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     InitNodeTransform();
+  }
+  #endregion
 
-    // If target is linked and docked then we need actual attach node. Create it.
-    if (persistedLinkState == LinkState.Linked && persistedLinkMode == LinkMode.DockVessels) {
-      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
-    }
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
-    linkStateMachine.currentState = null;  // Stop.
+    linkStateMachine.currentState = null;  // Stop the machine to let the cleanup handlers working.
   }
   #endregion
 
@@ -359,6 +332,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public virtual void OnPartDie() {
     if (isLinked) {
+      HostedDebugLog.Info(this, "Part has died. Drop the link to: {0}", linkSource);
       linkSource.BreakCurrentLink(LinkActorType.Physics);
     }
   }
@@ -422,17 +396,6 @@ public class KASModuleLinkTargetBase :
   }
   #endregion
 
-  #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
-  public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (nodeName == attachNodeName) {
-      // Cleanup the node since once decoupled it's not more needed.
-      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-      attachNode = null;
-    }
-  }
-  #endregion
-
   #region New inheritable methods
   /// <summary>Triggers when the state has been assigned with a value.</summary>
   /// <remarks>
@@ -444,15 +407,6 @@ public class KASModuleLinkTargetBase :
   /// creation.
   /// </param>
   protected virtual void OnStateChange(LinkState? oldState) {
-    if (linkState == LinkState.AcceptingLinks && attachNode == null) {
-      // Create an attach node to allow coupling.
-      attachNode = KASAPI.AttachNodesUtils.CreateAttachNode(part, attachNodeName, nodeTransform);
-    }
-    if (oldState == LinkState.AcceptingLinks && !isLinked && attachNode != null) {
-      // Drop the node once linking mode is over and the link hasn't been established.
-      KASAPI.AttachNodesUtils.DropAttachNode(part, attachNodeName);
-      attachNode = null;
-    }
   }
 
   /// <summary>Finds linked source for the target, and updates the state.</summary>
@@ -460,22 +414,13 @@ public class KASModuleLinkTargetBase :
   /// Depending on the link mode this method may be called synchronously when the part is started or
   /// asynchronously at the end of frame.
   /// </remarks>
-  /// <seealso cref="persistedLinkMode"/>
   protected virtual void RestoreSource() {
-    _linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
-    var startState = persistedLinkState;
-    if (_linkSource == null) {
+    linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
+    if (linkSource == null) {
       HostedDebugLog.Error(
           this, "Cannot restore link to the source part id={0} on the attach node {1}",
           persistedLinkSourcePartId, attachNodeName);
-      persistedLinkSourcePartId = 0;
-      persistedLinkMode = LinkMode.DockVessels;
-      persistedPhysicalAnchor = Vector3.zero;
-      startState = LinkState.Available;
     }
-    physicalAnchorTransform.localPosition = persistedPhysicalAnchor;
-    linkStateMachine.currentState = startState;
-    linkState = linkState;  // Trigger state updates.
   }
 
   /// <summary>Verifies that part can link with the source.</summary>
@@ -497,8 +442,7 @@ public class KASModuleLinkTargetBase :
     }
     // Check if different vessel part links are enabled. 
     if (source.part.vessel != vessel
-        && (source.cfgLinkMode == LinkMode.DockVessels
-            || source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
+        && (source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
             || source.cfgLinkMode == LinkMode.TieAnyParts)) {
       return true;
     }
@@ -510,8 +454,8 @@ public class KASModuleLinkTargetBase :
   #region Local untility methods
   /// <summary>Triggesr link/unlink events when needed.</summary>
   /// <param name="oldSource">Link source before the change.</param>
-  void TriggerSourceChangeEvents(ILinkSource oldSource) {
-    if (oldSource != _linkSource) {
+  void MaybeTriggerSourceChangeEvents(ILinkSource oldSource) {
+    if (linkStateMachine.currentState != null && oldSource != _linkSource) {
       var linkInfo = new KASEvents.LinkEvent(_linkSource ?? oldSource, this);
       if (_linkSource != null) {
         part.FindModulesImplementing<ILinkStateEventListener>()
@@ -534,12 +478,12 @@ public class KASModuleLinkTargetBase :
       Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
                              newPosition: attachNodePosition,
                              newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      HostedDebugLog.Info(this, "Create attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Create attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
     } else {
-      HostedDebugLog.Info(this, "Use attach node transform {0}: pos={1}, euler={2}",
+      HostedDebugLog.Fine(this, "Use attach node transform {0}: pos={1}, euler={2}",
                           nodeTransform,
                           DbgFormatter.Vector(nodeTransform.localPosition),
                           DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
@@ -550,18 +494,7 @@ public class KASModuleLinkTargetBase :
     physicalAnchorTransform = nodeTransform.FindChild(PhysicalAnchorName);
     if (physicalAnchorTransform == null) {
       physicalAnchorTransform = new GameObject(PhysicalAnchorName).transform;
-      Hierarchy.MoveToParent(
-          physicalAnchorTransform, nodeTransform,
-          newPosition: persistedPhysicalAnchor);
-    }
-  }
-
-  /// <summary>Reacts on the vessel destcurtion and break the link if needed.</summary>
-  /// <param name="targetVessel">The vessel that is being destroyed.</param>
-  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
-    if (isLinked && targetVessel == part.vessel && targetVessel != linkSource.part.vessel) {
-      HostedDebugLog.Info(this, "Drop the link due to the owner vessel destruction");
-      linkSource.BreakCurrentLink(LinkActorType.Physics);
+      Hierarchy.MoveToParent(physicalAnchorTransform, nodeTransform);
     }
   }
 
@@ -577,12 +510,12 @@ public class KASModuleLinkTargetBase :
   /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
   /// <returns>The source or <c>null</c> if nothing found.</returns>
   ILinkTarget FindEvaTargetWithConnector() {
-    if (!FlightGlobals.ActiveVessel.isEVA) {
+    if (!HighLogic.LoadedSceneIsFlight || !FlightGlobals.ActiveVessel.isEVA) {
       return null;
     }
     return FlightGlobals.ActiveVessel
         .FindPartModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(x => x.linkState == LinkState.Linked && x.cfgLinkType == cfgLinkType);
+        .FirstOrDefault(t => t.isLinked && t.cfgLinkType == cfgLinkType);
   }
 
   /// <summary>Sets the highlighter state on the part.</summary>

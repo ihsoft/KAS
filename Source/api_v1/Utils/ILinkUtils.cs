@@ -37,31 +37,52 @@ public interface ILinkUtils {
   /// <returns>Source or <c>null</c> if no valid source was found.</returns>
   ILinkSource FindLinkSourceFromTarget(ILinkTarget target);
 
-  /// <summary>Couples two parts together given they belong to different vessels.</summary>
+  /// <summary>Couples two parts together given they belong to the different vessels.</summary>
   /// <remarks>
-  /// Once coupling is done the source vessel will be destroyed, and become a part of the target
-  /// vessel. The new target vessel will become active.
+  /// <para>
+  /// Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
+  /// other vessel. The new merged vessel will become active. Which vessel will be destroyed is
+  /// determined by the <paramref name="toDominantVessel"/> parameter.
+  /// </para>
+  /// <para>
+  /// If the source or target parts has a <see cref="ILinkVesselInfo"/> module, then them will be
+  /// updated accordingly.
+  /// </para>
   /// </remarks>
-  /// <para>Attach nodes must have valid <c>owner</c> set.</para>
+  /// <para>The attach nodes must have a valid <c>owner</c> set.</para>
   /// <param name="sourceNode">
-  /// Attach node at the source part that defines the source vessel.
+  /// The attach node at the source part that defines the source vessel.
   /// </param>
   /// <param name="targetNode">
-  /// Attach node at the target part that defines the target vessel.
+  /// The attach node at the target part that defines the target vessel.
   /// </param>
-  /// <returns>Source vessel info. This vessel gets destroyed on couple.</returns>
-  DockedVesselInfo CoupleParts(AttachNode sourceNode, AttachNode targetNode);
+  /// <param name="toDominantVessel">
+  /// If <c>false</c>, then the source vessel will get coupled with the target. As a result, the
+  /// source vessel will be destroyed. If <c>true</c>, then the method will find the <i>least</i>
+  /// significant vessel of the two, and couple it with the <i>most</i> significant one. The least
+  /// signficant vessel will be destroyed.
+  /// </param>
+  /// <returns>The part that atatched as a child into the new hierarchy.</returns>
+  /// <seealso cref="ILinkVesselInfo"/>
+  Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
+                   bool toDominantVessel = false);
 
-  /// <summary>Decouples conencted parts and breaks down one vessel into two.</summary>
+  /// <summary>Decouples the connected parts and breaks down one vessel into two.</summary>
+  /// <remarks>
+  /// If the part, being decoupled, have a <see cref="ILinkVesselInfo"/> module with a non-null
+  /// vessel info, then this information will be used to restore the decoupled vessel state.
+  /// </remarks>
   /// <param name="part1">
-  /// First part of the connection. It muts be a direct parent or child of <paramref name="part2"/>.
+  /// The first part of the connection. It must be a direct parent or a child of the
+  /// <paramref name="part2"/>.
   /// </param>
   /// <param name="part2">
-  /// Second part of the connection. It muts be a direct parent or child of
+  /// The second part of the connection. It must be a direct parent or a child of the
   /// <paramref name="part1"/>.
   /// </param>
-  /// <returns>Inactive vessel that was created as a result of decoupling.</returns>
-  Vessel DecoupleParts(Part part1, Part part2);
+  /// <returns>The child part that has decoupled from the owner vessel.</returns>
+  /// <seealso cref="ILinkVesselInfo"/>
+  Part DecoupleParts(Part part1, Part part2);
 }
 
 }  // namespace
