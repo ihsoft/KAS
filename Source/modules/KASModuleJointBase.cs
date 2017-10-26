@@ -747,33 +747,6 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local utility methods
-  /// <summary>
-  /// Checks if there is another joint that can couple the vessels, and lets it doing so.
-  /// </summary>
-  /// <remarks>
-  /// It's best not to call it from a callback or an event handler to not interfere with the game's
-  /// logic. This method may be called when the parts are unlinked, and that's why the source and
-  /// target vessels are parameters.
-  /// </remarks>
-  /// <param name="srcVessel">The vessel that owns the link source.</param>
-  /// <param name="tgtVessel">The vessel that owns the link target.</param>
-  void MaybeDelegateCouplingRole(Vessel srcVessel, Vessel tgtVessel) {
-    var srcCandidates = srcVessel.parts
-        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
-        .Where(j => !ReferenceEquals(j, this) && j.isLinked && j.coupleOnLinkMode
-             && j.linkTarget.part.vessel == tgtVessel);
-    var tgtCandidates = tgtVessel.parts
-        .SelectMany(x => x.FindModulesImplementing<ILinkJoint>())
-        .Where(j => j.isLinked && j.coupleOnLinkMode
-             && j.linkTarget.part.vessel == srcVessel);
-    var newJointOwner = srcCandidates.Union(tgtCandidates).FirstOrDefault();
-    if (newJointOwner != null) {
-      // Tell the new candidate to take the ownership over the link.
-      HostedDebugLog.Info(this, "Delegate the coupling role to: {0}", newJointOwner);
-      newJointOwner.SetCoupleOnLinkMode(true);
-    }
-  }
-
   /// <summary>Drops and cleanup any custom joints.</summary>
   void CleanupCustomJoints() {
     if (customJoints != null) {
