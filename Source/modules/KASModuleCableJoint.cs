@@ -122,7 +122,51 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   /// <inheritdoc/>
   protected override void AttachParts() {
     renderer = part.FindModuleImplementing<ILinkRenderer>();
-    CreateDistanceJoint(linkSource, linkTarget);
+
+    jointObj = new GameObject("RopeConnectorHead");
+    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
+    // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
+    var rb = jointObj.AddComponent<Rigidbody>();
+    rb.mass = (linkSource.part.mass + linkTarget.part.mass) / 2;
+    rb.useGravity = false;
+
+    // Temporarily align to the source to have the spring joint remembered zero length.
+    jointObj.transform.parent = linkSource.physicalAnchorTransform;
+    jointObj.transform.localPosition = Vector3.zero;
+    var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(cableJoint);
+    KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
+                                         springForce: cableStrength,
+                                         springDamper: cableSpringDamper,
+                                         maxDistance: originalLength);
+    cableJoint.autoConfigureConnectedAnchor = false;
+    cableJoint.anchor = Vector3.zero;
+    cableJoint.connectedBody = linkSource.part.Rigidbody;
+    cableJoint.connectedAnchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
+        linkSource.physicalAnchorTransform.position);
+    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
+    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
+    
+    // Move plug head to the target and adhere it there at the attach node transform.
+    jointObj.transform.parent = linkTarget.physicalAnchorTransform;
+    jointObj.transform.localPosition = Vector3.zero;
+    var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(fixedJoint);
+    KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
+    cableJoint.enablePreprocessing = true;
+    fixedJoint.autoConfigureConnectedAnchor = false;
+    fixedJoint.anchor = Vector3.zero;
+    fixedJoint.connectedBody = linkTarget.part.Rigidbody;
+    fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
+        linkTarget.physicalAnchorTransform.position);
+    fixedJoint.breakForce = Mathf.Infinity;
+    fixedJoint.breakTorque = Mathf.Infinity;
+    jointObj.transform.parent = jointObj.transform;
+
+    // The order of adding the joints is important!
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(cableJoint);
+    customJoints.Add(fixedJoint);
   }
 
   /// <inheritdoc/>
@@ -179,53 +223,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
 
   #region Local utility methods
-  /// <summary>Creates a distance joint between the source and the target.</summary>
-  void CreateDistanceJoint(ILinkSource source, ILinkTarget target) {
-    jointObj = new GameObject("RopeConnectorHead");
-    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
-    var rb = jointObj.AddComponent<Rigidbody>();
-    rb.mass = (source.part.mass + target.part.mass) / 2;
-    rb.useGravity = false;
-
-    // Temporarily align to the source to have the spring joint remembered zero length.
-    jointObj.transform.parent = source.physicalAnchorTransform;
-    jointObj.transform.localPosition = Vector3.zero;
-    var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(cableJoint);
-    KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
-                                         springForce: cableStrength,
-                                         springDamper: cableSpringDamper,
-                                         maxDistance: originalLength);
-    cableJoint.autoConfigureConnectedAnchor = false;
-    cableJoint.anchor = Vector3.zero;
-    cableJoint.connectedBody = source.part.Rigidbody;
-    cableJoint.connectedAnchor = source.part.Rigidbody.transform.InverseTransformPoint(
-        source.physicalAnchorTransform.position);
-    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
-    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
-    
-    // Move plug head to the target and adhere it there at the attach node transform.
-    jointObj.transform.parent = target.physicalAnchorTransform;
-    jointObj.transform.localPosition = Vector3.zero;
-    var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(fixedJoint);
-    KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
-    cableJoint.enablePreprocessing = true;
-    fixedJoint.autoConfigureConnectedAnchor = false;
-    fixedJoint.anchor = Vector3.zero;
-    fixedJoint.connectedBody = target.part.Rigidbody;
-    fixedJoint.connectedAnchor = target.part.Rigidbody.transform.InverseTransformPoint(
-        target.physicalAnchorTransform.position);
-    fixedJoint.breakForce = Mathf.Infinity;
-    fixedJoint.breakTorque = Mathf.Infinity;
-    jointObj.transform.parent = jointObj.transform;
-
-    // The order of adding the joints is important!
-    customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(cableJoint);
-    customJoints.Add(fixedJoint);
-  }
   #endregion
 }
 
