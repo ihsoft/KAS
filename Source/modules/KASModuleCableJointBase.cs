@@ -79,7 +79,7 @@ public class KASModuleCableJointBase : PartModule,
   /// <summary>Maximum length of the cable on the joint.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  float cableLength;
+  float persistedCableLength;
   #endregion
 
   #region ILinkCableJoint CFG properties
@@ -105,9 +105,9 @@ public class KASModuleCableJointBase : PartModule,
 
   /// <inheritdoc/>
   public virtual float maxAllowedCableLength {
-    get { return cableLength; }
+    get { return persistedCableLength; }
     set {
-      cableLength = value;
+      persistedCableLength = value;
       if (cableJointObj != null) {
         cableJointObj.maxDistance = value;
       }
