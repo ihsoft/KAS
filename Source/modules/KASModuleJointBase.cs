@@ -604,23 +604,46 @@ public class KASModuleJointBase : PartModule,
 
   #region Utility methods
   /// <summary>
-  /// Setups joint break force and torque while handling special values from config.
+  /// Setups up the joint break force and torque. It takes into account the values from the config.
   /// </summary>
   /// <remarks>
-  /// The forces are set so what they are not contradicting with the attached parts. Normally, joint
-  /// must get destroyed by the physics before the attached part did.
+  /// The forces are set so that they are not contradicting with the attached parts. Normally, the
+  /// joint must get destroyed by the physics before the attached parts did. 
   /// </remarks>
-  /// <param name="joint">Joint to set forces for.</param>
-  /// <param name="forceFromConfig">
-  /// Break force from the config. If it's <c>0</c> then maxium acceptable force will be used.
+  /// <param name="joint">The joint to set forces for.</param>
+  /// <param name="maxForce">
+  /// The maximum limit to the breaking force. The actual value can be lower, it depends on the
+  /// parts at the ends of the link.
+  /// <list type="bullet">
+  /// <item>
+  /// When <c>0</c> then only the parts will be used to find the right force. For an unlinked joint,
+  /// the force will be <c>Infinite</c>.
+  /// </item>
+  /// <item>
+  /// When <c>null</c> then the maximum value will be read from the part's config settings.
+  /// </item>
+  /// </list>
   /// </param>
-  /// <param name="torqueFromConfig">
-  /// Break torque from the config. If it's <c>0</c> then maxium acceptable torque will be used.
+  /// <param name="maxTorque">
+  /// The maximum limit to the breaking torque. The actual value can be lower, it depends on the
+  /// parts at the ends of the link.
+  /// <list type="bullet">
+  /// <item>
+  /// When <c>0</c> then only the parts will be used to find the right force. For an unlinked joint,
+  /// the force will be <c>Infinite</c>.
+  /// </item>
+  /// <item>
+  /// When <c>null</c> then the maximum value will be read from the part's config settings.
+  /// </item>
+  /// </list>
   /// </param>
   /// <seealso cref="GetClampedBreakingForce"/>
-  protected void SetBreakForces(Joint joint, float forceFromConfig, float torqueFromConfig) {
-    joint.breakForce = GetClampedBreakingForce(forceFromConfig);
-    joint.breakTorque = GetClampedBreakingTorque(torqueFromConfig);
+  /// <seealso cref="linkBreakForce"/>
+  /// <seealso cref="linkBreakTorque"/>
+  protected void SetBreakForces(
+      Joint joint, float? maxForce = null, float? maxTorque = null) {
+    joint.breakForce = GetClampedBreakingForce(maxForce ?? linkBreakForce);
+    joint.breakTorque = GetClampedBreakingTorque(maxTorque ?? linkBreakTorque);
   }
 
   /// <summary>
