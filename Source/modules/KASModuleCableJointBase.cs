@@ -252,7 +252,7 @@ public class KASModuleCableJointBase : PartModule,
       StopPhysicalHead();
     }
     if (isLinked) {
-      HostedDebugLog.Warning(this, "Joint is alreadfy estabslished. Break it!");
+      HostedDebugLog.Warning(this, "Joint is already estabslished. Break it!");
       DropJoint();
     }
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();

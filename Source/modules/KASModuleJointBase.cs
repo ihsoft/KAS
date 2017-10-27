@@ -647,18 +647,20 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <summary>
-  /// Rounds down the value so what it doesn't contradict with source and target breaking forces.
+  /// Rounds down the value so that it doesn't contradict with the source and target breaking
+  /// forces.
   /// </summary>
   /// <remarks>
-  /// It's a bad idea to make joint more durable than the parts that are connected with it. It's
-  /// always best to have joint broken before the parts destruction. Custom code is encouraged to
-  /// use this method to get the right force.
+  /// It's a bad idea to make a joint more durable than the parts that are connected with it. It's
+  /// always best to have the joint broken <i>before</i> the parts get destroyed. The custom code is
+  /// encouraged to use this method to obtain the breaking force for the links.
   /// </remarks>
   /// <param name="value">
-  /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
+  /// The breaking force value to round. If it's <c>0</c>, then the maximum possible value will be
+  /// returned basing on the parts at the link ends.
   /// </param>
   /// <param name="isStack">
-  /// Type of the connection. Stack connections are much stronger than surface ones.
+  /// The type of the connection. The stack connections are much stronger than the surface ones.
   /// </param>
   /// <returns>Force value that relates to the source and target parts durability.</returns>
   /// <seealso cref="attachNodeSize"/>
@@ -673,18 +675,20 @@ public class KASModuleJointBase : PartModule,
   }
   
   /// <summary>
-  /// Rounds down the value so what it doesn't contradict with source and target breaking torques.
+  /// Rounds down the value so that it doesn't contradict with the source and target breaking
+  /// forces.
   /// </summary>
   /// <remarks>
-  /// It's a bad idea to make joint more durable than the parts that are connected with it. It's
-  /// always best to have joint broken before the parts destruction. Custom code is encouraged to
-  /// use this method to get the right torque.
+  /// It's a bad idea to make a joint more durable than the parts that are connected with it. It's
+  /// always best to have the joint broken <i>before</i> the parts get destroyed. The custom code is
+  /// encouraged to use this method to obtain the breaking force for the links.
   /// </remarks>
   /// <param name="value">
-  /// Breaking force value to round. If it's <c>0</c> then maximum possible value will be returned.
+  /// The breaking force value to round. If it's <c>0</c>, then the maximum possible value will be
+  /// returned basing on the parts at the link ends.
   /// </param>
   /// <param name="isStack">
-  /// Type of the connection. Stack connections are much stronger than surface ones.
+  /// The type of the connection. The stack connections are much stronger than the surface ones.
   /// </param>
   /// <returns>Force value that relates to the source and target parts durability.</returns>
   /// <seealso cref="attachNodeSize"/>
