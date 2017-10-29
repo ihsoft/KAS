@@ -601,9 +601,11 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Notifies that the physical joint has been destroyed in the game.</summary>
   /// <seealso cref="IJointEventsListener"/>
   protected virtual void OnPhysXJointCleanup() {
-    linkSource.BreakCurrentLink(
-        LinkActorType.Physics,
-        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+    if (isLinked) {
+      linkSource.BreakCurrentLink(
+          LinkActorType.Physics,
+          moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+    }
   }
   #endregion
 
