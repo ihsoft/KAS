@@ -333,17 +333,14 @@ public class KASModuleJointBase : PartModule,
 
   #region IJointEventsListener implementation
   /// <inheritdoc/>
+  /// FIXME: Couple the part back
   public virtual void OnJointBreak(float breakForce) {
-    if (!isLinked || isCoupled || customJoints == null) {
-      return;  // In the coupled mode we'd get DecoupleAction().
-    }
+    HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
-      if (customJoints != null && customJoints.Any(x => x == null)) {
-        linkSource.BreakCurrentLink(
-            LinkActorType.Physics,
-            moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+      if (isLinked && (customJoints == null || customJoints.Any(x => x == null))) {
+        OnPhysXJointCleanup();
       }
     });
   }
@@ -599,6 +596,14 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="AttachParts"/>
   protected virtual void DetachParts() {
     CleanupCustomJoints();
+  }
+
+  /// <summary>Notifies that the physical joint has been destroyed in the game.</summary>
+  /// <seealso cref="IJointEventsListener"/>
+  protected virtual void OnPhysXJointCleanup() {
+    linkSource.BreakCurrentLink(
+        LinkActorType.Physics,
+        moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
   }
   #endregion
 
