@@ -16,40 +16,19 @@ namespace KAS {
 
 /// <summary>Module that controls a physical cable joint on a KAS part.</summary>
 /// <remarks>
-/// When creating a link via <see cref="CreateJoint"/> the cable <see cref="maxAllowedCableLength"/>
-/// is set to the actual distance between the objects at the moment of creation. The colliders on
-/// the objects are enabled by default, i.e. the source and the target can collide.
+/// When creating a link, the cable's <see cref="maxAllowedCableLength"/> is set to the actual
+/// distance between the objects at the moment of creation. The colliders on the objects are enabled
+/// by default, i.e. the source and the target can collide.
 /// </remarks>
-public class KASModuleCableJointBase : PartModule,
+public class KASModuleCableJointBase : KASModuleJointBase,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
     ILinkCableJoint,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsDestroyable, IKSPDevModuleInfo {
+    IKSPDevModuleInfo {
 
   #region Localizable GUI strings. Next ID=#kasLOC_09005
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
-      new Message<DistanceType, DistanceType>(
-          "#kasLOC_09000",
-          defaultTemplate: "Distance is too long: <<1>> > <<2>>",
-          description: "Message to display when the link cannot be established because the distance"
-          + " as larger than the maximum cable length."
-          + "\nArgument <<1>> is the attempted length of type DistanceType."
-          + "\nArgument <<2>> is the cable's maximum setting of type DistanceType.",
-          example: "Distance is too long: 2.33 m > 1.22 m");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType> CableMaxLengthInfo = new Message<DistanceType>(
-      "#kasLOC_09001",
-      defaultTemplate: "Cable length: <<1>>",
-      description: "Info string in the editor for the maximum cable length setting. The argument is"
-      + " of type DistanceType.",
-      example: "Cable length: 12.5 m");
-
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
   protected readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
@@ -59,17 +38,8 @@ public class KASModuleCableJointBase : PartModule,
       + " of type ForceType.",
       example: "Cable break force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  protected readonly static Message<ForceType> CableBreakhForceInfo = new Message<ForceType>(
-      "#kasLOC_09003",
-      defaultTemplate: "Cable break force: <<1>>",
-      description: "Info string in the editor for the cable break force setting. The argument is of"
-      + " type ForceType.",
-      example: "Cable break force: 1.2 kN");
-
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message ModuleTitle = new Message(
+  new protected readonly static Message ModuleTitle = new Message(
       "#kasLOC_09004",
       defaultTemplate: "KAS Cable",
       description: "Title of the module to present in the editor details window.");
@@ -84,10 +54,7 @@ public class KASModuleCableJointBase : PartModule,
 
   #region ILinkCableJoint CFG properties
   /// <inheritdoc/>
-  public string cfgJointName { get { return jointName; } }
-
-  /// <inheritdoc/>
-  public float cfgMaxCableLength { get { return maxCableLength; } }
+  public float cfgMaxCableLength { get { return maxLinkLength; } }
   #endregion
 
   #region ILinkCableJoint properties
@@ -129,28 +96,9 @@ public class KASModuleCableJointBase : PartModule,
       return 0;
     }
   }
-
-  /// <inheritdoc/>
-  public ILinkSource linkSource { get; private set; }
-
-  /// <inheritdoc/>
-  public ILinkTarget linkTarget { get; private set; }
-
-  /// <inheritdoc/>
-  public bool isLinked { get; private set; }
   #endregion
 
   #region Part's config fields
-  /// <summary>See <see cref="cfgJointName"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string jointName = "";
-
-  /// <summary>See <see cref="cfgMaxCableLength"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float maxCableLength;
-
   /// <summary>Spring force of the cable which connects the two parts.</summary>
   /// <remarks>
   /// It's a force per meter of the strected distance to keep the objects distance below the maximum
@@ -165,12 +113,6 @@ public class KASModuleCableJointBase : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringDamper = 1f;
-
-  /// <summary>Linear breaking force for the cable connecting the two parts.</summary>
-  /// <remarks>The force is measured in kilonewtons.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float cableBreakForce;
   #endregion
 
   #region Inheritable properties
@@ -179,86 +121,36 @@ public class KASModuleCableJointBase : PartModule,
   protected bool isHeadStarted { get { return headSource != null; } }
   #endregion
 
-  #region ILinkCableJoint implementation
+  #region KASModuleJointBase overrides
   /// <inheritdoc/>
-  public virtual bool CreateJoint(ILinkSource source, ILinkTarget target) {
-    var errors = CheckConstraints(source, target.nodeTransform);
-    if (errors.Length > 0) {
-      HostedDebugLog.Error(this, "Cannot create joint: {0}", DbgFormatter.C2S(errors));
-      return false;
-    }
-    if (isLinked) {
-      HostedDebugLog.Warning(this, "The joint is already linked. Drop it!");
-      DropJoint();
-    }
-    if (isHeadStarted) {
-      HostedDebugLog.Warning(this, "Starting joint when the physical head is active. Drop it!");
-      StopPhysicalHead();
-    }
-    linkSource = source;
-    linkTarget = target;
+  protected override void AttachParts() {
+    // Intentionally skip the base method since it would create a rigid link.
     CreateCableJoint(
-        source.part.gameObject, source.physicalAnchorTransform.position,
-        target.part.rb, target.physicalAnchorTransform.position);
-    isLinked = true;
-    return true;
+        linkSource.part.gameObject, linkSource.physicalAnchorTransform.position,
+        linkTarget.part.rb, linkTarget.physicalAnchorTransform.position);
   }
 
   /// <inheritdoc/>
-  public virtual void DropJoint() {
-    linkSource = null;
-    linkTarget = null;
-    isLinked = false;
+  protected override void DetachParts() {
+    base.DetachParts();
     Object.Destroy(cableJointObj);
     cableJointObj = null;
     headSource = null;
     headRb = null;
   }
+  #endregion
 
-  /// <inheritdoc/>
-  public virtual void AdjustJoint(bool isUnbreakable = false) {
-    // Nothing to do with the cable.
-  }
-
-  /// <inheritdoc/>
-  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink) {
-    if (isCoupleOnLink) {
-      //FIXME: Update AdjustJoint() if the coupling mode is allowed.
-      HostedDebugLog.Error(this, "Coupling mode is not supported!");
-    }
-  }
-
-  /// <inheritdoc/>
-  public bool coupleOnLinkMode {
-    get { return false; }
-  }
-
-  /// <inheritdoc/>
-  public virtual string[] CheckConstraints(ILinkSource source, Transform targetNodeTransform) {
-    var length = Vector3.Distance(
-        source.physicalAnchorTransform.position,
-        targetNodeTransform.TransformPoint(source.targetPhysicalAnchor));
-    return length > cfgMaxCableLength
-        ? new[] { MaxLengthLimitReachedMsg.Format(length, cfgMaxCableLength) }
-        : new string[0];
-  }
-
+  #region ILinkCableJoint implementation
   /// <inheritdoc/>
   public void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
     //FIXME: add the physical head module here.
-    if (isHeadStarted) {
-      HostedDebugLog.Warning(
-          this, "Physical head is already started. Stopping the old one.");
-      StopPhysicalHead();
-    }
-    if (isLinked) {
-      HostedDebugLog.Warning(this, "Joint is already estabslished. Break it!");
-      DropJoint();
-    }
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
-    if (headRb == null) {
-      HostedDebugLog.Warning(this, "Cannot find rigid body from: {0}. Adding new.", headObjAnchor);
-      headRb = headObjAnchor.gameObject.AddComponent<Rigidbody>();
+    if (isHeadStarted || isLinked || headRb == null) {
+      HostedDebugLog.Error(
+          this, "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1},"
+          + " hasRb=[2}",
+          isLinked, isHeadStarted, headRb != null);
+      return;
     }
     headSource = source;
     headPhysicalAnchorObj = headObjAnchor;
@@ -283,54 +175,15 @@ public class KASModuleCableJointBase : PartModule,
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.AppendLine(CableMaxLengthInfo.Format(maxCableLength));
     sb.AppendLine(CableSpringStrengthInfo.Format(cableSpringForce));
-    sb.AppendLine(CableBreakhForceInfo.Format(cableBreakForce));
     return sb.ToString();
   }
 
   /// <inheritdoc/>
-  public virtual string GetModuleTitle() {
+  public override string GetModuleTitle() {
     return ModuleTitle;
   }
-
-  /// <inheritdoc/>
-  public virtual Callback<Rect> GetDrawModulePanelCallback() {
-    return null;
-  }
-
-  /// <inheritdoc/>
-  public virtual string GetPrimaryField() {
-    return null;
-  }
   #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    // This can happen in case of the part external destruction (e.g. explosion).
-    DropJoint();
-  }
-  #endregion
-
-  IEnumerator OnJointBreak(float breakForce) {
-    // Don't save the object since it will be nulled in case of destruction.
-    var cableJointExisted = cableJointObj != null;
-    var formerParent = part.parent;
-    yield return new WaitForEndOfFrame();
-    if (cableJointExisted && cableJointObj == null) {
-      HostedDebugLog.Info(this, "Cable joint broken with force {0}", breakForce);
-      if (linkSource != null) {
-        linkSource.BreakCurrentLink(
-            LinkActorType.Physics,
-            moveFocusOnTarget: FlightGlobals.ActiveVessel != linkSource.part.vessel);
-      }
-      if (formerParent != null && part.parent == null) {
-        HostedDebugLog.Info(this, "Restore the parts joint to: {0}", formerParent);
-        part.Couple(formerParent);
-      }
-    }
-  }
 
   #region Utility methods
   /// <summary>Connects two rigidbodies with a spring joint.</summary>
@@ -358,8 +211,7 @@ public class KASModuleCableJointBase : PartModule,
       // Keep it consistent in case of an adjustment has been made.
       maxAllowedCableLength = cableJointObj.maxDistance;
     }
-    cableJointObj.breakForce = cableBreakForce;
-    cableJointObj.breakTorque = Mathf.Infinity;  // Cable is not sensitive to the rotations. 
+    SetBreakForces(cableJointObj);
   }
   #endregion
 }
