@@ -12,7 +12,7 @@ namespace KASAPIv1 {
 /// <remarks>
 /// <para>
 /// The "public" property is a property which visible to everyone and can change due to extrenal
-/// calls or the internal lgoic. It's up to the implementation to decide if the notification should
+/// calls or the internal logic. It's up to the implementation to decide if the notification should
 /// be sent in case of changing a particular value. However, this notification mechanism should not
 /// be used on the values that can change at the high rate.
 /// </para>
