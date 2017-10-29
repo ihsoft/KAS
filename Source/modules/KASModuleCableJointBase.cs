@@ -164,7 +164,7 @@ public class KASModuleCableJointBase : PartModule,
   /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float cableSpringDamper = 0.1f;
+  public float cableSpringDamper = 1f;
 
   /// <summary>Linear breaking force for the cable connecting the two parts.</summary>
   /// <remarks>The force is measured in kilonewtons.</remarks>
