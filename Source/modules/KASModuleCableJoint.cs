@@ -144,8 +144,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     cableJoint.connectedBody = linkSource.part.Rigidbody;
     cableJoint.connectedAnchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
         linkSource.physicalAnchorTransform.position);
-    cableJoint.breakTorque = GetClampedBreakingTorque(linkBreakForce);
-    cableJoint.breakForce = GetClampedBreakingForce(linkBreakTorque);
+    SetBreakForces(cableJoint);
     
     // Move plug head to the target and adhere it there at the attach node transform.
     jointObj.transform.parent = linkTarget.physicalAnchorTransform;
@@ -159,8 +158,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     fixedJoint.connectedBody = linkTarget.part.Rigidbody;
     fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
         linkTarget.physicalAnchorTransform.position);
-    fixedJoint.breakForce = GetClampedBreakingTorque(linkBreakForce);
-    fixedJoint.breakTorque = GetClampedBreakingForce(linkBreakTorque);
+    SetBreakForces(fixedJoint);
     jointObj.transform.parent = jointObj.transform;
 
     // The order of adding the joints is important!
