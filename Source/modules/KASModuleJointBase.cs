@@ -169,20 +169,20 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   /// <remarks>
-  /// Force is in kilonewtons. If <c>0</c>, then the joint strength is calculated automatically,
-  /// basing on the strengths of the source and the target parts.
+  /// Force is in kilonewtons. If <c>0</c>, then the joint strength infinite.
   /// </remarks>
   /// <seealso cref="attachNodeSize"/>
+  /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakForce = 0;
 
   /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
   /// <value>
-  /// Force is in kilonewtons. If <c>0</c>, then the joint strength is calculated automatically,
-  /// basing on the strengths of the source and the target parts.
+  /// Force is in kilonewtons. If <c>0</c>, then the joint strength is infinite.
   /// </value>
   /// <seealso cref="attachNodeSize"/>
+  /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float linkBreakTorque = 0;
@@ -611,114 +611,16 @@ public class KASModuleJointBase : PartModule,
   /// <summary>
   /// Setups up the joint break force and torque. It takes into account the values from the config.
   /// </summary>
-  /// <remarks>
-  /// The forces are set so that they are not contradicting with the attached parts. Normally, the
-  /// joint must get destroyed by the physics before the attached parts did. 
-  /// </remarks>
   /// <param name="joint">The joint to set forces for.</param>
-  /// <param name="maxForce">
-  /// The maximum limit to the breaking force. The actual value can be lower, it depends on the
-  /// parts at the ends of the link.
-  /// <list type="bullet">
-  /// <item>
-  /// When <c>0</c> then only the parts will be used to find the right force. For an unlinked joint,
-  /// the force will be <c>Infinite</c>.
-  /// </item>
-  /// <item>
-  /// When <c>null</c> then the maximum value will be read from the part's config settings.
-  /// </item>
-  /// </list>
-  /// </param>
-  /// <param name="maxTorque">
-  /// The maximum limit to the breaking torque. The actual value can be lower, it depends on the
-  /// parts at the ends of the link.
-  /// <list type="bullet">
-  /// <item>
-  /// When <c>0</c> then only the parts will be used to find the right force. For an unlinked joint,
-  /// the force will be <c>Infinite</c>.
-  /// </item>
-  /// <item>
-  /// When <c>null</c> then the maximum value will be read from the part's config settings.
-  /// </item>
-  /// </list>
-  /// </param>
-  /// <seealso cref="GetClampedBreakingForce"/>
+  /// <param name="force">The breaking force. If not set, then the config value is used.</param>
+  /// <param name="torque">The breaking torque. If not set, then the config value is used.</param>
   /// <seealso cref="linkBreakForce"/>
   /// <seealso cref="linkBreakTorque"/>
-  protected void SetBreakForces(
-      Joint joint, float? maxForce = null, float? maxTorque = null) {
-    joint.breakForce = GetClampedBreakingForce(maxForce ?? linkBreakForce);
-    joint.breakTorque = GetClampedBreakingTorque(maxTorque ?? linkBreakTorque);
-  }
-
-  /// <summary>
-  /// Rounds down the value so that it doesn't contradict with the source and target breaking
-  /// forces.
-  /// </summary>
-  /// <remarks>
-  /// It's a bad idea to make a joint more durable than the parts that are connected with it. It's
-  /// always best to have the joint broken <i>before</i> the parts get destroyed. The custom code is
-  /// encouraged to use this method to obtain the breaking force for the links.
-  /// </remarks>
-  /// <param name="value">
-  /// The breaking force value to round. If it's <c>0</c>, then the maximum possible value will be
-  /// returned basing on the parts at the link ends.
-  /// </param>
-  /// <param name="isStack">
-  /// The type of the connection. The stack connections are much stronger than the surface ones.
-  /// </param>
-  /// <returns>Force value that relates to the source and target parts durability.</returns>
-  /// <seealso cref="attachNodeSize"/>
-  protected float GetClampedBreakingForce(float value, bool isStack = true) {
-    return Mathf.Approximately(value, 0)
-        ? ScaleForceToNode(
-            Mathf.Min(linkSource.part.breakingForce, linkTarget.part.breakingForce),
-            isStack: isStack)
-        : ScaleForceToNode(
-            Mathf.Min(value, linkSource.part.breakingForce, linkTarget.part.breakingForce),
-            isStack: isStack);
-  }
-  
-  /// <summary>
-  /// Rounds down the value so that it doesn't contradict with the source and target breaking
-  /// forces.
-  /// </summary>
-  /// <remarks>
-  /// It's a bad idea to make a joint more durable than the parts that are connected with it. It's
-  /// always best to have the joint broken <i>before</i> the parts get destroyed. The custom code is
-  /// encouraged to use this method to obtain the breaking force for the links.
-  /// </remarks>
-  /// <param name="value">
-  /// The breaking force value to round. If it's <c>0</c>, then the maximum possible value will be
-  /// returned basing on the parts at the link ends.
-  /// </param>
-  /// <param name="isStack">
-  /// The type of the connection. The stack connections are much stronger than the surface ones.
-  /// </param>
-  /// <returns>Force value that relates to the source and target parts durability.</returns>
-  /// <seealso cref="attachNodeSize"/>
-  protected float GetClampedBreakingTorque(float value, bool isStack = true) {
-    return Mathf.Approximately(value, 0)
-        ? ScaleForceToNode(
-            Mathf.Min(linkSource.part.breakingTorque, linkTarget.part.breakingTorque),
-            isStack: isStack)
-        : ScaleForceToNode(
-            Mathf.Min(value, linkSource.part.breakingTorque, linkTarget.part.breakingTorque),
-            isStack: isStack);
-  }
-
-  /// <summary>Scales the force value to the node size.</summary>
-  /// <remarks>Uses same approach as in <see cref="PartJoint"/>.</remarks>
-  /// <param name="force">Base force to scale.</param>
-  /// <param name="isStack">
-  /// Type of the connection. Stack connections are much stronger than surface ones.
-  /// </param>
-  /// <returns>Force scaled to the node size.</returns>
-  /// <seealso cref="attachNodeSize"/>
-  /// <seealso href="https://kerbalspaceprogram.com/api/class_part_joint.html">
-  /// KSP: PartJoint</seealso>
-  protected float ScaleForceToNode(float force, bool isStack = true) {
-    return force * (1.0f + attachNodeSize) * (isStack ? 2.0f : 0.8f);
+  protected void SetBreakForces(Joint joint, float? force = null, float? torque = null) {
+    joint.breakForce = force
+        ?? (Mathf.Approximately(linkBreakForce, 0) ? float.PositiveInfinity : linkBreakForce);
+    joint.breakTorque = torque
+        ?? (Mathf.Approximately(linkBreakTorque, 0) ? float.PositiveInfinity : linkBreakTorque);
   }
 
   /// <summary>Checks if the link's length is within the limits.</summary>
