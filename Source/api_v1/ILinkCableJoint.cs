@@ -30,7 +30,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Physical joint object that connects source to the target.</summary>
   /// <value>The PhysX joint that connects the parts.</value>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.SpringJoint']/*"/>
-  SpringJoint cableJointObj { get; }
+  ConfigurableJoint cableJointObj { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
   /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>

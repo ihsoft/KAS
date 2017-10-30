@@ -7,7 +7,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -59,7 +59,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   #region ILinkCableJoint properties
   /// <inheritdoc/>
-  public SpringJoint cableJointObj { get; private set; }
+  public ConfigurableJoint cableJointObj { get; private set; }
 
   /// <inheritdoc/>
   public Rigidbody headRb { get; private set; }
@@ -76,7 +76,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     set {
       persistedCableLength = value;
       if (cableJointObj != null) {
-        cableJointObj.maxDistance = value;
+        cableJointObj.linearLimit = new SoftJointLimit() { limit = value };
       }
       part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
           x.OnKASPropertyChanged(this as ILinkCableJoint,
@@ -90,7 +90,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       var source = headSource ?? linkSource;
       if (cableJointObj != null && source != null) {
         return Vector3.Distance(
-            source.part.rb.transform.TransformPoint(cableJointObj.anchor),
+            source.part.Rigidbody.transform.TransformPoint(cableJointObj.anchor),
             cableJointObj.connectedBody.transform.TransformPoint(cableJointObj.connectedAnchor));
       }
       return 0;
@@ -198,19 +198,21 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <param name="tgtRb">The rigidbody of the target.</param>
   /// <param name="tgtAnchor">The anchor point for the joint at the target in world space.</param>
   void CreateCableJoint(GameObject srcObj, Vector3 srcAnchor, Rigidbody tgtRb, Vector3 tgtAnchor) {
-    cableJointObj = srcObj.gameObject.AddComponent<SpringJoint>();
-    cableJointObj.spring = cableSpringForce;
-    cableJointObj.damper = cableSpringDamper;
+    cableJointObj = srcObj.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(cableJointObj);
+    KASAPI.JointUtils.SetupDistanceJoint(
+        cableJointObj,
+        springForce: cableSpringForce, springDamper: cableSpringDamper,
+        //FIXME: set to the current length.
+        maxDistance: maxAllowedCableLength);
     cableJointObj.autoConfigureConnectedAnchor = false;
     cableJointObj.anchor = srcObj.transform.InverseTransformPoint(srcAnchor);
     cableJointObj.connectedBody = tgtRb;
     cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
-    cableJointObj.maxDistance = Mathf.Max(realCableLength, maxAllowedCableLength);
-    if (cableJointObj.maxDistance > maxAllowedCableLength) {
-      // Keep it consistent in case of an adjustment has been made.
-      maxAllowedCableLength = cableJointObj.maxDistance;
-    }
     SetBreakForces(cableJointObj);
+
+    customJoints = new List<ConfigurableJoint>();
+    customJoints.Add(cableJointObj);
   }
   #endregion
 }
