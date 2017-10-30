@@ -125,6 +125,10 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <inheritdoc/>
   protected override void AttachParts() {
     // Intentionally skip the base method since it would create a rigid link.
+    if (isHeadStarted) {
+      HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
+      StopPhysicalHead();
+    }
     CreateDistantJoint(linkSource, linkTarget.part.Rigidbody, linkTarget.physicalAnchorTransform);
   }
 
