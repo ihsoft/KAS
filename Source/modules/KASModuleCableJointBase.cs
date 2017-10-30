@@ -125,9 +125,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <inheritdoc/>
   protected override void AttachParts() {
     // Intentionally skip the base method since it would create a rigid link.
-    CreateCableJoint(
-        linkSource.part.gameObject, linkSource.physicalAnchorTransform.position,
-        linkTarget.part.rb, linkTarget.physicalAnchorTransform.position);
+    CreateDistantJoint(linkSource, linkTarget.part.Rigidbody, linkTarget.physicalAnchorTransform);
   }
 
   /// <inheritdoc/>
@@ -155,9 +153,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     headPhysicalAnchorObj = headObjAnchor;
 
     // Attach the head to the source.
-    CreateCableJoint(
-        source.part.gameObject, source.physicalAnchorTransform.position,
-        headRb, headObjAnchor.position);
+    CreateDistantJoint(source, headRb, headObjAnchor);
   }
 
   /// <inheritdoc/>
@@ -185,30 +181,26 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   #endregion
 
   #region Utility methods
-  /// <summary>Connects two rigidbodies with a spring joint.</summary>
-  /// <remarks>
-  /// The link max length is set to <see cref="maxAllowedCableLength"/>. If it's shorter than the
-  /// real distance between the objects, then the actual length is used to avoid the physical
-  /// effects.
-  /// </remarks>
-  /// <param name="srcObj">
-  /// The game object owns the source rigid body. It will also own the joint.
-  /// </param>
-  /// <param name="srcAnchor">The anchor point for the joint at the source in world space.</param>
-  /// <param name="tgtRb">The rigidbody of the target.</param>
-  /// <param name="tgtAnchor">The anchor point for the joint at the target in world space.</param>
-  void CreateCableJoint(GameObject srcObj, Vector3 srcAnchor, Rigidbody tgtRb, Vector3 tgtAnchor) {
-    cableJointObj = srcObj.gameObject.AddComponent<ConfigurableJoint>();
+  /// <summary>
+  /// Creates a distance joint between the source and an arbitrary physical object.   
+  /// </summary>
+  /// <param name="source">The source of the link.</param>
+  /// <param name="tgtRb">The rigidbody of the physical object.</param>
+  /// <param name="tgtAnchor">The anchor transform at the physical object.</param>
+  void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Transform tgtAnchor) {
+    cableJointObj = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(cableJointObj);
+    var actualLength = Vector3.Distance(
+        source.physicalAnchorTransform.position, tgtAnchor.position);
     KASAPI.JointUtils.SetupDistanceJoint(
         cableJointObj,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
-        //FIXME: set to the current length.
-        maxDistance: maxAllowedCableLength);
+        maxDistance: actualLength);
     cableJointObj.autoConfigureConnectedAnchor = false;
-    cableJointObj.anchor = srcObj.transform.InverseTransformPoint(srcAnchor);
+    cableJointObj.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
+        source.physicalAnchorTransform.position);
     cableJointObj.connectedBody = tgtRb;
-    cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
+    cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor.position);
     SetBreakForces(cableJointObj);
 
     customJoints = new List<ConfigurableJoint>();
