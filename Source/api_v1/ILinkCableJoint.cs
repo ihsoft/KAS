@@ -27,25 +27,10 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <value>Distance in meters.</value>
   float cfgMaxCableLength { get; }
 
-  /// <summary>Physical joint object that connects source to the target.</summary>
-  /// <value>The PhysX joint that connects the parts.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.SpringJoint']/*"/>
-  ConfigurableJoint cableJointObj { get; }
-
   /// <summary>Rigidbody of the physical cable head.</summary>
   /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   Rigidbody headRb { get; }
-
-  /// <summary>Source that owns the physical head.</summary>
-  /// <value>The source, or <c>null</c> if the head is not started.</value>
-  /// <seealso cref="ILinkSource"/>
-  ILinkSource headSource { get; }
-
-  /// <summary>Head's transform at which the cable is attached.</summary>
-  /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  Transform headPhysicalAnchorObj { get; }
 
   /// <summary>
   /// Maximum possible distance between the source's physical and head/target physical anchors.
@@ -69,7 +54,6 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="headRb"/>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
-  /// <seealso cref="headPhysicalAnchorObj"/>
   /// <seealso cref="StartPhysicalHead"/>
   float maxAllowedCableLength { get; set; }
 
@@ -83,7 +67,6 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <value>The distance in meters.</value>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
-  /// <seealso cref="headPhysicalAnchorObj"/>
   float realCableLength { get; }
 
   /// <summary>

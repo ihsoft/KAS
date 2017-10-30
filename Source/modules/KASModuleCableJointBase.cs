@@ -59,16 +59,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   #region ILinkCableJoint properties
   /// <inheritdoc/>
-  public ConfigurableJoint cableJointObj { get; private set; }
-
-  /// <inheritdoc/>
   public Rigidbody headRb { get; private set; }
-
-  /// <inheritdoc/>
-  public ILinkSource headSource { get; private set; }
-
-  /// <inheritdoc/>
-  public Transform headPhysicalAnchorObj { get; private set; }
 
   /// <inheritdoc/>
   public virtual float maxAllowedCableLength {
@@ -119,6 +110,19 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
   protected bool isHeadStarted { get { return headSource != null; } }
+
+  /// <summary>Physical joint object that connects source to the target.</summary>
+  /// <value>The PhysX joint that connects the parts.</value>
+  protected ConfigurableJoint cableJointObj { get; private set; }
+
+  /// <summary>Source that owns the physical head.</summary>
+  /// <value>The source, or <c>null</c> if the head is not started.</value>
+  /// <seealso cref="ILinkSource"/>
+  protected ILinkSource headSource { get; private set; }
+
+  /// <summary>Head's transform at which the cable is attached.</summary>
+  /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
+  protected Transform headPhysicalAnchorObj { get; private set; }
   #endregion
 
   #region KASModuleJointBase overrides
