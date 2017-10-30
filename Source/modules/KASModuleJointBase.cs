@@ -245,12 +245,12 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual bool isLinked {
+  public bool isLinked {
     get { return _isLinked; }
     private set {
       var oldValue = _isLinked;
       _isLinked = value;
-      OnStateChanged(oldValue);
+      OnLinkStateChanged(oldValue);
     }
   }
   bool _isLinked;
@@ -270,7 +270,9 @@ public class KASModuleJointBase : PartModule,
   /// </value>
   protected bool isCoupled {
     get {
-      return linkSource.part.parent == linkTarget.part || linkTarget.part.parent == linkSource.part;
+      return isLinked
+          && (linkSource.part.parent == linkTarget.part
+              || linkTarget.part.parent == linkSource.part);
     }
   }
 
@@ -509,7 +511,7 @@ public class KASModuleJointBase : PartModule,
   /// <remarks>The method is called even when the state is not actually changing.</remarks>
   /// <param name="oldIsLinked">The previous link state.</param>
   /// <seealso cref="isLinked"/>
-  protected virtual void OnStateChanged(bool oldIsLinked) {
+  protected virtual void OnLinkStateChanged(bool oldIsLinked) {
   }
 
   /// <summary>Sets the attach node properties.</summary>
