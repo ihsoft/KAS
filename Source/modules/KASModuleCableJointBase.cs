@@ -66,8 +66,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     get { return persistedCableLength; }
     set {
       persistedCableLength = value;
-      if (cableJointObj != null) {
-        cableJointObj.linearLimit = new SoftJointLimit() { limit = value };
+      if (cableJoint != null) {
+        cableJoint.linearLimit = new SoftJointLimit() { limit = value };
       }
       part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
           x.OnKASPropertyChanged(this as ILinkCableJoint,
@@ -79,10 +79,10 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   public float realCableLength {
     get {
       var source = headSource ?? linkSource;
-      if (cableJointObj != null && source != null) {
+      if (cableJoint != null && source != null) {
         return Vector3.Distance(
-            source.part.Rigidbody.transform.TransformPoint(cableJointObj.anchor),
-            cableJointObj.connectedBody.transform.TransformPoint(cableJointObj.connectedAnchor));
+            source.part.Rigidbody.transform.TransformPoint(cableJoint.anchor),
+            cableJoint.connectedBody.transform.TransformPoint(cableJoint.connectedAnchor));
       }
       return 0;
     }
@@ -113,7 +113,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   /// <summary>Physical joint object that connects source to the target.</summary>
   /// <value>The PhysX joint that connects the parts.</value>
-  protected ConfigurableJoint cableJointObj { get; private set; }
+  protected ConfigurableJoint cableJoint { get; private set; }
 
   /// <summary>Source that owns the physical head.</summary>
   /// <value>The source, or <c>null</c> if the head is not started.</value>
@@ -122,7 +122,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   /// <summary>Head's transform at which the cable is attached.</summary>
   /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
-  protected Transform headPhysicalAnchorObj { get; private set; }
+  protected Transform headPhysicalAnchor { get; private set; }
   #endregion
 
   #region KASModuleJointBase overrides
@@ -139,8 +139,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <inheritdoc/>
   protected override void DetachParts() {
     base.DetachParts();
-    Object.Destroy(cableJointObj);
-    cableJointObj = null;
+    Object.Destroy(cableJoint);
+    cableJoint = null;
     headSource = null;
     headRb = null;
   }
@@ -158,7 +158,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       return;
     }
     headSource = source;
-    headPhysicalAnchorObj = headObjAnchor;
+    headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
     CreateDistantJoint(source, headRb, headObjAnchor);
@@ -168,9 +168,9 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   public void StopPhysicalHead() {
     headRb = null;
     headSource = null;
-    headPhysicalAnchorObj = null;
-    DestroyImmediate(cableJointObj);
-    cableJointObj = null;
+    headPhysicalAnchor = null;
+    DestroyImmediate(cableJoint);
+    cableJoint = null;
   }
   #endregion
 
@@ -196,23 +196,23 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor transform at the physical object.</param>
   void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Transform tgtAnchor) {
-    cableJointObj = source.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(cableJointObj);
+    cableJoint = source.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(cableJoint);
     var actualLength = Vector3.Distance(
         source.physicalAnchorTransform.position, tgtAnchor.position);
     KASAPI.JointUtils.SetupDistanceJoint(
-        cableJointObj,
+        cableJoint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
         maxDistance: actualLength);
-    cableJointObj.autoConfigureConnectedAnchor = false;
-    cableJointObj.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
+    cableJoint.autoConfigureConnectedAnchor = false;
+    cableJoint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
         source.physicalAnchorTransform.position);
-    cableJointObj.connectedBody = tgtRb;
-    cableJointObj.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor.position);
-    SetBreakForces(cableJointObj);
+    cableJoint.connectedBody = tgtRb;
+    cableJoint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor.position);
+    SetBreakForces(cableJoint);
 
     customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(cableJointObj);
+    customJoints.Add(cableJoint);
   }
   #endregion
 }
