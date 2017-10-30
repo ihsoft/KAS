@@ -146,9 +146,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     //FIXME: add the physical head module here.
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
-      HostedDebugLog.Error(
-          this, "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1},"
-          + " hasRb=[2}",
+      HostedDebugLog.Error(this,
+          "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1}, hasRb=[2}",
           isLinked, isHeadStarted, headRb != null);
       return;
     }
