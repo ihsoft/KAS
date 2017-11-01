@@ -608,6 +608,7 @@ public class KASModuleJointBase : PartModule,
           LinkActorType.Physics,
           moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
     }
+    CleanupCustomJoints();
   }
   #endregion
 
