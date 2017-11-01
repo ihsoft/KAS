@@ -341,7 +341,7 @@ public class KASModuleJointBase : PartModule,
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
-      if (isLinked && (customJoints == null || customJoints.Any(x => x == null))) {
+      if (customJoints != null && customJoints.Any(x => x == null)) {
         OnPhysXJointCleanup();
       }
     });
