@@ -622,10 +622,10 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="linkBreakForce"/>
   /// <seealso cref="linkBreakTorque"/>
   protected void SetBreakForces(Joint joint, float? force = null, float? torque = null) {
-    joint.breakForce = force
-        ?? (Mathf.Approximately(linkBreakForce, 0) ? float.PositiveInfinity : linkBreakForce);
-    joint.breakTorque = torque
-        ?? (Mathf.Approximately(linkBreakTorque, 0) ? float.PositiveInfinity : linkBreakTorque);
+    var realForce = force ?? linkBreakForce;
+    joint.breakForce = Mathf.Approximately(realForce, 0) ? float.PositiveInfinity : realForce;
+    var realTorque = torque ?? linkBreakTorque;
+    joint.breakTorque = Mathf.Approximately(realTorque, 0) ? float.PositiveInfinity : realTorque;
   }
 
   /// <summary>Checks if the link's length is within the limits.</summary>
