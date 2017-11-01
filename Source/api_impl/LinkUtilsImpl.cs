@@ -47,9 +47,9 @@ class LinkUtilsImpl : ILinkUtils {
     var srcVessel = srcPart.vessel;
     var tgtPart = targetNode.owner;
     var tgtVessel = tgtPart.vessel;
-    DebugEx.Fine("Couple {0} ({1}) to {2} ({3})",
-                 srcPart, KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
-                 tgtPart, KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
+    DebugEx.Fine("Couple {0} to {1}",
+                 KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
+                 KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
 
     UpdateVesselInfoOnPart(srcPart);
     UpdateVesselInfoOnPart(tgtPart);
