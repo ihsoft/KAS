@@ -42,6 +42,15 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     }
     part.attachNodes.Remove(attachNode);
   }
+
+  /// <inheritdoc/>
+  public string DumpAttachNode(AttachNode an) {
+    return an == null
+        ? "[AttachNode:NULL]"
+        : string.Format(
+            "[AttachNode:id={0},host={1},to={2}]",
+            an.id, DebugEx.ObjectToString(an.owner), DebugEx.ObjectToString(an.attachedPart));
+  }
 }
 
 }  // namespace

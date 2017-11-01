@@ -49,6 +49,12 @@ public interface IAttachNodesUtils {
   /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
   /// KSP: IActivateOnDecouple</seealso>
   void DropAttachNode(Part part, string nodeName);
+
+  /// <summary>Returns a user friendly attach node representation.</summary>
+  /// <remarks>It gives on the node and it's peers, which is useful when logging.</remarks>
+  /// <param name="an">The node to get the string for.</param>
+  /// <returns>The user friendly node description.</returns>
+  string DumpAttachNode(AttachNode an);
 }
 
 }  // namespace
