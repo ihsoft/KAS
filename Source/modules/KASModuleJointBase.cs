@@ -516,18 +516,23 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Sets the attach node properties.</summary>
   /// <param name="attachNode">The node to set properties for.</param>
-  /// <param name="isSource">Tells if the node belings to the source or to the target part.</param>
-  protected virtual void SetupAttachNode(AttachNode attachNode, bool isSource) {
+  /// <param name="setupAsSource">
+  /// Tells if the node belongs to the source or to the target part. If not provided, then the node
+  /// connection is not initialized.
+  /// </param>
+  protected virtual void SetupAttachNode(AttachNode attachNode, bool? setupAsSource = null) {
     attachNode.attachMethod = AttachNodeMethod.FIXED_JOINT;
     attachNode.size = attachNodeSize;
     attachNode.breakingForce = linkBreakForce;
     attachNode.breakingTorque = linkBreakTorque;
-    if (isSource) {
-      attachNode.attachedPart = linkTarget.part;
-      attachNode.attachedPartId = linkTarget.part.flightID;
-    } else {
-      attachNode.attachedPart = linkSource.part;
-      attachNode.attachedPartId = linkSource.part.flightID;
+    if (setupAsSource.HasValue) {
+      if (setupAsSource.Value) {
+        attachNode.attachedPart = linkTarget.part;
+        attachNode.attachedPartId = linkTarget.part.flightID;
+      } else {
+        attachNode.attachedPart = linkSource.part;
+        attachNode.attachedPartId = linkSource.part.flightID;
+      }
     }
   }
 
@@ -546,12 +551,12 @@ public class KASModuleJointBase : PartModule,
       if (linkSource.part.FindAttachNode(linkSource.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
             linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform),
-            isSource: true);
+            setupAsSource: true);
       }
       if (linkTarget.part.FindAttachNode(linkTarget.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
             linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform),
-            isSource: false);
+            setupAsSource: false);
       }
       return;
     }
@@ -561,10 +566,10 @@ public class KASModuleJointBase : PartModule,
     }
     var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
         linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform);
-    SetupAttachNode(srcNode, isSource: true);
+    SetupAttachNode(srcNode);
     var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
         linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform);
-    SetupAttachNode(srcNode, isSource: false);
+    SetupAttachNode(tgtNode);
     KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
   }
 
