@@ -37,13 +37,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Reducing the value of this property may trigger the physical effects if the value is less than
-  /// <see cref="realCableLength"/>, a physical effect will trigger. Don't reduce the value too
-  /// rapidly since it will apply a higher force on the connected objects.
+  /// This is a <i>desired</i> distance, not the actual one used by PhysX! The PhysX library can
+  /// apply limits on the min/max values, and adjust them silently.
   /// </para>
   /// <para>
-  /// This value will be used when establishing a link to a physical head. If it's lower than the
-  /// actual distance between the objects, then the real distance will be used instead.   
+  /// Reducing the value of this property may trigger the physical effects if the value is less than
+  /// <see cref="realCableLength"/>. Don't reduce the value too rapidly since it will apply a higher
+  /// force on the connected objects.
+  /// </para>
+  /// <para>
+  /// This value can be set even when the actual joint doesn't exist. In this case the value will be
+  /// applied when the joint is created.
   /// </para>
   /// <para>
   /// When this property is changed, it fires a notification for name
@@ -72,6 +76,9 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <summary>
   /// Attaches the specified object to the source and starts the environmental forces on it.  
   /// </summary>
+  /// <remarks>
+  /// The cable maximum length will be set to the actual distance between the source and the head.
+  /// </remarks>
   /// <param name="source">The source object that owns the head.</param>
   /// <param name="headObjAnchor">
   /// The transform at the head object to attach the cable to. It's also used as a starting point
@@ -79,6 +86,8 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </param>
   /// <seealso cref="StopPhysicalHead"/>
   /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="maxAllowedCableLength"/>
+  /// <seealso cref="realCableLength"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
   void StartPhysicalHead(ILinkSource source, Transform headObjAnchor);

@@ -162,6 +162,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
     // Attach the head to the source.
     CreateDistantJoint(source, headRb, headObjAnchor);
+    maxAllowedCableLength = realCableLength;
   }
 
   /// <inheritdoc/>
@@ -192,18 +193,17 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <summary>
   /// Creates a distance joint between the source and an arbitrary physical object.   
   /// </summary>
+  /// <remarks>It sets the maximum cable length to the persisted value. Even if it's zero!</remarks>
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor transform at the physical object.</param>
   void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Transform tgtAnchor) {
     cableJoint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(cableJoint);
-    var actualLength = Vector3.Distance(
-        source.physicalAnchorTransform.position, tgtAnchor.position);
     KASAPI.JointUtils.SetupDistanceJoint(
         cableJoint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
-        maxDistance: actualLength);
+        maxDistance: persistedCableLength);
     cableJoint.autoConfigureConnectedAnchor = false;
     cableJoint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
         source.physicalAnchorTransform.position);

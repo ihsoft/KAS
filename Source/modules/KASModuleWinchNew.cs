@@ -884,6 +884,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.LogicalUnlink(actorType);
     connectorState = ConnectorState.Deployed;
   }
+
+  /// <inheritdoc/>
+  protected override void PhysicaLink() {
+    base.PhysicaLink();
+    cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
+  }
   #endregion
 
   #region IHasContextMenu implementation
