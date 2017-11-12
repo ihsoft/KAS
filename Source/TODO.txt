@@ -1,3 +1,2 @@
 - Implement hollow method in the renderer
-- Save/restore vessel info.
 - Handle link mass via joint instead of renderer in non-stock joints.
