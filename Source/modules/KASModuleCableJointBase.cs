@@ -78,10 +78,10 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <inheritdoc/>
   public float realCableLength {
     get {
-      var source = headSource ?? linkSource;
-      if (cableJoint != null && source != null) {
+      if (cableJoint != null) {
+        var ownerRb = cableJoint.gameObject.GetComponent<Rigidbody>();
         return Vector3.Distance(
-            source.part.Rigidbody.transform.TransformPoint(cableJoint.anchor),
+            ownerRb.transform.TransformPoint(cableJoint.anchor),
             cableJoint.connectedBody.transform.TransformPoint(cableJoint.connectedAnchor));
       }
       return 0;
