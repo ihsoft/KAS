@@ -517,7 +517,7 @@ public class KASModuleLinkSourceBase : PartModule,
       return false;
     }
     LogicalLink(target);
-    linkJoint.CreateJoint(this, target);
+    PhysicaLink();
     // When GUI linking mode is stopped, all the targets stop accepting the link requests.
     // I.e. the mode must not be stopped before the link is created.
     StopLinkGUIMode();
@@ -531,7 +531,7 @@ public class KASModuleLinkSourceBase : PartModule,
       return;
     }
     var targetRootPart = linkTarget.part;
-    linkJoint.DropJoint();
+    PhysicaUnlink();
     LogicalUnlink(actorType);
     // If either source or target part after the separation belong to the active vessel then adjust
     // the focus. Otherwise, the actor was external (e.g. EVA).
@@ -654,6 +654,18 @@ public class KASModuleLinkSourceBase : PartModule,
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
+  }
+
+  /// <summary>Creates a physical link between the parts.</summary>
+  /// <remarks>It's called after the logical link is established.</remarks>
+  protected virtual void PhysicaLink() {
+    linkJoint.CreateJoint(this, linkTarget);
+  }
+
+  /// <summary>Destroys the physical link between the parts.</summary>
+  /// <remarks>It's called before the logical link is dropped.</remarks>
+  protected virtual void PhysicaUnlink() {
+    linkJoint.DropJoint();
   }
 
   /// <summary>Finds linked target for the source, and updates the related states.</summary>
