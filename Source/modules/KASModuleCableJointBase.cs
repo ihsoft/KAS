@@ -153,7 +153,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
     // Attach the head to the source.
     CreateDistantJoint(source, headRb, headObjAnchor);
-    SetCableLength(realCableLength);
+    SetCableLength(float.NegativeInfinity);
   }
 
   /// <inheritdoc/>
@@ -167,6 +167,11 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   /// <inheritdoc/>
   public void SetCableLength(float length) {
+    if (float.IsPositiveInfinity(length)) {
+      length = cfgMaxCableLength;
+    } else if (float.IsNegativeInfinity(length)) {
+      length = realCableLength;
+    }
     persistedCableLength = length;
     if (cableJoint != null) {
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };

@@ -444,7 +444,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       connectorState = ConnectorState.Deployed;
     }
     if (IsCableDeployed()) {
-      SetCableLength(cableJoint.cfgMaxCableLength);
+      SetCableLength(float.PositiveInfinity);
       ScreenMessaging.ShowPriorityScreenMessage(
           MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
     }
@@ -482,7 +482,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true)
           && StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         LinkToTarget(kerbalTarget);
-        SetCableLength(cableJoint.cfgMaxCableLength);
+        SetCableLength(float.PositiveInfinity);
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
@@ -837,7 +837,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (isLinked) { 
-      SetCableLength(cableJoint.realCableLength);
+      SetCableLength();
     }
     base.BreakCurrentLink(actorType, moveFocusOnTarget);
   }
@@ -878,7 +878,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void PhysicaLink() {
     base.PhysicaLink();
-    SetCableLength(cableJoint.realCableLength);
+    SetCableLength();
   }
   #endregion
 
@@ -909,7 +909,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region IWinConrol methods candidates
+  #region IWinConrol implementation
   /// <inheritdoc/>
   public void SetCableLength(float length) {
     cableJoint.SetCableLength(length);
@@ -979,7 +979,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
           && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
-        SetCableLength(cableJoint.cfgMaxCableLength);
+        SetCableLength(float.PositiveInfinity);
         motorState = MotorState.Idle;
         ScreenMessaging.ShowPriorityScreenMessage(
             MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));

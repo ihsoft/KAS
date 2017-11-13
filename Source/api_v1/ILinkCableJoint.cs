@@ -94,6 +94,20 @@ public interface ILinkCableJoint : ILinkJoint {
   /// applied the next time the joint is created.
   /// </para>
   /// </remarks>
+  /// <param name="length">
+  /// The new length. It's not possible to set a greater value than the one configured for the
+  /// module. There are special values that can be used to achieve a specific setup:
+  /// <list type="bullet">
+  /// <item>
+  /// <c>PositiveInfinity</c>. Use the module settings from <see cref="cfgMaxCableLength"/>.
+  /// </item>
+  /// <item>
+  /// <c>NegativeInfinity</c>. Set the limit to the real distance. If the joint is not existing at
+  /// the momemnt of the call, then the distance is assumed to be <c>0</c>.
+  /// </item>
+  /// </list>
+  /// </param>
+  /// <seealso cref="cfgMaxCableLength"/>
   /// <seealso cref="maxAllowedCableLength"/>
   /// <seealso cref="realCableLength"/>
   void SetCableLength(float length);
