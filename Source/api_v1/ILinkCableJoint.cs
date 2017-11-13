@@ -33,42 +33,31 @@ public interface ILinkCableJoint : ILinkJoint {
   Rigidbody headRb { get; }
 
   /// <summary>
-  /// Maximum possible distance between the source's physical and head/target physical anchors.
+  /// Maximum possible distance between the source and head/target physical anchors.
   /// </summary>
   /// <remarks>
-  /// <para>
   /// This is a <i>desired</i> distance, not the actual one used by PhysX! The PhysX library can
-  /// apply limits on the min/max values, and adjust them silently.
-  /// </para>
-  /// <para>
-  /// Reducing the value of this property may trigger the physical effects if the value is less than
-  /// <see cref="realCableLength"/>. Don't reduce the value too rapidly since it will apply a higher
-  /// force on the connected objects.
-  /// </para>
-  /// <para>
-  /// This value can be set even when the actual joint doesn't exist. In this case the value will be
-  /// applied when the joint is created.
-  /// </para>
-  /// <para>
-  /// When this property is changed, it fires a notification for name
-  /// <see cref="ILinkCableJoint_Properties.maxAllowedCableLength"/>.
-  /// </para>
+  /// apply limits on the min/max values, and adjust them silently. It's discouraged for the
+  /// implementations to rely on the joint settings to obtain this value. 
   /// </remarks>
   /// <value>The length in meters.</value>
   /// <seealso cref="headRb"/>
+  /// <seealso cref="realCableLength"/>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   /// <seealso cref="StartPhysicalHead"/>
-  float maxAllowedCableLength { get; set; }
+  float maxAllowedCableLength { get; }
 
   /// <summary>
   /// Returns the actual distance between the source and target/head physical anchors.
   /// </summary>
   /// <remarks>
-  /// It's always <c>0</c> if the link is not established and there is no head
-  /// started.
+  /// It's always <c>0</c> if the link is not established and there is no head started. Keep in mind
+  /// that the real length is almost never equal to the maximum allowed cable lenght. This is due to
+  /// how the PhysX engine works: the joint can only apply a force when it's stretched.
   /// </remarks>
   /// <value>The distance in meters.</value>
+  /// <seealso cref="maxAllowedCableLength"/>
   /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
   /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
   float realCableLength { get; }
@@ -101,6 +90,24 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </remarks>
   /// <seealso cref="StartPhysicalHead"/>
   void StopPhysicalHead();
+
+  /// <summary>
+  /// Sets the maximum possible distance between the source and the head/target physical anchors.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Setting the new length may trigger the physical effects if the value is less than the real
+  /// cable length, since it will force the engine to pull the objects together. Don't reduce the
+  /// length too rapidly to avoid the strong forces applied.
+  /// </para>
+  /// <para>
+  /// The length can be set even when the actual joint doesn't exist. In this case the value will be
+  /// applied the next time the joint is created.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="maxAllowedCableLength"/>
+  /// <seealso cref="realCableLength"/>
+  void SetCableLength(float length);
 }
 
 }  // namespace

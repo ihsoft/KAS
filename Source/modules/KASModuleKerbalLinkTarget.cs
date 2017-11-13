@@ -108,7 +108,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
           //FIXME: Migrate to the interface when ready.
           var winch = closestSource as KASModuleWinchNew;
           if (winch != null) {
-            winch.cableJoint.maxAllowedCableLength = winch.cableJoint.cfgMaxCableLength;
+            winch.SetCableLength(winch.cableJoint.cfgMaxCableLength);
           }
         } else {
           closestSource.CancelLinking();

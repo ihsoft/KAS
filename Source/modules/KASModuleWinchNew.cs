@@ -29,7 +29,7 @@ namespace KAS {
 /// "grab" the connector and carry it as far as the cable maximum length allows.
 /// </para>
 /// <para>
-/// Since the winch is a basic link source it can link with the target in the differnt modes.
+/// Since the winch is a basic link source it can link with the target in the different modes.
 /// However, it's highly recommended to use the mode <see cref="LinkMode.TieAnyParts"/>. As it
 /// the most flexible, and the winch is capable of changing "docked" vs "non-docked" mode when the
 /// link is already made.
@@ -41,7 +41,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu, IKasPropertyChangeListener,
+    IHasContextMenu,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPhysicalObject {
   #region Localizable GUI strings.
@@ -444,7 +444,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       connectorState = ConnectorState.Deployed;
     }
     if (IsCableDeployed()) {
-      cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
+      SetCableLength(cableJoint.cfgMaxCableLength);
       ScreenMessaging.ShowPriorityScreenMessage(
           MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
     }
@@ -462,8 +462,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     if (IsCableDeployed()) {
-      cableJoint.maxAllowedCableLength =
-          Mathf.Min(cableJoint.realCableLength, cableJoint.maxAllowedCableLength);
+      SetCableLength(Mathf.Min(cableJoint.realCableLength, cableJoint.maxAllowedCableLength));
     }
   }
 
@@ -483,7 +482,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true)
           && StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         LinkToTarget(kerbalTarget);
-        cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
+        SetCableLength(cableJoint.cfgMaxCableLength);
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
@@ -551,7 +550,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  #region IWinchControl candidates
+  #region IWinchControl property candidates
   /// <summary>State of the motor.</summary>
   public enum MotorState {
     /// <summary>The motor is not spinning.</summary>
@@ -619,7 +618,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #endregion
 
-  #region Inheritable fileds and properties
+  #region Inheritable fields and properties
   /// <summary>
   /// Name of persistent fields group that needs saving/load during the normal part's phases.
   /// </summary>
@@ -690,7 +689,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
           AlignTransforms.SnapAlign(
               connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
-          cableJoint.maxAllowedCableLength = 0;
+          SetCableLength(0);
           if (oldState.HasValue) {  // Skip when restoring state.
             sndConnectorLock.Play();
           }
@@ -834,20 +833,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region IKASPropertyChangeListener implementation
-  /// <inheritdoc/>
-  public void OnKASPropertyChanged(object owner, string name) {
-    if (ReferenceEquals(owner, cableJoint)) {
-      UpdateContextMenu();
-    }
-  }
-  #endregion
-
   #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
   public override void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (isLinked) { 
-      cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
+      SetCableLength(cableJoint.realCableLength);
     }
     base.BreakCurrentLink(actorType, moveFocusOnTarget);
   }
@@ -888,7 +878,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void PhysicaLink() {
     base.PhysicaLink();
-    cableJoint.maxAllowedCableLength = cableJoint.realCableLength;
+    SetCableLength(cableJoint.realCableLength);
   }
   #endregion
 
@@ -919,6 +909,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
+  #region IWinConrol methods candidates
+  /// <inheritdoc/>
+  public void SetCableLength(float length) {
+    cableJoint.SetCableLength(length);
+    UpdateContextMenu();
+  }
+  #endregion
+  
   #region Inheritable utility methods
   /// <summary>Shows a message in GUI if the reporting part belongs to the active vessel.</summary>
   /// <remarks>
@@ -977,16 +975,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
-      cableJoint.maxAllowedCableLength =
-          cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime;
+      SetCableLength(
+          cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
           && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
-        cableJoint.maxAllowedCableLength = cableJoint.cfgMaxCableLength;
+        SetCableLength(cableJoint.cfgMaxCableLength);
         motorState = MotorState.Idle;
         ScreenMessaging.ShowPriorityScreenMessage(
             MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       } else if (motorCurrentSpeed < 0 && cableJoint.maxAllowedCableLength <= 0) {
-        cableJoint.maxAllowedCableLength = 0;
+        SetCableLength(0);
         motorState = MotorState.Idle;
         TryLockingConnector();
       }

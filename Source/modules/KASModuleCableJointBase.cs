@@ -64,15 +64,6 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <inheritdoc/>
   public virtual float maxAllowedCableLength {
     get { return persistedCableLength; }
-    set {
-      persistedCableLength = value;
-      if (cableJoint != null) {
-        cableJoint.linearLimit = new SoftJointLimit() { limit = value };
-      }
-      part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
-          x.OnKASPropertyChanged(this as ILinkCableJoint,
-                                 ILinkCableJoint_Properties.maxAllowedCableLength));
-    }
   }
 
   /// <inheritdoc/>
@@ -162,7 +153,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
     // Attach the head to the source.
     CreateDistantJoint(source, headRb, headObjAnchor);
-    maxAllowedCableLength = realCableLength;
+    SetCableLength(realCableLength);
   }
 
   /// <inheritdoc/>
@@ -172,6 +163,18 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     headPhysicalAnchor = null;
     DestroyImmediate(cableJoint);
     cableJoint = null;
+  }
+
+  /// <inheritdoc/>
+  public void SetCableLength(float length) {
+    persistedCableLength = length;
+    if (cableJoint != null) {
+      cableJoint.linearLimit = new SoftJointLimit() { limit = length };
+    }
+    //FIXME: this is a bad concept, drop it!
+    part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
+        x.OnKASPropertyChanged(this as ILinkCableJoint,
+                               ILinkCableJoint_Properties.maxAllowedCableLength));
   }
   #endregion
 
