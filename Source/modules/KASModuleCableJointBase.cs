@@ -171,10 +171,6 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     if (cableJoint != null) {
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
     }
-    //FIXME: this is a bad concept, drop it!
-    part.Modules.OfType<IKasPropertyChangeListener>().ToList().ForEach(x =>
-        x.OnKASPropertyChanged(this as ILinkCableJoint,
-                               ILinkCableJoint_Properties.maxAllowedCableLength));
   }
   #endregion
 
