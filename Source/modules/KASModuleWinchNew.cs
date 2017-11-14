@@ -835,13 +835,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
-  public override void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
-    if (isLinked) { 
-      SetCableLength(cableJoint.realCableLength);
-    }
-    base.BreakCurrentLink(actorType, moveFocusOnTarget);
-  }
-
   /// <inheritdoc/>
   public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
     base.OnKASLinkCreatedEvent(info);
@@ -879,6 +872,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void PhysicaLink() {
     base.PhysicaLink();
     SetCableLength(cableJoint.realCableLength);
+  }
+
+  /// <inheritdoc/>
+  protected override void PhysicaUnlink() {
+    SetCableLength(cableJoint.realCableLength);
+    base.PhysicaUnlink();
   }
   #endregion
 
