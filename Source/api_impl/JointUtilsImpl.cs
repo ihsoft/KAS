@@ -3,9 +3,10 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.LogUtils;
 using System;
-using UnityEngine;
 using System.Text;
+using UnityEngine;
 
 namespace KASImpl {
 
@@ -207,6 +208,12 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
   StringBuilder DumpBaseJoint(Joint joint) {
     var msg = new StringBuilder();
     msg.Append("name: ").Append(joint.name).AppendLine();
+    msg.Append("ownerBody: ")
+        .Append(DebugEx.ObjectToString(joint.gameObject.GetComponent<Rigidbody>()))
+        .AppendLine();
+    msg.Append("connectedBody: ")
+        .Append(DebugEx.ObjectToString(joint.connectedBody))
+        .AppendLine();
     // Collider setup.
     msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
     // Optimization.
