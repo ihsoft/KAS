@@ -576,7 +576,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     get { return motorStateMachine.currentState ?? MotorState.Idle; }
     set {
       if (value != MotorState.Idle && !IsCableDeployed()) {
-        HostedDebugLog.Warning(this, "Cannot start motor is state: {0}", connectorState);
+        HostedDebugLog.Warning(this, "Cannot start motor in state: {0}", connectorState);
         return;
       }
       motorStateMachine.currentState = value;
@@ -909,7 +909,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region IWinConrol implementation
+  #region IWinControl implementation
   /// <inheritdoc/>
   public void SetCableLength(float length) {
     cableJoint.SetCableLength(length);

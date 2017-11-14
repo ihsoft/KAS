@@ -68,7 +68,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <summary>List of all the connectors that triggered the interaction collision event.</summary>
   /// <remarks>
   /// This collection must be a list since the items in it can become <c>null</c> in case of Unity
-  /// has destroyed the owner object.
+  /// has destroyed the owner object. So no sets!
   /// </remarks>
   readonly List<InternalKASModulePhysicalConnector> connectorsInRange =
       new List<InternalKASModulePhysicalConnector>();
