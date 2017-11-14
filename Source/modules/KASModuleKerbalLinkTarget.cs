@@ -105,8 +105,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
           && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (closestSource.LinkToTarget(this)) {
-          //FIXME: Migrate to the interface when ready.
-          var winch = closestSource as KASModuleWinchNew;
+          var winch = closestSource as IWinchControl;
           if (winch != null) {
             winch.SetCableLength(float.PositiveInfinity);
           }

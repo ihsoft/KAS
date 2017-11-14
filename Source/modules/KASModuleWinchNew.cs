@@ -41,7 +41,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_08024.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu,
+    IHasContextMenu, IWinchControl,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPhysicalObject {
   #region Localizable GUI strings.
@@ -911,8 +911,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region IWinControl implementation
   /// <inheritdoc/>
-  public void SetCableLength(float length) {
-    cableJoint.SetCableLength(length);
+  public void SetCableLength(float? length = null) {
+    cableJoint.SetCableLength(length ?? float.NegativeInfinity);
     UpdateContextMenu();
   }
   #endregion
