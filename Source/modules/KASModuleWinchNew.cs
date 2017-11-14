@@ -835,35 +835,24 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
-  /// <inheritdoc/>
-  public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    base.OnKASLinkCreatedEvent(info);
-    if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(info.target.part.vessel.isEVA
+  protected override void LogicalLink(ILinkTarget target) {
+    base.LogicalLink(target);
+    connectorState = ConnectorState.Plugged;
+    if (linkActor == LinkActorType.Player) {
+      UISoundPlayer.instance.Play(target.part.vessel.isEVA
           ? sndPathGrabConnector
           : sndPathPlugConnector);
     }
   }
 
   /// <inheritdoc/>
-  public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    base.OnKASLinkBrokenEvent(info);
-    if (info.actor == LinkActorType.Physics) {
+  protected override void LogicalUnlink(LinkActorType actorType) {
+    if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ScreenMessaging.ShowPriorityScreenMessage(CableLinkBrokenMsg);
-    } else if (info.actor == LinkActorType.Player && !info.target.part.vessel.isEVA) {
+    } else if (actorType == LinkActorType.Player && !linkTarget.part.vessel.isEVA) {
       UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
-  }
-
-  /// <inheritdoc/>
-  protected override void LogicalLink(ILinkTarget target) {
-    base.LogicalLink(target);
-    connectorState = ConnectorState.Plugged;
-  }
-
-  /// <inheritdoc/>
-  protected override void LogicalUnlink(LinkActorType actorType) {
     base.LogicalUnlink(actorType);
     connectorState = ConnectorState.Deployed;
   }
