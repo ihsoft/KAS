@@ -462,7 +462,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     if (IsCableDeployed()) {
-      SetCableLength(Mathf.Min(cableJoint.realCableLength, cableJoint.maxAllowedCableLength));
+      SetCableLength();
     }
   }
 
@@ -837,7 +837,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
     if (isLinked) { 
-      SetCableLength();
+      SetCableLength(cableJoint.realCableLength);
     }
     base.BreakCurrentLink(actorType, moveFocusOnTarget);
   }
@@ -878,7 +878,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void PhysicaLink() {
     base.PhysicaLink();
-    SetCableLength();
+    SetCableLength(cableJoint.realCableLength);
   }
   #endregion
 

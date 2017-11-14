@@ -170,7 +170,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     if (float.IsPositiveInfinity(length)) {
       length = cfgMaxCableLength;
     } else if (float.IsNegativeInfinity(length)) {
-      length = realCableLength;
+      length = Mathf.Min(realCableLength, maxAllowedCableLength);
     }
     persistedCableLength = length;
     if (cableJoint != null) {

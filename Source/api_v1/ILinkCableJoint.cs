@@ -102,8 +102,11 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <c>PositiveInfinity</c>. Use the module settings from <see cref="cfgMaxCableLength"/>.
   /// </item>
   /// <item>
-  /// <c>NegativeInfinity</c>. Set the limit to the real distance. If the joint is not existing at
-  /// the momemnt of the call, then the distance is assumed to be <c>0</c>.
+  /// <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
+  /// less than the current limit. When the real distance is greater than the limit, it means the
+  /// cable is under a strain due to the physical forces, and nothing will be change to not trigger
+  /// extra effects. If the joint is not existing at the moment of the call, then the real distance
+  /// is assumed to be <c>0</c>.
   /// </item>
   /// </list>
   /// </param>
