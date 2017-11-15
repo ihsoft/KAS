@@ -317,6 +317,7 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local members
+  /// <summary>Set when the coupled parts are decoupled by a self-triggered event.</summary>
   bool selfDecoupledAction;
   #endregion    
 
@@ -713,7 +714,7 @@ public class KASModuleJointBase : PartModule,
     }
   }
 
-  /// <summary>Cleanups atatch nodes and, optionally, breaks the link.</summary>
+  /// <summary>Cleans up the attach nodes and, optionally, breaks the link.</summary>
   /// <remarks>
   /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
   /// event handler.
