@@ -328,7 +328,7 @@ public class KASModuleJointBase : PartModule,
         customJoints.ForEach(UnityEngine.Object.Destroy);
         customJoints = null;
       }
-      CleanupJoint(linkSource, linkTarget, !selfDecoupledAction);
+      CleanupAttachNodes(linkSource, linkTarget, !selfDecoupledAction);
     }
   }
   #endregion
@@ -730,7 +730,7 @@ public class KASModuleJointBase : PartModule,
   /// <param name="needsLinkBreak">
   /// Tells if the link source needs to know the link is broken.
   /// </param>
-  void CleanupJoint(ILinkSource source, ILinkTarget target, bool needsLinkBreak) {
+  void CleanupAttachNodes(ILinkSource source, ILinkTarget target, bool needsLinkBreak) {
     // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
     // they will be null'ed on the link destruction.
     AsyncCall.CallOnEndOfFrame(this, () => {
