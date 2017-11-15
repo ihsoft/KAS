@@ -324,10 +324,6 @@ public class KASModuleJointBase : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (isLinked && linkSource.cfgAttachNodeName == nodeName) {
-      if (customJoints != null) {
-        customJoints.ForEach(UnityEngine.Object.Destroy);
-        customJoints = null;
-      }
       CleanupAttachNodes(linkSource, linkTarget, !selfDecoupledAction);
     }
   }
@@ -341,8 +337,10 @@ public class KASModuleJointBase : PartModule,
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
-      if (customJoints != null && customJoints.Any(x => x == null)) {
-        OnPhysXJointCleanup();
+      if (isLinked && customJoints != null && customJoints.Any(x => x == null)) {
+        linkSource.BreakCurrentLink(
+            LinkActorType.Physics,
+            moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
       }
     });
   }
@@ -396,7 +394,7 @@ public class KASModuleJointBase : PartModule,
         DetachParts();
       }
     }
-    CleanupCustomJoints();
+    CleanupPhysXJoints();
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -600,18 +598,22 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
   /// <seealso cref="AttachParts"/>
   protected virtual void DetachParts() {
-    CleanupCustomJoints();
+    CleanupPhysXJoints();
   }
 
-  /// <summary>Notifies that the physical joint has been destroyed in the game.</summary>
-  /// <seealso cref="IJointEventsListener"/>
-  protected virtual void OnPhysXJointCleanup() {
-    if (isLinked) {
-      linkSource.BreakCurrentLink(
-          LinkActorType.Physics,
-          moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+  /// <summary>Drops and cleans up all the custom joints.</summary>
+  /// <remarks>
+  /// If module manages objects or components other than joints listed in the
+  /// <see cref="customJoints"/>, then this method is the right place to do teh cleanup on the
+  /// joint(s) destruction.
+  /// </remarks>
+  /// <seealso cref="customJoints"/>
+  protected virtual void CleanupPhysXJoints() {
+    if (customJoints != null) {
+      HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
+      customJoints.ForEach(UnityEngine.Object.Destroy);
+      customJoints = null;
     }
-    CleanupCustomJoints();
   }
   #endregion
 
@@ -689,15 +691,6 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local utility methods
-  /// <summary>Drops and cleanup any custom joints.</summary>
-  void CleanupCustomJoints() {
-    if (customJoints != null) {
-      HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
-      customJoints.ForEach(UnityEngine.Object.Destroy);
-      customJoints = null;
-    }
-  }
-
   /// <summary>Triggers when a vessel is changed.</summary>
   /// <remarks>
   /// If the affected vessel is the owber of the joint part, then update its colliders.
