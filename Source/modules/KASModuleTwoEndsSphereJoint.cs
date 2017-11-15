@@ -234,10 +234,22 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     strutJoint.enablePreprocessing = true;
     SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
 
+    // This "joint" is only needed to disable the collisions between the parts.
+    // TODO(ihsoft): Assign the renderer's colliders to the real RBs instead of the part's RB. 
+    var collisionJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(collisionJoint);
+    KASAPI.JointUtils.SetupDistanceJoint(collisionJoint);
+    collisionJoint.xMotion = ConfigurableJointMotion.Free;
+    collisionJoint.yMotion = ConfigurableJointMotion.Free;
+    collisionJoint.zMotion = ConfigurableJointMotion.Free;
+    collisionJoint.enablePreprocessing = true;
+    collisionJoint.connectedBody = linkTarget.part.rb;
+
     customJoints = new List<ConfigurableJoint>();
     customJoints.Add(srcJoint);
     customJoints.Add(trgJoint);
     customJoints.Add(strutJoint);
+    customJoints.Add(collisionJoint);
   }
   #endregion
 }

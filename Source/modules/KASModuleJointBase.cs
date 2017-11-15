@@ -383,7 +383,6 @@ public class KASModuleJointBase : PartModule,
       CoupleParts();
     } else {
       AttachParts();
-      SetCollisionIgnores(true);
     }
     return true;
   }
@@ -395,7 +394,6 @@ public class KASModuleJointBase : PartModule,
         DecoupleParts();
       } else {
         DetachParts();
-        SetCollisionIgnores(false);
       }
     }
     CleanupCustomJoints();
@@ -700,36 +698,6 @@ public class KASModuleJointBase : PartModule,
     }
   }
 
-  /// <summary>Sets the colission state between the source part and the target vessel.</summary>
-  /// <remarks>
-  /// For a short period of time this method disables all the physical collisions on the source
-  /// part.
-  /// </remarks>
-  /// <param name="ignoreCollisions">Tells if the collisions should be ignored or triggered.</param>
-  void SetCollisionIgnores(bool ignoreCollisions) {
-    if (ignoreCollisions) {
-      // Set ignores on the new target part. It takes some time for the vessel to settle down.
-      // To be on a safe side, disable the physical effects of the colliders. In the game's core
-      // it's hardcoded to wait for 3 fixed frames before kicking in the physics. So we wait 6!
-      var colliders = linkSource.part.gameObject.GetComponentsInChildren<Collider>()
-          .Where(c => !c.isTrigger)
-          .ToList();  // Make a copy! We want the filter to be applied only once.
-      colliders.ForEach(x => x.isTrigger = true);
-      AsyncCall.WaitForPhysics(
-          this, 6, () => false,  // Use all the frames for the waiting.
-          failure: () => {
-            colliders
-                .Where(c => c != null)  // Some colliders could get destroyed during the wait.
-                .ToList().ForEach(c => c.isTrigger = false);
-            if (isLinked) {
-              Colliders.SetCollisionIgnores(linkSource.part, linkTarget.part.vessel, true);
-            }
-          });
-    } else {
-      Colliders.SetCollisionIgnores(linkSource.part, linkTarget.part.vessel, false);
-    }
-  }
-
   /// <summary>Triggers when a vessel is changed.</summary>
   /// <remarks>
   /// If the affected vessel is the owber of the joint part, then update its colliders.
@@ -739,8 +707,6 @@ public class KASModuleJointBase : PartModule,
     if (!isLinked || vessel != v) {
       return;  // Nothing to do.
     }
-    // Adjust the colliders on the part in case of the parts are not coupled.
-    SetCollisionIgnores(linkTarget.part.vessel != linkSource.part.vessel);
     // Try taking the coupling role if this part can do it. 
     if (coupleOnLinkMode && linkSource.part.vessel != linkTarget.part.vessel) {
       AsyncCall.CallOnEndOfFrame(this, () => {
