@@ -30,7 +30,7 @@ public class KASModuleJointBase : PartModule,
     // KAS interfaces.
     ILinkJoint,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo {
+    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -227,6 +227,7 @@ public class KASModuleJointBase : PartModule,
   /// </summary>
   /// <seealso cref="coupleOnLinkMode"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool coupleWhenLinked;
   #endregion
@@ -692,9 +693,10 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local utility methods
-  /// <summary>Triggers when a vessel is changed.</summary>
+  /// <summary>Checks if the coupling role should be taken by this module.</summary>
   /// <remarks>
-  /// If the affected vessel is the owber of the joint part, then update its colliders.
+  /// If this joint is in the coupling mode and the former owner of the coupling has just
+  /// decoupled, then take the role.
   /// </remarks>
   /// <param name="v">The vessel that changed.</param>
   void OnVesselWasModified(Vessel v) {
