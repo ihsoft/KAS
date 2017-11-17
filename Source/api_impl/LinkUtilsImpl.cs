@@ -51,9 +51,6 @@ class LinkUtilsImpl : ILinkUtils {
                  KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
                  KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
 
-    UpdateVesselInfoOnPart(srcPart);
-    UpdateVesselInfoOnPart(tgtPart);
-
     sourceNode.attachedPart = tgtPart;
     sourceNode.attachedPartId = tgtPart.flightID;
     targetNode.attachedPart = srcPart;
@@ -75,25 +72,25 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public Part DecoupleParts(Part part1, Part part2) {
+  public Part DecoupleParts(Part part1, Part part2,
+                            DockedVesselInfo vesselInfo1 = null,
+                            DockedVesselInfo vesselInfo2 = null) {
     Part partToDecouple;
+    DockedVesselInfo vesselInfo;
     if (part1.parent == part2) {
       DebugEx.Fine("Decouple {0} from {1}", part1, part2);
       partToDecouple = part1;
+      vesselInfo = vesselInfo1;
     } else if (part2.parent == part1) {
       DebugEx.Fine("Decouple {0} from {1}", part2, part1);
       partToDecouple = part2;
+      vesselInfo = vesselInfo2;
     } else {
       DebugEx.Warning("Cannot decouple {0} <=> {1} - not coupled!", part1, part2);
       return null;
     }
 
-    var parentVesselInfoModule = partToDecouple.parent.FindModuleImplementing<ILinkVesselInfo>();
-    if (parentVesselInfoModule != null) {
-      parentVesselInfoModule.vesselInfo = null;
-    }
-    var childVesselInfoModule = partToDecouple.FindModuleImplementing<ILinkVesselInfo>();
-    if (childVesselInfoModule != null && childVesselInfoModule.vesselInfo != null) {
+    if (vesselInfo != null) {
       // Simulate the IActivateOnDecouple behaviour since Undock() doesn't do it.
       var srcAttachNode = partToDecouple.FindAttachNodeByPart(partToDecouple.parent);
       if (srcAttachNode != null) {
@@ -108,30 +105,19 @@ class LinkUtilsImpl : ILinkUtils {
             .ForEach(m => m.DecoupleAction(tgtAttachNode.id, false));
       }
       // Decouple and restore the name and hierarchy on the decoupled assembly.
-      partToDecouple.Undock(childVesselInfoModule.vesselInfo);
-      childVesselInfoModule.vesselInfo = null;
+      var vesselInfoCfg = new ConfigNode();
+      vesselInfo.Save(vesselInfoCfg);
+      DebugEx.Fine("Restore vessel info:\n{0}", vesselInfoCfg);
+      partToDecouple.Undock(vesselInfo);
     } else {
       // Do simple decouple event which will screw the decoupled vessel root part.
+      DebugEx.Warning("No vessel info found! Just decoupling");
       partToDecouple.decouple();
     }
     part1.vessel.CycleAllAutoStrut();
     part2.vessel.CycleAllAutoStrut();
     return partToDecouple;
   }
-
-  #region Local utility methods
-  /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
-  /// <param name="part">The part to search for the module on.</param>
-  void UpdateVesselInfoOnPart(Part part) {
-    var vesselInfoModule = part.FindModuleImplementing<ILinkVesselInfo>();
-    if (vesselInfoModule != null) {
-      vesselInfoModule.vesselInfo = new DockedVesselInfo();
-      vesselInfoModule.vesselInfo.name = part.vessel.vesselName;
-      vesselInfoModule.vesselInfo.vesselType = part.vessel.vesselType;
-      vesselInfoModule.vesselInfo.rootPartUId = part.vessel.rootPart.flightID;
-    }
-  }
-  #endregion
 }
 
 }  // namespace

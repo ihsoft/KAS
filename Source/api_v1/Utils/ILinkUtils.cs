@@ -39,15 +39,9 @@ public interface ILinkUtils {
 
   /// <summary>Couples two parts together given they belong to the different vessels.</summary>
   /// <remarks>
-  /// <para>
   /// Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
   /// other vessel. The new merged vessel will become active. Which vessel will be destroyed is
   /// determined by the <paramref name="toDominantVessel"/> parameter.
-  /// </para>
-  /// <para>
-  /// If the source or target parts has a <see cref="ILinkVesselInfo"/> module, then them will be
-  /// updated accordingly.
-  /// </para>
   /// </remarks>
   /// <para>The attach nodes must have a valid <c>owner</c> set.</para>
   /// <param name="sourceNode">
@@ -62,15 +56,16 @@ public interface ILinkUtils {
   /// significant vessel of the two, and couple it with the <i>most</i> significant one. The least
   /// signficant vessel will be destroyed.
   /// </param>
-  /// <returns>The part that atatched as a child into the new hierarchy.</returns>
+  /// <returns>The part that attached as a child into the new hierarchy.</returns>
   /// <seealso cref="ILinkVesselInfo"/>
   Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
                    bool toDominantVessel = false);
 
   /// <summary>Decouples the connected parts and breaks down one vessel into two.</summary>
   /// <remarks>
-  /// If the part, being decoupled, have a <see cref="ILinkVesselInfo"/> module with a non-null
-  /// vessel info, then this information will be used to restore the decoupled vessel state.
+  /// If the part, being decoupled, has the <c>DockedVesselInfo</c> provided, then additionally to
+  /// the decoupling, the method will also restore the old vessel properties. Including the root
+  /// part.
   /// </remarks>
   /// <param name="part1">
   /// The first part of the connection. It must be a direct parent or a child of the
@@ -80,9 +75,15 @@ public interface ILinkUtils {
   /// The second part of the connection. It must be a direct parent or a child of the
   /// <paramref name="part1"/>.
   /// </param>
+  /// <param name="vesselInfo1">
+  /// The optional info of the vessel that owned the <paramref name="part1"/> on coupling.
+  /// </param>
+  /// <param name="vesselInfo2">
+  /// The optional info of the vessel that owned the <paramref name="part2"/> on coupling.
+  /// </param>
   /// <returns>The child part that has decoupled from the owner vessel.</returns>
-  /// <seealso cref="ILinkVesselInfo"/>
-  Part DecoupleParts(Part part1, Part part2);
+  Part DecoupleParts(Part part1, Part part2,
+                     DockedVesselInfo vesselInfo1 = null, DockedVesselInfo vesselInfo2 = null);
 }
 
 }  // namespace
