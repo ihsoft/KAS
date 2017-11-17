@@ -730,7 +730,7 @@ public class KASModuleJointBase : PartModule,
     AsyncCall.CallOnEndOfFrame(this, () => {
       KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
       KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
-      if (needsLinkBreak) {
+      if (needsLinkBreak && isLinked) {
         source.BreakCurrentLink(LinkActorType.Physics);
       }
     });
