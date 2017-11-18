@@ -157,7 +157,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       ScreenMessages.PostScreenMessage(persistentTopCenterMessage);
     }
     if (canPickupConnector) {
-      persistentBottomCenterMessage.message = PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
+      persistentBottomCenterMessage.message =
+          PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
       ScreenMessages.PostScreenMessage(persistentBottomCenterMessage);
     }
 
