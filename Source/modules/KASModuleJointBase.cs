@@ -4,10 +4,10 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using KSPDev.ModelUtils;
 using KSPDev.ProcessingUtils;
 using System;
 using System.Collections.Generic;
@@ -230,6 +230,16 @@ public class KASModuleJointBase : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool coupleWhenLinked;
+
+  /// <summary>Vessel info of the source part.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [PersistentField("persistedSrcVesselInfo", group = StdPersistentGroups.PartPersistant)]
+  DockedVesselInfo persistedSrcVesselInfo;
+
+  /// <summary>Vessel info of the target part.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
+  DockedVesselInfo persistedTgtVesselInfo;
   #endregion
 
   #region ILinkJoint implementation
@@ -325,9 +335,14 @@ public class KASModuleJointBase : PartModule,
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (isLinked && linkSource.cfgAttachNodeName == nodeName) {
-      CleanupAttachNodes(linkSource, linkTarget, !selfDecoupledAction);
+    if (!isLinked || linkSource.cfgAttachNodeName != nodeName) {
+      return;  // Nothing to do. 
     }
+    // Restore the vessel info.
+    if (!selfDecoupledAction) {
+      RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
+    }
+    CleanupAttachNodes(linkSource, linkTarget, !selfDecoupledAction);
   }
   #endregion
 
@@ -348,11 +363,47 @@ public class KASModuleJointBase : PartModule,
   }
   #endregion
 
+  /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
+  /// <remarks>
+  /// The source and target parts need to be separated, but the logical link still need to exist.
+  /// On restore the vessel info will be cleared on the module.
+  /// </remarks>
+  void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
+      var childPart = weDecouple ? source.part : target.part;
+      if (childPart.vessel.vesselType != vesselInfo.vesselType
+          || childPart.vessel.vesselName != vesselInfo.name) {
+        HostedDebugLog.Warning(this, "Partially restoring vessel info on {0}: type={1}, name={2}",
+                               childPart, vesselInfo.vesselType, vesselInfo.name);
+        childPart.vessel.vesselType = vesselInfo.vesselType;
+        childPart.vessel.vesselName = vesselInfo.name;
+      }
+      persistedSrcVesselInfo = null;
+      persistedTgtVesselInfo = null;
+    });
+  }
+
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
     GameEvents.onVesselWasModified.Add(OnVesselWasModified);
+    GameEvents.onVesselRename.Add(OnVesselRename);
+  }
+
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    ConfigAccessor.ReadFieldsFromNode(
+        node, typeof(KASModuleJointBase), this, group: StdPersistentGroups.PartPersistant);
+  }
+
+  /// <inheritdoc/>
+  public override void OnSave(ConfigNode node) {
+    base.OnSave(node);
+    ConfigAccessor.WriteFieldsIntoNode(
+        node, typeof(KASModuleJointBase), this, group: StdPersistentGroups.PartPersistant);
   }
   #endregion
 
@@ -360,6 +411,7 @@ public class KASModuleJointBase : PartModule,
   /// <inheritdoc/>
   public virtual void OnDestroy() {
     GameEvents.onVesselWasModified.Remove(OnVesselWasModified);
+    GameEvents.onVesselRename.Remove(OnVesselRename);
   }
   #endregion
 
@@ -562,6 +614,11 @@ public class KASModuleJointBase : PartModule,
       HostedDebugLog.Fine(this, "Skip coupling: {0} <=> {1}", linkSource, linkTarget);
       return;
     }
+
+    // Remember the vessel info to restore it on the decoupling.
+    persistedSrcVesselInfo = GetVesselInfo(linkSource.part);
+    persistedTgtVesselInfo = GetVesselInfo(linkTarget.part);
+    
     var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
         linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform);
     SetupAttachNode(srcNode);
@@ -593,8 +650,12 @@ public class KASModuleJointBase : PartModule,
       return;
     }
     selfDecoupledAction = true;
-    KASAPI.LinkUtils.DecoupleParts(linkSource.part, linkTarget.part);
+    KASAPI.LinkUtils.DecoupleParts(
+        linkSource.part, linkTarget.part,
+        vesselInfo1: persistedSrcVesselInfo, vesselInfo2: persistedTgtVesselInfo);
     selfDecoupledAction = false;
+    persistedSrcVesselInfo = null;
+    persistedTgtVesselInfo = null;
   }
 
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
@@ -716,6 +777,25 @@ public class KASModuleJointBase : PartModule,
     }
   }
 
+  /// <summary>Reacts on the vessel name change and updates the vessel infos.</summary>
+  void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> action) {
+    if (!isLinked || action.host != vessel) {
+      return;  // Nothing to do.
+    }
+    if (persistedSrcVesselInfo.rootPartUId == action.host.rootPart.flightID) {
+      persistedSrcVesselInfo.name = action.host.vesselName;
+      persistedSrcVesselInfo.vesselType = action.host.vesselType;
+      HostedDebugLog.Fine(this, "Update source vessel info to: name={0}, type={1}",
+                          persistedSrcVesselInfo.name, persistedSrcVesselInfo.vesselType);
+    }
+    if (persistedTgtVesselInfo.rootPartUId == action.host.rootPart.flightID) {
+      persistedTgtVesselInfo.name = action.host.vesselName;
+      persistedTgtVesselInfo.vesselType = action.host.vesselType;
+      HostedDebugLog.Fine(this, "Update target vessel info to: name={0}, type={1}",
+                          persistedTgtVesselInfo.name, persistedTgtVesselInfo.vesselType);
+    }
+  }
+
   /// <summary>Cleans up the attach nodes and, optionally, breaks the link.</summary>
   /// <remarks>
   /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
@@ -733,9 +813,21 @@ public class KASModuleJointBase : PartModule,
       KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
       KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
       if (needsLinkBreak && isLinked) {
-        source.BreakCurrentLink(LinkActorType.Physics);
+        source.BreakCurrentLink(
+            LinkActorType.Physics,
+            moveFocusOnTarget: target.part.vessel == FlightGlobals.ActiveVessel);
       }
     });
+  }
+
+  /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
+  /// <param name="p">The part to search for the module on.</param>
+  DockedVesselInfo GetVesselInfo(Part p) {
+    var vesselInfo = new DockedVesselInfo();
+    vesselInfo.name = p.vessel.vesselName;
+    vesselInfo.vesselType = p.vessel.vesselType;
+    vesselInfo.rootPartUId = p.vessel.rootPart.flightID;
+    return vesselInfo;
   }
   #endregion
 }
