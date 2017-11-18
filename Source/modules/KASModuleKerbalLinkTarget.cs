@@ -57,10 +57,15 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   ILinkSource closestConnectorSource {
     get {
       return connectorsInRange
-          .Select(x => x == null ? null : x.ownerModule as ILinkSource)
-          .Where(x => x != null && x.linkState == LinkState.Available && x.cfgLinkType == linkType)
-          .OrderBy(x => Vector3.Distance(gameObject.transform.position,
-                                         x.part.gameObject.transform.position))
+          .Where(x => x != null && x.ownerModule as ILinkSource != null && x.connectorRb != null)
+          .Select(x => new {
+              source = x.ownerModule as ILinkSource,
+              distance = Vector3.Distance(gameObject.transform.position,
+                                          x.connectorRb.transform.position)
+          })
+          .Where(x => x.source.linkState == LinkState.Available && x.source.cfgLinkType == linkType)
+          .OrderBy(x => x.distance)
+          .Select(x => x.source)
           .FirstOrDefault();
     }
   }
