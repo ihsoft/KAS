@@ -52,20 +52,21 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #endregion
 
   #region Local fields and properties
-  /// <summary>Returns a valid source of the closest connector in range.</summary>
-  /// <value>The source or <c>null</c>.</value>
-  ILinkSource closestConnectorSource {
+  /// <summary>The closest connector that is compatible with the kerbal's target.</summary>
+  /// <value>COnnector module or <c>null</c>.</value>
+  InternalKASModulePhysicalConnector closestConnector {
     get {
       return connectorsInRange
           .Where(x => x != null && x.ownerModule as ILinkSource != null && x.connectorRb != null)
           .Select(x => new {
+              connector = x,
               source = x.ownerModule as ILinkSource,
               distance = Vector3.Distance(gameObject.transform.position,
                                           x.connectorRb.transform.position)
           })
           .Where(x => x.source.linkState == LinkState.Available && x.source.cfgLinkType == linkType)
           .OrderBy(x => x.distance)
-          .Select(x => x.source)
+          .Select(x => x.connector)
           .FirstOrDefault();
     }
   }
@@ -82,12 +83,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   static Event pickupConnectorKeyEvent;
   ScreenMessage persistentTopCenterMessage;
   ScreenMessage persistentBottomCenterMessage;
-  
-  bool canPickupConnector {
-    get {
-      return !isLinked && closestConnectorSource != null;
-    }
-  }
+  InternalKASModulePhysicalConnector oldPickupConnector;
 
   bool canDropConnector {
     get { return isLinked; }
@@ -103,8 +99,9 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       defaultTemplate = "Pickup connector",
       description = "A context menu item that picks up the cable connector in range.")]
   public void PickupConnectorEvent() {
-    var closestSource = closestConnectorSource;
-    if (closestSource != null) {
+    var connector = closestConnector;
+    if (connector != null) {
+      var closestSource = connector.ownerModule as ILinkSource;
       HostedDebugLog.Info(
           this, "Try picking up a physical connector of: {0}...", closestSource as PartModule);
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
@@ -127,13 +124,14 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    // Remove hints if any.
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
+    var pickupConnector = thisVesselIsActive && !isLinked ? closestConnector : null;
+    // Remove hints if any.
     if (!canDropConnector || !thisVesselIsActive) {
       ScreenMessages.RemoveMessage(persistentTopCenterMessage);
       UpdateContextMenu();
     }
-    if (!canPickupConnector || !thisVesselIsActive) {
+    if (pickupConnector == null) {
       ScreenMessages.RemoveMessage(persistentBottomCenterMessage);
       UpdateContextMenu();
     }
@@ -146,7 +144,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       Event.current.Use();
       DropConnector();
     }
-    if (Event.current.Equals(pickupConnectorKeyEvent) && canPickupConnector) {
+    if (Event.current.Equals(pickupConnectorKeyEvent) && pickupConnector != null) {
       Event.current.Use();
       PickupConnectorEvent();
     }
@@ -156,7 +154,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       persistentTopCenterMessage.message = DropConnectorHintMsg.Format(dropConnectorKeyEvent);
       ScreenMessages.PostScreenMessage(persistentTopCenterMessage);
     }
-    if (canPickupConnector) {
+    if (pickupConnector != null) {
       persistentBottomCenterMessage.message =
           PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
       ScreenMessages.PostScreenMessage(persistentBottomCenterMessage);
@@ -169,7 +167,10 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
-    PartModuleUtils.SetupEvent(this, PickupConnectorEvent, x => x.guiActive = canPickupConnector);
+    PartModuleUtils.SetupEvent(
+        this, PickupConnectorEvent,
+        x => x.guiActive = FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel
+            && !isLinked && closestConnector != null);
   }
   #endregion
 
