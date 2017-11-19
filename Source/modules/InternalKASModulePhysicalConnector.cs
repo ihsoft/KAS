@@ -14,16 +14,17 @@ namespace KAS {
 /// <remarks>
 /// <para>
 /// This is an <i>internal</i> module. It must not be instantiated or accessed outside of the KAS
-/// mod. The module must only be created thru a factory method.
+/// mod. The module must only be created thru the factory method.
 /// </para>
 /// <para>
-/// The promoted object becomes independent from the creator. When the module is destoyed, it's
+/// The promoted object becomes independent from the creator. When the module is destoyed, its
 /// rigidbody gets destroyed as well, and the model returns back to the owner part. The position has
 /// to be adjusted by the caller.
 /// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
 sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
+  #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>
   /// The physics will immediately start on the object. If it doesn't have a rigidbody, the one will
@@ -67,11 +68,14 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     if (connectorModule == null) {
       return false;
     }
+    // Don't wait for the module destruction and cleanup immediately.
     connectorModule.CleanupModule();
     Destroy(connectorModule);
     return true;
   }
+  #endregion
 
+  #region Public properties
   /// <summary>Module which controls this head.</summary>
   /// <value>The module instance.</value>
   public PartModule ownerModule { get; private set; }
@@ -86,7 +90,9 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   public const string InteractionAreaCollider = "InternalKASModulePhysicalHead_InteractionCollider";
 
   /// <summary>Connector's rigidbody.</summary>
+  /// <value>Rigidbody or <c>null</c>.</value>
   public Rigidbody connectorRb { get; private set; }
+  #endregion
 
   GameObject interactionTriggerObj;
 
