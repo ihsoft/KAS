@@ -49,6 +49,14 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pickupConnectorKey = "Y";
+
+  /// <summary>Color to use to highlight the closest connector that can be picked up.</summary>
+  /// <remarks>
+  /// If set to <i>black</i> <c>(0, 0, 0)</c>, then the closests connector will not be highlighted.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public Color closestConnectorHighlightColor = Color.cyan;
   #endregion
 
   #region Local fields and properties
@@ -126,6 +134,17 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   public void OnGUI() {
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
     var pickupConnector = thisVesselIsActive && !isLinked ? closestConnector : null;
+
+    if (pickupConnector != oldPickupConnector) {
+      if (oldPickupConnector != null) {
+        oldPickupConnector.SetHighlighting(null);
+      }
+      oldPickupConnector = pickupConnector;
+      if (oldPickupConnector != null && closestConnectorHighlightColor != Color.black) {
+        oldPickupConnector.SetHighlighting(closestConnectorHighlightColor);
+      }
+    }
+
     // Remove hints if any.
     if (!canDropConnector || !thisVesselIsActive) {
       ScreenMessages.RemoveMessage(persistentTopCenterMessage);
