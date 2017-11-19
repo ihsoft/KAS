@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;
@@ -94,6 +95,21 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   public Rigidbody connectorRb { get; private set; }
   #endregion
 
+  #region Public methods
+  public void SetHighlighting(Color? color) {
+    if (connectorRb != null) {
+      var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>()
+          ?? connectorRb.gameObject.AddComponent<Highlighting.Highlighter>();
+      headHighlighter.ReinitMaterials();
+      if (color.HasValue) {
+        headHighlighter.ConstantOn(color.Value);
+      } else {
+        headHighlighter.ConstantOff();
+      }
+    }
+  }
+  #endregion
+
   GameObject interactionTriggerObj;
 
   #region MonoBehaviour messages
@@ -130,6 +146,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   /// <summary>Destroys all the module's physical objects.</summary>
   /// <remarks>It doesn't (and must not) do it immediately.</remarks>
   void CleanupModule() {
+    SetHighlighting(null);
     if (ownerModule != null) {
       // Bring the model back to the part or to the new host.
       var oldParent = gameObject.transform.parent;
