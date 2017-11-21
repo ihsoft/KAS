@@ -14,7 +14,6 @@ namespace KAS {
 
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
 // Next localization ID: #kasLOC_10003.
-// FIXME: adjust nodeTransform to follow the bones.
 public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
@@ -154,8 +153,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     var connector = closestConnector;
     if (connector != null) {
       var closestSource = connector.ownerModule as ILinkSource;
-      HostedDebugLog.Info(
-          this, "Try picking up a physical connector of: {0}...", closestSource as PartModule);
+      HostedDebugLog.Info(this, "Try picking up a physical connector of: {0}...", closestSource);
       if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
           && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
         if (closestSource.LinkToTarget(this)) {
