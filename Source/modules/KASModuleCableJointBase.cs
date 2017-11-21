@@ -20,6 +20,7 @@ namespace KAS {
 /// distance between the objects at the moment of creation. The colliders on the objects are enabled
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
+//  Next localization ID: #kasLOC_09002.
 public class KASModuleCableJointBase : KASModuleJointBase,
     // KSP interfaces.
     IModuleInfo,
@@ -28,11 +29,11 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     // KSPDev syntax sugar interfaces.
     IKSPDevModuleInfo {
 
-  #region Localizable GUI strings. Next ID=#kasLOC_09005
+  #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
   protected readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
-      "#kasLOC_09002",
+      "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
       description: "Info string in the editor for the cable spring force setting. The argument is"
       + " of type ForceType.",
@@ -40,7 +41,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   new protected readonly static Message ModuleTitle = new Message(
-      "#kasLOC_09004",
+      "#kasLOC_09001",
       defaultTemplate: "KAS Cable",
       description: "Title of the module to present in the editor details window.");
   #endregion
