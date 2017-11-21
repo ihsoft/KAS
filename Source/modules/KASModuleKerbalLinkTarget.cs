@@ -57,6 +57,19 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public Color closestConnectorHighlightColor = Color.cyan;
+
+  /// <summary>
+  /// Name of the skinned mesh in the kerbal modle to bind the attach the node to.
+  /// </summary>
+  /// <remarks>If empty string, then the attach node will not follow the bones.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string equipMeshName = "";
+
+  /// <summary>Name of the bone within the skinned mesh to bind the attach the node to.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string equipBoneName = "";
   #endregion
 
   #region Local fields and properties
@@ -114,6 +127,19 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <summary>Connector that is currently highlighted as the pickup candidate.</summary>
   InternalKASModulePhysicalConnector focusedPickupConnector;
 
+  /// <summary>Transform object of the bone which the atatch node needs to follow.</summary>
+  /// <remarks>
+  /// Kerbal's model is tricky, and many objects live at the unusual layers. To not get affected by
+  /// this logic, the attach node is not connected to the bone as a child. Instead, a runtime code
+  /// adjusts the position on every frame to follow the bone.
+  /// </remarks>
+  Transform attachBoneTransform;
+
+  /// <summary>Local position of the attach node relative to the kerbal's model bone.</summary>
+  Vector3 boneAttachNodePosition;
+
+  /// <summary>Local orientation of the attach node relative to the kerbal's model bone.</summary>
+  Quaternion boneAttachNodeRotation;
   #endregion
 
   #region Context menu events/actions
@@ -143,6 +169,38 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
+    }
+  }
+  #endregion
+
+  #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+
+    if (equipMeshName != "") {
+      attachBoneTransform = part.GetComponentsInChildren<SkinnedMeshRenderer>()
+          .Where(m => m.name == equipMeshName)
+          .Select(m => m.bones.FirstOrDefault(b => b.name == equipBoneName))
+          .Select(b => b.transform)
+          .FirstOrDefault();
+      if (attachBoneTransform != null) {
+        boneAttachNodePosition = attachBoneTransform.InverseTransformPoint(nodeTransform.position);
+        boneAttachNodeRotation =
+            Quaternion.Inverse(attachBoneTransform.rotation) * nodeTransform.rotation;
+      } else {
+        HostedDebugLog.Error(this, "Cannot find bone for: mesh name={0}, bone name={1}",
+                             equipMeshName, equipBoneName);
+      }
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnUpdate() {
+    base.OnUpdate();
+    if (attachBoneTransform != null && isLinked) {
+      nodeTransform.rotation = attachBoneTransform.rotation * boneAttachNodeRotation;
+      nodeTransform.position = attachBoneTransform.TransformPoint(boneAttachNodePosition);
     }
   }
   #endregion
