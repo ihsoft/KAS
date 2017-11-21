@@ -93,9 +93,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   ScreenMessage persistentBottomCenterMessage;
   InternalKASModulePhysicalConnector oldPickupConnector;
 
-  bool canDropConnector {
-    get { return isLinked; }
-  }
   #endregion
 
   #region Context menu events/actions
@@ -146,7 +143,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     }
 
     // Remove hints if any.
-    if (!canDropConnector || !thisVesselIsActive) {
+    if (!isLinked || !thisVesselIsActive) {
       ScreenMessages.RemoveMessage(persistentTopCenterMessage);
       UpdateContextMenu();
     }
@@ -159,7 +156,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     }
 
     // Handle the cable head drop/pickup events. 
-    if (Event.current.Equals(dropConnectorKeyEvent) && canDropConnector) {
+    if (Event.current.Equals(dropConnectorKeyEvent) && isLinked) {
       Event.current.Use();
       DropConnector();
     }
@@ -169,7 +166,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     }
 
     // Show the head drop hint message.
-    if (canDropConnector) {
+    if (isLinked) {
       persistentTopCenterMessage.message = DropConnectorHintMsg.Format(dropConnectorKeyEvent);
       ScreenMessages.PostScreenMessage(persistentTopCenterMessage);
     }
