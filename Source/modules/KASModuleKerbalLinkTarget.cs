@@ -87,11 +87,32 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   readonly List<InternalKASModulePhysicalConnector> connectorsInRange =
       new List<InternalKASModulePhysicalConnector>();
 
+  /// <summary>Keyboard event to react to drop the carried connector.</summary>
+  /// <remarks>It's set from the part's config.</remarks>
+  /// <seealso cref="dropConnectorKey"/>
   static Event dropConnectorKeyEvent;
+
+  /// <summary>Keyboard event to react to pucik up a dropped connector.</summary>
+  /// <remarks>It's set from the part's config.</remarks>
+  /// <seealso cref="pickupConnectorKey"/>
   static Event pickupConnectorKeyEvent;
-  ScreenMessage persistentTopCenterMessage;
-  ScreenMessage persistentBottomCenterMessage;
-  InternalKASModulePhysicalConnector oldPickupConnector;
+
+  /// <summary>Message to show when there is a dropped connector in the pickup range.</summary>
+  /// <remarks>
+  /// The message appears in the middle of the screen, and stays as long as there are connectors in
+  /// range.
+  /// </remarks>
+  ScreenMessage dropConnectorMessage;
+
+  /// <summary>Message to show when there is a dropped connector in the pickup range.</summary>
+  /// <remarks>
+  /// The message appears in the middle of the screen, and stays as long as there are connectors in
+  /// range.
+  /// </remarks>
+  ScreenMessage pickupConnectorMessage;
+
+  /// <summary>Connector that is currently highlighted as the pickup candidate.</summary>
+  InternalKASModulePhysicalConnector focusedPickupConnector;
 
   #endregion
 
@@ -132,23 +153,23 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
     var pickupConnector = thisVesselIsActive && !isLinked ? closestConnector : null;
 
-    if (pickupConnector != oldPickupConnector) {
-      if (oldPickupConnector != null) {
-        oldPickupConnector.SetHighlighting(null);
+    if (pickupConnector != focusedPickupConnector) {
+      if (focusedPickupConnector != null) {
+        focusedPickupConnector.SetHighlighting(null);
       }
-      oldPickupConnector = pickupConnector;
-      if (oldPickupConnector != null && closestConnectorHighlightColor != Color.black) {
-        oldPickupConnector.SetHighlighting(closestConnectorHighlightColor);
+      focusedPickupConnector = pickupConnector;
+      if (focusedPickupConnector != null && closestConnectorHighlightColor != Color.black) {
+        focusedPickupConnector.SetHighlighting(closestConnectorHighlightColor);
       }
     }
 
     // Remove hints if any.
     if (!isLinked || !thisVesselIsActive) {
-      ScreenMessages.RemoveMessage(persistentTopCenterMessage);
+      ScreenMessages.RemoveMessage(dropConnectorMessage);
       UpdateContextMenu();
     }
     if (pickupConnector == null) {
-      ScreenMessages.RemoveMessage(persistentBottomCenterMessage);
+      ScreenMessages.RemoveMessage(pickupConnectorMessage);
       UpdateContextMenu();
     }
     if (!thisVesselIsActive) {
@@ -167,13 +188,12 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
 
     // Show the head drop hint message.
     if (isLinked) {
-      persistentTopCenterMessage.message = DropConnectorHintMsg.Format(dropConnectorKeyEvent);
-      ScreenMessages.PostScreenMessage(persistentTopCenterMessage);
+      dropConnectorMessage.message = DropConnectorHintMsg.Format(dropConnectorKeyEvent);
+      ScreenMessages.PostScreenMessage(dropConnectorMessage);
     }
     if (pickupConnector != null) {
-      persistentBottomCenterMessage.message =
-          PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
-      ScreenMessages.PostScreenMessage(persistentBottomCenterMessage);
+      pickupConnectorMessage.message = PickupConnectorHintMsg.Format(pickupConnectorKeyEvent);
+      ScreenMessages.PostScreenMessage(pickupConnectorMessage);
     }
 
     UpdateContextMenu();
@@ -198,9 +218,9 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
     pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
     useGUILayout = false;
-    persistentTopCenterMessage = new ScreenMessage(
+    dropConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
-    persistentBottomCenterMessage = new ScreenMessage(
+    pickupConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
     UpdateContextMenu();
   }
