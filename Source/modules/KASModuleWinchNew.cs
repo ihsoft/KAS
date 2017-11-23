@@ -543,9 +543,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  public float cfgMotorMaxSpeed {
-    get { return motorMaxSpeed; }
-  }
+  public float cfgMotorMaxSpeed { get { return motorMaxSpeed; } }
 
   /// <inheritdoc/>
   public float motorTargetSpeed { get; private set; }

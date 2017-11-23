@@ -49,6 +49,7 @@ public interface IWinchControl {
   /// The speed in meters per second. A negative value means the cable is being retracting.
   /// </value>
   /// <seealso cref="SetMotor"/>
+  /// <seealso cref="motorTargetSpeed"/>
   float motorCurrentSpeed { get; }
 
   /// <summary>Desired speed of the motor spindel.</summary>
@@ -108,7 +109,9 @@ public interface IWinchControl {
   void StretchCable();
 
   /// <summary>Sets the deployed cable length to the maximum value allowed by the part.</summary>
+  /// <remarks>If the connector is locked, then it will be deployed.</remarks>
   /// <seealso cref="cfgMaxCableLength"/>
+  /// <seealso cref="connectorState"/>
   void ReleaseCable();
 }
 
