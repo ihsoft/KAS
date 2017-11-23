@@ -585,17 +585,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected ILinkCableJoint cableJoint {
     get { return linkJoint as ILinkCableJoint; }
   }
-  #endregion
 
-  #region Local properties and fields
   /// <summary>State machine that defines and controls the winch state.</summary>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  SimpleStateMachine<WinchConnectorState> connectorStateMachine;
+  protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
 
   /// <summary>State machine that controls the motor states.</summary>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  SimpleStateMachine<WinchMotorState> motorStateMachine;
+  protected SimpleStateMachine<WinchMotorState> motorStateMachine { get; private set; }
+  #endregion
 
+  #region Local properties and fields
   //FIXME: add comments to each field.
   Transform connectorCableAnchor;
   Transform connectorPartAnchor;
