@@ -69,14 +69,15 @@ public interface IWinchControl {
   /// <para>
   /// Setting the motor speed may affect its state, as well as the connector state. E.g. if the
   /// motor is <i>idle</i>, and the target speed is set to a positive value, then the motor state
-  /// will switch to <see cref="WinchMotorState.Extending"/>. Liekwise, if the connector was locked
-  /// and the motor speed is set to a positive value (extending), the nthe connector get deployed.
+  /// will switch to <see cref="WinchMotorState.Extending"/>. Likewise, if the connector was locked
+  /// and the motor speed is set to a positive value (extending), then the connector is get
+  /// deployed.
   /// </para>
   /// <para>
   /// The motor will automatically stop when the cable length reaches zero or the maximum allowed
   /// value. In case of the zero length, the connector will be attempted to lock into the winch.
   /// This attempt may fail due to the bad align of the connector. To retry the attempt, just call
-  /// this method again with a zero or negative value.
+  /// this method again with a negative value.
   /// </para>
   /// </remarks>
   /// <param name="targetSpeed">

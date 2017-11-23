@@ -582,9 +582,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <value>The module instance.</value>
   /// <seealso cref="SetCableLength"/>
-  protected ILinkCableJoint cableJoint {
-    get { return linkJoint as ILinkCableJoint; }
-  }
+  protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
 
   /// <summary>State machine that defines and controls the winch state.</summary>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
@@ -864,7 +862,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     SetCableLength(float.PositiveInfinity);
   }
   #endregion
-  
+
   #region Inheritable utility methods
   /// <summary>Shows a message in GUI if the reporting part belongs to the active vessel.</summary>
   /// <remarks>
