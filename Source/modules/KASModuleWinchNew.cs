@@ -548,6 +548,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
+  public float motorTargetSpeed { get; private set; }
+
+  /// <inheritdoc/>
   public float motorCurrentSpeed { get; private set; }
 
   /// <inheritdoc/>
@@ -695,28 +698,33 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchMotorState.Idle,
         enterHandler: oldState => {
           motorCurrentSpeed = 0;
+          motorTargetSpeed = 0;
         });
     motorStateMachine.AddStateHandlers(
         WinchMotorState.Extending,
         enterHandler: oldState => {
           sndMotorStart.Play();
           sndMotor.Play();
+          motorTargetSpeed = cfgMotorMaxSpeed;
         },
         leaveHandler: newState => {
           sndMotorStop.Play();
           sndMotor.Stop();
           motorCurrentSpeed = 0;
+          motorTargetSpeed = 0;
         });
     motorStateMachine.AddStateHandlers(
         WinchMotorState.Retracting,
         enterHandler: oldState => {
           sndMotorStart.Play();
           sndMotor.Play();
+          motorTargetSpeed = -cfgMotorMaxSpeed;
         },
         leaveHandler: newState => {
           sndMotorStop.Play();
           sndMotor.Stop();
           motorCurrentSpeed = 0;
+          motorTargetSpeed = 0;
         });
     #endregion
   }
@@ -944,13 +952,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // Adjust the motor speed to the target.
     if (motorState == WinchMotorState.Extending) {
       motorCurrentSpeed += motorAcceleration * Time.fixedDeltaTime;
-      if (motorCurrentSpeed > cfgMotorMaxSpeed) {
-        motorCurrentSpeed = cfgMotorMaxSpeed;
+      if (motorCurrentSpeed > motorTargetSpeed) {
+        motorCurrentSpeed = motorTargetSpeed;
       }
     } else if (motorState == WinchMotorState.Retracting) {
       motorCurrentSpeed -= motorAcceleration * Time.fixedDeltaTime;
-      if (motorCurrentSpeed < -cfgMotorMaxSpeed) {
-        motorCurrentSpeed = -cfgMotorMaxSpeed;
+      if (motorCurrentSpeed < motorTargetSpeed) {
+        motorCurrentSpeed = motorTargetSpeed;
       }
     }
 

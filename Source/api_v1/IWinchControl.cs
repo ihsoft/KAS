@@ -51,6 +51,15 @@ public interface IWinchControl {
   /// <seealso cref="SetMotor"/>
   float motorCurrentSpeed { get; }
 
+  /// <summary>Desired speed of the motor spindel.</summary>
+  /// <remarks>
+  /// Ideally, the motor is always working at this speed. However, in the physics world of KSP the
+  /// motor may operate at the lower or the higher speeds. It depends of the various conditions.
+  /// </remarks>
+  /// <seealso cref="motorCurrentSpeed"/>
+  /// <seealso cref="SetMotor"/>
+  float motorTargetSpeed { get; }
+
   /// <summary>Sets the winch motor to the desired speed.</summary>
   /// <remarks>
   /// <para>
