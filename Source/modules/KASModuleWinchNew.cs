@@ -516,8 +516,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region Externally visible state of the winch
-
   #region IWinchControl properties
   /// <inheritdoc/>
   public WinchConnectorState connectorState {
@@ -544,39 +542,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
   }
 
-  /// <summary>Cable extend/retract speed.</summary>
-  /// <remarks>
-  /// When the motor starts from an idle state, it may need some time to get to the speed. If the
-  /// speed is changed on the active motor, then the actual speed will change with respect to the
-  /// <see cref="cfgMotorAcceleration"/>. When the motor need to be shut-off immediately, set the
-  /// motor state to <see cref="MotorState.Idle"/>.
-  /// </remarks>
-  /// <value>Speed in meters per second.</value>
-  /// <seealso cref="cfgMotorAcceleration"/>
-  /// <seealso cref="motorState"/>
+  /// <inheritdoc/>
   public float cfgMotorMaxSpeed {
     get { return motorMaxSpeed; }
-    set { motorMaxSpeed = value; }
   }
 
-  /// <summary>Acceleration to apply when changin the actual winch motor speed.</summary>
-  /// <value>Acceleration in meters per second squared.</value>
-  public float cfgMotorAcceleration {
-    get { return motorAcceleration; }
-    set { motorAcceleration = value; }
-  }
+  /// <inheritdoc/>
+  public float motorCurrentSpeed { get; private set; }
 
-  /// <summary>Physical joint module that control the cable.</summary>
-  /// <remarks>
-  /// Note, that the winch will <i>not</i> notice any changes done to the joint. Always call
-  /// <see cref="UpdateContextMenu"/> on the winch after the update.
-  /// </remarks>
-  /// <value>The module instance.</value>
-  public ILinkCableJoint cableJoint {
-    get { return linkJoint as ILinkCableJoint; }
-  }
-  #endregion
+  /// <inheritdoc/>
+  public float currentCableLength { get { return cableJoint.maxAllowedCableLength; } }
 
+  /// <inheritdoc/>
+  public float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
   #endregion
 
   #region Inheritable fields and properties
@@ -596,6 +574,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <value>The root transformation of the connector object.</value>
   /// <seealso cref="WinchConnectorState"/>
   protected Transform connectorModelObj { get; private set; }
+
+  /// <summary>Physical joint module that control the cable.</summary>
+  /// <remarks>
+  /// Note, that the winch will <i>not</i> notice any changes done to the joint. Always call
+  /// <see cref="UpdateContextMenu"/> on the winch after the update to the joint settings.
+  /// </remarks>
+  /// <value>The module instance.</value>
+  /// <seealso cref="SetCableLength"/>
+  protected ILinkCableJoint cableJoint {
+    get { return linkJoint as ILinkCableJoint; }
+  }
   #endregion
 
   #region Local properties and fields
@@ -610,7 +599,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   //FIXME: add comments to each field.
   Transform connectorCableAnchor;
   Transform connectorPartAnchor;
-  float motorCurrentSpeed;
 
   AudioSource sndMotor;
   AudioSource sndMotorStart;
@@ -862,9 +850,18 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region IWinControl implementation
   /// <inheritdoc/>
-  public void SetCableLength(float? length = null) {
-    cableJoint.SetCableLength(length ?? float.NegativeInfinity);
-    UpdateContextMenu();
+  public void SetMotor(float targetSpeed) {
+    //FIXME: implement
+  }
+
+  /// <inheritdoc/>
+  public void StretchCable() {
+    SetCableLength();
+  }
+
+  /// <inheritdoc/>
+  public void ReleaseCable() {
+    SetCableLength(float.PositiveInfinity);
   }
   #endregion
   
@@ -903,6 +900,29 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         && FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part != null
         && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
+  }
+
+  /// <summary>Sets the deployed cable length.</summary>
+  /// <remarks>
+  /// <para>
+  /// If the new value is significantly less than the old one, then the physical effects may
+  /// trigger.
+  /// </para>
+  /// <para>
+  /// This method can be called at any winch or motor state. However, if the connector is locked,
+  /// the call will not have effect. Once the connector get deployed from the locked state, it will
+  /// set the cable length to <c>0</c>.
+  /// </para>
+  /// </remarks>
+  /// <param name="length">
+  /// The new length. Set it to <c>PositiveInfinity</c> to extend the cable at the maximum length.
+  /// Omit the parameter to macth the length to the current distance to the connector (stretch the
+  /// cable).
+  /// </param>
+  /// <seealso cref="connectorState"/>
+  protected virtual void SetCableLength(float? length = null) {
+    cableJoint.SetCableLength(length ?? float.NegativeInfinity);
+    UpdateContextMenu();
   }
   #endregion
 

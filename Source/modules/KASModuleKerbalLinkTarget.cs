@@ -159,7 +159,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         if (closestSource.LinkToTarget(this)) {
           var winch = closestSource as IWinchControl;
           if (winch != null) {
-            winch.SetCableLength(float.PositiveInfinity);
+            winch.ReleaseCable();
           }
         } else {
           closestSource.CancelLinking();
