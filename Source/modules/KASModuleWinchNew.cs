@@ -868,7 +868,26 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IWinControl implementation
   /// <inheritdoc/>
   public void SetMotor(float targetSpeed) {
-    //FIXME: implement
+    if (targetSpeed > 0 && !IsCableDeployed()) {
+      connectorState = WinchConnectorState.Deployed;
+    }
+    if (IsCableDeployed()) {
+      var newTargetSpeed = targetSpeed > float.Epsilon
+          ? Mathf.Min(targetSpeed, cfgMotorMaxSpeed)
+          : Mathf.Max(targetSpeed, -cfgMotorMaxSpeed);
+      if (targetSpeed > float.Epsilon) {
+        motorState = WinchMotorState.Extending;
+      } else if (targetSpeed < -float.Epsilon) {
+        motorState = WinchMotorState.Retracting;
+        if (currentCableLength < Mathf.Epsilon) {
+          TryLockingConnector();
+        }
+      } else {
+        newTargetSpeed = 0;  // To nullify the precision issues.
+        motorState = WinchMotorState.Idle;
+      }
+      motorTargetSpeed = newTargetSpeed;
+    }
   }
 
   /// <inheritdoc/>
