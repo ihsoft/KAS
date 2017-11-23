@@ -594,13 +594,26 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Local properties and fields
-  //FIXME: add comments to each field.
+  /// <summary>Anchor transfrom at the connector to attach the cable.</summary>
   Transform connectorCableAnchor;
+
+  /// <summary>Anchor transfrom at the connector to attach with the part.</summary>
   Transform connectorPartAnchor;
 
+  /// <summary>Sound to play when the motor is active.</summary>
+  /// <seealso cref="motorState"/>
   AudioSource sndMotor;
+
+  /// <summary>Sounds to play when the motor starts.</summary>
+  /// <seealso cref="motorState"/>
   AudioSource sndMotorStart;
+
+  /// <summary>Sounds to play when the motor stops.</summary>
+  /// <seealso cref="motorState"/>
   AudioSource sndMotorStop;
+
+  /// <summary>Sounds to play when the connector get locked to the winch.</summary>
+  /// <seealso cref="connectorState"/>
   AudioSource sndConnectorLock;
   #endregion
 
