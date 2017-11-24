@@ -390,20 +390,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleExtendCableEvent() {
-    if (Mathf.Approximately(cableJoint.maxAllowedCableLength, cableJoint.cfgMaxCableLength)) {
-      // Already at the maximum length.
-      ScreenMessaging.ShowPriorityScreenMessage(
-          MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
-      return;
-    }
-    if (connectorState == WinchConnectorState.Locked) {
-      connectorState = WinchConnectorState.Deployed;
-    }
-    if (IsCableDeployed()) {
-      motorState = motorState == WinchMotorState.Extending
-          ? WinchMotorState.Idle
-          : WinchMotorState.Extending;
-    };
+    SetMotor(motorTargetSpeed > 0 ? 0 : float.PositiveInfinity);
   }
 
   /// <summary>A context menu item that starts/stops retracting the cable.</summary>
@@ -416,20 +403,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPEvent(guiActive = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleRetractCableEvent() {
-    if (connectorState == WinchConnectorState.Locked) {
-      ShowMessageForActiveVessel(ConnectorLockedMsg);
-      return;  // Nothing to do.
-    }
-    // If the whole cable has been retracted, then just try to lock.
-    if (IsCableDeployed()) {
-      if (cableJoint.maxAllowedCableLength < Mathf.Epsilon) {
-        TryLockingConnector();
-        return;
-      }
-      motorState = motorState == WinchMotorState.Retracting
-          ? WinchMotorState.Idle
-          : WinchMotorState.Retracting;
-    }
+    SetMotor(motorTargetSpeed < 0  ? 0 : float.NegativeInfinity);
   }
 
   /// <summary>
