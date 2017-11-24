@@ -333,7 +333,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08013",
-      defaultTemplate = "Deployed length",
+      defaultTemplate = "Deployed cable length",
       description = "A context menu item that presents the length of the currently deployed"
       + " cable.")]
   public string deployedCableLengthMenuInfo = "";
