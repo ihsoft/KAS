@@ -108,7 +108,6 @@
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
     <Compile Include="api_v1\Utils\IPhysicsUtils.cs" />
     <Compile Include="api_v1\WinchConnectorState.cs" />
-    <Compile Include="api_v1\WinchMotorState.cs" />
     <Compile Include="modules\InternalKASModulePhysicalConnector.cs" />
     <Compile Include="modules\KASModuleCableJointBase.cs" />
     <Compile Include="modules\KASModuleJointBase.cs" />

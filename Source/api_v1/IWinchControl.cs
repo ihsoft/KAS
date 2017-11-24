@@ -11,7 +11,7 @@ namespace KASAPIv1 {
 public interface IWinchControl {
   /// <summary>Maximum speed of retracting or release the cable.</summary>
   /// <value>Speed in meters per second.</value>
-  /// <seealso cref="motorState"/>
+  /// <seealso cref="motorTargetSpeed"/>
   /// <seealso cref="SetMotor"/>
   float cfgMotorMaxSpeed { get; }
 
@@ -26,10 +26,6 @@ public interface IWinchControl {
   /// <value>The connector state.</value>
   WinchConnectorState connectorState { get; }
   
-  /// <summary>State of the winch motor.</summary>
-  /// <value>The motor state.</value>
-  WinchMotorState motorState { get; }
-
   /// <summary>Amount of the cable that was extended till the moment.</summary>
   /// <remarks>
   /// This value is dynamic and can be affected by the motor.
@@ -77,9 +73,7 @@ public interface IWinchControl {
   /// before the values will match.
   /// </para>
   /// <para>
-  /// Setting the motor speed may affect its state, as well as the connector state. E.g. if the
-  /// motor is <i>idle</i>, and the target speed is set to a positive value, then the motor state
-  /// will switch to <see cref="WinchMotorState.Extending"/>. Likewise, if the connector was locked
+  /// Setting the motor speed may affect the connector state. E.g. if the connector was locked,
   /// and the motor speed is set to a positive value (extending), then the connector is get
   /// deployed.
   /// </para>
@@ -95,7 +89,8 @@ public interface IWinchControl {
   /// <i>negative</i> value commands to retract the cable. Zero value turns the motor off. The
   /// infinite values can be used to set the target speed to the maximum allowed speed on the part.
   /// </param>
-  /// <seealso cref="motorState"/>
+  /// <seealso cref="motorTargetSpeed"/>
+  /// <seealso cref="motorCurrentSpeed"/>
   /// <seealso cref="connectorState"/>
   /// <seealso cref="cfgMaxCableLength"/>
   /// <seealso cref="currentCableLength"/>

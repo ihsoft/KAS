@@ -77,36 +77,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           {WinchConnectorState.Plugged, ConnectorStateMsg_Plugged},
       });
 
-  #region MotorState enum values
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message MotorStateMsg_Idle = new Message(
-      "#kasLOC_08022",
-      defaultTemplate: "Idle",
-      description: "A string in the context menu that tells that the winch the motor is inactive.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message MotorStateMsg_Extending = new Message(
-      "#kasLOC_08019",
-      defaultTemplate: "Extending",
-      description: "A string in the context menu that tells that the winch connector is deployed"
-      + " and the cable is being extended.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message MotorStateMsg_Retracting = new Message(
-      "#kasLOC_08020",
-      defaultTemplate: "Retracting",
-      description: "A string in the context menu that tells that the winch connector is deployed"
-      + " and the cable size being retracted.");
-  #endregion
-
-  /// <summary>Translates <see cref="WinchMotorState"/> enum into a localized message.</summary>
-  protected static readonly MessageLookup<WinchMotorState> MotorStatesMsgLookup =
-      new MessageLookup<WinchMotorState>(new Dictionary<WinchMotorState, Message>() {
-          {WinchMotorState.Idle, MotorStateMsg_Idle},
-          {WinchMotorState.Extending, MotorStateMsg_Extending},
-          {WinchMotorState.Retracting, MotorStateMsg_Retracting},
-      });
-
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   protected static readonly Message NoEnergyMsg = new Message(
       "#kasLOC_08002",
@@ -357,16 +327,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " menu.")]
   public string connectorStateMenuInfo = "";
 
-  /// <summary>Status field to display the current motor status in the context menu.</summary>
-  /// <see cref="motorState"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiActive = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08021",
-      defaultTemplate = "Motor state",
-      description = "Status field to display the current motor status in the context menu.")]
-  public string motorStateMenuInfo = "";
-
   /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
   /// <seealso cref="KASModuleCableJointBase.maxAllowedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
@@ -496,23 +456,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     get { return connectorStateMachine.currentState ?? persistedConnectorState; }
     private set {
       if (connectorStateMachine.currentState != value) {
-        motorState = WinchMotorState.Idle;
+        KillMotor();
       }
       connectorStateMachine.currentState = value;
       persistedConnectorState = value;
-    }
-  }
-
-  /// <inheritdoc/>
-  public WinchMotorState motorState {
-    get { return motorStateMachine.currentState ?? WinchMotorState.Idle; }
-    private set {
-      // If the state is changed to Idle, then the motor stops immediately.
-      if (value != WinchMotorState.Idle && !IsCableDeployed()) {
-        HostedDebugLog.Warning(this, "Cannot start motor in state: {0}", connectorState);
-        return;
-      }
-      motorStateMachine.currentState = value;
     }
   }
 
@@ -523,7 +470,21 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public float motorTargetSpeed { get; private set; }
 
   /// <inheritdoc/>
-  public float motorCurrentSpeed { get; private set; }
+  public float motorCurrentSpeed {
+    get { return _motorCurrentSpeed; }
+    private set {
+      if (Mathf.Abs(value) < float.Epsilon && Mathf.Abs(_motorCurrentSpeed) > float.Epsilon) {
+        sndMotorStop.Play();
+        sndMotor.Stop();
+      }
+      if (Mathf.Abs(value) > float.Epsilon && Mathf.Abs(_motorCurrentSpeed) < float.Epsilon) {
+        sndMotorStart.Play();
+        sndMotor.Play();
+      }
+      _motorCurrentSpeed = value;
+    }
+  }
+  float _motorCurrentSpeed;
 
   /// <inheritdoc/>
   public float currentCableLength { get { return cableJoint.maxAllowedCableLength; } }
@@ -562,10 +523,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>State machine that defines and controls the winch state.</summary>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
-
-  /// <summary>State machine that controls the motor states.</summary>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  protected SimpleStateMachine<WinchMotorState> motorStateMachine { get; private set; }
   #endregion
 
   #region Local properties and fields
@@ -576,15 +533,15 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   Transform connectorPartAnchor;
 
   /// <summary>Sound to play when the motor is active.</summary>
-  /// <seealso cref="motorState"/>
+  /// <seealso cref="motorCurrentSpeed"/>
   AudioSource sndMotor;
 
   /// <summary>Sounds to play when the motor starts.</summary>
-  /// <seealso cref="motorState"/>
+  /// <seealso cref="motorCurrentSpeed"/>
   AudioSource sndMotorStart;
 
   /// <summary>Sounds to play when the motor stops.</summary>
-  /// <seealso cref="motorState"/>
+  /// <seealso cref="motorCurrentSpeed"/>
   AudioSource sndMotorStop;
 
   /// <summary>Sounds to play when the connector get locked to the winch.</summary>
@@ -659,46 +616,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           linkRenderer.StopRenderer();
         });
     #endregion
-
-    #region Motor state machine
-    motorStateMachine = new SimpleStateMachine<WinchMotorState>(strict: false);
-    motorStateMachine.onAfterTransition += (start, end) => {
-      UpdateContextMenu();
-      HostedDebugLog.Info(this, "Motor state changed: {0} => {1}", start, end);
-    };
-    motorStateMachine.AddStateHandlers(
-        WinchMotorState.Idle,
-        enterHandler: oldState => {
-          motorCurrentSpeed = 0;
-          motorTargetSpeed = 0;
-        });
-    motorStateMachine.AddStateHandlers(
-        WinchMotorState.Extending,
-        enterHandler: oldState => {
-          sndMotorStart.Play();
-          sndMotor.Play();
-          motorTargetSpeed = cfgMotorMaxSpeed;
-        },
-        leaveHandler: newState => {
-          sndMotorStop.Play();
-          sndMotor.Stop();
-          motorCurrentSpeed = 0;
-          motorTargetSpeed = 0;
-        });
-    motorStateMachine.AddStateHandlers(
-        WinchMotorState.Retracting,
-        enterHandler: oldState => {
-          sndMotorStart.Play();
-          sndMotor.Play();
-          motorTargetSpeed = -cfgMotorMaxSpeed;
-        },
-        leaveHandler: newState => {
-          sndMotorStop.Play();
-          sndMotor.Stop();
-          motorCurrentSpeed = 0;
-          motorTargetSpeed = 0;
-        });
-    #endregion
   }
 
   /// <inheritdoc/>
@@ -769,7 +686,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (HighLogic.LoadedSceneIsEditor) {
       return;
     }
-    if (motorState != WinchMotorState.Idle) {
+    if (Mathf.Abs(motorTargetSpeed) > float.Epsilon
+        || Mathf.Abs(motorCurrentSpeed) > float.Epsilon) {
       UpdateMotor();
     }
   }
@@ -816,17 +734,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
-    motorStateMenuInfo = MotorStatesMsgLookup.Lookup(motorState);
     deployedCableLengthMenuInfo = DistanceType.Format(
         cableJoint != null ? cableJoint.maxAllowedCableLength : 0);
     
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
-      e.guiName = motorState == WinchMotorState.Extending
+      e.guiName = motorTargetSpeed > float.Epsilon
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
-      e.guiName = motorState == WinchMotorState.Retracting
+      e.guiName = motorTargetSpeed < -float.Epsilon
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
@@ -844,23 +761,23 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public void SetMotor(float targetSpeed) {
     if (targetSpeed > 0 && !IsCableDeployed()) {
       connectorState = WinchConnectorState.Deployed;
+    } else if (targetSpeed < 0 && connectorState == WinchConnectorState.Locked) {
+      ShowMessageForActiveVessel(ConnectorLockedMsg);  // For the consistency with the max length.
     }
     if (IsCableDeployed()) {
-      var newTargetSpeed = targetSpeed > float.Epsilon
-          ? Mathf.Min(targetSpeed, cfgMotorMaxSpeed)
-          : Mathf.Max(targetSpeed, -cfgMotorMaxSpeed);
-      if (targetSpeed > float.Epsilon) {
-        motorState = WinchMotorState.Extending;
-      } else if (targetSpeed < -float.Epsilon) {
-        motorState = WinchMotorState.Retracting;
-        if (currentCableLength < Mathf.Epsilon) {
-          TryLockingConnector();
-        }
+      if (Mathf.Abs(targetSpeed) < float.Epsilon) {
+        motorTargetSpeed = 0;
+        motorCurrentSpeed = 0;  // Shutdown immediately.
       } else {
-        newTargetSpeed = 0;  // To nullify the precision issues.
-        motorState = WinchMotorState.Idle;
+        var newTargetSpeed = targetSpeed > float.Epsilon
+            ? Mathf.Min(targetSpeed, cfgMotorMaxSpeed)
+            : Mathf.Max(targetSpeed, -cfgMotorMaxSpeed);
+        if (newTargetSpeed * motorCurrentSpeed < 0) {
+          // Shutdown the motor immediately when the rotation direction is changed. 
+          motorCurrentSpeed = 0;
+        }
+        motorTargetSpeed = newTargetSpeed;
       }
-      motorTargetSpeed = newTargetSpeed;
     }
   }
 
@@ -934,6 +851,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     cableJoint.SetCableLength(length ?? float.NegativeInfinity);
     UpdateContextMenu();
   }
+
+  /// <summary>Immediately shuts down the motor.</summary>
+  /// <remarks>
+  /// The motor speed instantly becomes zero, it may trigger the physical effects.
+  /// </remarks>
+  protected void KillMotor() {
+    motorTargetSpeed = 0;
+    motorCurrentSpeed = 0;
+    UpdateContextMenu();
+  }
   #endregion
 
   #region Local utility methods
@@ -941,12 +868,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <remarks>This method is only called when the motor is consuming electricity.</remarks>
   void UpdateMotor() {
     // Adjust the motor speed to the target.
-    if (motorState == WinchMotorState.Extending) {
+    if (motorCurrentSpeed < motorTargetSpeed) {
       motorCurrentSpeed += motorAcceleration * Time.fixedDeltaTime;
       if (motorCurrentSpeed > motorTargetSpeed) {
         motorCurrentSpeed = motorTargetSpeed;
       }
-    } else if (motorState == WinchMotorState.Retracting) {
+    } else if (motorCurrentSpeed > motorTargetSpeed) {
       motorCurrentSpeed -= motorAcceleration * Time.fixedDeltaTime;
       if (motorCurrentSpeed < motorTargetSpeed) {
         motorCurrentSpeed = motorTargetSpeed;
@@ -961,17 +888,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
           && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
+        KillMotor();
         SetCableLength(float.PositiveInfinity);
-        motorState = WinchMotorState.Idle;
         ScreenMessaging.ShowPriorityScreenMessage(
             MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       } else if (motorCurrentSpeed < 0 && cableJoint.maxAllowedCableLength <= 0) {
+        KillMotor();
         SetCableLength(0);
-        motorState = WinchMotorState.Idle;
         TryLockingConnector();
       }
     } else {
-      motorState = WinchMotorState.Idle;
+      KillMotor();
       ScreenMessaging.ShowErrorScreenMessage(NoEnergyMsg);
     }
   }
