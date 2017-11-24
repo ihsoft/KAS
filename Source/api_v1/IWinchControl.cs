@@ -9,7 +9,7 @@ namespace KASAPIv1 {
 
 /// <summary>Interface that allows operating the winch parts.</summary>
 public interface IWinchControl {
-  /// <summary>Maximum speed of retracting or release the cable.</summary>
+  /// <summary>Maximum speed of retracting or extending the cable.</summary>
   /// <value>Speed in meters per second.</value>
   /// <seealso cref="motorTargetSpeed"/>
   /// <seealso cref="SetMotor"/>
@@ -36,14 +36,18 @@ public interface IWinchControl {
 
   /// <summary>Current speed of the motor spindel.</summary>
   /// <remarks>
+  /// <para>
   /// This is the speed at which the cable is being extended or retracted at the current moment.
   /// The actual speed of the motor can differ from what was set via the control methods (e.g.
   /// <see cref="SetMotor"/>) due to there is some inetria momentum. Negative speed means the cable
   /// is being retracted, and the positive speed means the cable is being extened.
+  /// </para>
+  /// <para>
+  /// The motor speed is always trying to match the <see cref="motorTargetSpeed"/>. Depending on the
+  /// part's implementation and settings, some time may be needed to actually have the match.
+  /// </para>
   /// </remarks>
-  /// <value>
-  /// The speed in meters per second. A negative value means the cable is being retracting.
-  /// </value>
+  /// <value>The speed in meters per second.</value>
   /// <seealso cref="SetMotor"/>
   /// <seealso cref="motorTargetSpeed"/>
   float motorCurrentSpeed { get; }
@@ -53,7 +57,9 @@ public interface IWinchControl {
   /// Ideally, the motor is always working at this speed. However, in the physics world of KSP the
   /// motor may operate at the lower or the higher speeds. It depends of the various conditions.
   /// </remarks>
+  /// <value>The speed target. It's can never exceed the part's limits setting.</value>
   /// <seealso cref="motorCurrentSpeed"/>
+  /// <seealso cref="cfgMotorMaxSpeed"/>
   /// <seealso cref="SetMotor"/>
   float motorTargetSpeed { get; }
 
@@ -70,7 +76,8 @@ public interface IWinchControl {
   /// the target speed. It depends on the part implementation and configuration. The rule of thumb
   /// is to not expect the <see cref="motorCurrentSpeed"/> to match the
   /// <paramref name="targetSpeed"/> right after the method call. There may be some time needed
-  /// before the values will match.
+  /// before the values will match. However, the <see cref="motorTargetSpeed"/> value will change
+  /// immediately, and will match the parameter. 
   /// </para>
   /// <para>
   /// Setting the motor speed may affect the connector state. E.g. if the connector was locked,

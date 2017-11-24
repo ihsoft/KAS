@@ -880,7 +880,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
     }
 
-    // Adjust the cable length.
+    // Consume energy and adjust the cable length.
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
