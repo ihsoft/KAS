@@ -506,11 +506,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <summary>Sate of the winch connector head.</summary>
+  /// <remarks>
+  /// It's discouraged to deal with the connector state via the state machine. The winch has some
+  /// logic over it.
+  /// </remarks>
   /// <value>The connector state.</value>
-  /// FIXME: trun to a method, no get
   protected WinchConnectorState connectorState {
     get { return connectorStateMachine.currentState ?? WinchConnectorState.Locked; }
-    private set {
+    set {
       if (connectorStateMachine.currentState != value) {
         KillMotor();
       }
