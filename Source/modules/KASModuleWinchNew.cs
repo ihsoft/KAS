@@ -783,10 +783,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IWinControl implementation
   /// <inheritdoc/>
   public void SetMotor(float targetSpeed) {
-    if (targetSpeed > 0 && !IsCableDeployed()) {
+    if (targetSpeed > 0 && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
+      ShowMessageForActiveVessel(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
+      return;
+    }
+    if (targetSpeed < 0 && isConnectorLocked) {
+      ShowMessageForActiveVessel(ConnectorLockedMsg);
+      return;
+    }
+    if (targetSpeed > 0 && isConnectorLocked) {
       connectorState = WinchConnectorState.Deployed;
-    } else if (targetSpeed < 0 && connectorState == WinchConnectorState.Locked) {
-      ShowMessageForActiveVessel(ConnectorLockedMsg);  // For the consistency with the max length.
     }
     if (IsCableDeployed()) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
