@@ -105,7 +105,6 @@ public interface IWinchControl : ILinkSource {
   /// </param>
   /// <seealso cref="motorTargetSpeed"/>
   /// <seealso cref="motorCurrentSpeed"/>
-  /// <seealso cref="connectorState"/>
   /// <seealso cref="cfgMaxCableLength"/>
   /// <seealso cref="currentCableLength"/>
   void SetMotor(float targetSpeed);
@@ -120,7 +119,6 @@ public interface IWinchControl : ILinkSource {
   /// <summary>Sets the deployed cable length to the maximum value allowed by the part.</summary>
   /// <remarks>If the connector is locked, then it will be deployed.</remarks>
   /// <seealso cref="cfgMaxCableLength"/>
-  /// <seealso cref="connectorState"/>
   void ReleaseCable();
 }
 
