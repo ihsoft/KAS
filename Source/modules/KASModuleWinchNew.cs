@@ -381,11 +381,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (connectorState == WinchConnectorState.Locked) {
       connectorState = WinchConnectorState.Deployed;
     }
-    if (IsCableDeployed()) {
-      SetCableLength(float.PositiveInfinity);
-      ScreenMessaging.ShowPriorityScreenMessage(
-          MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
-    }
+    SetCableLength(float.PositiveInfinity);
+    ScreenMessaging.ShowPriorityScreenMessage(
+        MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
   }
 
   /// <summary>
@@ -399,9 +397,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that sets the cable length to the current distance to the"
       + " connector.")]
   public virtual void InstantStretchEvent() {
-    if (IsCableDeployed()) {
-      SetCableLength();
-    }
+    SetCableLength();
   }
 
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
