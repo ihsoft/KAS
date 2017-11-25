@@ -311,7 +311,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [PersistentField("connectorPosAndRot", group = PersistentGroup)]
+  [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
   PosAndRot persistedConnectorPosAndRot;
   #endregion
 
@@ -494,14 +494,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Inheritable fields and properties
-  /// <summary>
-  /// Name of persistent fields group that needs saving/load during the normal part's phases.
-  /// </summary>
-  /// <seealso cref="OnLoad"/>
-  /// <seealso cref="OnSave"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
-  protected const string PersistentGroup = "persistent";
-
   /// <summary>Winch connector model transformation object.</summary>
   /// <remarks>
   /// Depending on the current state this model can be a child to the part's model or a standalone
@@ -629,7 +621,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     LoadOrCreateConnectorModel();
     if (persistedConnectorState == WinchConnectorState.Deployed) {
       ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
-                                        group: PersistentGroup);
+                                        group: StdPersistentGroups.PartPersistant);
       // In case of the connector is not locked to either the winch or the target part, adjust its
       // model position and rotation. The rest of the state will be erstored in the state machine. 
       if (persistedConnectorPosAndRot != null) {
@@ -661,7 +653,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
           new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
       ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
-                                         group: PersistentGroup);
+                                         group: StdPersistentGroups.PartPersistant);
     }
   }
 
