@@ -794,7 +794,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (targetSpeed > 0 && isConnectorLocked) {
       connectorState = WinchConnectorState.Deployed;
     }
-    if (IsCableDeployed()) {
+    if (!isConnectorLocked) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
         motorTargetSpeed = 0;
         motorCurrentSpeed = 0;  // Shutdown immediately.
@@ -836,16 +836,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (vessel.isActiveVessel) {
       ScreenMessaging.ShowPriorityScreenMessage(message);
     }
-  }
-
-  /// <summary>
-  /// Tells if the winch is not rigidly attached to the winch, and there is an active cable link to
-  /// the connector.
-  /// </summary>
-  /// <returns><c>true</c> if there is a deployed cable.</returns>
-  protected bool IsCableDeployed() {
-    return connectorState == WinchConnectorState.Deployed
-        || connectorState == WinchConnectorState.Plugged;
   }
 
   /// <summary>
