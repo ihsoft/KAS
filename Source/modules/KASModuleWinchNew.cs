@@ -537,7 +537,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <seealso cref="SetCableLength"/>
   protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
 
-  /// <summary>State machine that defines and controls the winch state.</summary>
+  /// <summary>State machine that defines and controls the winch connector state.</summary>
+  /// <remarks>It's <i>not</i> safe to change the state when the part is not physical.</remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
   #endregion

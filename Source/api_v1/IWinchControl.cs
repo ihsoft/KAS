@@ -35,10 +35,17 @@ public interface IWinchControl : ILinkSource {
   
   /// <summary>Amount of the cable that was extended till the moment.</summary>
   /// <remarks>
-  /// This value is dynamic and can be affected by the motor.
+  /// This value is dynamic and can be affected by the motor. This is <i>not</i> the actual distance
+  /// between the winch and the connector head! In order to find one, take the
+  /// <c>physicalAnchorTransform</c> values from the source and target, and calculate the
+  /// distance between their positions.
   /// </remarks>
   /// <value>The length of the cable in meters.</value>
   /// <seealso cref="SetMotor"/>
+  /// <seealso cref="StretchCable"/>
+  /// <seealso cref="ReleaseCable"/>
+  /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="ILinkTarget"/>
   float currentCableLength { get; }
 
   /// <summary>Current speed of the motor spindel.</summary>
@@ -95,7 +102,8 @@ public interface IWinchControl : ILinkSource {
   /// The motor will automatically stop when the cable length reaches zero or the maximum allowed
   /// value. In case of the zero length, the connector will be attempted to lock into the winch.
   /// This attempt may fail due to the bad align of the connector. To retry the attempt, just call
-  /// this method again with a negative value.
+  /// this method again with a negative value. Note, that the connector won't be attepmted to lock
+  /// automatically.
   /// </para>
   /// </remarks>
   /// <param name="targetSpeed">
@@ -108,6 +116,8 @@ public interface IWinchControl : ILinkSource {
   /// <seealso cref="isConnectorLocked"/>
   /// <seealso cref="cfgMaxCableLength"/>
   /// <seealso cref="currentCableLength"/>
+  /// <seealso cref="StretchCable"/>
+  /// <seealso cref="ReleaseCable"/>
   void SetMotor(float targetSpeed);
   
   /// <summary>
@@ -115,12 +125,16 @@ public interface IWinchControl : ILinkSource {
   /// </summary>
   /// <remarks>This will "stretch" the cable by reducing the unused cable.</remarks>
   /// <seealso cref="currentCableLength"/>
+  /// <seealso cref="SetMotor"/>
+  /// <seealso cref="ReleaseCable"/>
   void StretchCable();
 
   /// <summary>Sets the deployed cable length to the maximum value allowed by the part.</summary>
   /// <remarks>If the connector is locked, then it will be deployed.</remarks>
   /// <seealso cref="cfgMaxCableLength"/>
   /// <seealso cref="isConnectorLocked"/>
+  /// <seealso cref="SetMotor"/>
+  /// <seealso cref="StretchCable"/>
   void ReleaseCable();
 }
 
