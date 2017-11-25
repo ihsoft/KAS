@@ -22,9 +22,16 @@ public interface IWinchControl : ILinkSource {
   /// <value>The length of the cable in meters.</value>
   float cfgMaxCableLength { get; }
 
-  /// <summary>Sate of the winch connector head.</summary>
-  /// <value>The connector state.</value>
-  WinchConnectorState connectorState { get; }
+  /// <summary>Tells if the cable connector head is locked into the winch.</summary>
+  /// <remarks>
+  /// In the locked state there is no free cable available, and there is no moving part
+  /// (the connector). If the connector is linked to a part
+  /// (see <see cref="ILinkSource.isLinked"/>), then this part is docked to the vessel that owns the
+  /// winch. When the linked conenctor unlocks, the attach part undocks from teh vessel.
+  /// </remarks>
+  /// <seealso cref="ILinkSource.isLinked"/>
+  /// <seealso cref="SetMotor"/>
+  bool isConnectorLocked { get; }
   
   /// <summary>Amount of the cable that was extended till the moment.</summary>
   /// <remarks>

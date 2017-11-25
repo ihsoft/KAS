@@ -307,7 +307,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Connector state in the last save action.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public WinchConnectorState persistedConnectorState = WinchConnectorState.Locked;
+  public bool persistedIsConnectorLocked;
 
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
@@ -448,18 +448,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region IWinchControl properties
   /// <inheritdoc/>
-  public WinchConnectorState connectorState {
-    get { return connectorStateMachine.currentState ?? persistedConnectorState; }
-    private set {
-      if (connectorStateMachine.currentState != value) {
-        KillMotor();
-      }
-      connectorStateMachine.currentState = value;
-      persistedConnectorState = value;
-    }
-  }
-
-  /// <inheritdoc/>
   public float cfgMotorMaxSpeed { get { return motorMaxSpeed; } }
 
   /// <inheritdoc/>
@@ -487,9 +475,50 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
+
+  /// <inheritdoc/>
+  public bool isConnectorLocked { get { return connectorState == WinchConnectorState.Locked; } }
   #endregion
 
   #region Inheritable fields and properties
+  /// <summary>State of the winch connector.</summary>
+  protected enum WinchConnectorState {
+    /// <summary>
+    /// The connector is rigidly attached to the winch's body. The connector's model is a parent of
+    /// the winch's model.
+    /// </summary>
+    Locked,
+
+    /// <summary>
+    /// The connector is a standalone physical object, attached to the winch via a cable.
+    /// </summary>
+    Deployed,
+
+    /// <summary>
+    /// The connector is plugged into a link target. It doesn't have physics, and its model is part
+    /// of the target's model.
+    /// </summary>
+    /// <remarks>
+    /// This state can only exist if the winch's link source is linked to a target.
+    /// </remarks>
+    /// <seealso cref="ILinkTarget"/>
+    Plugged,
+  }
+
+  /// <summary>Sate of the winch connector head.</summary>
+  /// <value>The connector state.</value>
+  /// FIXME: trun to a method, no get
+  protected WinchConnectorState connectorState {
+    get { return connectorStateMachine.currentState ?? WinchConnectorState.Locked; }
+    private set {
+      if (connectorStateMachine.currentState != value) {
+        KillMotor();
+      }
+      connectorStateMachine.currentState = value;
+      persistedIsConnectorLocked = value == WinchConnectorState.Locked;
+    }
+  }
+
   /// <summary>Winch connector model transformation object.</summary>
   /// <remarks>
   /// Depending on the current state this model can be a child to the part's model or a standalone
@@ -615,7 +644,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
     }
     LoadOrCreateConnectorModel();
-    if (persistedConnectorState == WinchConnectorState.Deployed) {
+    if (!persistedIsConnectorLocked) {
       ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
                                         group: StdPersistentGroups.PartPersistant);
       // In case of the connector is not locked to either the winch or the target part, adjust its
@@ -634,7 +663,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
     // The renderer will be started anyways in the state machine, which starts when the physics
     // kicks in. We start it here only to improve the visual representation during the loading.
-    if (persistedConnectorState == WinchConnectorState.Deployed) {
+    if (!persistedIsConnectorLocked) {
       linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
     }
   }
@@ -645,7 +674,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // Persist the connector data only if its position is not fixed to the winch model.
     // It must be the peristsent state since the state machine can be in a different state at this
     // moment (e.g. during the vessel backup).
-    if (persistedConnectorState == WinchConnectorState.Deployed) {
+    if (!persistedIsConnectorLocked) {
       persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
           new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
       ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
@@ -656,7 +685,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnPartUnpack() {
     base.OnPartUnpack();
-    connectorState = persistedConnectorState;
+    // The physics has tarted. It's safe to adjust the connector.
+    if (isLinked) {
+      connectorStateMachine.currentState = WinchConnectorState.Plugged;
+    } else if (!persistedIsConnectorLocked) {
+      connectorStateMachine.currentState = WinchConnectorState.Deployed;
+    } else {
+      connectorStateMachine.currentState = WinchConnectorState.Locked;
+    }
   }
   #endregion
 
