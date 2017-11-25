@@ -8,7 +8,7 @@ using System;
 namespace KASAPIv1 {
 
 /// <summary>Interface that allows operating the winch parts.</summary>
-public interface IWinchControl {
+public interface IWinchControl : ILinkSource {
   /// <summary>Maximum speed of retracting or extending the cable.</summary>
   /// <value>Speed in meters per second.</value>
   /// <seealso cref="motorTargetSpeed"/>
