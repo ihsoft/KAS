@@ -685,7 +685,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public override void OnPartUnpack() {
     base.OnPartUnpack();
-    // The physics has tarted. It's safe to adjust the connector.
+    // The physics has started. It's safe to adjust the connector.
     if (isLinked) {
       connectorStateMachine.currentState = WinchConnectorState.Plugged;
     } else if (!persistedIsConnectorLocked) {

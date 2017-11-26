@@ -75,7 +75,7 @@ public interface ILinkRenderer {
   /// <summary>
   /// Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
   /// </summary>
-  /// <value>The ratio in range <c>[0; 1.0]</c>.</value>
+  /// <value>The stretch/shrink ratio.</value>
   /// <remarks>
   /// A value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
   /// <para>
