@@ -307,7 +307,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Connector state in the last save action.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public bool persistedIsConnectorLocked;
+  public bool persistedIsConnectorLocked = true;
 
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
