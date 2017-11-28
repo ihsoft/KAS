@@ -13,9 +13,9 @@ namespace KASAPIv1 {
 public interface IAttachNodesUtils {
   /// <summary>Creates a new attach node on the part.</summary>
   /// <remarks>
-  /// It's expected there is no node with the same name on the part already. If there is one then no
-  /// extra node will be created, and properties of the existing node will be updated (see below).
-  /// Though, it's an unexpected situation, so a warning record will be logged.
+  /// It's expected there is no node with the same name on the part already. If there is one, then
+  /// no extra node will be created, and the properties of the existing node will be updated instead
+  /// (see below). However, it's an unexpected situation, so a warning record will be logged.
   /// <para>
   /// The node will have the following properties:
   /// <list type="bullet">
