@@ -600,12 +600,12 @@ public class KASModuleJointBase : PartModule,
                           linkSource, linkTarget);
       if (linkSource.part.FindAttachNode(linkSource.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform),
+            linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform),
             setupAsSource: true);
       }
       if (linkTarget.part.FindAttachNode(linkTarget.cfgAttachNodeName) == null) {
         SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform),
+            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform),
             setupAsSource: false);
       }
       return;
@@ -620,10 +620,10 @@ public class KASModuleJointBase : PartModule,
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part);
     
     var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkSource.part, linkSource.cfgAttachNodeName, linkSource.physicalAnchorTransform);
+        linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform);
     SetupAttachNode(srcNode);
     var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.physicalAnchorTransform);
+        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform);
     SetupAttachNode(tgtNode);
     KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
   }
