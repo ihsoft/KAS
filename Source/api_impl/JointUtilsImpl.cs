@@ -18,7 +18,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     }
     var msg = DumpBaseJoint(joint);
     // Geometry.
-    msg.Append("secondaryAxis: ").Append(joint.secondaryAxis).AppendLine();
+    msg.Append("secondaryAxis: ").Append(DbgFormatter.Vector(joint.secondaryAxis)).AppendLine();
     // X axis settings.
     msg.Append("xDrive: ").Append(Dump(joint.xDrive)).AppendLine();
     msg.Append("xMotion: ").Append(joint.xMotion).AppendLine();
@@ -222,9 +222,11 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
     msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
     // Geometry.
-    msg.Append("axis: ").Append(joint.axis).AppendLine();
-    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
-    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
+    msg.Append("axis: ").Append(DbgFormatter.Vector(joint.axis)).AppendLine();
+    msg.Append("anchor: ").Append(DbgFormatter.Vector(joint.anchor)).AppendLine();
+    msg.Append("connectedAnchor: ")
+        .Append(DbgFormatter.Vector(joint.connectedAnchor))
+        .AppendLine();
     return msg;
   }
 
