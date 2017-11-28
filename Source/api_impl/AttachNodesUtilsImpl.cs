@@ -13,17 +13,23 @@ namespace KASImpl {
 class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   /// <inheritdoc/>
   public AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform) {
+    // Attach node wants the local coordinates! May be due to the prefab setup.
+    var localNodeTransform = new GameObject(nodeName + "-autonode").transform;
+    localNodeTransform.parent = part.transform;
+    localNodeTransform.position = part.transform.InverseTransformPoint(nodeTransform.position);
+    localNodeTransform.rotation = part.transform.rotation.Inverse() * nodeTransform.rotation;
+    localNodeTransform.localScale = Vector3.one;  // The position has already the scale applied. 
     var attachNode = part.FindAttachNode(nodeName);
     if (attachNode != null) {
       DebugEx.Warning("Not creating attach node {0} for {1} - already exists", nodeName, part);
     } else {
-      attachNode = new AttachNode(nodeName, nodeTransform, 0, AttachNodeMethod.FIXED_JOINT,
+      attachNode = new AttachNode(nodeName, localNodeTransform, 0, AttachNodeMethod.FIXED_JOINT,
                                   crossfeed: true, rigid: false);
       part.attachNodes.Add(attachNode);
     }
     attachNode.attachMethod = AttachNodeMethod.FIXED_JOINT;
     attachNode.nodeType = AttachNode.NodeType.Stack;
-    attachNode.nodeTransform = nodeTransform;
+    attachNode.nodeTransform = localNodeTransform;
     attachNode.owner = part;
     return attachNode;
   }
