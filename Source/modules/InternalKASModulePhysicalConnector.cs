@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;
@@ -96,16 +95,32 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   #endregion
 
   #region Public methods
+  /// <summary>Highglights the conenctor model or removes the highlighting.</summary>
+  /// <remarks>
+  /// <para>
+  /// When color is set to <c>null</c>, the behavior is "cleanup", i.e. it's OK to call this method
+  /// multiple times and in any object state.
+  /// </para>
+  /// <para>
+  /// In order for the highglighting to work, the object must have a highlighter component (a KSP
+  /// specific component). If one doesn't exist on the object, then it's created.
+  /// </para>
+  /// </remarks>
+  /// <param name="color">
+  /// The color to use in the highlighting. If not specified, then any existing highlighting will
+  /// be removed.
+  /// </param>
   public void SetHighlighting(Color? color) {
-    if (connectorRb != null) {
+    if (!color.HasValue && connectorRb != null) {
+      var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>();
+      if (headHighlighter != null) {
+        headHighlighter.ConstantOff();
+      }
+    } else if (connectorRb != null) {
       var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>()
           ?? connectorRb.gameObject.AddComponent<Highlighting.Highlighter>();
       headHighlighter.ReinitMaterials();
-      if (color.HasValue) {
-        headHighlighter.ConstantOn(color.Value);
-      } else {
-        headHighlighter.ConstantOff();
-      }
+      headHighlighter.ConstantOn(color.Value);
     }
   }
   #endregion
