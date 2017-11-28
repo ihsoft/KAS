@@ -15,8 +15,10 @@ class LinkUtilsImpl : ILinkUtils {
   public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
     if (source.linkTargetPartId > 0) {
       var targetPart = FlightGlobals.FindPartByID(source.linkTargetPartId);
-      return targetPart.FindModulesImplementing<ILinkTarget>().FirstOrDefault(
-          t => t.isLinked && t.linkSourcePartId == source.part.flightID);
+      if (targetPart != null) {
+        return targetPart.FindModulesImplementing<ILinkTarget>().FirstOrDefault(
+            t => t.isLinked && t.linkSourcePartId == source.part.flightID);
+      }
     }
     return null;
   }
@@ -25,8 +27,10 @@ class LinkUtilsImpl : ILinkUtils {
   public ILinkSource FindLinkSourceFromTarget(ILinkTarget target) {
     if (target.linkSourcePartId > 0) {
       var sourcePart = FlightGlobals.FindPartByID(target.linkSourcePartId);
-      return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
-          s => s.isLinked && s.linkTargetPartId == target.part.flightID);
+      if (sourcePart != null) {
+        return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
+            s => s.isLinked && s.linkTargetPartId == target.part.flightID);
+      }
     }
     return null;
   }
