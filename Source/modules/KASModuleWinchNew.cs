@@ -15,6 +15,7 @@ using KSPDev.ProcessingUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
 using KSPDev.Types;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -33,12 +34,11 @@ namespace KAS {
 /// However, it's highly recommended to use the mode <see cref="LinkMode.TieAnyParts"/>. As it
 /// the most flexible, and the winch is capable of changing "docked" vs "non-docked" mode when the
 /// link is already made.
-/// <br/>TODO: Implement
 /// </para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
-// Next localization ID: #kasLOC_08024.
+// Next localization ID: #kasLOC_08026.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
@@ -67,6 +67,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate: "Plugged in",
       description: "A string in the context menu that tells that the winch connector is plugged in"
       + " a socked or is being carried by a kerbal, and attached to the winch via a cable.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsg_Docked = new Message(
+      "#kasLOC_08024",
+      defaultTemplate: "Docked",
+      description: "A string in the context menu that tells that the winch connector is rigidly"
+      + " attached in the winch socked, and the vessel on the connector is docked to the winch"
+      + " owner vessel.");
   #endregion
 
   /// <summary>Translates <see cref="WinchConnectorState"/> enum into a localized message.</summary>
@@ -75,6 +83,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           {WinchConnectorState.Locked, ConnectorStateMsg_Locked},
           {WinchConnectorState.Deployed, ConnectorStateMsg_Deployed},
           {WinchConnectorState.Plugged, ConnectorStateMsg_Plugged},
+          {WinchConnectorState.Docked, ConnectorStateMsg_Docked},
       });
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -95,6 +104,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       "#kasLOC_08004",
       defaultTemplate: "Connector locked!",
       description: "Info message to present when a cable connector has successfully locked to the"
+      + " winch.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message ConnectorDockedMsg = new Message(
+      "#kasLOC_08025",
+      defaultTemplate: "Connector docked to the winch",
+      description: "Info message to present when a cable connector has successfully docked to the"
       + " winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -281,6 +297,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sndPathLockConnector = "";
+
+  /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathDockConnector = "";
 
   /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -473,7 +494,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
 
   /// <inheritdoc/>
-  public bool isConnectorLocked { get { return connectorState == WinchConnectorState.Locked; } }
+  public bool isConnectorLocked {
+    get {
+      return connectorState == WinchConnectorState.Locked
+          || connectorState == WinchConnectorState.Docked;
+    }
+  }
   #endregion
 
   #region Inheritable fields and properties
@@ -484,6 +510,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     /// the winch's model.
     /// </summary>
     Locked,
+
+    /// <summary>The connector is dokced to the winch with its attached part.</summary>
+    Docked,
 
     /// <summary>
     /// The connector is a standalone physical object, attached to the winch via a cable.
@@ -508,13 +537,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <value>The connector state.</value>
   protected WinchConnectorState connectorState {
-    get { return connectorStateMachine.currentState ?? WinchConnectorState.Locked; }
+    get {
+        return connectorStateMachine.currentState
+            ?? (isLinked ? WinchConnectorState.Docked : WinchConnectorState.Locked);
+    }
     set {
       if (connectorStateMachine.currentState != value) {
         KillMotor();
       }
       connectorStateMachine.currentState = value;
-      persistedIsConnectorLocked = value == WinchConnectorState.Locked;
+      persistedIsConnectorLocked = isConnectorLocked;
     }
   }
 
@@ -564,6 +596,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Sounds to play when the connector get locked to the winch.</summary>
   /// <seealso cref="connectorState"/>
   AudioSource sndConnectorLock;
+
+  /// <summary>Sounds to play when the connector get docked to the winch.</summary>
+  /// <seealso cref="connectorState"/>
+  AudioSource sndConnectorDock;
   #endregion
 
   #region PartModule overrides
@@ -577,6 +613,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
+    sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
 
     #region Connector state machine
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
@@ -587,13 +624,28 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
     };
     connectorStateMachine.SetTransitionConstraint(
+        WinchConnectorState.Docked,
+        new[] {
+            WinchConnectorState.Plugged,
+        });
+    connectorStateMachine.SetTransitionConstraint(
         WinchConnectorState.Locked,
-        new[] { WinchConnectorState.Deployed, WinchConnectorState.Plugged });
+        new[] {
+            WinchConnectorState.Deployed,
+            WinchConnectorState.Plugged,
+        });
     connectorStateMachine.SetTransitionConstraint(
         WinchConnectorState.Deployed,
-        new[] { WinchConnectorState.Locked, WinchConnectorState.Plugged });
+        new[] {
+            WinchConnectorState.Locked,
+            WinchConnectorState.Plugged,
+        });
     connectorStateMachine.SetTransitionConstraint(
-        WinchConnectorState.Plugged, new[] { WinchConnectorState.Deployed });
+        WinchConnectorState.Plugged,
+        new[] {
+            WinchConnectorState.Deployed,
+            WinchConnectorState.Docked,
+        });
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Locked,
         enterHandler: oldState => {
@@ -605,6 +657,25 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
             sndConnectorLock.Play();
           }
         });
+    connectorStateMachine.AddStateHandlers(
+        WinchConnectorState.Docked,
+        enterHandler: oldState => {
+          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
+          AlignTransforms.SnapAlign(
+              connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
+          SetCableLength(0);
+
+          // Align the docking part to the nodes if it's a separate vessel.
+          if (oldState != null && linkTarget.part.vessel != vessel) {
+            AlignTransforms.SnapAlignVessel(
+                linkTarget.part.vessel, linkTarget.nodeTransform, nodeTransform);
+            linkJoint.SetCoupleOnLinkMode(true);
+            if (oldState.HasValue) {  // Skip when restoring state.
+              sndConnectorDock.Play();
+            }
+          }
+        },
+        leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false));
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
@@ -687,7 +758,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     base.OnPartUnpack();
     // The physics has started. It's safe to adjust the connector.
     if (isLinked) {
-      connectorStateMachine.currentState = WinchConnectorState.Plugged;
+      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode
+          ? WinchConnectorState.Docked
+          : WinchConnectorState.Plugged;
     } else if (!persistedIsConnectorLocked) {
       connectorStateMachine.currentState = WinchConnectorState.Deployed;
     } else {
@@ -792,7 +865,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       return;
     }
     if (targetSpeed > 0 && isConnectorLocked) {
-      connectorState = WinchConnectorState.Deployed;
+      connectorState = isLinked
+          ? WinchConnectorState.Plugged
+          : WinchConnectorState.Deployed;
     }
     if (!isConnectorLocked) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
@@ -817,6 +892,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public void ReleaseCable() {
+    if (isConnectorLocked) {
+      connectorState = isLinked
+          ? WinchConnectorState.Plugged
+          : WinchConnectorState.Deployed;
+    }
     SetCableLength(float.PositiveInfinity);
   }
   #endregion
@@ -976,15 +1056,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </param>
   /// <returns><c>true</c> if the connector was successfully locked.</returns>
   bool TryLockingConnector(bool reportIfCannot = true) {
-    //TODO(ihsoft): Implement docking.
-    if (isLinked) {
-      if (linkTarget.part.vessel.isEVA) {
-        return false;  // Silently don't not allow docking with a kerbal.
-      }
-      if (reportIfCannot) {
-        ShowMessageForActiveVessel("Docking to the winch is not yet implemented");
-      }
-      return false;
+    if (isLinked && linkTarget.part.vessel.isEVA) {
+      return false;  // Silently don't allow docking with a kerbal.
     }
     if (!CheckIsConnectorAligned(reportIfCannot)) {
       if (reportIfCannot) {
@@ -992,8 +1065,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
       return false;
     }
-    connectorState = WinchConnectorState.Locked;
-    ShowMessageForActiveVessel(ConnectorLockedMsg);
+    if (isLinked) {
+      //FIXME: support decoupling by external actors and reset to Locked state
+      connectorState = WinchConnectorState.Docked;
+      ShowMessageForActiveVessel(ConnectorDockedMsg);
+    } else {
+      connectorState = WinchConnectorState.Locked;
+      ShowMessageForActiveVessel(ConnectorLockedMsg);
+    }
     return true;
   }
 
