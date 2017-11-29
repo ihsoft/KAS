@@ -775,19 +775,17 @@ public class KASModuleLinkSourceBase : PartModule,
   }
 
   /// <summary>Reacts on the vessel destruction and break the link if needed.</summary>
-  /// <remarks>
-  /// This event is pretty rare. It happens when the vessel needs to be destroyed in a non-physical
-  /// way. E.g. when an EVA kerbal boards the pod, he just "disappears" from the scene. By contrast,
-  /// the docked vessel is removed only logically, all its parts remain alive in the physical world.
-  /// </remarks>
+  /// <remarks>This event can get called from the physics callbacks.</remarks>
   /// <param name="targetVessel">The vessel that is being destroyed.</param>
   void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
-    if (isLinked && vessel != linkTarget.part.vessel
-        && (targetVessel == vessel || targetVessel == linkTarget.part.vessel)) {
-      HostedDebugLog.Info(
-          this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
-      BreakCurrentLink(LinkActorType.Physics);
-    }
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      if (isLinked && vessel != linkTarget.part.vessel
+          && (targetVessel == vessel || targetVessel == linkTarget.part.vessel)) {
+        HostedDebugLog.Info(
+            this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
+        BreakCurrentLink(LinkActorType.Physics);
+      }
+    });
   }
   #endregion
 }
