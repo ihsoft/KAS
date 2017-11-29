@@ -796,8 +796,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
     if (!isConnectorLocked) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
-        motorTargetSpeed = 0;
-        motorCurrentSpeed = 0;  // Shutdown immediately.
+        KillMotor();
       } else {
         var newTargetSpeed = targetSpeed > float.Epsilon
             ? Mathf.Min(targetSpeed, cfgMotorMaxSpeed)
