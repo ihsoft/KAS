@@ -175,7 +175,7 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float linkBreakForce = 0;
+  public float linkBreakForce;
 
   /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
   /// <value>
@@ -185,7 +185,7 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float linkBreakTorque = 0;
+  public float linkBreakTorque;
 
   /// <summary>
   /// Maximum allowed angle between the attach node normal and the link at the source part.
@@ -193,7 +193,7 @@ public class KASModuleJointBase : PartModule,
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public int sourceLinkAngleLimit = 0;
+  public int sourceLinkAngleLimit;
 
   /// <summary>
   /// Maximum allowed angle between the attach node normal and the link at the target part.
@@ -201,7 +201,7 @@ public class KASModuleJointBase : PartModule,
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public int targetLinkAngleLimit = 0;
+  public int targetLinkAngleLimit;
 
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
   /// <remarks>
@@ -209,7 +209,7 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float minLinkLength = 0;
+  public float minLinkLength;
 
   /// <summary>Maximum allowed distance between parts to establish a link.</summary>
   /// <remarks>
@@ -217,7 +217,7 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float maxLinkLength = 0;
+  public float maxLinkLength;
   #endregion
 
   #region CFG/persistent fields
