@@ -363,27 +363,6 @@ public class KASModuleJointBase : PartModule,
   }
   #endregion
 
-  /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
-  /// <remarks>
-  /// The source and target parts need to be separated, but the logical link still need to exist.
-  /// On restore the vessel info will be cleared on the module.
-  /// </remarks>
-  void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
-    AsyncCall.CallOnEndOfFrame(this, () => {
-      var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
-      var childPart = weDecouple ? source.part : target.part;
-      if (childPart.vessel.vesselType != vesselInfo.vesselType
-          || childPart.vessel.vesselName != vesselInfo.name) {
-        HostedDebugLog.Warning(this, "Partially restoring vessel info on {0}: type={1}, name={2}",
-                               childPart, vesselInfo.vesselType, vesselInfo.name);
-        childPart.vessel.vesselType = vesselInfo.vesselType;
-        childPart.vessel.vesselName = vesselInfo.name;
-      }
-      persistedSrcVesselInfo = null;
-      persistedTgtVesselInfo = null;
-    });
-  }
-
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
@@ -828,6 +807,27 @@ public class KASModuleJointBase : PartModule,
     vesselInfo.vesselType = p.vessel.vesselType;
     vesselInfo.rootPartUId = p.vessel.rootPart.flightID;
     return vesselInfo;
+  }
+
+  /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
+  /// <remarks>
+  /// The source and target parts need to be separated, but the logical link still need to exist.
+  /// On restore the vessel info will be cleared on the module.
+  /// </remarks>
+  void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
+      var childPart = weDecouple ? source.part : target.part;
+      if (childPart.vessel.vesselType != vesselInfo.vesselType
+          || childPart.vessel.vesselName != vesselInfo.name) {
+        HostedDebugLog.Warning(this, "Partially restoring vessel info on {0}: type={1}, name={2}",
+                               childPart, vesselInfo.vesselType, vesselInfo.name);
+        childPart.vessel.vesselType = vesselInfo.vesselType;
+        childPart.vessel.vesselName = vesselInfo.name;
+      }
+      persistedSrcVesselInfo = null;
+      persistedTgtVesselInfo = null;
+    });
   }
   #endregion
 }
