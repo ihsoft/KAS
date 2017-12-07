@@ -9,7 +9,7 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
-class KASAPILauncher : MonoBehaviour {
+sealed class KASAPILauncher : MonoBehaviour {
   void LoadApi() {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();

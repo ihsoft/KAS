@@ -236,7 +236,7 @@ public class KASModuleLinkTargetBase :
   /// The initial state can be setup under different circumstances, and the associated events and
   /// actions may get triggered in an inappropriate moment.
   /// </remarks>
-  protected SimpleStateMachine<LinkState> linkStateMachine;
+  protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
 
   #region PartModule overrides
   /// <inheritdoc/>
