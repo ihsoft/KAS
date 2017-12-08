@@ -37,6 +37,15 @@ public interface IAttachNodesUtils {
   /// KSP: AttachNode.NodeType</seealso>
   AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform);
 
+  /// <summary>Adds an existing atatch node into the part.</summary>
+  /// <remarks>
+  /// If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
+  /// Normally, it's not expected to add an attach node into part that doesn't own it.
+  /// </remarks>
+  /// <param name="part">The part to add the node into.</param>
+  /// <param name="attachNode">The attach node to add.</param>
+  void AddNode(Part part, AttachNode attachNode);
+
   /// <summary>Drops the attach node on the part.</summary>
   /// <remarks>
   /// Don't drop an connected node until the part is decoupled. Otherwise,
