@@ -7,7 +7,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.ModelUtils;
 using KSPDev.LogUtils;
-using KSPDev.KSPInterfaces;
+using KSPDev.PartUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -244,29 +244,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   Transform _targetTransform;
   #endregion
 
-  #region Event names. Keep them in sync with the event names!
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="ParkedOrientationMenuAction0"/>
-  /// <seealso cref="parkedOrientationMenu0"/>
-  protected const string MenuAction0Name = "ParkedOrientationMenuAction0";
-
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="ParkedOrientationMenuAction1"/>
-  /// <seealso cref="parkedOrientationMenu1"/>
-  protected const string MenuAction1Name = "ParkedOrientationMenuAction1";
-
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  /// <seealso cref="ParkedOrientationMenuAction2"/>
-  /// <seealso cref="parkedOrientationMenu2"/>
-  protected const string MenuAction2Name = "ParkedOrientationMenuAction2";
-
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  protected const string ExtendAtMaxMenuActionName = "ExtendAtMaxMenuAction";
-
-  /// <summary>Name of the relevant event. It must match name of the method.</summary>
-  protected const string RetractToMinMenuActionName = "RetractToMinMenuAction";
-  #endregion
-
   #region Model name constants
   /// <summary>A transform that is a root for the whole pipe modelset.</summary>
   /// <remarks>It doesn't have to match part's attach node transform.</remarks>
@@ -454,21 +431,26 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #region IHasContextMenu implemenation
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
-    Events[MenuAction0Name].guiName = ExtractPositionName(parkedOrientationMenu0);
-    Events[MenuAction1Name].guiName = ExtractPositionName(parkedOrientationMenu1);
-    Events[MenuAction2Name].guiName = ExtractPositionName(parkedOrientationMenu2);
-    Events[MenuAction0Name].active = Events[MenuAction0Name].guiName != "" && !isLinked;
-    Events[MenuAction1Name].active = Events[MenuAction1Name].guiName != "" && !isLinked;
-    Events[MenuAction2Name].active = Events[MenuAction2Name].guiName != "" && !isLinked;
-    Events[ExtendAtMaxMenuActionName].active = !isLinked;
-    Events[RetractToMinMenuActionName].active = !isLinked;
+    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction0, x => {
+      x.guiName = ExtractPositionName(parkedOrientationMenu0);
+      x.active = x.guiName != "" && !isLinked;
+    });
+    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction1, x => {
+      x.guiName = ExtractPositionName(parkedOrientationMenu1);
+      x.active = x.guiName != "" && !isLinked;
+    });
+    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction2, x => {
+      x.guiName = ExtractPositionName(parkedOrientationMenu2);
+      x.active = x.guiName != "" && !isLinked;
+    });
+    PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
+    PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
   }
   #endregion
 
   // FIXME: check colliders.
   #region GUI menu action handlers
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="MenuAction0Name"/>
   /// <seealso cref="parkedOrientationMenu0"/>
   [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
@@ -478,7 +460,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="MenuAction1Name"/>
   /// <seealso cref="parkedOrientationMenu1"/>
   [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
@@ -488,7 +469,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="MenuAction2Name"/>
   /// <seealso cref="parkedOrientationMenu2"/>
   [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
             guiActiveEditor = true, active = false)]
