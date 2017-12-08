@@ -378,6 +378,7 @@ public class KASModuleLinkSourceBase : PartModule,
 
   /// <inheritdoc/>
   public override void OnStartFinished(PartModule.StartState state) {
+    base.OnStartFinished(state);
     if (persistedLinkState == LinkState.Linked) {
       RestoreTarget();
     }
