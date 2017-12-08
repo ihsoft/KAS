@@ -197,7 +197,7 @@ public interface ILinkSource {
   /// </remarks>
   /// <seealso cref="linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="HighlightLocked"/></example>
-  bool isLocked { get; set; }
+  bool isLocked { get; }
 
   /// <summary>Tells if this source is currectly linked with a target.</summary>
   /// <remarks>
