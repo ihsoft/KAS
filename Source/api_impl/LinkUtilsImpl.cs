@@ -102,11 +102,13 @@ class LinkUtilsImpl : ILinkUtils {
         partToDecouple.FindModulesImplementing<IActivateOnDecouple>()
             .ForEach(m => m.DecoupleAction(srcAttachNode.id, true));
       }
-      var tgtAttachNode = partToDecouple.parent.FindAttachNodeByPart(partToDecouple);
-      if (tgtAttachNode != null) {
-        tgtAttachNode.attachedPart = null;
-        partToDecouple.parent.FindModulesImplementing<IActivateOnDecouple>()
-            .ForEach(m => m.DecoupleAction(tgtAttachNode.id, false));
+      if (partToDecouple.parent != null) {
+        var tgtAttachNode = partToDecouple.parent.FindAttachNodeByPart(partToDecouple);
+        if (tgtAttachNode != null) {
+          tgtAttachNode.attachedPart = null;
+          partToDecouple.parent.FindModulesImplementing<IActivateOnDecouple>()
+              .ForEach(m => m.DecoupleAction(tgtAttachNode.id, false));
+        }
       }
       // Decouple and restore the name and hierarchy on the decoupled assembly.
       var vesselInfoCfg = new ConfigNode();
