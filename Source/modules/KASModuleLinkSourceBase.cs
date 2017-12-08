@@ -266,7 +266,7 @@ public class KASModuleLinkSourceBase : PartModule,
   public string jointName = "";
   #endregion
 
-  #region Inheritable properties
+  #region Inheritable fileds & properties
   /// <summary>Mode in which a link between the source and target is being created.</summary>
   /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
   /// <value>The GUI mode.</value>

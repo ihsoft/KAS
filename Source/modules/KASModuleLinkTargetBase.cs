@@ -100,7 +100,7 @@ public class KASModuleLinkTargetBase :
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    private set {
+    protected set {
       var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
       persistedLinkState = value;
@@ -111,7 +111,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public bool isLocked {
     get { return linkState == LinkState.Locked; }
-    set {
+    protected set {
       if (value != isLocked) {
         linkState = value ? LinkState.Locked : LinkState.Available;
       }

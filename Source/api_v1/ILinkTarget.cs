@@ -190,7 +190,7 @@ public interface ILinkTarget {
   /// </remarks>
   /// <seealso cref="linkState"/>
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="HighlightLocked"/></example>
-  bool isLocked { get; set; }
+  bool isLocked { get; }
 }
 
 }  // namespace
