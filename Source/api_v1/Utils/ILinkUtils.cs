@@ -39,16 +39,22 @@ public interface ILinkUtils {
 
   /// <summary>Couples two parts together given they belong to the different vessels.</summary>
   /// <remarks>
+  /// <para>
   /// Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
   /// other vessel. The new merged vessel will become active. Which vessel will be destroyed is
   /// determined by the <paramref name="toDominantVessel"/> parameter.
+  /// </para>
+  /// <para>
+  /// This coupling requires the both attach nodes to be provided, and creates a "stack" nodes
+  /// coupling.
+  /// </para>
   /// </remarks>
-  /// <para>The attach nodes must have a valid <c>owner</c> set.</para>
+  /// <para><i>IMPORTANT</i>. The attach nodes must have a valid <c>owner</c> set.</para>
   /// <param name="sourceNode">
-  /// The attach node at the source part that defines the source vessel.
+  /// The attach node at the source part that defines the source vessel. It must not be <c>null</c>. 
   /// </param>
   /// <param name="targetNode">
-  /// The attach node at the target part that defines the target vessel.
+  /// The attach node at the target part that defines the target vessel. It must not be <c>null</c>.
   /// </param>
   /// <param name="toDominantVessel">
   /// If <c>false</c>, then the source vessel will get coupled with the target. As a result, the
