@@ -48,6 +48,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
           DumpAttachNode(attachNode));
     }
     part.attachNodes.Remove(attachNode);
+    attachNode.attachedPart = null;
+    attachNode.attachedPartId = 0;
   }
 
   /// <inheritdoc/>
