@@ -48,24 +48,21 @@ public interface ILinkTarget {
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <remarks>This transform must exist even when no actual attach node is created on the part:
-  /// <list type="bullet">
-  /// <item>
-  /// When connecting the parts, this transform will be used to create a part's attach node.
-  /// </item>
-  /// <item>The renderer uses this transform to align the meshes.</item>
-  /// <item>The joint module uses a node transform as a source anchor for the PhysX joint.</item>
-  /// </list>
+  /// <remarks>
+  /// This transform is used when drawing the visual representation of the link (as a base point).
   /// </remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
+  /// <seealso cref="physicalAnchorTransform"/>
   Transform nodeTransform { get; }
 
   /// <summary>Transform of the physical joint anchor at the node.</summary>
   /// <remarks>
-  /// When logical and physical positions match, this property can return
-  /// <see cref="nodeTransform"/>.
+  /// This object gets the actual settings when the link is established. The source is in charge on
+  /// how to adjust the anchor relative to the attach node transform.
   /// </remarks>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
+  /// <seealso cref="nodeTransform"/>
+  /// <seealso cref="ILinkSource.targetPhysicalAnchor"/>
   Transform physicalAnchorTransform { get; }
 
   /// <summary>Source that maintains the link.</summary>
@@ -172,22 +169,8 @@ public interface ILinkTarget {
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="StateModel"/></example>
   LinkState linkState { get; }
 
-  /// <summary>Defines if target must not accept any link requests.</summary>
-  /// <value>Locked state.</value>
-  /// <remarks>
-  /// <para>
-  /// Setting of this property changes the target state:
-  /// <list type="bullet">
-  /// <item><c>true</c> value changes the state to <see cref="LinkState.Locked"/>.</item>
-  /// <item><c>false</c> value changes the state to <see cref="LinkState.Available"/>.</item>
-  /// </list>
-  /// </para>
-  /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
-  /// <para>
-  /// Note, that not any state transition is possible. If the transition is invalid then an
-  /// exception is thrown.
-  /// </para>
-  /// </remarks>
+  /// <summary>Defines if target cannot accept any link requests.</summary>
+  /// <value>The locked state.</value>
   /// <seealso cref="linkState"/>
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="HighlightLocked"/></example>
   bool isLocked { get; }
