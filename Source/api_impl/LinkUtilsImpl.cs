@@ -49,8 +49,10 @@ class LinkUtilsImpl : ILinkUtils {
     }
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
+    KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
     var tgtPart = targetNode.owner;
     var tgtVessel = tgtPart.vessel;
+    KASAPI.AttachNodesUtils.AddNode(tgtPart, targetNode);
     DebugEx.Fine("Couple {0} to {1}",
                  KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
                  KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
