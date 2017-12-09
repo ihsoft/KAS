@@ -49,7 +49,13 @@ public interface ILinkTarget {
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>
+  /// <para>
   /// This transform is used when drawing the visual representation of the link (as a base point).
+  /// </para>
+  /// <para>
+  /// <i>IMPORTANT</i>. The node always has world's scale <c>(1, 1, 1)</c> regardless to the scale
+  /// of the part.
+  /// </para>
   /// </remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   /// <seealso cref="physicalAnchorTransform"/>

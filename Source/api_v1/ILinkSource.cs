@@ -77,16 +77,16 @@ public interface ILinkSource {
   string cfgAttachNodeName { get; }
 
   /// <summary>Transform that defines the position and orientation of the attach node.</summary>
+  /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <remarks>
   /// <para>
-  /// When connecting the parts, this transform will be used to create a part's attach node.
+  /// This transform is used when drawing the visual representation of the link (as a base point).
   /// </para>
   /// <para>
   /// <i>IMPORTANT</i>. The node always has world's scale <c>(1, 1, 1)</c> regardless to the scale
   /// of the part.
   /// </para>
   /// </remarks>
-  /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="StartRenderer"/></example>
   /// <seealso cref="physicalAnchorTransform"/>
   // TODO(ihsoft): Add example from a joint module.
