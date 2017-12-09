@@ -59,7 +59,7 @@ class LinkUtilsImpl : ILinkUtils {
     sourceNode.attachedPartId = tgtPart.flightID;
     targetNode.attachedPart = srcPart;
     targetNode.attachedPartId = srcPart.flightID;
-    srcPart.attachMode = AttachModes.STACK;
+    tgtPart.attachMode = AttachModes.STACK;
     srcPart.Couple(tgtPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
     // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
