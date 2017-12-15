@@ -63,8 +63,8 @@ public interface ILinkTarget {
 
   /// <summary>Transform of the physical joint anchor at the node.</summary>
   /// <remarks>
-  /// This object gets the actual settings when the link is established. The source is in charge on
-  /// how to adjust the anchor relative to the attach node transform.
+  /// This object gets the actual settings when the link is established. The target has to obtain
+  /// the actual anchor from the source source and update the transfrom on the link created event.
   /// </remarks>
   /// <value>Game object transformation. It's never <c>null</c>.</value>
   /// <seealso cref="nodeTransform"/>
