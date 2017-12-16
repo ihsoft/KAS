@@ -74,6 +74,43 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
             "[AttachNode:id={0},host={1},to={2}]",
             an.id, DebugEx.ObjectToString(an.owner), DebugEx.ObjectToString(an.attachedPart));
   }
+
+  /// <inheritdoc/>
+  public AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId) {
+    // The logic is borrowed from PartLoader.ParsePart.
+    var array = def.Split(',');
+    try {
+      if (array.Length < 6) {
+        throw new ArgumentException(string.Format("Not enough components: {0}", array.Length));
+      }
+      var attachNode = new AttachNode();
+      attachNode.owner = ownerPart;
+      attachNode.id = nodeId;
+      var factor = ownerPart.rescaleFactor;
+      attachNode.position = new Vector3(
+          float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2])) * factor;
+      attachNode.orientation = new Vector3(
+          float.Parse(array[3]), float.Parse(array[4]), float.Parse(array[5])) * factor;
+      attachNode.originalPosition = attachNode.position;
+      attachNode.originalOrientation = attachNode.orientation;
+      attachNode.size = array.Length >= 7 ? int.Parse(array[6]) : 1;
+      attachNode.attachMethod = array.Length >= 8
+          ? (AttachNodeMethod)int.Parse(array[7])
+          : AttachNodeMethod.FIXED_JOINT;
+      if (array.Length >= 9) {
+        attachNode.ResourceXFeed = int.Parse(array[8]) > 0;
+      }
+      if (array.Length >= 10) {
+        attachNode.rigid = int.Parse(array[9]) > 0;
+      }
+      attachNode.nodeType = AttachNode.NodeType.Stack;
+      return attachNode;
+    }
+    catch (Exception ex) {
+      DebugEx.Error("Cannot parse node {0} from: {1}\nError: {2}", nodeId, def, ex.Message);
+      return null;
+    }
+  }
 }
 
 }  // namespace
