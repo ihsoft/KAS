@@ -225,7 +225,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == couplingNodeName && isAutoAttachNode) {
       HostedDebugLog.Fine(
-          this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.DumpAttachNode(couplingNode));
+          this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(couplingNode));
       part.attachNodes.Remove(couplingNode);
       couplingNode.attachedPart = null;
       couplingNode.attachedPartId = 0;
@@ -261,7 +261,7 @@ public abstract class AbstractLinkPeer : PartModule,
             part, couplingNodeDef, couplingNodeName);
         if (couplingNode != null) {
           HostedDebugLog.Fine(
-              this, "Created auto node: {0}", KASAPI.AttachNodesUtils.DumpAttachNode(couplingNode));
+              this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(couplingNode));
           if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor) {
             // Only pre-add the node in the scenes that assume restoring a vessel state.
             part.attachNodes.Add(couplingNode);
@@ -281,7 +281,7 @@ public abstract class AbstractLinkPeer : PartModule,
         && isAutoAttachNode && couplingNode != null && couplingNode.attachedPart == null) {
       part.attachNodes.Remove(couplingNode);
       HostedDebugLog.Fine(this, "Cleaning up the unused auto node: {0}",
-                          KASAPI.AttachNodesUtils.DumpAttachNode(couplingNode));
+                          KASAPI.AttachNodesUtils.NodeId(couplingNode));
     }
     if (persistedLinkState == LinkState.Linked) {
       RestoreOtherPeer();

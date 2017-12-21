@@ -63,7 +63,7 @@ public interface IAttachNodesUtils {
   /// <remarks>It gives on the node and it's peers, which is useful when logging.</remarks>
   /// <param name="an">The node to get the string for.</param>
   /// <returns>The user friendly node description.</returns>
-  string DumpAttachNode(AttachNode an);
+  string NodeId(AttachNode an);
 
   /// <summary>Creates an attach node form the part's config definition string.</summary>
   /// <remarks>
