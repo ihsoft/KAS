@@ -388,7 +388,9 @@ public class KASModuleJointBase : PartModule,
           this, "Cannot link the joint which is already linked to: {0}", linkTarget);
       return false;
     }
-    if (CheckConstraints(source, target.physicalAnchorTransform).Length > 0) {
+    var errors = CheckConstraints(source, target.physicalAnchorTransform);
+    if (errors.Length > 0) {
+      HostedDebugLog.Error(this, "Cannot create joint:\n{0}", DbgFormatter.C2S(errors));
       return false;
     }
     linkSource = source;
