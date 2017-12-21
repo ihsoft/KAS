@@ -34,7 +34,7 @@ public interface IAttachNodesUtils {
   /// KSP: AttachNodeMethod</seealso>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_attach_node.html#a96e7fbc9722efd10a0e225bb6a6778cc">
   /// KSP: AttachNode.NodeType</seealso>
-  AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform);
+  AttachNode CreateNode(Part part, string nodeName, Transform nodeTransform);
 
   /// <summary>Adds an existing atatch node into the part.</summary>
   /// <remarks>
@@ -57,7 +57,7 @@ public interface IAttachNodesUtils {
   /// KSP: AttachNode</seealso>
   /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
   /// KSP: IActivateOnDecouple</seealso>
-  void DropAttachNode(Part part, string nodeName);
+  void DropNode(Part part, string nodeName);
 
   /// <summary>Returns a user friendly attach node representation.</summary>
   /// <remarks>It gives on the node and it's peers, which is useful when logging.</remarks>

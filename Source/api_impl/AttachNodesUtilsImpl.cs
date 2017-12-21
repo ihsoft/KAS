@@ -12,7 +12,7 @@ namespace KASImpl {
 /// <summary>Implements KASAPIv1.IAttachNodesUtils.</summary>
 class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   /// <inheritdoc/>
-  public AttachNode CreateAttachNode(Part part, string nodeName, Transform nodeTransform) {
+  public AttachNode CreateNode(Part part, string nodeName, Transform nodeTransform) {
     // Attach node wants the local coordinates! May be due to the prefab setup.
     var localNodeTransform = new GameObject(nodeName + "-autonode").transform;
     localNodeTransform.parent = part.transform;
@@ -49,7 +49,7 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   }
 
   /// <inheritdoc/>
-  public void DropAttachNode(Part part, string nodeName) {
+  public void DropNode(Part part, string nodeName) {
     var attachNode = part.FindAttachNode(nodeName);
     if (attachNode == null) {
       DebugEx.Warning("Not dropping attach node {0} on {1} - not found", nodeName, part);
