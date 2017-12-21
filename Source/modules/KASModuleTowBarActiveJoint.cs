@@ -4,10 +4,9 @@
 // License: Public Domain
 
 using KASAPIv1;
-using System;
-using System.Collections.Generic;
-using KSPDev.KSPInterfaces;
 using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KAS {

@@ -3,7 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
 using UnityEngine;
 
 namespace KASAPIv1 {

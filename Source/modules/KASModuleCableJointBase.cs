@@ -8,7 +8,6 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 

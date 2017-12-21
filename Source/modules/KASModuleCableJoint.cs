@@ -7,7 +7,6 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.PartUtils;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 

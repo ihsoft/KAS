@@ -5,8 +5,8 @@
 
 using KASAPIv1;
 using KSPDev.ConfigUtils;
-using KSPDev.GUIUtils;
 using KSPDev.Extensions;
+using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
@@ -15,7 +15,6 @@ using KSPDev.ProcessingUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
 using KSPDev.Types;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

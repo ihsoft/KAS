@@ -3,9 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-using UnityEngine;
-
 namespace KASAPIv1 {
 
 /// <summary>A generic target of a KAS link between two parts.</summary>

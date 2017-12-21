@@ -5,7 +5,6 @@
 
 using KASAPIv1;
 using KSPDev.LogUtils;
-using System;
 using System.Linq;
 
 namespace KASImpl {

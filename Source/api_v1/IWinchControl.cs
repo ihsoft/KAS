@@ -3,8 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-
 namespace KASAPIv1 {
 
 /// <summary>Interface that allows operating the winch parts.</summary>

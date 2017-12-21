@@ -5,10 +5,9 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
-using KSPDev.ModelUtils;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
-using System;
 using System.Linq;
 using UnityEngine;
 

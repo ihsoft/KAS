@@ -3,8 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-
 namespace KASAPIv1 {
 
 /// <summary>Specifies how the linking mode is displayed in GUI.</summary>

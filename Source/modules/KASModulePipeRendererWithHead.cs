@@ -6,7 +6,6 @@
 using KSPDev.ConfigUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
-using System;
 using UnityEngine;
 
 namespace KAS {

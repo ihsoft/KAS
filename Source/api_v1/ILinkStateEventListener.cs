@@ -3,8 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-
 namespace KASAPIv1 {
 
 /// <summary>Part module interface that defines the events for a link state changes.</summary>

@@ -8,7 +8,6 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
-using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 

@@ -3,17 +3,15 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
+using KASAPIv1;
+using KSPDev.GUIUtils;
+using KSPDev.KSPInterfaces;
+using KSPDev.LogUtils;
+using KSPDev.ProcessingUtils;
 using System.Collections;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using KSPDev.GUIUtils;
-using KSPDev.KSPInterfaces;
-using KSPDev.ModelUtils;
-using KSPDev.LogUtils;
-using KSPDev.ProcessingUtils;
-using KASAPIv1;
 
 namespace KAS {
 
