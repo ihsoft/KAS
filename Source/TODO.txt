@@ -1,2 +1,18 @@
+- Fix joint restore on timewarp!!!
+- Use own target module on JS for the winch. It has coupling but is cable.
+- Implement hiding option on the peers coupling nodes. All related nodes have to be hidden. Can be a pain.
+- Use rnederer to ajdust the pipes offset. Maybe change its implemenbntation.
+- Handle pre-attached parts on the peer's coupling node. Both in editor and in flight.
+
+- Winch connector on detach doesnt handle collisions to the former target part
+  - To reproduce it load a vessel with JS and Winch on the same vessel.
+- Figure out why the connector gets broken on the broken cable joint.
+- Restore the link on the winch to the parent!
+- Nagging deployment of the connector in gravity.
+- Migrate winch to the headed renderer.
+- Support physics in the headed joint.
+
 - Implement hollow method in the renderer
 - Handle link mass via joint instead of renderer in non-stock joints.
+- Move kerbal module hotkeys into a global config when there is one implemented.
+  - Deal with the multiple kerbal target modules: only one of them can have a focus on the connector.
