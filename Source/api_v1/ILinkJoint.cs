@@ -85,18 +85,20 @@ public interface ILinkJoint {
 
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
-  /// If the new mode is "coupling", and the source and the target vessels are different, then a
-  /// coupling action will trigger. If the new mode is "don't couple", and the source and the target
-  /// parts are coupled, then a decoupling event is triggered. In all the other cases it's just a
-  /// boolean property change.
+  /// When both the source and the target peers support coupling, this mode can be arbitrary set or
+  /// reset via the joint module. If the new mode is "coupling", and the source and the target
+  /// vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
+  /// and the source and the target parts are coupled, then a decoupling event is triggered. In all
+  /// the other cases it's just a boolean property change.
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
   /// <seealso cref="coupleOnLinkMode"/>
+  /// <seealso cref="ILinkPeer.couplingNode"/>
   void SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
   /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
   /// calculations.
   /// </remarks>

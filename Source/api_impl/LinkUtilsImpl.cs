@@ -12,24 +12,12 @@ namespace KASImpl {
 
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
-  public ILinkTarget FindLinkTargetFromSource(ILinkSource source) {
-    if (source.linkTargetPartId > 0) {
-      var targetPart = FlightGlobals.FindPartByID(source.linkTargetPartId);
-      if (targetPart != null) {
-        return targetPart.FindModulesImplementing<ILinkTarget>().FirstOrDefault(
-            t => t.isLinked && t.linkSourcePartId == source.part.flightID);
-      }
-    }
-    return null;
-  }
-
-  /// <inheritdoc/>
-  public ILinkSource FindLinkSourceFromTarget(ILinkTarget target) {
-    if (target.linkSourcePartId > 0) {
-      var sourcePart = FlightGlobals.FindPartByID(target.linkSourcePartId);
-      if (sourcePart != null) {
-        return sourcePart.FindModulesImplementing<ILinkSource>().FirstOrDefault(
-            s => s.isLinked && s.linkTargetPartId == target.part.flightID);
+  public ILinkPeer FindLinkPeer(ILinkPeer srcPeer) {
+    if (srcPeer.linkPartId > 0) {
+      var tgtPeer = FlightGlobals.FindPartByID(srcPeer.linkPartId);
+      if (tgtPeer != null) {
+        return tgtPeer.FindModulesImplementing<ILinkPeer>().FirstOrDefault(
+            p => p.isLinked && p.linkPartId == srcPeer.part.flightID);
       }
     }
     return null;
@@ -47,15 +35,15 @@ class LinkUtilsImpl : ILinkUtils {
         targetNode = tmp;
       }
     }
+    DebugEx.Fine("Couple {0} to {1}",
+                 KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
+                 KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
     var tgtPart = targetNode.owner;
     var tgtVessel = tgtPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(tgtPart, targetNode);
-    DebugEx.Fine("Couple {0} to {1}",
-                 KASAPI.AttachNodesUtils.DumpAttachNode(sourceNode),
-                 KASAPI.AttachNodesUtils.DumpAttachNode(targetNode));
 
     sourceNode.attachedPart = tgtPart;
     sourceNode.attachedPartId = tgtPart.flightID;

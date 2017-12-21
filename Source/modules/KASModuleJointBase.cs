@@ -11,6 +11,7 @@ using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -155,23 +156,10 @@ public class KASModuleJointBase : PartModule,
   [KSPField]
   public string jointName = "";
 
-  /// <summary>Defines how the physics joint breaking force and torque are scaled.</summary>
-  /// <remarks>
-  /// The larger is the scale, the higher are the actual values used in physics. Size <c>0</c>
-  /// matches the game's "tiny".
-  /// </remarks>
-  /// <seealso cref="linkBreakForce"/>
-  /// <seealso cref="linkBreakTorque"/>
-  /// <seealso cref="SetBreakForces"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public int attachNodeSize = 0;
-
   /// <summary>Breaking force for the strut connecting the two parts.</summary>
   /// <remarks>
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength infinite.
   /// </remarks>
-  /// <seealso cref="attachNodeSize"/>
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -181,7 +169,6 @@ public class KASModuleJointBase : PartModule,
   /// <value>
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength is infinite.
   /// </value>
-  /// <seealso cref="attachNodeSize"/>
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -335,14 +322,15 @@ public class KASModuleJointBase : PartModule,
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (!isLinked || linkSource.cfgAttachNodeName != nodeName) {
+    if (!isCoupled) {
       return;  // Nothing to do. 
     }
-    // Restore the vessel info.
-    if (!selfDecoupledAction) {
+    if (!selfDecoupledAction
+        && linkSource.couplingNode != null && linkSource.couplingNode.id == nodeName) {
+      // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
+      MaybeBreakLink(linkSource, linkTarget);
     }
-    CleanupAttachNodes(linkSource, linkTarget, !selfDecoupledAction);
   }
   #endregion
 
@@ -543,28 +531,6 @@ public class KASModuleJointBase : PartModule,
   protected virtual void OnLinkStateChanged(bool oldIsLinked) {
   }
 
-  /// <summary>Sets the attach node properties.</summary>
-  /// <param name="attachNode">The node to set properties for.</param>
-  /// <param name="setupAsSource">
-  /// Tells if the node belongs to the source or to the target part. If not provided, then the node
-  /// connection is not initialized.
-  /// </param>
-  protected virtual void SetupAttachNode(AttachNode attachNode, bool? setupAsSource = null) {
-    attachNode.attachMethod = AttachNodeMethod.FIXED_JOINT;
-    attachNode.size = attachNodeSize;
-    attachNode.breakingForce = linkBreakForce;
-    attachNode.breakingTorque = linkBreakTorque;
-    if (setupAsSource.HasValue) {
-      if (setupAsSource.Value) {
-        attachNode.attachedPart = linkTarget.part;
-        attachNode.attachedPartId = linkTarget.part.flightID;
-      } else {
-        attachNode.attachedPart = linkSource.part;
-        attachNode.attachedPartId = linkSource.part.flightID;
-      }
-    }
-  }
-
   /// <summary>Couples the source and the target parts merging them into a single vessel.</summary>
   /// <remarks>
   /// It's OK to call this method if the parts are already coupled. It's a normal way to have the
@@ -572,39 +538,18 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <seealso cref="DecoupleParts"/>
   protected virtual void CoupleParts() {
-    if (isLinked && isCoupled) {
-      // Ensure the docking nodes are existing. This may not be the case if the vessel has just been
-      // restored from the save file.
-      HostedDebugLog.Fine(this, "Refreshing nodes. Already coupled: {0} <=> {1}",
-                          linkSource, linkTarget);
-      if (linkSource.part.FindAttachNode(linkSource.cfgAttachNodeName) == null) {
-        SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform),
-            setupAsSource: true);
-      }
-      if (linkTarget.part.FindAttachNode(linkTarget.cfgAttachNodeName) == null) {
-        SetupAttachNode(KASAPI.AttachNodesUtils.CreateAttachNode(
-            linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform),
-            setupAsSource: false);
-      }
+    if (isCoupled) {
       return;
     }
     if (!isLinked || linkSource.part.vessel == linkTarget.part.vessel) {
       HostedDebugLog.Fine(this, "Skip coupling: {0} <=> {1}", linkSource, linkTarget);
       return;
     }
-
     // Remember the vessel info to restore it on the decoupling.
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part);
-    
-    var srcNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkSource.part, linkSource.cfgAttachNodeName, linkSource.nodeTransform);
-    SetupAttachNode(srcNode);
-    var tgtNode = KASAPI.AttachNodesUtils.CreateAttachNode(
-        linkTarget.part, linkTarget.cfgAttachNodeName, linkTarget.nodeTransform);
-    SetupAttachNode(tgtNode);
-    KASAPI.LinkUtils.CoupleParts(tgtNode, srcNode, toDominantVessel: true);
+    KASAPI.LinkUtils.CoupleParts(
+        linkSource.couplingNode, linkTarget.couplingNode, toDominantVessel: true);
   }
 
   /// <summary>Creates a physical link between the source and the target parts.</summary>
@@ -677,7 +622,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Checks if the link's length is within the limits.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
   /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
   /// calculations.
   /// </remarks>
@@ -699,7 +644,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Checks if the link's angle at the source joint is within the limits.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
   /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
   /// calculations.
   /// </remarks>
@@ -716,7 +661,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Checks if the link's angle at the target joint is within the limits.</summary>
   /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
+  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
   /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
   /// calculations.
   /// </remarks>
@@ -782,16 +727,11 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <param name="source">The link source at the moemnt of cleanup.</param>
   /// <param name="target">The link target at the moment of cleanup.</param>
-  /// <param name="needsLinkBreak">
-  /// Tells if the link source needs to know the link is broken.
-  /// </param>
-  void CleanupAttachNodes(ILinkSource source, ILinkTarget target, bool needsLinkBreak) {
+  void MaybeBreakLink(ILinkSource source, ILinkTarget target) {
     // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
     // they will be null'ed on the link destruction.
     AsyncCall.CallOnEndOfFrame(this, () => {
-      KASAPI.AttachNodesUtils.DropAttachNode(source.part, source.cfgAttachNodeName);
-      KASAPI.AttachNodesUtils.DropAttachNode(target.part, target.cfgAttachNodeName);
-      if (needsLinkBreak && isLinked) {
+      if (isLinked) {
         source.BreakCurrentLink(
             LinkActorType.Physics,
             moveFocusOnTarget: target.part.vessel == FlightGlobals.ActiveVessel);

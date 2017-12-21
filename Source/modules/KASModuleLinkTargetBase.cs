@@ -32,9 +32,9 @@ namespace KAS {
 // Next localization ID: #kasLOC_03004.
 public class KASModuleLinkTargetBase :
     // KSP parents.
-    PartModule, IModuleInfo,
+    AbstractLinkPeer, IModuleInfo,
     // KAS parents.
-    ILinkTarget, ILinkStateEventListener, IsLocalizableModule,
+    ILinkTarget, ILinkStateEventListener,
     // Syntax sugar parents.
     IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
 
@@ -53,126 +53,15 @@ public class KASModuleLinkTargetBase :
       description: "Title of the module to present in the editor details window.");
   #endregion
 
-  #region ILinkTarget config properties implementation
-  /// <inheritdoc/>
-  public string cfgLinkType { get { return linkType; } }
-
-  /// <inheritdoc/>
-  public string cfgAttachNodeName { get { return attachNodeName; } }
-  #endregion
-
   #region ILinkTarget properties implementation
   /// <inheritdoc/>
   public virtual ILinkSource linkSource {
-    get { return _linkSource; }
-    set {
-      if (_linkSource != value) {
-        var oldSource = _linkSource;
-        _linkSource = value;
-        if (value != null) {
-          persistedLinkSourcePartId = value.part.flightID;
-          // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
-          // a different scale, so do a transformation.
-          var sourceScale = value.nodeTransform.lossyScale;
-          var targetScale = nodeTransform.lossyScale;
-          var translateScale = new Vector3(sourceScale.x / targetScale.x,
-                                           sourceScale.y / targetScale.y,
-                                           sourceScale.z / targetScale.z);
-          physicalAnchorTransform.localPosition =
-              Vector3.Scale(value.targetPhysicalAnchor, translateScale);
-          linkState = LinkState.Linked;
-        } else {
-          persistedLinkSourcePartId = 0;
-          physicalAnchorTransform.localPosition = Vector3.zero;
-          linkState = LinkState.Available;
-        }
-        MaybeTriggerSourceChangeEvents(oldSource);
-      }
-    }
+    get { return otherPeer as ILinkSource; }
+    set { otherPeer = value; }
   }
-  ILinkSource _linkSource;
-
-  /// <inheritdoc/>
-  public uint linkSourcePartId { get { return persistedLinkSourcePartId; } }
-
-  /// <inheritdoc/>
-  public LinkState linkState {
-    get {
-      return linkStateMachine.currentState ?? persistedLinkState;
-    }
-    protected set {
-      var oldState = linkStateMachine.currentState;
-      linkStateMachine.currentState = value;
-      persistedLinkState = value;
-      OnStateChange(oldState);
-    }
-  }
-
-  /// <inheritdoc/>
-  public bool isLocked {
-    get { return linkState == LinkState.Locked; }
-    protected set {
-      if (value != isLocked) {
-        linkState = value ? LinkState.Locked : LinkState.Available;
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  public bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
-
-  /// <inheritdoc/>
-  public Transform nodeTransform { get; private set; }
-
-  /// <inheritdoc/>
-  public Transform physicalAnchorTransform { get; private set; }
-  #endregion
-
-  #region Persistent fields
-  /// <summary>Target link state in the last save action.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public LinkState persistedLinkState = LinkState.Available;
-
-  /// <summary>Source part flight ID.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public uint persistedLinkSourcePartId;
   #endregion
 
   #region Part's config fields
-  /// <summary>See <see cref="cfgLinkType"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string linkType = "";
-
-  /// <summary>See <see cref="cfgAttachNodeName"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string attachNodeName = "";
-
-  /// <summary>Name of object in the model that defines attach node.</summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindPartModelByPath(Part,string,Transform)"/> search
-  /// path. The path is looked starting from the part's model root.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string attachNodeTransformName = "";
-
-  /// <summary>Defines attach node position in the local units.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 attachNodePosition = Vector3.zero;
-
-  /// <summary>Defines attach node orientation in the local units.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 attachNodeOrientation = Vector3.up;
-
   /// <summary>
   /// Tells if compatible targets should highlight themselves when linking mode started.
   /// </summary>
@@ -229,22 +118,11 @@ public class KASModuleLinkTargetBase :
   }
   #endregion
 
-  /// <summary>State machine that controls the module update in different states.</summary>
-  /// <remarks>
-  /// The primary usage of the machine is managing the subscriptions to the different game events
-  /// and updating GUI. It's highly discouraged to use it for firing events or taking actions.
-  /// The initial state can be setup under different circumstances, and the associated events and
-  /// actions may get triggered in an inappropriate moment.
-  /// </remarks>
-  protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
-
-  #region PartModule overrides
+  #region AbstractLinkPeer overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    LocalizeModule();
-
-    linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
+  protected override void SetupStateMachine() {
+    linkStateMachine.onAfterTransition +=
+        (start, end) => HostedDebugLog.Fine(this, "Target state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks});
@@ -293,39 +171,38 @@ public class KASModuleLinkTargetBase :
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
-    InitNodeTransform();  // Kerbal models may skip OnLoad event.
-  }
+  protected override void OnPeerChange(ILinkPeer oldPeer) {
+    base.OnPeerChange(oldPeer);
 
-  /// <inheritdoc/>
-  public override void OnStartFinished(PartModule.StartState state) {
-    base.OnStartFinished(state);
-    if (persistedLinkState == LinkState.Linked) {
-      RestoreSource();
+    if (linkSource != null) {
+      //FIXME: adjustment job should be done by the source!
+      // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
+      // a different scale, so do a transformation.
+      var sourceScale = linkSource.nodeTransform.lossyScale;
+      var targetScale = nodeTransform.lossyScale;
+      var translateScale = new Vector3(sourceScale.x / targetScale.x,
+                                       sourceScale.y / targetScale.y,
+                                       sourceScale.z / targetScale.z);
+      physicalAnchorTransform.localPosition =
+          Vector3.Scale(linkSource .targetPhysicalAnchor, translateScale);
+      linkState = LinkState.Linked;
+    } else {
+      physicalAnchorTransform.localPosition = Vector3.zero;
+      linkState = LinkState.Available;
     }
-    linkStateMachine.currentState = persistedLinkState;
-    linkState = linkState;  // Trigger state updates.
-  }
 
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-    InitNodeTransform();
-  }
-  #endregion
-
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
-  }
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    linkStateMachine.currentState = null;  // Stop the machine to let the cleanup handlers working.
+    // Trigger events on the part.
+    var oldSource = oldPeer as ILinkSource;
+    if (linkStateMachine.currentState != null && oldSource != linkSource) {
+      var linkInfo = new KASEvents.LinkEvent(linkSource ?? oldSource, this);
+      if (linkSource != null) {
+        part.FindModulesImplementing<ILinkStateEventListener>()
+            .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
+      } else {
+        part.FindModulesImplementing<ILinkStateEventListener>()
+            .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
+      }
+    }
   }
   #endregion
 
@@ -398,32 +275,6 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region New inheritable methods
-  /// <summary>Triggers when the state has been assigned with a value.</summary>
-  /// <remarks>
-  /// This method triggers even when the new state doesn't differ from the old one. When it's
-  /// important to catch the transition, check for the <paramref name="oldState"/>.
-  /// </remarks>
-  /// <param name="oldState">
-  /// The state prior to the change. If it's <c>null</c>, then it's an initial state on the module
-  /// creation.
-  /// </param>
-  protected virtual void OnStateChange(LinkState? oldState) {
-  }
-
-  /// <summary>Finds linked source for the target, and updates the state.</summary>
-  /// <remarks>
-  /// Depending on the link mode this method may be called synchronously when the part is started or
-  /// asynchronously at the end of frame.
-  /// </remarks>
-  protected virtual void RestoreSource() {
-    linkSource = KASAPI.LinkUtils.FindLinkSourceFromTarget(this);
-    if (linkSource == null) {
-      HostedDebugLog.Error(
-          this, "Cannot restore link to the source part id={0} on the attach node {1}",
-          persistedLinkSourcePartId, attachNodeName);
-    }
-  }
-
   /// <summary>Verifies that part can link with the source.</summary>
   /// <param name="source">Source to check against.</param>
   /// <returns>
@@ -453,52 +304,6 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region Local untility methods
-  /// <summary>Triggesr link/unlink events when needed.</summary>
-  /// <param name="oldSource">Link source before the change.</param>
-  void MaybeTriggerSourceChangeEvents(ILinkSource oldSource) {
-    if (linkStateMachine.currentState != null && oldSource != _linkSource) {
-      var linkInfo = new KASEvents.LinkEvent(_linkSource ?? oldSource, this);
-      if (_linkSource != null) {
-        part.FindModulesImplementing<ILinkStateEventListener>()
-            .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
-      } else {
-        part.FindModulesImplementing<ILinkStateEventListener>()
-            .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
-      }
-    }
-  }
-
-  /// <summary>Finds the attach node transform or creates one.</summary>
-  void InitNodeTransform() {
-    var nodeName = attachNodeTransformName != ""
-        ? attachNodeTransformName
-        : attachNodeName + "-node";
-    nodeTransform = Hierarchy.FindPartModelByPath(part, nodeName);
-    if (nodeTransform == null) {
-      nodeTransform = new GameObject(nodeName).transform;
-      Hierarchy.MoveToParent(nodeTransform, Hierarchy.GetPartModelTransform(part),
-                             newPosition: attachNodePosition,
-                             newRotation: Quaternion.LookRotation(attachNodeOrientation));
-      HostedDebugLog.Fine(this, "Create attach node transform {0}: pos={1}, euler={2}",
-                          nodeTransform,
-                          DbgFormatter.Vector(nodeTransform.localPosition),
-                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
-    } else {
-      HostedDebugLog.Fine(this, "Use attach node transform {0}: pos={1}, euler={2}",
-                          nodeTransform,
-                          DbgFormatter.Vector(nodeTransform.localPosition),
-                          DbgFormatter.Vector(nodeTransform.localRotation.eulerAngles));
-    }
-
-    // Create a physical anchor node transform. It will become a part of the model.
-    const string PhysicalAnchorName = "physicalAnchor";
-    physicalAnchorTransform = nodeTransform.FindChild(PhysicalAnchorName);
-    if (physicalAnchorTransform == null) {
-      physicalAnchorTransform = new GameObject(PhysicalAnchorName).transform;
-      Hierarchy.MoveToParent(physicalAnchorTransform, nodeTransform);
-    }
-  }
-
   /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
   /// <param name="menuOwnerPart">The part for which the UI is created.</param>
   void OnPartGUIStart(Part menuOwnerPart) {

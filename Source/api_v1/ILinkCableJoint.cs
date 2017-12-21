@@ -32,8 +32,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <value>The length in meters.</value>
   /// <seealso cref="headRb"/>
   /// <seealso cref="realCableLength"/>
-  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
-  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
+  /// <seealso cref="ILinkPeer.physicalAnchorTransform"/>
   /// <seealso cref="StartPhysicalHead"/>
   float maxAllowedCableLength { get; }
 
@@ -47,8 +46,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </remarks>
   /// <value>The distance in meters.</value>
   /// <seealso cref="maxAllowedCableLength"/>
-  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
-  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
+  /// <seealso cref="ILinkPeer.physicalAnchorTransform"/>
   float realCableLength { get; }
 
   /// <summary>

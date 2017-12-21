@@ -770,13 +770,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
-  }
-  #endregion
-
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public virtual void FixedUpdate() {
