@@ -169,7 +169,7 @@ public class ILinkSourceExample1  {
   readonly Part part = null;
 
   #region HighlightLocked
-  // Highlights the part in RED if it it could potentionally link with the linking source, but
+  // Highlights the part in RED if it could potentionally link with the linking source, but
   // it was explicitly disallowed (e.g. due to the state model).
   public bool isLocked {
     get { return _isLocked; }

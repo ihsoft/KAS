@@ -316,7 +316,7 @@ public class KASModuleLinkSourceBase : PartModule,
     base.OnAwake();
     linkStateMachine = new SimpleStateMachine<LinkState>(strict: true);
     linkStateMachine.onAfterTransition +=
-        (start, end) => HostedDebugLog.Fine(this, "Link state changed: {0} => {1}", start, end);
+        (start, end) => HostedDebugLog.Fine(this, "Source state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.Linking, LinkState.RejectingLinks});

@@ -40,7 +40,8 @@ public interface IAttachNodesUtils {
   /// <summary>Adds an existing atatch node into the part.</summary>
   /// <remarks>
   /// If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
-  /// Normally, it's not expected to add an attach node into part that doesn't own it.
+  /// Normally, it's not expected to add an attach node into a part that doesn't own it. If the node
+  /// is alaready in the part, then this method does nothing.
   /// </remarks>
   /// <param name="part">The part to add the node into.</param>
   /// <param name="attachNode">The attach node to add.</param>

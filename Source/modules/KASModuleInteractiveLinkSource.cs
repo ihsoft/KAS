@@ -86,6 +86,11 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// Tells if there should be a UI menu item that allows switching the docked (coupled) mode of the
   /// joint.
   /// </summary>
+  /// <remarks>
+  /// This settings only affects the UI item in the part's menu. The actual changes are done in the
+  /// <see cref="ILinkJoint"/> module, and the mode change may be unsuccessful. In thhis case an
+  /// error message is presented on UI.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool allowChanginDockingMode;

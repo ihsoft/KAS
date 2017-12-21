@@ -504,6 +504,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   #region Inheritable fields and properties
   /// <summary>State of the winch connector.</summary>
+  /// <remarks>The main purpose of this enum is to simplify the winch state management.</remarks>
   protected enum WinchConnectorState {
     /// <summary>
     /// The connector is rigidly attached to the winch's body. The connector's model is a parent of

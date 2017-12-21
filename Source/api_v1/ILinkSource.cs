@@ -12,7 +12,7 @@ namespace KASAPIv1 {
 /// <remarks>
 /// <para>
 /// Source is the initiator of the link to the another part. It holds all the logic on making and
-/// maintaining the actual connection between two parts. The other end of the connection must be
+/// maintaining the actual connection between the two parts. The other end of the connection must be
 /// <see cref="ILinkTarget"/> which implements its own piece of the logic.
 /// </para>
 /// <para>
