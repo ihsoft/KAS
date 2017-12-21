@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.29</name>
+        <name>KSPDev_Utils.0.30</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -483,19 +483,6 @@
         <member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.ParseFromString(System.String,System.Type)">
             <inheritdoc/>
         </member>
-        <member name="T:KSPDev.ConfigUtils.StdPersistentGroups">
-            <summary>Group names that have special meaning.</summary>
-            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
-            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
-        </member>
-        <member name="F:KSPDev.ConfigUtils.StdPersistentGroups.Default">
-            <summary>A public group that can be saved/loaded on every game scene.</summary>
-            <remarks>
-            By the contract any caller can save/load this group at any time. If the class declares
-            persistent fields with a specific save/load logic then they need to have a group different
-            from the default.
-            </remarks>
-        </member>
         <member name="T:KSPDev.ConfigUtils.ConfigAccessor">
             <summary>A service class that simplifies accessing configuration files.</summary>
             <remarks>This class provides a lot of useful methods to deal with values in game's configuration
@@ -532,12 +519,19 @@
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsFromNode(ConfigNode,System.Type,System.Object,System.String)">
-            <summary>Reads values of the annotated persistent fields from a config node.</summary>
-            <param name="node">A config node to read data from.</param>
-            <param name="type">A type to load fields for.</param>
-            <param name="instance">An instance of type <paramref name="type"/>. If it's <c>null</c> then
-            only static fields will be loaded.</param>
-            <param name="group">A group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
+            <summary>Reads the values of the annotated persistent fields from a config node.</summary>
+            <param name="node">The config node to read data from.</param>
+            <param name="type">
+            The type to load fields for. In case of <paramref name="instance"/> is set and all the
+            fields, that need to be read, are not private, it's OK to provide just the type of the
+            instance. However, when reading the private and static fields, it's important to set the right
+            type. That is, the type which actually defines the fields. Otherwise, they won't be found.
+            </param>
+            <param name="instance">
+            The instance to look the fields in. If it's <c>null</c> then only the static fields will be
+            loaded.
+            </param>
+            <param name="group">The group tag (see <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/>).</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)">
@@ -835,18 +829,22 @@
             <param name="fieldAttr">An annotation of the field.</param>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.WriteToConfig(ConfigNode,System.Object)">
-            <summary>Writes field into a config node.</summary>
+            <summary>Writes the field into a config node.</summary>
             <remarks>
             This method is not expected to fail since converting any type into string is expected to
-            succeeed on any value.
+            successful on any value.
             </remarks>
-            <param name="node">A node to write state to.</param>
-            <param name="instance">An owner of the field. Can be <c>null</c> for static fields.</param>
+            <param name="node">The node to write the state to.</param>
+            <param name="instance">
+            The owner of the field. Can be <c>null</c> for the static fields.
+            </param>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.ReadFromConfig(ConfigNode,System.Object)">
-            <summary>Reads field from a config node.</summary>
-            <param name="node">A node to read state from.</param>
-            <param name="instance">An owner of the field. Can be <c>null</c> for static fields.</param>
+            <summary>Reads the field from a config node.</summary>
+            <param name="node">The node to read the state from.</param>
+            <param name="instance">
+            The owner of the field. It can be <c>null</c> for the static fields.
+            </param>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.SerializeCompoundFieldsToNode(System.Object)">
             <summary>Makes a config node from the compound type fields.</summary>
@@ -855,8 +853,26 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.DeserializeCompoundFieldsFromNode(ConfigNode,System.Object)">
             <summary>Sets a compound type field values from the config node.</summary>
-            <param name="node">Node to read values from.</param>
-            <param name="instance">Owner of the fields.</param>
+            <param name="node">The node to read values from. Cannot be <c>null</c>.</param>
+            <param name="instance">The owner of the fields. Cannot be <c>null</c>.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.ReadCollectionFromConfig(ConfigNode,System.Object)">
+            <summary>Restores a collection from the config node.</summary>
+            <remarks>This method never throws.</remarks>
+            <param name="node">The node to read the state from.</param>
+            <param name="instance">
+            The owner of the field. It can be <c>null</c> for the static fields.
+            </param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentField.ReadOrdinaryFromConfig(ConfigNode,System.Object)">
+            <summary>
+            Restores an ordinary value collection from the config node. The type can be compound.
+            </summary>
+            <remarks>This method never throws.</remarks>
+            <param name="node">The node to read the state from.</param>
+            <param name="instance">
+            The owner of the field. It can be <c>null</c> for the static fields.
+            </param>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
              <summary>A simple attribute for the fields that need (de)serialization.</summary>
@@ -1059,6 +1075,29 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.KspTypesProto.ParseFromString(System.String,System.Type)">
             <inheritdoc/>
+        </member>
+        <member name="T:StdPersistentGroups">
+            <summary>Group names that have special meaning.</summary>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+        </member>
+        <member name="F:StdPersistentGroups.Default">
+            <summary>A public group that can be saved/loaded on every game scene.</summary>
+            <remarks>
+            By the contract any caller can save/load this group at any time. If the class declares the
+            persistent fields with a specific save/load logic, then they need to have a group different
+            from the default.
+            </remarks>
+        </member>
+        <member name="F:StdPersistentGroups.PartPersistant">
+            <summary>
+            A public group that designates the fields that are saved/loaded during the vessel persistense.
+            </summary>
+            <remarks>
+            The fields of this group are expected to be loaded/saved from the related <c>PartModule</c>
+            methods: <c>OnSave</c> and <c>OnLoad</c>. Dealing with them outside of this logic is highly
+            discouraged.
+            </remarks>
         </member>
         <member name="T:KSPDev.Extensions.DictExtensions">
             <summary>Helper extensions for the generic dictionary container.</summary>
@@ -3884,8 +3923,7 @@
         </member>
         <member name="M:KSPDev.LogUtils.DebugEx.Fine(System.String,System.Object[])">
             <summary>
-            Logs a formatted INFO message with a host identifier when the <i>verbose</i> logging mode is
-            enabled.
+            Logs a formatted INFO message when the <i>verbose</i> logging mode is enabled.
             </summary>
             <inheritdoc cref="M:KSPDev.LogUtils.DebugEx.Info(System.String,System.Object[])"/>
         </member>
@@ -3912,17 +3950,20 @@
             <summary>Helper method to make a user friendly object name for the logs.</summary>
             <remarks>
             This method is much more intelligent than a regular <c>ToString()</c>, it can detect some
-            common types and give a more context on them while keeping the output short. The currently
+            common types and give more context on them while keeping the output short. The currently
             supported object types are:
             <list type="bullet">
             <item>The primitive types and strings are returned as is.</item>
-            <item><see cref="T:Part"/>. The string will have a part ID.</item>
-            <item><see cref="T:PartModule"/>. The string will have a part ID and a module index.</item>
+            <item><see cref="T:Part"/>. The string will have the part ID.</item>
+            <item><see cref="T:PartModule"/>. The string will have a part ID and the module index.</item>
             <item>
-            <see cref="T:UnityEngine.Component"/>. The string will have a full path in the game objects hirerachy.
+            <see cref="T:UnityEngine.Component"/>. The string will have the full path in the game objects hirerachy.
             </item>
             </list>
-            <para>The other types are stringified via a regular <c>ToString()</c> call.</para>
+            <para>
+            The other types are stringified via a regular <c>ToString()</c> call, but the value is
+            prefixed with the type name.
+            </para>
             </remarks>
             <param name="obj">The object to stringify. It can be <c>null</c>.</param>
             <returns>A human friendly string or the original object.</returns>
@@ -4028,12 +4069,38 @@
             </summary>
             <remarks>
             The object's "look" direction is a <see cref="P:UnityEngine.Transform.forward"/> direction. The resulted
-            <see cref="P:UnityEngine.Transform.up"/> direction of the source will be the same as on the target.
+            <see cref="P:UnityEngine.Transform.up"/> direction of the source will be the opposite to the target.
             </remarks>
             <param name="source">The node to align.</param>
             <param name="sourceChild">The child node of the source to use as the align point.</param>
             <param name="target">The target node to align with.</param>
             <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
+        </member>
+        <member name="M:KSPDev.ModelUtils.AlignTransforms.SnapAlignVessel(Vessel,UnityEngine.Transform,UnityEngine.Transform)">
+            <summary>
+            Aligns the vessel so that its node is located <i>against</i> the target's node. I.e. they are
+            "looking" at the each other.
+            </summary>
+            <remarks>
+            This method only does the positioning, and it ignores any physical properties. To avoid the
+            physical consequences, the caller must take care of the physical differences (e.g. angular or
+            linear speed).
+            </remarks>
+            <param name="vessel">The vessel to align.</param>
+            <param name="vesselNode">The node at the vessel to align the target against.</param>
+            <param name="targetNode">The node at the target to allign the vessel against.</param>
+            <seealso cref="M:KSPDev.ModelUtils.AlignTransforms.PlaceVessel(Vessel,UnityEngine.Vector3,UnityEngine.Quaternion,Vessel)"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.AlignTransforms.PlaceVessel(Vessel,UnityEngine.Vector3,UnityEngine.Quaternion,Vessel)">
+            <summary>Places the vessel at the new position and resets the momentum on it.</summary>
+            <remarks>If the vessel had any angular velocity, it will be reset to zero.</remarks>
+            <param name="movingVessel">The vessel to place.</param>
+            <param name="newPosition">The new position of the vessel.</param>
+            <param name="newRotation">The new rotation of the vessel.</param>
+            <param name="refVessel">
+            The vessel to alignt the velocity with. If it's <c>null</c>, then the velocity on the moving
+            vessel will just be zeroed.
+            </param>
         </member>
         <member name="T:KSPDev.ModelUtils.Colliders">
             <summary>Various tools to deal with procedural colliders.</summary>
@@ -4714,7 +4781,7 @@
             <seealso href="https://docs.unity3d.com/ScriptReference/WaitForFixedUpdate.html">
             Unity 3D: WaitForFixedUpdate</seealso>
         </member>
-        <member name="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)">
+        <member name="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})">
             <summary>
             Delays execution until the specified condition is reached. Waiting is limited by the specified
             number of fixed frame updates.
@@ -4743,7 +4810,6 @@
             least once, and teh first call happens immediately. The argument tells how many frames the
             method was waiting so far. For the very first call it's, obviously, zero.
             </param>
-            <param name="traceUpdates">When <c>true</c> every wiating cycle will be logged.</param>
             <returns>Enumerator that can be used as coroutine target.</returns>
             <example>
             <code><![CDATA[
@@ -4776,13 +4842,13 @@
             ]]></code>
             <para>If you adjust <c>count</c> to <c>11</c> then the last message will be "Failure!".</para>
             </example>
-            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.AsyncWaitForPhysics(System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.AsyncWaitForPhysics(System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})"/>
             <seealso href="https://docs.unity3d.com/Manual/Coroutines.html">Unity 3D: Coroutines</seealso>
             <seealso href="https://docs.unity3d.com/ScriptReference/WaitForFixedUpdate.html">
             Unity 3D: WaitForFixedUpdate</seealso>
         </member>
-        <member name="M:KSPDev.ProcessingUtils.AsyncCall.AsyncWaitForPhysics(System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)">
-            <summary>Async version of <see cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)"/>.</summary>
+        <member name="M:KSPDev.ProcessingUtils.AsyncCall.AsyncWaitForPhysics(System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})">
+            <summary>Async version of <see cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})"/>.</summary>
             <param name="maxFrames">Number of fixed frame updates to wait before giving up.</param>
             <param name="waitUntilFn">
             State checking function. It should return <c>true</c> once target state is reached. The very
@@ -4798,9 +4864,8 @@
             least once, and teh first call happens immediately. The argument tells how many frames the
             method was waiting so far. For the very first call it's, obviously, zero.
             </param>
-            <param name="traceUpdates">When <c>true</c> every wiating cycle will be logged.</param>
             <returns>Enumerator that can be used as a coroutine target.</returns>
-            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})"/>
             <example>
             This method is useful when synchronous wait is needed within a coroutine. Instead of
             implementing own loops just return the waiting enumerator. The code below will log 10 waiting
@@ -4821,7 +4886,7 @@
             }
             ]]></code>
             </example>
-            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32},System.Boolean)"/>
+            <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})"/>
         </member>
         <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1">
             <summary>

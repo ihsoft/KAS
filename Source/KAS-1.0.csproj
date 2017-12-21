@@ -56,6 +56,9 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="KSPDev_Utils.0.30">
+      <HintPath>..\Binaries\KSPDev_Utils.0.30.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
     </Reference>
@@ -136,12 +139,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Unity3D_HelpIndex.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\KSPDev\Sources\Utils\KSPDev_Utils.csproj">
-      <Project>{01a7b80c-e283-4651-b879-3cc5efaaa1a4}</Project>
-      <Name>KSPDev_Utils</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
