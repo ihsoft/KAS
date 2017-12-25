@@ -87,12 +87,14 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     Simple,
     /// <summary>Pipe's end is a model that is dynamically created.</summary>
     /// <remarks>
+    /// <para>
     /// A sphere mesh is rendered at the point where the pipe's mesh touches the target part's
     /// attach node. The sphere diameter can be adjusted, and if it's equal or greater than the
     /// diameter of the pipe then the joint looks smoother.
+    /// </para>
     /// <para>
     /// The actual connection point for the pipe mesh can be elevated over the target attach node.
-    /// In this case a simple cylinder, the "arm", will be rendered between the part and the joint
+    /// In this case a simple cylinder, the "arm", can be rendered between the part and the joint
     /// sphere. The diameter and the height of the arm can be adjusted.
     /// </para>
     /// </remarks>
@@ -642,7 +644,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
         sphere.name = PipeJointTransformName;
         sphere.transform.rotation = Quaternion.LookRotation(Vector3.back);
         RescaleTextureToLength(sphere, samplesPerMeter: config.textureSamplesPerMeter);
-        if (config.sphereOffset > float.Epsilon) {
+        if (Mathf.Abs(config.sphereOffset) > float.Epsilon) {
           sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
           if (config.armDiameter > float.Epsilon) {
             var arm = Meshes.CreateCylinder(
