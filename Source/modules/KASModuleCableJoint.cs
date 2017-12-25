@@ -129,9 +129,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     rb.mass = (linkSource.part.mass + linkTarget.part.mass) / 2;
     rb.useGravity = false;
 
-    // Temporarily align to the source to have the spring joint remembered zero length.
-    jointObj.transform.parent = linkSource.physicalAnchorTransform;
-    jointObj.transform.localPosition = Vector3.zero;
     var cableJoint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(cableJoint);
     KASAPI.JointUtils.SetupDistanceJoint(cableJoint,
@@ -146,8 +143,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     SetBreakForces(cableJoint);
     
     // Move plug head to the target and adhere it there at the attach node transform.
-    jointObj.transform.parent = linkTarget.physicalAnchorTransform;
-    jointObj.transform.localPosition = Vector3.zero;
     var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(fixedJoint);
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
@@ -158,7 +153,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
         linkTarget.physicalAnchorTransform.position);
     SetBreakForces(fixedJoint);
-    jointObj.transform.parent = jointObj.transform;
 
     // The order of adding the joints is important!
     customJoints = new List<ConfigurableJoint>();
