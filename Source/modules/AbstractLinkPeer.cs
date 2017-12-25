@@ -147,23 +147,6 @@ public abstract class AbstractLinkPeer : PartModule,
   Transform _nodeTransform;
 
   /// <inheritdoc/>
-  public Transform physicalAnchorTransform {
-    get {
-      if (_physicalAnchorTransform == null) {
-        var anchorName = "physicalAnchor" + part.Modules.IndexOf(this);
-        _physicalAnchorTransform = Hierarchy.FindPartModelByPath(part, anchorName);
-        if (_physicalAnchorTransform == null) {
-          _physicalAnchorTransform = new GameObject(anchorName).transform;
-          Hierarchy.MoveToParent(
-              _physicalAnchorTransform, nodeTransform, newPosition: Vector3.zero);
-        }
-      }
-      return _physicalAnchorTransform;
-    }
-  }
-  Transform _physicalAnchorTransform;
-
-  /// <inheritdoc/>
   public AttachNode couplingNode {
     get; private set;
   }

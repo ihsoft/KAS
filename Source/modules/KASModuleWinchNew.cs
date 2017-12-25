@@ -650,8 +650,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchConnectorState.Locked,
         enterHandler: oldState => {
           connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
-          AlignTransforms.SnapAlign(
-              connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
+          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, nodeTransform);
           SetCableLength(0);
           if (oldState.HasValue) {  // Skip when restoring state.
             sndConnectorLock.Play();
@@ -661,8 +660,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchConnectorState.Docked,
         enterHandler: oldState => {
           connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
-          AlignTransforms.SnapAlign(
-              connectorModelObj, connectorCableAnchor, physicalAnchorTransform);
+          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, nodeTransform);
           SetCableLength(0);
 
           // Align the docking part to the nodes if it's a separate vessel.
@@ -680,7 +678,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
           TurnConnectorPhysics(true);
-          linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
+          linkRenderer.StartRenderer(nodeTransform, connectorCableAnchor);
         },
         leaveHandler: newState => {
           TurnConnectorPhysics(false);
@@ -694,7 +692,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           PartModel.UpdateHighlighters(linkTarget.part);
           AlignTransforms.SnapAlign(
               connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
-          linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
+          linkRenderer.StartRenderer(nodeTransform, connectorCableAnchor);
         },
         leaveHandler: newState => {
           var oldParent = connectorModelObj.parent;
@@ -725,17 +723,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         connectorModelObj.position = world.pos;
         connectorModelObj.rotation = world.rot;
       }
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnStartFinished(PartModule.StartState state) {
-    base.OnStartFinished(state);
-
-    // The renderer will be started anyways in the state machine, which starts when the physics
-    // kicks in. We start it here only to improve the visual representation during the loading.
-    if (!persistedIsConnectorLocked) {
-      linkRenderer.StartRenderer(physicalAnchorTransform, connectorCableAnchor);
     }
   }
 
@@ -793,6 +780,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           ? sndPathGrabConnector
           : sndPathPlugConnector);
     }
+    linkRenderer.StartRenderer(nodeTransform, connectorCableAnchor);
   }
 
   /// <inheritdoc/>
@@ -804,6 +792,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
     base.LogicalUnlink(actorType);
+    //FIXME: Should be Locked if extrenally broken from Docked.
     connectorState = WinchConnectorState.Deployed;
   }
 
@@ -817,6 +806,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void PhysicaUnlink() {
     SetCableLength(cableJoint.realCableLength);
     base.PhysicaUnlink();
+  }
+
+  /// <inheritdoc/>
+  protected override void RestoreOtherPeer() {
+    base.RestoreOtherPeer();
+    if (linkTarget != null) {
+      // Only do it for the visual improvements, since the base class will attach the renderer to
+      // the node, instead of the cable attach possition. The state machine will get it fixed, but
+      // it'll only happen when the physics is started.
+      linkRenderer.StartRenderer(nodeTransform, connectorCableAnchor);
+    }
   }
   #endregion
 

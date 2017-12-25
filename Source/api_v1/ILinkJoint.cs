@@ -96,19 +96,13 @@ public interface ILinkJoint {
   void SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
-  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
-  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
-  /// calculations.
-  /// </remarks>
-  /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the lmits against.</param>
+  /// <param name="source">The possible source of the link.</param>
+  /// <param name="target">The possible target of the link.</param>
   /// <returns>
   /// An empty array if the link can be created, or a list of user friendly errors otherwise.
   /// </returns>
-  /// <seealso cref="ILinkSource"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  string[] CheckConstraints(ILinkSource source, Transform targetTransform);
+  string[] CheckConstraints(ILinkSource source, ILinkTarget target);
 }
 
 }  // namespace

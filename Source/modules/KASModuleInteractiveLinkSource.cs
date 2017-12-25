@@ -312,7 +312,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
               linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform)
           };
           linkStatusErrors = linkStatusErrors
-              .Concat(linkJoint.CheckConstraints(this, targetCandidate.nodeTransform))
+              .Concat(linkJoint.CheckConstraints(this, targetCandidate))
               .Where(x => x != null).ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;

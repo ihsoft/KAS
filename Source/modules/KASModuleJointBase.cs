@@ -176,6 +176,7 @@ public class KASModuleJointBase : PartModule,
   /// Maximum allowed angle between the attach node normal and the link at the source part.
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
+  /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int sourceLinkAngleLimit;
@@ -184,6 +185,7 @@ public class KASModuleJointBase : PartModule,
   /// Maximum allowed angle between the attach node normal and the link at the target part.
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
+  /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public int targetLinkAngleLimit;
@@ -192,6 +194,7 @@ public class KASModuleJointBase : PartModule,
   /// <remarks>
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
+  /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float minLinkLength;
@@ -200,9 +203,28 @@ public class KASModuleJointBase : PartModule,
   /// <remarks>
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
+  /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float maxLinkLength;
+
+  /// <summary>
+  /// Offset of the physical anchor at the source part relative to its link peer's node.
+  /// </summary>
+  /// <seealso cref="ILinkPeer.nodeTransform"/>
+  /// <seealso cref="CheckConstraints"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public Vector3 anchorAtSource = Vector3.zero;
+
+  /// <summary>
+  /// Offset of the physical anchor at the target part relative to its link peer's node.
+  /// </summary>
+  /// <seealso cref="ILinkPeer.nodeTransform"/>
+  /// <seealso cref="CheckConstraints"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public Vector3 anchorAtTarget = Vector3.zero;
   #endregion
 
   #region CFG/persistent fields
@@ -388,15 +410,15 @@ public class KASModuleJointBase : PartModule,
           this, "Cannot link the joint which is already linked to: {0}", linkTarget);
       return false;
     }
-    var errors = CheckConstraints(source, target.physicalAnchorTransform);
+    var errors = CheckConstraints(source, target);
     if (errors.Length > 0) {
       HostedDebugLog.Error(this, "Cannot create joint:\n{0}", DbgFormatter.C2S(errors));
       return false;
     }
     linkSource = source;
     linkTarget = target;
-    originalLength = Vector3.Distance(source.physicalAnchorTransform.position,
-                                      target.physicalAnchorTransform.position);
+    originalLength = Vector3.Distance(
+        GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
     isLinked = true;
     if (coupleOnLinkMode) {
       CoupleParts();
@@ -433,11 +455,11 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual string[] CheckConstraints(ILinkSource source, Transform targetTransform) {
+  public virtual string[] CheckConstraints(ILinkSource source, ILinkTarget target) {
     var errors = new[] {
-        CheckLengthLimit(source, targetTransform),
-        CheckAngleLimitAtSource(source, targetTransform),
-        CheckAngleLimitAtTarget(source, targetTransform),
+        CheckLengthLimit(source, target),
+        CheckAngleLimitAtSource(source, target),
+        CheckAngleLimitAtTarget(source, target),
     };
     return errors.Where(x => x != null).ToArray();
   }
@@ -602,6 +624,27 @@ public class KASModuleJointBase : PartModule,
       customJoints = null;
     }
   }
+
+  /// <summary>Returns an anchor for the physical joint at the target part.</summary>
+  /// <remarks>
+  /// The anchor will be calculated in the source's part scale, and the traget's rescale factor will
+  /// be ignored.
+  /// </remarks>
+  /// <param name="source">The source of the link.</param>
+  /// <param name="target">The target of the link.</param>
+  /// <returns>The position in the world coordinates.</returns>
+  protected Vector3 GetTargetPhysicalAnchor(ILinkSource source, ILinkTarget target) {
+    return target.nodeTransform.TransformPoint(
+        anchorAtTarget * source.part.rescaleFactor / target.part.rescaleFactor);
+  }
+
+  /// <summary>Returns an anchor for the physical joint at the source part.</summary>
+  /// <remarks>The anchor will be affected by teh source part rescale factor.</remarks>
+  /// <param name="source">The source of the link.</param>
+  /// <returns>The position in the world coordinates.</returns>
+  protected Vector3 GetSourcePhysicalAnchor(ILinkSource source) {
+    return source.nodeTransform.TransformPoint(anchorAtSource);
+  }
   #endregion
 
   #region Utility methods
@@ -621,18 +664,15 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <summary>Checks if the link's length is within the limits.</summary>
-  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
-  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
-  /// calculations.
-  /// </remarks>
-  /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the length against.</param>
-  /// <returns>An error message if link is over limit or <c>null</c> otherwise.</returns>
-  protected string CheckLengthLimit(ILinkSource source, Transform targetTransform) {
+  /// <remarks>This method takes into consideration the anchor settings.</remarks>
+  /// <param name="source">The possible source of the link.</param>
+  /// <param name="target">The possible target of the link.</param>
+  /// <returns>An error message if link length is over limit or <c>null</c> otherwise.</returns>
+  /// <seealso cref="anchorAtSource"/>
+  /// <seealso cref="anchorAtTarget"/>
+  protected string CheckLengthLimit(ILinkSource source, ILinkTarget target) {
     var length = Vector3.Distance(
-        source.physicalAnchorTransform.position,
-        targetTransform.TransformPoint(source.targetPhysicalAnchor));
+        GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
     if (maxLinkLength > 0 && length > maxLinkLength) {
       return MaxLengthLimitReachedMsg.Format(length, maxLinkLength);
     }
@@ -643,16 +683,14 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <summary>Checks if the link's angle at the source joint is within the limits.</summary>
-  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
-  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
-  /// calculations.
-  /// </remarks>
-  /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <remarks>This method takes into consideration the anchor settings.</remarks>
+  /// <param name="source">The possible source of the link.</param>
+  /// <param name="target">The possible target of the link.</param>
   /// <returns>An error message if angle is over limit or <c>null</c> otherwise.</returns>
-  protected string CheckAngleLimitAtSource(ILinkSource source, Transform targetTransform) {
-    var linkVector = targetTransform.position - source.nodeTransform.position;
+  /// <seealso cref="anchorAtSource"/>
+  /// <seealso cref="anchorAtTarget"/>
+  protected string CheckAngleLimitAtSource(ILinkSource source, ILinkTarget target) {
+    var linkVector = GetTargetPhysicalAnchor(source, target) - GetSourcePhysicalAnchor(source);
     var angle = Vector3.Angle(source.nodeTransform.rotation * Vector3.forward, linkVector);
     return sourceLinkAngleLimit > 0 && angle > sourceLinkAngleLimit
         ? SourceNodeAngleLimitReachedMsg.Format(angle, sourceLinkAngleLimit)
@@ -660,17 +698,15 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <summary>Checks if the link's angle at the target joint is within the limits.</summary>
-  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkPeer.nodeTransform"/> on the target. For this reason the source's
-  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
-  /// calculations.
-  /// </remarks>
-  /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the angle against.</param>
+  /// <remarks>This method takes into consideration the anchor settings.</remarks>
+  /// <param name="source">The possible source of the link.</param>
+  /// <param name="target">The possible target of the link.</param>
   /// <returns>An error message if the angle is over limit or <c>null</c> otherwise.</returns>
-  protected string CheckAngleLimitAtTarget(ILinkSource source, Transform targetTransform) {
-    var linkVector = source.nodeTransform.position - targetTransform.position;
-    var angle = Vector3.Angle(targetTransform.rotation * Vector3.forward, linkVector);
+  /// <seealso cref="anchorAtSource"/>
+  /// <seealso cref="anchorAtTarget"/>
+  protected string CheckAngleLimitAtTarget(ILinkSource source, ILinkTarget target) {
+    var linkVector = GetSourcePhysicalAnchor(source) - GetTargetPhysicalAnchor(source, target);
+    var angle = Vector3.Angle(target.nodeTransform.rotation * Vector3.forward, linkVector);
     return targetLinkAngleLimit > 0 && angle > targetLinkAngleLimit
         ? TargetNodeAngleLimitReachedMsg.Format(angle, targetLinkAngleLimit)
         : null;

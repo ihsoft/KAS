@@ -55,17 +55,6 @@ public interface ILinkPeer {
   // FIXME: take into account the rescale factor
   Transform nodeTransform { get; }
 
-  /// <summary>Transform of the physical joint anchor at the node.</summary>
-  /// <remarks>
-  /// Normally, the anchor must be a child of the <see cref="ILinkPeer.nodeTransform"/>. However,
-  /// when the logical and the physical positions are the same, this property can return just a
-  /// <see cref="ILinkPeer.nodeTransform"/>.
-  /// </remarks>
-  /// <value>Game object transformation. It's never <c>null</c>.</value>
-  /// <seealso cref="ILinkPeer.nodeTransform"/>
-  // FIXME: take into account the rescale factor
-  Transform physicalAnchorTransform { get; }
-
   /// <summary>
   /// Attach node to use when the peers need to couple into a single parts hierarchy.
   /// </summary>

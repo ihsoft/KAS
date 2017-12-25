@@ -32,7 +32,6 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <value>The length in meters.</value>
   /// <seealso cref="headRb"/>
   /// <seealso cref="realCableLength"/>
-  /// <seealso cref="ILinkPeer.physicalAnchorTransform"/>
   /// <seealso cref="StartPhysicalHead"/>
   float maxAllowedCableLength { get; }
 
@@ -46,7 +45,6 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </remarks>
   /// <value>The distance in meters.</value>
   /// <seealso cref="maxAllowedCableLength"/>
-  /// <seealso cref="ILinkPeer.physicalAnchorTransform"/>
   float realCableLength { get; }
 
   /// <summary>
@@ -102,7 +100,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <item>
   /// <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
   /// less than the current limit. When the real distance is greater than the limit, it means the
-  /// cable is under a strain due to the physical forces, and nothing will be change to not trigger
+  /// cable is under a strain due to the physical forces, and nothing will be changed to not trigger
   /// extra effects. If the joint is not existing at the moment of the call, then the real distance
   /// is assumed to be <c>0</c>.
   /// </item>

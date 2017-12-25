@@ -83,7 +83,6 @@ namespace KASAPIv1 {
 /// </example>
 /// <example><code source="Examples/ILinkSource-Examples.cs" region="StateModel"/></example>
 public interface ILinkSource : ILinkPeer {
-
   /// <summary>Defines to what parts this source can link to.</summary>
   /// <value>The linking mode.</value>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
@@ -94,24 +93,6 @@ public interface ILinkSource : ILinkPeer {
   /// <remarks>It only defined for an established link.</remarks>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
   ILinkTarget linkTarget { get; }
-
-  /// <summary>Position offset of the physical joint anchor at the target.</summary>
-  /// <remarks>
-  /// <para>
-  /// Due to the model layout, the anchor for the PhysX joint at the part may not match its
-  /// <see cref="ILinkPeer.nodeTransform"/>. If this is the case, this property gives the
-  /// adjustment.
-  /// </para>
-  /// <para>
-  /// It only makes sense when the state is <seealso cref="LinkState.Linking"/>. Once the link is
-  /// established, the target is responsible to report the correct anchor.
-  /// </para>
-  /// </remarks>
-  /// <value>
-  /// The position in the local space of the target's <see cref="ILinkPeer.nodeTransform"/>.
-  /// </value>
-  /// <seealso cref="ILinkPeer"/>
-  Vector3 targetPhysicalAnchor { get; }
 
   /// <summary>Joint module that manages a physical link.</summary>
   /// <value>The physical joint module on the part.</value>

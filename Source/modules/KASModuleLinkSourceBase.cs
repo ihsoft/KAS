@@ -124,11 +124,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public Vector3 targetPhysicalAnchor {
-    get { return physicalAnchorAtTarget; }
-  }
-
-  /// <inheritdoc/>
   /// <seealso cref="jointName"/>
   public ILinkJoint linkJoint { get; private set; }
 
@@ -156,16 +151,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkRendererName = "";
-
-  /// <summary>See <see cref="ILinkPeer.physicalAnchorTransform"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 physicalAnchorAtSource;
-
-  /// <summary>See <see cref="targetPhysicalAnchor"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 physicalAnchorAtTarget;
 
   /// <summary>Name of the joint to use with this source.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -234,7 +219,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   protected override void RestoreOtherPeer() {
     base.RestoreOtherPeer();
     if (linkTarget != null) {
-      linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
+      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     } else {
       ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
     }
@@ -265,12 +250,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     if (linkRenderer == null) {
       HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
     }
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-    physicalAnchorTransform.localPosition = physicalAnchorAtSource;
   }
   #endregion
 
@@ -397,7 +376,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     };
     errors = errors
         .Where(x => x != null)
-        .Concat(linkJoint.CheckConstraints(this, target.nodeTransform))
+        .Concat(linkJoint.CheckConstraints(this, target))
         .ToArray();
     if (errors.Length > 0) {
       if (reportToGUI || reportToLog) {
@@ -468,7 +447,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     otherPeer = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
-    linkRenderer.StartRenderer(physicalAnchorTransform, linkTarget.physicalAnchorTransform);
+    linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));

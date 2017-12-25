@@ -170,23 +170,7 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   protected override void OnPeerChange(ILinkPeer oldPeer) {
     base.OnPeerChange(oldPeer);
-
-    if (linkSource != null) {
-      //FIXME: adjustment job should be done by the source!
-      // targetPhysicalAnchor is set in the sources's model scale. The target's module can have
-      // a different scale, so do a transformation.
-      var sourceScale = linkSource.nodeTransform.lossyScale;
-      var targetScale = nodeTransform.lossyScale;
-      var translateScale = new Vector3(sourceScale.x / targetScale.x,
-                                       sourceScale.y / targetScale.y,
-                                       sourceScale.z / targetScale.z);
-      physicalAnchorTransform.localPosition =
-          Vector3.Scale(linkSource .targetPhysicalAnchor, translateScale);
-      linkState = LinkState.Linked;
-    } else {
-      physicalAnchorTransform.localPosition = Vector3.zero;
-      linkState = LinkState.Available;
-    }
+    linkState = linkSource != null ? LinkState.Linked : LinkState.Available;
 
     // Trigger events on the part.
     var oldSource = oldPeer as ILinkSource;

@@ -124,7 +124,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistantJoint(linkSource, linkTarget.part.Rigidbody, linkTarget.physicalAnchorTransform);
+    CreateDistantJoint(linkSource, linkTarget.part.Rigidbody,
+                       GetTargetPhysicalAnchor(linkSource, linkTarget));
   }
 
   /// <inheritdoc/>
@@ -152,7 +153,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
-    CreateDistantJoint(source, headRb, headObjAnchor);
+    CreateDistantJoint(source, headRb, headObjAnchor.position);
     SetCableLength(float.NegativeInfinity);
   }
 
@@ -200,8 +201,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <remarks>It sets the maximum cable length to the persisted value. Even if it's zero!</remarks>
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
-  /// <param name="tgtAnchor">The anchor transform at the physical object.</param>
-  void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Transform tgtAnchor) {
+  /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
+  void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
     cableJoint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(cableJoint);
     KASAPI.JointUtils.SetupDistanceJoint(
@@ -210,9 +211,9 @@ public class KASModuleCableJointBase : KASModuleJointBase,
         maxDistance: persistedCableLength);
     cableJoint.autoConfigureConnectedAnchor = false;
     cableJoint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
-        source.physicalAnchorTransform.position);
+        GetSourcePhysicalAnchor(source));
     cableJoint.connectedBody = tgtRb;
-    cableJoint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor.position);
+    cableJoint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
     SetBreakForces(cableJoint);
 
     customJoints = new List<ConfigurableJoint>();
