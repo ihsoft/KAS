@@ -260,19 +260,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   protected const string PipeJointTransformName = "$pipeAttach";
   #endregion
 
-  /// <summary>
-  /// Name of the group for the extra settings from the part's config. The values will be loaded via
-  /// <c>ConfigAccessor</c>.
-  /// </summary>
-  /// <remarks>
-  /// The descendants may declare their own persistent fields in this group, and they will be
-  /// automatically loaded. The only requirement is that these fields must be declared public.
-  /// </remarks>
-  /// <seealso cref="LoadPartConfig"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
-  /// <example><code source="Examples/KASModulePipeRenderer-Examples.cs" region="KASModulePipeRendererFieldsExample"/></example>
-  protected const string PartConfigGroup = "partConfig";
-
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
   /// <seealso cref="KASModulePipeRenderer"/>
@@ -460,13 +447,13 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <summary>Configuration of the source joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("sourceJoint", group = PartConfigGroup)]
+  [PersistentField("sourceJoint", group = StdPersistentGroups.PartPersistant)]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("targetJoint", group = PartConfigGroup)]
+  [PersistentField("targetJoint", group = StdPersistentGroups.PartPersistant)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
@@ -682,14 +669,16 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   
   /// <summary>Loads the dynamic properties from the part's config.</summary>
   /// <remarks>
+  /// <para>
   /// It triggers every time when a new instance of the part instantiates. Use it to update/load
   /// the settings that cannot be loaded via normal KSP means, like the custom types for the
   /// <c>PersistentField</c> attributed fields.
+  /// </para>
   /// <para>
   /// When a decendant class needs the custom persistent fields loaded, there is no need to override
-  /// this method. It's enough to declare the fields as public and assign them to the persistent
-  /// group <see cref="PartConfigGroup"/>. The base implementation will load all the fields in this
-  /// group for all the descendants in the chain.
+  /// this method. It's enough to declare the fields as public and assign them to the standard
+  /// persistent group <see cref="StdPersistentGroups.PartPersistant"/>. The base implementation
+  /// will load all the fields in this group for all the descendants in the chain.
   /// </para>
   /// </remarks>
   /// <param name="moduleNode">Config node to get the values from.</param>
@@ -697,7 +686,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
   protected virtual void LoadPartConfig(ConfigNode moduleNode) {
     // This will load all the public fields of the descendant types as well.
-    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this, group: PartConfigGroup);
+    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this,
+                                      group: StdPersistentGroups.PartPersistant);
     // For the procedural and simple modes use the hardcoded model names.
     if (sourceJointConfig.type != PipeEndType.PrefabModel) {
       sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
