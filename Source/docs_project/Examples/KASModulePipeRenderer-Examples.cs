@@ -12,7 +12,7 @@ public class KASModulePipeRendererFieldsExample : KASModulePipeRenderer {
   // This field will be automatically loaded by the KASModulePipeRenderer implementation.
   // The path in the part's config will be:
   //   PART/MODULE[@name="KASModulePipeRendererFieldsExample"]/myField
-  [PersistentField("myField", group = PartConfigGroup)]
+  [PersistentField("myField", group = StdPersistentGroups.PartPersistant)]
   public string myCustomStringFromPartsConfig = "";
 }
 #endregion
