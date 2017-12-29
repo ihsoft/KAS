@@ -61,28 +61,30 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <summary>Name of the attach node for the inbound coupling operations.</summary>
   /// <remarks>
+  /// <para>
   /// If the name is existing on the part, then it will be used. Otherwise, it will be assumed that
   /// the node needs to be created/removed automatically as needed.
+  /// </para>
+  /// <para>Special case is the empty name. It means the peer doesn't support coupling.</para>
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="couplingNodeDef"/>
-  /// FIXME: can be empty
   [KSPField]
   public string couplingNodeName = "";
   #endregion
 
   #region Persistent fields
   /// <summary>The link state in the last save action.</summary>
+  /// <remarks>Normally, the base class handles it.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <seealso cref="linkState"/>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
 
   /// <summary>The other peer's part flight ID in the last save action.</summary>
-  /// <remarks>
-  /// The descendants are responsible to update this field when the link is created or broken.
-  /// </remarks>
+  /// <remarks>Normally, the base class handles it.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  /// FIXME: can be handled via a private impl of linkPartId
+  /// <seealso cref="otherPeer"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkPartId;
   #endregion
@@ -93,12 +95,9 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <inheritdoc/>
   /// <remarks>
-  /// The descendants must react on the state change and check that the transition fits the peer's
-  /// kind.
+  /// The descendants must use this property to chnage the state or fully mimic it's behavior.
   /// </remarks>
-  /// <seealso cref="ILinkSource"/>
-  /// <seealso cref="ILinkTarget"/>
-  /// <inheritdoc/>
+  /// <seealso cref="persistedLinkState"/>
   public LinkState linkState {
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
@@ -112,6 +111,12 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// The descendants must eitehr use this property when linking with the other peer, or fully mimic
+  /// the behavior.
+  /// </remarks>
+  /// <seealso cref="persistedLinkPartId"/>
+  /// <seealso cref="OnPeerChange"/>
   public virtual ILinkPeer otherPeer {
     get { return _otherPeer; }
     protected set {

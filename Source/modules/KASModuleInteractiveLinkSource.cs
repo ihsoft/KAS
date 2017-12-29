@@ -88,8 +88,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// </summary>
   /// <remarks>
   /// This settings only affects the UI item in the part's menu. The actual changes are done in the
-  /// <see cref="ILinkJoint"/> module, and the mode change may be unsuccessful. In thhis case an
-  /// error message is presented on UI.
+  /// <see cref="ILinkJoint"/> module, and the mode change may be unsuccessful.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
