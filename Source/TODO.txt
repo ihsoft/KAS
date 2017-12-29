@@ -1,7 +1,5 @@
-- Fix joint restore on timewarp!!!
-- Use own target module on JS for the winch. It has coupling but is cable.
 - Implement hiding option on the peers coupling nodes. All related nodes have to be hidden. Can be a pain.
-- Use rnederer to ajdust the pipes offset. Maybe change its implemenbntation.
+- Use own target module on JS for the winch. It has coupling but is cable.
 - Handle pre-attached parts on the peer's coupling node. Both in editor and in flight.
 
 - Winch connector on detach doesnt handle collisions to the former target part
