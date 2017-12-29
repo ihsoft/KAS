@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.PartUtils;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace KAS {
@@ -72,9 +73,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     }
   }
 
-  /// <summary>Renderer for the link. Can be <c>null</c>.</summary>
-  ILinkRenderer renderer;
-
   /// <summary>Maximum allowed distance between the linked objects.</summary>
   float maxJointDistance {
     get { return springJoint.linearLimit.limit; }
@@ -100,11 +98,11 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public void FixedUpdate() {
-    if (renderer != null) {
+    if (isLinked && linkSource.linkRenderer != null) {
       // Adjust texture on the cable to simulate stretching.
       var jointLength = maxJointDistance;
       var length = currentJointDistance;
-      renderer.stretchRatio = length > jointLength ? length / jointLength : 1.0f;
+      linkSource.linkRenderer.stretchRatio = length > jointLength ? length / jointLength : 1.0f;
     }
   }
   #endregion
@@ -120,8 +118,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   #region KASModuleJointBase overrides
   /// <inheritdoc/>
   protected override void AttachParts() {
-    renderer = part.FindModuleImplementing<ILinkRenderer>();
-
     jointObj = new GameObject("RopeConnectorHead");
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
     // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
@@ -165,7 +161,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     base.DetachParts();
     Destroy(jointObj);
     jointObj = null;
-    renderer = null;
   }
 
   /// <inheritdoc/>
