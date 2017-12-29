@@ -581,7 +581,13 @@ public class KASModuleJointBase : PartModule,
     customJoints = new List<ConfigurableJoint>();
     var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(rigidJoint);
+    rigidJoint.enablePreprocessing = true;
+    rigidJoint.autoConfigureConnectedAnchor = false;
     rigidJoint.connectedBody = linkTarget.part.Rigidbody;
+    rigidJoint.anchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
+        GetSourcePhysicalAnchor(linkSource));
+    rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
+        GetSourcePhysicalAnchor(linkSource));
     SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
     customJoints.Add(rigidJoint);
   }
