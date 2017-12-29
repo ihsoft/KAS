@@ -256,7 +256,8 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    if (isLinked) {
+    if (isLinked && !linkJoint.isLinked) {
+      // The joint needs to be restored in the physical world.
       linkJoint.CreateJoint(this, linkTarget);
     }
   }
