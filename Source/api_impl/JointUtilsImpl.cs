@@ -221,11 +221,11 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
     msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
     // Geometry.
-    msg.Append("axis: ").Append(DbgFormatter.Vector(joint.axis)).AppendLine();
     msg.Append("anchor: ").Append(DbgFormatter.Vector(joint.anchor)).AppendLine();
     msg.Append("connectedAnchor: ")
         .Append(DbgFormatter.Vector(joint.connectedAnchor))
         .AppendLine();
+    msg.Append("axis: ").Append(DbgFormatter.Vector(joint.axis)).AppendLine();
     return msg;
   }
 
