@@ -665,8 +665,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
           // Align the docking part to the nodes if it's a separate vessel.
           if (oldState != null && linkTarget.part.vessel != vessel) {
-            AlignTransforms.SnapAlignVessel(
-                linkTarget.part.vessel, linkTarget.nodeTransform, nodeTransform);
+            AlignTransforms2.SnapAlignNodes(linkTarget.couplingNode, couplingNode);
             linkJoint.SetCoupleOnLinkMode(true);
             if (oldState.HasValue) {  // Skip when restoring state.
               sndConnectorDock.Play();
