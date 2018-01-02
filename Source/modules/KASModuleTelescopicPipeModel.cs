@@ -420,7 +420,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
         // Use partInfo.title to properly display kerbal names.
         return hitPart != null
             ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
-            : LinkCollidesWithSurfaceMsg.ToString();
+            : LinkCollidesWithSurfaceMsg.Format();
       }
     }
     return null;
