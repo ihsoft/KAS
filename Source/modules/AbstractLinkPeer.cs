@@ -21,7 +21,6 @@ namespace KAS {
 /// "coupling" mode. In this mode the source and the target belong to the same vessel. 
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-//FIXME: description, seealseo, etc.
 public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
     IActivateOnDecouple,
@@ -198,7 +197,6 @@ public abstract class AbstractLinkPeer : PartModule,
   /// </remarks>
   /// <value>The state machine instance.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  /// FIXME: refine
   protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
   #endregion  
   

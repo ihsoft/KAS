@@ -562,25 +562,25 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       var linkVector = targetTransform.position - sourceTransform.position;
       // Here is the link model hierarchy:
       // srcPartJoint => srcPivot => srcStrutJoint => trgStrutJoint => trgPivot => trgPartJoint.
-      // Joints attached via a pivot should be properly aligned againts each other since they are
-      // connected with a common pivot axile which is parallel to their X axis.
-      // 1. Rotate srcPartJoint around Z axis so what its pivot axile (X) is perpendicular to
+      // Joints attached via a pivot should be properly aligned against each other since they are
+      // connected with a common pivot axle which is parallel to their X axis.
+      // 1. Rotate srcPartJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the link vector.
       srcPartJoint.rotation = Quaternion.LookRotation(srcPartJoint.forward, -linkVector);
-      // 2. Rotate srcPivot around X axis (pivot axile) so what its forward vector points to the
+      // 2. Rotate srcPivot around X axis (pivot axle) so what its forward vector points to the
       //    target part attach node.
       srcPartJointPivot.localRotation =
           Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
       // 3. Shift trgStrutJoint along Z axis so what it touches target joint node with the trgPivot
-      //    pivot axile. Link length consists of srcStrutJoint and trgStrutJoint model lengths but
+      //    pivot axle. Link length consists of srcStrutJoint and trgStrutJoint model lengths but
       //    the former points backwards, so it doesn't add to the positive Z value.
       trgStrutJoint.localPosition =
           new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength);
-      // 4. Rotate trgStrutJoint around Z axis so what its pivot axile (X) is perpendicular to
+      // 4. Rotate trgStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
       trgStrutJoint.rotation =
           Quaternion.LookRotation(trgStrutJoint.forward, targetTransform.forward);
-      // 5. Rotate trgPivot around X axis (pivot axile) so what its forward vector points along
+      // 5. Rotate trgPivot around X axis (pivot axle) so that its forward vector points along
       //    target attach node direction.
       trgStrutJointPivot.localRotation =
         Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
