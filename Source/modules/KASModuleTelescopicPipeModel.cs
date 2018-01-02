@@ -224,13 +224,18 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public bool isStarted {
-    get { return targetTransform != null; }
+    get { return sourceTransform != null && targetTransform != null; }
   }
 
   /// <inheritdoc/>
   public Transform sourceTransform {
-    get { return srcPartJointPivot; }
+    get { return _sourceTransform; }
+    private set {
+      _sourceTransform = value;
+      UpdateLinkLengthAndOrientation();
+    }
   }
+  Transform _sourceTransform;
 
   /// <inheritdoc/>
   public Transform targetTransform {
@@ -383,21 +388,14 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
-    // Source pivot is fixed for this part. Do a safe check to verify if requestor asked for the
-    // right coordinates.
-    if (Vector3.SqrMagnitude(source.position - sourceTransform.position) > 0.0005f) {
-      HostedDebugLog.Error(
-          this, "Part's source doesn't match the renderer's source: pivot={0}, source={1}, err={2}",
-          sourceTransform.position,
-          source.position,
-          Vector3.SqrMagnitude(source.position - sourceTransform.position));
-    }
+    sourceTransform = source;
     targetTransform = target;
     UpdateContextMenu();
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
+    sourceTransform = null;
     targetTransform = null;
     UpdateContextMenu();
   }
@@ -409,9 +407,11 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
-    var linkVector = target.position - source.position;
+    var targetPos = target.TransformPoint(new Vector3(0, 0, trgJointHandleLength));
+    var sourcePos = source.TransformPoint(new Vector3(0, 0, srcJointHandleLength));
+    var linkVector = targetPos - sourcePos;
     var hits = Physics.SphereCastAll(
-        source.position, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
+        sourcePos, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
@@ -559,7 +559,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       trgStrutJoint.localRotation = Quaternion.identity;
       trgStrutJointPivot.localRotation = Quaternion.identity;
     } else {
-      var linkVector = targetTransform.position - sourceTransform.position;
+      var targetPos = targetTransform.TransformPoint(new Vector3(0, 0, trgJointHandleLength));
+      var sourcePos = sourceTransform.TransformPoint(new Vector3(0, 0, srcJointHandleLength));
+      var linkVector = targetPos - sourcePos;
       // Here is the link model hierarchy:
       // srcPartJoint => srcPivot => srcStrutJoint => trgStrutJoint => trgPivot => trgPartJoint.
       // Joints attached via a pivot should be properly aligned against each other since they are

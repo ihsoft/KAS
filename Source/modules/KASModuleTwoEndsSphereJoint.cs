@@ -164,37 +164,37 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// for rotation around main axis (Z).
   /// </summary>
   /// <remarks>
-  /// Joint object will be aligned exactly to the attach node. This will result in zero anchor nodes
-  /// and zero/identity relative position and rotation. Caller needs to adjust position/rotation of
-  /// the created object as needed, but rotation around Z axis must not be touched since it's
-  /// locked.
-  /// <para>
-  /// Joint object will have rigidobject created. Its physical settings will be default. Caller may
-  /// need to adjust the properties.
-  /// </para>
+  /// The joint object will be aligned at the link node transform with respect to the physical
+  /// anchors added by the joint base class.
   /// </remarks>
-  /// <param name="nodeTransform">The tranform to orient new joint to.</param>
-  /// <param name="targetRb">The rigid body to attach the joint to.</param>
-  /// <param name="objName">The name of the game object for the joint.</param>
-  /// <param name="angleLimit">The degree of freedom of the joint.</param>
-  /// <returns>Joint object.</returns>
-  ConfigurableJoint CreateJointEnd(
-      Transform nodeTransform, Rigidbody targetRb, string objName, float angleLimit) {
-    if (targetRb == null) {
+  /// <param name="isSource">
+  /// Tells if the joint needs to be created for the source or for the target part.
+  /// </param>
+  /// <seealso cref="KASModuleJointBase.anchorAtSource"/>
+  /// <seealso cref="KASModuleJointBase.anchorAtTarget"/>
+  ConfigurableJoint CreateJointEnd(bool isSource) {
+    var peer = isSource
+        ? linkSource as ILinkPeer
+        : linkTarget as ILinkPeer;
+    if (peer.part.rb == null) {
       throw new InvalidOperationException(string.Format(
           "Cannot create a joint to {0} since it doesn't have rigidbody (physicsless?)",
-          nodeTransform));
+          peer.nodeTransform));
     }
-    var jointObj = new GameObject(objName);
-    jointObj.transform.position = nodeTransform.position;
-    jointObj.transform.rotation = nodeTransform.rotation;
+    var jointObj = new GameObject(isSource ? "KASJointSrc" : "KASJointTgt");
+    jointObj.transform.position = isSource
+        ? GetSourcePhysicalAnchor(linkSource)
+        : GetTargetPhysicalAnchor(linkSource, linkTarget);
+    jointObj.transform.rotation = peer.nodeTransform.rotation;
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
-    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), targetRb);
+    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), peer.part.rb);
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
-    KASAPI.JointUtils.SetupSphericalJoint(joint, angleLimit: angleLimit);
+    KASAPI.JointUtils.SetupSphericalJoint(
+        joint,
+        angleLimit: isSource ? sourceLinkAngleLimit : targetLinkAngleLimit);
     joint.enablePreprocessing = true;
-    joint.connectedBody = targetRb;
+    joint.connectedBody = peer.part.rb;
     SetBreakForces(joint, linkBreakForce, linkBreakTorque);
     return joint;
   }
@@ -215,10 +215,8 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   void SetupJoints() {
     HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
     // Create end spherical joints.
-    srcJoint = CreateJointEnd(
-      linkSource.nodeTransform, linkSource.part.rb, "KASJointSrc", sourceLinkAngleLimit);
-    trgJoint = CreateJointEnd(
-      linkTarget.nodeTransform, linkTarget.part.rb, "KASJointTrg", targetLinkAngleLimit);
+    srcJoint = CreateJointEnd(isSource: true);
+    trgJoint = CreateJointEnd(isSource: false);
     srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
     trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
 
