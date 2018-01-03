@@ -349,6 +349,21 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     }
   }
 
+  /// <summary>The root node for the telescopic strut.</summary>
+  /// <remarks>
+  /// All the components are built relative to this node. It's also used to determine the part's
+  /// model scale, whic is important for rednering the proper meshes.
+  /// </remarks>
+  protected Transform plugNodeTransform {
+    get {
+      if (_plugNodeTransform == null) {
+        _plugNodeTransform = part.FindModelTransform("plugNode");
+      }
+      return _plugNodeTransform;
+    }
+  }
+  Transform _plugNodeTransform;
+
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
   protected bool isLinked {
@@ -704,7 +719,6 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     var srcJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(sourceJointModel));
 
     // Source part joint model.
-    var plugNodeTransform = part.FindModelTransform("plugNode");
     srcPartJoint = CloneModel(srcJointModel, SrcPartJointObjName).transform;
     Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
     srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
