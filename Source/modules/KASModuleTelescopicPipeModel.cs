@@ -73,6 +73,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   public int pistonsCount = 3;
 
   /// <summary>Model for the pistons.</summary>
+  /// <remarks>
+  /// The piston model will be scaled to the part's model scale. When it's not desirable, use
+  /// <see cref="pistonModelScale"/> to compensate the scale change.
+  /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string pistonModel = "KAS-1.0/Models/Piston/model";
@@ -120,11 +124,17 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   [KSPField]
   public float pistonDiameterScaleDelta = 0.1f;
 
-  /// <summary>Minimum allowed overlap of the pistons in the extended state.</summary>
+  /// <summary>Minimum allowed overlap of the pistons in the extended state in meters.</summary>
   /// <remarks>
-  /// Used to determine minimum and maximum length of the link in terms of visual representation.
-  /// Note, that renderer doesn't deal with joint limits. Length limits are only applied to the
-  /// meshes used for the link representation.
+  /// <para>
+  /// Used to determine the minimum and maximum lengths of the link. This length limit is only
+  /// applied when rendering the link to keep it consistent, it does not affect the link
+  /// constraints.
+  /// </para>
+  /// <para>
+  /// This value is affected by the part's scale. I.e. if it's <c>0.02m</c>, and the part's scale is
+  /// <c>2.0</c>, then the actual shift will be <c>0.04m</c>.
+  /// </para>
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
