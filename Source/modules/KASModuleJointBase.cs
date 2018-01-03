@@ -633,19 +633,24 @@ public class KASModuleJointBase : PartModule,
 
   /// <summary>Returns an anchor for the physical joint at the target part.</summary>
   /// <remarks>
-  /// The anchor will be calculated in the source's part scale, and the traget's rescale factor will
+  /// The anchor will be calculated in the source's part scale, and the target's model scale will
   /// be ignored.
   /// </remarks>
   /// <param name="source">The source of the link.</param>
   /// <param name="target">The target of the link.</param>
   /// <returns>The position in the world coordinates.</returns>
   protected Vector3 GetTargetPhysicalAnchor(ILinkSource source, ILinkTarget target) {
-    return target.nodeTransform.TransformPoint(
-        anchorAtTarget * source.part.rescaleFactor / target.part.rescaleFactor);
+    var srcScale = source.nodeTransform.lossyScale;
+    if (!Mathf.Approximately(srcScale.x, srcScale.y)
+        || !Mathf.Approximately(srcScale.x, srcScale.z)) {
+      HostedDebugLog.Error(this, "Uneven scale on the source part is not supported: {0}", srcScale);
+    }
+    return target.nodeTransform.position
+        + target.nodeTransform.rotation * (anchorAtTarget * srcScale.x);
   }
 
   /// <summary>Returns an anchor for the physical joint at the source part.</summary>
-  /// <remarks>The anchor will be affected by teh source part rescale factor.</remarks>
+  /// <remarks>The anchor will be affected by the part's model scale.</remarks>
   /// <param name="source">The source of the link.</param>
   /// <returns>The position in the world coordinates.</returns>
   protected Vector3 GetSourcePhysicalAnchor(ILinkSource source) {
