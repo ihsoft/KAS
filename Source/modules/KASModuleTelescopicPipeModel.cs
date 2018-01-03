@@ -375,13 +375,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    UpdateContextMenu();  // For editor mode.
+    UpdateContextMenu();  // For the editor mode.
   }
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
-    UpdateContextMenu();  // For flight mode.
+    UpdateContextMenu();  // For the flight mode.
   }
 
   /// <inheritdoc/>
@@ -588,11 +588,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       //    target part attach node.
       srcPartJointPivot.localRotation =
           Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
-      // 3. Shift trgStrutJoint along Z axis so what it touches target joint node with the trgPivot
-      //    pivot axle. Link length consists of srcStrutJoint and trgStrutJoint model lengths but
-      //    the former points backwards, so it doesn't add to the positive Z value.
       trgStrutJoint.localPosition =
           new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength);
+      // 3. Shift trgStrutJoint along Z axis so what it touches the vector end position with the
+      //    trgPivot pivot axle.
       // 4. Rotate trgStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
       trgStrutJoint.rotation =
@@ -600,7 +599,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       // 5. Rotate trgPivot around X axis (pivot axle) so that its forward vector points along
       //    target attach node direction.
       trgStrutJointPivot.localRotation =
-        Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
+          Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
     }
 
     // Distribute pistons between the first and the last while keepin the direction.
@@ -617,7 +616,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
   #endregion
 
-  #region Inherotable utility methods 
+  #region Inheritable utility methods 
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
