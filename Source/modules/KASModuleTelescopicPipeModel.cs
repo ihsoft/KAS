@@ -367,7 +367,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
   protected bool isLinked {
-    get { return targetTransform != null; }
+    get { return sourceTransform != null && targetTransform != null; }
   }
   #endregion
 
