@@ -349,6 +349,26 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     }
   }
 
+  /// <summary>The scale of the strut models.</summary>
+  /// <remarks>
+  /// The scale of the part must be "even", i.e. all the components in the scale vector must be
+  /// equal. If they are not, then the renderers behavior may be inconsistent.
+  /// </remarks>
+  /// <value>The scale to be applied to all the components.</value>
+  protected float strutScale {
+    get {
+      if (_strutScale < 0) {
+        var scale = plugNodeTransform.lossyScale;
+        if (!Mathf.Approximately(scale.x, scale.y) || !Mathf.Approximately(scale.x, scale.z)) {
+          HostedDebugLog.Error(this, "Uneven part scale is not supported: {0}", scale);
+        }
+        _strutScale = scale.x;
+      }
+      return _strutScale;
+    }
+  }
+  float _strutScale = -1;
+
   /// <summary>The root node for the telescopic strut.</summary>
   /// <remarks>
   /// All the components are built relative to this node. It's also used to determine the part's
@@ -422,9 +442,8 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual string CheckColliderHits(Transform source, Transform target) {
-    var targetPos = target.TransformPoint(new Vector3(0, 0, trgJointHandleLength));
-    var sourcePos = source.TransformPoint(new Vector3(0, 0, srcJointHandleLength));
-    var linkVector = targetPos - sourcePos;
+    var sourcePos = GetLinkVectorSourcePos(source);
+    var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
     var hits = Physics.SphereCastAll(
         sourcePos, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
@@ -570,13 +589,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
       srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
-      trgStrutJoint.localPosition = new Vector3(0, 0, parkedLength - trgJointHandleLength);
+      trgStrutJoint.localPosition =
+          GetUnscaledStrutVector(new Vector3(0, 0, parkedLength - trgJointHandleLength));
       trgStrutJoint.localRotation = Quaternion.identity;
       trgStrutJointPivot.localRotation = Quaternion.identity;
     } else {
-      var targetPos = targetTransform.TransformPoint(new Vector3(0, 0, trgJointHandleLength));
-      var sourcePos = sourceTransform.TransformPoint(new Vector3(0, 0, srcJointHandleLength));
-      var linkVector = targetPos - sourcePos;
+      var linkVector =
+          GetLinkVectorTargetPos(targetTransform) - GetLinkVectorSourcePos(sourceTransform);
       // Here is the link model hierarchy:
       // srcPartJoint => srcPivot => srcStrutJoint => trgStrutJoint => trgPivot => trgPartJoint.
       // Joints attached via a pivot should be properly aligned against each other since they are
@@ -588,10 +607,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       //    target part attach node.
       srcPartJointPivot.localRotation =
           Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
-      trgStrutJoint.localPosition =
-          new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength);
       // 3. Shift trgStrutJoint along Z axis so what it touches the vector end position with the
       //    trgPivot pivot axle.
+      trgStrutJoint.localPosition = GetUnscaledStrutVector(
+          new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength));
       // 4. Rotate trgStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
       trgStrutJoint.rotation =
@@ -606,7 +625,8 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     if (pistons.Length > 2) {
       var offset = pistons[0].transform.localPosition.z;
       var scalablePistons = pistons.Length - 1;
-      var step = Vector3.Distance(pistons.Last().transform.position, pistons[0].transform.position)
+      var step = GetUnscaledStrutVector(
+          pistons.Last().transform.position - pistons[0].transform.position).magnitude
           / scalablePistons;
       for (var i = 1; i < scalablePistons; ++i) {
         offset -= step;  // Pistons are distributed to -Z direction of the pviot.
@@ -658,22 +678,43 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
         ? cfgSetting.Substring(lastCommaPos + 1)
         : cfgSetting;
   }
+
+  /// <summary>
+  /// Transforms a vector, given in the local coordinates, in the scale of the part' model. 
+  /// </summary>
+  /// <param name="unscaledLength">The vector in the local coordinates.</param>
+  /// <returns>The vector in the scale of the part's model.</returns>
+  protected Vector3 GetScaledStrutVector(Vector3 unscaledLength) {
+    return unscaledLength * strutScale;
+  }
+
+  /// <summary>
+  /// Transforms a vector, given in the world coordinates, in the scale of the part's model. 
+  /// </summary>
+  /// <param name="scaledLength">The vector in the world coordinates.</param>
+  /// <returns>The vector in the local part's model coordinates.</returns>
+  protected Vector3 GetUnscaledStrutVector(Vector3 scaledLength) {
+    return scaledLength / strutScale;
+  }
   #endregion
 
   #region Private utility methods
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
+  /// <remarks>
+  /// The length limits must be calculated between the actual points of the joint connection.
+  /// </remarks>
   void UpdateValuesFromModel() {
-    var pistonSize =
-        Vector3.Scale(pistonPrefab.GetComponent<Renderer>().bounds.size, pistonModelScale);
+    var pistonSize = GetScaledStrutVector(
+        Vector3.Scale(pistonPrefab.GetComponent<Renderer>().bounds.size, pistonModelScale));
     pistonLength = pistonSize.y;
     outerPistonDiameter = Mathf.Max(pistonSize.x, pistonSize.z);
     minLinkLength =
         srcJointHandleLength
-        + pistonLength + (pistonsCount - 1) * pistonMinShift
+        + pistonLength + (pistonsCount - 1) * pistonMinShift * strutScale
         + trgJointHandleLength;
     maxLinkLength =
-        srcJointHandleLength
-        + pistonsCount * (pistonLength - pistonMinShift)
+        srcJointHandleLength      
+        + pistonsCount * (pistonLength - pistonMinShift * strutScale)
         + trgJointHandleLength;
   }
 
@@ -776,12 +817,31 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       pistons[i] = piston;
     }
     // First piston rigidly attached at the bottom of the source joint model.
-    pistons[0].transform.localPosition = new Vector3(0, 0, -pistonLength / 2);
+    pistons[0].transform.localPosition =
+        GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2));
     // Last piston rigidly attached at the bottom of the target joint model.
     randomRotation = Quaternion.Euler(0, 0, pistons.Last().transform.localRotation.eulerAngles.z);
     Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
-                           newPosition: new Vector3(0, 0, -pistonLength / 2),
+                           newPosition: GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2)),
                            newRotation: randomRotation * Quaternion.LookRotation(Vector3.forward));
+  }
+
+  /// <summary>Returns the world position of the source link "pivot".</summary>
+  /// <param name="refTransform">The transfrom to count the position relative to.</param>
+  /// <returns>The position in world coordinates.</returns>
+  Vector3 GetLinkVectorSourcePos(Transform refTransform) {
+    // Don't use the stock translation methods since the handle length is already scaled. We don't
+    // want the scale to be counted twice.
+    return refTransform.position + refTransform.rotation * new Vector3(0, 0, srcJointHandleLength);
+  }
+
+  /// <summary>Returns the world position of the target link "pivot".</summary>
+  /// <param name="refTransform">The transfrom to count the position relative to.</param>
+  /// <returns>The position in world coordinates.</returns>
+  Vector3 GetLinkVectorTargetPos(Transform refTransform) {
+    // Don't use the stock translation methods since the handle length is already scaled. We don't
+    // want the scale to be counted twice.
+    return refTransform.position + refTransform.rotation * new Vector3(0, 0, trgJointHandleLength);
   }
   #endregion
 }
