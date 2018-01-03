@@ -17,7 +17,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
-public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
+public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KSPDev interfaces.
@@ -25,7 +25,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<string> LinkCollidesWithObjectMsg = new Message<string>(
+  static readonly Message<string> LinkCollidesWithObjectMsg = new Message<string>(
       "#kasLOC_04000",
       defaultTemplate: "Link collides with: <<1>>",
       description: "Message to display when the link cannot be created due to an obstacle."
@@ -33,7 +33,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       example: "Link collides with: Mk2 Cockpit");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message LinkCollidesWithSurfaceMsg = new Message(
+  static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_04001",
       defaultTemplate: "Link collides with the surface",
       description: "Message to display when the link strut orientation cannot be changed due to it"
@@ -189,7 +189,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   public string cfgRendererName { get { return rendererName; } }
 
   /// <inheritdoc/>
-  public virtual Color? colorOverride {
+  public Color? colorOverride {
     get { return _colorOverride; }
     set {
       _colorOverride = value;
@@ -199,7 +199,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   Color? _colorOverride;
 
   /// <inheritdoc/>
-  public virtual string shaderNameOverride {
+  public string shaderNameOverride {
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
@@ -213,7 +213,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   string _shaderNameOverride;
 
   /// <inheritdoc/>
-  public virtual float stretchRatio {
+  public float stretchRatio {
     get { return 1.0f; }
     set {
       HostedDebugLog.Warning(
@@ -223,7 +223,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public virtual bool isPhysicalCollider {
+  public bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
     set {
       _isPhysicalCollider = value;
@@ -261,98 +261,98 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #region Model name constants
   /// <summary>A transform that is a root for the whole pipe modelset.</summary>
   /// <remarks>It doesn't have to match part's attach node transform.</remarks>
-  protected const string AttachNodeObjName = "plugNode";
+  const string AttachNodeObjName = "plugNode";
 
   /// <summary>Name of model that connects pipe with the source part.</summary>
-  protected const string SrcPartJointObjName = "srcPartJoint";
+  const string SrcPartJointObjName = "srcPartJoint";
 
   /// <summary>Name of model at the pipe start.</summary>
-  protected const string SrcStrutJointObjName = "srcStrutJoint";
+  const string SrcStrutJointObjName = "srcStrutJoint";
 
   /// <summary>Name of model at the pipe end.</summary>
-  protected const string TgtStrutJointObjName = "tgtStrutJoint";
+  const string TgtStrutJointObjName = "tgtStrutJoint";
 
   /// <summary>Name of model that connects pipe with the target part.</summary>
-  protected const string TgtPartJointObjName = "tgtPartJoint";
+  const string TgtPartJointObjName = "tgtPartJoint";
 
   /// <summary>
   /// Name of the joint model in the part's model. It's used as a template to create all the joint
   /// levers.
   /// </summary>
-  protected const string JointModelName = "Joint";
+  const string JointModelName = "Joint";
 
   /// <summary>
   /// Name of the transform that is used to connect two levers to form a complete joint. 
   /// </summary>
-  protected const string PivotAxleTransformName = "PivotAxle";
+  const string PivotAxleTransformName = "PivotAxle";
 
   /// <summary>Name of the piston object in the piston's model.</summary>
-  protected const string PistonModelName = "Piston";
+  const string PistonModelName = "Piston";
   #endregion
 
   #region Model transforms & properties
   /// <summary>Model that represents a joint at the source part.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform srcPartJoint { get; private set; }
+  Transform srcPartJoint;
 
   /// <summary>Pivot axis object on the source joint.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform srcPartJointPivot { get; private set; }
+  Transform srcPartJointPivot;
 
   /// <summary>Model at the pipe's start that connects to the source joint pivot.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
   /// <remarks>It's orientation is reversed. I.e .it "looks" at the source joint pivot.</remarks>
-  protected Transform srcStrutJoint { get; private set; }
+  Transform srcStrutJoint;
 
   /// <summary>Model at the pipe's end that connects to the target joint pivot.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform tgtStrutJoint { get; private set; }
+  Transform tgtStrutJoint;
 
   /// <summary>Pivot axis object at the pipe's end.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform tgtStrutJointPivot { get; private set; }
+  Transform tgtStrutJointPivot;
 
   /// <summary>Pistons that form the strut pipe.</summary>
   /// <value>A list of meshes.</value>
-  protected GameObject[] pistons { get; private set; }
+  GameObject[] pistons;
 
   /// <summary>
   /// Distance of the source part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  protected float srcJointHandleLength { get; private set; }
+  float srcJointHandleLength;
 
   /// <summary>
   /// Distance of the target part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  protected float tgtJointHandleLength { get; private set; }
+  float tgtJointHandleLength;
 
   /// <summary>
   /// The minimum length to which the telescopic pipe can shrink. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  protected float minLinkLength { get; private set; }
+  float minLinkLength;
 
   /// <summary>
   /// The maximum length to which the telescopic pipe can expand. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  protected float maxLinkLength { get; private set; }
+  float maxLinkLength;
 
   /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
   /// <value>The diameter in metters.</value>
   /// <remarks>It's primarily used to cast a collider.</remarks>
   /// <seealso cref="CheckColliderHits"/>
-  protected float outerPistonDiameter { get; private set; }
+  float outerPistonDiameter;
 
   /// <summary>Length of a single piston. It's calculated from the model.</summary>
   /// <value>The distance in meters.</value>
-  protected float pistonLength { get; private set; }
+  float pistonLength;
 
   /// <summary>Prefab for the piston models.</summary>
   /// <value>A model reference from the part's model. It's not a copy!</value>
-  protected GameObject pistonPrefab {
+  GameObject pistonPrefab {
     get {
       return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
           .FindChild(PistonModelName).gameObject;
@@ -365,7 +365,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// equal. If they are not, then the renderers behavior may be inconsistent.
   /// </remarks>
   /// <value>The scale to be applied to all the components.</value>
-  protected float strutScale {
+  float strutScale {
     get {
       if (_strutScale < 0) {
         var scale = plugNodeTransform.lossyScale;
@@ -384,7 +384,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// All the components are built relative to this node. It's also used to determine the part's
   /// model scale, whic is important for rednering the proper meshes.
   /// </remarks>
-  protected Transform plugNodeTransform {
+  Transform plugNodeTransform {
     get {
       if (_plugNodeTransform == null) {
         _plugNodeTransform = part.FindModelTransform("plugNode");
@@ -396,7 +396,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
-  protected bool isLinked {
+  bool isLinked {
     get { return sourceTransform != null && targetTransform != null; }
   }
   #endregion
@@ -432,26 +432,26 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
-  public virtual void StartRenderer(Transform source, Transform target) {
+  public void StartRenderer(Transform source, Transform target) {
     sourceTransform = source;
     targetTransform = target;
     UpdateContextMenu();
   }
 
   /// <inheritdoc/>
-  public virtual void StopRenderer() {
+  public void StopRenderer() {
     sourceTransform = null;
     targetTransform = null;
     UpdateContextMenu();
   }
 
   /// <inheritdoc/>
-  public virtual void UpdateLink() {
+  public void UpdateLink() {
     UpdateLinkLengthAndOrientation();
   }
 
   /// <inheritdoc/>
-  public virtual string CheckColliderHits(Transform source, Transform target) {
+  public string CheckColliderHits(Transform source, Transform target) {
     var sourcePos = GetLinkVectorSourcePos(source);
     var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
     var hits = Physics.SphereCastAll(
@@ -473,7 +473,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   #region IHasContextMenu implemenation
   /// <inheritdoc/>
-  public virtual void UpdateContextMenu() {
+  public void UpdateContextMenu() {
     PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction0, x => {
       x.guiName = ExtractPositionName(parkedOrientationMenu0);
       x.active = x.guiName != "" && !isLinked;
@@ -592,9 +592,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
   #endregion
 
-  #region Inheritable methods
+  #region Local utility methods
   /// <summary>Adjusts link models to the changed target position.</summary>
-  protected virtual void UpdateLinkLengthAndOrientation() {
+  void UpdateLinkLengthAndOrientation() {
     if (!isStarted) {
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
@@ -644,15 +644,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       }
     }
   }
-  #endregion
 
-  #region Inheritable utility methods 
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
   /// <seealso cref="minLinkLength"/>
   /// <seealso cref="maxLinkLength"/>
-  protected float GetClampedLinkLength(Vector3 linkVector) {
+  float GetClampedLinkLength(Vector3 linkVector) {
     var linkLength = linkVector.magnitude;
     if (linkLength < minLinkLength) {
       return minLinkLength;
@@ -664,11 +662,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <summary>Returns a direction vector for the parked string.</summary>
-  /// <param name="cfgSetting">String from the config of the following format:
-  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
-  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
-  /// <returns>Direction vector for the action.</returns>
-  protected Vector3 ExtractOrientationVector(string cfgSetting) {
+  /// <param name="cfgSetting">
+  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>, where
+  /// <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c> is a
+  /// string to show in the context menu.
+  /// </param>
+  /// <returns>The direction vector for the action.</returns>
+  Vector3 ExtractOrientationVector(string cfgSetting) {
     var lastCommaPos = cfgSetting.LastIndexOf(',');
     if (lastCommaPos == -1) {
       HostedDebugLog.Warning(this, "Cannot extract direction from string: {0}", cfgSetting);
@@ -678,11 +678,13 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <summary>Returns a context menu item name from the packed string.</summary>
-  /// <param name="cfgSetting">String from the config of the following format:
-  /// <c>X,Y,Z,&lt;menu text&gt;</c>, where <c>X,Y,Z</c> defines a direction in the node's local
-  /// coordinates, and <c>menu text</c> is a string to show in the context menu.</param>
-  /// <returns>Display string for the action.</returns>
-  protected static string ExtractPositionName(string cfgSetting) {
+  /// <param name="cfgSetting">
+  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>,
+  /// where <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c>
+  /// is a string to show in the context menu.
+  /// </param>
+  /// <returns>The display string for the action.</returns>
+  string ExtractPositionName(string cfgSetting) {
     var lastCommaPos = cfgSetting.LastIndexOf(',');
     return lastCommaPos != -1
         ? cfgSetting.Substring(lastCommaPos + 1)
@@ -694,7 +696,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// </summary>
   /// <param name="unscaledLength">The vector in the local coordinates.</param>
   /// <returns>The vector in the scale of the part's model.</returns>
-  protected Vector3 GetScaledStrutVector(Vector3 unscaledLength) {
+  Vector3 GetScaledStrutVector(Vector3 unscaledLength) {
     return unscaledLength * strutScale;
   }
 
@@ -703,12 +705,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// </summary>
   /// <param name="scaledLength">The vector in the world coordinates.</param>
   /// <returns>The vector in the local part's model coordinates.</returns>
-  protected Vector3 GetUnscaledStrutVector(Vector3 scaledLength) {
+  Vector3 GetUnscaledStrutVector(Vector3 scaledLength) {
     return scaledLength / strutScale;
   }
-  #endregion
 
-  #region Private utility methods
   /// <summary>Calculates and populates min/max link lengths from the model.</summary>
   /// <remarks>
   /// The length limits must be calculated between the actual points of the joint connection.
