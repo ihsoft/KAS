@@ -270,10 +270,10 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   protected const string SrcStrutJointObjName = "srcStrutJoint";
 
   /// <summary>Name of model at the pipe end.</summary>
-  protected const string TrgStrutJointObjName = "trgStrutJoint";
+  protected const string TgtStrutJointObjName = "tgtStrutJoint";
 
   /// <summary>Name of model that connects pipe with the target part.</summary>
-  protected const string TrgPartJointObjName = "trgPartJoint";
+  protected const string TgtPartJointObjName = "tgtPartJoint";
 
   /// <summary>
   /// Name of the joint model in the part's model. It's used as a template to create all the joint
@@ -306,11 +306,11 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Model at the pipe's end that connects to the target joint pivot.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform trgStrutJoint { get; private set; }
+  protected Transform tgtStrutJoint { get; private set; }
 
   /// <summary>Pivot axis object at the pipe's end.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  protected Transform trgStrutJointPivot { get; private set; }
+  protected Transform tgtStrutJointPivot { get; private set; }
 
   /// <summary>Pistons that form the strut pipe.</summary>
   /// <value>A list of meshes.</value>
@@ -326,7 +326,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   /// Distance of the target part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  protected float trgJointHandleLength { get; private set; }
+  protected float tgtJointHandleLength { get; private set; }
 
   /// <summary>
   /// The minimum length to which the telescopic pipe can shrink. It's calculated from the model.
@@ -577,9 +577,9 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
 
     // Target strut joint.
-    trgStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TrgStrutJointObjName);
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleTransformName);
-    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
+    tgtStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TgtStrutJointObjName);
+    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
+    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
 
     // Pistons.
     pistons = new GameObject[pistonsCount];
@@ -599,15 +599,15 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
       srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
-      trgStrutJoint.localPosition =
-          GetUnscaledStrutVector(new Vector3(0, 0, parkedLength - trgJointHandleLength));
-      trgStrutJoint.localRotation = Quaternion.identity;
-      trgStrutJointPivot.localRotation = Quaternion.identity;
+      tgtStrutJoint.localPosition =
+          GetUnscaledStrutVector(new Vector3(0, 0, parkedLength - tgtJointHandleLength));
+      tgtStrutJoint.localRotation = Quaternion.identity;
+      tgtStrutJointPivot.localRotation = Quaternion.identity;
     } else {
       var linkVector =
           GetLinkVectorTargetPos(targetTransform) - GetLinkVectorSourcePos(sourceTransform);
       // Here is the link model hierarchy:
-      // srcPartJoint => srcPivot => srcStrutJoint => trgStrutJoint => trgPivot => trgPartJoint.
+      // srcPartJoint => srcPivot => srcStrutJoint => tgtStrutJoint => tgtPivot => tgtPartJoint.
       // Joints attached via a pivot should be properly aligned against each other since they are
       // connected with a common pivot axle which is parallel to their X axis.
       // 1. Rotate srcPartJoint around Z axis so what its pivot axle (X) is perpendicular to
@@ -617,18 +617,18 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       //    target part attach node.
       srcPartJointPivot.localRotation =
           Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
-      // 3. Shift trgStrutJoint along Z axis so what it touches the vector end position with the
-      //    trgPivot pivot axle.
-      trgStrutJoint.localPosition = GetUnscaledStrutVector(
-          new Vector3(0, 0, GetClampedLinkLength(linkVector) - trgJointHandleLength));
-      // 4. Rotate trgStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
+      // 3. Shift tgtStrutJoint along Z axis so what it touches the vector end position with the
+      //    tgtPivot pivot axle.
+      tgtStrutJoint.localPosition = GetUnscaledStrutVector(
+          new Vector3(0, 0, GetClampedLinkLength(linkVector) - tgtJointHandleLength));
+      // 4. Rotate tgtStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
-      trgStrutJoint.rotation =
-          Quaternion.LookRotation(trgStrutJoint.forward, targetTransform.forward);
-      // 5. Rotate trgPivot around X axis (pivot axle) so that its forward vector points along
+      tgtStrutJoint.rotation =
+          Quaternion.LookRotation(tgtStrutJoint.forward, targetTransform.forward);
+      // 5. Rotate tgtPivot around X axis (pivot axle) so that its forward vector points along
       //    target attach node direction.
-      trgStrutJointPivot.localRotation =
-          Quaternion.Euler(Vector3.Angle(trgStrutJoint.forward, -targetTransform.forward), 0, 0);
+      tgtStrutJointPivot.localRotation =
+          Quaternion.Euler(Vector3.Angle(tgtStrutJoint.forward, -targetTransform.forward), 0, 0);
     }
 
     // Distribute pistons between the first and the last while keepin the direction.
@@ -721,11 +721,11 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     minLinkLength =
         srcJointHandleLength
         + pistonLength + (pistonsCount - 1) * pistonMinShift * strutScale
-        + trgJointHandleLength;
+        + tgtJointHandleLength;
     maxLinkLength =
         srcJointHandleLength      
         + pistonsCount * (pistonLength - pistonMinShift * strutScale)
-        + trgJointHandleLength;
+        + tgtJointHandleLength;
   }
 
   /// <summary>
@@ -781,24 +781,24 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
                            newPosition: new Vector3(0, 0, srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
-    var trgJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(targetJointModel));
+    var tgtJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(targetJointModel));
 
     // Target strut joint model.
-    trgStrutJoint = CloneModel(trgJointModel, TrgStrutJointObjName).transform;
-    trgStrutJointPivot = Hierarchy.FindTransformInChildren(trgStrutJoint, PivotAxleTransformName);
-    trgJointHandleLength = Vector3.Distance(trgStrutJoint.position, trgStrutJointPivot.position);
-    Hierarchy.MoveToParent(trgStrutJoint, srcPartJointPivot);
+    tgtStrutJoint = CloneModel(tgtJointModel, TgtStrutJointObjName).transform;
+    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
+    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
+    Hierarchy.MoveToParent(tgtStrutJoint, srcPartJointPivot);
 
     // Target part joint model.
-    var trgPartJoint = CloneModel(trgJointModel, TrgPartJointObjName).transform;
-    var trgPartJointPivot = Hierarchy.FindTransformInChildren(trgPartJoint, PivotAxleTransformName);
-    Hierarchy.MoveToParent(trgPartJoint, trgStrutJointPivot,
-                           newPosition: new Vector3(0, 0, trgJointHandleLength),
+    var tgtPartJoint = CloneModel(tgtJointModel, TgtPartJointObjName).transform;
+    var tgtPartJointPivot = Hierarchy.FindTransformInChildren(tgtPartJoint, PivotAxleTransformName);
+    Hierarchy.MoveToParent(tgtPartJoint, tgtStrutJointPivot,
+                           newPosition: new Vector3(0, 0, tgtJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Joint template models are not needed anymore.
     Destroy(srcJointModel);
-    Destroy(trgJointModel);
+    Destroy(tgtJointModel);
   }
 
   /// <summary>Creates piston models from a prefab in a separate model file.</summary>
@@ -831,7 +831,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
         GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2));
     // Last piston rigidly attached at the bottom of the target joint model.
     randomRotation = Quaternion.Euler(0, 0, pistons.Last().transform.localRotation.eulerAngles.z);
-    Hierarchy.MoveToParent(pistons.Last().transform, trgStrutJoint,
+    Hierarchy.MoveToParent(pistons.Last().transform, tgtStrutJoint,
                            newPosition: GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2)),
                            newRotation: randomRotation * Quaternion.LookRotation(Vector3.forward));
   }
@@ -851,7 +851,7 @@ public class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   Vector3 GetLinkVectorTargetPos(Transform refTransform) {
     // Don't use the stock translation methods since the handle length is already scaled. We don't
     // want the scale to be counted twice.
-    return refTransform.position + refTransform.rotation * new Vector3(0, 0, trgJointHandleLength);
+    return refTransform.position + refTransform.rotation * new Vector3(0, 0, tgtJointHandleLength);
   }
   #endregion
 }
