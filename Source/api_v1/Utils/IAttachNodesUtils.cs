@@ -107,6 +107,13 @@ public interface IAttachNodesUtils {
   /// added to the part.
   /// </returns>
   AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId);
+
+  /// <summary>Gets or creates a transfrom object for the attach node.</summary>
+  /// <remarks>The trasnform is added into the root of the part model.</remarks>
+  /// <param name="ownerPart">The part that owns the node.</param>
+  /// <param name="an">The attach node to create the transform for.</param>
+  /// <returns>The object that matches the attach node connect point.</returns>
+  Transform GetTransformForNode(Part ownerPart, AttachNode an);
 }
 
 }  // namespace

@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using System;
 using UnityEngine;
 
@@ -110,6 +111,25 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
       DebugEx.Error("Cannot parse node {0} from: {1}\nError: {2}", nodeId, def, ex.Message);
       return null;
     }
+  }
+
+  /// <inheritdoc/>
+  public Transform GetTransformForNode(Part ownerPart, AttachNode an) {
+    if (an.owner != ownerPart) {
+      DebugEx.Warning("Attach node {0} doesn't belong to part {1}", NodeId(an), ownerPart);
+    }
+    var objectName = "attachNode-" + an.id;
+    var nodeTransform = Hierarchy.FindPartModelByPath(ownerPart, objectName);
+    if (nodeTransform != null) {
+      return nodeTransform;
+    }
+    nodeTransform = new GameObject(objectName).transform;
+    Hierarchy.MoveToParent(
+        nodeTransform,
+        Hierarchy.GetPartModelTransform(ownerPart),
+        newPosition: an.position,
+        newRotation: Quaternion.LookRotation(an.orientation));
+    return nodeTransform;
   }
 }
 
