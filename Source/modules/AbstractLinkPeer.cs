@@ -47,10 +47,12 @@ public abstract class AbstractLinkPeer : PartModule,
   [KSPField]
   public Vector3 attachNodeOrientation = Vector3.up;
 
-  /// <summary>Definition of the node to automatically create when the coupling is needed.</summary>
+  /// <summary>
+  /// Definition of the attach node to automatically create when the coupling is needed.
+  /// </summary>
   /// <remarks>
   /// The format of the string is exactly the same as for the part's attach nodes in the config.
-  /// This node will not be available in the editor or in the flight of the third-party mods
+  /// This node will not be available in the editor or in the flight for the third-party mods
   /// (like KIS).
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -58,7 +60,7 @@ public abstract class AbstractLinkPeer : PartModule,
   [KSPField]
   public string couplingNodeDef = "";
 
-  /// <summary>Name of the attach node for the inbound coupling operations.</summary>
+  /// <summary>Name of the attach node for the link and coupling operations.</summary>
   /// <remarks>
   /// <para>
   /// If the name is existing on the part, then it will be used. Otherwise, it will be assumed that

@@ -67,7 +67,7 @@ public interface ILinkPeer {
   /// <seealso cref="linkState"/>
   bool isLinked { get; }
 
-  /// <summary>Tels if the peer's link ability is disabled.</summary>
+  /// <summary>Tells if the peer's link ability is disabled.</summary>
   /// <value>The locked state.</value>
   /// <seealso cref="linkState"/>
   bool isLocked { get; }
