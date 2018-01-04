@@ -200,12 +200,9 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <value>The state machine instance.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
-  #endregion  
-  
-  #region Local properties & fields
   /// <summary>Tells if the attach node in this module is dynamically created when needed.</summary>
   /// <value><c>true</c> if the node only exists for the coupling.</value>
-  bool isAutoAttachNode;
+  protected bool isAutoAttachNode { get; private set; }
   #endregion
 
   #region IActivateOnDecouple implementation
