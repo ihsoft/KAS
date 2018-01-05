@@ -470,7 +470,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
-  #region Local properties
+  #region Inheritable properties
   /// <summary>Pipe's mesh.</summary>
   /// <value>The root object the link mesh. <c>null</c> if the renderer is not started.</value>
   /// <seealso cref="CreateLinkPipe"/>
