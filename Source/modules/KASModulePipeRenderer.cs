@@ -392,7 +392,11 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   public Transform targetTransform { get; private set; }
 
   /// <inheritdoc/>
-  public virtual float stretchRatio { get; set; }
+  public virtual float stretchRatio {
+    get { return _stretchRatio; }
+    set { _stretchRatio = value; }
+  }
+  float _stretchRatio = 1.0f;
   #endregion
 
   #region Part's config fields
@@ -504,7 +508,6 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public override void OnAwake() {
-    stretchRatio = 1.0f;  // A property default.
     base.OnAwake();
     if (HighLogic.LoadedScene != GameScenes.LOADING) {
       LoadPartConfig(PartConfig.GetModuleConfig(this));
