@@ -139,6 +139,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     SetBreakForces(cableJoint);
     
     // Move plug head to the target and adhere it there at the attach node transform.
+    jointObj.transform.position = GetTargetPhysicalAnchor(linkSource, linkTarget);
     var fixedJoint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(fixedJoint);
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
