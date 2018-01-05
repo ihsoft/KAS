@@ -454,16 +454,19 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Part's config settings loaded via ConfigAccessor
+  /// <summary>Group for the feilds that needs to be loaded from a part config.</summary>
+  protected const string PartConfigGroup = "PartConfig";
+
   /// <summary>Configuration of the source joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("sourceJoint", group = StdPersistentGroups.PartPersistant)]
+  [PersistentField("sourceJoint", group = PartConfigGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("targetJoint", group = StdPersistentGroups.PartPersistant)]
+  [PersistentField("targetJoint", group = PartConfigGroup)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
@@ -706,8 +709,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <para>
   /// When a decendant class needs the custom persistent fields loaded, there is no need to override
   /// this method. It's enough to declare the fields as public and assign them to the standard
-  /// persistent group <see cref="StdPersistentGroups.PartPersistant"/>. The base implementation
-  /// will load all the fields in this group for all the descendants in the chain.
+  /// persistent group <see cref="PartConfigGroup"/>. The base implementation will load all the
+  /// fields in this group for all the descendants in the chain.
   /// </para>
   /// </remarks>
   /// <param name="moduleNode">Config node to get the values from.</param>
@@ -715,8 +718,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
   protected virtual void LoadPartConfig(ConfigNode moduleNode) {
     // This will load all the public fields of the descendant types as well.
-    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this,
-                                      group: StdPersistentGroups.PartPersistant);
+    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this, group: PartConfigGroup);
     // For the procedural and simple modes use the hardcoded model names.
     if (sourceJointConfig.type != PipeEndType.PrefabModel) {
       sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
