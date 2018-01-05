@@ -575,10 +575,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Local properties and fields
-  /// <summary>Anchor transfrom at the connector to attach the cable.</summary>
+  /// <summary>Anchor transform at the connector to attach the cable.</summary>
   Transform connectorCableAnchor;
 
-  /// <summary>Anchor transfrom at the connector to attach with the part.</summary>
+  /// <summary>Anchor transform at the connector to attach with the part.</summary>
   Transform connectorPartAnchor;
 
   /// <summary>Sound to play when the motor is active.</summary>

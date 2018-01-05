@@ -108,7 +108,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
       return attachNode;
     }
     catch (Exception ex) {
-      DebugEx.Error("Cannot parse node {0} from: {1}\nError: {2}", nodeId, def, ex.Message);
+      DebugEx.Error("Cannot parse node {0} for part {1} from: {2}\nError: {3}",
+                    nodeId, ownerPart, def, ex.Message);
       return null;
     }
   }
