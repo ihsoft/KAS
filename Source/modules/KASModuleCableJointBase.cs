@@ -124,7 +124,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistantJoint(linkSource, linkTarget.part.Rigidbody,
+    CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
                        GetTargetPhysicalAnchor(linkSource, linkTarget));
   }
 
@@ -153,7 +153,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
-    CreateDistantJoint(source, headRb, headObjAnchor.position);
+    CreateDistanceJoint(source, headRb, headObjAnchor.position);
     SetCableLength(float.NegativeInfinity);
   }
 
@@ -202,7 +202,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
-  void CreateDistantJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
+  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
     cableJoint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(cableJoint);
     KASAPI.JointUtils.SetupDistanceJoint(

@@ -3,8 +3,6 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using UnityEngine;
-
 namespace KASAPIv1 {
 
 /// <summary>Base interface for a KAS joint.</summary>

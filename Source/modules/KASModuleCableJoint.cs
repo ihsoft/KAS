@@ -132,8 +132,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
                                          springDamper: cableSpringDamper,
                                          maxDistance: originalLength);
     cableJoint.autoConfigureConnectedAnchor = false;
-    cableJoint.anchor = Vector3.zero;
     cableJoint.connectedBody = linkSource.part.Rigidbody;
+    cableJoint.anchor = Vector3.zero;
     cableJoint.connectedAnchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
         GetSourcePhysicalAnchor(linkSource));
     SetBreakForces(cableJoint);
@@ -144,8 +144,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     KASAPI.JointUtils.SetupFixedJoint(fixedJoint);
     cableJoint.enablePreprocessing = true;
     fixedJoint.autoConfigureConnectedAnchor = false;
-    fixedJoint.anchor = Vector3.zero;
     fixedJoint.connectedBody = linkTarget.part.Rigidbody;
+    fixedJoint.anchor = Vector3.zero;
     fixedJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
         GetTargetPhysicalAnchor(linkSource, linkTarget));
     SetBreakForces(fixedJoint);
