@@ -128,7 +128,7 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     Hierarchy.MoveToParent(
         nodeTransform,
         Hierarchy.GetPartModelTransform(ownerPart),
-        newPosition: an.position,
+        newPosition: an.position / ownerPart.rescaleFactor,
         newRotation: Quaternion.LookRotation(an.orientation));
     return nodeTransform;
   }
