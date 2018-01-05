@@ -21,7 +21,9 @@ public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
   /// <summary>
   /// Name of the object in the part's model to park the target node's model at.  
   /// </summary>
-  protected const string ParkAtPartObjectName = "$parkAtPartTarget";
+  protected string ParkAtPartObjectName {
+    get { return "$parkAtPartTarget-" + part.Modules.IndexOf(this); }
+  }
   #endregion
 
   #region Helper class for drawing a head model at the pipe's target emd.
