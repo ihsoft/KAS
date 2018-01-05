@@ -495,6 +495,26 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <value>The target node container.</value>
   /// <seealso cref="LoadJointNode"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
+
+  /// <summary>The scale of the part models.</summary>
+  /// <remarks>
+  /// The scale of the part must be "even", i.e. all the components in the scale vector must be
+  /// equal. If they are not, then the renderer's behavior may be inconsistent.
+  /// </remarks>
+  /// <value>The scale to be applied to all the components.</value>
+  protected float baseScale {
+    get {
+      if (_baseScale < 0) {
+        var scale = partModelTransform.lossyScale;
+        if (!Mathf.Approximately(scale.x, scale.y) || !Mathf.Approximately(scale.x, scale.z)) {
+          HostedDebugLog.Error(this, "Uneven part scale is not supported: {0}", scale);
+        }
+        _baseScale = scale.x;
+      }
+      return _baseScale;
+    }
+  }
+  float _baseScale = -1;
   #endregion
 
   #region PartModule overrides
@@ -754,8 +774,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     } else {
       obj.LookAt(toPos);
     }
-    obj.localScale =
-        new Vector3(obj.localScale.x, obj.localScale.y, Vector3.Distance(fromPos, toPos));
+    obj.localScale = new Vector3(
+        obj.localScale.x, obj.localScale.y, Vector3.Distance(fromPos, toPos) / baseScale);
   }
   #endregion
 
@@ -771,9 +791,9 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
   /// <param name="scaleRatio">Additional scale to apply to the pipe texture.</param>
-  protected static void RescaleTextureToLength(
+  protected void RescaleTextureToLength(
       GameObject obj, float samplesPerMeter, Renderer renderer = null, float scaleRatio = 1.0f) {
-    var newScale = obj.transform.localScale.z * samplesPerMeter * scaleRatio;
+    var newScale = obj.transform.localScale.z * samplesPerMeter * scaleRatio / baseScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
     if (mr.material.GetTexture(BumpMapProp) != null) {
@@ -794,10 +814,10 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <returns>
   /// <c>null</c> if nothing has been hit or a message for the first hit detected.
   /// </returns>
-  protected static string DoSimpleSphereCheck(Transform source, Transform target, float radius) {
+  protected string DoSimpleSphereCheck(Transform source, Transform target, float radius) {
     var linkVector = target.position - source.position;
     var hits = Physics.SphereCastAll(
-        source.position, radius, linkVector, linkVector.magnitude,
+        source.position, radius * baseScale, linkVector, linkVector.magnitude,
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
