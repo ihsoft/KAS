@@ -346,7 +346,7 @@ public class KASModuleJointBase : PartModule,
       return;  // Nothing to do. 
     }
     if (!selfDecoupledAction
-        && linkSource.couplingNode != null && linkSource.couplingNode.id == nodeName) {
+        && linkSource.attachNode != null && linkSource.attachNode.id == nodeName) {
       // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
       MaybeBreakLink(linkSource, linkTarget);
@@ -571,7 +571,7 @@ public class KASModuleJointBase : PartModule,
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part);
     KASAPI.LinkUtils.CoupleParts(
-        linkSource.couplingNode, linkTarget.couplingNode, toDominantVessel: true);
+        linkSource.attachNode, linkTarget.attachNode, toDominantVessel: true);
   }
 
   /// <summary>Creates a physical link between the source and the target parts.</summary>

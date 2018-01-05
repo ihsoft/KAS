@@ -37,16 +37,6 @@ public abstract class AbstractLinkPeer : PartModule,
   [KSPField]
   public string linkType = "";
 
-  /// <summary>Defines the link base node position in the local part's space.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 attachNodePosition = Vector3.zero;
-
-  /// <summary>Defines the link base node orientation in the local part's space.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public Vector3 attachNodeOrientation = Vector3.up;
-
   /// <summary>
   /// Definition of the attach node to automatically create when the coupling is needed.
   /// </summary>
@@ -56,22 +46,24 @@ public abstract class AbstractLinkPeer : PartModule,
   /// (like KIS).
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <seealso cref="couplingNode"/>
+  /// <seealso cref="attachNode"/>
   [KSPField]
-  public string couplingNodeDef = "";
+  public string attachNodeDef = "";
 
   /// <summary>Name of the attach node for the link and coupling operations.</summary>
   /// <remarks>
-  /// <para>
-  /// If the name is existing on the part, then it will be used. Otherwise, it will be assumed that
-  /// the node needs to be created/removed automatically as needed.
-  /// </para>
-  /// <para>Special case is the empty name. It means the peer doesn't support coupling.</para>
+  /// If an attach node with this name is existing on the part, then it will be used. Otherwise, it
+  /// will be assumed that the node needs to be created/removed automatically as needed.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <seealso cref="couplingNodeDef"/>
+  /// <seealso cref="attachNodeDef"/>
   [KSPField]
-  public string couplingNodeName = "";
+  public string attachNodeName = "";
+
+  /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
+  /// <seealso cref="attachNode"/>
+  [KSPField]
+  public bool allowCoupling;
   #endregion
 
   #region Persistent fields
@@ -135,26 +127,13 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
-  public Transform nodeTransform {
-    get {
-      if (_nodeTransform == null) {
-        var nodeName = "linkPeerNode" + part.Modules.IndexOf(this);
-        _nodeTransform = Hierarchy.FindPartModelByPath(part, nodeName);
-        if (_nodeTransform == null) {
-          _nodeTransform = new GameObject(nodeName).transform;
-          Hierarchy.MoveToParent(_nodeTransform, Hierarchy.GetPartModelTransform(part),
-                                 newPosition: attachNodePosition,
-                                 newRotation: Quaternion.LookRotation(attachNodeOrientation));
-        }
-      }
-      return _nodeTransform;
-    }
-  }
-  Transform _nodeTransform;
+  public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public AttachNode couplingNode {
-    get; private set;
+  public AttachNode attachNode {
+    get {
+      return allowCoupling ? parsedAttachNode : null;
+    }
   }
 
   /// <inheritdoc/>
@@ -200,6 +179,13 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <value>The state machine instance.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
+
+  /// <summary>Attach node loaded from the part's config.</summary>
+  /// <value>The attach node. It's never <c>null</c>.</value>
+  /// <seealso cref="attachNodeName"/>
+  /// <seealso cref="attachNodeDef"/>
+  protected AttachNode parsedAttachNode { get; private set; }
+
   /// <summary>Tells if the attach node in this module is dynamically created when needed.</summary>
   /// <value><c>true</c> if the node only exists for the coupling.</value>
   protected bool isAutoAttachNode { get; private set; }
@@ -208,12 +194,12 @@ public abstract class AbstractLinkPeer : PartModule,
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (nodeName == couplingNodeName && isAutoAttachNode) {
+    if (nodeName == attachNodeName && isAutoAttachNode && attachNode != null) {
       HostedDebugLog.Fine(
-          this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(couplingNode));
-      part.attachNodes.Remove(couplingNode);
-      couplingNode.attachedPart = null;
-      couplingNode.attachedPartId = 0;
+          this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(attachNode));
+      part.attachNodes.Remove(attachNode);
+      attachNode.attachedPart = null;
+      attachNode.attachedPartId = 0;
     }
   }
   #endregion
@@ -238,23 +224,24 @@ public abstract class AbstractLinkPeer : PartModule,
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
 
-    if (couplingNodeName != "") {
-      couplingNode = part.FindAttachNode(couplingNodeName);
-      isAutoAttachNode = couplingNode == null;
-      if (isAutoAttachNode) {
-        couplingNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
-            part, couplingNodeDef, couplingNodeName);
-        if (couplingNode != null) {
-          HostedDebugLog.Fine(
-              this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(couplingNode));
-          if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor) {
-            // Only pre-add the node in the scenes that assume restoring a vessel state.
-            part.attachNodes.Add(couplingNode);
-          }
-        } else {
-          HostedDebugLog.Error(this, "Cannot create auto node from: {0}", couplingNodeDef);
+    parsedAttachNode = part.FindAttachNode(attachNodeName);
+    isAutoAttachNode = parsedAttachNode == null;
+    if (isAutoAttachNode) {
+      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
+          part, attachNodeDef, attachNodeName);
+      if (parsedAttachNode != null) {
+        HostedDebugLog.Fine(
+            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
+        if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor) {
+          // Only pre-add the node in the scenes that assume restoring a vessel state.
+          part.attachNodes.Add(parsedAttachNode);
         }
+      } else {
+        HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
       }
+    }
+    if (parsedAttachNode != null) {
+      nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
   }
 
@@ -263,10 +250,10 @@ public abstract class AbstractLinkPeer : PartModule,
     base.OnStartFinished(state);
     // Prevent the third-party logic on the auto node.
     if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
-        && isAutoAttachNode && couplingNode != null && couplingNode.attachedPart == null) {
-      part.attachNodes.Remove(couplingNode);
+        && isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
+      part.attachNodes.Remove(attachNode);
       HostedDebugLog.Fine(this, "Cleaning up the unused auto node: {0}",
-                          KASAPI.AttachNodesUtils.NodeId(couplingNode));
+                          KASAPI.AttachNodesUtils.NodeId(attachNode));
     }
     if (persistedLinkState == LinkState.Linked) {
       RestoreOtherPeer();

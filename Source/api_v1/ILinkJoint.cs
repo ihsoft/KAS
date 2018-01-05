@@ -90,7 +90,7 @@ public interface ILinkJoint {
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
   /// <seealso cref="coupleOnLinkMode"/>
-  /// <seealso cref="ILinkPeer.couplingNode"/>
+  /// <seealso cref="ILinkPeer.attachNode"/>
   void SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>

@@ -60,7 +60,7 @@ public interface ILinkPeer {
   /// <value>The attach node or <c>null</c> if the peer doesn't support coupling.</value>
   /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
   /// <seealso cref="IAttachNodesUtils.AddNode"/>
-  AttachNode couplingNode { get; }
+  AttachNode attachNode { get; }
 
   /// <summary>Tells if this peer is currectly linked to another peer.</summary>
   /// <value>The current state of the link.</value>
