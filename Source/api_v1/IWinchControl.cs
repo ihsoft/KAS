@@ -28,6 +28,8 @@ public interface IWinchControl : ILinkSource {
   /// winch. When the linked connector unlocks, the attached part undocks from the vessel.
   /// </remarks>
   /// <seealso cref="ILinkPeer.isLinked"/>
+  /// <seealso cref="ILinkSource.linkJoint"/>
+  /// <seealso cref="ILinkJoint.coupleOnLinkMode"/>
   /// <seealso cref="SetMotor"/>
   bool isConnectorLocked { get; }
   
