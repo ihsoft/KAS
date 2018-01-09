@@ -845,14 +845,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  protected override string CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
+  protected override string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
     // It's OK to link with the kerbal target even though it's not dockable. This case is explicitly
     // handled when doing the connector locking.
     //FIXME: really? how about loading a kerbal attached to the winch?
-    return base.CheckBasicLinkConditions(target, checkStates)
-        ?? (!target.part.vessel.isEVA && target.attachNode == null
-            ? TargetIsNotDockableMsg.Format()
-            : null);
+    var linkStatusErrors = new List<string>();
+    if (!target.part.vessel.isEVA && target.attachNode == null) {
+      linkStatusErrors.Add(TargetIsNotDockableMsg);
+    }
+    return linkStatusErrors
+        .Concat(base.CheckBasicLinkConditions(target, checkStates))
+        .ToArray();
   }
   #endregion
 

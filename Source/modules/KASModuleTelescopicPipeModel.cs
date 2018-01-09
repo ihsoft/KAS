@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -451,7 +452,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public string CheckColliderHits(Transform source, Transform target) {
+  public string[] CheckColliderHits(Transform source, Transform target) {
+    var hitMessages = new HashSet<string>();  // Same object can be hit multiple times.
     var sourcePos = GetLinkVectorSourcePos(source);
     var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
     var hits = Physics.SphereCastAll(
@@ -462,12 +464,12 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
       if (hit.transform.root != source.root && hit.transform.root != target.root) {
         var hitPart = hit.transform.root.GetComponent<Part>();
         // Use partInfo.title to properly display kerbal names.
-        return hitPart != null
+        hitMessages.Add(hitPart != null
             ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
-            : LinkCollidesWithSurfaceMsg.Format();
+            : LinkCollidesWithSurfaceMsg.Format());
       }
     }
-    return null;
+    return hitMessages.ToArray();
   }
   #endregion
 

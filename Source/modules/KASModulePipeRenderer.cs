@@ -10,6 +10,8 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace KAS {
@@ -611,14 +613,12 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public virtual string CheckColliderHits(Transform source, Transform target) {
+  public virtual string[] CheckColliderHits(Transform source, Transform target) {
     // TODO(ihsoft): Implement a full check that includes the pipe ends as well.
     // TODO(ihsoft): Add a parameter to request only the physical colision.
-    string result = null;
-    if (pipeColliderIsPhysical) {
-      result = DoSimpleSphereCheck(target, source, pipeDiameter);
-    }
-    return result;
+    return pipeColliderIsPhysical
+        ? DoSimpleSphereCheck(target, source, pipeDiameter)
+        : new string[] { };
   }
   #endregion
 
@@ -816,7 +816,8 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   /// <returns>
   /// <c>null</c> if nothing has been hit or a message for the first hit detected.
   /// </returns>
-  protected string DoSimpleSphereCheck(Transform source, Transform target, float radius) {
+  protected string[] DoSimpleSphereCheck(Transform source, Transform target, float radius) {
+    var hitMessages = new HashSet<string>();  // Same object can be hit multiple times.
     var linkVector = target.position - source.position;
     var hits = Physics.SphereCastAll(
         source.position, radius * baseScale, linkVector, linkVector.magnitude,
@@ -825,12 +826,12 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
     foreach (var hit in hits) {
       var hitPart = hit.transform.root.GetComponent<Part>();
       if (hit.transform.root != source.root && hit.transform.root != target.root) {
-        return hitPart != null
+        hitMessages.Add(hitPart != null
             ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
-            : LinkCollidesWithSurfaceMsg.Format();
+            : LinkCollidesWithSurfaceMsg.Format());
       }
     }
-    return null;
+    return hitMessages.ToArray();
   }
   #endregion
 }

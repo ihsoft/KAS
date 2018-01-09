@@ -305,13 +305,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
-          var linkStatusErrors = new[] {
-              CheckBasicLinkConditions(targetCandidate, checkStates: true),
-              linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform)
-          };
-          linkStatusErrors = linkStatusErrors
+          var linkStatusErrors = new string[]{ }
+              .Concat(CheckBasicLinkConditions(targetCandidate, checkStates: true))
+              .Concat(linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform))
               .Concat(linkJoint.CheckConstraints(this, targetCandidate))
-              .Where(x => x != null)
               .ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;

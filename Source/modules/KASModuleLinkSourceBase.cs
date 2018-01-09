@@ -9,6 +9,7 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -372,13 +373,11 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   public virtual bool CheckCanLinkTo(ILinkTarget target,
                                      bool checkStates = true,
                                      bool reportToGUI = false, bool reportToLog = true) {
-    var errors = new[] {
-        CheckBasicLinkConditions(target, checkStates),
-        linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform),
-    };
+    var errors = new string[]{ };
     errors = errors
+        .Concat(CheckBasicLinkConditions(target, checkStates))
+        .Concat(linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform))
         .Concat(linkJoint.CheckConstraints(this, target))
-        .Where(x => x != null)
         .ToArray();
     if (errors.Length > 0) {
       if (reportToGUI || reportToLog) {
@@ -496,29 +495,32 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// </remarks>
   /// <param name="target">The target of the pipe to check link with.</param>
   /// <param name="checkStates">Tells if the source and target states need to be validated.</param>
-  /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
-  protected virtual string CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
+  /// <returns>
+  /// An empty array if the link can be created, or a list of user friendly errors otherwise.
+  /// </returns>
+  protected virtual string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
+    var errors = new List<string>();
     if (checkStates) {
       if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {
-        return SourceIsNotAvailableForLinkMsg;
+        errors.Add(SourceIsNotAvailableForLinkMsg);
       }
       if (linkState == LinkState.Available && target.linkState != LinkState.Available
           || linkState == LinkState.Linking && target.linkState != LinkState.AcceptingLinks
           || target.isLocked) {
-        return TargetDoesntAcceptLinksMsg;
+        errors.Add(TargetDoesntAcceptLinksMsg);
       }
     }
     if (cfgLinkType != target.cfgLinkType) {
-      return IncompatibleTargetLinkTypeMsg;
+      errors.Add(IncompatibleTargetLinkTypeMsg);
     }
     if (linkMode == LinkMode.TiePartsOnDifferentVessels
         && vessel == target.part.vessel) {
-      return CannotLinkToTheSameVesselMsg;
+      errors.Add(CannotLinkToTheSameVesselMsg);
     }
     if (linkMode == LinkMode.TiePartsOnSameVessel && vessel != target.part.vessel) {
-      return CannotLinkDifferentVesselsMsg;
+      errors.Add(CannotLinkDifferentVesselsMsg);
     }
-    return null;
+    return errors.ToArray();
   }
   #endregion
 

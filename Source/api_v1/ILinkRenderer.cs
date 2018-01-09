@@ -135,10 +135,10 @@ public interface ILinkRenderer {
   /// <param name="source">Source node.</param>
   /// <param name="target">Target node.</param>
   /// <returns>
-  /// <c>null</c> if nothing collides with the link. Otherwise, a short user friendly message.
+  /// An empty array if no hits were detected, or a list of user friendly errors otherwise.
   /// </returns>
   // TODO(ihsoft): Deprecate it in favor of the hollo model callback.
-  string CheckColliderHits(Transform source, Transform target);
+  string[] CheckColliderHits(Transform source, Transform target);
 }
 
 }  // namespace
