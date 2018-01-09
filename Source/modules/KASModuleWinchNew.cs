@@ -511,7 +511,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     /// </summary>
     Locked,
 
-    /// <summary>The connector is dokced to the winch with its attached part.</summary>
+    /// <summary>The connector is docked to the winch with its attached part.</summary>
     Docked,
 
     /// <summary>
@@ -538,8 +538,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <value>The connector state.</value>
   protected WinchConnectorState connectorState {
     get {
-        return connectorStateMachine.currentState
-            ?? (isLinked ? WinchConnectorState.Docked : WinchConnectorState.Locked);
+      return connectorStateMachine.currentState
+          ?? (isLinked ? WinchConnectorState.Docked : WinchConnectorState.Locked);
     }
     set {
       if (connectorStateMachine.currentState != value) {
