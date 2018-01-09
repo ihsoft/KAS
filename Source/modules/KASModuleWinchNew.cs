@@ -34,10 +34,18 @@ namespace KAS {
 /// the most flexible, and the winch is capable of changing "docked" vs "non-docked" mode when the
 /// link is already made.
 /// </para>
+/// <para>
+/// This winch implementation requires the associated joint module to support coupling. The winch
+/// cable targets are also required to support coupling. The winch module behavior is undetermined
+/// if the coupling is rejected when a plugged connector is being locked (going into the "docked"
+/// state).
+/// </para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
-// Next localization ID: #kasLOC_08026.
+/// <seealso cref="ILinkSource.linkJoint"/>
+/// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
+// Next localization ID: #kasLOC_08027.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
@@ -151,6 +159,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate: "The connector is detached due to the cable strength is exceeded",
       description: "A message to display when a too string force has broke the link between the"
       + "winch and it's target.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message TargetIsNotDockableMsg = new Message(
+      "#kasLOC_08026",
+      defaultTemplate: "Target part cannot dock with the winch",
+      description: "The message to present when the winch connector is being attempted to attach to"
+      + " a target part which doesn't support coupling with the winch.");
   #endregion
 
   #region Part's config fields
@@ -707,6 +722,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    if (attachNode == null) {
+      HostedDebugLog.Error(this, "Winch source must be able to couple. It won't work properly!");
+    }
+  }
+
+  /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     if (connectorMass > part.mass) {
@@ -819,6 +842,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       // it'll only happen when the physics is started.
       linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
     }
+  }
+
+  /// <inheritdoc/>
+  protected override string CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
+    // It's OK to link with the kerbal target even though it's not dockable. This case is explicitly
+    // handled when doing the connector locking.
+    //FIXME: really? how about loading a kerbal attached to the winch?
+    return base.CheckBasicLinkConditions(target, checkStates)
+        ?? (!target.part.vessel.isEVA && target.attachNode == null
+            ? TargetIsNotDockableMsg.Format()
+            : null);
   }
   #endregion
 
