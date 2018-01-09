@@ -647,7 +647,7 @@ public class KASModuleJointBase : PartModule,
   /// <returns>The position in the world coordinates.</returns>
   protected Vector3 GetTargetPhysicalAnchor(ILinkSource source, ILinkTarget target) {
     var srcScale = source.nodeTransform.lossyScale;
-    if (Mathf.Abs(srcScale.x - srcScale.y) > 1e-06 || Mathf.Abs(srcScale.x - srcScale.z) > 1e-06) {
+    if (Mathf.Abs(srcScale.x - srcScale.y) > 1e-05 || Mathf.Abs(srcScale.x - srcScale.z) > 1e-05) {
       HostedDebugLog.Error(this, "Uneven scale on the source part is not supported: {0}", srcScale);
     }
     return target.nodeTransform.position
