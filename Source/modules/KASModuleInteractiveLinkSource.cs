@@ -22,7 +22,7 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-// Next localization ID: #kasLOC_01004.
+// Next localization ID: #kasLOC_01005.
 public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
     // KSPDev interfaces.
     IHasContextMenu {
@@ -33,8 +33,8 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   static readonly Message<DistanceType> CanBeConnectedMsg = new Message<DistanceType>(
       "#kasLOC_01000",
       defaultTemplate: "Click to establish a link (length <<1>>)",
-      description: "Message to display when a compatible target part is hovered over and the source"
-      + " is in the linking mode."
+      description: "The message to display when a compatible target part is hovered over, and the"
+      + " source is in the linking mode."
       + "\nArgument <<1>> is the possible link length of type DistanceType.",
       example: "Click to establish a link (length 1.22 m)");
 
@@ -42,8 +42,15 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   static readonly Message LinkingInProgressMsg = new Message(
       "#kasLOC_01001",
       defaultTemplate: "Select a compatible socket or press ESC",
-      description: "Message to display as a help string when an interactive linking mode has"
+      description: "The message to display as a help string when an interactive linking mode has"
       + " started.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message CannotDockMsg = new Message(
+      "#kasLOC_01004",
+      defaultTemplate: "Cannot dock: the mode is not supported",
+      description: "The message to present when the player requests a docking mode for the link via"
+      + " UI, but the source or target part is rejecting the action.");
   #endregion
 
   #region Part's config fields
@@ -81,18 +88,6 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string breakLinkMenu = "";
-
-  /// <summary>
-  /// Tells if there should be a UI menu item that allows switching the docked (coupled) mode of the
-  /// joint.
-  /// </summary>
-  /// <remarks>
-  /// This settings only affects the UI item in the part's menu. The actual changes are done in the
-  /// <see cref="ILinkJoint"/> module, and the mode change may be unsuccessful.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public bool allowChanginDockingMode;
   #endregion
 
   // TODO(ihsoft): Disallow non-eva control.
@@ -138,11 +133,15 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
       + " gives a currently selected state.")]
   public void DockVesselsContextMenuAction() {
-    linkJoint.SetCoupleOnLinkMode(true);
-    if (linkJoint.isLinked && linkJoint.coupleOnLinkMode) {
-      UISoundPlayer.instance.Play(sndPathDock);
+    if (linkJoint.SetCoupleOnLinkMode(true)) {
+      if (linkJoint.isLinked && linkJoint.coupleOnLinkMode) {
+        UISoundPlayer.instance.Play(sndPathDock);
+      }
+      UpdateContextMenu();
+    } else {
+      ScreenMessages.PostScreenMessage(CannotDockMsg);
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
     }
-    UpdateContextMenu();
   }
   #endregion
 
@@ -220,10 +219,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                                });
     PartModuleUtils.SetupEvent(
         this, DockVesselsContextMenuAction,
-        e => e.active = allowChanginDockingMode && !linkJoint.coupleOnLinkMode);
+        e => e.active = attachNode != null && !linkJoint.coupleOnLinkMode);
     PartModuleUtils.SetupEvent(
         this, UndockVesselsContextMenuAction,
-        e => e.active = allowChanginDockingMode && linkJoint.coupleOnLinkMode);
+        e => e.active = linkJoint.coupleOnLinkMode);
   }
   #endregion
 
