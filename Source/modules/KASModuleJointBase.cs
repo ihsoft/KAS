@@ -465,12 +465,17 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual void SetCoupleOnLinkMode(bool isCoupleOnLink) {
+  public virtual bool SetCoupleOnLinkMode(bool isCoupleOnLink) {
     if (!isLinked) {
       coupleOnLinkMode = isCoupleOnLink;
       HostedDebugLog.Fine(
           this, "Coupling mode updated in a non-linked module: {0}", isCoupleOnLink);
-      return;
+      return true;
+    }
+    if (isCoupleOnLink && (linkSource.attachNode == null || linkTarget.attachNode == null)) {
+      HostedDebugLog.Error(this, "Cannot couple due to source or target doesn't support it");
+      coupleOnLinkMode = false;
+      return false;
     }
     if (isCoupleOnLink && linkSource.part.vessel != linkTarget.part.vessel) {
       // Couple the parts, and drop the other link(s).
@@ -485,6 +490,7 @@ public class KASModuleJointBase : PartModule,
     } else {
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
+    return true;
   }
   #endregion
 

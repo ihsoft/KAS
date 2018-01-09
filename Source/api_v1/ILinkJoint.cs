@@ -82,16 +82,26 @@ public interface ILinkJoint {
 
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
+  /// <para>
   /// When both the source and the target peers support coupling, this mode can be arbitrary set or
   /// reset via the joint module. If the new mode is "coupling", and the source and the target
   /// vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
   /// and the source and the target parts are coupled, then a decoupling event is triggered. In all
   /// the other cases it's just a boolean property change.
+  /// </para>
+  /// <para>
+  /// The modules must support the cycles and be ready to pick up the coupling role when the former
+  /// part has gave up.
+  /// </para>
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
+  /// <returns>
+  /// <c>true</c> if the new mode has been accepted. The change may be refused for any reason by the
+  /// implementation, and the caller must react accordingly.
+  /// </returns>
   /// <seealso cref="coupleOnLinkMode"/>
   /// <seealso cref="ILinkPeer.attachNode"/>
-  void SetCoupleOnLinkMode(bool isCoupleOnLink);
+  bool SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
   /// <param name="source">The possible source of the link.</param>
