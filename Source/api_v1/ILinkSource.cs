@@ -178,7 +178,12 @@ public interface ILinkSource : ILinkPeer {
   void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>
-  /// <param name="target">Target to connect with.</param>
+  /// <param name="target">The target to connect with.</param>
+  /// <param name="checkStates">
+  /// Tells if the source and target states needs to be checked. This check can be disabled when
+  /// checking for a "theoretical" posibility of the link. However, keep in mind that before doing
+  /// the actual link, the full check will be performed.
+  /// </param>
   /// <param name="reportToGUI">
   /// If <c>true</c> then the errors will be reported to the UI letting the user know that the link
   /// cannot be made.
@@ -191,7 +196,8 @@ public interface ILinkSource : ILinkPeer {
   /// </param>
   /// <returns><c>true</c> if the link can be made.</returns>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectPartsWithCheck"/></example>
-  bool CheckCanLinkTo(ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
+  bool CheckCanLinkTo(ILinkTarget target,
+                      bool checkStates = true, bool reportToGUI = false, bool reportToLog = true);
 }
 
 }  // namespace

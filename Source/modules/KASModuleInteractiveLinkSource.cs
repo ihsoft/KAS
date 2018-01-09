@@ -306,12 +306,13 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
           var linkStatusErrors = new[] {
-              CheckBasicLinkConditions(targetCandidate),
+              CheckBasicLinkConditions(targetCandidate, checkStates: true),
               linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform)
           };
           linkStatusErrors = linkStatusErrors
               .Concat(linkJoint.CheckConstraints(this, targetCandidate))
-              .Where(x => x != null).ToArray();
+              .Where(x => x != null)
+              .ToArray();
           if (linkStatusErrors.Length == 0) {
             targetCandidateIsGood = true;
             statusScreenMessage.message = CanBeConnectedMsg.Format(

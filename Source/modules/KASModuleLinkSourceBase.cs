@@ -369,15 +369,16 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public virtual bool CheckCanLinkTo(
-      ILinkTarget target, bool reportToGUI = false, bool reportToLog = true) {
+  public virtual bool CheckCanLinkTo(ILinkTarget target,
+                                     bool checkStates = true,
+                                     bool reportToGUI = false, bool reportToLog = true) {
     var errors = new[] {
-        CheckBasicLinkConditions(target),
+        CheckBasicLinkConditions(target, checkStates),
         linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform),
     };
     errors = errors
-        .Where(x => x != null)
         .Concat(linkJoint.CheckConstraints(this, target))
+        .Where(x => x != null)
         .ToArray();
     if (errors.Length > 0) {
       if (reportToGUI || reportToLog) {
@@ -484,24 +485,28 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   protected virtual void PhysicaUnlink() {
     linkJoint.DropJoint();
   }
-  #endregion
 
-  #region New utility methods
   /// <summary>
   /// Performs a check to ensure that the link between the source and the target, if it's made, will
   /// be consistent.
   /// </summary>
-  /// <remarks>This method must pass for both started and not started linking mode.</remarks>
-  /// <param name="target">Target of the pipe to check link with.</param>
+  /// <remarks>
+  /// This method must pass for both started and not started linking mode even when the state
+  /// checking is requested.
+  /// </remarks>
+  /// <param name="target">The target of the pipe to check link with.</param>
+  /// <param name="checkStates">Tells if the source and target states need to be validated.</param>
   /// <returns>An error message if link cannot be established or <c>null</c> otherwise.</returns>
-  protected string CheckBasicLinkConditions(ILinkTarget target) {
-    if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {
-      return SourceIsNotAvailableForLinkMsg;
-    }
-    if (linkState == LinkState.Available && target.linkState != LinkState.Available
-        || linkState == LinkState.Linking && target.linkState != LinkState.AcceptingLinks
-        || target.isLocked) {
-      return TargetDoesntAcceptLinksMsg;
+  protected virtual string CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
+    if (checkStates) {
+      if (linkState != LinkState.Available && linkState != LinkState.Linking || isLocked) {
+        return SourceIsNotAvailableForLinkMsg;
+      }
+      if (linkState == LinkState.Available && target.linkState != LinkState.Available
+          || linkState == LinkState.Linking && target.linkState != LinkState.AcceptingLinks
+          || target.isLocked) {
+        return TargetDoesntAcceptLinksMsg;
+      }
     }
     if (cfgLinkType != target.cfgLinkType) {
       return IncompatibleTargetLinkTypeMsg;
