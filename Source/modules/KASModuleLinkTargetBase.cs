@@ -88,13 +88,16 @@ public class KASModuleLinkTargetBase :
     var kerbalTarget = FindEvaTargetWithConnector();
     if (kerbalTarget != null) {
       var connectorSource = kerbalTarget.linkSource;
-      connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
-      if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
-          && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (!connectorSource.LinkToTarget(this)) {
-          connectorSource.CancelLinking();
+      if (connectorSource.CheckCanLinkTo(this, reportToGUI: true, checkStates: false)) {
+        connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
+        if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
+            && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
+          if (!connectorSource.LinkToTarget(this)) {
+            connectorSource.CancelLinking();
+          }
         }
-      } else {
+      }
+      if (!ReferenceEquals(connectorSource.linkTarget, this)) {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
     }
