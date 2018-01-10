@@ -722,16 +722,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
-    if (attachNode == null) {
-      HostedDebugLog.Error(this, "Winch source must be able to couple. It won't work properly!");
-    }
-  }
-
-  /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    // This module can only operate with the docking peers.
+    if (!allowCoupling) {
+      HostedDebugLog.Error(this, "The winch must be allowed for coupling!");
+      allowCoupling = true;  // A bad approach, but better than not having the attach node.
+    }
     base.OnLoad(node);
+
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(this,
           "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
