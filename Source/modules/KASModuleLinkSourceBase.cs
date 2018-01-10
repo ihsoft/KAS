@@ -33,6 +33,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
+// Next localization ID: #kasLOC_02011.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
@@ -42,7 +43,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     // KAS interfaces.
     ILinkSource, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
+    IPartModule, IsPackable, IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -225,9 +226,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       ShowStatusMessage(CannotRestoreLinkMsg.Format(part.name), isError: true);
     }
   }
-  #endregion
 
-  #region PartModule overrides
   /// <inheritdoc/>
   public override void OnInitialize() {
     base.OnInitialize();

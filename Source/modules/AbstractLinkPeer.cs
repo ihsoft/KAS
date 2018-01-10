@@ -7,7 +7,6 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using KSPDev.ModelUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
@@ -82,7 +81,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public uint persistedLinkPartId;
   #endregion
 
-  #region ILinkPeer implementation
+  #region ILinkPeer properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return linkType; } }
 
@@ -153,7 +152,7 @@ public abstract class AbstractLinkPeer : PartModule,
   }
   #endregion
 
-  #region Inheritable members
+  #region Inheritable fields & properties
   /// <summary>
   /// State machine that controls the source state tranistions and defines the reaction on these
   /// changes.

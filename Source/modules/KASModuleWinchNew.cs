@@ -620,7 +620,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   AudioSource sndConnectorDock;
   #endregion
 
-  #region PartModule overrides
+  #region AbstractLinkPeer overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
