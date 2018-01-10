@@ -139,7 +139,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       }
       UpdateContextMenu();
     } else {
-      ScreenMessages.PostScreenMessage(CannotDockMsg);
+      ShowStatusMessage(CannotDockMsg, isError: true);
       UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
     }
   }

@@ -414,7 +414,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " the connector if it was locked.")]
   public virtual void ReleaseCableEvent() {
     ReleaseCable();
-    ShowMessageForActiveVessel(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
+    ShowStatusMessage(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
   }
 
   /// <summary>
@@ -889,11 +889,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   public void SetMotor(float targetSpeed) {
     if (targetSpeed > 0 && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
-      ShowMessageForActiveVessel(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
+      ShowStatusMessage(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       return;
     }
     if (targetSpeed < 0 && isConnectorLocked) {
-      ShowMessageForActiveVessel(ConnectorLockedMsg);
+      ShowStatusMessage(ConnectorLockedMsg);
       return;
     }
     if (targetSpeed > 0 && isConnectorLocked) {
@@ -934,21 +934,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   #region Inheritable utility methods
-  /// <summary>Shows a message in GUI if the reporting part belongs to the active vessel.</summary>
-  /// <remarks>
-  /// Use this method to present an update which is only important when the player is in control
-  /// of the owner vessel. In general, when an update happens on an inactive vessel, the GUI message
-  /// will look confusing since the player may not have the context.
-  /// </remarks>
-  /// <remarks>The message is also reported to the log.</remarks>
-  /// <param name="message">The message to present.</param>
-  protected void ShowMessageForActiveVessel(string message) {
-    HostedDebugLog.Info(this, message);
-    if (vessel.isActiveVessel) {
-      ScreenMessaging.ShowPriorityScreenMessage(message);
-    }
-  }
-
   /// <summary>
   /// Tells if the currently active vessel is an EVA kerbal who carries this winch connector.
   /// </summary>
@@ -1093,17 +1078,17 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
     if (!CheckIsConnectorAligned(reportIfCannot)) {
       if (reportIfCannot) {
-        ShowMessageForActiveVessel(LockConnectorNotAlignedMsg);
+        ShowStatusMessage(LockConnectorNotAlignedMsg, isError: true);
       }
       return false;
     }
     if (isLinked) {
       //FIXME: support decoupling by external actors and reset to Locked state
       connectorState = WinchConnectorState.Docked;
-      ShowMessageForActiveVessel(ConnectorDockedMsg);
+      ShowStatusMessage(ConnectorDockedMsg);
     } else {
       connectorState = WinchConnectorState.Locked;
-      ShowMessageForActiveVessel(ConnectorLockedMsg);
+      ShowStatusMessage(ConnectorLockedMsg);
     }
     return true;
   }

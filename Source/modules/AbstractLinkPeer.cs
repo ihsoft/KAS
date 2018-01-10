@@ -314,6 +314,33 @@ public abstract class AbstractLinkPeer : PartModule,
   protected virtual void RestoreOtherPeer() {
     otherPeer = KASAPI.LinkUtils.FindLinkPeer(this);
   }
+
+  /// <summary>Shows a UI messages with regard to the currently active vessel.</summary>
+  /// <remarks>
+  /// The UI messages from the active vessel are show n at the highest priority to bring attention
+  /// of the player. The messages from the inactive vessels are show only as a status, that is not
+  /// intended to distract the player from the current vessel operations.
+  /// </remarks>
+  /// <param name="msg">The message to show.</param>
+  /// <param name="isError">
+  /// Tells if the messages is an error condition report. Such messages will be highlighed with the
+  /// color.
+  /// </param>
+  protected void ShowStatusMessage(string msg, bool isError = false) {
+    if (FlightGlobals.ActiveVessel != vessel) {
+      msg = string.Format("[{0}]: {1}", vessel.vesselName, msg);
+    }
+    if (isError) {
+      msg = ScreenMessaging.SetColorToRichText(msg, ScreenMessaging.ErrorColor);
+    }
+    var duration = isError
+        ? ScreenMessaging.DefaultErrorTimeout
+        : ScreenMessaging.DefaultMessageTimeout;
+    var location = FlightGlobals.ActiveVessel == vessel
+        ? ScreenMessageStyle.UPPER_CENTER
+        : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
+    ScreenMessages.PostScreenMessage(msg, duration, location);
+  }
   #endregion
 }
 

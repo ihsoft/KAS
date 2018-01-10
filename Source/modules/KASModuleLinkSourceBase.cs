@@ -222,7 +222,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     if (linkTarget != null) {
       linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     } else {
-      ScreenMessaging.ShowErrorScreenMessage(CannotRestoreLinkMsg.Format(part.name));
+      ShowStatusMessage(CannotRestoreLinkMsg.Format(part.name), isError: true);
     }
   }
   #endregion
@@ -386,11 +386,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
             cfgLinkType, target.part, target.cfgLinkType, DbgFormatter.C2S(errors));
       }
       if (reportToGUI) {
-        ScreenMessaging.ShowScreenMessage(
-            ScreenMessageStyle.UPPER_CENTER,
-            ScreenMessaging.DefaultMessageTimeout,
-            ScreenMessaging.ErrorColor,
-            DbgFormatter.C2S(errors, separator: "\n"));
+        ShowStatusMessage(DbgFormatter.C2S(errors, separator: "\n"), isError: true);
       }
     }
     return errors.Length == 0;
