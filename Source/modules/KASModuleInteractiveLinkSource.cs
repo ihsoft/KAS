@@ -301,7 +301,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       if (lastHoveredPart == null ) {
         targetCandidate = null;
       } else {
-        targetCandidate = lastHoveredPart.FindModulesImplementing<ILinkTarget>()
+        targetCandidate = lastHoveredPart.Modules.OfType<ILinkTarget>()
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {

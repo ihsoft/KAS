@@ -441,7 +441,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "A context menu event that attaches the connector to the EVA kerbal.")]
   public virtual void GrabConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
+      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => t.cfgLinkType == cfgLinkType);
       if (kerbalTarget != null
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true)
@@ -466,7 +466,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void ReturnConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.FindModulesImplementing<ILinkTarget>()
+      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
       // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
       BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);

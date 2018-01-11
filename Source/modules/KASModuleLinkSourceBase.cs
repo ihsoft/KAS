@@ -240,12 +240,12 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
 
-    linkJoint = part.FindModulesImplementing<ILinkJoint>()
+    linkJoint = part.Modules.OfType<ILinkJoint>()
         .FirstOrDefault(x => x.cfgJointName == jointName);
     if (linkJoint == null) {
       HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
     }
-    linkRenderer = part.FindModulesImplementing<ILinkRenderer>()
+    linkRenderer = part.Modules.OfType<ILinkRenderer>()
         .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
     if (linkRenderer == null) {
       HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");

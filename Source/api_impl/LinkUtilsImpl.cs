@@ -15,7 +15,7 @@ class LinkUtilsImpl : ILinkUtils {
     if (srcPeer.linkPartId > 0) {
       var tgtPeer = FlightGlobals.FindPartByID(srcPeer.linkPartId);
       if (tgtPeer != null) {
-        return tgtPeer.FindModulesImplementing<ILinkPeer>().FirstOrDefault(
+        return tgtPeer.Modules.OfType<ILinkPeer>().FirstOrDefault(
             p => p.isLinked && p.linkPartId == srcPeer.part.flightID);
       }
     }

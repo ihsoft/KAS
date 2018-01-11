@@ -264,8 +264,7 @@ public abstract class AbstractLinkPeer : PartModule,
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }
     }
-    linkStateMachine.currentState = persistedLinkState;
-    linkState = linkState;  // Trigger state updates.
+    linkState = persistedLinkState;
   }
   #endregion
 
