@@ -567,6 +567,15 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="DecoupleParts"/>
   protected virtual void CoupleParts() {
     if (isCoupled) {
+      // Add the vessel infos if need (e.g. in case of the external attaching).
+      if (persistedSrcVesselInfo == null) {
+        HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
+        persistedSrcVesselInfo = GetVesselInfo(vessel);
+      }
+      if (persistedTgtVesselInfo == null) {
+        HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
+        persistedTgtVesselInfo = GetVesselInfo(vessel);
+      }
       return;
     }
     if (!isLinked || linkSource.part.vessel == linkTarget.part.vessel) {
