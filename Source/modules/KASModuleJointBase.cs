@@ -574,8 +574,8 @@ public class KASModuleJointBase : PartModule,
       return;
     }
     // Remember the vessel info to restore it on the decoupling.
-    persistedSrcVesselInfo = GetVesselInfo(linkSource.part);
-    persistedTgtVesselInfo = GetVesselInfo(linkTarget.part);
+    persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
+    persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
     KASAPI.LinkUtils.CoupleParts(
         linkSource.attachNode, linkTarget.attachNode, toDominantVessel: true);
   }
@@ -793,12 +793,12 @@ public class KASModuleJointBase : PartModule,
   }
 
   /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
-  /// <param name="p">The part to search for the module on.</param>
-  DockedVesselInfo GetVesselInfo(Part p) {
+  /// <param name="v">The vessel to capture the info for.</param>
+  static DockedVesselInfo GetVesselInfo(Vessel v) {
     var vesselInfo = new DockedVesselInfo();
-    vesselInfo.name = p.vessel.vesselName;
-    vesselInfo.vesselType = p.vessel.vesselType;
-    vesselInfo.rootPartUId = p.vessel.rootPart.flightID;
+    vesselInfo.name = v.vesselName;
+    vesselInfo.vesselType = v.vesselType;
+    vesselInfo.rootPartUId = v.rootPart.flightID;
     return vesselInfo;
   }
 
