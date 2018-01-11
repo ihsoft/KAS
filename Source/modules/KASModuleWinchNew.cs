@@ -810,7 +810,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void LogicalUnlink(LinkActorType actorType) {
     if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
-      ScreenMessaging.ShowPriorityScreenMessage(CableLinkBrokenMsg);
+      ShowStatusMessage(CableLinkBrokenMsg, isError: true);
     } else if (actorType == LinkActorType.Player && !linkTarget.part.vessel.isEVA) {
       UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
@@ -1004,8 +1004,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
         KillMotor();
         SetCableLength(float.PositiveInfinity);
-        ScreenMessaging.ShowPriorityScreenMessage(
-            MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
+        ShowStatusMessage(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       } else if (motorCurrentSpeed < 0 && cableJoint.maxAllowedCableLength <= 0) {
         KillMotor();
         SetCableLength(0);
@@ -1013,7 +1012,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       }
     } else {
       KillMotor();
-      ScreenMessaging.ShowErrorScreenMessage(NoEnergyMsg);
+      ShowStatusMessage(NoEnergyMsg, isError: true);
     }
   }
 
