@@ -584,7 +584,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
 
   /// <summary>State machine that defines and controls the winch connector state.</summary>
-  /// <remarks>It's <i>not</i> safe to change the state when the part is not physical.</remarks>
+  /// <remarks>
+  /// It's not safe to change the connector state on a part with no physics! If the state needs to
+  /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
+  /// </remarks>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
   #endregion
@@ -846,7 +849,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
     // It's OK to link with the kerbal target even though it's not dockable. This case is explicitly
     // handled when doing the connector locking.
-    //FIXME: really? how about loading a kerbal attached to the winch?
     var linkStatusErrors = new List<string>();
     if (!target.part.vessel.isEVA && target.attachNode == null) {
       linkStatusErrors.Add(TargetIsNotDockableMsg);

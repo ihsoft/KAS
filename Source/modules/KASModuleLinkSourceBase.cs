@@ -160,7 +160,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   public string jointName = "";
   #endregion
 
-  #region Inheritable fileds & properties
+  #region Inheritable fields & properties
   /// <summary>Mode in which a link between the source and target is being created.</summary>
   /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
   /// <value>The GUI mode.</value>

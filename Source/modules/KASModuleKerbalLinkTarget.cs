@@ -171,7 +171,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   }
   #endregion
 
-  #region PartModule overrides
+  #region KASModuleLinkTargetBase overrides
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);

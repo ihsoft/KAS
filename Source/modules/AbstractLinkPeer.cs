@@ -87,7 +87,7 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <inheritdoc/>
   /// <remarks>
-  /// The descendants must use this property to chnage the state or fully mimic it's behavior.
+  /// The descendants must use this property to change the state or fully mimic it's behavior.
   /// </remarks>
   /// <seealso cref="persistedLinkState"/>
   public LinkState linkState {

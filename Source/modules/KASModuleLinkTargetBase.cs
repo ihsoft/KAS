@@ -33,7 +33,7 @@ public class KASModuleLinkTargetBase :
     // KAS parents.
     ILinkTarget, ILinkStateEventListener,
     // Syntax sugar parents.
-    IPartModule, IsDestroyable, IsPartDeathListener, IKSPDevModuleInfo {
+    IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
