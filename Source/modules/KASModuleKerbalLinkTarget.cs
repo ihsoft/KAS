@@ -174,6 +174,10 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region KASModuleLinkTargetBase overrides
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
+    // The EVA parts don't get the load method called. So, to complete the initalization, pretend
+    // the method was called with no config provided.
+    Load(new ConfigNode());
+
     base.OnStart(state);
 
     if (equipMeshName != "") {
@@ -270,6 +274,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
     dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
     pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
