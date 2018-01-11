@@ -370,8 +370,9 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     get {
       if (_strutScale < 0) {
         var scale = plugNodeTransform.lossyScale;
-        if (!Mathf.Approximately(scale.x, scale.y) || !Mathf.Approximately(scale.x, scale.z)) {
-          HostedDebugLog.Error(this, "Uneven part scale is not supported: {0}", scale);
+        if (Mathf.Abs(scale.x - scale.y) > 1e-05 || Mathf.Abs(scale.x - scale.z) > 1e-05) {
+          HostedDebugLog.Error(this, "Uneven part scale is not supported: {0}",
+                               DbgFormatter.Vector(scale));
         }
         _strutScale = scale.x;
       }

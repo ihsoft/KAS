@@ -646,12 +646,13 @@ public class KASModuleJointBase : PartModule,
   /// <param name="target">The target of the link.</param>
   /// <returns>The position in the world coordinates.</returns>
   protected Vector3 GetTargetPhysicalAnchor(ILinkSource source, ILinkTarget target) {
-    var srcScale = source.nodeTransform.lossyScale;
-    if (Mathf.Abs(srcScale.x - srcScale.y) > 1e-05 || Mathf.Abs(srcScale.x - srcScale.z) > 1e-05) {
-      HostedDebugLog.Error(this, "Uneven scale on the source part is not supported: {0}", srcScale);
+    var scale = source.nodeTransform.lossyScale;
+    if (Mathf.Abs(scale.x - scale.y) > 1e-05 || Mathf.Abs(scale.x - scale.z) > 1e-05) {
+      HostedDebugLog.Error(this, "Uneven scale on the source part is not supported: {0}",
+                           DbgFormatter.Vector(scale));
     }
     return target.nodeTransform.position
-        + target.nodeTransform.rotation * (anchorAtTarget * srcScale.x);
+        + target.nodeTransform.rotation * (anchorAtTarget * scale.x);
   }
 
   /// <summary>Returns an anchor for the physical joint at the source part.</summary>
