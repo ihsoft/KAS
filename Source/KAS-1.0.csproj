@@ -107,6 +107,7 @@
     <Compile Include="api_v1\LinkActorType.cs" />
     <Compile Include="api_v1\LinkMode.cs" />
     <Compile Include="api_v1\LinkState.cs" />
+    <Compile Include="api_v1\PartType.cs" />
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />

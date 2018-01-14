@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv1.GUIUtils;
 using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
@@ -26,11 +27,11 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<string> LinkCollidesWithObjectMsg = new Message<string>(
+  static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_04000",
       defaultTemplate: "Link collides with: <<1>>",
       description: "Message to display when the link cannot be created due to an obstacle."
-      + "\nArgument <<1>> is a title of the part that would collide with the proposed link.",
+      + "\nArgument <<1>> is the part that would collide with the proposed link.",
       example: "Link collides with: Mk2 Cockpit");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -464,9 +465,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
     foreach (var hit in hits) {
       if (hit.transform.root != source.root && hit.transform.root != target.root) {
         var hitPart = hit.transform.root.GetComponent<Part>();
-        // Use partInfo.title to properly display kerbal names.
         hitMessages.Add(hitPart != null
-            ? LinkCollidesWithObjectMsg.Format(hitPart.partInfo.title)
+            ? LinkCollidesWithObjectMsg.Format(hitPart)
             : LinkCollidesWithSurfaceMsg.Format());
       }
     }
