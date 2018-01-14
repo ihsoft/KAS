@@ -288,9 +288,7 @@ public class KASModuleJointBase : PartModule,
   /// </value>
   protected bool isCoupled {
     get {
-      return isLinked
-          && (linkSource.part.parent == linkTarget.part
-              || linkTarget.part.parent == linkSource.part);
+      return isLinked && CheckCoupled(linkSource, linkTarget);
     }
   }
 
@@ -410,16 +408,21 @@ public class KASModuleJointBase : PartModule,
           this, "Cannot link the joint which is already linked to: {0}", linkTarget);
       return false;
     }
-    var errors = CheckConstraints(source, target);
-    if (errors.Length > 0) {
-      HostedDebugLog.Error(this, "Cannot create joint:\n{0}", DbgFormatter.C2S(errors));
-      return false;
+    if (!CheckCoupled(source, target)) {
+      var errors = CheckConstraints(source, target);
+      if (errors.Length > 0) {
+        HostedDebugLog.Error(this, "Cannot create joint:\n{0}", DbgFormatter.C2S(errors));
+        return false;
+      }
+    } else {
+      HostedDebugLog.Fine(this, "The parts are coupled. Skip the constraints check");
     }
     linkSource = source;
     linkTarget = target;
     originalLength = Vector3.Distance(
         GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
     isLinked = true;
+    coupleOnLinkMode = isCoupled;  // The mode needs to be in sync with the current state.
     if (coupleOnLinkMode) {
       CoupleParts();
     } else {
@@ -740,6 +743,15 @@ public class KASModuleJointBase : PartModule,
   #endregion
 
   #region Local utility methods
+  /// <summary>Checks if the peers are coupled via their attach nodes.</summary>
+  /// <param name="source">The peer the link.</param>
+  /// <param name="target">The peer the link.</param>
+  /// <returns><c>true</c> if the peers are coupled.</returns>
+  static bool CheckCoupled(ILinkPeer source, ILinkPeer target) {
+    return source.attachNode != null && source.attachNode.attachedPart == target.part
+        && target.attachNode != null && target.attachNode.attachedPart == source.part;
+  }
+
   /// <summary>Checks if the coupling role should be taken by this module.</summary>
   /// <remarks>
   /// If this joint is in the coupling mode and the former owner of the coupling has just
