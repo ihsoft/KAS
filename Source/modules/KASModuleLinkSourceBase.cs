@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv1.GUIUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -33,7 +34,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02011.
+// Next localization ID: #kasLOC_02012.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
@@ -112,6 +113,14 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "Links to the same vessel",
       description: "Info string in the editor that tells if the part can establish a link to"
       + " another part of the same vessel,");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
+      "#kasLOC_02011",
+      defaultTemplate: "Cannot link with: <<1>>",
+      description: "The error message to present when a part is being attached externally to the"
+      + " source's attach node, and it's not a valid link target for the source."
+      + "\nArgument <<1>> is the name of the part being attached.");
   #endregion
 
   #region ILinkSource config properties implementation
@@ -228,6 +237,18 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onVesselPartCountChanged.Remove(OnVesselPartCountChanged);
+  }
+
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onVesselPartCountChanged.Add(OnVesselPartCountChanged);
+  }
+
+  /// <inheritdoc/>
   public override void OnInitialize() {
     base.OnInitialize();
     if (isLinked && linkTarget.part.vessel != vessel) {
@@ -256,10 +277,14 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
-    if (isLinked && !linkJoint.isLinked) {
-      // The joint needs to be restored in the physical world.
-      linkJoint.CreateJoint(this, linkTarget);
-    }
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      // The code below is only intended for the state restoration. 
+      HandlePreattachedParts();
+      if (isLinked && !linkJoint.isLinked) {
+        // The joint needs to be restored in the physical world.
+        linkJoint.CreateJoint(this, linkTarget);
+      }
+    });
   }
 
   /// <inheritdoc/>
@@ -585,6 +610,44 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         BreakCurrentLink(LinkActorType.Physics);
       }
     });
+  }
+
+  /// <summary>Reacts on the vessel updates to detect the extenrally attached parts.</summary>
+  /// <param name="v">The vessel being updated.</param>
+  void OnVesselPartCountChanged(Vessel v) {
+    if (v == vessel && v.loaded && !v.packed) {
+      AsyncCall.CallOnEndOfFrame(this, HandlePreattachedParts);
+    }
+  }
+
+  /// <summary>Attempts to establish a link with the externally attached part.</summary>
+  /// <remarks>
+  /// If the part cannot be linked with, then an error will be reported to UI and the part will be
+  /// automatically decoupled. This method may interfere with the link logic, so call it
+  /// asynchronously.
+  /// </remarks>
+  void HandlePreattachedParts() {
+    if (isLinked || attachNode == null || attachNode.attachedPart == null) {
+      return;  // Nothing to do now.
+    }
+    var target = attachNode.attachedPart.Modules
+        .OfType<ILinkTarget>()
+        .FirstOrDefault(t => t.attachNode != null && t.attachNode.attachedPart == part
+                             && CheckCanLinkTo(t));
+    if (target != null) {
+      HostedDebugLog.Fine(this, "Trying to link with the preattached part: {0}", target);
+      if (!StartLinking(GUILinkMode.API, LinkActorType.API) || !LinkToTarget(target)) {
+        CancelLinking();
+      }
+    }
+    if (!isLinked) {
+      HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
+                             KASAPI.AttachNodesUtils.NodeId(attachNode.FindOpposingNode()));
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      ShowStatusMessage(
+          CannotLinkToPreattached.Format(attachNode.attachedPart), isError: true);
+      KASAPI.LinkUtils.DecoupleParts(part, attachNode.attachedPart);
+    }
   }
   #endregion
 }
