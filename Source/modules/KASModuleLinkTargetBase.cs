@@ -246,14 +246,14 @@ public class KASModuleLinkTargetBase :
   /// <summary>Reacts on source link mode change.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
-  void OnStartConnecting(ILinkSource source) {
+  protected virtual void OnStartConnecting(ILinkSource source) {
     linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
   }
 
   /// <summary>Reacts on source link mode change.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="connectionSource"></param>
-  void OnStopConnecting(ILinkSource connectionSource) {
+  protected virtual void OnStopConnecting(ILinkSource connectionSource) {
     linkState = LinkState.Available;
   }
   #endregion
