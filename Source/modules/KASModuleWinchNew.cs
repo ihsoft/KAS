@@ -516,7 +516,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
   #endregion
 
-  #region Inheritable fields and properties
+  #region Inheritable fields & properties
   /// <summary>State of the winch connector.</summary>
   /// <remarks>The main purpose of this enum is to simplify the winch state management.</remarks>
   protected enum WinchConnectorState {
@@ -592,7 +592,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
   #endregion
 
-  #region Local properties and fields
+  #region Local fields & properties
   /// <summary>Anchor transform at the connector to attach the cable.</summary>
   Transform connectorCableAnchor;
 
@@ -623,7 +623,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   AudioSource sndConnectorDock;
   #endregion
 
-  #region AbstractLinkPeer overrides
+  #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -785,23 +785,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           linkRenderer.StopRenderer();
         });
   }
-  #endregion
 
-  #region IsPhysicalObject implementation
-  /// <inheritdoc/>
-  public virtual void FixedUpdate() {
-    //TODO: Do it in the OnFixedUpdate().
-    if (HighLogic.LoadedSceneIsEditor) {
-      return;
-    }
-    if (Mathf.Abs(motorTargetSpeed) > float.Epsilon
-        || Mathf.Abs(motorCurrentSpeed) > float.Epsilon) {
-      UpdateMotor();
-    }
-  }
-  #endregion
-
-  #region KASModuleLikSourceBase overrides
   /// <inheritdoc/>
   protected override void LogicalLink(ILinkTarget target) {
     base.LogicalLink(target);
@@ -828,7 +812,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       ShowStatusMessage(CableLinkBrokenMsg, isError: true);
     } else if (actorType == LinkActorType.Player) {
       if (connectorState == WinchConnectorState.Deployed) {
-        // For the locked state the sound is played in the connector state machine.
         UISoundPlayer.instance.Play(sndPathUnplugConnector);
       }
     }
@@ -868,6 +851,20 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     return linkStatusErrors
         .Concat(base.CheckBasicLinkConditions(target, checkStates))
         .ToArray();
+  }
+  #endregion
+
+  #region IsPhysicalObject implementation
+  /// <inheritdoc/>
+  public virtual void FixedUpdate() {
+    //TODO: Do it in the OnFixedUpdate().
+    if (HighLogic.LoadedSceneIsEditor) {
+      return;
+    }
+    if (Mathf.Abs(motorTargetSpeed) > float.Epsilon
+        || Mathf.Abs(motorCurrentSpeed) > float.Epsilon) {
+      UpdateMotor();
+    }
   }
   #endregion
 
