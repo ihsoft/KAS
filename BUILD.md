@@ -1,8 +1,8 @@
-#KIS - How to build a binary and make a release
+# KIS - How to build a binary and make a release
 
-##WINDOWS users
+## WINDOWS users
 
-###Prerequisites
+### Prerequisites
 - For building:
   - Get C# runtime of version 4.0 or higher.
   - Create a virtual drive pointing to KSP installation: `subst q: <path to KSP root>`. I.e. if `KSP.exe` lives in `S:\Steam\Kerbal Space Program\` then this is the root.
@@ -15,20 +15,20 @@
   - Install an open source [SharpDevelop](https://en.wikipedia.org/wiki/SharpDevelop). It will pickup existing project settings just fine but at the same time can add some new changes. Please, don't submit them into the trunk until they are really needed to build the project.
   - Get a free copy of [Visual Studio Express](https://www.visualstudio.com/en-US/products/visual-studio-express-vs). It should work but was not tested.
 
-###Versioning explained
+### Versioning explained
 Version number consists of three numbers - X.Y.Z:
 - X - MAJOR. A really huge change is required to affect this number. Like releasing a first version: it's always a huge change.
 - Y - MINOR. Adding a new functionality or removing an old one (highly discouraged) is that kind of changes.
 - Z - PATCH. Bugfixes, small feature requests, and internal cleanup changes.
 
-###Building
+### Building
 - Review file `Tools\make_binary.cmd` and ensure the path to `MSBuild` is right.
 - Run `Tools\make_binary.cmd` having folder `Tools` as current.
 - Given there were no compile errors the new DLL file can be found in `.\KAS\Plugins\Source\bin\Release\`.
 
 _Note_: If you don't want building yourself you can use the DLL from the repository. It is updated by the maintainer each time a new version is released.
 
-###Releasing
+### Releasing
 - Review file `Tools\make_binary.cmd` and ensure the path to `MSBuild` is right.
 - Review file `Tools\make_release.py` and ensure `ZIP_BINARY` points to a ZIP compatible command line executable.
 - Verify that file `KAS\Plugins\Source\Properties\AssemblyInfo.cs` has correct version number. This will be the release number!
@@ -49,6 +49,6 @@ _Note_: You can run `make_release.py` without parameter `-p`. In this case relea
 
 _Note_: As a safety measure `make_release.py` checks if the package being built is already existing, and if it does then release process aborts. When you need to override an existing package either delete it manually or pass flag `-o` to the release script.
 
-##iOS & Linux users
+## iOS & Linux users
 
 ...please add your suggestions for the building phase. The release phase should work as is.
