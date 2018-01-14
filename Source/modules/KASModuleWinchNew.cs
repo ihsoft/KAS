@@ -628,15 +628,76 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public override void OnAwake() {
     base.OnAwake();
     LocalizeModule();
-    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
     sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
+  }
 
-    #region Connector state machine
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    // This module can only operate with the docking peers.
+    if (!allowCoupling) {
+      HostedDebugLog.Error(this, "The winch must be allowed for coupling!");
+      allowCoupling = true;  // A bad approach, but better than not having the attach node.
+    }
+    base.OnLoad(node);
+
+    if (connectorMass > part.mass) {
+      HostedDebugLog.Error(this,
+          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
+      connectorMass = 0.1f * part.mass;  // A fail safe value. 
+    }
+    LoadOrCreateConnectorModel();
+    if (!persistedIsConnectorLocked) {
+      ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
+                                        group: StdPersistentGroups.PartPersistant);
+      // In case of the connector is not locked to either the winch or the target part, adjust its
+      // model position and rotation. The rest of the state will be erstored in the state machine. 
+      if (persistedConnectorPosAndRot != null) {
+        var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
+        connectorModelObj.position = world.pos;
+        connectorModelObj.rotation = world.rot;
+      }
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnSave(ConfigNode node) {
+    base.OnSave(node);
+    // Persist the connector data only if its position is not fixed to the winch model.
+    // It must be the peristsent state since the state machine can be in a different state at this
+    // moment (e.g. during the vessel backup).
+    if (!persistedIsConnectorLocked) {
+      persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
+          new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
+      ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
+                                         group: StdPersistentGroups.PartPersistant);
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnPartUnpack() {
+    base.OnPartUnpack();
+    // The physics has started. It's safe to adjust the connector.
+    if (isLinked) {
+      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode
+          ? WinchConnectorState.Docked
+          : WinchConnectorState.Plugged;
+    } else if (!persistedIsConnectorLocked) {
+      connectorStateMachine.currentState = WinchConnectorState.Deployed;
+    } else {
+      connectorStateMachine.currentState = WinchConnectorState.Locked;
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void SetupStateMachine() {
+    base.SetupStateMachine();
+    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
     // state handlers reset the state back to the default.
     connectorStateMachine = new SimpleStateMachine<WinchConnectorState>(strict: true);
@@ -723,64 +784,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           PartModel.UpdateHighlighters(oldParent);
           linkRenderer.StopRenderer();
         });
-    #endregion
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    // This module can only operate with the docking peers.
-    if (!allowCoupling) {
-      HostedDebugLog.Error(this, "The winch must be allowed for coupling!");
-      allowCoupling = true;  // A bad approach, but better than not having the attach node.
-    }
-    base.OnLoad(node);
-
-    if (connectorMass > part.mass) {
-      HostedDebugLog.Error(this,
-          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
-      connectorMass = 0.1f * part.mass;  // A fail safe value. 
-    }
-    LoadOrCreateConnectorModel();
-    if (!persistedIsConnectorLocked) {
-      ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
-                                        group: StdPersistentGroups.PartPersistant);
-      // In case of the connector is not locked to either the winch or the target part, adjust its
-      // model position and rotation. The rest of the state will be erstored in the state machine. 
-      if (persistedConnectorPosAndRot != null) {
-        var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
-        connectorModelObj.position = world.pos;
-        connectorModelObj.rotation = world.rot;
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    // Persist the connector data only if its position is not fixed to the winch model.
-    // It must be the peristsent state since the state machine can be in a different state at this
-    // moment (e.g. during the vessel backup).
-    if (!persistedIsConnectorLocked) {
-      persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
-          new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
-      ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
-                                         group: StdPersistentGroups.PartPersistant);
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnPartUnpack() {
-    base.OnPartUnpack();
-    // The physics has started. It's safe to adjust the connector.
-    if (isLinked) {
-      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode
-          ? WinchConnectorState.Docked
-          : WinchConnectorState.Plugged;
-    } else if (!persistedIsConnectorLocked) {
-      connectorStateMachine.currentState = WinchConnectorState.Deployed;
-    } else {
-      connectorStateMachine.currentState = WinchConnectorState.Locked;
-    }
   }
   #endregion
 
