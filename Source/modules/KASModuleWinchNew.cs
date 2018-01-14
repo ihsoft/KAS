@@ -648,12 +648,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         WinchConnectorState.Docked,
         new[] {
             WinchConnectorState.Plugged,
+            WinchConnectorState.Locked,  // External detach.
         });
     connectorStateMachine.SetTransitionConstraint(
         WinchConnectorState.Locked,
         new[] {
             WinchConnectorState.Deployed,
             WinchConnectorState.Plugged,
+            WinchConnectorState.Docked,  // External attach.
         });
     connectorStateMachine.SetTransitionConstraint(
         WinchConnectorState.Deployed,
@@ -800,26 +802,33 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void LogicalLink(ILinkTarget target) {
     base.LogicalLink(target);
-    connectorState = WinchConnectorState.Plugged;
-    if (linkActor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(target.part.vessel.isEVA
-          ? sndPathGrabConnector
-          : sndPathPlugConnector);
+    if (target.part == parsedAttachNode.attachedPart && part == target.attachNode.attachedPart) {
+      // The target part is externally attached.
+      connectorState = WinchConnectorState.Docked;
+    } else {
+      connectorState = WinchConnectorState.Plugged;
+      if (linkActor == LinkActorType.Player) {
+        UISoundPlayer.instance.Play(target.part.vessel.isEVA
+            ? sndPathGrabConnector
+            : sndPathPlugConnector);
+      }
     }
     linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
   }
 
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
+    base.LogicalUnlink(actorType);
+    connectorState = isConnectorLocked ? WinchConnectorState.Locked : WinchConnectorState.Deployed;
     if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ShowStatusMessage(CableLinkBrokenMsg, isError: true);
-    } else if (actorType == LinkActorType.Player && !linkTarget.part.vessel.isEVA) {
-      UISoundPlayer.instance.Play(sndPathUnplugConnector);
+    } else if (actorType == LinkActorType.Player) {
+      if (connectorState == WinchConnectorState.Deployed) {
+        // For the locked state the sound is played in the connector state machine.
+        UISoundPlayer.instance.Play(sndPathUnplugConnector);
+      }
     }
-    base.LogicalUnlink(actorType);
-    //FIXME: Should be Locked if extrenally broken from Docked.
-    connectorState = WinchConnectorState.Deployed;
   }
 
   /// <inheritdoc/>
