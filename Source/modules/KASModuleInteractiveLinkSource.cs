@@ -267,9 +267,9 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  protected override void OnStateChange(LinkState? oldState) {
-    base.OnStateChange(oldState);
-    UpdateContextMenu();
+  protected override void SetupStateMachine() {
+    base.SetupStateMachine();
+    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
   }
 
   /// <inheritdoc/>

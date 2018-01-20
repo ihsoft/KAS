@@ -190,6 +190,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #region AbstractLinkPeer overrides
   /// <inheritdoc/>
   protected override void SetupStateMachine() {
+    base.SetupStateMachine();
     linkStateMachine.onAfterTransition +=
         (start, end) => HostedDebugLog.Fine(this, "Source state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(

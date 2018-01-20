@@ -86,19 +86,13 @@ public abstract class AbstractLinkPeer : PartModule,
   public string cfgLinkType { get { return linkType; } }
 
   /// <inheritdoc/>
-  /// <remarks>
-  /// The descendants must use this property to change the state or fully mimic it's behavior.
-  /// </remarks>
   /// <seealso cref="persistedLinkState"/>
   public LinkState linkState {
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
     protected set {
-      var oldState = linkStateMachine.currentState;
       linkStateMachine.currentState = value;
-      persistedLinkState = value;
-      OnStateChange(oldState);
     }
   }
 
@@ -289,9 +283,6 @@ public abstract class AbstractLinkPeer : PartModule,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Sets the peer's state machine.</summary>
-  protected abstract void SetupStateMachine();
-
   /// <summary>Fires when the attach node needs to be checked for a possible state change.</summary>
   /// <remarks>
   /// This method is called asynchronously at the end of frame. The triggering of this call doesn't
@@ -301,19 +292,15 @@ public abstract class AbstractLinkPeer : PartModule,
   /// </remarks>
   protected abstract void CheckAttachNode();
 
+  /// <summary>Sets the peer's state machine.</summary>
+  protected virtual void SetupStateMachine() {
+    linkStateMachine.onAfterTransition += (start, end) => persistedLinkState = linkState;
+  }
+
   /// <summary>Cleanups the peer's state machine.</summary>
   /// <remarks>Can be also used to cleanup the module state.</remarks>
   protected virtual void ShutdownStateMachine() {
     linkStateMachine.currentState = null;  // Stop the machine to let the cleanup handlers working.
-  }
-
-  /// <summary>Triggers when a state has been assigned with a value.</summary>
-  /// <remarks>
-  /// This method triggers even when the new state doesn't differ from the old one. When it's
-  /// important to catch the transition, check for the <paramref name="oldState"/>.
-  /// </remarks>
-  /// <param name="oldState">The state prior to the change.</param>
-  protected virtual void OnStateChange(LinkState? oldState) {
   }
 
   /// <summary>Triggers when a linked peers has been assigned with a value.</summary>
