@@ -235,6 +235,8 @@ public abstract class AbstractLinkPeer : PartModule,
       }
     }
     if (parsedAttachNode != null) {
+      // HACK: Handle a KIS issue which causes the nodes to be owned by the prefab part.
+      parsedAttachNode.owner = part;
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
   }
