@@ -32,7 +32,12 @@ public enum LinkState {
   /// the final attempt.</remarks>
   AcceptingLinks,
   /// <summary>Module doesn't accept link and will reject any request.</summary>
-  RejectingLinks
+  RejectingLinks,
+  /// <summary>
+  /// The attach node, allocated to the module, is occupied by another part, which doesn't support
+  /// linking.
+  /// </summary>
+  NodeIsBlocked,
 }
 
 }  // namespace

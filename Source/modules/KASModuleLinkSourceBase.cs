@@ -44,7 +44,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     // KAS interfaces.
     ILinkSource, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsPartDeathListener, IKSPDevModuleInfo {
+    IPartModule, IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -237,18 +237,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselPartCountChanged.Remove(OnVesselPartCountChanged);
-  }
-
-  /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    GameEvents.onVesselPartCountChanged.Add(OnVesselPartCountChanged);
-  }
-
-  /// <inheritdoc/>
   public override void OnInitialize() {
     base.OnInitialize();
     if (isLinked && linkTarget.part.vessel != vessel) {
@@ -272,23 +260,14 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
     }
   }
-  #endregion
-
-  #region IsPackable implementation
-  /// <inheritdoc/>
-  public virtual void OnPartUnpack() {
-    AsyncCall.CallOnEndOfFrame(this, () => {
-      // The code below is only intended for the state restoration. 
-      HandlePreattachedParts();
-      if (isLinked && !linkJoint.isLinked) {
-        // The joint needs to be restored in the physical world.
-        linkJoint.CreateJoint(this, linkTarget);
-      }
-    });
-  }
 
   /// <inheritdoc/>
-  public virtual void OnPartPack() {
+  protected override void CheckAttachNode() {
+    HandlePreattachedParts();
+    // Restore the link state if not yet done.
+    if (isLinked && !linkJoint.isLinked) {
+      linkJoint.CreateJoint(this, linkTarget);
+    }
   }
   #endregion
 
@@ -610,14 +589,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         BreakCurrentLink(LinkActorType.Physics);
       }
     });
-  }
-
-  /// <summary>Reacts on the vessel updates to detect the extenrally attached parts.</summary>
-  /// <param name="v">The vessel being updated.</param>
-  void OnVesselPartCountChanged(Vessel v) {
-    if (v == vessel && v.loaded && !v.packed) {
-      AsyncCall.CallOnEndOfFrame(this, HandlePreattachedParts);
-    }
   }
 
   /// <summary>Attempts to establish a link with the externally attached part.</summary>

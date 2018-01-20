@@ -217,6 +217,7 @@ public abstract class AbstractLinkPeer : PartModule,
     LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
+    GameEvents.onVesselPartCountChanged.Add(OnVesselPartCountChanged);
   }
 
   /// <inheritdoc/>
@@ -272,12 +273,33 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void OnDestroy() {
     ShutdownStateMachine();
+    GameEvents.onVesselPartCountChanged.Remove(OnVesselPartCountChanged);
+  }
+  #endregion
+
+  #region IsPackable implementation
+  /// <inheritdoc/>
+  public virtual void OnPartUnpack() {
+    AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnPartPack() {
   }
   #endregion
 
   #region Inheritable methods
   /// <summary>Sets the peer's state machine.</summary>
   protected abstract void SetupStateMachine();
+
+  /// <summary>Fires when the attach node needs to be checked for a possible state change.</summary>
+  /// <remarks>
+  /// This method is called asynchronously at the end of frame. The triggering of this call doesn't
+  /// mean the attach node state has changed. It only means that it could have changed. The code is
+  /// responsible to verify it and act accordignly. Examples of the changed state are: a part has
+  /// been attached to the node by the external code, or the part has been detached from the node.
+  /// </remarks>
+  protected abstract void CheckAttachNode();
 
   /// <summary>Cleanups the peer's state machine.</summary>
   /// <remarks>Can be also used to cleanup the module state.</remarks>
@@ -338,6 +360,16 @@ public abstract class AbstractLinkPeer : PartModule,
         ? ScreenMessageStyle.UPPER_CENTER
         : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
     ScreenMessages.PostScreenMessage(msg, duration, location);
+  }
+  #endregion
+
+  #region Local utility methods
+  /// <summary>Reacts on the vessel updates to detect the extenrally attached parts.</summary>
+  /// <param name="v">The vessel being updated.</param>
+  void OnVesselPartCountChanged(Vessel v) {
+    if (v == vessel && v.loaded && !v.packed) {
+      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+    }
   }
   #endregion
 }

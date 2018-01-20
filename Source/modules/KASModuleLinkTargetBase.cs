@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.PartUtils;
+using KSPDev.ProcessingUtils;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -125,7 +126,10 @@ public class KASModuleLinkTargetBase :
         (start, end) => HostedDebugLog.Fine(this, "Target state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks});
+        new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
+    linkStateMachine.SetTransitionConstraint(
+        LinkState.NodeIsBlocked,
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
         new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
@@ -187,6 +191,21 @@ public class KASModuleLinkTargetBase :
             .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
       }
     }
+  }
+
+  /// <inheritdoc/>
+  protected override void CheckAttachNode() {
+    // The source is responsible to handle the link, which may be done at the end of frame. So put
+    // our check at the end of the frame queue.
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      if (!isLinked && attachNode != null && attachNode.attachedPart != null) {
+        linkState = LinkState.NodeIsBlocked;
+      }
+      if (linkState == LinkState.NodeIsBlocked
+          && (attachNode == null || attachNode.attachedPart == null)) {
+        linkState = LinkState.Available;
+      }
+    });
   }
   #endregion
 
