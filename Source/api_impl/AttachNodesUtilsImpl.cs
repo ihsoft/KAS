@@ -37,14 +37,14 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public void AddNode(Part part, AttachNode attachNode) {
+    if (attachNode.owner != part) {
+      DebugEx.Warning(
+          "Former owner of the attach node doesn't match the new one: old={0}, new={1}",
+          attachNode.owner, part);
+      attachNode.owner = part;
+    }
     if (part.attachNodes.IndexOf(attachNode) == -1) {
       DebugEx.Fine("Adding node {0} to {1}", NodeId(attachNode), part);
-      if (attachNode.owner != part) {
-        DebugEx.Warning(
-            "Former owner of the attach node doesn't match the new one: old={0}, new={1}",
-            attachNode.owner, part);
-        attachNode.owner = part;
-      }
       part.attachNodes.Add(attachNode);
     }
   }
