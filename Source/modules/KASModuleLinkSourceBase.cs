@@ -195,7 +195,10 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         (start, end) => HostedDebugLog.Fine(this, "Source state changed: {0} => {1}", start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.Linking, LinkState.RejectingLinks});
+        new[] {LinkState.Linking, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
+    linkStateMachine.SetTransitionConstraint(
+        LinkState.NodeIsBlocked,
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linking,
         new[] {LinkState.Available, LinkState.Linked});
@@ -264,7 +267,27 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
 
   /// <inheritdoc/>
   protected override void CheckAttachNode() {
-    HandlePreattachedParts();
+    if (!isLinked && attachNode != null && attachNode.attachedPart != null) {
+      var target = attachNode.attachedPart.Modules
+          .OfType<ILinkTarget>()
+          .FirstOrDefault(t => t.attachNode != null && t.attachNode.attachedPart == part
+                               && CheckCanLinkTo(t));
+      if (target != null) {
+        HostedDebugLog.Fine(this, "Trying to link with the preattached part: {0}", target);
+        if (!StartLinking(GUILinkMode.API, LinkActorType.API) || !LinkToTarget(target)) {
+          CancelLinking();
+        }
+      }
+      if (!isLinked) {
+        HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
+                               KASAPI.AttachNodesUtils.NodeId(attachNode.FindOpposingNode()));
+        linkState = LinkState.NodeIsBlocked;
+      }
+    } else if (linkState == LinkState.NodeIsBlocked
+        && (attachNode == null || attachNode.attachedPart == null)) {
+      linkState = LinkState.Available;
+    }
+    
     // Restore the link state if not yet done.
     if (isLinked && !linkJoint.isLinked) {
       linkJoint.CreateJoint(this, linkTarget);
@@ -590,36 +613,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         BreakCurrentLink(LinkActorType.Physics);
       }
     });
-  }
-
-  /// <summary>Attempts to establish a link with the externally attached part.</summary>
-  /// <remarks>
-  /// If the part cannot be linked with, then an error will be reported to UI and the part will be
-  /// automatically decoupled. This method may interfere with the link logic, so call it
-  /// asynchronously.
-  /// </remarks>
-  void HandlePreattachedParts() {
-    if (isLinked || attachNode == null || attachNode.attachedPart == null) {
-      return;  // Nothing to do now.
-    }
-    var target = attachNode.attachedPart.Modules
-        .OfType<ILinkTarget>()
-        .FirstOrDefault(t => t.attachNode != null && t.attachNode.attachedPart == part
-                             && CheckCanLinkTo(t));
-    if (target != null) {
-      HostedDebugLog.Fine(this, "Trying to link with the preattached part: {0}", target);
-      if (!StartLinking(GUILinkMode.API, LinkActorType.API) || !LinkToTarget(target)) {
-        CancelLinking();
-      }
-    }
-    if (!isLinked) {
-      HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
-                             KASAPI.AttachNodesUtils.NodeId(attachNode.FindOpposingNode()));
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      ShowStatusMessage(
-          CannotLinkToPreattached.Format(attachNode.attachedPart), isError: true);
-      KASAPI.LinkUtils.DecoupleParts(part, attachNode.attachedPart);
-    }
   }
   #endregion
 }

@@ -861,6 +861,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         .Concat(base.CheckBasicLinkConditions(target, checkStates))
         .ToArray();
   }
+
+  /// <inheritdoc/>
+  protected override void CheckAttachNode() {
+    base.CheckAttachNode();
+    if (linkState == LinkState.NodeIsBlocked && attachNode.attachedPart != null) {
+      HostedDebugLog.Warning(this, "Decouple incompatible part from winch: {0}",
+                             attachNode.FindOpposingNode().attachedPart);
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      ShowStatusMessage(
+          CannotLinkToPreattached.Format(attachNode.attachedPart), isError: true);
+      KASAPI.LinkUtils.DecoupleParts(part, attachNode.attachedPart);
+    }
+  }
   #endregion
 
   #region IsPhysicalObject implementation
