@@ -201,8 +201,7 @@ public class KASModuleLinkTargetBase :
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (!isLinked && attachNode != null && attachNode.attachedPart != null) {
         linkState = LinkState.NodeIsBlocked;
-      }
-      if (linkState == LinkState.NodeIsBlocked
+      } else if (linkState == LinkState.NodeIsBlocked
           && (attachNode == null || attachNode.attachedPart == null)) {
         linkState = LinkState.Available;
       }
