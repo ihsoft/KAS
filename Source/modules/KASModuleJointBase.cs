@@ -340,10 +340,7 @@ public class KASModuleJointBase : PartModule,
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (!isCoupled) {
-      return;  // Nothing to do. 
-    }
-    if (!selfDecoupledAction
+    if (isLinked && !selfDecoupledAction
         && linkSource.attachNode != null && linkSource.attachNode.id == nodeName) {
       // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
@@ -803,7 +800,8 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
   /// <remarks>
   /// The source and target parts need to be separated, but the logical link still need to exist.
-  /// On restore the vessel info will be cleared on the module.
+  /// On restore the vessel info will be cleared on the module. Alas, when the link is broken
+  /// extrenally, the root vessel part cannot be properly restored.
   /// </remarks>
   void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
     AsyncCall.CallOnEndOfFrame(this, () => {
