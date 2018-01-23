@@ -373,7 +373,6 @@ public class KASModuleJointBase : PartModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselWasModified.Add(OnVesselWasModified);
     GameEvents.onVesselRename.Add(OnVesselRename);
   }
 
@@ -395,7 +394,6 @@ public class KASModuleJointBase : PartModule,
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
-    GameEvents.onVesselWasModified.Remove(OnVesselWasModified);
     GameEvents.onVesselRename.Remove(OnVesselRename);
   }
   #endregion
@@ -422,7 +420,8 @@ public class KASModuleJointBase : PartModule,
     originalLength = Vector3.Distance(
         GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
     isLinked = true;
-    coupleOnLinkMode = isCoupled;  // The mode needs to be in sync with the current state.
+    // If the parts are already coupled at this moment, then the mode must be set as such.      
+    coupleOnLinkMode |= isCoupled;
     if (coupleOnLinkMode) {
       CoupleParts();
     } else {
@@ -619,13 +618,14 @@ public class KASModuleJointBase : PartModule,
       HostedDebugLog.Error(this, "Cannot decouple - bad link/part state");
       return;
     }
-    selfDecoupledAction = true;
+    selfDecoupledAction = true;  // Protect the action to not let the link auto-broken.
     KASAPI.LinkUtils.DecoupleParts(
         linkSource.part, linkTarget.part,
         vesselInfo1: persistedSrcVesselInfo, vesselInfo2: persistedTgtVesselInfo);
     selfDecoupledAction = false;
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
+    DelegateCouplingRole(linkTarget.part);
   }
 
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
@@ -752,29 +752,6 @@ public class KASModuleJointBase : PartModule,
         && target.attachNode != null && target.attachNode.attachedPart == source.part;
   }
 
-  /// <summary>Checks if the coupling role should be taken by this module.</summary>
-  /// <remarks>
-  /// If this joint is in the coupling mode and the former owner of the coupling has just
-  /// decoupled, then take the role.
-  /// </remarks>
-  /// <param name="v">The vessel that changed.</param>
-  void OnVesselWasModified(Vessel v) {
-    if (!isLinked || vessel != v) {
-      return;  // Nothing to do.
-    }
-    // Try taking the coupling role if this part can do it. 
-    if (coupleOnLinkMode && linkSource.part.vessel != linkTarget.part.vessel) {
-      AsyncCall.CallOnEndOfFrame(this, () => {
-        // Double check if the conditions haven't changed. They can, in case of this part is being
-        // unklinked or another joint taking the role.
-        if (isLinked && coupleOnLinkMode && linkSource.part.vessel != linkTarget.part.vessel) {
-          HostedDebugLog.Info(this, "Taking the coupling role to: {0}", linkTarget.part.vessel);
-          SetCoupleOnLinkMode(true);  // Kick the coupling logic.
-        }
-      });
-    }
-  }
-
   /// <summary>Reacts on the vessel name change and updates the vessel infos.</summary>
   void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> action) {
     if (!isLinked || action.host != vessel) {
@@ -841,6 +818,41 @@ public class KASModuleJointBase : PartModule,
       }
       persistedSrcVesselInfo = null;
       persistedTgtVesselInfo = null;
+    });
+  }
+
+  /// <summary>
+  /// Goes thru the parts on the source and target vessels, and tries to restore the coupling
+  /// between the parts.
+  /// </summary>
+  /// <remarks>
+  /// Any linking module on the source or the target vessel, which is linked and in the docking
+  /// mode, will be attempted to use to restore the vessels coupling. This work will be done at the
+  /// end of frame to let the other logic to cleanup.
+  /// </remarks>
+  /// <param name="tgtPart">
+  /// The former target part that was holding the coupling with this part.
+  /// </param>
+  void DelegateCouplingRole(Part tgtPart) {
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      var candidates = new List<ILinkJoint>()
+          .Concat(vessel.parts
+              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+              .Where(j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
+                          && j.linkTarget.part.vessel == tgtPart.vessel))
+          .Concat(tgtPart.vessel.parts
+              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+              .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel));
+      foreach (var joint in candidates) {
+        HostedDebugLog.Fine(this, "Trying to couple via: {0}", joint);
+        if (joint.SetCoupleOnLinkMode(true)) {
+          HostedDebugLog.Info(this, "The coupling role is delegated to: {0}", joint);
+          return;
+        }
+      }
+      if (candidates.Any()) {
+        HostedDebugLog.Warning(this, "None of the found candidates took the coupling role");
+      }
     });
   }
   #endregion
