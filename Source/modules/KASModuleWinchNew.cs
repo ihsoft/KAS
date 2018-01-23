@@ -86,7 +86,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #endregion
 
   /// <summary>Translates <see cref="WinchConnectorState"/> enum into a localized message.</summary>
-  protected static readonly MessageLookup<WinchConnectorState> ConnectorStatesMsgLookup =
+  static readonly MessageLookup<WinchConnectorState> ConnectorStatesMsgLookup =
       new MessageLookup<WinchConnectorState>(new Dictionary<WinchConnectorState, Message>() {
           {WinchConnectorState.Locked, ConnectorStateMsg_Locked},
           {WinchConnectorState.Deployed, ConnectorStateMsg_Deployed},
@@ -95,27 +95,27 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       });
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message NoEnergyMsg = new Message(
+  static readonly Message NoEnergyMsg = new Message(
       "#kasLOC_08002",
       defaultTemplate: "No energy!",
       description: "Error message to present when the electricity charge has exhausted.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message LockConnectorNotAlignedMsg = new Message(
+  static readonly Message LockConnectorNotAlignedMsg = new Message(
       "#kasLOC_08003",
       defaultTemplate: "Cannot lock the connector: not aligned",
       description: "Error message to present when an improperly aligned cable connector has"
       + " attempted to lock with the winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ConnectorLockedMsg = new Message(
+  static readonly Message ConnectorLockedMsg = new Message(
       "#kasLOC_08004",
       defaultTemplate: "Connector locked!",
       description: "Info message to present when a cable connector has successfully locked to the"
       + " winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ConnectorDockedMsg = new Message(
+  static readonly Message ConnectorDockedMsg = new Message(
       "#kasLOC_08025",
       defaultTemplate: "Connector docked to the winch",
       description: "Info message to present when a cable connector has successfully docked to the"
@@ -123,7 +123,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected static readonly Message<DistanceType> MaxLengthReachedMsg = new Message<DistanceType>(
+  static readonly Message<DistanceType> MaxLengthReachedMsg = new Message<DistanceType>(
       "#kasLOC_08005",
       defaultTemplate: "Maximum cable length reached: <<1>>",
       description: "An info message to present when the cable is extended at its maximum length."
@@ -131,45 +131,45 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       example: "Maximum cable length reached: 1.23 m");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message StopExtendingMenuTxt = new Message(
+  static readonly Message StopExtendingMenuTxt = new Message(
       "#kasLOC_08007",
       defaultTemplate: "Stop extending",
       description: "Name of the context menu item that stops the cable extending.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ExtendCableMenuTxt = new Message(
+  static readonly Message ExtendCableMenuTxt = new Message(
       "#kasLOC_08008",
       defaultTemplate: "Extend cable",
       description: "Name of the context menu item that starts the cable extending.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message StopRetractingMenuTxt = new Message(
+  static readonly Message StopRetractingMenuTxt = new Message(
       "#kasLOC_08009",
       defaultTemplate: "Stop retracting",
       description: "Name of the context menu item that stops the cable retracting.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message RetractCableMenuTxt = new Message(
+  static readonly Message RetractCableMenuTxt = new Message(
       "#kasLOC_08010",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message CableLinkBrokenMsg = new Message(
+  static readonly Message CableLinkBrokenMsg = new Message(
       "#kasLOC_08011",
       defaultTemplate: "The connector is detached due to the cable strength is exceeded",
       description: "A message to display when a too string force has broke the link between the"
       + "winch and it's target.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message TargetIsNotDockableMsg = new Message(
+  static readonly Message TargetIsNotDockableMsg = new Message(
       "#kasLOC_08026",
       defaultTemplate: "Target part cannot dock with the winch",
       description: "The message to present when the winch connector is being attempted to attach to"
       + " a target part which doesn't support coupling with the winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
+  static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
       "#kasLOC_08027",
       defaultTemplate: "Cannot link with: <<1>>",
       description: "The error message to present when a part is being attached externally to the"

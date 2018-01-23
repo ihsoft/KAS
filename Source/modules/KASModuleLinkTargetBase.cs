@@ -38,14 +38,14 @@ public class KASModuleLinkTargetBase :
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<string> AcceptsLinkTypeInfo = new Message<string>(
+  static readonly Message<string> AcceptsLinkTypeInfo = new Message<string>(
       "#kasLOC_03000",
       defaultTemplate: "Accepts link type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message ModuleTitleInfo = new Message(
+  static readonly Message ModuleTitleInfo = new Message(
       "#kasLOC_03001",
       defaultTemplate: "KAS Joint Target",
       description: "Title of the module to present in the editor details window.");

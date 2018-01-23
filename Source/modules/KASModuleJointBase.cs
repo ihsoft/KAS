@@ -34,7 +34,7 @@ public class KASModuleJointBase : PartModule,
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
+  readonly static Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00000",
           defaultTemplate: "Link is too short: <<1>> < <<2>>",
@@ -46,7 +46,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
+  readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00001",
           defaultTemplate: "Link is too long: <<1>> > <<2>>",
@@ -58,7 +58,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  protected readonly static Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
+  readonly static Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00002",
           defaultTemplate: "Source angle limit reached: <<1>> > <<2>>",
@@ -70,7 +70,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  protected readonly static Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
+  readonly static Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00003",
           defaultTemplate: "Target angle limit reached: <<1>> > <<2>>",
@@ -82,7 +82,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  protected readonly static Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
+  readonly static Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
       "#kasLOC_00004",
       defaultTemplate: "Link break force: <<1>>",
       description: "Info string in the editor for the link break force setting. The argument is of"
@@ -91,7 +91,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  protected readonly static Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
+  readonly static Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
       "#kasLOC_00005",
       defaultTemplate: "Link torque force: <<1>>",
       description: "Info string in the editor for the link break torque setting. The argument is of"
@@ -100,7 +100,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType> MinimumLinkLengthInfo =
+  readonly static Message<DistanceType> MinimumLinkLengthInfo =
       new Message<DistanceType>(
           "#kasLOC_00006",
           defaultTemplate: "Minimum link length: <<1>>",
@@ -110,7 +110,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  protected readonly static Message<DistanceType> MaximumLinkLengthInfo =
+  readonly static Message<DistanceType> MaximumLinkLengthInfo =
       new Message<DistanceType>(
           "#kasLOC_00007",
           defaultTemplate: "Maximum link length: <<1>>",
@@ -120,7 +120,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  protected readonly static Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
+  readonly static Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
       "#kasLOC_00008",
       defaultTemplate: "Source angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the source."
@@ -129,7 +129,7 @@ public class KASModuleJointBase : PartModule,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  protected readonly static Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
+  readonly static Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
       "#kasLOC_00009",
       defaultTemplate: "Target angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the target."
@@ -137,7 +137,7 @@ public class KASModuleJointBase : PartModule,
       example: "Target angle limit: 1.2°");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected readonly static Message ModuleTitle = new Message(
+  readonly static Message ModuleTitle = new Message(
       "#kasLOC_00010",
       defaultTemplate: "KAS Joint",
       description: "Title of the module to present in the editor details window.");
