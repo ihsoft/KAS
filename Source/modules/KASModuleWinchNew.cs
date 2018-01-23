@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv1.GUIUtils;
 using KSPDev.ConfigUtils;
 using KSPDev.Extensions;
 using KSPDev.GUIUtils;
@@ -45,7 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkSource.linkJoint"/>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08027.
+// Next localization ID: #kasLOC_08028.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
@@ -166,6 +167,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       defaultTemplate: "Target part cannot dock with the winch",
       description: "The message to present when the winch connector is being attempted to attach to"
       + " a target part which doesn't support coupling with the winch.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  protected static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
+      "#kasLOC_08027",
+      defaultTemplate: "Cannot link with: <<1>>",
+      description: "The error message to present when a part is being attached externally to the"
+      + " source's attach node, and it's not a valid link target for the source."
+      + "\nArgument <<1>> is the name of the part being attached.");
   #endregion
 
   #region Part's config fields

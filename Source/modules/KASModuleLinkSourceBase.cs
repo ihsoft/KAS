@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv1.GUIUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -34,7 +33,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02012.
+// Next localization ID: #kasLOC_02011.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
@@ -113,14 +112,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "Links to the same vessel",
       description: "Info string in the editor that tells if the part can establish a link to"
       + " another part of the same vessel,");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
-      "#kasLOC_02011",
-      defaultTemplate: "Cannot link with: <<1>>",
-      description: "The error message to present when a part is being attached externally to the"
-      + " source's attach node, and it's not a valid link target for the source."
-      + "\nArgument <<1>> is the name of the part being attached.");
   #endregion
 
   #region ILinkSource config properties implementation
