@@ -187,12 +187,15 @@ public abstract class AbstractLinkPeer : PartModule,
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
-    if (nodeName == attachNodeName && isAutoAttachNode && attachNode != null) {
-      HostedDebugLog.Fine(
-          this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(attachNode));
-      part.attachNodes.Remove(attachNode);
-      attachNode.attachedPart = null;
-      attachNode.attachedPartId = 0;
+    if (nodeName == attachNodeName) {
+      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+      if (isAutoAttachNode && attachNode != null) {
+        HostedDebugLog.Fine(
+            this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(attachNode));
+        part.attachNodes.Remove(attachNode);
+        attachNode.attachedPart = null;
+        attachNode.attachedPartId = 0;
+      }
     }
   }
   #endregion
@@ -211,7 +214,7 @@ public abstract class AbstractLinkPeer : PartModule,
     LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
-    GameEvents.onVesselPartCountChanged.Add(OnVesselPartCountChanged);
+    GameEvents.onPartCouple.Add(OnPartCoupleEvent);
   }
 
   /// <inheritdoc/>
@@ -269,7 +272,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void OnDestroy() {
     ShutdownStateMachine();
-    GameEvents.onVesselPartCountChanged.Remove(OnVesselPartCountChanged);
+    GameEvents.onPartCouple.Remove(OnPartCoupleEvent);
   }
   #endregion
 
@@ -353,10 +356,14 @@ public abstract class AbstractLinkPeer : PartModule,
   #endregion
 
   #region Local utility methods
-  /// <summary>Reacts on the vessel updates to detect the extenrally attached parts.</summary>
-  /// <param name="v">The vessel being updated.</param>
-  void OnVesselPartCountChanged(Vessel v) {
-    if (v == vessel && v.loaded && !v.packed) {
+  void OnPartCoupleEvent(GameEvents.FromToAction<Part, Part> action) {
+    AttachNode node = null;
+    if (action.from == part) {
+      node = action.from.FindPartThroughNodes(action.to);
+    } else if (action.to == part) {
+      node = action.to.FindPartThroughNodes(action.from);
+    }
+    if (node != null && node.id == attachNodeName) {
       AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
     }
   }
