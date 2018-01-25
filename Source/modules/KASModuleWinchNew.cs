@@ -157,9 +157,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CableLinkBrokenMsg = new Message(
       "#kasLOC_08011",
-      defaultTemplate: "The connector is detached due to the cable strength is exceeded",
-      description: "A message to display when a too string force has broke the link between the"
-      + "winch and it's target.");
+      defaultTemplate: "The link between the connector and the winch has broke",
+      description: "A message to display when a link between the winch and the connector has broke"
+      + " due to the unexpected external forces or actions.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message TargetIsNotDockableMsg = new Message(
