@@ -50,21 +50,16 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   }
 
   /// <inheritdoc/>
-  public void DropNode(Part part, string nodeName) {
-    var attachNode = part.FindAttachNode(nodeName);
-    if (attachNode == null) {
-      DebugEx.Warning("Not dropping attach node {0} on {1} - not found", nodeName, part);
+  public void DropNode(Part part, AttachNode attachNode) {
+    if (attachNode.attachedPart != null) {
+      DebugEx.Error("Not dropping an attached node: {0}", NodeId(attachNode));
       return;
     }
-    DebugEx.Fine("Drop attach node: {0}", NodeId(attachNode));
-    if (attachNode.attachedPart != null) {
-      DebugEx.Warning(
-          "Node is attach, the decouple callbacks will be impacted: {0}",
-          NodeId(attachNode));
+    if (part.attachNodes.IndexOf(attachNode) != -1) {
+      DebugEx.Fine("Drop attach node: {0}", NodeId(attachNode));
+      part.attachNodes.Remove(attachNode);
+      attachNode.attachedPartId = 0;  // Just in case.
     }
-    part.attachNodes.Remove(attachNode);
-    attachNode.attachedPart = null;
-    attachNode.attachedPartId = 0;
   }
 
   /// <inheritdoc/>

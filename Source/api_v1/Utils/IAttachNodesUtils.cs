@@ -44,20 +44,19 @@ public interface IAttachNodesUtils {
   /// </remarks>
   /// <param name="part">The part to add the node into.</param>
   /// <param name="attachNode">The attach node to add.</param>
+  /// <seealso href="https://kerbalspaceprogram.com/api/class_attach_node.html">
+  /// KSP: AttachNode</seealso>
   void AddNode(Part part, AttachNode attachNode);
 
   /// <summary>Drops the attach node on the part.</summary>
-  /// <remarks>
-  /// Don't drop an connected node until the part is decoupled. Otherwise,
-  /// decouple callback (<see cref="IActivateOnDecouple"/>) won't be called on the part.
-  /// </remarks>
-  /// <param name="part">Part to drop node on.</param>
-  /// <param name="nodeName">Name of the node to drop.</param>
+  /// <remarks>Doesn't drop the node if it's connected to a part.</remarks>
+  /// <param name="part">The part to drop the node on.</param>
+  /// <param name="attachNode">The attach node to drop.</param>
   /// <seealso href="https://kerbalspaceprogram.com/api/class_attach_node.html">
   /// KSP: AttachNode</seealso>
   /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_activate_on_decouple.html">
   /// KSP: IActivateOnDecouple</seealso>
-  void DropNode(Part part, string nodeName);
+  void DropNode(Part part, AttachNode attachNode);
 
   /// <summary>Returns a user friendly attach node representation.</summary>
   /// <remarks>It gives on the node and it's peers, which is useful when logging.</remarks>
