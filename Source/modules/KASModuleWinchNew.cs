@@ -694,6 +694,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
+  public override void OnPartDie() {
+    base.OnPartDie();
+    // Make sure the connector is locked into the winch to not leave it behind.
+    connectorState = WinchConnectorState.Locked;
+  }
+
+  /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
