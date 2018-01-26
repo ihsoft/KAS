@@ -775,7 +775,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Plugged,
         enterHandler: oldState => {
-          part.attachNodes.Remove(attachNode);
+          KASAPI.AttachNodesUtils.DropNode(part, attachNode);
           connectorModelObj.parent = linkTarget.nodeTransform;
           PartModel.UpdateHighlighters(part);
           PartModel.UpdateHighlighters(linkTarget.part);
@@ -784,9 +784,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
-          if (part.attachNodes.IndexOf(attachNode) == -1) {
-            part.attachNodes.Add(attachNode);
-          }
+          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
           var oldParent = connectorModelObj.parent;
           connectorModelObj.parent = nodeTransform;  // Back to the model.
           PartModel.UpdateHighlighters(part);

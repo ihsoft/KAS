@@ -26,12 +26,12 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     } else {
       attachNode = new AttachNode(nodeName, localNodeTransform, 0, AttachNodeMethod.FIXED_JOINT,
                                   crossfeed: true, rigid: false);
-      part.attachNodes.Add(attachNode);
     }
     attachNode.attachMethod = AttachNodeMethod.FIXED_JOINT;
     attachNode.nodeType = AttachNode.NodeType.Stack;
     attachNode.nodeTransform = localNodeTransform;
     attachNode.owner = part;
+    AddNode(part, attachNode);
     return attachNode;
   }
 
