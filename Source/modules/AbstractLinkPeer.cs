@@ -295,7 +295,20 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <summary>Sets the peer's state machine.</summary>
   protected virtual void SetupStateMachine() {
-    linkStateMachine.onAfterTransition += (start, end) => persistedLinkState = linkState;
+    linkStateMachine.onAfterTransition += (start, end) => {
+      persistedLinkState = linkState;
+      if (attachNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+        if (end == LinkState.Available) {
+          if (!isAutoAttachNode) {
+            KASAPI.AttachNodesUtils.AddNode(part, attachNode);
+          }
+        } else {
+          if (attachNode.attachedPart == null) {
+            KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+          }
+        }
+      }
+    };
   }
 
   /// <summary>Cleanups the peer's state machine.</summary>
