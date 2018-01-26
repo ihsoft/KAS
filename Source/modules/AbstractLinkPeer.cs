@@ -190,11 +190,8 @@ public abstract class AbstractLinkPeer : PartModule,
     if (nodeName == attachNodeName) {
       AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
       if (isAutoAttachNode && attachNode != null) {
-        HostedDebugLog.Fine(
-            this, "Removing auto node: {0}", KASAPI.AttachNodesUtils.NodeId(attachNode));
-        part.attachNodes.Remove(attachNode);
         attachNode.attachedPart = null;
-        attachNode.attachedPartId = 0;
+        KASAPI.AttachNodesUtils.DropNode(part, attachNode);
       }
     }
   }
@@ -229,9 +226,10 @@ public abstract class AbstractLinkPeer : PartModule,
       if (parsedAttachNode != null) {
         HostedDebugLog.Fine(
             this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
-        if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor) {
+        if (attachNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
           // Only pre-add the node in the scenes that assume restoring a vessel state.
-          part.attachNodes.Add(parsedAttachNode);
+          // We'll drop it in the OnStartFinished if not used.
+          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
         }
       } else {
         HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
@@ -250,9 +248,7 @@ public abstract class AbstractLinkPeer : PartModule,
     // Prevent the third-party logic on the auto node.
     if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
         && isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
-      part.attachNodes.Remove(attachNode);
-      HostedDebugLog.Fine(this, "Cleaning up the unused auto node: {0}",
-                          KASAPI.AttachNodesUtils.NodeId(attachNode));
+      KASAPI.AttachNodesUtils.DropNode(part, attachNode);
     }
     if (persistedLinkState == LinkState.Linked) {
       RestoreOtherPeer();

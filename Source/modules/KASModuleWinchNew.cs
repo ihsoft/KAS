@@ -763,14 +763,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
-          part.attachNodes.Remove(attachNode);
+          KASAPI.AttachNodesUtils.DropNode(part, attachNode);
           TurnConnectorPhysics(true);
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
-          if (part.attachNodes.IndexOf(attachNode) == -1) {
-            part.attachNodes.Add(attachNode);
-          }
+          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
           TurnConnectorPhysics(false);
           linkRenderer.StopRenderer();
         });
