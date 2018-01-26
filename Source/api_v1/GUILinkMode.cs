@@ -7,14 +7,13 @@ namespace KASAPIv1 {
 
 /// <summary>Specifies how the linking mode is displayed in GUI.</summary>
 public enum GUILinkMode {
-  /// <summary>Uninitialized or no GUI mode pending.</summary>
+  /// <summary>Uninitialized value. Must never be used in the real calls.</summary>
   None = 0,
   /// <summary>
-  /// The ending part of the link will be bound to the current mouse position until the link is
-  /// completed or cancelled.
+  /// The ending part of the link will expect the player's input to complete or cancel the link.
   /// </summary>
   Interactive,
-  /// <summary>No GUI appearence is made for the linking.</summary>
+  /// <summary>No GUI interaction is expected to complete the link.</summary>
   API,
 }
 

@@ -19,11 +19,9 @@ public static class KASEvents {
     public LinkActorType actor;
 
     /// <summary>Creates an event info.</summary>
-    /// <param name="source">Source that initiated the link.</param>
-    /// <param name="target">Target that accepted the link.</param>
-    /// <param name="actorType">
-    /// Actor that did the change. <see cref="LinkActorType.API"/> by default.
-    /// </param>
+    /// <param name="source">The source that initiated the link.</param>
+    /// <param name="target">The target that accepted the link.</param>
+    /// <param name="actorType">The actor that did the change.</param>
     public LinkEvent(ILinkSource source, ILinkTarget target,
                      LinkActorType actorType = LinkActorType.API) {
       this.source = source;

@@ -43,9 +43,7 @@ namespace KASAPIv1 {
 /// </item>
 /// <item>
 /// <term><see cref="LinkState.Linking"/> => <see cref="LinkState.Linked"/></term>
-/// <description>
-/// This module has completed the link via the <see cref="LinkToTarget"/> method call.
-/// </description>
+/// <description>This module has established a link.</description>
 /// </item>
 /// <item>
 /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Available"/></term>
@@ -56,8 +54,8 @@ namespace KASAPIv1 {
 /// <item>
 /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Locked"/></term>
 /// <description>
-/// Some other module on the same part, which initiated a link, has completed it via the
-/// <see cref="LinkToTarget"/> method call.
+/// Some other module on the same part, which initiated a link, has established a link. I.e. this
+/// part cannot have more links.
 /// </description>
 /// </item>
 /// <item>
@@ -132,15 +130,16 @@ public interface ILinkSource : ILinkPeer {
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>
   /// <para>
-  /// The <see cref="LinkState.Linking"/> mode must be started for this method to succeed.
+  /// The linking mode must be started via the <see cref="StartLinking"/> call for this method to
+  /// succeed.
   /// </para>
   /// <para>
-  /// The source and the target parts become associated with each other. How this link is reflected
-  /// in the game's physics depends on the parts configuration (the modules it defines).
+  /// If the link has been established successfully, the source and the target parts become
+  /// associated with each other.
   /// </para>
   /// <para>
   /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
-  /// If the were errors, they will be reported to the GUI and the link aborted. However, the
+  /// If the were errors, they will be reported to GUI and the link won't complete. However, the
   /// linking mode is only ended in case of the successful linking.
   /// </para>
   /// </remarks>
