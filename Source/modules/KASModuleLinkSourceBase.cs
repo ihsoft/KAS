@@ -267,10 +267,8 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
           .FirstOrDefault(t => t.attachNode != null && t.attachNode.attachedPart == part
                                && CheckCanLinkTo(t));
       if (target != null) {
-        HostedDebugLog.Fine(this, "Trying to link with the preattached part: {0}", target);
-        if (!StartLinking(GUILinkMode.API, LinkActorType.API) || !LinkToTarget(target)) {
-          CancelLinking();
-        }
+        HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
+        LinkToTarget(LinkActorType.API, target);
       }
       if (!isLinked) {
         HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
@@ -373,6 +371,17 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     // I.e. the mode must not be stopped before the link is created.
     StopLinkGUIMode();
     return true;
+  }
+
+  /// <inheritdoc/>
+  public virtual bool LinkToTarget(LinkActorType actor, ILinkTarget target) {
+    if (StartLinking(GUILinkMode.API, actor)) {
+      if (LinkToTarget(target)) {
+        return true;
+      }
+      CancelLinking();
+    }
+    return false;
   }
 
   /// <inheritdoc/>

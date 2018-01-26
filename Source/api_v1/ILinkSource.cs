@@ -148,8 +148,22 @@ public interface ILinkSource : ILinkPeer {
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
   /// <seealso cref="StartLinking"/>
   /// <seealso cref="BreakCurrentLink"/>
+  /// <seealso cref="LinkToTarget(LinkActorType, ILinkTarget)"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   bool LinkToTarget(ILinkTarget target);
+
+  /// <summary>Establishes a link between two parts.</summary>
+  /// <remarks>
+  /// This version of the method doesn't require staring the linking mode. All the required
+  /// transitions are done internally, and the method only reports if the link was successful or
+  /// not. No GUI mode can be specified when creating a link like this.
+  /// </remarks>
+  /// <param name="actor">The actor, who initiated the link.</param>
+  /// <param name="target">The target to link with.</param>
+  /// <returns><c>true</c> if the parts were linked successfully.</returns>
+  /// <seealso cref="BreakCurrentLink"/>
+  /// <seealso cref="LinkToTarget(ILinkTarget)"/>
+  bool LinkToTarget(LinkActorType actor, ILinkTarget target);
 
   /// <summary>Breaks the link between the source and the target.</summary>
   /// <remarks>
@@ -170,7 +184,7 @@ public interface ILinkSource : ILinkPeer {
   /// that owns the link's <i>target</i>. Otherwise, the focus will be set to the source part
   /// vessel.
   /// </param>
-  /// <seealso cref="LinkToTarget"/>
+  /// <seealso cref="LinkToTarget(LinkActorType, ILinkTarget)"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>

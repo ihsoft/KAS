@@ -154,15 +154,12 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     if (connector != null) {
       var closestSource = connector.ownerModule as ILinkSource;
       HostedDebugLog.Info(this, "Try picking up a physical connector of: {0}...", closestSource);
-      if (closestSource.CheckCanLinkTo(this, reportToGUI: true)
-          && closestSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-        if (closestSource.LinkToTarget(this)) {
+      if (closestSource.CheckCanLinkTo(this, reportToGUI: true)) {
+        if (closestSource.LinkToTarget(LinkActorType.Player, this)) {
           var winch = closestSource as IWinchControl;
           if (winch != null) {
             winch.ReleaseCable();
           }
-        } else {
-          closestSource.CancelLinking();
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);

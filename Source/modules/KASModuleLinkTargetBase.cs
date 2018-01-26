@@ -91,11 +91,8 @@ public class KASModuleLinkTargetBase :
       var connectorSource = kerbalTarget.linkSource;
       if (connectorSource.CheckCanLinkTo(this, reportToGUI: true, checkStates: false)) {
         connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
-        if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)
-            && connectorSource.StartLinking(GUILinkMode.API, LinkActorType.Player)) {
-          if (!connectorSource.LinkToTarget(this)) {
-            connectorSource.CancelLinking();
-          }
+        if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)) {
+          connectorSource.LinkToTarget(LinkActorType.Player, this);
         }
       }
       if (!ReferenceEquals(connectorSource.linkTarget, this)) {
