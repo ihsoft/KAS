@@ -189,7 +189,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         new[] {LinkState.Linking, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
-        new[] {LinkState.Available});
+        new[] {LinkState.Available, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linking,
         new[] {LinkState.Available, LinkState.Linked});
@@ -198,7 +198,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
-        new[] {LinkState.Available});
+        new[] {LinkState.Available, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.RejectingLinks,
         new[] {LinkState.Available, LinkState.Locked});
@@ -258,8 +258,8 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
 
   /// <inheritdoc/>
   protected override void CheckAttachNode() {
-    if (!isLinked && attachNode != null && attachNode.attachedPart != null) {
-      var target = attachNode.attachedPart.Modules
+    if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
+      var target = parsedAttachNode.attachedPart.Modules
           .OfType<ILinkTarget>()
           .FirstOrDefault(t => t.attachNode != null && t.attachNode.attachedPart == part
                                && CheckCanLinkTo(t));
@@ -271,12 +271,15 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       }
       if (!isLinked) {
         HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
-                               KASAPI.AttachNodesUtils.NodeId(attachNode.FindOpposingNode()));
+                               KASAPI.AttachNodesUtils.NodeId(parsedAttachNode.FindOpposingNode()));
         linkState = LinkState.NodeIsBlocked;
       }
-    } else if (linkState == LinkState.NodeIsBlocked
-        && (attachNode == null || attachNode.attachedPart == null)) {
-      linkState = LinkState.Available;
+    } else if (linkState == LinkState.Locked && parsedAttachNode.attachedPart != null) {
+      linkState = LinkState.NodeIsBlocked;
+    } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      var partIsLinked = part.Modules.OfType<ILinkSource>().Any(m => m.isLinked)
+          || part.Modules.OfType<ILinkTarget>().Any(m => m.isLinked);
+      linkState = partIsLinked ? LinkState.Locked : LinkState.Available;
     }
     
     // Restore the link state if not yet done.

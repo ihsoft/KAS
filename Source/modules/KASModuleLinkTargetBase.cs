@@ -130,7 +130,7 @@ public class KASModuleLinkTargetBase :
         new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
-        new[] {LinkState.Available});
+        new[] {LinkState.Available, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
         new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
@@ -139,7 +139,7 @@ public class KASModuleLinkTargetBase :
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
-        new[] {LinkState.Available});
+        new[] {LinkState.Available, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.RejectingLinks,
         new[] {LinkState.Available, LinkState.Locked});
@@ -199,11 +199,14 @@ public class KASModuleLinkTargetBase :
     // The source is responsible to handle the link, which may be done at the end of frame. So put
     // our check at the end of the frame queue.
     AsyncCall.CallOnEndOfFrame(this, () => {
-      if (!isLinked && attachNode != null && attachNode.attachedPart != null) {
+      if ((linkState == LinkState.Available || linkState == LinkState.Locked)
+          && parsedAttachNode.attachedPart != null) {
         linkState = LinkState.NodeIsBlocked;
-      } else if (linkState == LinkState.NodeIsBlocked
-          && (attachNode == null || attachNode.attachedPart == null)) {
-        linkState = LinkState.Available;
+      } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+        //FIXME: Deprecate the locked state and drop this check.
+        var partIsLinked = part.Modules.OfType<ILinkSource>().Any(m => m.isLinked)
+            || part.Modules.OfType<ILinkTarget>().Any(m => m.isLinked);
+        linkState = partIsLinked ? LinkState.Locked : LinkState.Available;
       }
     });
   }
@@ -249,6 +252,7 @@ public class KASModuleLinkTargetBase :
     // Lock this target if another target on the part has accepted the link.
     if (!isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = true;
+      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
     }
   }
 
@@ -258,6 +262,7 @@ public class KASModuleLinkTargetBase :
     if (isLocked && !ReferenceEquals(info.target, this)) {
       isLocked = false;
     }
+    AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
   }
   #endregion
 
