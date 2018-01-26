@@ -212,10 +212,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
-        LinkState.Linking,
-        enterHandler: x => KASEvents.OnLinkAccepted.Add(OnLinkActionAcceptedKASEvent),
-        leaveHandler: x => KASEvents.OnLinkAccepted.Remove(OnLinkActionAcceptedKASEvent));
-    linkStateMachine.AddStateHandlers(
         LinkState.Linked,
         enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
         leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
@@ -565,18 +561,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// <param name="source">Source module that started the mode.</param>
   void OnStopLinkingKASEvent(ILinkSource source) {
     linkState = LinkState.Available;
-  }
-
-  /// <summary>Establishes a link if target has accepted connection from this source.</summary>
-  /// <remarks>
-  /// Any problems that prevent from a successful creation will be logged to the user. The accepting
-  /// party must ensure the link can be done.
-  /// </remarks>
-  /// <param name="target">Target that has accepted connetion.</param>
-  void OnLinkActionAcceptedKASEvent(ILinkTarget target) {
-    if (CheckCanLinkTo(target, reportToGUI: true)) {
-      LinkToTarget(target);
-    }
   }
   #endregion 
 

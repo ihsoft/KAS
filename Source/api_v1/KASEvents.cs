@@ -40,10 +40,6 @@ public static class KASEvents {
   public static EventData<ILinkSource> OnStopLinking =
       new EventData<ILinkSource>("KASOnStopLinking");
 
-  /// <summary>Triggers when target has accepted the pending link.</summary>
-  public static EventData<ILinkTarget> OnLinkAccepted =
-      new EventData<ILinkTarget>("KASOnLinkAccepted");
-
   /// <summary>Triggers when link between two parts has been successfully established.</summary>
   /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkCreatedEvent"/> when this
   /// state change is needed in scope of just one part.</remarks>
