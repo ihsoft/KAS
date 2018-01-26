@@ -170,6 +170,21 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
 
   #region KASModuleLinkTargetBase overrides
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+
+    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+    dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
+    pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
+    useGUILayout = false;
+    dropConnectorMessage = new ScreenMessage(
+        "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
+    pickupConnectorMessage = new ScreenMessage(
+        "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
+    UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     // The EVA parts don't get the load method called. So, to complete the initalization, pretend
     // the method was called with no config provided.
@@ -264,23 +279,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         this, PickupConnectorEvent,
         x => x.guiActive = FlightGlobals.fetch != null && FlightGlobals.ActiveVessel == vessel
             && !isLinked && closestConnector != null);
-  }
-  #endregion
-
-  #region ParModule overrides
-  /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-
-    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-    dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
-    pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
-    useGUILayout = false;
-    dropConnectorMessage = new ScreenMessage(
-        "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
-    pickupConnectorMessage = new ScreenMessage(
-        "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
-    UpdateContextMenu();
   }
   #endregion
 
