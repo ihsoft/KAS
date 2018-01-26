@@ -245,7 +245,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public override void OnStartFinished(PartModule.StartState state) {
     base.OnStartFinished(state);
-    // Prevent the third-party logic on the auto node.
+    // Prevent the third-party logic on the auto node. See OnLoad.
     if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
         && isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
       KASAPI.AttachNodesUtils.DropNode(part, attachNode);
@@ -275,6 +275,8 @@ public abstract class AbstractLinkPeer : PartModule,
   #region IsPackable implementation
   /// <inheritdoc/>
   public virtual void OnPartUnpack() {
+    // The check may want to establish a link, but this will only succeed if the physics has
+    // started.
     AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
   }
 
