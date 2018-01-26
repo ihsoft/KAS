@@ -337,8 +337,8 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #region ILinkSource implementation
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
-    if (linkState != LinkState.Available) {
-      HostedDebugLog.Warning(this, "Cannot start linking mode is state: {0}", linkState);
+    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
+      HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
       return false;
     }
     linkState = LinkState.Linking;
@@ -348,7 +348,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
 
   /// <inheritdoc/>
   public virtual void CancelLinking() {
-    if (linkState != LinkState.Linking) {
+    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Available)) {
       HostedDebugLog.Fine(this, "Ignore linking mode cancel in state: {0}", linkState);
       return;
     }
@@ -358,7 +358,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
 
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
-    if (linkState != LinkState.Linking) {
+    if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
