@@ -189,10 +189,6 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
       AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
-      if (isAutoAttachNode && attachNode != null) {
-        attachNode.attachedPart = null;
-        KASAPI.AttachNodesUtils.DropNode(part, attachNode);
-      }
     }
   }
   #endregion
@@ -293,7 +289,13 @@ public abstract class AbstractLinkPeer : PartModule,
   /// responsible to verify it and act accordignly. Examples of the changed state are: a part has
   /// been attached to the node by the external code, or the part has been detached from the node.
   /// </remarks>
-  protected abstract void CheckAttachNode();
+  protected virtual void CheckAttachNode() {
+    if (isAutoAttachNode && attachNode != null) {
+      // Ensure the auto node is removed and is cleared from the attached part.
+      attachNode.attachedPart = null;
+      KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+    }
+  }
 
   /// <summary>Sets the peer's state machine.</summary>
   protected virtual void SetupStateMachine() {
