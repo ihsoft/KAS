@@ -236,10 +236,17 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     base.OnInitialize();
     if (isLinked && linkTarget.part.vessel != vessel) {
       // When the target is at the different vessel, there is no automatic collision ignore set.
-      StartCoroutine(WaitAndSetCollisionIgnores());
+      AsyncCall.CallOnFixedUpdate(this, () => {
+        // Copied from KervalEVA.OnVesselGoOffRails() method.
+        // There must be a delay for at least 3 fixed frames.
+        if (isLinked) {  // Link may get broken during the physics easyment.
+          CollisionManager.IgnoreCollidersOnVessel(
+              linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
+        }
+      }, skipFrames: 3);
     }
   }
-  
+
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
@@ -574,27 +581,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #endregion 
 
   #region Local untility methods
-  /// <summary>
-  /// Waits till the physics easement logic warmed up and disables the collision between the source
-  /// and target parts.
-  /// </summary>
-  /// <remarks>Needed when the source and target parts belong to different vessels.</remarks>
-  /// <seealso cref="linkTarget"/>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Colliders_SetCollisionIgnores_1.htm">
-  /// KSPDev Utils: Colliders.SetCollisionIgnores
-  /// </seealso>
-  IEnumerator WaitAndSetCollisionIgnores() {
-    // Copied from KervalEVA.OnVesselGoOffRails() method.
-    // There must be at least 3 fixed frames.
-    yield return new WaitForFixedUpdate();
-    yield return new WaitForFixedUpdate();
-    yield return new WaitForFixedUpdate();
-    if (isLinked) {  // Link may get broken during the physics easyment.
-      CollisionManager.IgnoreCollidersOnVessel(
-          linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
-    }
-  }
-
   /// <summary>Reacts on the vessel destruction and break the link if needed.</summary>
   /// <remarks>This event can get called from the physics callbacks.</remarks>
   /// <param name="targetVessel">The vessel that is being destroyed.</param>
