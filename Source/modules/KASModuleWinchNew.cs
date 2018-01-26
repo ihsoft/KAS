@@ -702,6 +702,11 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // state handlers reset the state back to the default.
     connectorStateMachine = new SimpleStateMachine<WinchConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
+      if (end == WinchConnectorState.Locked) {
+        KASAPI.AttachNodesUtils.AddNode(part, attachNode);
+      } else if (attachNode.attachedPart == null) {
+        KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+      }
       UpdateContextMenu();
       HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
     };
@@ -761,19 +766,16 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
-          KASAPI.AttachNodesUtils.DropNode(part, attachNode);
           TurnConnectorPhysics(true);
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
-          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
           TurnConnectorPhysics(false);
           linkRenderer.StopRenderer();
         });
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Plugged,
         enterHandler: oldState => {
-          KASAPI.AttachNodesUtils.DropNode(part, attachNode);
           connectorModelObj.parent = linkTarget.nodeTransform;
           PartModel.UpdateHighlighters(part);
           PartModel.UpdateHighlighters(linkTarget.part);
@@ -782,7 +784,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
-          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
           var oldParent = connectorModelObj.parent;
           connectorModelObj.parent = nodeTransform;  // Back to the model.
           PartModel.UpdateHighlighters(part);
