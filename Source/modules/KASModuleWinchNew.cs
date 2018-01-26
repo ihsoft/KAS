@@ -162,13 +162,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " due to the unexpected external forces or actions.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message TargetIsNotDockableMsg = new Message(
-      "#kasLOC_08026",
-      defaultTemplate: "Target part cannot dock with the winch",
-      description: "The message to present when the winch connector is being attempted to attach to"
-      + " a target part which doesn't support coupling with the winch.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
       "#kasLOC_08027",
       defaultTemplate: "Cannot link with: <<1>>",
@@ -856,19 +849,6 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       // it'll only happen when the physics is started.
       linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
     }
-  }
-
-  /// <inheritdoc/>
-  protected override string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
-    // It's OK to link with the kerbal target even though it's not dockable. This case is explicitly
-    // handled when doing the connector locking.
-    var linkStatusErrors = new List<string>();
-    if (!target.part.vessel.isEVA && target.attachNode == null) {
-      linkStatusErrors.Add(TargetIsNotDockableMsg);
-    }
-    return linkStatusErrors
-        .Concat(base.CheckBasicLinkConditions(target, checkStates))
-        .ToArray();
   }
 
   /// <inheritdoc/>
