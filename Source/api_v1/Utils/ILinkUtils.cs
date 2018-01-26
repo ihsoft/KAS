@@ -45,6 +45,7 @@ public interface ILinkUtils {
   /// </param>
   /// <returns>The part that attached as a child into the new hierarchy.</returns>
   /// <seealso cref="ILinkVesselInfo"/>
+  /// <seealso cref="IAttachNodesUtils"/>
   Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
                    bool toDominantVessel = false);
 
