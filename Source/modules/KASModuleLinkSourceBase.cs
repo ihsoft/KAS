@@ -41,7 +41,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
-    ILinkSource, ILinkStateEventListener,
+    ILinkSource,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPartDeathListener, IKSPDevModuleInfo {
 
@@ -189,7 +189,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         new[] {LinkState.Linking, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
-        new[] {LinkState.Available, LinkState.Locked});
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linking,
         new[] {LinkState.Available, LinkState.Linked});
@@ -198,7 +198,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
-        new[] {LinkState.Available, LinkState.NodeIsBlocked});
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.RejectingLinks,
         new[] {LinkState.Available, LinkState.Locked});
@@ -276,12 +276,8 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
                                KASAPI.AttachNodesUtils.NodeId(parsedAttachNode.FindOpposingNode()));
         linkState = LinkState.NodeIsBlocked;
       }
-    } else if (linkState == LinkState.Locked && parsedAttachNode.attachedPart != null) {
-      linkState = LinkState.NodeIsBlocked;
     } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      var partIsLinked = part.Modules.OfType<ILinkSource>().Any(m => m.isLinked)
-          || part.Modules.OfType<ILinkTarget>().Any(m => m.isLinked);
-      linkState = partIsLinked ? LinkState.Locked : LinkState.Available;
+      linkState = LinkState.Available;
     }
     
     // Restore the link state if not yet done.
@@ -424,24 +420,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       }
     }
     return errors.Length == 0;
-  }
-  #endregion
-
-  #region ILinkStateEventListener implementation
-  /// <inheritdoc/>
-  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    // Lock this source if another source on the part has made the link.
-    if (!isLocked && !ReferenceEquals(info.source, this)) {
-      isLocked = true;
-    }
-  }
-
-  /// <inheritdoc/>
-  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    // Unlock this source if link with the another source one the part has broke.
-    if (isLocked && !ReferenceEquals(info.source, this)) {
-      isLocked = false;
-    }
   }
   #endregion
 

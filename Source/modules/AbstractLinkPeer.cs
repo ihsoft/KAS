@@ -24,7 +24,7 @@ public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
     IActivateOnDecouple,
     // KAS interfaces.
-    ILinkPeer,
+    ILinkPeer, ILinkStateEventListener,
     // KSPDev parents.
     IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
@@ -84,6 +84,9 @@ public abstract class AbstractLinkPeer : PartModule,
   #region ILinkPeer properties implementation
   /// <inheritdoc/>
   public string cfgLinkType { get { return linkType; } }
+
+  /// <inheritdoc/>
+  public string cfgAttachNodeName { get { return attachNodeName; } }
 
   /// <inheritdoc/>
   /// <seealso cref="persistedLinkState"/>
@@ -364,6 +367,30 @@ public abstract class AbstractLinkPeer : PartModule,
         ? ScreenMessageStyle.UPPER_CENTER
         : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
     ScreenMessages.PostScreenMessage(msg, duration, location);
+  }
+  #endregion
+
+  #region ILinkStateEventListener implementation
+  /// <inheritdoc/>
+  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
+    var peer = info.source.part == part
+        ? info.source as ILinkPeer
+        : info.target as ILinkPeer;
+    if (!ReferenceEquals(peer, this) && peer.cfgAttachNodeName == attachNodeName) {
+      isLocked = true;
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
+    if (isLocked) {
+      var peer = info.source.part == part
+          ? info.source as ILinkPeer
+          : info.target as ILinkPeer;
+      if (!ReferenceEquals(peer, this) && peer.cfgAttachNodeName == attachNodeName) {
+        isLocked = false;
+      }
+    }
   }
   #endregion
 

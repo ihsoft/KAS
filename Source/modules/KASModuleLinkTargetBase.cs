@@ -32,7 +32,7 @@ public class KASModuleLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
     // KAS parents.
-    ILinkTarget, ILinkStateEventListener,
+    ILinkTarget,
     // Syntax sugar parents.
     IsPartDeathListener, IKSPDevModuleInfo {
 
@@ -127,16 +127,17 @@ public class KASModuleLinkTargetBase :
         new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
-        new[] {LinkState.Available, LinkState.Locked});
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
+        //FIXME: really?
         new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linked,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
-        new[] {LinkState.Available, LinkState.NodeIsBlocked});
+        new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.RejectingLinks,
         new[] {LinkState.Available, LinkState.Locked});
@@ -195,16 +196,12 @@ public class KASModuleLinkTargetBase :
   protected override void CheckAttachNode() {
     base.CheckAttachNode();
     // The source is responsible to handle the link, which may be done at the end of frame. So put
-    // our check at the end of the frame queue.
+    // our check at the end of the frame queue to go behind any delayed actions.
     AsyncCall.CallOnEndOfFrame(this, () => {
-      if ((linkState == LinkState.Available || linkState == LinkState.Locked)
-          && parsedAttachNode.attachedPart != null) {
+      if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
         linkState = LinkState.NodeIsBlocked;
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        //FIXME: Deprecate the locked state and drop this check.
-        var partIsLinked = part.Modules.OfType<ILinkSource>().Any(m => m.isLinked)
-            || part.Modules.OfType<ILinkTarget>().Any(m => m.isLinked);
-        linkState = partIsLinked ? LinkState.Locked : LinkState.Available;
+        linkState = LinkState.Available;
       }
     });
   }
@@ -241,26 +238,6 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   public string GetPrimaryField() {
     return null;
-  }
-  #endregion
-
-  #region ILinkEventListener implementation
-  /// <inheritdoc/>
-  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    // Lock this target if another target on the part has accepted the link.
-    if (!isLocked && !ReferenceEquals(info.target, this)) {
-      isLocked = true;
-      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
-    }
-  }
-
-  /// <inheritdoc/>
-  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    // Unlock this target if link with another target on the part has broke.
-    if (isLocked && !ReferenceEquals(info.target, this)) {
-      isLocked = false;
-    }
-    AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
   }
   #endregion
 

@@ -28,6 +28,16 @@ public interface ILinkPeer {
   /// </remarks>
   string cfgLinkType { get; }
 
+  /// <summary>Name of the attach node on the part.</summary>
+  /// <value>Arbitrary string. It cannot be empty.</value>
+  /// <remarks>
+  /// Every link peer is bound to an attach node thru which the link is made (including the coupling
+  /// operations). Several peer modules can share the same node, but in case of any of the modules
+  /// has made a link, the other dependents will go into the <see cref="LinkState.Locked"/> state.
+  /// I.e. only one link can be made thru one attach node.
+  /// </remarks>
+  string cfgAttachNodeName { get; }
+
   /// <summary>Current state of the peer.</summary>
   /// <value>The current state.</value>
   /// <seealso cref="isLinked"/>
