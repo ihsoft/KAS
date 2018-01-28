@@ -290,9 +290,8 @@ public abstract class AbstractLinkPeer : PartModule,
   /// been attached to the node by the external code, or the part has been detached from the node.
   /// </remarks>
   protected virtual void CheckAttachNode() {
-    if (isAutoAttachNode && attachNode != null) {
-      // Ensure the auto node is removed and is cleared from the attached part.
-      attachNode.attachedPart = null;
+    if (isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
+      // Ensure the auto node is removed and is cleared from the attached part if not used.
       KASAPI.AttachNodesUtils.DropNode(part, attachNode);
     }
   }
