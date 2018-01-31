@@ -142,7 +142,7 @@ public abstract class AbstractLinkPeer : PartModule,
     get { return linkState == LinkState.Locked; }
     protected set {
       // Don't trigger state change events when the value hasn't changed.
-      if (value != (linkState == LinkState.Locked)) {
+      if (value != isLocked) {
         linkState = value ? LinkState.Locked : LinkState.Available;
       }
     }
