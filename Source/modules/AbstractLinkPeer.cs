@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
+using System.Linq;
 using UnityEngine;
 
 namespace KAS {
@@ -58,6 +59,22 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
   public string attachNodeName = "";
+
+  /// <summary>
+  /// Comma-separated list of names of the attach nodes which this module doesn't own but wants to
+  /// aligns the state with.
+  /// </summary>
+  /// <remarks>
+  /// The module will track the nodes and adjust its state as they were owned by the module. This
+  /// can be used to lock/block the peer modules that control the different nodes, but need to
+  /// cooperate with the other similar modules on the part. By setting the dependent nodes it's
+  /// possible to define a group of peer modules which only allows a linking of a single module at
+  /// the time.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <seealso cref="attachNodeDef"/>
+  [KSPField]
+  public string dependentNodes = "";
 
   /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
   /// <seealso cref="attachNode"/>
@@ -147,6 +164,26 @@ public abstract class AbstractLinkPeer : PartModule,
       }
     }
   }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// The descendants <i>must</i> to change the blocked status via this property. Otherwise, the
+  /// notifications won't fire. The event will also not fire if the new value doesn't differ from
+  /// the old one.
+  /// </remarks>
+  public bool isNodeBlocked {
+    get { return linkState == LinkState.NodeIsBlocked; }
+    protected set {
+      // Don't trigger the change event when the value hasn't changed.
+      if (value != isNodeBlocked) {
+        linkState = value ? LinkState.NodeIsBlocked : LinkState.Available;
+        part.Modules.OfType<ILinkStateEventListener>()
+            .Where(l => !ReferenceEquals(l, this))
+            .ToList()
+            .ForEach(m => m.OnKASNodeBlockedState(this, value));
+      }
+    }
+  }
   #endregion
 
   #region Inheritable fields & properties
@@ -185,6 +222,19 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <summary>Tells if the attach node in this module is dynamically created when needed.</summary>
   /// <value><c>true</c> if the node only exists for the coupling.</value>
   protected bool isAutoAttachNode { get; private set; }
+
+  /// <summary>
+  /// Accessor to the dependent nodes setting. See <see cref="dependentNodes"/>
+  /// </summary>
+  protected string[] dependentNodeNames {
+    get {
+      if (_dependentNodeNames == null) {
+        _dependentNodeNames = dependentNodes.Split(new[] {','});
+      }
+      return _dependentNodeNames;
+    }
+  }
+  string[] _dependentNodeNames;
   #endregion
 
   #region IActivateOnDecouple implementation
@@ -376,7 +426,9 @@ public abstract class AbstractLinkPeer : PartModule,
     var peer = info.source.part == part
         ? info.source as ILinkPeer
         : info.target as ILinkPeer;
-    if (!ReferenceEquals(peer, this) && peer.cfgAttachNodeName == attachNodeName) {
+    if (!ReferenceEquals(peer, this)
+        && (peer.cfgAttachNodeName == attachNodeName
+            || dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
       isLocked = true;
     }
   }
@@ -387,9 +439,21 @@ public abstract class AbstractLinkPeer : PartModule,
       var peer = info.source.part == part
           ? info.source as ILinkPeer
           : info.target as ILinkPeer;
-      if (!ReferenceEquals(peer, this) && peer.cfgAttachNodeName == attachNodeName) {
+      if (!ReferenceEquals(peer, this)
+          && (peer.cfgAttachNodeName == attachNodeName
+              || dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
         isLocked = false;
       }
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
+    if (dependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
+      // This is a notification handler, so don't use the isNodeBlocked property to not trigger
+      // more notifications.
+      //FIXME: fix the comment when migrated to the setter methods.
+      linkState = isBlocked ? LinkState.NodeIsBlocked : LinkState.Available;
     }
   }
   #endregion

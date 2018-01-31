@@ -81,7 +81,16 @@ public interface ILinkPeer {
   /// <summary>Tells if the peer's link ability is disabled.</summary>
   /// <value>The locked state.</value>
   /// <seealso cref="linkState"/>
+  /// <seealso cref="isNodeBlocked"/>
   bool isLocked { get; }
+
+  /// <summary>Tells if the peer's attach node is occupied by an incpompatible part.</summary>
+  /// <value>
+  /// <c>true</c> if the state is <see cref="LinkState.NodeIsBlocked"/>, or <c>false</c>, otherwise.
+  /// </value>
+  /// <seealso cref="linkState"/>
+  /// <seealso cref="isLocked"/>
+  bool isNodeBlocked { get; }
 }
 
 }  // namespace

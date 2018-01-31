@@ -199,9 +199,9 @@ public class KASModuleLinkTargetBase :
     // our check at the end of the frame queue to go behind any delayed actions.
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
-        linkState = LinkState.NodeIsBlocked;
+        isNodeBlocked = true;
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        linkState = LinkState.Available;
+        isNodeBlocked = false;
       }
     });
   }
