@@ -120,8 +120,8 @@ public class KASModuleLinkTargetBase :
   /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
-    linkStateMachine.onAfterTransition +=
-        (start, end) => HostedDebugLog.Fine(this, "Target state changed: {0} => {1}", start, end);
+    linkStateMachine.onAfterTransition += (start, end) => HostedDebugLog.Fine(
+        this, "Target state changed at {0}: {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});

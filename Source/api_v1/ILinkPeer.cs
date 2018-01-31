@@ -64,12 +64,13 @@ public interface ILinkPeer {
   /// Attach node to use when the peers need to couple into a single parts hierarchy.
   /// </summary>
   /// <remarks>
-  /// The node is not required to be in the list of the attach nodes of the parts. The caller must
+  /// The node is not required to be in the list of the attach nodes of the part. The caller must
   /// ensure it before doing the actual coupling.
   /// </remarks>
   /// <value>The attach node or <c>null</c> if the peer doesn't support coupling.</value>
   /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
   /// <seealso cref="IAttachNodesUtils.AddNode"/>
+  /// <seealso cref="ILinkUtils.CoupleParts"/>
   AttachNode attachNode { get; }
 
   /// <summary>Tells if this peer is currectly linked to another peer.</summary>
