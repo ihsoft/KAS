@@ -469,6 +469,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// <param name="actorType">The actor which has intiated the unlinking.</param>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
     HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
+    linkActor = actorType;
     var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
     linkRenderer.StopRenderer();
     linkState = LinkState.Available;
@@ -476,6 +477,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       linkTarget.linkSource = null;
       otherPeer = null;
     }
+    linkActor = LinkActorType.None;
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
         .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
