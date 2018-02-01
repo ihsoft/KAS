@@ -270,24 +270,32 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-  }
-
-  /// <inheritdoc/>
-  public override void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
-    base.OnKASLinkCreatedEvent(info);
-    if (info.actor == LinkActorType.Player || info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathPlug);
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    base.OnKASLinkBrokenEvent(info);
-    if (info.actor == LinkActorType.Player) {
-      UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathUndock : sndPathUnplug);
-    } else if (info.actor == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(sndPathBroken);
-    }
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linked,
+        enterHandler: x => {
+          if (linkActor == LinkActorType.Player || linkActor == LinkActorType.Physics) {
+            UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathPlug);
+          }
+          PartModuleUtils.InjectEvent(
+              this, BreakLinkContextMenuAction, linkTarget as PartModule);
+          PartModuleUtils.InjectEvent(
+              this, DockVesselsContextMenuAction, linkTarget as PartModule);
+          PartModuleUtils.InjectEvent(
+              this, UndockVesselsContextMenuAction, linkTarget as PartModule);
+        },
+        leaveHandler: x => {
+          if (linkActor == LinkActorType.Player) {
+            UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathUndock : sndPathUnplug);
+          } else if (linkActor == LinkActorType.Physics) {
+            UISoundPlayer.instance.Play(sndPathBroken);
+          }
+          PartModuleUtils.WithdrawEvent(
+              this, BreakLinkContextMenuAction, linkTarget as PartModule);
+          PartModuleUtils.WithdrawEvent(
+              this, DockVesselsContextMenuAction, linkTarget as PartModule);
+          PartModuleUtils.WithdrawEvent(
+              this, UndockVesselsContextMenuAction, linkTarget as PartModule);
+        });
   }
   #endregion
 
