@@ -12,18 +12,20 @@ namespace KASAPIv1 {
 /// </remarks>
 //TODO(ihsoft): Add code samples.
 public interface ILinkStateEventListener {
-  /// <summary>Triggers when a source on the part has created a link.</summary>
+  /// <summary>Triggers when any module on the part has create a link.</summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the physics changes on the part have been done. The listeners
-  /// can expect the joint logic is setup, but the actual physics may not have kicked in yet.
+  /// This is a notification event. When it triggers, the modules, involved in the link, has
+  /// completed their settings. However, the other modules on the part may not catch up the new
+  /// state yet.
   /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
 
-  /// <summary>Triggers when a source on the part has broke the link.</summary>
+  /// <summary>Triggers when any module on the part has broke the link.</summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the physics changes on the part have been done. The listeners
-  /// can expect the joint logic is setup, but some or all of the physical objects still can exist. 
+  /// This is a notification event. When it triggers, the modules, involved in the link, has
+  /// completed their settings. However, the other modules on the part may not catch up the new
+  /// state yet.
   /// </remarks>
   /// <param name="info">Source and target information about the link.</param>
   void OnKASLinkBrokenEvent(KASEvents.LinkEvent info);
@@ -34,8 +36,8 @@ public interface ILinkStateEventListener {
   /// <remarks>
   /// This event triggers <b>after</b> the link state has changed. The handlers must not change the
   /// state of the triggering module synchronously since there can be other modules which haven't
-  /// handled the event yet. However, it can be done asynchronously when needed (schedule execution
-  /// at the end of frame).
+  /// handled the event yet. However, it can be done asynchronously when needed (schedule the
+  /// execution at the end of frame).
   /// </remarks>
   /// <param name="ownerPeer">The peer which goes into the (un)blocked state.</param>
   /// <param name="isBlocked">Tells if the peer got blocked or unblocked.</param>
