@@ -100,20 +100,6 @@ public class KASModuleLinkTargetBase :
       }
     }
   }
-
-  /// <summary>Context menu item to break the currently established link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true, active = false)]
-  [LocalizableItem(
-      tag = "#kasLOC_03003",
-      defaultTemplate = "Detach connector",
-      description = "Context menu item to break the currently established link.")]
-  public void BreakLinkEvent() {
-    if (linkSource != null) {
-      linkSource.BreakCurrentLink(LinkActorType.Player,
-                                  moveFocusOnTarget: FlightGlobals.ActiveVessel == vessel);
-    }
-  }
   #endregion
 
   #region AbstractLinkPeer overrides
@@ -167,10 +153,6 @@ public class KASModuleLinkTargetBase :
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
-    linkStateMachine.AddStateHandlers(
-        LinkState.Linked,
-        enterHandler: x => PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = true),
-        leaveHandler: x => PartModuleUtils.SetupEvent(this, BreakLinkEvent, e => e.active = false));
   }
 
   /// <inheritdoc/>

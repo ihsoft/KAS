@@ -46,7 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkSource.linkJoint"/>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08028.
+// Next localization ID: #kasLOC_08029.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
@@ -475,6 +475,19 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
     }
   }
+
+  /// <summary>Context menu item to break the currently established link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_08028",
+      defaultTemplate = "Detach connector",
+      description = "Context menu item to break the currently established link.")]
+  public void DetachConnectorEvent() {
+    if (isLinked) {
+      BreakCurrentLink(LinkActorType.Player);
+    }
+  }
   #endregion
 
   #region IWinchControl properties
@@ -704,6 +717,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linked,
+        enterHandler: oldState => {
+          PartModuleUtils.InjectEvent(this, DetachConnectorEvent, linkTarget as PartModule);
+        },
+        leaveHandler: newState => {
+          PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, linkTarget as PartModule);
+        });
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
     // state handlers reset the state back to the default.
@@ -903,6 +924,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     });
     PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
       e.active = IsActiveEvaHoldingConnector();
+    });
+    PartModuleUtils.SetupEvent(this, DetachConnectorEvent, e => {
+      e.active = isLinked;
     });
   }
   #endregion
