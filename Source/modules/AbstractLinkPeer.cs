@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -15,11 +16,18 @@ namespace KAS {
 
 /// <summary>Base class that handles the basic functionality of the link's end.</summary>
 /// <remarks>
+/// <para>
 /// This module doesn't define how the link is created, but it does the heavy lifting to keep it,
 /// once it's established. The descendants are resposible for determining what peers can link with
 /// each other.
+/// </para>
+/// <para>
+/// This module implements custom persistent fields concept. The descendants can decalre fields of
+/// the custom types that are supported by <c>KSPDevUtils.ConfigUtils</c>.
+/// </para>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
+/// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
     IActivateOnDecouple,
@@ -256,6 +264,8 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    ConfigAccessor.ReadPartConfig(this);
+
     LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
@@ -265,6 +275,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
+    ConfigAccessor.ReadPartConfig(this);
 
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
