@@ -13,12 +13,11 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>
-/// Module that manages the part attach node for the coupling actions on the target.
-/// </summary>
+/// <summary>Base class that handles the basic functionality of the link's end.</summary>
 /// <remarks>
-/// This module must exist at the target part in order to allow the linked source to switch into
-/// "coupling" mode. In this mode the source and the target belong to the same vessel. 
+/// This module doesn't define how the link is created, but it does the heavy lifting to keep it,
+/// once it's established. The descendants are resposible for determining what peers can link with
+/// each other.
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
 public abstract class AbstractLinkPeer : PartModule,
