@@ -772,7 +772,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           if (oldState.HasValue) {  // Skip when restoring state.
             sndConnectorLock.Play();
           }
-        });
+        },
+        callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Docked,
         enterHandler: oldState => {
@@ -790,7 +791,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
             }
           }
         },
-        leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false));
+        leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false),
+        callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
@@ -800,7 +802,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         leaveHandler: newState => {
           TurnConnectorPhysics(false);
           linkRenderer.StopRenderer();
-        });
+        },
+        callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Plugged,
         enterHandler: oldState => {
@@ -817,7 +820,14 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
           PartModel.UpdateHighlighters(part);
           PartModel.UpdateHighlighters(oldParent);
           linkRenderer.StopRenderer();
-        });
+        },
+        callOnShutdown: false);
+  }
+
+  /// <inheritdoc/>
+  protected override void ShutdownStateMachine() {
+    base.ShutdownStateMachine();
+    connectorStateMachine.currentState = null;
   }
 
   /// <inheritdoc/>
