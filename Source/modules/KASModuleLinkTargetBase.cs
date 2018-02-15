@@ -141,18 +141,17 @@ public class KASModuleLinkTargetBase :
         });
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => {
-          SetEligiblePartHighlighting(true);
-          KASEvents.OnStopLinking.Add(OnStopConnecting);
-        },
-        leaveHandler: x => {
-          SetEligiblePartHighlighting(false);
-          KASEvents.OnStopLinking.Remove(OnStopConnecting);
-        });
+        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
+        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+    linkStateMachine.AddStateHandlers(
+        LinkState.AcceptingLinks,
+        enterHandler: x => SetEligiblePartHighlighting(true),
+        leaveHandler: x => SetEligiblePartHighlighting(false),
+        callOnShutdown: false);
   }
 
   /// <inheritdoc/>
@@ -224,14 +223,16 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region KASEvents listeners
-  /// <summary>Reacts on source link mode change.</summary>
+  /// <summary>
+  /// Fires when this module can link, and there is a source that has actived the linking mode.
+  /// </summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   protected virtual void OnStartConnecting(ILinkSource source) {
     linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
   }
 
-  /// <summary>Reacts on source link mode change.</summary>
+  /// <summary>Cancels  the linking mode on this module.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="connectionSource"></param>
   protected virtual void OnStopConnecting(ILinkSource connectionSource) {
