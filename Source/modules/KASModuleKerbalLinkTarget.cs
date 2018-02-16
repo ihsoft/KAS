@@ -187,7 +187,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     // The EVA parts don't get the load method called. So, to complete the initalization, pretend
-    // the method was called with no config provided.
+    // the method was called with no config provided. This is needed to make the parent working.
     Load(new ConfigNode());
 
     base.OnStart(state);
@@ -283,6 +283,9 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #endregion
 
   #region Local utility methods
+  /// <summary>Collects a connector in the pickup range.</summary>
+  /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
+  /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerEnter(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
       connectorsInRange.Add(
@@ -290,6 +293,9 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     }
   }
 
+  /// <summary>Removes the connector that leaves the pickup range.</summary>
+  /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
+  /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerExit(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
       connectorsInRange.Remove(
