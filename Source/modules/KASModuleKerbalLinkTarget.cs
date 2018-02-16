@@ -290,8 +290,10 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerEnter(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      connectorsInRange.Add(
-          other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>());
+      var connector = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
+      if (connector != null) {
+        connectorsInRange.Add(connector);
+      }
     }
   }
 
@@ -300,8 +302,10 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerExit(Collider other) {
     if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      connectorsInRange.Remove(
-          other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>());
+      var connector = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
+      if (connector != null) {
+        connectorsInRange.Remove(connector);
+      }
     }
   }
   #endregion
