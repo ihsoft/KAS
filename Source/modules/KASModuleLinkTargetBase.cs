@@ -73,35 +73,6 @@ public class KASModuleLinkTargetBase :
   public Color highlightColor = Color.cyan;
   #endregion
 
-  #region Context menu events/actions
-  /// <summary>
-  /// Context menu item to have the EVA carried connector attached to the target part.
-  /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true,
-            externalToEVAOnly = true, active = false)]
-  [LocalizableItem(
-      tag = "#kasLOC_03002",
-      defaultTemplate = "Attach connector",
-      description = "Context menu item to have the EVA carried connector attached to the target"
-      + " part.")]
-  public void LinkWithCarriableConnectorEvent() {
-    var kerbalTarget = FindEvaTargetWithConnector();
-    if (kerbalTarget != null) {
-      var connectorSource = kerbalTarget.linkSource;
-      if (connectorSource.CheckCanLinkTo(this, reportToGUI: true, checkStates: false)) {
-        connectorSource.BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
-        if (connectorSource.CheckCanLinkTo(this, reportToGUI: true)) {
-          connectorSource.LinkToTarget(LinkActorType.Player, this);
-        }
-      }
-      if (!ReferenceEquals(connectorSource.linkTarget, this)) {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      }
-    }
-  }
-  #endregion
-
   #region AbstractLinkPeer overrides
   /// <inheritdoc/>
   protected override void SetupStateMachine() {
@@ -130,15 +101,8 @@ public class KASModuleLinkTargetBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => {
-          KASEvents.OnStartLinking.Add(OnStartConnecting);
-          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
-        },
-        leaveHandler: x => {
-          KASEvents.OnStartLinking.Remove(OnStartConnecting);
-          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
-          PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent, e => e.active = false);
-        });
+        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartConnecting),
+        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
         enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
@@ -270,15 +234,6 @@ public class KASModuleLinkTargetBase :
   #endregion
 
   #region Local untility methods
-  /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
-  /// <param name="menuOwnerPart">The part for which the UI is created.</param>
-  void OnPartGUIStart(Part menuOwnerPart) {
-    if (menuOwnerPart == part) {
-      PartModuleUtils.SetupEvent(this, LinkWithCarriableConnectorEvent,
-                                 x => x.active = FindEvaTargetWithConnector() != null);
-    }
-  }
-
   /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
   /// <returns>The source or <c>null</c> if nothing found.</returns>
   ILinkTarget FindEvaTargetWithConnector() {

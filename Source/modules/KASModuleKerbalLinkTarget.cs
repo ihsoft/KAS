@@ -6,6 +6,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using KSPDev.PartUtils;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,7 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
-// Next localization ID: #kasLOC_10003.
+// Next localization ID: #kasLOC_10004.
 public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
@@ -36,6 +37,13 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       + "which is currently in range.\nArgument <<1>> is the current key binding of type"
       + "KeyboardEventType.",
       example: "[Y]: Pickup connector");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message attachConnectorMenu = new Message(
+      "#kasLOC_10003",
+      defaultTemplate: "Attach connector",
+      description: "Context menu item that appear on the target part and transfers the EVA carried"
+      + " connector to it.");
   #endregion
 
   #region Part's config fields
@@ -139,6 +147,23 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
 
   /// <summary>Local orientation of the attach node relative to the kerbal's model bone.</summary>
   Quaternion boneAttachNodeRotation;
+
+  /// <summary>Helper container for the injected items.</summary>
+  class InjectedEvent {
+    /// <summary>Module that own the menu item.</summary>
+    public ILinkPeer module;
+
+    /// <summary>The injected event.</summary>
+    /// <remarks>It's <c>null</c> if the event has not been injected.</remarks>
+    public BaseEvent baseEvent;
+  }
+
+  /// <summary>Cache of the injected menu items.</summary>
+  /// <remarks>
+  /// It's updated in the GUI menu callbacks and gets wiped out when the vessel looses focus.
+  /// </remarks>
+  Dictionary<uint, List<InjectedEvent>> targetCandidates =
+      new Dictionary<uint, List<InjectedEvent>>();
   #endregion
 
   #region Context menu events/actions
@@ -215,6 +240,23 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     if (attachBoneTransform != null && isLinked) {
       nodeTransform.rotation = attachBoneTransform.rotation * boneAttachNodeRotation;
       nodeTransform.position = attachBoneTransform.TransformPoint(boneAttachNodePosition);
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void SetupStateMachine() {
+    base.SetupStateMachine();
+    if (HighLogic.LoadedSceneIsFlight) {
+      linkStateMachine.onBeforeTransition += (start, end) => {
+        if (!start.HasValue) {
+          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
+          GameEvents.onPartActionUIDismiss.Add(OnPartGUIStop);
+        }
+        if (!end.HasValue) {
+          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
+          GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
+        }
+      };
     }
   }
   #endregion
@@ -307,6 +349,108 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         connectorsInRange.Remove(connector);
       }
     }
+  }
+
+  /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
+  /// <remarks>
+  /// <para>
+  /// The goal of this method is to intercept the action of opening a context menu on the other
+  /// part. The method checks if the target part can be a target for the link of the connector that
+  /// is being carried by the kerbal. If this is the case, then a special menu item is injected to
+  /// allow player to complete the link.
+  /// </para>
+  /// <para>
+  /// This event is called once for every part with an opened menu in every frame. For this reason
+  /// it must be very efficient, or else the performance will suffer. To not impact the performance,
+  /// this method caches all the opened menus.
+  /// </para>
+  /// </remarks>
+  /// <param name="menuOwnerPart">The part for which the UI is created.</param>
+  /// <seealso cref="OnPartGUIStop"/>
+  void OnPartGUIStart(Part menuOwnerPart) {
+    if (FlightGlobals.ActiveVessel != vessel) {
+      // If the EVA part has lost the focus, then cleanup all the caches.
+      if (targetCandidates.Count > 0) {
+        targetCandidates
+            .SelectMany(t => t.Value)
+            .Where(ie => ie.baseEvent != null)
+            .ToList()
+            .ForEach(ie => PartModuleUtils.DropEvent(ie.module.part, ie.baseEvent));
+      }
+      return;
+    }
+
+    // Check if the menu injects need to be added/removed on the monitored parts. 
+    List<InjectedEvent> injects;
+    if (!targetCandidates.TryGetValue(menuOwnerPart.flightID, out injects)) {
+      injects = menuOwnerPart.Modules.OfType<ILinkTarget>()
+          .Where(t => t.cfgLinkType == cfgLinkType)
+          .Select(t => new InjectedEvent() { module = t, baseEvent = null })
+          .ToList();
+      targetCandidates.Add(menuOwnerPart.flightID, injects);
+    }
+    foreach (var inject in injects) {
+      var target = inject.module;
+      var canLink = inject.module.linkState == LinkState.Available && isLinked;
+      if (!canLink && inject.baseEvent != null) {
+        PartModuleUtils.DropEvent(target.part, inject.baseEvent);
+        inject.baseEvent = null;
+      } else if (canLink && inject.baseEvent == null) {
+        inject.baseEvent = MakeEvent(target, attachConnectorMenu, LinkCarriedConnector);
+        PartModuleUtils.AddEvent(target.part, inject.baseEvent);
+      }
+    }
+  }
+
+  /// <summary>Cleans up the internal cache of the injected menu items.</summary>
+  /// <param name="menuOwnerPart">The part for which the UI is being destroyed.</param>
+  /// <seealso cref="OnPartGUIStart"/>
+  void OnPartGUIStop(Part menuOwnerPart) {
+    List<InjectedEvent> injects;
+    if (targetCandidates.TryGetValue(menuOwnerPart.flightID, out injects)) {
+      injects
+          .Where(ie => ie.baseEvent != null).ToList()
+          .ForEach(ie => PartModuleUtils.DropEvent(ie.module.part, ie.baseEvent));
+      targetCandidates.Remove(menuOwnerPart.flightID);
+    }
+  }
+
+  /// <summary>
+  /// Removes the linked connector from the kerbal and links it to the target part.
+  /// </summary>
+  /// <param name="peer">The target part link module.</param>
+  void LinkCarriedConnector(ILinkPeer peer) {
+    var target = peer as ILinkTarget;
+    if (target != null && isLinked
+        && linkSource.CheckCanLinkTo(target, checkStates: false, reportToGUI: true)) {
+      var source = linkSource;
+      source.BreakCurrentLink(LinkActorType.API, moveFocusOnTarget: true);
+      if (source.CheckCanLinkTo(target, reportToGUI: true)) {
+        source.LinkToTarget(LinkActorType.Player, target);
+      } else {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      }
+    } else {
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+    }
+  }
+
+  /// <summary>Helper method to create a part's context menu.</summary>
+  /// <param name="peer">The peer module to create an action for.</param>
+  /// <param name="guiName">The GUI name of the menu item.</param>
+  /// <param name="action">The action to exectue when the menu item is triggered.</param>
+  /// <returns>The new event. It's not automatically injected into the part.</returns>
+  BaseEvent MakeEvent(ILinkPeer peer, Message guiName, Action<ILinkPeer> action) {
+    var ev = new BaseEvent(
+        peer.part.Events,
+        "autoEventAttach" + peer.part.Modules.IndexOf(peer as PartModule),
+        () => action.Invoke(peer),
+        new KSPEvent());
+    ev.guiActive = true;
+    ev.guiActiveUncommand = true;
+    ev.guiActiveUnfocused = true;
+    ev.guiName = guiName;
+    return ev;
   }
   #endregion
 }
