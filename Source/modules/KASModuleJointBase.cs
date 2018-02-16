@@ -341,7 +341,7 @@ public class KASModuleJointBase : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (isLinked && !selfDecoupledAction
-        && linkSource.attachNode != null && linkSource.attachNode.id == nodeName) {
+        && linkSource.coupleNode != null && linkSource.coupleNode.id == nodeName) {
       // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
       MaybeBreakLink(linkSource, linkTarget);
@@ -471,7 +471,7 @@ public class KASModuleJointBase : PartModule,
           this, "Coupling mode updated in a non-linked module: {0}", isCoupleOnLink);
       return true;
     }
-    if (isCoupleOnLink && (linkSource.attachNode == null || linkTarget.attachNode == null)) {
+    if (isCoupleOnLink && (linkSource.coupleNode == null || linkTarget.coupleNode == null)) {
       HostedDebugLog.Error(this, "Cannot couple due to source or target doesn't support it");
       coupleOnLinkMode = false;
       return false;
@@ -585,7 +585,7 @@ public class KASModuleJointBase : PartModule,
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
     KASAPI.LinkUtils.CoupleParts(
-        linkSource.attachNode, linkTarget.attachNode, toDominantVessel: true);
+        linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
   }
 
   /// <summary>Creates a physical link between the source and the target parts.</summary>
@@ -745,8 +745,8 @@ public class KASModuleJointBase : PartModule,
   /// <param name="target">The peer the link.</param>
   /// <returns><c>true</c> if the peers are coupled.</returns>
   static bool CheckCoupled(ILinkPeer source, ILinkPeer target) {
-    return source.attachNode != null && source.attachNode.attachedPart == target.part
-        && target.attachNode != null && target.attachNode.attachedPart == source.part;
+    return source.coupleNode != null && source.coupleNode.attachedPart == target.part
+        && target.coupleNode != null && target.coupleNode.attachedPart == source.part;
   }
 
   /// <summary>Reacts on the vessel name change and updates the vessel infos.</summary>

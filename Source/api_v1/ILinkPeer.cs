@@ -71,7 +71,7 @@ public interface ILinkPeer {
   /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
   /// <seealso cref="IAttachNodesUtils.AddNode"/>
   /// <seealso cref="ILinkUtils.CoupleParts"/>
-  AttachNode attachNode { get; }
+  AttachNode coupleNode { get; }
 
   /// <summary>Tells if this peer is currectly linked to another peer.</summary>
   /// <value>The current state of the link.</value>

@@ -53,7 +53,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// (like KIS).
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <seealso cref="attachNode"/>
+  /// <seealso cref="coupleNode"/>
   [KSPField]
   public string attachNodeDef = "";
 
@@ -84,7 +84,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public string dependentNodes = "";
 
   /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
-  /// <seealso cref="attachNode"/>
+  /// <seealso cref="coupleNode"/>
   [KSPField]
   public bool allowCoupling;
   #endregion
@@ -150,7 +150,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public AttachNode attachNode {
+  public AttachNode coupleNode {
     get {
       return allowCoupling ? parsedAttachNode : null;
     }
@@ -285,10 +285,10 @@ public abstract class AbstractLinkPeer : PartModule,
       if (parsedAttachNode != null) {
         HostedDebugLog.Fine(
             this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
-        if (attachNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
           // Only pre-add the node in the scenes that assume restoring a vessel state.
           // We'll drop it in the OnStartFinished if not used.
-          KASAPI.AttachNodesUtils.AddNode(part, attachNode);
+          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
         }
       } else {
         HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
@@ -306,8 +306,8 @@ public abstract class AbstractLinkPeer : PartModule,
     base.OnStartFinished(state);
     // Prevent the third-party logic on the auto node. See OnLoad.
     if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
-        && isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
-      KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+        && isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
+      KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
     }
     if (persistedLinkState == LinkState.Linked) {
       RestoreOtherPeer();
@@ -353,9 +353,9 @@ public abstract class AbstractLinkPeer : PartModule,
   /// been attached to the node by the external code, or the part has been detached from the node.
   /// </remarks>
   protected virtual void CheckAttachNode() {
-    if (isAutoAttachNode && attachNode != null && attachNode.attachedPart == null) {
+    if (isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
       // Ensure the auto node is removed and is cleared from the attached part if not used.
-      KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+      KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
     }
   }
 
@@ -363,14 +363,14 @@ public abstract class AbstractLinkPeer : PartModule,
   protected virtual void SetupStateMachine() {
     linkStateMachine.onAfterTransition += (start, end) => {
       persistedLinkState = linkState;
-      if (attachNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+      if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
         if (end == LinkState.Available) {
           if (!isAutoAttachNode) {
-            KASAPI.AttachNodesUtils.AddNode(part, attachNode);
+            KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
           }
         } else {
-          if (attachNode.attachedPart == null) {
-            KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+          if (coupleNode.attachedPart == null) {
+            KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
           }
         }
       }

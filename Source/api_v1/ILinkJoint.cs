@@ -100,7 +100,7 @@ public interface ILinkJoint {
   /// implementation, and the caller must react accordingly.
   /// </returns>
   /// <seealso cref="coupleOnLinkMode"/>
-  /// <seealso cref="ILinkPeer.attachNode"/>
+  /// <seealso cref="ILinkPeer.coupleNode"/>
   bool SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>

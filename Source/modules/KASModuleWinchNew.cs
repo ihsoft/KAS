@@ -731,9 +731,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     connectorStateMachine = new SimpleStateMachine<WinchConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
       if (end == WinchConnectorState.Locked) {
-        KASAPI.AttachNodesUtils.AddNode(part, attachNode);
-      } else if (attachNode.attachedPart == null) {
-        KASAPI.AttachNodesUtils.DropNode(part, attachNode);
+        KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
+      } else if (coupleNode.attachedPart == null) {
+        KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
       }
       UpdateContextMenu();
       HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
@@ -833,7 +833,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void LogicalLink(ILinkTarget target) {
     base.LogicalLink(target);
-    if (target.part == parsedAttachNode.attachedPart && part == target.attachNode.attachedPart) {
+    if (target.part == parsedAttachNode.attachedPart && part == target.coupleNode.attachedPart) {
       // The target part is externally attached.
       connectorState = WinchConnectorState.Docked;
     } else {
@@ -887,13 +887,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <inheritdoc/>
   protected override void CheckAttachNode() {
     base.CheckAttachNode();
-    if (linkState == LinkState.NodeIsBlocked && attachNode.attachedPart != null) {
+    if (linkState == LinkState.NodeIsBlocked && coupleNode.attachedPart != null) {
       HostedDebugLog.Warning(this, "Decouple incompatible part from winch: {0}",
-                             attachNode.FindOpposingNode().attachedPart);
+                             coupleNode.FindOpposingNode().attachedPart);
       UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       ShowStatusMessage(
-          CannotLinkToPreattached.Format(attachNode.attachedPart), isError: true);
-      KASAPI.LinkUtils.DecoupleParts(part, attachNode.attachedPart);
+          CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
+      KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
     }
   }
   #endregion

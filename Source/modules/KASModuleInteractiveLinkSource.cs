@@ -219,7 +219,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                                });
     PartModuleUtils.SetupEvent(
         this, DockVesselsContextMenuAction,
-        e => e.active = attachNode != null && !linkJoint.coupleOnLinkMode);
+        e => e.active = coupleNode != null && !linkJoint.coupleOnLinkMode);
     PartModuleUtils.SetupEvent(
         this, UndockVesselsContextMenuAction,
         e => e.active = linkJoint.coupleOnLinkMode);
