@@ -251,7 +251,9 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // Handle the cable head drop/pickup events. 
     if (Event.current.Equals(dropConnectorKeyEvent) && isLinked) {
       Event.current.Use();
-      DropConnector();
+      linkSource.BreakCurrentLink(
+          LinkActorType.Player,
+          moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
     }
     if (Event.current.Equals(pickupConnectorKeyEvent) && pickupConnector != null) {
       Event.current.Use();
@@ -301,12 +303,6 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       connectorsInRange.Remove(
           other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>());
     }
-  }
-
-  void DropConnector() {
-    linkSource.BreakCurrentLink(
-        LinkActorType.Player,
-        moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
   }
   #endregion
 }
