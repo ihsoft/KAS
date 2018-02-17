@@ -436,7 +436,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
   /// <remarks>The active vessel must be a kerbal.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08016",
       defaultTemplate = "Grab connector",
@@ -635,6 +635,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Sounds to play when the connector get docked to the winch.</summary>
   /// <seealso cref="connectorState"/>
   AudioSource sndConnectorDock;
+
+  /// <summary>Connector grab event to inject into the linked target.</summary>
+  /// <see cref="UpdateContextMenu"/>
+  BaseEvent GrabConnectorEventInject;
   #endregion
 
   #region KASModuleLikSourceBase overrides
@@ -648,6 +652,24 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
     sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
     sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
+
+    // The GUI name of this event is copied from GrabConnectorEvent in UpdateContextMenu.
+    GrabConnectorEventInject = new BaseEvent(
+        Events,
+        "autoEventAttach" + part.Modules.IndexOf(this),
+        ClaimLinkedConnector,
+        new KSPEvent());
+    GrabConnectorEventInject.guiActive = true;
+    GrabConnectorEventInject.guiActiveUncommand = true;
+    GrabConnectorEventInject.guiActiveUnfocused = true;
+
+    GameEvents.onVesselChange.Add(OnVesselChange);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onVesselChange.Remove(OnVesselChange);
   }
 
   /// <inheritdoc/>
@@ -723,10 +745,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         enterHandler: oldState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.InjectEvent(this, DetachConnectorEvent, module);
+          PartModuleUtils.AddEvent(module.part, GrabConnectorEventInject);
         },
         leaveHandler: newState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
+          PartModuleUtils.DropEvent(module.part, GrabConnectorEventInject);
         });
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
@@ -934,6 +958,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     });
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
       e.active = connectorState == WinchConnectorState.Locked;
+      GrabConnectorEventInject.guiName = e.guiName;
     });
     PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
       e.active = IsActiveEvaHoldingConnector();
@@ -941,6 +966,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     PartModuleUtils.SetupEvent(this, DetachConnectorEvent, e => {
       e.active = isLinked;
     });
+    if (FlightGlobals.ActiveVessel != null) {
+      GrabConnectorEventInject.active = isLinked
+          && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
+    }
   }
   #endregion
 
@@ -1226,6 +1255,30 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       Hierarchy.MoveToParent(winchCableAnchor, nodeTransform,
                              newPosition: new Vector3(0, 0, -physicalAnchorOffset));
       HostedDebugLog.Info(this, "Winch cable anchor offset: {0}", physicalAnchorOffset);
+    }
+  }
+
+  /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
+  /// <remarks>We need a separate method to be able removing the event.</remarks>
+  /// <param name="v">The new active vessel.</param>
+  void OnVesselChange(Vessel v) {
+    UpdateContextMenu();
+  }
+
+  /// <summary>Moves a linked connected from another target to the active EVA.</summary>
+  void ClaimLinkedConnector() {
+    if (FlightGlobals.ActiveVessel.isEVA && isLinked) {
+      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType);
+      if (kerbalTarget != null
+          && CheckCanLinkTo(kerbalTarget, reportToGUI: true, checkStates: false)) {
+        BreakCurrentLink(LinkActorType.API);
+        LinkToTarget(LinkActorType.Player, kerbalTarget);
+        SetCableLength(float.PositiveInfinity);
+      }
+      if (!isLinked || !linkTarget.part.vessel.isEVA) {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      }
     }
   }
   #endregion
