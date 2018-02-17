@@ -444,7 +444,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void GrabConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType);
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
       if (kerbalTarget != null && CheckCanLinkTo(kerbalTarget, reportToGUI: true)) {
         LinkToTarget(LinkActorType.Player, kerbalTarget);
         SetCableLength(float.PositiveInfinity);
@@ -1269,7 +1269,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void ClaimLinkedConnector() {
     if (FlightGlobals.ActiveVessel.isEVA && isLinked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType);
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
       if (kerbalTarget != null
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true, checkStates: false)) {
         BreakCurrentLink(LinkActorType.API);
