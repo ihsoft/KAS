@@ -105,7 +105,8 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public void BreakLinkContextMenuAction() {
-    BreakCurrentLink(LinkActorType.Player);
+    BreakCurrentLink(LinkActorType.Player,
+                     moveFocusOnTarget: FlightGlobals.ActiveVessel == linkTarget.part.vessel);
   }
 
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>

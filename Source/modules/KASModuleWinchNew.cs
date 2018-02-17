@@ -485,7 +485,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "Context menu item to break the currently established link.")]
   public void DetachConnectorEvent() {
     if (isLinked) {
-      BreakCurrentLink(LinkActorType.Player);
+      BreakCurrentLink(LinkActorType.Player,
+                       moveFocusOnTarget: FlightGlobals.ActiveVessel == linkTarget.part.vessel);
     }
   }
   #endregion
