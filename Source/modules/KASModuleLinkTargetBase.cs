@@ -26,7 +26,6 @@ namespace KAS {
 /// public use <b>regardless</b> to their visibility level.
 /// </para>
 /// </remarks>
-// TODO(ihsoft): Add code samples.
 // Next localization ID: #kasLOC_03004.
 public class KASModuleLinkTargetBase :
     // KSP parents.

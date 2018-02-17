@@ -276,12 +276,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
           if (linkActor == LinkActorType.Player || linkActor == LinkActorType.Physics) {
             UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathPlug);
           }
-          PartModuleUtils.InjectEvent(
-              this, BreakLinkContextMenuAction, linkTarget as PartModule);
-          PartModuleUtils.InjectEvent(
-              this, DockVesselsContextMenuAction, linkTarget as PartModule);
-          PartModuleUtils.InjectEvent(
-              this, UndockVesselsContextMenuAction, linkTarget as PartModule);
+          var module = linkTarget as PartModule;
+          PartModuleUtils.InjectEvent(this, BreakLinkContextMenuAction, module);
+          PartModuleUtils.InjectEvent(this, DockVesselsContextMenuAction, module);
+          PartModuleUtils.InjectEvent(this, UndockVesselsContextMenuAction, module);
         },
         leaveHandler: x => {
           if (linkActor == LinkActorType.Player) {
@@ -289,12 +287,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
           } else if (linkActor == LinkActorType.Physics) {
             UISoundPlayer.instance.Play(sndPathBroken);
           }
-          PartModuleUtils.WithdrawEvent(
-              this, BreakLinkContextMenuAction, linkTarget as PartModule);
-          PartModuleUtils.WithdrawEvent(
-              this, DockVesselsContextMenuAction, linkTarget as PartModule);
-          PartModuleUtils.WithdrawEvent(
-              this, UndockVesselsContextMenuAction, linkTarget as PartModule);
+          var module = linkTarget as PartModule;
+          PartModuleUtils.WithdrawEvent(this, BreakLinkContextMenuAction, module);
+          PartModuleUtils.WithdrawEvent(this, DockVesselsContextMenuAction, module);
+          PartModuleUtils.WithdrawEvent(this, UndockVesselsContextMenuAction, module);
         });
   }
   #endregion
