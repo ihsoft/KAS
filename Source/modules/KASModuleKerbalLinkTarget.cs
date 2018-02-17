@@ -376,6 +376,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
             .Where(ie => ie.baseEvent != null)
             .ToList()
             .ForEach(ie => PartModuleUtils.DropEvent(ie.module.part, ie.baseEvent));
+        targetCandidates.Clear();
       }
       return;
     }
