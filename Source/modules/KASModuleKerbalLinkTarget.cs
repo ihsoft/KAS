@@ -375,7 +375,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
             .SelectMany(t => t.Value)
             .Where(ie => ie.baseEvent != null)
             .ToList()
-            .ForEach(ie => PartModuleUtils.DropEvent(ie.module.part, ie.baseEvent));
+            .ForEach(ie => PartModuleUtils.DropEvent(ie.module as PartModule, ie.baseEvent));
         targetCandidates.Clear();
       }
       return;
@@ -394,11 +394,11 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
       var target = inject.module;
       var canLink = inject.module.linkState == LinkState.Available && isLinked;
       if (!canLink && inject.baseEvent != null) {
-        PartModuleUtils.DropEvent(target.part, inject.baseEvent);
+        PartModuleUtils.DropEvent(target as PartModule, inject.baseEvent);
         inject.baseEvent = null;
       } else if (canLink && inject.baseEvent == null) {
         inject.baseEvent = MakeEvent(target, attachConnectorMenu, LinkCarriedConnector);
-        PartModuleUtils.AddEvent(target.part, inject.baseEvent);
+        PartModuleUtils.AddEvent(target as PartModule, inject.baseEvent);
       }
     }
   }
@@ -411,7 +411,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     if (targetCandidates.TryGetValue(menuOwnerPart.flightID, out injects)) {
       injects
           .Where(ie => ie.baseEvent != null).ToList()
-          .ForEach(ie => PartModuleUtils.DropEvent(ie.module.part, ie.baseEvent));
+          .ForEach(ie => PartModuleUtils.DropEvent(ie.module as PartModule, ie.baseEvent));
       targetCandidates.Remove(menuOwnerPart.flightID);
     }
   }

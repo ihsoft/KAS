@@ -745,12 +745,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         enterHandler: oldState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.InjectEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.AddEvent(module.part, GrabConnectorEventInject);
+          PartModuleUtils.AddEvent(module, GrabConnectorEventInject);
         },
         leaveHandler: newState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.DropEvent(module.part, GrabConnectorEventInject);
+          PartModuleUtils.DropEvent(module, GrabConnectorEventInject);
         });
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
