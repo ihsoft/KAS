@@ -161,16 +161,24 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
 
   #region Inheritable fields & properties
   /// <summary>Mode in which a link between the source and target is being created.</summary>
-  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
-  /// <value>The GUI mode.</value>
+  /// <remarks>
+  /// The mode is set right before going into state <seealso cref="LinkState.Linking"/> , and it's
+  /// not cleared until the next linking action. It's not persisted, so it's only valid to check
+  /// this value during the linking session.
+  /// </remarks>
+  /// <value>The last used GUI mode.</value>
   /// <seealso cref="StartLinking"/>
   /// <seealso cref="ILinkPeer.linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   protected GUILinkMode guiLinkMode { get; private set; }
 
   /// <summary>Actor, who has initiated the link.</summary>
-  /// <remarks>It only makes sense when the state is <seealso cref="LinkState.Linking"/>.</remarks>
-  /// <value>The actor.</value>
+  /// <remarks>
+  /// The actor is set right before going into state <seealso cref="LinkState.Linking"/> , and it's
+  /// not cleared until the next linking action. It's not persisted, so it's only valid to check
+  /// this value during the linking session.
+  /// </remarks>
+  /// <value>The last used actor.</value>
   /// <seealso cref="StartLinking"/>
   /// <seealso cref="ILinkPeer.linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
@@ -214,6 +222,10 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
         LinkState.Linked,
         enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
         leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linking,
+        enterHandler: x => KASEvents.OnStartLinking.Fire(this),
+        leaveHandler: x => KASEvents.OnStopLinking.Fire(this));
   }
 
   /// <inheritdoc/>
@@ -337,8 +349,9 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
       return false;
     }
+    guiLinkMode = mode;
+    linkActor = actor;
     linkState = LinkState.Linking;
-    StartLinkGUIMode(mode, actor);
     return true;
   }
 
@@ -348,7 +361,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Fine(this, "Ignore linking mode cancel in state: {0}", linkState);
       return;
     }
-    StopLinkGUIMode();
     linkState = LinkState.Available;
   }
 
@@ -363,9 +375,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     }
     LogicalLink(target);
     PhysicaLink();
-    // When GUI linking mode is stopped, all the targets stop accepting the link requests.
-    // I.e. the mode must not be stopped before the link is created.
-    StopLinkGUIMode();
     return true;
   }
 
@@ -423,29 +432,6 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Initiates GUI mode, and starts displaying linking process.</summary>
-  /// <param name="mode">The mode to start with.</param>
-  /// <param name="actor">The actor, who has initiated the linking mode.</param>
-  protected virtual void StartLinkGUIMode(GUILinkMode mode, LinkActorType actor) {
-    guiLinkMode = mode;
-    linkActor = actor;
-    KASEvents.OnStartLinking.Fire(this);
-  }
-
-  /// <summary>Stops any pending GUI mode that displays linking process.</summary>
-  /// <remarks>Does nothing if no GUI mode started.
-  /// <para>
-  /// If link is created then this method is called <i>after</i> <see cref="LogicalLink"/> callback
-  /// gets fired.
-  /// </para>
-  /// </remarks>
-  protected virtual void StopLinkGUIMode() {
-    if (guiLinkMode != GUILinkMode.None) {
-      KASEvents.OnStopLinking.Fire(this);
-      guiLinkMode = GUILinkMode.None;
-    }
-  }
-
   /// <summary>Logically links the source and the target, and starts the renderer.</summary>
   /// <remarks>It's always called <i>before</i> the physical link updates.</remarks>
   /// <param name="target">The target to link with.</param>

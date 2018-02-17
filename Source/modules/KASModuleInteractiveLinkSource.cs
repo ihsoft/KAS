@@ -237,39 +237,30 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
 
   /// <inheritdoc/>
-  protected override void StartLinkGUIMode(GUILinkMode mode, LinkActorType actor) {
-    base.StartLinkGUIMode(mode, actor);
-    InputLockManager.SetControlLock(
-        ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
-    canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
-    HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = false;
-    linkRenderer.shaderNameOverride = InteractiveShaderName;
-    linkRenderer.colorOverride = BadLinkColor;
-    linkRenderer.isPhysicalCollider = false;
-  }
-
-  /// <inheritdoc/>
-  protected override void StopLinkGUIMode() {
-    linkRenderer.StopRenderer();
-    linkRenderer.shaderNameOverride = null;
-    linkRenderer.colorOverride = null;
-    linkRenderer.isPhysicalCollider = true;
-    ScreenMessages.RemoveMessage(statusScreenMessage);
-    InputLockManager.RemoveControlLock(TotalControlLock);
-    HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = canAutoSaveState;
-    lastHoveredPart = null;
-    base.StopLinkGUIMode();
-
-    // Start renderer if link has been established.
-    if (linkState == LinkState.Linked) {
-      linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    }
-  }
-
-  /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
+    linkStateMachine.AddStateHandlers(
+        LinkState.Linking,
+        enterHandler: x => {
+          InputLockManager.SetControlLock(
+              ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
+          canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
+          HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = false;
+          linkRenderer.shaderNameOverride = InteractiveShaderName;
+          linkRenderer.colorOverride = BadLinkColor;
+          linkRenderer.isPhysicalCollider = false;
+        },
+        leaveHandler: x => {
+          linkRenderer.StopRenderer();  // This resets the pipe state.
+          linkRenderer.shaderNameOverride = null;
+          linkRenderer.colorOverride = null;
+          linkRenderer.isPhysicalCollider = true;
+          ScreenMessages.RemoveMessage(statusScreenMessage);
+          InputLockManager.RemoveControlLock(TotalControlLock);
+          HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = canAutoSaveState;
+          lastHoveredPart = null;
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
         enterHandler: x => {
