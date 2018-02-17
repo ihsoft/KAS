@@ -190,8 +190,12 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
         AsyncCall.CallOnEndOfFrame(this, CancelLinking);
       }
       // Handle link action (mouse click).
-      if (targetCandidateIsGood && Input.GetKeyDown(KeyCode.Mouse0)) {
-        AsyncCall.CallOnEndOfFrame(this, () => LinkToTarget(targetCandidate));
+      if (Input.GetKeyDown(KeyCode.Mouse0)) {
+        if (targetCandidateIsGood ) {
+          AsyncCall.CallOnEndOfFrame(this, () => LinkToTarget(targetCandidate));
+        } else {
+          UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+        }
       }
     }
   }
