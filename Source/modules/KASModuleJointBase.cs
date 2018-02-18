@@ -623,6 +623,7 @@ public class KASModuleJointBase : PartModule,
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
     DelegateCouplingRole(linkTarget.part);
+    CleanupPhysXJoints();
   }
 
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
