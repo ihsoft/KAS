@@ -635,7 +635,7 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Drops and cleans up all the custom joints.</summary>
   /// <remarks>
   /// If module manages objects or components other than joints listed in the
-  /// <see cref="customJoints"/>, then this method is the right place to do teh cleanup on the
+  /// <see cref="customJoints"/>, then this method is the right place to do the cleanup on the
   /// joint(s) destruction.
   /// </remarks>
   /// <seealso cref="customJoints"/>
