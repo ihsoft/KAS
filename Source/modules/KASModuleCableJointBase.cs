@@ -215,9 +215,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
     cableJoint.connectedBody = tgtRb;
     cableJoint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
     SetBreakForces(cableJoint);
-
-    customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(cableJoint);
+    SetCustomJoints(new[] {cableJoint});
   }
   #endregion
 }

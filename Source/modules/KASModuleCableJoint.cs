@@ -67,9 +67,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   /// <summary>Actual joint object.</summary>
   ConfigurableJoint springJoint {
     get {
-      return customJoints != null && customJoints.Count > 0
-          ? customJoints[0]
-          : null;
+      return customJoints.Count > 0 ? customJoints[0] : null;
     }
   }
 
@@ -152,9 +150,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     SetBreakForces(fixedJoint);
 
     // The order of adding the joints is important!
-    customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(cableJoint);
-    customJoints.Add(fixedJoint);
+    SetCustomJoints(new[] {cableJoint, fixedJoint});
   }
 
   /// <inheritdoc/>

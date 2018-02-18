@@ -329,7 +329,8 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <value>The list of the joints or <c>null</c> if there are none.</value>
   /// <seealso cref="joints"/>
-  protected List<ConfigurableJoint> customJoints;
+  protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
+  List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
   #endregion
 
   #region Local members
@@ -357,7 +358,7 @@ public class KASModuleJointBase : PartModule,
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
-      if (isLinked && customJoints != null && customJoints.Any(x => x == null)) {
+      if (isLinked && customJoints.Any(x => x == null)) {
         linkSource.BreakCurrentLink(
             LinkActorType.Physics,
             moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
@@ -436,7 +437,7 @@ public class KASModuleJointBase : PartModule,
         DetachParts();
       }
     }
-    CleanupPhysXJoints();
+    SetCustomJoints(null);
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -592,7 +593,6 @@ public class KASModuleJointBase : PartModule,
   /// <seealso cref="DetachParts"/>
   protected virtual void AttachParts() {
     HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
-    customJoints = new List<ConfigurableJoint>();
     var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(rigidJoint);
     rigidJoint.enablePreprocessing = true;
@@ -603,7 +603,7 @@ public class KASModuleJointBase : PartModule,
     rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
         GetSourcePhysicalAnchor(linkSource));
     SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
-    customJoints.Add(rigidJoint);
+    SetCustomJoints(new[] {rigidJoint});
   }
 
   /// <summary>
@@ -623,13 +623,13 @@ public class KASModuleJointBase : PartModule,
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
     DelegateCouplingRole(linkTarget.part);
-    CleanupPhysXJoints();
+    SetCustomJoints(null);
   }
 
   /// <summary>Destroys the physical link between the source and the target parts.</summary>
   /// <seealso cref="AttachParts"/>
   protected virtual void DetachParts() {
-    CleanupPhysXJoints();
+    SetCustomJoints(null);
   }
 
   /// <summary>Drops and cleans up all the custom joints.</summary>
@@ -640,10 +640,10 @@ public class KASModuleJointBase : PartModule,
   /// </remarks>
   /// <seealso cref="customJoints"/>
   protected virtual void CleanupPhysXJoints() {
-    if (customJoints != null) {
+    if (customJoints.Count > 0) {
       HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
       customJoints.ForEach(UnityEngine.Object.Destroy);
-      customJoints = null;
+      customJoints.Clear();
     }
   }
 
@@ -671,6 +671,18 @@ public class KASModuleJointBase : PartModule,
   /// <returns>The position in the world coordinates.</returns>
   protected Vector3 GetSourcePhysicalAnchor(ILinkSource source) {
     return source.nodeTransform.TransformPoint(anchorAtSource);
+  }
+
+  /// <summary>Sets new custom joints set.</summary>
+  /// <remarks>If there are other custom joints existing, they will be cleaned up.</remarks>
+  /// <param name="newJoints">
+  /// The new joints. If <c>null</c>, then only the old joints will be cleaned up.
+  /// </param>
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> newJoints = null) {
+    CleanupPhysXJoints();
+    if (newJoints != null) {
+      customJoints.AddRange(newJoints);
+    }
   }
   #endregion
 

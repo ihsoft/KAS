@@ -243,11 +243,7 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     collisionJoint.enablePreprocessing = true;
     collisionJoint.connectedBody = linkTarget.part.rb;
 
-    customJoints = new List<ConfigurableJoint>();
-    customJoints.Add(srcJoint);
-    customJoints.Add(trgJoint);
-    customJoints.Add(strutJoint);
-    customJoints.Add(collisionJoint);
+    SetCustomJoints(new[] {srcJoint, trgJoint, strutJoint, collisionJoint});
   }
   #endregion
 }
