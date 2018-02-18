@@ -1272,8 +1272,9 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       if (kerbalTarget != null
           && CheckCanLinkTo(kerbalTarget, reportToGUI: true, checkStates: false)) {
         BreakCurrentLink(LinkActorType.API);
-        LinkToTarget(LinkActorType.Player, kerbalTarget);
-        SetCableLength(float.PositiveInfinity);
+        if (LinkToTarget(LinkActorType.Player, kerbalTarget)) {
+          SetCableLength(float.PositiveInfinity);
+        }
       }
       if (!isLinked || !linkTarget.part.vessel.isEVA) {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
