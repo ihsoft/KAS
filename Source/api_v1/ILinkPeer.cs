@@ -73,6 +73,14 @@ public interface ILinkPeer {
   /// <seealso cref="ILinkUtils.CoupleParts"/>
   AttachNode coupleNode { get; }
 
+  /// <summary>Parsed attach node definition of the peer.</summary>
+  /// <remarks>
+  /// This node is required to be fully setup on the part creation. The node must belong to the
+  /// part, but it's not required to be listed in the part's attach nodes list. 
+  /// </remarks>
+  /// <value>The attach node. It's never <c>null</c>.</value>
+  AttachNode attachNode { get; }
+
   /// <summary>Tells if this peer is currectly linked to another peer.</summary>
   /// <value>The current state of the link.</value>
   /// <seealso cref="linkState"/>

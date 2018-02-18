@@ -151,9 +151,12 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <inheritdoc/>
   public AttachNode coupleNode {
-    get {
-      return allowCoupling ? parsedAttachNode : null;
-    }
+    get { return allowCoupling ? parsedAttachNode : null; }
+  }
+
+  /// <inheritdoc/>
+  public AttachNode attachNode {
+    get { return parsedAttachNode; }
   }
 
   /// <inheritdoc/>
