@@ -445,8 +445,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
-      if (kerbalTarget != null && CheckCanLinkTo(kerbalTarget, reportToGUI: true)) {
-        LinkToTarget(LinkActorType.Player, kerbalTarget);
+      if (kerbalTarget != null && LinkToTarget(LinkActorType.Player, kerbalTarget)) {
         SetCableLength(float.PositiveInfinity);
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);

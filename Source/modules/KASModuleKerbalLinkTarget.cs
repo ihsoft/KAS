@@ -179,12 +179,10 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     if (connector != null) {
       var closestSource = connector.ownerModule as ILinkSource;
       HostedDebugLog.Info(this, "Try picking up a physical connector of: {0}...", closestSource);
-      if (closestSource.CheckCanLinkTo(this, reportToGUI: true)) {
-        if (closestSource.LinkToTarget(LinkActorType.Player, this)) {
-          var winch = closestSource as IWinchControl;
-          if (winch != null) {
-            winch.ReleaseCable();
-          }
+      if (closestSource.LinkToTarget(LinkActorType.Player, this)) {
+        var winch = closestSource as IWinchControl;
+        if (winch != null) {
+          winch.ReleaseCable();
         }
       } else {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
@@ -426,9 +424,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
         && linkSource.CheckCanLinkTo(target, checkStates: false, reportToGUI: true)) {
       var source = linkSource;
       source.BreakCurrentLink(LinkActorType.API, moveFocusOnTarget: true);
-      if (source.CheckCanLinkTo(target, reportToGUI: true)) {
-        source.LinkToTarget(LinkActorType.Player, target);
-      } else {
+      if (!source.LinkToTarget(LinkActorType.Player, target)) {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }
     } else {
