@@ -578,6 +578,10 @@ public class KASModuleJointBase : PartModule,
       }
       return;
     }
+    if (isLinked && linkSource.part.vessel == linkTarget.part.vessel) {
+      // The vessels are already coupled thru another part. So simply create a rigid joint.
+      CreateRigidLink();
+    }
     if (!isLinked || linkSource.part.vessel == linkTarget.part.vessel) {
       HostedDebugLog.Fine(this, "Skip coupling: {0} <=> {1}", linkSource, linkTarget);
       return;
@@ -592,18 +596,7 @@ public class KASModuleJointBase : PartModule,
   /// <summary>Creates a physical link between the source and the target parts.</summary>
   /// <seealso cref="DetachParts"/>
   protected virtual void AttachParts() {
-    HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
-    var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(rigidJoint);
-    rigidJoint.enablePreprocessing = true;
-    rigidJoint.autoConfigureConnectedAnchor = false;
-    rigidJoint.connectedBody = linkTarget.part.Rigidbody;
-    rigidJoint.anchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
-    SetCustomJoints(new[] {rigidJoint});
+    CreateRigidLink();
   }
 
   /// <summary>
@@ -865,6 +858,26 @@ public class KASModuleJointBase : PartModule,
         HostedDebugLog.Warning(this, "None of the found candidates took the coupling role");
       }
     });
+  }
+
+  /// <summary>Creates a physical joint between the parts.</summary>
+  /// <remarks>
+  /// This method tries to keep the new joint as close to the stock joint as feasible.
+  /// </remarks>
+  //TODO(ihsoft): Mimic the large nodes behavior (multiple joints per a link).
+  void CreateRigidLink() {
+    HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
+    var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(rigidJoint);
+    rigidJoint.enablePreprocessing = true;
+    rigidJoint.autoConfigureConnectedAnchor = false;
+    rigidJoint.connectedBody = linkTarget.part.Rigidbody;
+    rigidJoint.anchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
+        GetSourcePhysicalAnchor(linkSource));
+    rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
+        GetSourcePhysicalAnchor(linkSource));
+    SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
+    SetCustomJoints(new[] {rigidJoint});
   }
   #endregion
 }
