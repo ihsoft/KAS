@@ -139,8 +139,9 @@ public interface ILinkSource : ILinkPeer {
   /// </para>
   /// <para>
   /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
-  /// If the were errors, they will be reported to GUI and the link won't complete. However, the
-  /// linking mode is only ended in case of the successful linking.
+  /// If the were errors, they will be reported to GUI if the linking mode was started with actor
+  /// <see cref="LinkActorType.Player"/>. The linking mode won't be cancelled in case of the link
+  /// failure.
   /// </para>
   /// </remarks>
   /// <param name="target">The target to link with.</param>
@@ -183,6 +184,7 @@ public interface ILinkSource : ILinkPeer {
   /// that owns the link's <i>target</i>. Otherwise, the focus will be set to the source part
   /// vessel.
   /// </param>
+  /// <seealso cref="LinkToTarget(ILinkTarget)"/>
   /// <seealso cref="LinkToTarget(LinkActorType, ILinkTarget)"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>

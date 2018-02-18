@@ -346,6 +346,9 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
+      if (actor == LinkActorType.Player) {
+        ShowStatusMessage(SourceIsNotAvailableForLinkMsg, isError: true);
+      }
       HostedDebugLog.Warning(this, "Cannot start linking mode in state: {0}", linkState);
       return false;
     }
@@ -367,10 +370,13 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public virtual bool LinkToTarget(ILinkTarget target) {
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linked)) {
+      if (linkActor == LinkActorType.Player) {
+        ShowStatusMessage(SourceIsNotAvailableForLinkMsg, isError: true);
+      }
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
-    if (!CheckCanLinkTo(target)) {
+    if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
       return false;
     }
     LogicalLink(target);
