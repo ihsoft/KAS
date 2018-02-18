@@ -1004,7 +1004,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <inheritdoc/>
   public void StretchCable() {
-    SetCableLength();
+    SetCableLength(float.NegativeInfinity);
   }
 
   /// <inheritdoc/>
@@ -1048,8 +1048,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// cable).
   /// </param>
   /// <seealso cref="connectorState"/>
-  protected virtual void SetCableLength(float? length = null) {
-    cableJoint.SetCableLength(length ?? float.NegativeInfinity);
+  protected virtual void SetCableLength(float length) {
+    cableJoint.SetCableLength(length);
     UpdateContextMenu();
   }
 
