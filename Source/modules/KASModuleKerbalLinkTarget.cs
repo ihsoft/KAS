@@ -291,9 +291,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     // Handle the cable head drop/pickup events. 
     if (Event.current.Equals(dropConnectorKeyEvent) && isLinked) {
       Event.current.Use();
-      linkSource.BreakCurrentLink(
-          LinkActorType.Player,
-          moveFocusOnTarget: linkSource.linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+      linkSource.BreakCurrentLink(LinkActorType.Player);
     }
     if (Event.current.Equals(pickupConnectorKeyEvent) && pickupConnector != null) {
       Event.current.Use();
@@ -423,7 +421,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
     if (target != null && isLinked
         && linkSource.CheckCanLinkTo(target, checkStates: false, reportToGUI: true)) {
       var source = linkSource;
-      source.BreakCurrentLink(LinkActorType.API, moveFocusOnTarget: true);
+      source.BreakCurrentLink(LinkActorType.API);
       if (!source.LinkToTarget(LinkActorType.Player, target)) {
         UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
       }

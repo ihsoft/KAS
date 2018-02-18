@@ -359,9 +359,7 @@ public class KASModuleJointBase : PartModule,
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
-        linkSource.BreakCurrentLink(
-            LinkActorType.Physics,
-            moveFocusOnTarget: linkTarget.part.vessel == FlightGlobals.ActiveVessel);
+        linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
     });
   }
@@ -786,9 +784,7 @@ public class KASModuleJointBase : PartModule,
     // they will be null'ed on the link destruction.
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (isLinked) {
-        source.BreakCurrentLink(
-            LinkActorType.Physics,
-            moveFocusOnTarget: target.part.vessel == FlightGlobals.ActiveVessel);
+        source.BreakCurrentLink(LinkActorType.Physics);
       }
     });
   }

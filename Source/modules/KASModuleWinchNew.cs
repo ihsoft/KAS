@@ -467,8 +467,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
-      // Kerbal is a target for the winch, and we want the kerbal to keep the focus.
-      BreakCurrentLink(LinkActorType.Player, moveFocusOnTarget: true);
+      BreakCurrentLink(LinkActorType.Player);
       connectorState = WinchConnectorState.Locked;
       HostedDebugLog.Info(
           this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
@@ -484,8 +483,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       description = "Context menu item to break the currently established link.")]
   public void DetachConnectorEvent() {
     if (isLinked) {
-      BreakCurrentLink(LinkActorType.Player,
-                       moveFocusOnTarget: FlightGlobals.ActiveVessel == linkTarget.part.vessel);
+      BreakCurrentLink(LinkActorType.Player);
     }
   }
   #endregion

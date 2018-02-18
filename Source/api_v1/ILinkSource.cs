@@ -176,21 +176,13 @@ public interface ILinkSource : ILinkPeer {
   /// Specifies what initiates the action. The final result of the action doesn't depend on it, but
   /// the visual and sound representations may differ for the different actors.
   /// </param>
-  /// <param name="moveFocusOnTarget">
-  /// Tells what to do when the link is being broken on an active vessel: upon the separation, the
-  /// vessel on either the source or the target part may get the focus. If the link doesn't belong
-  /// to the active vessel at the moment of breaking, then the focus is not affected. If this
-  /// parameter is <c>true</c>, then upon the decoupling, the vessel focus will be set on the vessel
-  /// that owns the link's <i>target</i>. Otherwise, the focus will be set to the source part
-  /// vessel.
-  /// </param>
   /// <seealso cref="LinkToTarget(ILinkTarget)"/>
   /// <seealso cref="LinkToTarget(LinkActorType, ILinkTarget)"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.Joint.OnJointBreak']"/>
-  void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
+  void BreakCurrentLink(LinkActorType actorType);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>
   /// <param name="target">The target to connect with.</param>

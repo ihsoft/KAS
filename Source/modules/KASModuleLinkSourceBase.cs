@@ -396,21 +396,13 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public virtual void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false) {
+  public virtual void BreakCurrentLink(LinkActorType actorType) {
     if (!isLinked) {
       HostedDebugLog.Error(this, "Cannot break link in state: {0}", linkState);
       return;
     }
-    var targetRootPart = linkTarget.part;
     PhysicaUnlink();
     LogicalUnlink(actorType);
-    // If either source or target part after the separation belong to the active vessel then adjust
-    // the focus. Otherwise, the actor was external (e.g. EVA).
-    if (moveFocusOnTarget && FlightGlobals.ActiveVessel == vessel) {
-      FlightGlobals.ForceSetActiveVessel(targetRootPart.vessel);
-    } else if (!moveFocusOnTarget && FlightGlobals.ActiveVessel == targetRootPart.vessel) {
-      FlightGlobals.ForceSetActiveVessel(vessel);
-    }
   }
 
   /// <inheritdoc/>
