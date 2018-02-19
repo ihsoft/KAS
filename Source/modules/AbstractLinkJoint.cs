@@ -557,13 +557,6 @@ public abstract class AbstractLinkJoint : PartModule,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Called when the link state is assigned.</summary>
-  /// <remarks>The method is called even when the state is not actually changing.</remarks>
-  /// <param name="oldIsLinked">The previous link state.</param>
-  /// <seealso cref="isLinked"/>
-  protected virtual void OnJointStateChanged(bool oldIsLinked) {
-  }
-
   /// <summary>Couples the source and the target parts merging them into a single vessel.</summary>
   /// <remarks>
   /// It's OK to call this method if the parts are already coupled. It's a normal way to have the

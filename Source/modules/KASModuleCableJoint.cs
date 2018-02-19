@@ -22,7 +22,7 @@ namespace KAS {
 /// </remarks>
 public sealed class KASModuleCableJoint : KASModuleJointBase,
     // KAS interfaces.
-    IKasJointEventsListener, IHasContextMenu,
+    IKasJointEventsListener, IHasContextMenu, ILinkStateEventListener,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
 
@@ -105,6 +105,17 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
   #endregion
 
+  #region ILinkStateEventListener implementation
+  /// <inheritdoc/>
+  public void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked) {
+    UpdateContextMenu();
+  }
+  
+  /// <inheritdoc/>
+  public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
+  }
+  #endregion
+
   #region PartModule overrides 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
@@ -158,11 +169,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     base.DetachParts();
     Destroy(jointObj);
     jointObj = null;
-  }
-
-  /// <inheritdoc/>
-  protected override void OnJointStateChanged(bool oldIsLinked) {
-    UpdateContextMenu();
   }
   #endregion
 
