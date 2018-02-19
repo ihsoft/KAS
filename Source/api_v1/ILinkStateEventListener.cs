@@ -10,7 +10,6 @@ namespace KASAPIv1 {
 /// Both the source and the target parts can recieve these events. To receive the events, a module
 /// needs to implement this interface.
 /// </remarks>
-//TODO(ihsoft): Add code samples.
 public interface ILinkStateEventListener {
   /// <summary>Triggers when any module on the part has create a link.</summary>
   /// <remarks>

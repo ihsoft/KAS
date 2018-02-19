@@ -90,6 +90,12 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   }
 
   /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
+  }
+
+  /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
     if (isLinked) {
@@ -108,11 +114,6 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   #endregion
 
   #region ILinkJoint overrides
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
-  }
 
   /// <inheritdoc/>
   protected override void AttachParts() {

@@ -45,6 +45,23 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       description: "Title of the module to present in the editor details window.");
   #endregion
 
+  #region Part's config fields
+  /// <summary>Spring force of the cable which connects the two parts.</summary>
+  /// <remarks>
+  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
+  /// distance. The force is measured in kilonewtons.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public float cableSpringForce;
+
+  /// <summary>Damper force to apply to stop the oscillations.</summary>
+  /// <remarks>The force is measured in kilonewtons.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public float cableSpringDamper = 1f;
+  #endregion
+
   #region Persistent fields
   /// <summary>Maximum length of the cable on the joint.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
@@ -80,23 +97,6 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   }
   #endregion
 
-  #region Part's config fields
-  /// <summary>Spring force of the cable which connects the two parts.</summary>
-  /// <remarks>
-  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
-  /// distance. The force is measured in kilonewtons.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float cableSpringForce;
-
-  /// <summary>Damper force to apply to stop the oscillations.</summary>
-  /// <remarks>The force is measured in kilonewtons.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float cableSpringDamper = 1f;
-  #endregion
-
   #region Inheritable properties
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
@@ -125,7 +125,7 @@ public class KASModuleCableJointBase : KASModuleJointBase,
       StopPhysicalHead();
     }
     CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
-                       GetTargetPhysicalAnchor(linkSource, linkTarget));
+                        GetTargetPhysicalAnchor(linkSource, linkTarget));
   }
 
   /// <inheritdoc/>

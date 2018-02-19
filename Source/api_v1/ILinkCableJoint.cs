@@ -8,9 +8,15 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 /// <summary>
-/// Interafce for a physical cable link. Such links keep the dsitance between the object below the
+/// Interface for a physical cable link. Such links keep the dsitance between the object below the
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
+/// <remarks>
+/// The specifics of this module is that the distance between the linked part becomes variable.
+/// </remarks>
+/// <seealso cref="maxAllowedCableLength"/>
+/// <seealso cref="realCableLength"/>
+/// <seealso cref="SetCableLength"/>
 public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Maximum allowed distance between the parts to establish a link.</summary>
   /// <value>Distance in meters.</value>
