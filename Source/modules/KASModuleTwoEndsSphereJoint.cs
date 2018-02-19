@@ -19,9 +19,9 @@ namespace KAS {
 /// allows source and target parts rotationg relative to each other. Distance between the parts is
 /// limited by the prismatic joint.
 /// <para>
-/// By default end spherical joints don't allow rotation around main axis. This degree of freedom is
-/// satisfied by the primsatic joint which allows such rotation. Defaults can be overridden in the
-/// children classes.
+/// By default the end spherical joints don't allow rotation around the main axis. This degree of
+/// freedom is satisfied by the primsatic joint which allows such a rotation. The defaults can be
+/// overridden in the descendtant classes.
 /// </para>
 /// </remarks>
 /// <seealso cref="ILinkJoint.CreateJoint"/>
@@ -29,7 +29,6 @@ namespace KAS {
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
-// TODO(ihsoft): Add an image.
 public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
     // KSP interfaces.
     IJointLockState,
