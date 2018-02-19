@@ -565,7 +565,7 @@ public abstract class AbstractLinkJoint : PartModule,
   /// <seealso cref="DecoupleParts"/>
   protected virtual void CoupleParts() {
     if (isCoupled) {
-      // Add the vessel infos if need (e.g. in case of the external attaching).
+      // If the parts are already coupled, then refresh the state and update the joints.
       if (persistedSrcVesselInfo == null) {
         HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
         persistedSrcVesselInfo = GetVesselInfo(vessel);
@@ -574,17 +574,16 @@ public abstract class AbstractLinkJoint : PartModule,
         HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
         persistedTgtVesselInfo = GetVesselInfo(vessel);
       }
-      return;
-    }
-    if (isLinked && linkSource.part.vessel == linkTarget.part.vessel) {
-      // The vessels are already coupled thru another part. So only create the PhysX joints.
       SetupPhysXJoints();
-    }
-    if (!isLinked || linkSource.part.vessel == linkTarget.part.vessel) {
-      HostedDebugLog.Fine(this, "Skip coupling: {0} <=> {1}", linkSource, linkTarget);
       return;
     }
-    // Remember the vessel info to restore it on the decoupling.
+    if (linkSource.part.vessel == linkTarget.part.vessel) {
+      // If the parts belong to the same vessel, but are not coupled, then update the joints.
+      HostedDebugLog.Fine(this, "Already coupled, skipping: {0} <=> {1}", linkSource, linkTarget);
+      SetupPhysXJoints();
+      return;
+    }
+    // Remember the vessel info to restore it on the decoupling. And do the couple!
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
     KASAPI.LinkUtils.CoupleParts(
