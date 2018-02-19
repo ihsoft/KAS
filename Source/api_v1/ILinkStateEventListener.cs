@@ -34,10 +34,9 @@ public interface ILinkStateEventListener {
   /// Triggers when a peer locks itself due to its attach node is blocked by an incompatible part.
   /// </summary>
   /// <remarks>
-  /// This event triggers <b>after</b> the link state has changed. The handlers must not change the
-  /// state of the triggering module synchronously since there can be other modules which haven't
-  /// handled the event yet. However, it can be done asynchronously when needed (schedule the
-  /// execution at the end of frame).
+  /// The event is sent to all the modules on the part except the module which triggred the event.
+  /// It allows coordinating the work of a group of link modules on the same part. The event
+  /// handlers must not synchronously affect the state of module which triggered the event.
   /// </remarks>
   /// <param name="ownerPeer">The peer which goes into the (un)blocked state.</param>
   /// <param name="isBlocked">Tells if the peer got blocked or unblocked.</param>
