@@ -24,7 +24,7 @@ namespace KAS {
 /// children classes.
 /// </para>
 /// </remarks>
-/// <seealso cref="KASModuleJointBase.CreateJoint"/>
+/// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
@@ -59,13 +59,13 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// <summary>Source sphere joint.</summary>
   /// <value>PhysX joint at the source part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="KASModuleJointBase.sourceLinkAngleLimit"/>.
+  /// <seealso cref="AbstractLinkJoint.sourceLinkAngleLimit"/>.
   protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
   /// <value>PhysX joint at the target part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="KASModuleJointBase.targetLinkAngleLimit"/>
+  /// <seealso cref="AbstractLinkJoint.targetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Joint that ties two sphere joints together.</summary>
@@ -78,8 +78,8 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// limits are set via config settings.
   /// </remarks>
   /// <seealso cref="strutSpringForce"/>
-  /// <seealso cref="KASModuleJointBase.minLinkLength"/>
-  /// <seealso cref="KASModuleJointBase.maxLinkLength"/>
+  /// <seealso cref="AbstractLinkJoint.minLinkLength"/>
+  /// <seealso cref="AbstractLinkJoint.maxLinkLength"/>
   protected ConfigurableJoint strutJoint { get; private set; }
   #endregion
 
@@ -170,8 +170,8 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   /// <param name="isSource">
   /// Tells if the joint needs to be created for the source or for the target part.
   /// </param>
-  /// <seealso cref="KASModuleJointBase.anchorAtSource"/>
-  /// <seealso cref="KASModuleJointBase.anchorAtTarget"/>
+  /// <seealso cref="AbstractLinkJoint.anchorAtSource"/>
+  /// <seealso cref="AbstractLinkJoint.anchorAtTarget"/>
   ConfigurableJoint CreateJointEnd(bool isSource) {
     var peer = isSource
         ? linkSource as ILinkPeer

@@ -161,7 +161,7 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
 
   /// <inheritdoc/>
-  protected override void OnLinkStateChanged(bool oldIsLinked) {
+  protected override void OnJointStateChanged(bool oldIsLinked) {
     UpdateContextMenu();
   }
   #endregion

@@ -109,6 +109,7 @@
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
     <Compile Include="api_v1\Utils\IPhysicsUtils.cs" />
+    <Compile Include="modules\AbstractLinkJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\InternalKASModulePhysicalConnector.cs" />
     <Compile Include="modules\KASModuleCableJointBase.cs" />
