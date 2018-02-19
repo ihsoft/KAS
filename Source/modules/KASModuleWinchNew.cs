@@ -41,11 +41,18 @@ namespace KAS {
 /// if the coupling is rejected when a plugged connector is being locked (going into the "docked"
 /// state).
 /// </para>
+/// <para>
+/// Descendants can use custom persistent fields offered by <c>KSPDevUtils.ConfigUtils</c>. For
+/// this, use the persistence group <c>StdPersistentGroups.PartPersistant</c> and declare the
+/// memebers either as protected or public. E.g. as it's done for the
+/// <see cref="persistedConnectorPosAndRot"/> field.
+/// </para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkSource.linkJoint"/>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
 // Next localization ID: #kasLOC_08029.
 public class KASModuleWinchNew : KASModuleLinkSourceBase,
     // KAS interfaces.
@@ -349,7 +356,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
-  PosAndRot persistedConnectorPosAndRot;
+  protected PosAndRot persistedConnectorPosAndRot;
   #endregion
 
   #region The context menu fields
@@ -685,8 +692,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     }
     LoadOrCreateConnectorModel();
     if (!persistedIsConnectorLocked) {
-      ConfigAccessor.ReadFieldsFromNode(node, typeof(KASModuleWinchNew), this,
-                                        group: StdPersistentGroups.PartPersistant);
+      ConfigAccessor.ReadFieldsFromNode(
+          node, GetType(), this, group: StdPersistentGroups.PartPersistant);
       // In case of the connector is not locked to either the winch or the target part, adjust its
       // model position and rotation. The rest of the state will be erstored in the state machine. 
       if (persistedConnectorPosAndRot != null) {
@@ -706,8 +713,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     if (!persistedIsConnectorLocked) {
       persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
           new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
-      ConfigAccessor.WriteFieldsIntoNode(node, typeof(KASModuleWinchNew), this,
-                                         group: StdPersistentGroups.PartPersistant);
+      ConfigAccessor.WriteFieldsIntoNode(
+          node, GetType(), this, group: StdPersistentGroups.PartPersistant);
     }
   }
 
