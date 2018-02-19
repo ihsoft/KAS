@@ -442,7 +442,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     KASEvents.OnLinkCreated.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
-        .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
+        .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
   }
 
   /// <summary>
@@ -463,7 +463,7 @@ public class KASModuleLinkSourceBase : AbstractLinkPeer,
     linkActor = LinkActorType.None;
     KASEvents.OnLinkBroken.Fire(linkInfo);
     part.FindModulesImplementing<ILinkStateEventListener>()
-        .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
+        .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: false));
   }
 
   /// <summary>Creates a physical link between the parts.</summary>

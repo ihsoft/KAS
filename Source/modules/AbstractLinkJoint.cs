@@ -278,15 +278,7 @@ public abstract class AbstractLinkJoint : PartModule,
   }
 
   /// <inheritdoc/>
-  public bool isLinked {
-    get { return _isLinked; }
-    private set {
-      var oldValue = _isLinked;
-      _isLinked = value;
-      OnJointStateChanged(oldValue);
-    }
-  }
-  bool _isLinked;
+  public bool isLinked { get; private set; }
   #endregion
 
   #region Inheritable properties

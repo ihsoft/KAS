@@ -39,13 +39,17 @@ public static class KASEvents {
       new EventData<ILinkSource>("KASOnStopLinking");
 
   /// <summary>Triggers when link between two parts has been successfully established.</summary>
-  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkCreatedEvent"/> when this
-  /// state change is needed in scope of just one part.</remarks>
+  /// <remarks>
+  /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
+  /// is needed in scope of just one part.
+  /// </remarks>
   public static EventData<LinkEvent> OnLinkCreated = new EventData<LinkEvent>("KASOnLinkCreated");
 
   /// <summary>Triggers when link between two parts has been broken.</summary>
-  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkBrokenEvent"/> when this
-  /// state change is needed in scope of just one part.</remarks>
+  /// <remarks>
+  /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
+  /// is needed in scope of just one part.
+  /// </remarks>
   public static EventData<LinkEvent> OnLinkBroken = new EventData<LinkEvent>("KASOnLinkBroken");
 }
 

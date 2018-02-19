@@ -435,26 +435,19 @@ public abstract class AbstractLinkPeer : PartModule,
 
   #region ILinkStateEventListener implementation
   /// <inheritdoc/>
-  public virtual void OnKASLinkCreatedEvent(KASEvents.LinkEvent info) {
+  public virtual void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked) {
     var peer = info.source.part == part
         ? info.source as ILinkPeer
         : info.target as ILinkPeer;
-    if (!ReferenceEquals(peer, this)
-        && (peer.cfgAttachNodeName == attachNodeName
-            || dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
-      isLocked = true;
+    if (ReferenceEquals(peer, this)
+        || (peer.cfgAttachNodeName != attachNodeName
+            && !dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
+      return;  // Nothing to do.
     }
-  }
-
-  /// <inheritdoc/>
-  public virtual void OnKASLinkBrokenEvent(KASEvents.LinkEvent info) {
-    if (isLocked) {
-      var peer = info.source.part == part
-          ? info.source as ILinkPeer
-          : info.target as ILinkPeer;
-      if (!ReferenceEquals(peer, this)
-          && (peer.cfgAttachNodeName == attachNodeName
-              || dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
+    if (isLinked) {
+      isLocked = true;
+    } else {
+      if (isLocked) {  // Ensure we're not trying to reset a custom mode. 
         isLocked = false;
       }
     }

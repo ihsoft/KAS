@@ -15,20 +15,11 @@ public interface ILinkStateEventListener {
   /// <summary>Triggers when any module on the part has create a link.</summary>
   /// <remarks>
   /// This is a notification event. When it triggers, the modules, involved in the link, has
-  /// completed their settings. However, the other modules on the part may not catch up the new
-  /// state yet.
+  /// completed their settings.
   /// </remarks>
-  /// <param name="info">Source and target information about the link.</param>
-  void OnKASLinkCreatedEvent(KASEvents.LinkEvent info);
-
-  /// <summary>Triggers when any module on the part has broke the link.</summary>
-  /// <remarks>
-  /// This is a notification event. When it triggers, the modules, involved in the link, has
-  /// completed their settings. However, the other modules on the part may not catch up the new
-  /// state yet.
-  /// </remarks>
-  /// <param name="info">Source and target information about the link.</param>
-  void OnKASLinkBrokenEvent(KASEvents.LinkEvent info);
+  /// <param name="info">The source and target information about the link.</param>
+  /// <param name="isLinked">The new link state.</param>
+  void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked);
 
   /// <summary>
   /// Triggers when a peer locks itself due to its attach node is blocked by an incompatible part.

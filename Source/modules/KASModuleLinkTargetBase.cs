@@ -128,10 +128,10 @@ public class KASModuleLinkTargetBase :
       var linkInfo = new KASEvents.LinkEvent(linkSource ?? oldSource, this);
       if (linkSource != null) {
         part.FindModulesImplementing<ILinkStateEventListener>()
-            .ForEach(x => x.OnKASLinkCreatedEvent(linkInfo));
+            .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
       } else {
         part.FindModulesImplementing<ILinkStateEventListener>()
-            .ForEach(x => x.OnKASLinkBrokenEvent(linkInfo));
+            .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: false));
       }
     }
   }
