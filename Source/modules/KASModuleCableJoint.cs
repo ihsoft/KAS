@@ -22,26 +22,9 @@ namespace KAS {
 /// </remarks>
 public sealed class KASModuleCableJoint : KASModuleJointBase,
     // KAS interfaces.
-    IKasJointEventsListener, IHasContextMenu, ILinkStateEventListener,
+    IKasJointEventsListener,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
-
-  #region Localizable strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message NotStretchedMsg = new Message(
-      "#kasLOC_06000",
-      defaultTemplate: "Cable is not stretched",
-      description: "Message to show when cable stretch is checked, and it's close to zero.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.PercentType']/*"/>
-  static readonly Message<PercentType> StretchRatioMsg = new Message<PercentType>(
-      "#kasLOC_06001",
-      defaultTemplate: "Cable stretch: <<1>>",
-      description: "Message to report the cable stretch ratio when it's not zero."
-      + "\nArgument <<1>> is a ratio between the joint limit and the actual length.",
-      example: "Cable stretch: 1.25%");
-  #endregion
 
   #region Part's config fields
   /// <summary>
@@ -85,14 +68,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
     }
   }
 
-  #region IHasContextMenu implementation
-  /// <inheritdoc/>
-  public void UpdateContextMenu() {
-    PartModuleUtils.SetupEvent(
-        this, CheckCableStretchContextMenuAction, e => e.active = isLinked);
-  }
-  #endregion
-
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public void FixedUpdate() {
@@ -102,25 +77,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
       var length = currentJointDistance;
       linkSource.linkRenderer.stretchRatio = length > jointLength ? length / jointLength : 1.0f;
     }
-  }
-  #endregion
-
-  #region ILinkStateEventListener implementation
-  /// <inheritdoc/>
-  public void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked) {
-    UpdateContextMenu();
-  }
-  
-  /// <inheritdoc/>
-  public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-  }
-  #endregion
-
-  #region PartModule overrides 
-  /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
-    UpdateContextMenu();
   }
   #endregion
 
@@ -176,40 +132,6 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   /// <inheritdoc/>
   public void OnKASJointBreak(GameObject hostObj, float breakForce) {
     linkSource.BreakCurrentLink(LinkActorType.Physics);
-  }
-  #endregion
-
-  #region GUI action handlers
-  /// <summary>
-  /// Context menu action that triggers current stretch ration check. Result is reported to UI.
-  /// </summary>
-  [KSPEvent(guiName = "Check cable stretch", guiActive = true, guiActiveUnfocused = true)]
-  public void CheckCableStretchContextMenuAction() {
-    var stretchRatio = GetCableStretch();
-    if (stretchRatio <= MinViableStretch) {
-      ScreenMessages.PostScreenMessage(
-          NotStretchedMsg, ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
-    } else {
-      ScreenMessages.PostScreenMessage(
-          StretchRatioMsg.Format(stretchRatio * 100),
-          ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
-    }
-  }
-  #endregion
-
-  #region Local utility methods
-  /// <summary>Returns ratio of the current cable stretch.</summary>
-  /// <returns>
-  /// <c>0</c> if cable is not stretched. Percentile of the stretching otherwsie. I.e. if cable's
-  /// original length was <c>100</c> and the current length is <c>110</c> then stretch ratio is
-  /// <c>0.1</c> (10%).
-  /// </returns>
-  float GetCableStretch() {
-    var stretch = currentJointDistance - maxJointDistance;
-    if (stretch < MinViableStretch) {
-      return 0f;
-    }
-    return stretch / maxJointDistance;
   }
   #endregion
 }
