@@ -619,7 +619,10 @@ public abstract class AbstractLinkJoint : PartModule,
   }
 
   /// <summary>Sets a new custom joints set.</summary>
-  /// <remarks>If there are other custom joints existing, they will be cleaned up.</remarks>
+  /// <remarks>
+  /// If there are other custom joints existing, they will be cleaned up. This method triggers
+  /// <see cref="CleanupPhysXJoints"/>, so keep it in mind when setting up the custom joints.
+  /// </remarks>
   /// <param name="newJoints">
   /// The new joints. If <c>null</c>, then the old joints will be cleaned up and no new joints will
   /// be added.

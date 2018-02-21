@@ -201,19 +201,20 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
   void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
-    cableJoint = source.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(cableJoint);
+    var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupDistanceJoint(
-        cableJoint,
+        joint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
-        maxDistance: persistedCableLength);
-    cableJoint.autoConfigureConnectedAnchor = false;
-    cableJoint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
+        maxDistance: originalLength);
+    joint.autoConfigureConnectedAnchor = false;
+    joint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
         GetSourcePhysicalAnchor(source));
-    cableJoint.connectedBody = tgtRb;
-    cableJoint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
-    SetBreakForces(cableJoint);
-    SetCustomJoints(new[] {cableJoint});
+    joint.connectedBody = tgtRb;
+    joint.connectedAnchor = tgtRb.transform.InverseTransformPoint(tgtAnchor);
+    SetBreakForces(joint);
+    SetCustomJoints(new[] {joint});
+    cableJoint = joint;
   }
   #endregion
 }
