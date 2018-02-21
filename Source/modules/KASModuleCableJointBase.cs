@@ -131,8 +131,6 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   protected override void CleanupPhysXJoints() {
     base.CleanupPhysXJoints();
     cableJoint = null;
-    headSource = null;
-    headRb = null;
   }
   #endregion
 
