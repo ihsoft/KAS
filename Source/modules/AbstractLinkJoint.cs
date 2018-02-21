@@ -557,72 +557,6 @@ public abstract class AbstractLinkJoint : PartModule,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Couples the source and the target parts merging them into a single vessel.</summary>
-  /// <remarks>
-  /// It's OK to call this method if the parts are already coupled. It's a normal way to have the
-  /// attach nodes created on the vessel load.
-  /// </remarks>
-  /// <seealso cref="DecoupleParts"/>
-  protected virtual void CoupleParts() {
-    if (isCoupled) {
-      // If the parts are already coupled, then refresh the state and update the joints.
-      if (persistedSrcVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
-        persistedSrcVesselInfo = GetVesselInfo(vessel);
-      }
-      if (persistedTgtVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
-        persistedTgtVesselInfo = GetVesselInfo(vessel);
-      }
-      SetupPhysXJoints();
-      return;
-    }
-    if (linkSource.part.vessel == linkTarget.part.vessel) {
-      // If the parts belong to the same vessel, but are not coupled, then update the joints.
-      HostedDebugLog.Fine(this, "Already coupled, skipping: {0} <=> {1}", linkSource, linkTarget);
-      SetupPhysXJoints();
-      return;
-    }
-    // Remember the vessel info to restore it on the decoupling. And do the couple!
-    persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
-    persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
-    KASAPI.LinkUtils.CoupleParts(
-        linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
-    SetupPhysXJoints();
-  }
-
-  /// <summary>Creates a physical link between the source and the target parts.</summary>
-  /// <seealso cref="DetachParts"/>
-  protected virtual void AttachParts() {
-    SetupPhysXJoints();
-  }
-
-  /// <summary>
-  /// Decouples the source and the target parts turning them into the separate vessels.
-  /// </summary>
-  /// <seealso cref="CoupleParts"/>
-  protected virtual void DecoupleParts() {
-    if (!isCoupled) {
-      HostedDebugLog.Error(this, "Cannot decouple - bad link/part state");
-      return;
-    }
-    selfDecoupledAction = true;  // Protect the action to not let the link auto-broken.
-    KASAPI.LinkUtils.DecoupleParts(
-        linkSource.part, linkTarget.part,
-        vesselInfo1: persistedSrcVesselInfo, vesselInfo2: persistedTgtVesselInfo);
-    selfDecoupledAction = false;
-    persistedSrcVesselInfo = null;
-    persistedTgtVesselInfo = null;
-    DelegateCouplingRole(linkTarget.part);
-    SetCustomJoints(null);
-  }
-
-  /// <summary>Destroys the physical link between the source and the target parts.</summary>
-  /// <seealso cref="AttachParts"/>
-  protected virtual void DetachParts() {
-    SetCustomJoints(null);
-  }
-
   /// <summary>Creates the actual PhysX joints betweemn the rigid objects.</summary>
   /// <remarks>
   /// <para>
@@ -765,6 +699,72 @@ public abstract class AbstractLinkJoint : PartModule,
   #endregion
 
   #region Local utility methods
+  /// <summary>Couples the source and the target parts merging them into a single vessel.</summary>
+  /// <remarks>
+  /// It's OK to call this method if the parts are already coupled. It's a normal way to have the
+  /// attach nodes created on the vessel load.
+  /// </remarks>
+  /// <seealso cref="DecoupleParts"/>
+  void CoupleParts() {
+    if (isCoupled) {
+      // If the parts are already coupled, then refresh the state and update the joints.
+      if (persistedSrcVesselInfo == null) {
+        HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
+        persistedSrcVesselInfo = GetVesselInfo(vessel);
+      }
+      if (persistedTgtVesselInfo == null) {
+        HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
+        persistedTgtVesselInfo = GetVesselInfo(vessel);
+      }
+      SetupPhysXJoints();
+      return;
+    }
+    if (linkSource.part.vessel == linkTarget.part.vessel) {
+      // If the parts belong to the same vessel, but are not coupled, then update the joints.
+      HostedDebugLog.Fine(this, "Already coupled, skipping: {0} <=> {1}", linkSource, linkTarget);
+      SetupPhysXJoints();
+      return;
+    }
+    // Remember the vessel info to restore it on the decoupling. And do the couple!
+    persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
+    persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
+    KASAPI.LinkUtils.CoupleParts(
+        linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
+    SetupPhysXJoints();
+  }
+
+  /// <summary>Creates a physical link between the source and the target parts.</summary>
+  /// <seealso cref="DetachParts"/>
+  void AttachParts() {
+    SetupPhysXJoints();
+  }
+
+  /// <summary>
+  /// Decouples the source and the target parts turning them into the separate vessels.
+  /// </summary>
+  /// <seealso cref="CoupleParts"/>
+  void DecoupleParts() {
+    if (!isCoupled) {
+      HostedDebugLog.Error(this, "Cannot decouple - bad link/part state");
+      return;
+    }
+    selfDecoupledAction = true;  // Protect the action to not let the link auto-broken.
+    KASAPI.LinkUtils.DecoupleParts(
+        linkSource.part, linkTarget.part,
+        vesselInfo1: persistedSrcVesselInfo, vesselInfo2: persistedTgtVesselInfo);
+    selfDecoupledAction = false;
+    persistedSrcVesselInfo = null;
+    persistedTgtVesselInfo = null;
+    DelegateCouplingRole(linkTarget.part);
+    SetCustomJoints(null);
+  }
+
+  /// <summary>Destroys the physical link between the source and the target parts.</summary>
+  /// <seealso cref="AttachParts"/>
+  void DetachParts() {
+    SetCustomJoints(null);
+  }
+
   /// <summary>Checks if the peers are coupled via their attach nodes.</summary>
   /// <param name="source">The peer the link.</param>
   /// <param name="target">The peer the link.</param>

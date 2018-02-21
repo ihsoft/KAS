@@ -29,7 +29,7 @@ namespace KAS {
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
-public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
+public class KASModuleTwoEndsSphereJoint : AbstractLinkJoint,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.
@@ -82,7 +82,7 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
   protected ConfigurableJoint strutJoint { get; private set; }
   #endregion
 
-  #region PartModule overrides
+  #region AbstractLinkJoint overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -104,35 +104,54 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
       vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
     }
   }
+
+  /// <summary>Creates the joins to form the physical link.</summary>
+  protected override void SetupPhysXJoints() {
+    // The stock joint is rigid, drop it.
+    if (partJoint != null) {
+      HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
+      partJoint.DestroyJoint();
+      partJoint.Child.attachJoint = null;
+    }
+
+    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
+    // Create end spherical joints.
+    srcJoint = CreateJointEnd(isSource: true);
+    trgJoint = CreateJointEnd(isSource: false);
+    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
+    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
+
+    // Link end joints with a prismatic joint.
+    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(strutJoint);
+    KASAPI.JointUtils.SetupPrismaticJoint(
+        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
+    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
+    // joints rotations.
+    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
+    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
+    strutJoint.enablePreprocessing = true;
+    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
+
+    // This "joint" is only needed to disable the collisions between the parts.
+    // TODO(ihsoft): Assign the renderer's colliders to the real RBs instead of the part's RB.
+    var collisionJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(collisionJoint);
+    KASAPI.JointUtils.SetupDistanceJoint(collisionJoint);
+    collisionJoint.xMotion = ConfigurableJointMotion.Free;
+    collisionJoint.yMotion = ConfigurableJointMotion.Free;
+    collisionJoint.zMotion = ConfigurableJointMotion.Free;
+    collisionJoint.enablePreprocessing = true;
+    collisionJoint.connectedBody = linkTarget.part.rb;
+
+    SetCustomJoints(new[] {srcJoint, trgJoint, strutJoint, collisionJoint});
+  }
   #endregion
 
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
     return isUnlockedJoint;
-  }
-  #endregion
-
-  #region ILinkJoint overrides
-
-  /// <inheritdoc/>
-  protected override void AttachParts() {
-    // Explicitly not calling the base since it would create a rigid joint!
-    SetupJoints();
-  }
-
-  /// <inheritdoc/>
-  protected override void CoupleParts() {
-    base.CoupleParts();
-    if (isLinked) {
-      // The stock joint is rigid, drop it.
-      if (partJoint != null) {
-        HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
-        partJoint.DestroyJoint();
-        partJoint.Child.attachJoint = null;
-      }
-      SetupJoints();
-    }
   }
   #endregion
 
@@ -209,41 +228,6 @@ public class KASModuleTwoEndsSphereJoint : KASModuleJointBase,
       node.SetValue("position", part.orgPos);
       node.SetValue("rotation", part.orgRot);
     }
-  }
-
-  /// <summary>Creates the joins to form the physical link.</summary>
-  void SetupJoints() {
-    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
-    // Create end spherical joints.
-    srcJoint = CreateJointEnd(isSource: true);
-    trgJoint = CreateJointEnd(isSource: false);
-    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
-    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
-
-    // Link end joints with a prismatic joint.
-    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(strutJoint);
-    KASAPI.JointUtils.SetupPrismaticJoint(
-        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
-    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
-    // joints rotations.
-    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
-    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
-    strutJoint.enablePreprocessing = true;
-    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-
-    // This "joint" is only needed to disable the collisions between the parts.
-    // TODO(ihsoft): Assign the renderer's colliders to the real RBs instead of the part's RB. 
-    var collisionJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(collisionJoint);
-    KASAPI.JointUtils.SetupDistanceJoint(collisionJoint);
-    collisionJoint.xMotion = ConfigurableJointMotion.Free;
-    collisionJoint.yMotion = ConfigurableJointMotion.Free;
-    collisionJoint.zMotion = ConfigurableJointMotion.Free;
-    collisionJoint.enablePreprocessing = true;
-    collisionJoint.connectedBody = linkTarget.part.rb;
-
-    SetCustomJoints(new[] {srcJoint, trgJoint, strutJoint, collisionJoint});
   }
   #endregion
 }

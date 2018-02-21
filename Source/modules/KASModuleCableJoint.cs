@@ -20,7 +20,7 @@ namespace KAS {
 /// <remarks>
 /// It can link either parts of the same vessel or parts of two different vessels.
 /// </remarks>
-public sealed class KASModuleCableJoint : KASModuleJointBase,
+public sealed class KASModuleCableJoint : AbstractLinkJoint,
     // KAS interfaces.
     IKasJointEventsListener,
     // KSPDev sugar interfaces.
@@ -80,9 +80,9 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
   #endregion
 
-  #region KASModuleJointBase overrides
+  #region AbstractLinkJoint overrides
   /// <inheritdoc/>
-  protected override void AttachParts() {
+  protected override void SetupPhysXJoints() {
     jointObj = new GameObject("RopeConnectorHead");
     jointObj.AddComponent<BrokenJointListener>().hostPart = part;
     // Joints behave crazy when the connected rigidbody masses differ to much. So use the average.
@@ -121,8 +121,8 @@ public sealed class KASModuleCableJoint : KASModuleJointBase,
   }
 
   /// <inheritdoc/>
-  protected override void DetachParts() {
-    base.DetachParts();
+  protected override void CleanupPhysXJoints() {
+    base.CleanupPhysXJoints();
     Destroy(jointObj);
     jointObj = null;
   }

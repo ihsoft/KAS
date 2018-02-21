@@ -20,7 +20,7 @@ namespace KAS {
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
 //  Next localization ID: #kasLOC_09002.
-public class KASModuleCableJointBase : KASModuleJointBase,
+public class KASModuleCableJointBase : AbstractLinkJoint,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
@@ -116,10 +116,9 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   protected Transform headPhysicalAnchor { get; private set; }
   #endregion
 
-  #region KASModuleJointBase overrides
+  #region AbstractLinkJoint overrides
   /// <inheritdoc/>
-  protected override void AttachParts() {
-    // Intentionally skip the base method since it would create a rigid link.
+  protected override void SetupPhysXJoints() {
     if (isHeadStarted) {
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
@@ -129,9 +128,8 @@ public class KASModuleCableJointBase : KASModuleJointBase,
   }
 
   /// <inheritdoc/>
-  protected override void DetachParts() {
-    base.DetachParts();
-    Object.Destroy(cableJoint);
+  protected override void CleanupPhysXJoints() {
+    base.CleanupPhysXJoints();
     cableJoint = null;
     headSource = null;
     headRb = null;
