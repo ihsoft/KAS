@@ -17,15 +17,4 @@ not use the same namespace as the parent. No modules are allowed to define own v
 
 | Module name                    | Module | Namespace start | Namespace end |
 | ------------------------------ | ------ | --------------- | ------------- |
-| KASModuleJointBase             | 0      | #kasLOC_00000   | #kasLOC_00999 |
-| KASModuleInteractiveLinkSource | 1      | #kasLOC_01000   | #kasLOC_01999 |
-| KASModuleLinkSourceBase        | 2      | #kasLOC_02000   | #kasLOC_02999 |
-| KASModuleLinkTargetBase        | 3      | #kasLOC_03000   | #kasLOC_03999 |
-| KASModuleTelescopicPipeModel   | 4      | #kasLOC_04000   | #kasLOC_04999 |
-| KASModuleTowBarActiveJoint     | 5      | #kasLOC_05000   | #kasLOC_05999 |
-| KASModuleCableJoint            | 6      | #kasLOC_06000   | #kasLOC_06999 |
-| KASModulePipeRenderer          | 7      | #kasLOC_07000   | #kasLOC_07999 |
-| KASModuleWinchNew              | 8      | #kasLOC_08000   | #kasLOC_08999 |
-| KASModuleCableJointBase        | 9      | #kasLOC_09000   | #kasLOC_09999 |
-| KASModuleKerbalLinkTarget      | 10     | #kasLOC_10000   | #kasLOC_10999 |
-| _Next available value_         | 11     | #kasLOC_11000   | #kasLOC_11999 |
+| _Next available value_         | 11     | #kasLOC_?????   | #kasLOC_????? |
