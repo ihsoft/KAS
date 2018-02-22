@@ -30,7 +30,7 @@ namespace KAS {
 /// <see cref="persistedSrcVesselInfo"/> struct.
 /// </para>
 /// <para>
-/// At the very elast, the descendants must implement the <see cref="SetupPhysXJoints"/> method. In
+/// At the very least, the descendants must implement the <see cref="SetupPhysXJoints"/> method. In
 /// the unusual cases an overriding of <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
 /// </remarks>

@@ -59,8 +59,8 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </summary>
   /// <remarks>
   /// It's always <c>0</c> if the link is not established and there is no head started. Keep in mind
-  /// that the real length is almost never equal to the maximum allowed cable lenght. This is due to
-  /// how the PhysX engine works: the joint can only apply a force when it's stretched.
+  /// that the real length is almost never equal to the deployed cable lenght. This is due to how
+  /// the PhysX engine works: the force can only be applied when the joint is stretched.
   /// </remarks>
   /// <value>The distance in meters.</value>
   /// <seealso cref="deployedCableLength"/>

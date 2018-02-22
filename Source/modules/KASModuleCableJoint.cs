@@ -41,6 +41,7 @@ public sealed class KASModuleCableJoint : AbstractLinkJoint,
   public float cableSpringDamper = 1f;
   #endregion
 
+  #region Local fields and properties
   /// <summary>Threshold for determining if there is no cable stretch.</summary>
   const float MinViableStretch = 0.0001f;
 
@@ -67,6 +68,7 @@ public sealed class KASModuleCableJoint : AbstractLinkJoint,
           springJoint.connectedBody.transform.TransformPoint(springJoint.connectedAnchor));
     }
   }
+  #endregion
 
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
