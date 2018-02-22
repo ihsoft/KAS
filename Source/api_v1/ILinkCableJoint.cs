@@ -27,7 +27,7 @@ namespace KASAPIv1 {
 /// anything.
 /// </para>
 /// </remarks>
-/// <seealso cref="maxAllowedCableLength"/>
+/// <seealso cref="deployedCableLength"/>
 /// <seealso cref="realCableLength"/>
 /// <seealso cref="SetCableLength"/>
 public interface ILinkCableJoint : ILinkJoint {
@@ -52,7 +52,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="realCableLength"/>
   /// <seealso cref="StartPhysicalHead"/>
   /// <seealso cref="SetCableLength"/>
-  float maxAllowedCableLength { get; }
+  float deployedCableLength { get; }
 
   /// <summary>
   /// Returns the actual distance between the source and target/head physical anchors.
@@ -63,7 +63,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// how the PhysX engine works: the joint can only apply a force when it's stretched.
   /// </remarks>
   /// <value>The distance in meters.</value>
-  /// <seealso cref="maxAllowedCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
   float realCableLength { get; }
 
   /// <summary>
@@ -79,7 +79,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </param>
   /// <seealso cref="StopPhysicalHead"/>
   /// <seealso cref="ILinkSource"/>
-  /// <seealso cref="maxAllowedCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
   /// <seealso cref="realCableLength"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
@@ -128,7 +128,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </list>
   /// </param>
   /// <seealso cref="cfgMaxCableLength"/>
-  /// <seealso cref="maxAllowedCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
   /// <seealso cref="realCableLength"/>
   void SetCableLength(float length);
 }

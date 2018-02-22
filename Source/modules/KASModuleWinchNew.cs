@@ -371,8 +371,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
       + " menu.")]
   public string connectorStateMenuInfo = "";
 
-  /// <summary>A context menu item that presents the maximum allowed cable length.</summary>
-  /// <seealso cref="KASModuleCableJointBase.maxAllowedCableLength"/>
+  /// <summary>A context menu item that presents the deployed cable length.</summary>
+  /// <seealso cref="KASModuleCableJointBase.deployedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
@@ -520,7 +520,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   float _motorCurrentSpeed;
 
   /// <inheritdoc/>
-  public float currentCableLength { get { return cableJoint.maxAllowedCableLength; } }
+  public float currentCableLength { get { return cableJoint.deployedCableLength; } }
 
   /// <inheritdoc/>
   public float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
@@ -948,7 +948,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public virtual void UpdateContextMenu() {
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
     deployedCableLengthMenuInfo = DistanceType.Format(
-        cableJoint != null ? cableJoint.maxAllowedCableLength : 0);
+        cableJoint != null ? cableJoint.deployedCableLength : 0);
     
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
       e.guiName = motorTargetSpeed > float.Epsilon
@@ -978,7 +978,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   #region IWinControl implementation
   /// <inheritdoc/>
   public void SetMotor(float targetSpeed) {
-    if (targetSpeed > 0 && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
+    if (targetSpeed > 0 && cableJoint.deployedCableLength >= cableJoint.cfgMaxCableLength) {
       ShowStatusMessage(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
       return;
     }
@@ -1091,13 +1091,13 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathf.Approximately(gotEnergy, powerDemand)) {
       SetCableLength(
-          cableJoint.maxAllowedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
+          cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
-          && cableJoint.maxAllowedCableLength >= cableJoint.cfgMaxCableLength) {
+          && cableJoint.deployedCableLength >= cableJoint.cfgMaxCableLength) {
         KillMotor();
         SetCableLength(float.PositiveInfinity);
         ShowStatusMessage(MaxLengthReachedMsg.Format(cableJoint.cfgMaxCableLength));
-      } else if (motorCurrentSpeed < 0 && cableJoint.maxAllowedCableLength <= 0) {
+      } else if (motorCurrentSpeed < 0 && cableJoint.deployedCableLength <= 0) {
         KillMotor();
         SetCableLength(0);
         TryLockingConnector();
@@ -1120,12 +1120,12 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </returns>
   bool CheckIsConnectorAligned(bool logCheckResult) {
     // Check the pre-conditions. 
-    if (cableJoint.maxAllowedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
+    if (cableJoint.deployedCableLength > Mathf.Epsilon  // Cable is not fully retracted.
         || cableJoint.realCableLength > connectorLockMaxErrorDist) {  // Not close enough.
       if (logCheckResult) {
         HostedDebugLog.Info(this, "Connector cannot lock, the preconditions failed:"
                             + " maxLengh={0}, realLength={1}, isLinked={2}",
-                            cableJoint.maxAllowedCableLength,
+                            cableJoint.deployedCableLength,
                             cableJoint.realCableLength,
                             isLinked);
       }

@@ -15,7 +15,7 @@ namespace KAS {
 
 /// <summary>Module that controls a physical cable joint on a KAS part.</summary>
 /// <remarks>
-/// When creating a link, the cable's <see cref="maxAllowedCableLength"/> is set to the actual
+/// When creating a link, the cable's <see cref="deployedCableLength"/> is set to the actual
 /// distance between the objects at the moment of creation. The colliders on the objects are enabled
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
@@ -72,7 +72,7 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   public Rigidbody headRb { get; private set; }
 
   /// <inheritdoc/>
-  public float maxAllowedCableLength {
+  public float deployedCableLength {
     get { return cableJoint != null ? cableJoint.linearLimit.limit : 0; }
   }
 
@@ -163,7 +163,7 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
     if (float.IsPositiveInfinity(length)) {
       length = cfgMaxCableLength;
     } else if (float.IsNegativeInfinity(length)) {
-      length = Mathf.Min(realCableLength, maxAllowedCableLength);
+      length = Mathf.Min(realCableLength, deployedCableLength);
     } else {
       length = Mathf.Max(length, 0);
     }
