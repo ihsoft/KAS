@@ -12,7 +12,20 @@ namespace KASAPIv1 {
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
 /// <remarks>
-/// The specifics of this module is that the distance between the linked part becomes variable.
+/// <para>
+/// The specifics of this module is that the distance between the linked parts becomes variable.
+/// Once the link is created, the distance limit is set to the actual distance between the source
+/// and target. This limit won't allow the objects to separate too far from each other, but the
+/// objects will be allowed to come closer. The code can adjust the limit once the joint is
+/// created.
+/// </para>
+/// <para>
+/// Due to the specifics of handling this kind of joints in PhysX, the real distance between the
+/// objects <i>can</i> become greater than the distance limit. In fact, if there are forces that try
+/// to separate the objects, then the actual distance will always be a bit more than the limit. Do
+/// not expect this difference to have any meaning, it depends on the PhysX engine and can be
+/// anything.
+/// </para>
 /// </remarks>
 /// <seealso cref="maxAllowedCableLength"/>
 /// <seealso cref="realCableLength"/>
@@ -31,14 +44,14 @@ public interface ILinkCableJoint : ILinkJoint {
   /// Maximum possible distance between the source and head/target physical anchors.
   /// </summary>
   /// <remarks>
-  /// This is a <i>desired</i> distance, not the actual one used by PhysX! The PhysX library can
-  /// apply limits on the min/max values, and adjust them silently. It's discouraged for the
-  /// implementations to rely on the joint settings to obtain this value. 
+  /// This is a <i>desired</i> distance. The engine will try to keep it equal or less to this value,
+  /// but depending on the forces that affect the objects, this distance may be never reached.
   /// </remarks>
-  /// <value>The length in meters.</value>
+  /// <value>The length in meters. Always positive.</value>
   /// <seealso cref="headRb"/>
   /// <seealso cref="realCableLength"/>
   /// <seealso cref="StartPhysicalHead"/>
+  /// <seealso cref="SetCableLength"/>
   float maxAllowedCableLength { get; }
 
   /// <summary>
@@ -92,23 +105,25 @@ public interface ILinkCableJoint : ILinkJoint {
   /// length too rapidly to avoid the strong forces applied.
   /// </para>
   /// <para>
-  /// The length can be set even when the actual joint doesn't exist. In this case the value will be
-  /// applied the next time the joint is created.
+  /// Calling for this method doesn't have any effect if the PhysX joint is not created. When a
+  /// brand new joint is created, it always has the distance limit set to the actual distance
+  /// between the physical objects. I.e. this method must be called <i>after</i> the physical joint
+  /// is created.
   /// </para>
   /// </remarks>
   /// <param name="length">
-  /// The new length. It's not possible to set a greater value than the one configured for the
-  /// module. There are special values that can be used to achieve a specific setup:
+  /// The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
+  /// within the limits, then it's rounded to the closest boundary. Also, there are special values:
   /// <list type="bullet">
   /// <item>
-  /// <c>PositiveInfinity</c>. Use the module settings from <see cref="cfgMaxCableLength"/>.
+  /// <c>PositiveInfinity</c>. Set the length to the maximum possible value, configured via
+  /// <see cref="cfgMaxCableLength"/>.
   /// </item>
   /// <item>
   /// <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
   /// less than the current limit. When the real distance is greater than the limit, it means the
   /// cable is under a strain due to the physical forces, and nothing will be changed to not trigger
-  /// extra effects. If the joint is not existing at the moment of the call, then the real distance
-  /// is assumed to be <c>0</c>.
+  /// extra effects.
   /// </item>
   /// </list>
   /// </param>

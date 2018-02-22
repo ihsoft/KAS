@@ -62,13 +62,6 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   public float cableSpringDamper = 1f;
   #endregion
 
-  #region Persistent fields
-  /// <summary>Maximum length of the cable on the joint.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  float persistedCableLength;
-  #endregion
-
   #region ILinkCableJoint CFG properties
   /// <inheritdoc/>
   public float cfgMaxCableLength { get { return maxLinkLength; } }
@@ -79,8 +72,8 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   public Rigidbody headRb { get; private set; }
 
   /// <inheritdoc/>
-  public virtual float maxAllowedCableLength {
-    get { return persistedCableLength; }
+  public float maxAllowedCableLength {
+    get { return cableJoint != null ? cableJoint.linearLimit.limit : 0; }
   }
 
   /// <inheritdoc/>
@@ -124,7 +117,8 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
       StopPhysicalHead();
     }
     CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
-                        GetTargetPhysicalAnchor(linkSource, linkTarget));
+                        GetTargetPhysicalAnchor(linkSource, linkTarget),
+                        originalLength);
   }
 
   /// <inheritdoc/>
@@ -149,7 +143,9 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
     headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
-    CreateDistanceJoint(source, headRb, headObjAnchor.position);
+    CreateDistanceJoint(source, headRb,
+                        headObjAnchor.position,
+                        Vector3.Distance(GetSourcePhysicalAnchor(source), headObjAnchor.position));
     SetCableLength(float.NegativeInfinity);
   }
 
@@ -168,8 +164,9 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
       length = cfgMaxCableLength;
     } else if (float.IsNegativeInfinity(length)) {
       length = Mathf.Min(realCableLength, maxAllowedCableLength);
+    } else {
+      length = Mathf.Max(length, 0);
     }
-    persistedCableLength = length;
     if (cableJoint != null) {
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
     }
@@ -198,13 +195,15 @@ public class KASModuleCableJointBase : AbstractLinkJoint,
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
-  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
+  /// <param name="distanceLimit">The distance limit to set on the joint.</param>
+  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor,
+                           float distanceLimit) {
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupDistanceJoint(
         joint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
-        maxDistance: originalLength);
+        maxDistance: distanceLimit);
     joint.autoConfigureConnectedAnchor = false;
     joint.anchor = source.part.Rigidbody.transform.InverseTransformPoint(
         GetSourcePhysicalAnchor(source));
