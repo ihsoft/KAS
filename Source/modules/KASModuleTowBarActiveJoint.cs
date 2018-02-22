@@ -6,6 +6,7 @@
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.PartUtils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -325,10 +326,14 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
     Fields["steeringStatus"].guiActive = isLinked;
     Fields["steeringInvert"].guiActive = isLinked && activeSteeringEnabled;
     Fields["steeringSensitivity"].guiActive = isLinked && activeSteeringEnabled;
-    Events["StartLockLockingAction"].active = isLinked && lockingMode == LockMode.Disabled;
-    Events["UnlockAction"].active = isLinked && lockingMode != LockMode.Disabled;
-    Events["DeactiveSteeringAction"].active = isLinked && activeSteeringEnabled;
-    Events["ActiveSteeringAction"].active = isLinked && !activeSteeringEnabled;
+    PartModuleUtils.SetupEvent(this, StartLockLockingAction,
+                               e => e.active = isLinked && lockingMode == LockMode.Disabled);
+    PartModuleUtils.SetupEvent(this, UnlockAction,
+                               e => e.active = isLinked && lockingMode != LockMode.Disabled);
+    PartModuleUtils.SetupEvent(this, DeactiveSteeringAction,
+                               e => e.active = isLinked && activeSteeringEnabled);
+    PartModuleUtils.SetupEvent(this, ActiveSteeringAction,
+                               e => e.active = isLinked && !activeSteeringEnabled);
     MonoUtilities.RefreshContextWindows(part);
   }
 
