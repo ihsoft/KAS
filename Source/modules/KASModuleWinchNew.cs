@@ -970,10 +970,8 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     PartModuleUtils.SetupEvent(this, DetachConnectorEvent, e => {
       e.active = isLinked;
     });
-    if (FlightGlobals.ActiveVessel != null) {
-      GrabConnectorEventInject.active = isLinked
-          && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
-    }
+    GrabConnectorEventInject.active = linkTarget != null
+        && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
   }
   #endregion
 
