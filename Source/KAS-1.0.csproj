@@ -116,7 +116,6 @@
     <Compile Include="modules\KASModuleRigidJoint.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
     <Compile Include="modules\BrokenJointListener.cs" />
-    <Compile Include="modules\KASModuleCableJoint.cs" />
     <Compile Include="modules\KASModuleInteractiveLinkSource.cs" />
     <Compile Include="modules\KASModuleKerbalLinkTarget.cs" />
     <Compile Include="modules\KASModuleLinkSourceBase.cs" />
