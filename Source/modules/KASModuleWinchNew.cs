@@ -1261,7 +1261,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
-  /// <remarks>We need a separate method to be able removing the event.</remarks>
+    MonoUtilities.RefreshContextWindows(part);
   /// <param name="v">The new active vessel.</param>
   void OnVesselChange(Vessel v) {
     UpdateContextMenu();

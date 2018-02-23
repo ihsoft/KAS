@@ -180,6 +180,18 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
   #region PartModule overrides
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onVesselChange.Add(OnVesselChange);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onVesselChange.Remove(OnVesselChange);
+  }
+
+  /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
     if (linkState == LinkState.Linking && guiLinkMode == GUILinkMode.Interactive) {
@@ -223,10 +235,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
                                });
     PartModuleUtils.SetupEvent(
         this, DockVesselsContextMenuAction,
-        e => e.active = coupleNode != null && !linkJoint.coupleOnLinkMode);
+        e => e.active = coupleNode != null && linkJoint != null && !linkJoint.coupleOnLinkMode);
     PartModuleUtils.SetupEvent(
         this, UndockVesselsContextMenuAction,
-        e => e.active = linkJoint.coupleOnLinkMode);
+        e => e.active = linkJoint != null && linkJoint.coupleOnLinkMode);
   }
   #endregion
 
@@ -334,6 +346,13 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
       statusScreenMessage.message = LinkingInProgressMsg;
     }
     ScreenMessages.PostScreenMessage(statusScreenMessage);
+  }
+
+  /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
+  /// <param name="v">The new active vessel.</param>
+  void OnVesselChange(Vessel v) {
+    UpdateContextMenu();
+    MonoUtilities.RefreshContextWindows(part);
   }
   #endregion
 }
