@@ -205,7 +205,7 @@ public class KASModuleTwoEndsSphereJoint : AbstractLinkJoint,
         ? GetSourcePhysicalAnchor(linkSource)
         : GetTargetPhysicalAnchor(linkSource, linkTarget);
     jointObj.transform.rotation = peer.nodeTransform.rotation;
-    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
+    jointObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
     SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), peer.part.rb);
     var joint = jointObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);

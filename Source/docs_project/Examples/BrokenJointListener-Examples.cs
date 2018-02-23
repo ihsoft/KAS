@@ -35,7 +35,7 @@ class BrokenJointListenerExample : PartModule, IKasJointEventsListener {
     targetJoint.breakTorque = 10;
 
     // All modules on the host part that implement IKasJointEventsListener will be notified.
-    jointObj.AddComponent<BrokenJointListener>().hostPart = part;
+    jointObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
   }
 
   /// <inheritdoc/>

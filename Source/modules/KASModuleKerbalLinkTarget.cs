@@ -82,7 +82,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   #region Local fields and properties
   /// <summary>The closest connector that is compatible with the kerbal's target.</summary>
   /// <value>COnnector module or <c>null</c>.</value>
-  InternalKASModulePhysicalConnector closestConnector {
+  KASInternalPhysicalConnector closestConnector {
     get {
       return connectorsInRange
           .Where(x => x != null && x.ownerModule as ILinkSource != null && x.connectorRb != null)
@@ -104,8 +104,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// This collection must be a list since the items in it can become <c>null</c> in case of Unity
   /// has destroyed the owner object. So no sets!
   /// </remarks>
-  readonly List<InternalKASModulePhysicalConnector> connectorsInRange =
-      new List<InternalKASModulePhysicalConnector>();
+  readonly List<KASInternalPhysicalConnector> connectorsInRange =
+      new List<KASInternalPhysicalConnector>();
 
   /// <summary>Keyboard event to react to drop the carried connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
@@ -132,7 +132,7 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   ScreenMessage pickupConnectorMessage;
 
   /// <summary>Connector that is currently highlighted as the pickup candidate.</summary>
-  InternalKASModulePhysicalConnector focusedPickupConnector;
+  KASInternalPhysicalConnector focusedPickupConnector;
 
   /// <summary>Transform object of the bone which the atatch node needs to follow.</summary>
   /// <remarks>
@@ -333,8 +333,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
   /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerEnter(Collider other) {
-    if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      var connector = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
+    if (other.name == KASInternalPhysicalConnector.InteractionAreaCollider) {
+      var connector = other.gameObject.GetComponentInParent<KASInternalPhysicalConnector>();
       if (connector != null) {
         connectorsInRange.Add(connector);
       }
@@ -345,8 +345,8 @@ public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
   /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
   /// <param name="other">The collider that triggered the pickup collider check.</param>
   void OnTriggerExit(Collider other) {
-    if (other.name == InternalKASModulePhysicalConnector.InteractionAreaCollider) {
-      var connector = other.gameObject.GetComponentInParent<InternalKASModulePhysicalConnector>();
+    if (other.name == KASInternalPhysicalConnector.InteractionAreaCollider) {
+      var connector = other.gameObject.GetComponentInParent<KASInternalPhysicalConnector>();
       if (connector != null) {
         connectorsInRange.Remove(connector);
       }

@@ -1194,7 +1194,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   void TurnConnectorPhysics(bool state) {
     if (state && cableJoint.headRb == null) {
       HostedDebugLog.Info(this, "Make the cable connector physical");
-      var connector = InternalKASModulePhysicalConnector.Promote(
+      var connector = KASInternalPhysicalConnector.Promote(
           this, connectorModelObj.gameObject, connectorInteractDistance);
       cableJoint.StartPhysicalHead(this, connectorCableAnchor);
       connector.connectorRb.mass = connectorMass;
@@ -1203,7 +1203,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
     } else if (!state && cableJoint.headRb != null) {
       HostedDebugLog.Info(this, "Make the cable connector non-physical");
       cableJoint.StopPhysicalHead();
-      InternalKASModulePhysicalConnector.Demote(connectorModelObj.gameObject);
+      KASInternalPhysicalConnector.Demote(connectorModelObj.gameObject);
       part.mass += connectorMass;
       part.rb.mass += connectorMass;
     }

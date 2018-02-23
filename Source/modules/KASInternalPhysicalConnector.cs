@@ -23,7 +23,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
-sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
+sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>
@@ -33,7 +33,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   /// <param name="ownerModule">The part's module which will control the connector.</param>
   /// <param name="obj">The object to be promoted.</param>
   /// <param name = "interactionDistance"></param>
-  public static InternalKASModulePhysicalConnector Promote(
+  public static KASInternalPhysicalConnector Promote(
       PartModule ownerModule, GameObject obj, float interactionDistance = 0) {
     var connectorRb = obj.GetComponent<Rigidbody>() ?? obj.AddComponent<Rigidbody>();
     connectorRb.useGravity = false;
@@ -42,7 +42,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
     connectorRb.angularVelocity = ownerModule.part.rb.angularVelocity;
     connectorRb.ResetInertiaTensor();
     connectorRb.ResetCenterOfMass();
-    var connectorModule = obj.AddComponent<InternalKASModulePhysicalConnector>();
+    var connectorModule = obj.AddComponent<KASInternalPhysicalConnector>();
     connectorModule.ownerModule = ownerModule;
 
     // Create the interaction collider if requested.
@@ -64,7 +64,7 @@ sealed class InternalKASModulePhysicalConnector : MonoBehaviour {
   /// <param name="obj">The connector object to remove the behavior from.</param>
   /// <returns></returns>
   public static bool Demote(GameObject obj) {
-    var connectorModule = obj.GetComponent<InternalKASModulePhysicalConnector>();
+    var connectorModule = obj.GetComponent<KASInternalPhysicalConnector>();
     if (connectorModule == null) {
       return false;
     }
