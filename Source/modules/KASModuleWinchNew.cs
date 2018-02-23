@@ -391,7 +391,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleExtendCableEvent() {
     SetMotor(motorTargetSpeed > 0 ? 0 : float.PositiveInfinity);
@@ -404,7 +404,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleRetractCableEvent() {
     SetMotor(motorTargetSpeed < 0  ? 0 : float.NegativeInfinity);
@@ -415,7 +415,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// was locked.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08014",
       defaultTemplate = "Release cable",
@@ -430,7 +430,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// A context menu event that sets the cable length to the current distance to the connector.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08015",
       defaultTemplate = "Instant stretch",
@@ -463,7 +463,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
   /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true, externalToEVAOnly = false)]
+  [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08017",
       defaultTemplate = "Return connector",
@@ -483,7 +483,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
 
   /// <summary>Context menu item to break the currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true, active = false)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08028",
       defaultTemplate = "Detach connector",

@@ -90,11 +90,10 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   public string breakLinkMenu = "";
   #endregion
 
-  // TODO(ihsoft): Disallow non-eva control.
   #region Context menu events/actions
   /// <summary>Event handler. Initiates a link that must be completed by a mouse click.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public void StartLinkContextMenuAction() {
     StartLinking(GUILinkMode.Interactive, LinkActorType.Player);
@@ -102,14 +101,14 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
 
   /// <summary>Event handler. Breaks current link between source and target.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink(LinkActorType.Player);
   }
 
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_01002",
       defaultTemplate = "Link mode: DOCKED",
@@ -125,7 +124,7 @@ public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
   }
 
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_01003",
       defaultTemplate = "Link mode: UNDOCKED",

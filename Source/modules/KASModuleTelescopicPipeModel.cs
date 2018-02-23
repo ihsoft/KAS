@@ -498,8 +498,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
   #region GUI menu action handlers
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu0"/>
-  [KSPEvent(guiName = "Pipe position 0", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
+  [KSPEvent(guiName = "Pipe position 0", guiActiveUnfocused = true, guiActiveEditor = true,
+            active = false)]
   public void ParkedOrientationMenuAction0() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     UpdateLinkLengthAndOrientation();
@@ -507,8 +507,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu1"/>
-  [KSPEvent(guiName = "Pipe position 1", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
+  [KSPEvent(guiName = "Pipe position 1", guiActiveUnfocused = true, guiActiveEditor = true,
+            active = false)]
   public void ParkedOrientationMenuAction1() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
     UpdateLinkLengthAndOrientation();
@@ -516,8 +516,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu2"/>
-  [KSPEvent(guiName = "Pipe position 2", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
+  [KSPEvent(guiName = "Pipe position 2", guiActiveUnfocused = true, guiActiveEditor = true,
+            active = false)]
   public void ParkedOrientationMenuAction2() {
     parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
     UpdateLinkLengthAndOrientation();
@@ -525,8 +525,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
   /// <seealso cref="maxLinkLength"/>
-  [KSPEvent(guiName = "Extend to max", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
+  [KSPEvent(guiName = "Extend to max", guiActiveUnfocused = true, guiActiveEditor = true,
+            active = false)]
   public void ExtendAtMaxMenuAction() {
     parkedLength = maxLinkLength;
     UpdateLinkLengthAndOrientation();
@@ -534,8 +534,8 @@ public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
 
   /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
   /// <seealso cref="minLinkLength"/>
-  [KSPEvent(guiName = "Retract to min", guiActive = true, guiActiveUnfocused = true,
-            guiActiveEditor = true, active = false)]
+  [KSPEvent(guiName = "Retract to min", guiActiveUnfocused = true, guiActiveEditor = true,
+            active = false)]
   public void RetractToMinMenuAction() {
     parkedLength = minLinkLength;
     UpdateLinkLengthAndOrientation();
