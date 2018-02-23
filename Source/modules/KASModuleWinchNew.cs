@@ -1261,10 +1261,10 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   }
 
   /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
-    MonoUtilities.RefreshContextWindows(part);
   /// <param name="v">The new active vessel.</param>
   void OnVesselChange(Vessel v) {
     UpdateContextMenu();
+    MonoUtilities.RefreshContextWindows(part);
   }
 
   /// <summary>Moves a linked connected from another target to the active EVA.</summary>
