@@ -19,7 +19,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
-public sealed class KASModuleTelescopicPipeModel : AbstractProceduralModel,
+public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KSPDev interfaces.

@@ -15,7 +15,7 @@ namespace KAS {
 /// "parked" at the main part model.
 /// </summary>
 /// <seealso cref="parkAtPart"/>
-public class KASModulePipeRendererWithHead : KASModulePipeRenderer {
+public class KASRendererPipeWithHead : KASRendererPipe {
 
   #region Object names for the procedural model construction
   /// <summary>

@@ -23,7 +23,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 // Next localization ID: #kasLOC_05010.
-public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
+public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
     IsPhysicalObject {
 
@@ -334,7 +334,6 @@ public sealed class KASModuleTowBarActiveJoint : KASModuleTwoEndsSphereJoint,
                                e => e.active = isLinked && activeSteeringEnabled);
     PartModuleUtils.SetupEvent(this, ActiveSteeringAction,
                                e => e.active = isLinked && !activeSteeringEnabled);
-    MonoUtilities.RefreshContextWindows(part);
   }
 
   /// <summary>

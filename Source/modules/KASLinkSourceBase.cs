@@ -36,7 +36,8 @@ namespace KAS {
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
-public class KASModuleLinkSourceBase : AbstractLinkPeer,
+// FIXME: implement cable stretching
+public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.

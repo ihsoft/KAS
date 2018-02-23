@@ -27,7 +27,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_03004.
-public class KASModuleLinkTargetBase :
+public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
     // KAS parents.
@@ -86,7 +86,6 @@ public class KASModuleLinkTargetBase :
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
-        //FIXME: really?
         new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linked,

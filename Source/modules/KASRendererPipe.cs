@@ -56,7 +56,7 @@ namespace KAS {
 /// <seealso cref="ILinkRenderer"/>
 /// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
-public class KASModulePipeRenderer : AbstractProceduralModel,
+public class KASRendererPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KPSDev sugar interfaces.    
@@ -131,7 +131,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
   }
 
   /// <summary>Helper structure to hold the joint model setup.</summary>
-  /// <seealso cref="KASModulePipeRenderer"/>
+  /// <seealso cref="KASRendererPipe"/>
   public class JointConfig {
     /// <summary>Defines how to obtain the joint model.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
@@ -271,7 +271,7 @@ public class KASModulePipeRenderer : AbstractProceduralModel,
 
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
-  /// <seealso cref="KASModulePipeRenderer"/>
+  /// <seealso cref="KASRendererPipe"/>
   protected class ModelPipeEndNode {
     /// <summary>The main node's model.</summary>
     public readonly Transform model;

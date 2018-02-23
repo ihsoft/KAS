@@ -23,7 +23,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_01005.
-public sealed class KASModuleInteractiveLinkSource : KASModuleLinkSourceBase,
+public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
     // KSPDev interfaces.
     IHasContextMenu {
 

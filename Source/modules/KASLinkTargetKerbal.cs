@@ -15,7 +15,7 @@ namespace KAS {
 
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
 // Next localization ID: #kasLOC_10004.
-public sealed class KASModuleKerbalLinkTarget : KASModuleLinkTargetBase,
+public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
     // KSPDev sugar interafces.

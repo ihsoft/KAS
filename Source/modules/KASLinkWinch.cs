@@ -54,7 +54,7 @@ namespace KAS {
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
 // Next localization ID: #kasLOC_08029.
-public class KASModuleWinchNew : KASModuleLinkSourceBase,
+public class KASLinkWinch : KASLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
     // KSPDev syntax sugar interfaces.
@@ -278,7 +278,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public float connectorLockMaxErrorDir = 1;
 
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
-  /// <seealso cref="KASModuleKerbalLinkTarget"/>
+  /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
   public float connectorInteractDistance = 0.3f;
 
@@ -372,7 +372,7 @@ public class KASModuleWinchNew : KASModuleLinkSourceBase,
   public string connectorStateMenuInfo = "";
 
   /// <summary>A context menu item that presents the deployed cable length.</summary>
-  /// <seealso cref="KASModuleCableJointBase.deployedCableLength"/>
+  /// <seealso cref="KASJointCableBase.deployedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(

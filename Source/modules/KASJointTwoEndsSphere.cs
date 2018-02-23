@@ -29,7 +29,7 @@ namespace KAS {
 /// PhysX: Spherical joint</seealso>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
 /// PhysX: Prismatic joint</seealso>
-public class KASModuleTwoEndsSphereJoint : AbstractLinkJoint,
+public class KASJointTwoEndsSphere : AbstractLinkJoint,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.

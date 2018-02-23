@@ -20,7 +20,7 @@ namespace KAS {
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
 //  Next localization ID: #kasLOC_09002.
-public class KASModuleCableJointBase : AbstractLinkJoint,
+public class KASJointCableBase : AbstractLinkJoint,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
