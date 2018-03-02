@@ -221,7 +221,7 @@ sealed class ControllerWinchRemote : MonoBehaviour,
 
   /// <summary>Actual screen position of the console window.</summary>
   /// TODO(ihsoft): Persist and restore.
-  static Rect windowRect = new Rect(0, 0, 1, 1);
+  static Rect windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
   static Rect titleBarRect = new Rect(0, 0, 10000, 20);
