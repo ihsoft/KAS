@@ -127,6 +127,7 @@
     <Compile Include="modules\KASJointTwoEndsSphere.cs" />
     <Compile Include="modules\KASLinkWinch.cs" />
     <Compile Include="modules\KSPDev_candidates.cs" />
+    <Compile Include="modules\ControllerWinchRemote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

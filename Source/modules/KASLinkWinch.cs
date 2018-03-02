@@ -53,7 +53,7 @@ namespace KAS {
 /// <seealso cref="ILinkSource.linkJoint"/>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
-// Next localization ID: #kasLOC_08029.
+// Next localization ID: #kasLOC_08030.
 public class KASLinkWinch : KASLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu, IWinchControl,
@@ -384,6 +384,18 @@ public class KASLinkWinch : KASLinkSourceBase,
   #endregion
 
   #region Context menu events/actions
+  /// <summary>A context menu item that opesn the winches GUI.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08029",
+      defaultTemplate = "Open winches GUI",
+      description = "A context menu item that opens the remote control GUI to operate the winches"
+      + " in the scene.")]
+  public virtual void OpenGUIEvent() {
+    ControllerWinchRemote.ToggleGUI(true);
+  }
+
   /// <summary>A context menu item that starts/stops extending the cable.</summary>
   /// <remarks>
   /// If the connector was locked it will be deployed. This method does nothing is the cable cannot
