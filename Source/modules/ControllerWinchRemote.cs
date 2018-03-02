@@ -167,6 +167,11 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       null,
       defaultTemplate: "Current motor speed / Motor speed setting",
       description: "");
+
+  static readonly Message NoContentTxt = new Message(
+      null,
+      defaultTemplate: "No winches found in the scene!",
+      description: "");
   #endregion
 
   #region Configuration settings
@@ -317,8 +322,12 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       MaybeUpdateModules();
     }
 
-    // FIXME(ihsoft): There can be no elements.
+    if (sordedSceneModules.Count == 0) {
+      GUILayout.Label(NoContentTxt, guiNoWrapStyle);
+    }
+
     // TODO(ihsoft): Add paging and teh setting for the number of items per page.
+    // Render the winch items if any.
     foreach (var winchState in sordedSceneModules) {
       var winch = winchState.winchModule;
       var winchCable = winchState.winchModule.linkJoint as ILinkCableJoint;
@@ -463,7 +472,7 @@ sealed class ControllerWinchRemote : MonoBehaviour,
         }
       }
     }
-    
+
     using (new GUILayout.HorizontalScope()) {
       if (GUILayout.Button(closeGuiCnt, MinSizeLayout)) {
         guiActions.Add(() => isGUIOpen = false);
@@ -535,6 +544,13 @@ sealed class ControllerWinchRemote : MonoBehaviour,
     sceneModules = sordedSceneModules.ToDictionary(s => s.flightId);
     modulesNeedUpdate = false;
     DebugEx.Fine("Found {0} winch modules", sordedSceneModules.Count);
+  }
+
+  /// <summary>Draws the winches and the controls.</summary>
+  /// <remarks>
+  /// There must be at least one winch in the <see cref="sordedSceneModules"/> colelction.
+  /// </remarks>
+  void RenderWinchesGUI() {
   }
 }
 
