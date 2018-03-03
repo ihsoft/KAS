@@ -102,8 +102,7 @@ public interface IWinchControl : ILinkSource {
   /// The motor will automatically stop when the cable length reaches zero or the maximum allowed
   /// value. In case of the zero length, the connector will be attempted to lock into the winch.
   /// This attempt may fail due to the bad align of the connector. To retry the attempt, just call
-  /// this method again with a negative value. Note, that the connector won't be attepmted to lock
-  /// automatically.
+  /// this method again with a negative value.
   /// </para>
   /// </remarks>
   /// <param name="targetSpeed">

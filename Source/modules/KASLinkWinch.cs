@@ -1007,7 +1007,7 @@ public class KASLinkWinch : KASLinkSourceBase,
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
         KillMotor();
       } else {
-        var newTargetSpeed = targetSpeed > float.Epsilon
+        var newTargetSpeed = targetSpeed > 0
             ? Mathf.Min(targetSpeed, cfgMotorMaxSpeed)
             : Mathf.Max(targetSpeed, -cfgMotorMaxSpeed);
         if (newTargetSpeed * motorCurrentSpeed < 0) {

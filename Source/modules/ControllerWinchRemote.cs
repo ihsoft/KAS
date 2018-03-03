@@ -21,8 +21,7 @@ namespace KAS {
 /// </remarks>
 // Next localization ID: #kasLOC_11001.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
-sealed class ControllerWinchRemote : MonoBehaviour,
-    IHasGUI {
+sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WindowTitleTxt = new Message(
@@ -31,8 +30,8 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       description: "Title of the remote control dialog.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ReleaseGuiBtn = new Message(
       null,
+  static readonly Message ReleaseBtn = new Message(
       defaultTemplate: "Release",
       description: "");
 
@@ -43,8 +42,8 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       description: "");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message StretchGuiBtn = new Message(
       null,
+  static readonly Message StretchBtn = new Message(
       defaultTemplate: "Stretch",
       description: "");
 
@@ -55,8 +54,8 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       description: "");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message DetachGuiBtn = new Message(
       null,
+  static readonly Message DetachBtn = new Message(
       defaultTemplate: "Detach",
       description: "");
 
@@ -67,8 +66,8 @@ sealed class ControllerWinchRemote : MonoBehaviour,
       description: "");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message CloseGuiBtn = new Message(
       null,
+  static readonly Message CloseBtn = new Message(
       defaultTemplate: "Close",
       description: "");
 
@@ -492,10 +491,10 @@ sealed class ControllerWinchRemote : MonoBehaviour,
     startExtendingCnt = new GUIContent(">>", StartExtendingCableBtnHint);
     retractCnt = new GUIContent("<", RetractCableBtnHint);
     extendCnt = new GUIContent(">", ExtendCableBtnHint);
-    releaseBtnCnt = new GUIContent(ReleaseGuiBtn, ReleaseBtnHint);
-    stretchBtnCnt = new GUIContent(StretchGuiBtn, StretchBtnHint);
-    detachBtnCnt = new GUIContent(DetachGuiBtn, DetachBtnHint);
-    closeGuiCnt = new GUIContent(CloseGuiBtn, CloseBtnHint);
+    releaseBtnCnt = new GUIContent(ReleaseBtn, ReleaseBtnHint);
+    stretchBtnCnt = new GUIContent(StretchBtn, StretchBtnHint);
+    detachBtnCnt = new GUIContent(DetachBtn, DetachBtnHint);
+    closeGuiCnt = new GUIContent(CloseBtn, CloseBtnHint);
 
     motorSpeedSettingsCnt = new GUIContent("", MotorSpeedSettingsTxtHint);
     cableStatusCnt = new GUIContent("", CableLengthTxtHint);
@@ -544,13 +543,6 @@ sealed class ControllerWinchRemote : MonoBehaviour,
     sceneModules = sordedSceneModules.ToDictionary(s => s.flightId);
     modulesNeedUpdate = false;
     DebugEx.Fine("Found {0} winch modules", sordedSceneModules.Count);
-  }
-
-  /// <summary>Draws the winches and the controls.</summary>
-  /// <remarks>
-  /// There must be at least one winch in the <see cref="sordedSceneModules"/> colelction.
-  /// </remarks>
-  void RenderWinchesGUI() {
   }
 }
 
