@@ -265,14 +265,6 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Tells if the list of cached winches needs to be refreshed.</summary>
   /// <remarks>This value is ched on every frame update, so don't update it too frequently</remarks>
   bool modulesNeedUpdate;
-
-  /// <summary>
-  /// Count of the loaded vessels in teh scene when the winch modules were updated last time.
-  /// </summary>
-  int lastKnownCount;
-
-  /// <summary>Game time when the winch modules were updated last time.</summary>
-  float lastTimeChecked;
   #endregion
 
   #region IHasGUI implementation
@@ -292,7 +284,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   }
   #endregion
 
-  #region Method for the outer modules
+  #region Methods for the outer modules
   /// <summary>Open the winches GUI.</summary>
   public static void ToggleGUI(bool isVisible) {
     if (instance != null) {
@@ -314,12 +306,18 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     instance = this;
     LoadLocalizedContent();
     GameEvents.onLanguageSwitched.Add(LoadLocalizedContent);
+    GameEvents.onVesselWasModified.Add(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Add(OnVesselUpdated);
+    GameEvents.onVesselCreate.Add(OnVesselUpdated);
   }
 
   void OnDestroy() {
     DebugEx.Info("Winch remote controller destroyed");
     instance = null;
     GameEvents.onLanguageSwitched.Remove(LoadLocalizedContent);
+    GameEvents.onVesselWasModified.Remove(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Remove(OnVesselUpdated);
+    GameEvents.onVesselCreate.Remove(OnVesselUpdated);
   }
   #endregion
 
@@ -528,17 +526,10 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   /// <summary>Checks if the cached list of the winch controllers needs to be refreshed.</summary>
   void MaybeUpdateModules() {
-    // Try to avoid too frequent refreshes.
-    // TODO(ihsoft): Updates once per a second slows down significantly. Find a better way.
-    if (FlightGlobals.Vessels.Count == lastKnownCount
-        && Time.time < lastTimeChecked + 1.0f
-        && !modulesNeedUpdate) {
-      return;  // Nothing changed.
+    if (!modulesNeedUpdate) {
+      return;
     }
-    lastKnownCount = FlightGlobals.Vessels.Count;
-    lastTimeChecked = Time.time;
     modulesNeedUpdate = false;
-    
     DebugEx.Fine("Updating winch modules...");
     sordedSceneModules = FlightGlobals.VesselsLoaded
         .Where(v => !v.packed)
@@ -556,8 +547,14 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         .ThenBy(s => s.flightId)
         .ToList();
     sceneModules = sordedSceneModules.ToDictionary(s => s.flightId);
-    modulesNeedUpdate = false;
     DebugEx.Fine("Found {0} winch modules", sordedSceneModules.Count);
+  }
+
+  /// <summary>
+  /// Forces an updated on the list of the cached wiches. It's an expensive operation.
+  /// </summary>
+  void OnVesselUpdated(Vessel v) {
+    modulesNeedUpdate = true;
   }
 }
 
