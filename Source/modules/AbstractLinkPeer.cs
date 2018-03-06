@@ -26,7 +26,6 @@ namespace KAS {
 /// the custom types that are supported by <c>KSPDevUtils.ConfigUtils</c>.
 /// </para>
 /// </remarks>
-/// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
