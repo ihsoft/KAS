@@ -663,12 +663,6 @@ public class KASLinkWinch : KASLinkSourceBase,
     base.OnAwake();
     LocalizeModule();
 
-    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
-    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
-    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
-    sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
-    sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
-
     // The GUI name of this event is copied from GrabConnectorEvent in UpdateContextMenu.
     GrabConnectorEventInject = new BaseEvent(
         Events,
@@ -696,6 +690,12 @@ public class KASLinkWinch : KASLinkSourceBase,
       allowCoupling = true;  // A bad approach, but better than not having the attach node.
     }
     base.OnLoad(node);
+
+    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+    sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
+    sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
 
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(this,
