@@ -57,7 +57,7 @@ public class KASRendererPipeWithHead : KASRendererPipe {
   /// <summary>Position/rotation of the head when the renderer is stopped.</summary>
   /// <remarks>The object is added at the part's model root.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("parkAtPart", group = PartConfigGroup)]
+  [PersistentField("parkAtPart", group = StdPersistentGroups.PartConfigLoadGroup)]
   public PosAndRot parkAtPart = new PosAndRot();
   #endregion
 

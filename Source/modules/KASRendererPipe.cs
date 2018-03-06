@@ -51,11 +51,16 @@ namespace KAS {
 /// </item>
 /// </list>
 /// </para>
+/// <para>
+/// This module implements custom persistent fields concept. The descendants can decalre fields of
+/// the custom types that are supported by <c>KSPDevUtils.ConfigUtils</c>.
+/// </para>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkRenderer"/>
 /// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
+/// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 public class KASRendererPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
@@ -457,19 +462,16 @@ public class KASRendererPipe : AbstractProceduralModel,
   #endregion
 
   #region Part's config settings loaded via ConfigAccessor
-  /// <summary>Group for the feilds that needs to be loaded from a part config.</summary>
-  protected const string PartConfigGroup = "PartConfig";
-
   /// <summary>Configuration of the source joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("sourceJoint", group = PartConfigGroup)]
+  [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
   /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-  [PersistentField("targetJoint", group = PartConfigGroup)]
+  [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
@@ -527,18 +529,14 @@ public class KASRendererPipe : AbstractProceduralModel,
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    if (HighLogic.LoadedScene == GameScenes.LOADING) {
-      LoadPartConfig(node);
-    }
-    base.OnLoad(node);  // Must be the last in the call sequence.
+    base.OnLoad(node);
+    LoadPartConfig();
   }
 
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    if (HighLogic.LoadedScene != GameScenes.LOADING) {
-      LoadPartConfig(PartConfig.GetModuleConfig(this));
-    }
+    LoadPartConfig();
   }
 
   /// <inheritdoc/>
@@ -703,24 +701,12 @@ public class KASRendererPipe : AbstractProceduralModel,
   
   /// <summary>Loads the dynamic properties from the part's config.</summary>
   /// <remarks>
-  /// <para>
-  /// It triggers every time when a new instance of the part instantiates. Use it to update/load
-  /// the settings that cannot be loaded via normal KSP means, like the custom types for the
-  /// <c>PersistentField</c> attributed fields.
-  /// </para>
-  /// <para>
-  /// When a decendant class needs the custom persistent fields loaded, there is no need to override
-  /// this method. It's enough to declare the fields as public and assign them to the standard
-  /// persistent group <see cref="PartConfigGroup"/>. The base implementation will load all the
-  /// fields in this group for all the descendants in the chain.
-  /// </para>
+  /// It triggers every time when a new instance of the part instantiates. Use it to react on the
+  /// values in the custom fields (see teh class description for more information).
   /// </remarks>
-  /// <param name="moduleNode">Config node to get the values from.</param>
-  /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">
-  /// KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
-  protected virtual void LoadPartConfig(ConfigNode moduleNode) {
-    // This will load all the public fields of the descendant types as well.
-    ConfigAccessor.ReadFieldsFromNode(moduleNode, GetType(), this, group: PartConfigGroup);
+  protected virtual void LoadPartConfig() {
+    ConfigAccessor.ReadPartConfig(this);
+
     // For the procedural and simple modes use the hardcoded model names.
     if (sourceJointConfig.type != PipeEndType.PrefabModel) {
       sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
