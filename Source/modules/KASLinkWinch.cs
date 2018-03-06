@@ -384,7 +384,64 @@ public class KASLinkWinch : KASLinkSourceBase,
   #endregion
 
   #region Context menu events/actions
-  /// <summary>A context menu item that opesn the winches GUI.</summary>
+  // Keep the events that may change their visibility states at the bottom. When an item goes out
+  // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
+
+  /// <summary>Attaches the connector to the EVA kerbal.</summary>
+  /// <remarks>The active vessel must be a kerbal.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08016",
+      defaultTemplate = "Grab connector",
+      description = "A context menu event that attaches the connector to the EVA kerbal.")]
+  public virtual void GrabConnectorEvent() {
+    if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
+      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
+      if (kerbalTarget != null && LinkToTarget(LinkActorType.Player, kerbalTarget)) {
+        SetCableLength(float.PositiveInfinity);
+      } else {
+        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      }
+    }
+  }
+
+  /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
+  /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08017",
+      defaultTemplate = "Return connector",
+      description = "A context menu event that detaches the connector from the kerbal and puts it"
+      + " back to the winch.")]
+  public virtual void ReturnConnectorEvent() {
+    if (FlightGlobals.ActiveVessel.isEVA
+        && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
+      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
+          .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
+      BreakCurrentLink(LinkActorType.Player);
+      connectorState = WinchConnectorState.Locked;
+      HostedDebugLog.Info(
+          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
+    }
+  }
+
+  /// <summary>Context menu item to break the currently established link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08028",
+      defaultTemplate = "Detach connector",
+      description = "Context menu item to break the currently established link.")]
+  public void DetachConnectorEvent() {
+    if (isLinked) {
+      BreakCurrentLink(LinkActorType.Player);
+    }
+  }
+
+  /// <summary>A context menu item that opens the winches GUI.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true)]
   [LocalizableItem(
@@ -450,60 +507,6 @@ public class KASLinkWinch : KASLinkSourceBase,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     StretchCable();
-  }
-
-  /// <summary>Attaches the connector to the EVA kerbal.</summary>
-  /// <remarks>The active vessel must be a kerbal.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08016",
-      defaultTemplate = "Grab connector",
-      description = "A context menu event that attaches the connector to the EVA kerbal.")]
-  public virtual void GrabConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
-      if (kerbalTarget != null && LinkToTarget(LinkActorType.Player, kerbalTarget)) {
-        SetCableLength(float.PositiveInfinity);
-      } else {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      }
-    }
-  }
-
-  /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
-  /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08017",
-      defaultTemplate = "Return connector",
-      description = "A context menu event that detaches the connector from the kerbal and puts it"
-      + " back to the winch.")]
-  public virtual void ReturnConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA
-        && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
-      BreakCurrentLink(LinkActorType.Player);
-      connectorState = WinchConnectorState.Locked;
-      HostedDebugLog.Info(
-          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
-    }
-  }
-
-  /// <summary>Context menu item to break the currently established link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08028",
-      defaultTemplate = "Detach connector",
-      description = "Context menu item to break the currently established link.")]
-  public void DetachConnectorEvent() {
-    if (isLinked) {
-      BreakCurrentLink(LinkActorType.Player);
-    }
   }
   #endregion
 
