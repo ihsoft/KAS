@@ -1069,7 +1069,9 @@ public class KASLinkWinch : KASLinkSourceBase,
   /// </param>
   /// <seealso cref="connectorState"/>
   protected virtual void SetCableLength(float length) {
-    cableJoint.SetCableLength(length);
+    if (cableJoint != null) {
+      cableJoint.SetCableLength(length);
+    }
     UpdateContextMenu();
   }
 
