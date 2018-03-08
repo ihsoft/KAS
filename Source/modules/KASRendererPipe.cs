@@ -332,7 +332,7 @@ public class KASRendererPipe : AbstractProceduralModel,
     /// <param name="name">Name of the child object to find.</param>
     /// <returns>Object or node's model itself if the child is not found.</returns>
     protected Transform GetTransformByName(string name) {
-      var res = model.FindChild(name);
+      var res = model.Find(name);
       if (res == null) {
         HostedDebugLog.Error(model, "Cannot find transform: {0}", name);
         res = model;  // Fallback.
@@ -694,7 +694,7 @@ public class KASRendererPipe : AbstractProceduralModel,
   /// <param name="modelName">Name of the model in the hierarchy.</param>
   /// <returns>Pipe's end node.</returns>
   protected virtual ModelPipeEndNode LoadJointNode(string modelName) {
-    var node = new ModelPipeEndNode(partModelTransform.FindChild(modelName));
+    var node = new ModelPipeEndNode(partModelTransform.Find(modelName));
     node.AlignTo(null);  // Init mode objects state.
     return node;
   }

@@ -357,7 +357,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   GameObject pistonPrefab {
     get {
       return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
-          .FindChild(PistonModelName).gameObject;
+          .Find(PistonModelName).gameObject;
     }
   }
 
@@ -754,7 +754,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Creates complete joint model from a prefab.</summary>
   GameObject MakeJointModel(GameObject jointPrefab) {
     // FIXME support scale
-    var jointLever = jointPrefab.transform.FindChild(JointModelName).gameObject;
+    var jointLever = jointPrefab.transform.Find(JointModelName).gameObject;
     var jointModel = Instantiate(jointLever);
     jointModel.name = JointModelName;
 

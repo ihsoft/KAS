@@ -76,8 +76,8 @@ public class KASRendererPipeWithHead : KASRendererPipe {
   /// <inheritdoc/>
   protected override ModelPipeEndNode LoadJointNode(string modelName) {
     if (modelName == ProceduralTargetJointObjectName) {
-      var node = new ParkedHead(partModelTransform.FindChild(modelName),
-                                partModelTransform.FindChild(ParkAtPartObjectName));
+      var node = new ParkedHead(partModelTransform.Find(modelName),
+                                partModelTransform.Find(ParkAtPartObjectName));
       node.AlignTo(null);  // Init mode objects state.
       return node;
     }
