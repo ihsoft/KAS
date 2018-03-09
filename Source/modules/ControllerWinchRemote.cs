@@ -245,9 +245,6 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>A title bar location.</summary>
   static Rect titleBarRect = new Rect(0, 0, 10000, 20);
 
-  /// <summary>For every UI window Unity needs a unique ID. This is the one.</summary>
-  const int WindowId = 20140221;
-
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   static readonly GuiActionsList guiActions = new GuiActionsList();
 
@@ -278,7 +275,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       ToggleGUI(!isGUIOpen);
     }
     if (isGUIOpen) {
-      windowRect = GUILayout.Window(WindowId, windowRect, ConsoleWindowFunc, WindowTitleTxt,
+      windowRect = GUILayout.Window(0, windowRect, ConsoleWindowFunc, WindowTitleTxt,
                                     GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }
