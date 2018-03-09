@@ -1,9 +1,27 @@
-- Implement hiding option on the peers coupling nodes. All related nodes have to be hidden. Can be a pain.
-- Use own target module on JS for the winch. It has coupling but is cable.
-- Handle pre-attached parts on the peer's coupling node. Both in editor and in flight.
+BUG:
+- Preattached parts don't work. W-1 tries to link with the MdStrut on JS-1
+- On new KSP locking momemnetum is too high when retracting. conenctor mass too high? Only happens to the preatatched winches.
 
-- Winch connector on detach doesnt handle collisions to the former target part
-  - To reproduce it load a vessel with JS and Winch on the same vessel.
+
+IMPORTANT:
+- Implement proper config of the menus in pipe model, or simple allow it be rotated up/down (TJ1-TJ2). COMPATIBILITY
+- Use regular cable joint in PCB components. STYLE/COMPATIBILITY
+
+- support blocked mode in winch. FR
+- support dependent node in winch. FR
+- Properly handle extend (unlcok from wicnh) event on a non-powered winch. How? UX
+- stop locking modules on link state (allow multiple source/targets per a part). UX
+- show updates om the connectors state and cable length in the status messages. UX
+- refactor winch to handle things in the state handlers instead of overrides. STYLE
+
+- BUG: Winch connector on detach doesnt handle collisions to the former target part
+  - To reproduce it load a vessel with JS and Winch on the same vessel. UX
+
+- Globally drop the properties setters in favor of the setting mthods (can be virtual).
+- LINK JOINT: exclusiveDocker - allow only this part to maintain the coupling role. The others should reset with no option to set.
+- LINK JOINT: noCouplingDelegation - don't delegate the coupling role for the mode above. Drop all other links on decouple.
+
+
 - Figure out why the connector gets broken on the broken cable joint.
 - Restore the link on the winch to the parent!
 - Nagging deployment of the connector in gravity.
@@ -14,3 +32,9 @@
 - Handle link mass via joint instead of renderer in non-stock joints.
 - Move kerbal module hotkeys into a global config when there is one implemented.
   - Deal with the multiple kerbal target modules: only one of them can have a focus on the connector.
+
+
+ILinkRenderer:
+  /// FIXME: deprecate the property in favor of SetFixedLength.
+  /// FIXME: adjust the cable link module accordingly.
+  float stretchRatio { get; set; }
