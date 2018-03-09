@@ -1,3 +1,6 @@
+### 0.6.4 (March 8h, 2018)
+- KSP 1.4 support.
+
 ### 0.6.3 (May 26th, 2017)
 - [Fix] Show detach button when harpooned to a part (asmigala).
 - [Change] Support a new format of the `OnKISAction` parameter.
