@@ -339,6 +339,13 @@ public abstract class AbstractLinkJoint : PartModule,
   /// <seealso cref="CleanupPhysXJoints"/>
   protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
   readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
+
+  /// <summary>The objects that were sued by the custom joints.</summary>
+  /// <remarks>These object will be destoyed on the joints clean up.</remarks>
+  /// <seealso cref="SetCustomJoints"/>
+  /// <seealso cref="CleanupPhysXJoints"/>
+  protected List<Object> customExtraObjects { get { return _customObjects; } }
+  readonly List<Object> _customObjects = new List<Object>();
   #endregion
 
   #region Local members
@@ -579,17 +586,29 @@ public abstract class AbstractLinkJoint : PartModule,
 
   /// <summary>Drops and cleans up all the PhysX joints between the rigid objects.</summary>
   /// <remarks>
+  /// <para>
   /// The default implementation simply destroys the joints from the <see cref="customJoints"/>
   /// collection. In most cases it's enough to update the physics in the game. However, if module
   /// manages some other objects or components, then this method is the right place to do the
   /// cleanup.
+  /// </para>
+  /// <para>
+  /// IMPORTANT! The <see cref="SetCustomJoints"/> method cleans up all the joints by invoking this
+  /// method. If there are extra objects that the child class needs to cleanup, then they must
+  /// <i>not</i> get initialized before the new joints are set. Otherwise, the newly created objects
+  /// may get destroyed. The suggested way of cleaning up the Unity objects is adding them into the
+  /// <see cref="customExtraObjects"/> collection.  
+  /// </para>
   /// </remarks>
   /// <seealso cref="customJoints"/>
+  /// <seealso cref="customExtraObjects"/>
   protected virtual void CleanupPhysXJoints() {
     if (customJoints.Count > 0) {
       HostedDebugLog.Fine(this, "Drop {0} joint(s) to: {1}", customJoints.Count, linkTarget);
-      customJoints.ForEach(UnityEngine.Object.Destroy);
+      customJoints.ForEach(Object.Destroy);
       customJoints.Clear();
+      customExtraObjects.ForEach(Object.Destroy);
+      customExtraObjects.Clear();
     }
   }
 
@@ -624,14 +643,24 @@ public abstract class AbstractLinkJoint : PartModule,
   /// If there are other custom joints existing, they will be cleaned up. This method triggers
   /// <see cref="CleanupPhysXJoints"/>, so keep it in mind when setting up the custom joints.
   /// </remarks>
-  /// <param name="newJoints">
+  /// <param name="joints">
   /// The new joints. If <c>null</c>, then the old joints will be cleaned up and no new joints will
   /// be added.
   /// </param>
-  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> newJoints = null) {
+  /// <param name="extraObjects">
+  /// The Unity objects that need to be destoyed <i>after</i> the joints are cleaned up. They can be
+  /// anything.
+  /// </param>
+  /// <seealso cref="customExtraObjects"/>
+  /// <seealso cref="customJoints"/>
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints = null,
+                                 IEnumerable<Object> extraObjects = null) {
     CleanupPhysXJoints();
-    if (newJoints != null) {
-      customJoints.AddRange(newJoints);
+    if (joints != null) {
+      customJoints.AddRange(joints);
+    }
+    if (extraObjects != null) {
+      customExtraObjects.AddRange(extraObjects);
     }
   }
   #endregion
