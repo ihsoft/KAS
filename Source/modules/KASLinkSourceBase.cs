@@ -278,7 +278,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       var target = parsedAttachNode.attachedPart.Modules
           .OfType<ILinkTarget>()
           .FirstOrDefault(t => t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t));
+                               && CheckCanLinkTo(t, reportToLog: false));
       if (target != null) {
         HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
         LinkToTarget(LinkActorType.API, target);
