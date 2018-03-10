@@ -7,22 +7,16 @@ using KASAPIv1;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Module that offers a highly configurable setup of three PhysX joints.</summary>
+/// <summary>Module that offers a highly configurable setup of two PhysX joints.</summary>
 /// <remarks>
 /// One spherical joint is located at the source part, another spherical joint is located at the
-/// target part. The joints are connected with a third joint that is setup as prismatic. Such setup
-/// allows source and target parts rotationg relative to each other. Distance between the parts is
-/// limited by the prismatic joint.
-/// <para>
-/// By default the end spherical joints don't allow rotation around the main axis. This degree of
-/// freedom is satisfied by the primsatic joint which allows such a rotation. The defaults can be
-/// overridden in the descendtant classes.
-/// </para>
+/// target part. The joints are rigidly connected to each other via an invisible game object with a
+/// rigid body. This object has little or none mass, so it doesn't give much physical effect by
+/// itself. Its main purpose to be a connector between the two joints.
 /// </remarks>
 /// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
@@ -65,19 +59,14 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
   /// <seealso cref="AbstractLinkJoint.targetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
-  /// <summary>Joint that ties two sphere joints together.</summary>
-  /// <value>
-  /// PhysX joint that connects the source and the end rigid objects. <c>null</c> if there is no
-  /// joint established.
-  /// </value>
+  /// <summary>Object that connects two sphere joints together.</summary>
   /// <remarks>
-  /// It doesn't allow rotations but does allow linear movements. Rotations and shrink/stretch
-  /// limits are set via config settings.
+  /// Both the <see cref="srcJoint"/> and the <see cref="trgJoint"/> are bound to this object's
+  /// rigidbody. To minimize the physical effect of this artifical RB, its mass is set to the bare
+  /// minimum, which is <c>0.001t</c>.
   /// </remarks>
-  /// <seealso cref="strutSpringForce"/>
-  /// <seealso cref="AbstractLinkJoint.minLinkLength"/>
-  /// <seealso cref="AbstractLinkJoint.maxLinkLength"/>
-  protected ConfigurableJoint strutJoint { get; private set; }
+  /// <value>The game object.</value>
+  protected GameObject connectorObj { get; private set; }
   #endregion
 
   #region AbstractLinkJoint overrides
@@ -112,27 +101,41 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
       partJoint.Child.attachJoint = null;
     }
 
-    HostedDebugLog.Fine(this, "Creating a 3-joints assembly");
-    // Create end spherical joints.
-    srcJoint = CreateJointEnd(isSource: true);
-    trgJoint = CreateJointEnd(isSource: false);
-    srcJoint.transform.LookAt(trgJoint.transform, linkSource.nodeTransform.up);
-    trgJoint.transform.LookAt(srcJoint.transform, linkTarget.nodeTransform.up);
-
-    // Link end joints with a prismatic joint.
-    strutJoint = srcJoint.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(strutJoint);
-    KASAPI.JointUtils.SetupPrismaticJoint(
-        strutJoint, springForce: strutSpringForce, springDamperRatio: strutSpringDamperRatio);
-    // Main axis (Z in the game coordinates) must be allowed for rotation to allow arbitrary end
-    // joints rotations.
-    strutJoint.angularXMotion = ConfigurableJointMotion.Free;
-    strutJoint.connectedBody = trgJoint.GetComponent<Rigidbody>();
-    strutJoint.enablePreprocessing = true;
-    SetBreakForces(strutJoint, linkBreakForce, Mathf.Infinity);
-
-    // This "joint" is only needed to disable the collisions between the parts.
+    HostedDebugLog.Fine(this, "Creating a 2-joints assembly");
+    var srcAchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    
     // TODO(ihsoft): Assign the renderer's colliders to the real RBs instead of the part's RB.
+    connectorObj = new GameObject("ConnectorObj");
+    connectorObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
+    connectorObj.transform.position = (srcAchorPos + tgtAchorPos) / 2;
+    var connectorRb = connectorObj.AddComponent<Rigidbody>();
+    connectorRb.mass = 0.001f;  // Set the minimum allowed mass.
+    connectorRb.useGravity = false;
+    connectorRb.velocity = linkSource.part.rb.velocity;
+    connectorRb.angularVelocity = linkSource.part.rb.angularVelocity;
+
+    srcJoint = connectorObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(srcJoint);
+    KASAPI.JointUtils.SetupSphericalJoint(srcJoint, angleLimit: sourceLinkAngleLimit);
+    srcJoint.enablePreprocessing = true;
+    srcJoint.autoConfigureConnectedAnchor = false;
+    srcJoint.connectedBody = linkSource.part.rb;
+    srcJoint.anchor = connectorObj.transform.InverseTransformPoint(srcAchorPos);
+    srcJoint.connectedAnchor = srcJoint.connectedBody.transform.InverseTransformPoint(srcAchorPos);
+    SetBreakForces(srcJoint, linkBreakForce, linkBreakTorque);
+
+    trgJoint = connectorObj.AddComponent<ConfigurableJoint>();
+    KASAPI.JointUtils.ResetJoint(trgJoint);
+    KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit);
+    trgJoint.enablePreprocessing = true;
+    trgJoint.autoConfigureConnectedAnchor = false;
+    trgJoint.connectedBody = linkTarget.part.rb;
+    trgJoint.anchor = connectorObj.transform.InverseTransformPoint(tgtAchorPos);
+    trgJoint.connectedAnchor = trgJoint.connectedBody.transform.InverseTransformPoint(tgtAchorPos);
+    SetBreakForces(trgJoint, linkBreakForce, linkBreakTorque);
+    
+    // This "joint" is only needed to disable the collisions between the parts.
     var collisionJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(collisionJoint);
     KASAPI.JointUtils.SetupDistanceJoint(collisionJoint);
@@ -142,7 +145,8 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
     collisionJoint.enablePreprocessing = true;
     collisionJoint.connectedBody = linkTarget.part.rb;
 
-    SetCustomJoints(new[] {srcJoint, trgJoint, strutJoint, collisionJoint});
+    SetCustomJoints(new[] {srcJoint, trgJoint, collisionJoint},
+                    extraObjects: new[] {connectorObj});
   }
   #endregion
 
@@ -163,59 +167,7 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
   }
   #endregion
 
-  #region Inheritable static methods
-  /// <summary>Sets up a rigidbody so that it has little or none physics effect.</summary>
-  /// <param name="targetRb">The rigidbody to adjust.</param>
-  /// <param name="refRb">The rigidbody to get copy physics from.</param>
-  protected static void SetupNegligibleRb(Rigidbody targetRb, Rigidbody refRb) {
-    targetRb.mass = 0.001f;
-    targetRb.useGravity = false;
-    targetRb.velocity = refRb.velocity;
-    targetRb.angularVelocity = refRb.angularVelocity;
-  }
-  #endregion
-
   #region Private utility methods
-  /// <summary>
-  /// Creates a game object joined with the attach node via a spherical joint. The joint is locked
-  /// for rotation around main axis (Z).
-  /// </summary>
-  /// <remarks>
-  /// The joint object will be aligned at the link node transform with respect to the physical
-  /// anchors added by the joint base class.
-  /// </remarks>
-  /// <param name="isSource">
-  /// Tells if the joint needs to be created for the source or for the target part.
-  /// </param>
-  /// <seealso cref="AbstractLinkJoint.anchorAtSource"/>
-  /// <seealso cref="AbstractLinkJoint.anchorAtTarget"/>
-  ConfigurableJoint CreateJointEnd(bool isSource) {
-    var peer = isSource
-        ? linkSource as ILinkPeer
-        : linkTarget as ILinkPeer;
-    if (peer.part.rb == null) {
-      throw new InvalidOperationException(string.Format(
-          "Cannot create a joint to {0} since it doesn't have rigidbody (physicsless?)",
-          peer.nodeTransform));
-    }
-    var jointObj = new GameObject(isSource ? "KASJointSrc" : "KASJointTgt");
-    jointObj.transform.position = isSource
-        ? GetSourcePhysicalAnchor(linkSource)
-        : GetTargetPhysicalAnchor(linkSource, linkTarget);
-    jointObj.transform.rotation = peer.nodeTransform.rotation;
-    jointObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
-    SetupNegligibleRb(jointObj.AddComponent<Rigidbody>(), peer.part.rb);
-    var joint = jointObj.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(joint);
-    KASAPI.JointUtils.SetupSphericalJoint(
-        joint,
-        angleLimit: isSource ? sourceLinkAngleLimit : targetLinkAngleLimit);
-    joint.enablePreprocessing = true;
-    joint.connectedBody = peer.part.rb;
-    SetBreakForces(joint, linkBreakForce, linkBreakTorque);
-    return joint;
-  }
-
   /// <summary>
   /// Fixes the stored org position and rotation since they are saved before UpdateOrgPosAndRot
   /// happens.
