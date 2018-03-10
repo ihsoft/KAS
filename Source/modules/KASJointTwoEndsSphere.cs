@@ -27,8 +27,6 @@ namespace KAS {
 /// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
-/// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
-/// PhysX: Prismatic joint</seealso>
 public class KASJointTwoEndsSphere : AbstractLinkJoint,
     // KSP interfaces.
     IJointLockState,
@@ -99,13 +97,13 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
     if (isLinked) {
-      // Note that part iteslf has already been saved into the config with the incorrect data. This
-      // data will be fixed in onProtoPartSnapshotSave.
+      // Note that the part itself has already been saved into the config with the incorrect data.
+      // This data will be fixed in onProtoPartSnapshotSave.
       vessel.parts.ForEach(x => x.UpdateOrgPosAndRot(vessel.rootPart));
     }
   }
 
-  /// <summary>Creates the joins to form the physical link.</summary>
+  /// <summary>Creates the joins to make a physical link.</summary>
   protected override void SetupPhysXJoints() {
     // The stock joint is rigid, drop it.
     if (partJoint != null) {

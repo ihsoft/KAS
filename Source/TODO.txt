@@ -1,5 +1,4 @@
 BUG:
-- Preattached parts don't work. W-1 tries to link with the MdStrut on JS-1
 - On new KSP locking momemnetum is too high when retracting. conenctor mass too high? Only happens to the preatatched winches.
 
 

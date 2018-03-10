@@ -336,8 +336,9 @@ public abstract class AbstractLinkJoint : PartModule,
   /// <seealso cref="joints"/>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="partJoint"/>
+  /// <seealso cref="CleanupPhysXJoints"/>
   protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
-  List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
+  readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
   #endregion
 
   #region Local members
@@ -557,7 +558,7 @@ public abstract class AbstractLinkJoint : PartModule,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Creates the actual PhysX joints betweemn the rigid objects.</summary>
+  /// <summary>Creates the actual PhysX joints between the rigid objects.</summary>
   /// <remarks>
   /// <para>
   /// The recommended approach is to add all the created PhysX joints into the
@@ -580,7 +581,7 @@ public abstract class AbstractLinkJoint : PartModule,
   /// <remarks>
   /// The default implementation simply destroys the joints from the <see cref="customJoints"/>
   /// collection. In most cases it's enough to update the physics in the game. However, if module
-  /// manages some otehr objects or components, then this method is the right place to do the
+  /// manages some other objects or components, then this method is the right place to do the
   /// cleanup.
   /// </remarks>
   /// <seealso cref="customJoints"/>
