@@ -19,6 +19,7 @@ using KSPDev.Types;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Highlighting;
 
 namespace KAS {
 
@@ -813,6 +814,9 @@ public class KASLinkWinch : KASLinkSourceBase,
         WinchConnectorState.Locked,
         enterHandler: oldState => {
           connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
+          PartModel.UpdateHighlighters(part);
+          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
+              .ForEach(r => r.SetPropertyBlock(part.mpb));
           AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, winchCableAnchor);
           SetCableLength(0);
           if (oldState.HasValue) {  // Skip when restoring state.
@@ -843,6 +847,8 @@ public class KASLinkWinch : KASLinkSourceBase,
         WinchConnectorState.Deployed,
         enterHandler: oldState => {
           TurnConnectorPhysics(true);
+          connectorModelObj.parent = connectorModelObj;
+          PartModel.UpdateHighlighters(part);
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
@@ -853,18 +859,30 @@ public class KASLinkWinch : KASLinkSourceBase,
     connectorStateMachine.AddStateHandlers(
         WinchConnectorState.Plugged,
         enterHandler: oldState => {
+          // Destroy the previous highlighter if any, since it would interfere with the new owner.
+          DestroyImmediate(connectorModelObj.GetComponent<Highlighter>());
           connectorModelObj.parent = linkTarget.nodeTransform;
           PartModel.UpdateHighlighters(part);
           PartModel.UpdateHighlighters(linkTarget.part);
+          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
+              .ForEach(r => r.SetPropertyBlock(linkTarget.part.mpb));
           AlignTransforms.SnapAlign(
               connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
           linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
         },
         leaveHandler: newState => {
-          var oldParent = connectorModelObj.parent;
+          var oldParent = connectorModelObj.GetComponentInParent<Part>();
+          var oldHigh = oldParent.HighlightActive;
+          if (oldHigh) {
+            // Disable the part highlight to restore the connector's renderer materials.
+            oldParent.SetHighlight(false, false);
+          }
           connectorModelObj.parent = nodeTransform;  // Back to the model.
           PartModel.UpdateHighlighters(part);
           PartModel.UpdateHighlighters(oldParent);
+          if (oldHigh) {
+            oldParent.SetHighlight(true, false);
+          }
           linkRenderer.StopRenderer();
         },
         callOnShutdown: false);
