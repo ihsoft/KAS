@@ -171,7 +171,8 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     }
     Destroy(interactionTriggerObj);
     interactionTriggerObj = null;
-    Destroy(connectorRb);
+    // Drop the RB immediately to not allow it affecting the connector state in the following frame.
+    DestroyImmediate(connectorRb);
     connectorRb = null;
     ownerModule = null;
   }
