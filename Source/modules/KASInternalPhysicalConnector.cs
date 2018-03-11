@@ -169,9 +169,6 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
       PartModel.UpdateHighlighters(oldParent);
       PartModel.UpdateHighlighters(ownerModule.part);
     }
-    if (connectorRb) {
-      connectorRb.isKinematic = true;  // To nullify any residual momentum.
-    }
     Destroy(interactionTriggerObj);
     interactionTriggerObj = null;
     Destroy(connectorRb);
