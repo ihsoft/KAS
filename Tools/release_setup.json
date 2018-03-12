@@ -16,7 +16,8 @@
       "/Parts",
       "/Patches",
       "/Sounds",
-      "/Textures"
+      "/Textures",
+      "/settings.cfg"
     ],
     "Plugins" : [
       "{COMPILED_BINARY}",

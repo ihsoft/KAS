@@ -47,16 +47,6 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   #endregion
 
   #region Part's config fields
-  /// <summary>Keyboard key to trigger the drop connector event.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string dropConnectorKey = "Y";
-
-  /// <summary>Keyboard key to trigger the pickup connector event.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string pickupConnectorKey = "Y";
-
   /// <summary>Color to use to highlight the closest connector that can be picked up.</summary>
   /// <remarks>
   /// If set to <i>black</i> <c>(0, 0, 0)</c>, then the closests connector will not be highlighted.
@@ -109,12 +99,12 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
 
   /// <summary>Keyboard event to react to drop the carried connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
-  /// <seealso cref="dropConnectorKey"/>
+  /// <seealso cref="CommonConfig.keyDropConnector"/>
   static Event dropConnectorKeyEvent;
 
   /// <summary>Keyboard event to react to pucik up a dropped connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
-  /// <seealso cref="pickupConnectorKey"/>
+  /// <seealso cref="CommonConfig.keyPickupConnector"/>
   static Event pickupConnectorKeyEvent;
 
   /// <summary>Message to show when there is a dropped connector in the pickup range.</summary>
@@ -203,8 +193,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     base.OnAwake();
 
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-    dropConnectorKeyEvent = Event.KeyboardEvent(dropConnectorKey);
-    pickupConnectorKeyEvent = Event.KeyboardEvent(pickupConnectorKey);
+    dropConnectorKeyEvent = Event.KeyboardEvent(CommonConfig.keyDropConnector);
+    pickupConnectorKeyEvent = Event.KeyboardEvent(CommonConfig.keyPickupConnector);
     useGUILayout = false;
     dropConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
