@@ -1,7 +1,3 @@
-BUG:
-- On new KSP locking momemnetum is too high when retracting. conenctor mass too high? Only happens to the preatatched winches.
-
-
 IMPORTANT:
 - Implement proper config of the menus in pipe model, or simple allow it be rotated up/down (TJ1-TJ2). COMPATIBILITY
 - Use regular cable joint in PCB components. STYLE/COMPATIBILITY
@@ -29,9 +25,6 @@ IMPORTANT:
 
 - Implement hollow method in the renderer
 - Handle link mass via joint instead of renderer in non-stock joints.
-- Move kerbal module hotkeys into a global config when there is one implemented.
-  - Deal with the multiple kerbal target modules: only one of them can have a focus on the connector.
-
 
 ILinkRenderer:
   /// FIXME: deprecate the property in favor of SetFixedLength.
