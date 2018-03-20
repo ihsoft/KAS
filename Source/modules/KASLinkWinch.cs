@@ -665,7 +665,6 @@ public class KASLinkWinch : KASLinkSourceBase,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    LocalizeModule();
 
     // The GUI name of this event is copied from GrabConnectorEvent in UpdateContextMenu.
     GrabConnectorEventInject = new BaseEvent(
