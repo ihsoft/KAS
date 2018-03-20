@@ -661,7 +661,7 @@ public class KASLinkWinch : KASLinkSourceBase,
   BaseEvent GrabConnectorEventInject;
   #endregion
 
-  #region KASModuleLikSourceBase overrides
+  #region KASLikSourceBase overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -711,7 +711,7 @@ public class KASLinkWinch : KASLinkSourceBase,
       ConfigAccessor.ReadFieldsFromNode(
           node, GetType(), this, group: StdPersistentGroups.PartPersistant);
       // In case of the connector is not locked to either the winch or the target part, adjust its
-      // model position and rotation. The rest of the state will be erstored in the state machine. 
+      // model position and rotation. The rest of the state will be restored in the state machine. 
       if (persistedConnectorPosAndRot != null) {
         var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
         connectorModelObj.position = world.pos;
