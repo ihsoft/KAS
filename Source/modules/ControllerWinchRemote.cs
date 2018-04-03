@@ -236,7 +236,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   Dictionary<uint, WinchState> sceneModules = new Dictionary<uint, WinchState>();
 
   /// <summary>Ordered collection to use to draw the list in GUI.</summary>
-  List<WinchState> sortedSceneModules = new List<WinchState>();
+  WinchState[] sortedSceneModules;
 
   /// <summary>Actual screen position of the console window.</summary>
   /// TODO(ihsoft): Persist and restore.
@@ -331,13 +331,14 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       MaybeUpdateModules();
     }
 
-    if (sortedSceneModules.Count == 0) {
+    if (sortedSceneModules.Length == 0) {
       GUILayout.Label(NoContentTxt, guiNoWrapStyle);
     }
 
-    // TODO(ihsoft): Add paging and teh setting for the number of items per page.
+    // TODO(ihsoft): Add paging and the setting for the number of items per page.
     // Render the winch items if any.
-    foreach (var winchState in sortedSceneModules) {
+    for (var i = 0; i < sortedSceneModules.Length; i++) {
+      var winchState = sortedSceneModules[i];
       var winch = winchState.winchModule;
       var winchCable = winchState.winchModule.linkJoint as ILinkCableJoint;
       var disableWinchGUI = false;
@@ -542,9 +543,9 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             })
         .OrderBy(s => s.vesselGUID)
         .ThenBy(s => s.flightId)
-        .ToList();
+        .ToArray();
     sceneModules = sortedSceneModules.ToDictionary(s => s.flightId);
-    DebugEx.Fine("Found {0} winch modules", sortedSceneModules.Count);
+    DebugEx.Fine("Found {0} winch modules", sortedSceneModules.Length);
   }
 
   /// <summary>
