@@ -374,8 +374,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         using (new GuiEnabledStateScope(!disableWinchGUI && winchCable.realCableLength > 0)) {
           // Start retracting the cable column.
           winchState.retractBtnPressed &= winch.motorTargetSpeed < 0;
-          KSPUtilsGUILayout.ToggleButton(
-              ref winchState.retractBtnPressed,
+          winchState.retractBtnPressed = GUILayoutButtons.Toggle(
+              winchState.retractBtnPressed,
               startRetractingCnt,
               GUI.skin.button,
               new[] {MinSizeLayout},
@@ -383,8 +383,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               fnOff: () => winch.SetMotor(0));
           // Retract the cable column.
           winchState.retracting &= winch.motorTargetSpeed < 0;
-          KSPUtilsGUILayout.PushButton(
-              ref winchState.retracting,
+          winchState.retracting = GUILayoutButtons.Push(
+              winchState.retracting,
               retractCnt,
               GUI.skin.button,
               new[] {MinSizeLayout},
@@ -413,8 +413,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             !disableWinchGUI && winchCable.deployedCableLength < winch.cfgMaxCableLength)) {
           // Start extending the cable column.
           winchState.extendBtnPressed &= winch.motorTargetSpeed > 0;
-          KSPUtilsGUILayout.ToggleButton(
-              ref winchState.extendBtnPressed,
+          winchState.extendBtnPressed = GUILayoutButtons.Toggle(
+              winchState.extendBtnPressed,
               startExtendingCnt,
               GUI.skin.button,
               new[] {MinSizeLayout},
@@ -422,8 +422,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               fnOff: () => winch.SetMotor(0));
           // Extend the cable column.
           winchState.extending &= winch.motorTargetSpeed > 0;
-          KSPUtilsGUILayout.PushButton(
-              ref winchState.extending,
+          winchState.extending = GUILayoutButtons.Push(
+              winchState.extending,
               extendCnt,
               GUI.skin.button,
               new[] {MinSizeLayout},
