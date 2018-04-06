@@ -4,37 +4,23 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv1.GUIUtils;
-using KSPDev.ConfigUtils;
-using KSPDev.Extensions;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
-using KSPDev.ProcessingUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
-using KSPDev.Types;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Highlighting;
 
 namespace KAS {
 
-/// <summary>Module for a simple winch with a deployable connector.</summary>
+/// <summary>Module for a simple winch with a deployable connector and a motor.</summary>
 /// <remarks>
 /// <para>
 /// The connector is attached to the winch with a cable, and it can link with the compatible link
 /// targets. The winch itself is a <see cref="ILinkSource">link source</see>. An EVA kerbal can
 /// "grab" the connector and carry it as far as the cable maximum length allows.
-/// </para>
-/// <para>
-/// Since the winch is a basic link source it can link with the target in the different modes.
-/// However, it's highly recommended to use the mode <see cref="LinkMode.TieAnyParts"/>. As it
-/// the most flexible, and the winch is capable of changing "docked" vs "non-docked" mode when the
-/// link is already made.
 /// </para>
 /// <para>
 /// This winch implementation requires the associated joint module to support coupling. The winch
@@ -43,65 +29,21 @@ namespace KAS {
 /// state).
 /// </para>
 /// <para>
-/// Descendants can use custom persistent fields offered by <c>KSPDevUtils.ConfigUtils</c>. For
-/// this, use the persistence group <c>StdPersistentGroups.PartPersistant</c> and declare the
-/// memebers either as protected or public. E.g. as it's done for the
-/// <see cref="persistedConnectorPosAndRot"/> field.
+/// The descendants of this module can use the custom persistent fields of groups:
 /// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
+/// </list>
 /// </remarks>
-/// <seealso cref="ILinkSource"/>
-/// <seealso cref="ILinkTarget"/>
-/// <seealso cref="ILinkSource.linkJoint"/>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
 // Next localization ID: #kasLOC_08030.
-public class KASLinkWinch : KASLinkSourceBase,
+public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
-    IHasContextMenu, IWinchControl,
+    IWinchControl,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPhysicalObject {
   #region Localizable GUI strings.
-
-  #region ConnectorState enum values
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Locked = new Message(
-      "#kasLOC_08001",
-      defaultTemplate: "Locked",
-      description: "A string in the context menu that tells that the winch connector is rigidly"
-      + " attached to the and is not movable.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Deployed = new Message(
-      "#kasLOC_08018",
-      defaultTemplate: "Deployed",
-      description: "A string in the context menu that tells that the winch connector is deployed"
-      + " and attached to the winch via a cable.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Plugged = new Message(
-      "#kasLOC_08023",
-      defaultTemplate: "Plugged in",
-      description: "A string in the context menu that tells that the winch connector is plugged in"
-      + " a socked or is being carried by a kerbal, and attached to the winch via a cable.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Docked = new Message(
-      "#kasLOC_08024",
-      defaultTemplate: "Docked",
-      description: "A string in the context menu that tells that the winch connector is rigidly"
-      + " attached in the winch socked, and the vessel on the connector is docked to the winch"
-      + " owner vessel.");
-  #endregion
-
-  /// <summary>Translates <see cref="WinchConnectorState"/> enum into a localized message.</summary>
-  static readonly MessageLookup<WinchConnectorState> ConnectorStatesMsgLookup =
-      new MessageLookup<WinchConnectorState>(new Dictionary<WinchConnectorState, Message>() {
-          {WinchConnectorState.Locked, ConnectorStateMsg_Locked},
-          {WinchConnectorState.Deployed, ConnectorStateMsg_Deployed},
-          {WinchConnectorState.Plugged, ConnectorStateMsg_Plugged},
-          {WinchConnectorState.Docked, ConnectorStateMsg_Docked},
-      });
-
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoEnergyMsg = new Message(
       "#kasLOC_08002",
@@ -161,97 +103,9 @@ public class KASLinkWinch : KASLinkSourceBase,
       "#kasLOC_08010",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message CableLinkBrokenMsg = new Message(
-      "#kasLOC_08011",
-      defaultTemplate: "The link between the connector and the winch has broke",
-      description: "A message to display when a link between the winch and the connector has broke"
-      + " due to the unexpected external forces or actions.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
-      "#kasLOC_08027",
-      defaultTemplate: "Cannot link with: <<1>>",
-      description: "The error message to present when a part is being attached externally to the"
-      + " source's attach node, and it's not a valid link target for the source."
-      + "\nArgument <<1>> is the name of the part being attached.");
   #endregion
 
   #region Part's config fields
-  /// <summary>Object that represents the connector's model.</summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked globally, starting from the part's model root.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorModel = "";
-
-  /// <summary>Mass of the connector of the winch.</summary>
-  /// <remarks>
-  /// It's substracted from the part's mass on deploy, and added back on the lock. For this reason
-  /// it must not be greater then the total part's mass. Also, try to avoid making the connector
-  /// heavier than the part iteself - the Unity physics may start behaving awkward. 
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float connectorMass = 0.01f;
-
-  /// <summary>
-  /// Name of the object that is used to align the cable connector against the target part.
-  /// </summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked starting from the connector's model.
-  /// </remarks>
-  /// <seealso cref="connectorModel"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorPartAttachAt = "";
-
-  /// <summary>Position and rotation of the connector-to-part attach point.</summary>
-  /// <remarks>
-  /// <para>
-  /// The values must be given in the coordinates local to the connector. This value will only be
-  /// used if there is no object named <see cref="connectorPartAttachAt"/> in the connector's object
-  /// hierarchy.
-  /// </para>
-  /// <para>The value is a serialized format of <see cref="PosAndRot"/>.</para>
-  /// </remarks>
-  /// <seealso cref="connectorPartAttachAt"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
-  [KSPField]
-  public string connectorPartAttachAtPosAndRot = "";
-
-  /// <summary>
-  /// Name of the object that is used to align the cable mesh to the cable connector.
-  /// </summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked starting from the connector model.
-  /// </remarks>
-  /// <seealso cref="connectorModel"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorCableAttachAt = "";
-
-  /// <summary>Position and rotation of the cable-to-connector attach point.</summary>
-  /// <remarks>
-  /// The values must be given in the coordinates local to the connector. This value will only be
-  /// used if there is no object named <see cref="connectorCableAttachAt"/> in the connector's
-  /// object hierarchy.
-  /// </remarks>
-  /// <seealso cref="connectorCableAttachAt"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
-  [KSPField]
-  public string connectorCableAttachAtPosAndRot;
-
   /// <summary>Maximum cable length at which the cable connector can lock to the winch.</summary>
   /// <remarks>
   /// A spring joint in PhysX will never pull the objects together to the zero distance regardless
@@ -277,11 +131,6 @@ public class KASLinkWinch : KASLinkSourceBase,
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
   public float connectorLockMaxErrorDir = 1;
-
-  /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
-  /// <seealso cref="KASLinkTargetKerbal"/>
-  [KSPField]
-  public float connectorInteractDistance = 0.3f;
 
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -316,131 +165,11 @@ public class KASLinkWinch : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string sndPathMotorStop = "";
-
-  /// <summary>URL of the sound for the event of returning the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathLockConnector = "";
-
-  /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathDockConnector = "";
-
-  /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathGrabConnector = "";
-
-  /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathPlugConnector = "";
-  
-  /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathUnplugConnector = "";
-
-  /// <summary>URL of the sound for the event of cable emergency detachment (link broken).</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathBroke = "";
-  #endregion
-
-  #region Persistent fields
-  /// <summary>Connector state in the last save action.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [KSPField(isPersistant = true)]
-  public bool persistedIsConnectorLocked = true;
-
-  /// <summary>Position and rotation of the deployed connector.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
-  protected PosAndRot persistedConnectorPosAndRot;
-  #endregion
-
-  #region The context menu fields
-  /// <summary>Status field to display the current connector status in the context menu.</summary>
-  /// <see cref="connectorState"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiActive = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08012",
-      defaultTemplate = "Connector state",
-      description = "Status field to display the current winch connector status in the context"
-      + " menu.")]
-  public string connectorStateMenuInfo = "";
-
-  /// <summary>A context menu item that presents the deployed cable length.</summary>
-  /// <seealso cref="KASJointCableBase.deployedCableLength"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiActive = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08013",
-      defaultTemplate = "Deployed cable length",
-      description = "A context menu item that presents the length of the currently deployed"
-      + " cable.")]
-  public string deployedCableLengthMenuInfo = "";
   #endregion
 
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
-
-  /// <summary>Attaches the connector to the EVA kerbal.</summary>
-  /// <remarks>The active vessel must be a kerbal.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08016",
-      defaultTemplate = "Grab connector",
-      description = "A context menu event that attaches the connector to the EVA kerbal.")]
-  public virtual void GrabConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA && connectorState == WinchConnectorState.Locked) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
-      if (kerbalTarget != null && LinkToTarget(LinkActorType.Player, kerbalTarget)) {
-        SetCableLength(float.PositiveInfinity);
-      } else {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      }
-    }
-  }
-
-  /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
-  /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08017",
-      defaultTemplate = "Return connector",
-      description = "A context menu event that detaches the connector from the kerbal and puts it"
-      + " back to the winch.")]
-  public virtual void ReturnConnectorEvent() {
-    if (FlightGlobals.ActiveVessel.isEVA
-        && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
-      BreakCurrentLink(LinkActorType.Player);
-      connectorState = WinchConnectorState.Locked;
-      HostedDebugLog.Info(
-          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
-    }
-  }
-
-  /// <summary>Context menu item to break the currently established link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08028",
-      defaultTemplate = "Detach connector",
-      description = "Context menu item to break the currently established link.")]
-  public void DetachConnectorEvent() {
-    if (isLinked) {
-      BreakCurrentLink(LinkActorType.Player);
-    }
-  }
 
   /// <summary>A context menu item that opens the winches GUI.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -536,106 +265,16 @@ public class KASLinkWinch : KASLinkSourceBase,
   float _motorCurrentSpeed;
 
   /// <inheritdoc/>
-  public float currentCableLength { get { return cableJoint.deployedCableLength; } }
+  public new bool isConnectorLocked { get { return base.isConnectorLocked; } }
 
   /// <inheritdoc/>
-  public float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
+  public new float currentCableLength { get { return base.currentCableLength; } }
 
   /// <inheritdoc/>
-  public bool isConnectorLocked {
-    get {
-      return connectorState == WinchConnectorState.Locked
-          || connectorState == WinchConnectorState.Docked;
-    }
-  }
-  #endregion
-
-  #region Inheritable fields & properties
-  /// <summary>State of the winch connector.</summary>
-  /// <remarks>The main purpose of this enum is to simplify the winch state management.</remarks>
-  protected enum WinchConnectorState {
-    /// <summary>
-    /// The connector is rigidly attached to the winch's body. The connector's model is a parent of
-    /// the winch's model.
-    /// </summary>
-    Locked,
-
-    /// <summary>The connector is docked to the winch with its attached part.</summary>
-    Docked,
-
-    /// <summary>
-    /// The connector is a standalone physical object, attached to the winch via a cable.
-    /// </summary>
-    Deployed,
-
-    /// <summary>
-    /// The connector is plugged into a link target. It doesn't have physics, and its model is part
-    /// of the target's model.
-    /// </summary>
-    /// <remarks>
-    /// This state can only exist if the winch's link source is linked to a target.
-    /// </remarks>
-    /// <seealso cref="ILinkTarget"/>
-    Plugged,
-  }
-
-  /// <summary>Sate of the winch connector head.</summary>
-  /// <remarks>
-  /// It's discouraged to deal with the connector state via the state machine. The winch has some
-  /// logic over it.
-  /// </remarks>
-  /// <value>The connector state.</value>
-  protected WinchConnectorState connectorState {
-    get {
-      return connectorStateMachine.currentState
-          ?? (isLinked ? WinchConnectorState.Docked : WinchConnectorState.Locked);
-    }
-    set {
-      if (connectorStateMachine.currentState != value) {
-        KillMotor();
-      }
-      connectorStateMachine.currentState = value;
-      persistedIsConnectorLocked = isConnectorLocked;
-    }
-  }
-
-  /// <summary>Winch connector model transformation object.</summary>
-  /// <remarks>
-  /// Depending on the current state this model can be a child to the part's model or a standalone
-  /// object.
-  /// </remarks>
-  /// <value>The root transformation of the connector object.</value>
-  /// <seealso cref="WinchConnectorState"/>
-  protected Transform connectorModelObj { get; private set; }
-
-  /// <summary>Physical joint module that control the cable.</summary>
-  /// <remarks>
-  /// Note, that the winch will <i>not</i> notice any changes done to the joint. Always call
-  /// <see cref="UpdateContextMenu"/> on the winch after the update to the joint settings.
-  /// </remarks>
-  /// <value>The module instance.</value>
-  /// <seealso cref="SetCableLength"/>
-  protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
-
-  /// <summary>State machine that defines and controls the winch connector state.</summary>
-  /// <remarks>
-  /// It's not safe to change the connector state on a part with no physics! If the state needs to
-  /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
-  /// </remarks>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
-  protected SimpleStateMachine<WinchConnectorState> connectorStateMachine { get; private set; }
+  public new float cfgMaxCableLength { get { return base.cfgMaxCableLength; } }
   #endregion
 
   #region Local fields & properties
-  /// <summary>Anchor transform at the connector to attach the cable.</summary>
-  Transform connectorCableAnchor;
-
-  /// <summary>Anchor transform at the connector to attach with the part.</summary>
-  Transform connectorPartAnchor;
-
-  /// <summary>Anchor transform at the winch to attach the cable.</summary>
-  Transform winchCableAnchor;
-
   /// <summary>Sound to play when the motor is active.</summary>
   /// <seealso cref="motorCurrentSpeed"/>
   AudioSource sndMotor;
@@ -647,44 +286,9 @@ public class KASLinkWinch : KASLinkSourceBase,
   /// <summary>Sounds to play when the motor stops.</summary>
   /// <seealso cref="motorCurrentSpeed"/>
   AudioSource sndMotorStop;
-
-  /// <summary>Sounds to play when the connector get locked to the winch.</summary>
-  /// <seealso cref="connectorState"/>
-  AudioSource sndConnectorLock;
-
-  /// <summary>Sounds to play when the connector get docked to the winch.</summary>
-  /// <seealso cref="connectorState"/>
-  AudioSource sndConnectorDock;
-
-  /// <summary>Connector grab event to inject into the linked target.</summary>
-  /// <see cref="UpdateContextMenu"/>
-  BaseEvent GrabConnectorEventInject;
   #endregion
 
-  #region KASLikSourceBase overrides
-  /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-
-    // The GUI name of this event is copied from GrabConnectorEvent in UpdateContextMenu.
-    GrabConnectorEventInject = new BaseEvent(
-        Events,
-        "autoEventAttach" + part.Modules.IndexOf(this),
-        ClaimLinkedConnector,
-        new KSPEvent());
-    GrabConnectorEventInject.guiActive = true;
-    GrabConnectorEventInject.guiActiveUncommand = true;
-    GrabConnectorEventInject.guiActiveUnfocused = true;
-
-    GameEvents.onVesselChange.Add(OnVesselChange);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselChange.Remove(OnVesselChange);
-  }
-
+  #region KASLikSourcePhysical overrides
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     // This module can only operate with the docking peers.
@@ -697,267 +301,6 @@ public class KASLinkWinch : KASLinkSourceBase,
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
-    sndConnectorLock = SpatialSounds.Create3dSound(part.gameObject, sndPathLockConnector);
-    sndConnectorDock = SpatialSounds.Create3dSound(part.gameObject, sndPathDockConnector);
-
-    if (connectorMass > part.mass) {
-      HostedDebugLog.Error(this,
-          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
-      connectorMass = 0.1f * part.mass;  // A fail safe value. 
-    }
-    LoadOrCreateConnectorModel();
-    if (!persistedIsConnectorLocked) {
-      ConfigAccessor.ReadFieldsFromNode(
-          node, GetType(), this, group: StdPersistentGroups.PartPersistant);
-      // In case of the connector is not locked to either the winch or the target part, adjust its
-      // model position and rotation. The rest of the state will be restored in the state machine. 
-      if (persistedConnectorPosAndRot != null) {
-        var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
-        connectorModelObj.position = world.pos;
-        connectorModelObj.rotation = world.rot;
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    // Persist the connector data only if its position is not fixed to the winch model.
-    // It must be the peristsent state since the state machine can be in a different state at this
-    // moment (e.g. during the vessel backup).
-    if (!persistedIsConnectorLocked) {
-      persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
-          new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
-      ConfigAccessor.WriteFieldsIntoNode(
-          node, GetType(), this, group: StdPersistentGroups.PartPersistant);
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnPartUnpack() {
-    base.OnPartUnpack();
-    // The physics has started. It's safe to adjust the connector.
-    if (isLinked) {
-      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode
-          ? WinchConnectorState.Docked
-          : WinchConnectorState.Plugged;
-    } else if (!persistedIsConnectorLocked) {
-      connectorStateMachine.currentState = WinchConnectorState.Deployed;
-    } else {
-      connectorStateMachine.currentState = WinchConnectorState.Locked;
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnPartDie() {
-    base.OnPartDie();
-    // Make sure the connector is locked into the winch to not leave it behind.
-    connectorState = WinchConnectorState.Locked;
-  }
-
-  /// <inheritdoc/>
-  protected override void SetupStateMachine() {
-    base.SetupStateMachine();
-    linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-    linkStateMachine.AddStateHandlers(
-        LinkState.Linked,
-        enterHandler: oldState => {
-          var module = linkTarget as PartModule;
-          PartModuleUtils.InjectEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.AddEvent(module, GrabConnectorEventInject);
-        },
-        leaveHandler: newState => {
-          var module = linkTarget as PartModule;
-          PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.DropEvent(module, GrabConnectorEventInject);
-        });
-
-    // The default state is "Locked". All the enter state handlers rely on it, and all the exit
-    // state handlers reset the state back to the default.
-    connectorStateMachine = new SimpleStateMachine<WinchConnectorState>(strict: true);
-    connectorStateMachine.onAfterTransition += (start, end) => {
-      if (end == WinchConnectorState.Locked) {
-        KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
-      } else if (coupleNode.attachedPart == null) {
-        KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
-      }
-      UpdateContextMenu();
-      HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
-    };
-    connectorStateMachine.SetTransitionConstraint(
-        WinchConnectorState.Docked,
-        new[] {
-            WinchConnectorState.Plugged,
-            WinchConnectorState.Locked,  // External detach.
-        });
-    connectorStateMachine.SetTransitionConstraint(
-        WinchConnectorState.Locked,
-        new[] {
-            WinchConnectorState.Deployed,
-            WinchConnectorState.Plugged,
-            WinchConnectorState.Docked,  // External attach.
-        });
-    connectorStateMachine.SetTransitionConstraint(
-        WinchConnectorState.Deployed,
-        new[] {
-            WinchConnectorState.Locked,
-            WinchConnectorState.Plugged,
-        });
-    connectorStateMachine.SetTransitionConstraint(
-        WinchConnectorState.Plugged,
-        new[] {
-            WinchConnectorState.Deployed,
-            WinchConnectorState.Docked,
-        });
-    connectorStateMachine.AddStateHandlers(
-        WinchConnectorState.Locked,
-        enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
-          PartModel.UpdateHighlighters(part);
-          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
-              .ForEach(r => r.SetPropertyBlock(part.mpb));
-          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, winchCableAnchor);
-          SetCableLength(0);
-          if (oldState.HasValue) {  // Skip when restoring state.
-            sndConnectorLock.Play();
-          }
-        },
-        callOnShutdown: false);
-    connectorStateMachine.AddStateHandlers(
-        WinchConnectorState.Docked,
-        enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
-          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, winchCableAnchor);
-          SetCableLength(0);
-
-          // Align the docking part to the nodes if it's a separate vessel.
-          if (oldState != null && linkTarget.part.vessel != vessel) {
-            AlignTransforms.SnapAlign(
-                linkTarget.part.transform, linkTarget.nodeTransform, nodeTransform);
-            linkJoint.SetCoupleOnLinkMode(true);
-            if (oldState.HasValue) {  // Skip when restoring state.
-              sndConnectorDock.Play();
-            }
-          }
-        },
-        leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false),
-        callOnShutdown: false);
-    connectorStateMachine.AddStateHandlers(
-        WinchConnectorState.Deployed,
-        enterHandler: oldState => {
-          TurnConnectorPhysics(true);
-          connectorModelObj.parent = connectorModelObj;
-          PartModel.UpdateHighlighters(part);
-          linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
-        },
-        leaveHandler: newState => {
-          TurnConnectorPhysics(false);
-          linkRenderer.StopRenderer();
-        },
-        callOnShutdown: false);
-    connectorStateMachine.AddStateHandlers(
-        WinchConnectorState.Plugged,
-        enterHandler: oldState => {
-          // Destroy the previous highlighter if any, since it would interfere with the new owner.
-          DestroyImmediate(connectorModelObj.GetComponent<Highlighter>());
-          connectorModelObj.parent = linkTarget.nodeTransform;
-          PartModel.UpdateHighlighters(part);
-          PartModel.UpdateHighlighters(linkTarget.part);
-          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
-              .ForEach(r => r.SetPropertyBlock(linkTarget.part.mpb));
-          AlignTransforms.SnapAlign(
-              connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
-          linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
-        },
-        leaveHandler: newState => {
-          var oldParent = connectorModelObj.GetComponentInParent<Part>();
-          var oldHigh = oldParent.HighlightActive;
-          if (oldHigh) {
-            // Disable the part highlight to restore the connector's renderer materials.
-            oldParent.SetHighlight(false, false);
-          }
-          connectorModelObj.parent = nodeTransform;  // Back to the model.
-          PartModel.UpdateHighlighters(part);
-          PartModel.UpdateHighlighters(oldParent);
-          if (oldHigh) {
-            oldParent.SetHighlight(true, false);
-          }
-          linkRenderer.StopRenderer();
-        },
-        callOnShutdown: false);
-  }
-
-  /// <inheritdoc/>
-  protected override void ShutdownStateMachine() {
-    base.ShutdownStateMachine();
-    connectorStateMachine.currentState = null;
-  }
-
-  /// <inheritdoc/>
-  protected override void LogicalLink(ILinkTarget target) {
-    base.LogicalLink(target);
-    if (target.part == parsedAttachNode.attachedPart && part == target.coupleNode.attachedPart) {
-      // The target part is externally attached.
-      connectorState = WinchConnectorState.Docked;
-    } else {
-      connectorState = WinchConnectorState.Plugged;
-      if (linkActor == LinkActorType.Player) {
-        UISoundPlayer.instance.Play(target.part.vessel.isEVA
-            ? sndPathGrabConnector
-            : sndPathPlugConnector);
-      }
-    }
-    linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
-  }
-
-  /// <inheritdoc/>
-  protected override void LogicalUnlink(LinkActorType actorType) {
-    base.LogicalUnlink(actorType);
-    connectorState = isConnectorLocked ? WinchConnectorState.Locked : WinchConnectorState.Deployed;
-    if (actorType == LinkActorType.Physics) {
-      UISoundPlayer.instance.Play(sndPathBroke);
-      ShowStatusMessage(CableLinkBrokenMsg, isError: true);
-    } else if (actorType == LinkActorType.Player) {
-      if (connectorState == WinchConnectorState.Deployed) {
-        UISoundPlayer.instance.Play(sndPathUnplugConnector);
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void PhysicaLink() {
-    base.PhysicaLink();
-    SetCableLength(cableJoint.realCableLength);
-  }
-
-  /// <inheritdoc/>
-  protected override void PhysicaUnlink() {
-    SetCableLength(cableJoint.realCableLength);
-    base.PhysicaUnlink();
-  }
-
-  /// <inheritdoc/>
-  protected override void RestoreOtherPeer() {
-    base.RestoreOtherPeer();
-    if (linkTarget != null) {
-      // Only do it for the visual improvements, since the base class will attach the renderer to
-      // the node, instead of the cable attach possition. The state machine will get it fixed, but
-      // it'll only happen when the physics is started.
-      linkRenderer.StartRenderer(winchCableAnchor, connectorCableAnchor);
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void CheckAttachNode() {
-    base.CheckAttachNode();
-    if (linkState == LinkState.NodeIsBlocked && coupleNode.attachedPart != null) {
-      HostedDebugLog.Warning(this, "Decouple incompatible part from winch: {0}",
-                             coupleNode.FindOpposingNode().attachedPart);
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      ShowStatusMessage(
-          CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
-      KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
-    }
   }
   #endregion
 
@@ -977,10 +320,8 @@ public class KASLinkWinch : KASLinkSourceBase,
 
   #region IHasContextMenu implementation
   /// <inheritdoc/>
-  public virtual void UpdateContextMenu() {
-    connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
-    deployedCableLengthMenuInfo = DistanceType.Format(
-        cableJoint != null ? cableJoint.deployedCableLength : 0);
+  public override void UpdateContextMenu() {
+    base.UpdateContextMenu();
     
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
       e.guiName = motorTargetSpeed > float.Epsilon
@@ -992,18 +333,6 @@ public class KASLinkWinch : KASLinkSourceBase,
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
-    PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
-      e.active = connectorState == WinchConnectorState.Locked;
-      GrabConnectorEventInject.guiName = e.guiName;
-    });
-    PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
-      e.active = IsActiveEvaHoldingConnector();
-    });
-    PartModuleUtils.SetupEvent(this, DetachConnectorEvent, e => {
-      e.active = isLinked;
-    });
-    GrabConnectorEventInject.active = linkTarget != null
-        && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
   }
   #endregion
 
@@ -1020,8 +349,8 @@ public class KASLinkWinch : KASLinkSourceBase,
     }
     if (targetSpeed > 0 && isConnectorLocked) {
       connectorState = isLinked
-          ? WinchConnectorState.Plugged
-          : WinchConnectorState.Deployed;
+          ? ConnectorState.Plugged
+          : ConnectorState.Deployed;
     }
     if (!isConnectorLocked) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
@@ -1048,50 +377,14 @@ public class KASLinkWinch : KASLinkSourceBase,
   public void ReleaseCable() {
     if (isConnectorLocked) {
       connectorState = isLinked
-          ? WinchConnectorState.Plugged
-          : WinchConnectorState.Deployed;
+          ? ConnectorState.Plugged
+          : ConnectorState.Deployed;
     }
     SetCableLength(float.PositiveInfinity);
   }
   #endregion
 
   #region Inheritable utility methods
-  /// <summary>
-  /// Tells if the currently active vessel is an EVA kerbal who carries this winch connector.
-  /// </summary>
-  /// <returns><c>true</c> if the connector on the kerbal.</returns>
-  protected bool IsActiveEvaHoldingConnector() {
-    return FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
-        && FlightGlobals.ActiveVessel.isEVA
-        && linkTarget != null && linkTarget.part != null
-        && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
-  }
-
-  /// <summary>Sets the deployed cable length.</summary>
-  /// <remarks>
-  /// <para>
-  /// If the new value is significantly less than the old one, then the physical effects may
-  /// trigger.
-  /// </para>
-  /// <para>
-  /// This method can be called at any winch or motor state. However, if the connector is locked,
-  /// the call will not have effect. Once the connector get deployed from the locked state, it will
-  /// set the cable length to <c>0</c>.
-  /// </para>
-  /// </remarks>
-  /// <param name="length">
-  /// The new length. Set it to <c>PositiveInfinity</c> to extend the cable at the maximum length.
-  /// Omit the parameter to macth the length to the current distance to the connector (stretch the
-  /// cable).
-  /// </param>
-  /// <seealso cref="connectorState"/>
-  protected virtual void SetCableLength(float length) {
-    if (cableJoint != null) {
-      cableJoint.SetCableLength(length);
-    }
-    UpdateContextMenu();
-  }
-
   /// <summary>Immediately shuts down the motor.</summary>
   /// <remarks>
   /// The motor speed instantly becomes zero, it may trigger the physical effects.
@@ -1207,116 +500,13 @@ public class KASLinkWinch : KASLinkSourceBase,
     }
     if (isLinked) {
       //FIXME: support decoupling by external actors and reset to Locked state
-      connectorState = WinchConnectorState.Docked;
+      connectorState = ConnectorState.Docked;
       ShowStatusMessage(ConnectorDockedMsg);
     } else {
-      connectorState = WinchConnectorState.Locked;
+      connectorState = ConnectorState.Locked;
       ShowStatusMessage(ConnectorLockedMsg);
     }
     return true;
-  }
-
-  /// <summary>
-  /// Makes the winch connector an idependent physcal onbject or returns it into a part's model as
-  /// a physicsless object.
-  /// </summary>
-  /// <remarks>
-  /// Note, that physics obejcts on the connector don't die in this method call. They will be
-  /// cleaned up at the frame end. The caller must consider it when dealing with the connector.
-  /// </remarks>
-  /// <param name="state">The physical state of the connector: <c>true</c> means "physical".</param>
-  void TurnConnectorPhysics(bool state) {
-    if (state && cableJoint.headRb == null) {
-      HostedDebugLog.Info(this, "Make the cable connector physical");
-      var connector = KASInternalPhysicalConnector.Promote(
-          this, connectorModelObj.gameObject, connectorInteractDistance);
-      cableJoint.StartPhysicalHead(this, connectorCableAnchor);
-      connector.connectorRb.mass = connectorMass;
-      part.mass -= connectorMass;
-      part.rb.mass -= connectorMass;
-    } else if (!state && cableJoint.headRb != null) {
-      HostedDebugLog.Info(this, "Make the cable connector non-physical");
-      cableJoint.StopPhysicalHead();
-      KASInternalPhysicalConnector.Demote(connectorModelObj.gameObject);
-      part.mass += connectorMass;
-      part.rb.mass += connectorMass;
-    }
-  }
-
-  /// <summary>Intializes the connector model object and its anchors.</summary>
-  /// <remarks>
-  /// <para>
-  /// If the connector model is not found then a stub object will be created. There will be no visual
-  /// representation but the overall functionality of the winch should keep working.
-  /// </para>
-  /// <para>
-  /// If the connector doesn't have the anchors then the missed ones will be created basing on the
-  /// provided position/rotation. If the config file doesn't provide anything then the anchors will
-  /// have a zero position and a random rotation.
-  /// </para>
-  /// </remarks>
-  void LoadOrCreateConnectorModel() {
-    connectorModelObj = Hierarchy.FindPartModelByPath(part, connectorModel);
-    if (connectorModelObj != null) {
-      connectorCableAnchor = Hierarchy.FindTransformByPath(connectorModelObj, connectorCableAttachAt);
-      if (connectorCableAnchor == null) {
-        HostedDebugLog.Info(this, "Creating connector's cable transform");
-        connectorCableAnchor = new GameObject(connectorCableAttachAt).transform;
-        var posAndRot = PosAndRot.FromString(connectorCableAttachAtPosAndRot);
-        Hierarchy.MoveToParent(connectorCableAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
-      }
-      connectorPartAnchor = Hierarchy.FindTransformByPath(connectorModelObj, connectorPartAttachAt);
-      if (connectorPartAnchor == null) {
-        HostedDebugLog.Info(this, "Creating connector's part transform");
-        connectorPartAnchor = new GameObject(connectorPartAttachAt).transform;
-        var posAndRot = PosAndRot.FromString(connectorPartAttachAtPosAndRot);
-        Hierarchy.MoveToParent(connectorPartAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
-      }
-    } else {
-      HostedDebugLog.Error(this, "Cannot find a connector model: {0}", connectorModel);
-      // Fallback to not have the whole code to crash. 
-      connectorModelObj = new GameObject().transform;
-      connectorCableAnchor = connectorModelObj;
-      connectorPartAnchor = connectorModelObj;
-    }
-    const string WinchCableAnchorName = "winchCableAnchor";
-    winchCableAnchor = Hierarchy.FindPartModelByPath(part, WinchCableAnchorName);
-    if (winchCableAnchor == null) {
-      winchCableAnchor = new GameObject(WinchCableAnchorName).transform;
-      // This anchor must match the one set in the Joint module!
-      var physicalAnchorOffset =
-          (connectorPartAnchor.position - connectorCableAnchor.position).magnitude;
-      Hierarchy.MoveToParent(winchCableAnchor, nodeTransform,
-                             newPosition: new Vector3(0, 0, -physicalAnchorOffset));
-      HostedDebugLog.Info(this, "Winch cable anchor offset: {0}", physicalAnchorOffset);
-    }
-  }
-
-  /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
-  /// <param name="v">The new active vessel.</param>
-  void OnVesselChange(Vessel v) {
-    UpdateContextMenu();
-    MonoUtilities.RefreshContextWindows(part);
-  }
-
-  /// <summary>Moves a linked connected from another target to the active EVA.</summary>
-  void ClaimLinkedConnector() {
-    if (FlightGlobals.ActiveVessel.isEVA && isLinked) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
-      if (kerbalTarget != null
-          && CheckCanLinkTo(kerbalTarget, reportToGUI: true, checkStates: false)) {
-        BreakCurrentLink(LinkActorType.API);
-        if (LinkToTarget(LinkActorType.Player, kerbalTarget)) {
-          SetCableLength(float.PositiveInfinity);
-        }
-      }
-      if (!isLinked || !linkTarget.part.vessel.isEVA) {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-      }
-    }
   }
   #endregion
 }
