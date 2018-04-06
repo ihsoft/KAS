@@ -909,26 +909,6 @@ public abstract class AbstractLinkJoint : PartModule,
       }
     });
   }
-
-  /// <summary>Creates a physical joint between the parts.</summary>
-  /// <remarks>
-  /// This method tries to keep the new joint as close to the stock joint as feasible.
-  /// </remarks>
-  //TODO(ihsoft): Mimic the large nodes behavior (multiple joints per a link).
-  void CreateRigidLink() {
-    HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
-    var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(rigidJoint);
-    rigidJoint.enablePreprocessing = true;
-    rigidJoint.autoConfigureConnectedAnchor = false;
-    rigidJoint.connectedBody = linkTarget.part.Rigidbody;
-    rigidJoint.anchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    SetBreakForces(rigidJoint, linkBreakForce, linkBreakTorque);
-    SetCustomJoints(new[] {rigidJoint});
-  }
   #endregion
 }
 
