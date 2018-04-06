@@ -22,11 +22,15 @@ namespace KAS {
 /// each other.
 /// </para>
 /// <para>
-/// This module implements custom persistent fields concept. The descendants can decalre fields of
-/// the custom types that are supported by <c>KSPDevUtils.ConfigUtils</c>.
+/// The descendants of this module can use the custom persistent fields of groups:
 /// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
+/// </list>
 /// </remarks>
-/// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
     IActivateOnDecouple,
@@ -278,6 +282,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     ConfigAccessor.ReadPartConfig(this);
+    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
 
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
@@ -301,6 +306,12 @@ public abstract class AbstractLinkPeer : PartModule,
       parsedAttachNode.owner = part;
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
+  }
+
+  /// <inheritdoc/>
+  public override void OnSave(ConfigNode node) {
+    base.OnSave(node);
+    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
   }
 
   /// <inheritdoc/>
