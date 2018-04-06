@@ -52,8 +52,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
     // KSPDev syntax sugar interfaces.
     IPartModule {
   #region Localizable GUI strings.
-
-  #region ConnectorState enum values
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
       "#kasLOC_08001",
@@ -82,7 +80,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
       description: "A string in the context menu that tells that the connector is rigidly"
       + " attached in the winch socked, and the vessel on the connector is docked to the part"
       + " owner vessel.");
-  #endregion
 
   /// <summary>Translates <see cref="ConnectorState"/> enum into a localized message.</summary>
   static readonly MessageLookup<ConnectorState> ConnectorStatesMsgLookup =
