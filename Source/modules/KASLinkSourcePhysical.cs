@@ -239,17 +239,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
       description = "Status field to display the current winch connector status in the context"
       + " menu.")]
   public string connectorStateMenuInfo = "";
-
-  /// <summary>A context menu item that presents the deployed cable length.</summary>
-  /// <seealso cref="KASJointCableBase.deployedCableLength"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiActive = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_08013",
-      defaultTemplate = "Deployed cable length",
-      description = "A context menu item that presents the length of the currently deployed"
-      + " cable.")]
-  public string deployedCableLengthMenuInfo = "";
   #endregion
 
   #region Context menu events/actions
@@ -701,8 +690,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
-    deployedCableLengthMenuInfo = DistanceType.Format(
-        cableJoint != null ? cableJoint.deployedCableLength : 0);
     
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Locked;

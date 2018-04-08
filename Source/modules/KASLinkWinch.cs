@@ -167,6 +167,19 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   public string sndPathMotorStop = "";
   #endregion
 
+  #region The context menu fields
+  /// <summary>A context menu item that presents the deployed cable length.</summary>
+  /// <seealso cref="KASJointCableBase.deployedCableLength"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  [KSPField(guiActive = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08013",
+      defaultTemplate = "Deployed cable length",
+      description = "A context menu item that presents the length of the currently deployed"
+      + " cable.")]
+  public string deployedCableLengthMenuInfo = "";
+  #endregion
+
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
@@ -322,7 +335,9 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void UpdateContextMenu() {
     base.UpdateContextMenu();
-    
+    deployedCableLengthMenuInfo = DistanceType.Format(
+        cableJoint != null ? cableJoint.deployedCableLength : 0);
+
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
       e.guiName = motorTargetSpeed > float.Epsilon
           ? StopExtendingMenuTxt
