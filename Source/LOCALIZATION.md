@@ -17,4 +17,5 @@ not use the same namespace as the parent. No modules are allowed to define own v
 
 | Module name                    | Module | Namespace start | Namespace end |
 | ------------------------------ | ------ | --------------- | ------------- |
+| KASLinkSourcePhysical          | 13     | #kasLOC_13000   | #kasLOC_13999 |
 | _Next available value_         | 11     | #kasLOC_?????   | #kasLOC_????? |

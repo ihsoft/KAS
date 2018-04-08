@@ -46,6 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkCableJoint"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+// Next localization ID: #kasLOC_13010.
 public class KASLinkSourcePhysical : KASLinkSourceBase,
     // KAS interfaces.
     IHasContextMenu,
@@ -54,28 +55,28 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
-      "#kasLOC_08001",
+      "#kasLOC_13000",
       defaultTemplate: "Locked",
       description: "A string in the context menu that tells that the connector is rigidly attached"
       + " to the part and is not movable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Deployed = new Message(
-      "#kasLOC_08018",
+      "#kasLOC_13001",
       defaultTemplate: "Deployed",
       description: "A string in the context menu that tells that the connector is deployed and"
       + " attached to the part via a cable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Plugged = new Message(
-      "#kasLOC_08023",
+      "#kasLOC_13002",
       defaultTemplate: "Plugged in",
       description: "A string in the context menu that tells that the connector is plugged in"
       + " a socked or is being carried by a kerbal, and attached to the part via a cable.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Docked = new Message(
-      "#kasLOC_08024",
+      "#kasLOC_13003",
       defaultTemplate: "Docked",
       description: "A string in the context menu that tells that the connector is rigidly"
       + " attached in the winch socked, and the vessel on the connector is docked to the part"
@@ -92,14 +93,14 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CableLinkBrokenMsg = new Message(
-      "#kasLOC_08011",
+      "#kasLOC_13004",
       defaultTemplate: "The link between the connector and the part has broke",
       description: "A message to display when a link between the part and the connector has broke"
       + " due to the unexpected external forces or actions.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
-      "#kasLOC_08027",
+      "#kasLOC_13005",
       defaultTemplate: "Cannot link with: <<1>>",
       description: "The error message to present when a part is being attached externally to the"
       + " source's attach node, and it's not a valid link target for the source."
@@ -234,7 +235,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08012",
+      tag = "#kasLOC_13006",
       defaultTemplate = "Connector state",
       description = "Status field to display the current winch connector status in the context"
       + " menu.")]
@@ -250,7 +251,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08016",
+      tag = "#kasLOC_13007",
       defaultTemplate = "Grab connector",
       description = "A context menu event that attaches the connector to the EVA kerbal.")]
   public virtual void GrabConnectorEvent() {
@@ -270,7 +271,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08017",
+      tag = "#kasLOC_13008",
       defaultTemplate = "Return connector",
       description = "A context menu event that detaches the connector from the kerbal and puts it"
       + " back to the winch.")]
@@ -290,7 +291,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08028",
+      tag = "#kasLOC_13009",
       defaultTemplate = "Detach connector",
       description = "Context menu item to break the currently established link.")]
   public void DetachConnectorEvent() {
