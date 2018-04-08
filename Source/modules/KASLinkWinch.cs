@@ -37,7 +37,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08030.
+// Next localization ID: #kasLOC_08013.
 public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
@@ -46,27 +46,27 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoEnergyMsg = new Message(
-      "#kasLOC_08002",
+      "#kasLOC_08000",
       defaultTemplate: "No energy!",
       description: "Error message to present when the electricity charge has exhausted.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LockConnectorNotAlignedMsg = new Message(
-      "#kasLOC_08003",
+      "#kasLOC_08001",
       defaultTemplate: "Cannot lock the connector: not aligned",
       description: "Error message to present when an improperly aligned cable connector has"
       + " attempted to lock with the winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorLockedMsg = new Message(
-      "#kasLOC_08004",
+      "#kasLOC_08002",
       defaultTemplate: "Connector locked!",
       description: "Info message to present when a cable connector has successfully locked to the"
       + " winch.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorDockedMsg = new Message(
-      "#kasLOC_08025",
+      "#kasLOC_08003",
       defaultTemplate: "Connector docked to the winch",
       description: "Info message to present when a cable connector has successfully docked to the"
       + " winch.");
@@ -74,7 +74,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   static readonly Message<DistanceType> MaxLengthReachedMsg = new Message<DistanceType>(
-      "#kasLOC_08005",
+      "#kasLOC_08004",
       defaultTemplate: "Maximum cable length reached: <<1>>",
       description: "An info message to present when the cable is extended at its maximum length."
       + "\nArgument <<1>> is the current cable length of type DistanceType.",
@@ -82,25 +82,25 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StopExtendingMenuTxt = new Message(
-      "#kasLOC_08007",
+      "#kasLOC_08005",
       defaultTemplate: "Stop extending",
       description: "Name of the context menu item that stops the cable extending.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ExtendCableMenuTxt = new Message(
-      "#kasLOC_08008",
+      "#kasLOC_08006",
       defaultTemplate: "Extend cable",
       description: "Name of the context menu item that starts the cable extending.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StopRetractingMenuTxt = new Message(
-      "#kasLOC_08009",
+      "#kasLOC_08007",
       defaultTemplate: "Stop retracting",
       description: "Name of the context menu item that stops the cable retracting.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message RetractCableMenuTxt = new Message(
-      "#kasLOC_08010",
+      "#kasLOC_08008",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
   #endregion
@@ -173,7 +173,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08013",
+      tag = "#kasLOC_08009",
       defaultTemplate = "Deployed cable length",
       description = "A context menu item that presents the length of the currently deployed"
       + " cable.")]
@@ -188,7 +188,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08029",
+      tag = "#kasLOC_08010",
       defaultTemplate = "Open winches GUI",
       description = "A context menu item that opens the remote control GUI to operate the winches"
       + " in the scene.")]
@@ -229,7 +229,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08014",
+      tag = "#kasLOC_08011",
       defaultTemplate = "Release cable",
       description = "A context menu item that sets the cable length ot the maximum, and unlocks"
       + " the connector if it was locked.")]
@@ -244,7 +244,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_08015",
+      tag = "#kasLOC_08012",
       defaultTemplate = "Instant stretch",
       description = "A context menu event that sets the cable length to the current distance to the"
       + " connector.")]
