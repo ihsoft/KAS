@@ -47,7 +47,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CannotDockMsg = new Message(
-      "#kasLOC_01004",
+      "#kasLOC_01002",
       defaultTemplate: "Cannot dock: the mode is not supported",
       description: "The message to present when the player requests a docking mode for the link via"
       + " UI, but the source or target part is rejecting the action.");
@@ -110,7 +110,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_01002",
+      tag = "#kasLOC_01003",
       defaultTemplate = "Link mode: DOCKED",
       description = "The name of the part's context menu event that triggers a separtation of the"
       + " linked parts into two different vessels if they are coupled thru this joint. At the same"
@@ -126,7 +126,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(
-      tag = "#kasLOC_01003",
+      tag = "#kasLOC_01004",
       defaultTemplate = "Link mode: UNDOCKED",
       description = "The name of the part's context menu event that triggers a merging of the"
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
