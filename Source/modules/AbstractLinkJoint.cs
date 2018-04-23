@@ -433,6 +433,8 @@ public abstract class AbstractLinkJoint : PartModule,
     isLinked = true;
     // If the parts are already coupled at this moment, then the mode must be set as such.      
     coupleOnLinkMode |= isCoupled;
+    // Ensure the coupling can be done. 
+    coupleOnLinkMode &= linkSource.coupleNode != null && linkTarget.coupleNode != null;
     if (coupleOnLinkMode) {
       CoupleParts();
     } else {
