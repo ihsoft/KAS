@@ -98,7 +98,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
       description: "A message to display when a link between the part and the connector has broke"
       + " due to the unexpected external forces or actions.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
       "#kasLOC_13005",
       defaultTemplate: "Cannot link with: <<1>>",
@@ -294,7 +294,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
       tag = "#kasLOC_13009",
       defaultTemplate = "Detach connector",
       description = "Context menu item to break the currently established link.")]
-  public void DetachConnectorEvent() {
+  public virtual void DetachConnectorEvent() {
     if (isLinked) {
       BreakCurrentLink(LinkActorType.Player);
     }
