@@ -464,7 +464,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
     base.OnPartUnpack();
     // The physics has started. It's safe to adjust the connector.
     if (isLinked) {
-      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode
+      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode && persistedIsConnectorLocked
           ? ConnectorState.Docked
           : ConnectorState.Plugged;
     } else if (!persistedIsConnectorLocked) {
