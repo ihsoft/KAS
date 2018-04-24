@@ -429,6 +429,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    // The locked connector with a part attached is get docked. So we require docking mode here.
+    // TODO(ihsoft): Allow non-docking mode.
+    if (!allowCoupling) {
+      HostedDebugLog.Error(this, "The coupling must be allowed for this part to work. Overriding"
+                           + " allowCoupling settings to true.");
+      allowCoupling = true;  // A bad approach, but better than not having the attach node.
+    }
     base.OnLoad(node);
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(this,

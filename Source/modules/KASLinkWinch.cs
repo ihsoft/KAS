@@ -304,11 +304,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region KASLikSourcePhysical overrides
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    // This module can only operate with the docking peers.
-    if (!allowCoupling) {
-      HostedDebugLog.Error(this, "The winch must be allowed for coupling!");
-      allowCoupling = true;  // A bad approach, but better than not having the attach node.
-    }
     base.OnLoad(node);
 
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
