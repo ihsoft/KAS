@@ -38,7 +38,7 @@ namespace KAS {
 /// <seealso cref="CleanupPhysXJoints"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
 // Next localization ID: #kasLOC_00011.
-public abstract class AbstractLinkJoint : PartModule,
+public abstract class AbstractJoint : PartModule,
     // KSP interfaces.
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
@@ -351,7 +351,7 @@ public abstract class AbstractLinkJoint : PartModule,
   #region Local members
   /// <summary>Set when the coupled parts are decoupled by a self-triggered event.</summary>
   protected bool selfDecoupledAction { get; private set; }
-  #endregion    
+  #endregion
 
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
@@ -367,7 +367,6 @@ public abstract class AbstractLinkJoint : PartModule,
 
   #region IJointEventsListener implementation
   /// <inheritdoc/>
-  /// FIXME: Couple the part back
   public virtual void OnJointBreak(float breakForce) {
     HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
     // The break event is sent for *any* joint on the game object that got broken. However, it may

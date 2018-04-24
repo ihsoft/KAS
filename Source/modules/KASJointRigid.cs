@@ -13,7 +13,7 @@ namespace KAS {
 /// <remarks>
 /// The joint is rigid. It's similar to what is created between the parts, coupled in the editor.
 /// </remarks>
-public class KASJointRigid : AbstractLinkJoint {
+public class KASJointRigid : AbstractJoint {
 
   #region AbstractLinkJoint overrides
   /// <inheritdoc/>

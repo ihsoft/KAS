@@ -21,7 +21,7 @@ namespace KAS {
 /// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
-public class KASJointTwoEndsSphere : AbstractLinkJoint,
+public class KASJointTwoEndsSphere : AbstractJoint,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.
@@ -50,13 +50,13 @@ public class KASJointTwoEndsSphere : AbstractLinkJoint,
   /// <summary>Source sphere joint.</summary>
   /// <value>PhysX joint at the source part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="AbstractLinkJoint.sourceLinkAngleLimit"/>.
+  /// <seealso cref="AbstractJoint.sourceLinkAngleLimit"/>.
   protected ConfigurableJoint srcJoint { get; private set; }
 
   /// <summary>Target sphere joint.</summary>
   /// <value>PhysX joint at the target part. <c>null</c> if there is no joint established.</value>
   /// <remarks>It doesn't allow linear movements but does allow rotation around any axis.</remarks>
-  /// <seealso cref="AbstractLinkJoint.targetLinkAngleLimit"/>
+  /// <seealso cref="AbstractJoint.targetLinkAngleLimit"/>
   protected ConfigurableJoint trgJoint { get; private set; }
 
   /// <summary>Object that connects two sphere joints together.</summary>
