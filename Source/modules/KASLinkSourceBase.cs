@@ -56,7 +56,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     // KAS interfaces.
     ILinkSource,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPartDeathListener, IKSPDevModuleInfo {
+    IPartModule, IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -440,6 +440,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       }
     }
     return errors.Length == 0;
+  }
+  #endregion
+
+  #region IHasContextMenu implementation
+  /// <inheritdoc/>
+  public virtual void UpdateContextMenu() {
   }
   #endregion
 

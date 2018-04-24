@@ -47,9 +47,7 @@ namespace KAS {
 /// <seealso cref="ILinkCableJoint"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13010.
-public class KASLinkSourcePhysical : KASLinkSourceBase,
-    // KAS interfaces.
-    IHasContextMenu {
+public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
@@ -689,11 +687,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
       KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
     }
   }
-  #endregion
 
-  #region IHasContextMenu implementation
   /// <inheritdoc/>
-  public virtual void UpdateContextMenu() {
+  public override void UpdateContextMenu() {
+    base.UpdateContextMenu();
+
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
     
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {

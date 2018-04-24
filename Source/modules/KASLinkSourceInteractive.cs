@@ -219,11 +219,10 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
     statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
     UpdateContextMenu();
   }
-  #endregion
 
-  #region IHasContextMenu implementation
   /// <inheritdoc/>
-  public void UpdateContextMenu() {
+  public override void UpdateContextMenu() {
+    base.UpdateContextMenu();
     PartModuleUtils.SetupEvent(this, StartLinkContextMenuAction, e => {
                                  e.guiName = startLinkMenu;
                                  e.active = linkState == LinkState.Available;
