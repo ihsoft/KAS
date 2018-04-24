@@ -22,7 +22,7 @@ namespace KAS {
 /// must be in the range from the kerbal.
 /// </para>
 /// </remarks>
-// Next localization ID: #kasLOC_01005.
+// Next localization ID: #kasLOC_01003.
 public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
     // KSPDev interfaces.
     IHasContextMenu {
@@ -64,16 +64,6 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   [KSPField]
   public string sndPathUnplug = "";
 
-  /// <summary>Audio sample to play when the parts are docked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathDock = "";
-
-  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string sndPathUndock = "";
-
   /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -105,42 +95,6 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   [LocalizableItem(tag = null)]
   public void BreakLinkContextMenuAction() {
     BreakCurrentLink(LinkActorType.Player);
-  }
-
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_01003",
-      defaultTemplate = "Link mode: DOCKED",
-      description = "The name of the part's context menu event that triggers a separtation of the"
-      + " linked parts into two different vessels if they are coupled thru this joint. At the same"
-      + " time, the name of the event gives a currently selected state.")]
-  public void UndockVesselsContextMenuAction() {
-    linkJoint.SetCoupleOnLinkMode(false);
-    if (linkJoint.isLinked && !linkJoint.coupleOnLinkMode) {
-      UISoundPlayer.instance.Play(sndPathPlug);
-    }
-    UpdateContextMenu();
-  }
-
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
-  [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
-  [LocalizableItem(
-      tag = "#kasLOC_01004",
-      defaultTemplate = "Link mode: UNDOCKED",
-      description = "The name of the part's context menu event that triggers a merging of the"
-      + " linked parts if they were not coupled before. At  the same time, the name of the event"
-      + " gives a currently selected state.")]
-  public void DockVesselsContextMenuAction() {
-    if (linkJoint.SetCoupleOnLinkMode(true)) {
-      if (linkJoint.isLinked && linkJoint.coupleOnLinkMode) {
-        UISoundPlayer.instance.Play(sndPathDock);
-      }
-      UpdateContextMenu();
-    } else {
-      ShowStatusMessage(CannotDockMsg, isError: true);
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
-    }
   }
   #endregion
 
@@ -231,12 +185,6 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
                                  e.guiName = breakLinkMenu;
                                  e.active = linkState == LinkState.Linked;
                                });
-    PartModuleUtils.SetupEvent(
-        this, DockVesselsContextMenuAction,
-        e => e.active = coupleNode != null && linkJoint != null && !linkJoint.coupleOnLinkMode);
-    PartModuleUtils.SetupEvent(
-        this, UndockVesselsContextMenuAction,
-        e => e.active = linkJoint != null && linkJoint.coupleOnLinkMode);
   }
   #endregion
 
@@ -283,8 +231,6 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
           }
           var module = linkTarget as PartModule;
           PartModuleUtils.InjectEvent(this, BreakLinkContextMenuAction, module);
-          PartModuleUtils.InjectEvent(this, DockVesselsContextMenuAction, module);
-          PartModuleUtils.InjectEvent(this, UndockVesselsContextMenuAction, module);
         },
         leaveHandler: x => {
           if (linkActor == LinkActorType.Player) {
@@ -294,8 +240,6 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
           }
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, BreakLinkContextMenuAction, module);
-          PartModuleUtils.WithdrawEvent(this, DockVesselsContextMenuAction, module);
-          PartModuleUtils.WithdrawEvent(this, UndockVesselsContextMenuAction, module);
         });
   }
   #endregion

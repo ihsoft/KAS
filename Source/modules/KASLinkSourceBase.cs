@@ -7,6 +7,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-// Next localization ID: #kasLOC_02011.
+// Next localization ID: #kasLOC_02013.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
@@ -125,6 +126,22 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "Links to the same vessel",
       description: "Info string in the editor that tells if the part can establish a link to"
       + " another part of the same vessel,");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message DockedModeMenuTxt = new Message(
+      "#kasLOC_02011",
+      defaultTemplate: "Link mode: DOCKED",
+      description: "The name of the part's context menu event that triggers a separtation of the"
+      + " linked parts into two different vessels if they are coupled thru this link. At the same"
+      + " time, the name of the event gives a currently selected state.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message UndockedModeMenuTxt = new Message(
+      "#kasLOC_02012",
+      defaultTemplate: "Link mode: UNDOCKED",
+      description: "The name of the part's context menu event that triggers a merging of the"
+      + " linked parts if they were not coupled before. At  the same time, the name of the event"
+      + " gives a currently selected state.");
   #endregion
 
   #region ILinkSource config properties implementation
@@ -148,6 +165,11 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region Part's config fields
+  /// <summary>Tells if coupling mode can be changed via the part's context menu.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public bool showCouplingUi;
+  
   /// <summary>See <see cref="cfgLinkMode"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -171,6 +193,16 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string jointName = "";
+
+  /// <summary>Audio sample to play when the parts are docked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathDock = "";
+
+  /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string sndPathUndock = "";
   #endregion
 
   #region Inheritable fields & properties
@@ -197,6 +229,24 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <seealso cref="ILinkPeer.linkState"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
   protected LinkActorType linkActor { get; private set; }
+  #endregion
+
+  #region Context menu events/actions
+  // Keep the events that may change their visibility states at the bottom. When an item goes out
+  // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
+  [LocalizableItem(tag = null)]
+  public virtual void ToggleVesselsDockModeEvent() {
+    if (!linkJoint.SetCoupleOnLinkMode(!linkJoint.coupleOnLinkMode)) {
+      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+    } else {
+      if (isLinked) {
+        UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathUndock);
+      }
+      UpdateContextMenu();
+    }
+  }
   #endregion
 
   #region AbstractLinkPeer overrides
@@ -234,8 +284,16 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
-        enterHandler: x => GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent),
-        leaveHandler: x => GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent));
+        enterHandler: x => {
+          GameEvents.onVesselWillDestroy.Add(OnVesselWillDestroyGameEvent);
+          var module = linkTarget as PartModule;
+          PartModuleUtils.InjectEvent(this, ToggleVesselsDockModeEvent, module);
+        },
+        leaveHandler: x => {
+          GameEvents.onVesselWillDestroy.Remove(OnVesselWillDestroyGameEvent);
+          var module = linkTarget as PartModule;
+          PartModuleUtils.WithdrawEvent(this, ToggleVesselsDockModeEvent, module);
+        });
     linkStateMachine.AddStateHandlers(
         LinkState.Linking,
         enterHandler: x => KASEvents.OnStartLinking.Fire(this),
@@ -309,6 +367,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (isLinked && !linkJoint.isLinked) {
       linkJoint.CreateJoint(this, linkTarget);
     }
+
+    UpdateContextMenu();  // To update the dock/undock menu.
   }
   #endregion
 
@@ -446,6 +506,20 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public virtual void UpdateContextMenu() {
+    PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
+      if (linkJoint != null) {
+        if (linkJoint.coupleOnLinkMode) {
+          e.active = true;
+          e.guiName = DockedModeMenuTxt;
+        } else {
+          e.active = showCouplingUi && allowCoupling
+              && (linkTarget == null || linkTarget.coupleNode != null);
+          e.guiName = UndockedModeMenuTxt;
+        }
+      } else {
+        e.active = false;
+      }
+    });
   }
   #endregion
 
