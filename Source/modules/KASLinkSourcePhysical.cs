@@ -49,9 +49,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_13010.
 public class KASLinkSourcePhysical : KASLinkSourceBase,
     // KAS interfaces.
-    IHasContextMenu,
-    // KSPDev syntax sugar interfaces.
-    IPartModule {
+    IHasContextMenu {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
@@ -245,7 +243,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase,
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
-
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
   /// <remarks>The active vessel must be a kerbal.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
