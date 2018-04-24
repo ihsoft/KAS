@@ -347,11 +347,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>Anchor transform at the woning part to attach the cable.</summary>
   protected Transform partCableAnchor { get; private set; }
 
-  /// <summary>Sate of the connector head.</summary>
-  /// <remarks>
-  /// It's discouraged to deal with the connector state via the state machine. The winch has some
-  /// logic over it.
-  /// </remarks>
+  /// <summary>State of the connector head.</summary>
   /// <value>The connector state.</value>
   protected ConnectorState connectorState {
     get {
@@ -361,7 +357,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     }
     set {
       connectorStateMachine.currentState = value;
-      persistedIsConnectorLocked = isConnectorLocked;
     }
   }
 
@@ -504,6 +499,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     // state handlers reset the state back to the default.
     connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
+      persistedIsConnectorLocked = isConnectorLocked;
       if (end == ConnectorState.Locked) {
         KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
       } else if (coupleNode.attachedPart == null) {
