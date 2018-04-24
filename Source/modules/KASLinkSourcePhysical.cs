@@ -352,9 +352,14 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <seealso cref="SetConnectorState"/>
   protected ConnectorState connectorState {
     get {
-      // Handle the case when machine is not yet started.
-      return connectorStateMachine.currentState
-          ?? (isLinked ? ConnectorState.Docked : ConnectorState.Locked);
+      if (connectorStateMachine.currentState.HasValue) {
+        return connectorStateMachine.currentState.Value;
+      }
+      // Handle the case when the machine is not yet started.
+      if (isLinked) {
+        return persistedIsConnectorLocked ? ConnectorState.Docked : ConnectorState.Plugged;
+      }
+      return persistedIsConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed;
     }
   }
 
@@ -457,15 +462,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   public override void OnPartUnpack() {
     base.OnPartUnpack();
-    // The physics has started. It's safe to adjust the connector.
-    if (isLinked) {
-      connectorStateMachine.currentState = linkJoint.coupleOnLinkMode && persistedIsConnectorLocked
-          ? ConnectorState.Docked
-          : ConnectorState.Plugged;
-    } else if (!persistedIsConnectorLocked) {
-      connectorStateMachine.currentState = ConnectorState.Deployed;
-    } else {
-      connectorStateMachine.currentState = ConnectorState.Locked;
+    // The physics has started. It's safe to restore the connector (it can be physical).
+    if (!connectorStateMachine.currentState.HasValue) {
+      SetConnectorState(connectorState);  // The connectorState property handles the defaults.
     }
   }
 
