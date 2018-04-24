@@ -276,7 +276,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
       BreakCurrentLink(LinkActorType.Player);
-      connectorState = ConnectorState.Locked;
+      SetConnectorState(ConnectorState.Locked);
       HostedDebugLog.Info(
           this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
     }
@@ -349,14 +349,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   /// <summary>State of the connector head.</summary>
   /// <value>The connector state.</value>
+  /// <seealso cref="SetConnectorState"/>
   protected ConnectorState connectorState {
     get {
       // Handle the case when machine is not yet started.
       return connectorStateMachine.currentState
           ?? (isLinked ? ConnectorState.Docked : ConnectorState.Locked);
-    }
-    set {
-      connectorStateMachine.currentState = value;
     }
   }
 
@@ -475,7 +473,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public override void OnPartDie() {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
-    connectorState = ConnectorState.Locked;
+    SetConnectorState(ConnectorState.Locked);
   }
 
   /// <inheritdoc/>
@@ -622,9 +620,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.LogicalLink(target);
     if (target.part == parsedAttachNode.attachedPart && part == target.coupleNode.attachedPart) {
       // The target part is externally attached.
-      connectorState = ConnectorState.Docked;
+      SetConnectorState(ConnectorState.Docked);
     } else {
-      connectorState = ConnectorState.Plugged;
+      SetConnectorState(ConnectorState.Plugged);
       if (linkActor == LinkActorType.Player) {
         UISoundPlayer.instance.Play(target.part.vessel.isEVA
             ? sndPathGrabConnector
@@ -637,7 +635,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
     base.LogicalUnlink(actorType);
-    connectorState = isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed;
+    SetConnectorState(isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed);
     if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ShowStatusMessage(CableLinkBrokenMsg, isError: true);
@@ -708,6 +706,18 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Inheritable utility methods
+  /// <summary>Changes the connector state</summary>
+  /// <remarks>
+  /// It's a convinience method. The caller can change the state of the connector state machine
+  /// instead.
+  /// </remarks>
+  /// <param name="newState">The new state.</param>
+  /// <seealso cref="connectorStateMachine"/>
+  /// <seealso cref="connectorState"/>
+  protected void SetConnectorState(ConnectorState newState) {
+    connectorStateMachine.currentState = newState;
+  }
+
   /// <summary>
   /// Tells if the currently active vessel is an EVA kerbal who carries the connector.
   /// </summary>

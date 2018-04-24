@@ -358,9 +358,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       return;
     }
     if (targetSpeed > 0 && isConnectorLocked) {
-      connectorState = isLinked
-          ? ConnectorState.Plugged
-          : ConnectorState.Deployed;
+      SetConnectorState(isLinked ? ConnectorState.Plugged : ConnectorState.Deployed);
     }
     if (!isConnectorLocked) {
       if (Mathf.Abs(targetSpeed) < float.Epsilon) {
@@ -386,9 +384,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public void ReleaseCable() {
     if (isConnectorLocked) {
-      connectorState = isLinked
-          ? ConnectorState.Plugged
-          : ConnectorState.Deployed;
+      SetConnectorState(isLinked ? ConnectorState.Plugged : ConnectorState.Deployed);
     }
     SetCableLength(float.PositiveInfinity);
   }
@@ -510,10 +506,10 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     }
     if (isLinked) {
       //FIXME: support decoupling by external actors and reset to Locked state
-      connectorState = ConnectorState.Docked;
+      SetConnectorState(ConnectorState.Docked);
       ShowStatusMessage(ConnectorDockedMsg);
     } else {
-      connectorState = ConnectorState.Locked;
+      SetConnectorState(ConnectorState.Locked);
       ShowStatusMessage(ConnectorLockedMsg);
     }
     return true;
