@@ -20,5 +20,6 @@ not use the same namespace as the parent. No modules are allowed to define own v
 | KASLinkSourceInteractive       | 01     | #kasLOC_01000   | #kasLOC_01999 |
 | KASLinkWinch                   | 08     | #kasLOC_08000   | #kasLOC_08999 |
 | ControllerWinchRemote          | 11     | #kasLOC_11000   | #kasLOC_11999 |
+| KASLinkResourceConnector       | 12     | #kasLOC_12000   | #kasLOC_12999 |
 | KASLinkSourcePhysical          | 13     | #kasLOC_13000   | #kasLOC_13999 |
 | _Next available value_         | 11     | #kasLOC_?????   | #kasLOC_????? |
