@@ -196,7 +196,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   readonly GUILayoutStringTable guiResourcesTable = new GUILayoutStringTable(4);
 
   /// <summary>Defintion of all the resources for the both linked vessels.</summary>
-  ResourceTransferOption[] resourceRows;
+  ResourceTransferOption[] resourceRows = new ResourceTransferOption[0];
 
   /// <summary>Index of the vessels resources.</summary>
   Dictionary<int, ResourceTransferOption> resourceRowsHash =
@@ -238,6 +238,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region Local types
+  /// <summary>Helper class to hold the data for the transfer option selected.</summary>
   class ResourceTransferOption {
     public readonly int[] resources;
     public readonly double[] resourceRatios;
@@ -259,66 +260,39 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public bool canMoveLeftToRight;
     public float previousUpdate;
 
-    public bool leftToRightTransferPending {
-      get { return _leftToRightTransferPending; }
-      set {
-        if (value != _leftToRightTransferPending) {
-          if (value) {
-            StopAllTransfers();
-          }
-          previousUpdate = Time.time;
-          _leftToRightTransferPending = value;
-        }
-      }
+    public bool leftToRightTransferToggle {
+      get { return _leftToRightTransferToggle; }
+      set { UpdateTransferTriggerFlag(ref _leftToRightTransferToggle, value); }
     }
-    bool _leftToRightTransferPending;
+    bool _leftToRightTransferToggle;
 
-    public bool leftToRightTransferCurrent {
-      get { return _leftToRightTransferCurrent; }
-      set {
-        if (value != _leftToRightTransferCurrent) {
-          if (value) {
-            StopAllTransfers();
-          }
-          previousUpdate = Time.time;
-          _leftToRightTransferCurrent = value;
-        }
-      }
+    public bool leftToRightTransferPress {
+      get { return _leftToRightTransferPress; }
+      set { UpdateTransferTriggerFlag(ref _leftToRightTransferPress, value); }
     }
-    bool _leftToRightTransferCurrent;
+    bool _leftToRightTransferPress;
 
-    public bool rightToLeftTransferCurrent {
-      get { return _rightToLeftTransferCurrent; }
-      set {
-        if (value != _rightToLeftTransferCurrent) {
-          if (value) {
-            StopAllTransfers();
-          }
-          previousUpdate = Time.time;
-          _rightToLeftTransferCurrent = value;
-        }
-      }
+    public bool rightToLeftTransferToggle {
+      get { return _rightToLeftTransferToggle; }
+      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferToggle, value); }
     }
-    bool _rightToLeftTransferCurrent;
-      
-    public bool rightToLeftTransferPending {
-      get { return _rightToLeftTransferPending; }
-      set {
-        if (value != _rightToLeftTransferPending) {
-          if (value) {
-            StopAllTransfers();
-          }
-          previousUpdate = Time.time; //FIXME: only if value is true
-          _rightToLeftTransferPending = value;
-        }
-      }
-    }
-    bool _rightToLeftTransferPending;
+    bool _rightToLeftTransferToggle;
 
+    public bool rightToLeftTransferPress {
+      get { return _rightToLeftTransferPress; }
+      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferPress, value); }
+    }
+    bool _rightToLeftTransferPress;
+
+    /// <inheritdoc/>
     public override int GetHashCode() {
       return resources.Sum();
     }
 
+    /// <summary>Makes the transfer option.</summary>
+    /// <param name="parent"></param>
+    /// <param name="availabeResources"></param>
+    /// <param name="resourceRatio"></param>
     public ResourceTransferOption(
         KASLinkResourceConnector parent,
         IEnumerable<int> availabeResources, IEnumerable<double> resourceRatio) {
@@ -330,13 +304,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       leftCapacities = new double[resources.Length];
       rightAmounts = new double[resources.Length];
       rightCapacities = new double[resources.Length];
-      UpdateStrings();
+      UpdateStaticStrings();
     }
 
-    //FIXME: call it from localization callback
-    public void UpdateStrings() {
-      //FIXME: move to init/localization method
-      resourceAmounts.LoadLocalization();  // Kick-on the template loading.
+    /// <summary>Updates the GUI strings that don't depend on the amounts/capacities.</summary>
+    public void UpdateStaticStrings() {
       if (resources.Length == 1) {
         caption = new GUIContent(
             resourceName.Format(StockResourceNames.GetResourceTitle(
@@ -355,11 +327,24 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
     }
 
+    /// <summary>Aborts any transfers that were in progress.</summary>
     public void StopAllTransfers() {
-      _leftToRightTransferCurrent = false;
-      _leftToRightTransferPending = false;
-      _rightToLeftTransferCurrent = false;
-      _rightToLeftTransferPending = false;
+      _leftToRightTransferPress = false;
+      _leftToRightTransferToggle = false;
+      _rightToLeftTransferPress = false;
+      _rightToLeftTransferToggle = false;
+    }
+
+    /// <summary>Updates the transfer trigger flag.</summary>
+    /// <remarks>Ensures that the values are not updated when the property hasn't changed.</remarks>
+    void UpdateTransferTriggerFlag(ref bool property, bool newValue) {
+      if (property != newValue) {
+        if (property) {
+          StopAllTransfers();
+          previousUpdate = Time.time;
+        }
+        property = newValue;
+      }
     }
   }
   #endregion
@@ -368,11 +353,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void LocalizeModule() {
     base.LocalizeModule();
-    if (resourceRows != null) {
-      foreach (var row in resourceRows) {
-        row.UpdateStrings();
-      }
-    }
+    resourceRows.ToList().ForEach(x => x.UpdateStaticStrings());
+
     autoScaleToggleCnt = new GUIContent(
         AutoScaleToggleTxt, AutoScaleToggleHint.Format(autolSpeedTransferDuration));
     leftToRigthToggleCnt = new GUIContent("<<", LeftToRigthToggleHint);
@@ -439,19 +421,19 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         guiResourcesTable.AddTextColumn(
             row.leftInfo, guiNoWrapCenteredStyle, minWidth: resourceAmounts.guiTags.minWidth);
         using (new GuiEnabledStateScope(row.canMoveRightToLeft)) {
-          row.rightToLeftTransferPending = GUILayoutButtons.Toggle(
-              row.rightToLeftTransferPending, leftToRigthToggleCnt, guiTransferBtnStyle, null,
+          row.rightToLeftTransferToggle = GUILayoutButtons.Toggle(
+              row.rightToLeftTransferToggle, leftToRigthToggleCnt, guiTransferBtnStyle, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
-          row.rightToLeftTransferCurrent = GUILayoutButtons.Push(
-              row.rightToLeftTransferCurrent, leftToRigthButtonCnt, guiTransferBtnStyle, null,
+          row.rightToLeftTransferPress = GUILayoutButtons.Push(
+              row.rightToLeftTransferPress, leftToRigthButtonCnt, guiTransferBtnStyle, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
         }
         using (new GuiEnabledStateScope(row.canMoveLeftToRight)) {
-          row.leftToRightTransferCurrent = GUILayoutButtons.Push(
-              row.leftToRightTransferCurrent, rightToLeftButtonCnt, guiTransferBtnStyle, null,
+          row.leftToRightTransferPress = GUILayoutButtons.Push(
+              row.leftToRightTransferPress, rightToLeftButtonCnt, guiTransferBtnStyle, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
-          row.leftToRightTransferPending = GUILayoutButtons.Toggle(
-              row.leftToRightTransferPending, rightToLeftToggleCnt, guiTransferBtnStyle, null,
+          row.leftToRightTransferToggle = GUILayoutButtons.Toggle(
+              row.leftToRightTransferToggle, rightToLeftToggleCnt, guiTransferBtnStyle, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
         }
         guiResourcesTable.AddTextColumn(
@@ -485,14 +467,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     GuiWindow.DragWindow(ref windowRect, titleBarRect);
   }
 
+  /// <summary>Finds the currently active option and makes it active.</summary>
   void GuiActionUpdateTransferItem() {
     var row = resourceRows.FirstOrDefault(r =>
-        r != pendingOption && (r.leftToRightTransferCurrent || r.leftToRightTransferPending
-                               || r.rightToLeftTransferCurrent || r.rightToLeftTransferPending));
+        r != pendingOption && (r.leftToRightTransferPress || r.leftToRightTransferToggle
+                               || r.rightToLeftTransferPress || r.rightToLeftTransferToggle));
     SetPendingTransferOption(row);
     MaybeAutoScaleSpeed();
   }
 
+  /// <summary>Creates the styles. Only does it once.</summary>
   void MakeGuiStyles() {
     if (guiNoWrapStyle == null) {
       guiNoWrapStyle = new GUIStyle(GUI.skin.box);
@@ -511,6 +495,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region Local utility methods
+  /// <summary>
+  /// If the auto-scale options is chosen, finds the scale at which the whole amount of teh resource
+  /// will be transferred in a definite duration.
+  /// </summary>
   void MaybeAutoScaleSpeed() {
     if (!autoScaleSpeed || pendingOption == null) {
       return;
@@ -520,7 +508,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     double[] fromPartAmounts;
     double[] toPartCapacities;
     double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferCurrent || pendingOption.leftToRightTransferPending) {
+    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
       fromPartCapacities = pendingOption.leftCapacities;
       fromPartAmounts = pendingOption.leftAmounts;
       toPartCapacities = pendingOption.rightCapacities;
@@ -566,14 +554,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     Part toPart;
     double[] toPartCapacities;
     double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferCurrent || pendingOption.leftToRightTransferPending) {
+    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
       fromPart = pendingOption.leftPart;
       fromPartCapacities = pendingOption.leftCapacities;
       fromPartAmounts = pendingOption.leftAmounts;
       toPart = pendingOption.rightPart;
       toPartCapacities = pendingOption.rightCapacities;
       toPartAmounts = pendingOption.rightAmounts;
-    } else if (pendingOption.rightToLeftTransferCurrent || pendingOption.rightToLeftTransferPending) {
+    } else if (pendingOption.rightToLeftTransferPress || pendingOption.rightToLeftTransferToggle) {
       fromPart = pendingOption.rightPart;
       fromPartCapacities = pendingOption.rightCapacities;
       fromPartAmounts = pendingOption.rightAmounts;
@@ -591,7 +579,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
 
     // Below a tricky logic starts. It's intendent to properly work with the mixtures of multiple
-    // resources. When moving a mixture we should know in advance how much amount of each component
+    // resources. When moving a mixture, we should know in advance how much amount of each component
     // can be transferred before the capacity/reserve limit hit.
     var resources = pendingOption.resources;
     var moveAmounts = new double[pendingOption.resources.Length];
