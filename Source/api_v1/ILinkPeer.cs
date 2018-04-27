@@ -49,7 +49,7 @@ public interface ILinkPeer {
   ILinkPeer otherPeer { get; }
 
   /// <summary>The persisted ID of the linked part of the other peer.</summary>
-  /// <value>The flight ID of the part.</value>
+  /// <value>The flight ID of the part or <c>0</c>.</value>
   /// <remarks>This value must be available during the vessel loading.</remarks>
   uint linkPartId { get; }
 

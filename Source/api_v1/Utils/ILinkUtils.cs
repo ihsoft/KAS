@@ -14,7 +14,7 @@ public interface ILinkUtils {
   /// It's discouraged to implement this logic in the own code since the linking approach may change
   /// in the future versions.
   /// </remarks>
-  /// <param name="srcPeer">THe peer to find a target for.</param>
+  /// <param name="srcPeer">The peer to find a target for.</param>
   /// <returns>The peer or <c>null</c> if no valid target was found.</returns>
   ILinkPeer FindLinkPeer(ILinkPeer srcPeer);
 
