@@ -106,6 +106,13 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <seealso cref="otherPeer"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkPartId;
+
+  /// <summary>The other peer's module index in the last save action.</summary>
+  /// <remarks>Normally, the base class handles it.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <seealso cref="otherPeer"/>
+  [KSPField(isPersistant = true)]
+  public int persistedLinkModuleIndex = -1;
   #endregion
 
   #region ILinkPeer properties implementation
@@ -139,6 +146,9 @@ public abstract class AbstractLinkPeer : PartModule,
       var oldPeer = _otherPeer;
       _otherPeer = value;
       persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
+      persistedLinkModuleIndex = _otherPeer != null
+          ? _otherPeer.part.Modules.IndexOf(_otherPeer as PartModule)
+          : -1;
       OnPeerChange(oldPeer);
     }
   }
@@ -147,6 +157,11 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public uint linkPartId {
     get { return persistedLinkPartId; }
+  }
+
+  /// <inheritdoc/>
+  public int linkModuleIndex {
+    get { return persistedLinkModuleIndex; }
   }
 
   /// <inheritdoc/>
@@ -325,9 +340,18 @@ public abstract class AbstractLinkPeer : PartModule,
     if (persistedLinkState == LinkState.Linked) {
       RestoreOtherPeer();
       if (otherPeer == null) {
-        HostedDebugLog.Error(
-            this, "Cannot restore the link's peer: tgtPartID={0}", persistedLinkPartId);
+        HostedDebugLog.Error(this, "Cannot restore the link's peer");
         persistedLinkState = LinkState.Available;
+        if (coupleNode != null && coupleNode.attachedPart != null) {
+          // Decouple the coupled part if the link cannor be restored. It'll allow the player to
+          // restore the game status without hacking the save files.
+          AsyncCall.CallOnEndOfFrame(
+              this, () => {
+                if (coupleNode.attachedPart != null) {  // The part may get decoupled already.
+                  KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+                }
+              });
+        }
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }

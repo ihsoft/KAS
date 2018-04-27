@@ -53,6 +53,11 @@ public interface ILinkPeer {
   /// <remarks>This value must be available during the vessel loading.</remarks>
   uint linkPartId { get; }
 
+  /// <summary>The persisted index of the module on the part of the other peer.</summary>
+  /// <value>The module index or <c>-1</c>.</value>
+  /// <remarks>This value must be available during the vessel loading.</remarks>
+  int linkModuleIndex { get; }
+
   /// <summary>
   /// Transform that defines the position and orientation of the base node to which all the
   /// renderers and physical anchors are aligned.

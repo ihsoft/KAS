@@ -12,14 +12,35 @@ namespace KASImpl {
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkPeer FindLinkPeer(ILinkPeer srcPeer) {
-    if (srcPeer.linkPartId > 0) {
-      var tgtPeer = FlightGlobals.FindPartByID(srcPeer.linkPartId);
-      if (tgtPeer != null) {
-        return tgtPeer.Modules.OfType<ILinkPeer>().FirstOrDefault(
-            p => p.isLinked && p.linkPartId == srcPeer.part.flightID);
-      }
+    if (srcPeer.linkPartId == 0 || srcPeer.linkModuleIndex == -1) {
+      DebugEx.Error("Bad target part definition [Part:(id=F{0}#Module:{1}]",
+                    srcPeer.linkPartId, srcPeer.linkModuleIndex);
+      return null;
     }
-    return null;
+    var tgtPart = FlightGlobals.FindPartByID(srcPeer.linkPartId);
+    if (tgtPart == null) {
+      DebugEx.Error("Cannot find [Part:(id=F{0})]", srcPeer.linkPartId);
+      return null;
+    }
+    if (srcPeer.linkModuleIndex >= tgtPart.Modules.Count) {
+      DebugEx.Error("The target part {0} doesn't have a module at index {1}",
+                    tgtPart, srcPeer.linkModuleIndex);
+      return null;
+    }
+    var tgtPeer = tgtPart.Modules[srcPeer.linkModuleIndex] as ILinkPeer;
+    if (tgtPeer == null) {
+      DebugEx.Error("The target module {0} is not a link peer",
+                    tgtPart.Modules[srcPeer.linkModuleIndex]);
+      return null;
+    }
+    if (!tgtPeer.isLinked || tgtPeer.linkPartId != srcPeer.part.flightID
+        || tgtPeer.linkModuleIndex != srcPeer.part.Modules.IndexOf(srcPeer as PartModule)) {
+      DebugEx.Error("Source module {0} cannot be linked with the target module {1}",
+                    srcPeer.part.Modules[tgtPeer.linkModuleIndex],
+                    tgtPart.Modules[srcPeer.linkModuleIndex]);
+      return null;
+    }
+    return tgtPeer;
   }
 
   /// <inheritdoc/>
