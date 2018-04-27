@@ -67,20 +67,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       description: "Message to display when the target link type doesn't match the source type.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message CannotLinkToTheSameVesselMsg = new Message(
-      "#kasLOC_02001",
-      defaultTemplate:  "Cannot link to the same vessel",
-      description: "Message to display when the link mode requires the target to belong to a"
-      + " different vessel but it belongs to the same vessel as the source.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message CannotLinkDifferentVesselsMsg = new Message(
-      "#kasLOC_02002",
-      defaultTemplate: "Cannot link different vessels",
-      description: "Message to display when the link mode requires the target to belong to the same"
-      + " vessel but it belongs to a different vessel.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
       "#kasLOC_02003",
       defaultTemplate: "Source is not available for a link",
@@ -114,20 +100,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       description: "Title of the module to present in the editor details window.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message LinkModeTiePartsOnDifferentVesselsInfo = new Message(
-      "#kasLOC_02009",
-      defaultTemplate: "Links to another vessel",
-      description: "Info string in the editor that tells if the part acn establish a link to"
-      + " another vessel without docking.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message LinkModeTiePartsOnSameVesselInfo = new Message(
-      "#kasLOC_02010",
-      defaultTemplate: "Links to the same vessel",
-      description: "Info string in the editor that tells if the part can establish a link to"
-      + " another part of the same vessel,");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DockedModeMenuTxt = new Message(
       "#kasLOC_02011",
       defaultTemplate: "Link mode: DOCKED",
@@ -142,11 +114,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       description: "The name of the part's context menu event that triggers a merging of the"
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
       + " gives a currently selected state.");
-  #endregion
-
-  #region ILinkSource config properties implementation
-  /// <inheritdoc/>
-  public LinkMode cfgLinkMode { get { return linkMode; } }
   #endregion
 
   #region ILinkSource properties implementation
@@ -170,11 +137,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   [KSPField]
   public bool showCouplingUi;
   
-  /// <summary>See <see cref="cfgLinkMode"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public LinkMode linkMode = LinkMode.TieAnyParts;
-
   /// <summary>Name of the renderer that draws the link.</summary>
   /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
@@ -387,16 +349,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
-    sb.AppendLine();
-
-    if (linkMode == LinkMode.TiePartsOnDifferentVessels || linkMode == LinkMode.TieAnyParts) {
-      sb.AppendLine(ScreenMessaging.SetColorToRichText(
-          LinkModeTiePartsOnDifferentVesselsInfo, Color.cyan));
-    }
-    if (linkMode == LinkMode.TiePartsOnSameVessel || linkMode == LinkMode.TieAnyParts) {
-      sb.AppendLine(ScreenMessaging.SetColorToRichText(
-          LinkModeTiePartsOnSameVesselInfo, Color.cyan));
-    }
     return sb.ToString();
   }
 
@@ -599,13 +551,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     if (cfgLinkType != target.cfgLinkType) {
       errors.Add(IncompatibleTargetLinkTypeMsg);
-    }
-    if (linkMode == LinkMode.TiePartsOnDifferentVessels
-        && vessel == target.part.vessel) {
-      errors.Add(CannotLinkToTheSameVesselMsg);
-    }
-    if (linkMode == LinkMode.TiePartsOnSameVessel && vessel != target.part.vessel) {
-      errors.Add(CannotLinkDifferentVesselsMsg);
     }
     return errors.ToArray();
   }

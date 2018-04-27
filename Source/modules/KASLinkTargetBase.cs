@@ -211,19 +211,7 @@ public class KASLinkTargetBase :
   /// </returns>
   protected virtual bool CheckCanLinkWith(ILinkSource source) {
     // Cannot attach to itself or incompatible link type.
-    if (part == source.part || cfgLinkType != source.cfgLinkType) {
-      return false;
-    }
-    // Check if same vessel part links are enabled. 
-    if (source.part.vessel == vessel
-        && (source.cfgLinkMode == LinkMode.TiePartsOnSameVessel
-            || source.cfgLinkMode == LinkMode.TieAnyParts)) {
-      return true;
-    }
-    // Check if different vessel part links are enabled. 
-    if (source.part.vessel != vessel
-        && (source.cfgLinkMode == LinkMode.TiePartsOnDifferentVessels
-            || source.cfgLinkMode == LinkMode.TieAnyParts)) {
+    if (part != source.part && cfgLinkType == source.cfgLinkType) {
       return true;
     }
     // Link is not allowed.

@@ -81,11 +81,6 @@ namespace KASAPIv1 {
 /// </example>
 /// <example><code source="Examples/ILinkSource-Examples.cs" region="StateModel"/></example>
 public interface ILinkSource : ILinkPeer {
-  /// <summary>Defines to what parts this source can link to.</summary>
-  /// <value>The linking mode.</value>
-  /// <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectParts"/></example>
-  LinkMode cfgLinkMode { get; }
-  
   /// <summary>Target of the link.</summary>
   /// <value>Target or <c>null</c> if nothing is linked.</value>
   /// <remarks>It only defined for an established link.</remarks>
