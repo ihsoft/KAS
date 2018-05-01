@@ -126,10 +126,10 @@ public class KASLinkTargetBase :
     if (linkStateMachine.currentState != null && oldSource != linkSource) {
       var linkInfo = new KASEvents.LinkEvent(linkSource ?? oldSource, this);
       if (linkSource != null) {
-        part.FindModulesImplementing<ILinkStateEventListener>()
+        part.Modules.OfType<ILinkStateEventListener>().ToList()
             .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
       } else {
-        part.FindModulesImplementing<ILinkStateEventListener>()
+        part.Modules.OfType<ILinkStateEventListener>().ToList()
             .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: false));
       }
     }

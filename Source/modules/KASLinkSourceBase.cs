@@ -487,7 +487,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     linkState = LinkState.Linked;
     linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     KASEvents.OnLinkCreated.Fire(linkInfo);
-    part.FindModulesImplementing<ILinkStateEventListener>()
+    part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
   }
 
@@ -508,7 +508,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     linkActor = LinkActorType.None;
     KASEvents.OnLinkBroken.Fire(linkInfo);
-    part.FindModulesImplementing<ILinkStateEventListener>()
+    part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: false));
   }
 
