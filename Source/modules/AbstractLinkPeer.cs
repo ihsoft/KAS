@@ -489,7 +489,8 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <inheritdoc/>
   public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-    if (dependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
+    if (ownerPeer.cfgAttachNodeName == attachNodeName
+        || dependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
       // This is a notification handler, so don't use the isNodeBlocked property to not trigger
       // more notifications.
       //FIXME: fix the comment when migrated to the setter methods.
