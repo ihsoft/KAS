@@ -305,8 +305,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  protected override void CheckAttachNode() {
-    base.CheckAttachNode();
+  protected override void CheckCoupleNode() {
+    base.CheckCoupleNode();
     if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
       var target = parsedAttachNode.attachedPart.Modules
           .OfType<ILinkTarget>()

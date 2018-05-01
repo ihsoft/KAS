@@ -269,7 +269,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
-      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+      AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
   #endregion
@@ -373,7 +373,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void OnPartUnpack() {
     // The check may want to establish a link, but this will only succeed if the physics has
     // started.
-    AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+    AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
   }
 
   /// <inheritdoc/>
@@ -382,14 +382,14 @@ public abstract class AbstractLinkPeer : PartModule,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Fires when the attach node needs to be checked for a possible state change.</summary>
+  /// <summary>Fires when the couple node needs to be checked for a possible state change.</summary>
   /// <remarks>
   /// This method is called asynchronously at the end of frame. The triggering of this call doesn't
-  /// mean the attach node state has changed. It only means that it could have changed. The code is
-  /// responsible to verify it and act accordignly. Examples of the changed state are: a part has
-  /// been attached to the node by the external code, or the part has been detached from the node.
+  /// mean the node state has changed. It only means that it could have changed, and something has
+  /// either coupled with or decoupled from the node. The code is responsible to verify it and act
+  /// accordignly.
   /// </remarks>
-  protected virtual void CheckAttachNode() {
+  protected virtual void CheckCoupleNode() {
     if (isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
       // Ensure the auto node is removed and is cleared from the attached part if not used.
       KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
@@ -507,7 +507,7 @@ public abstract class AbstractLinkPeer : PartModule,
       node = action.to.FindPartThroughNodes(action.from);
     }
     if (node != null && node.id == attachNodeName) {
-      AsyncCall.CallOnEndOfFrame(this, CheckAttachNode);
+      AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
   #endregion

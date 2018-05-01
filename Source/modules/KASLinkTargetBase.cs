@@ -136,8 +136,8 @@ public class KASLinkTargetBase :
   }
 
   /// <inheritdoc/>
-  protected override void CheckAttachNode() {
-    base.CheckAttachNode();
+  protected override void CheckCoupleNode() {
+    base.CheckCoupleNode();
     // The source is responsible to handle the link, which may be done at the end of frame. So put
     // our check at the end of the frame queue to go behind any delayed actions.
     AsyncCall.CallOnEndOfFrame(this, () => {
