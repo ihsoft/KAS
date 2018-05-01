@@ -473,17 +473,10 @@ public abstract class AbstractLinkPeer : PartModule,
     var peer = info.source.part == part
         ? info.source as ILinkPeer
         : info.target as ILinkPeer;
-    if (ReferenceEquals(peer, this)
-        || (peer.cfgAttachNodeName != attachNodeName
-            && !dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
-      return;  // Nothing to do.
-    }
-    if (isLinked) {
-      isLocked = true;
-    } else {
-      if (isLocked) {  // Ensure we're not trying to reset a custom mode. 
-        isLocked = false;
-      }
+    if (!ReferenceEquals(peer, this)
+        && (peer.cfgAttachNodeName == attachNodeName
+            || !dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
+      isLocked = isLinked;
     }
   }
 
