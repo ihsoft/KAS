@@ -78,7 +78,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// The module will track the nodes and adjust its state as they were owned by the module. This
   /// can be used to lock/block the peer modules that control the different nodes, but need to
   /// cooperate with the other similar modules on the part. By setting the dependent nodes it's
-  /// possible to define a group of peer modules which only allows linking of a single module at the
+  /// possible to define a group of peer modules which only allow linking of a single module at the
   /// time.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>

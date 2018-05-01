@@ -91,13 +91,21 @@ public interface ILinkPeer {
   /// <seealso cref="linkState"/>
   bool isLinked { get; }
 
-  /// <summary>Tells if the peer's link ability is disabled.</summary>
+  /// <summary>
+  /// Tells if the peer's link ability is disabled due to it's attach node is taken by another peer
+  /// on the same part.
+  /// </summary>
+  /// <remarks>
+  /// When multiple peers on the part share the same attach node, only one of them can make a link
+  /// via this node. Once the attach node is used for a link, the other peers gets locked and don't
+  /// interfere until the link is broken and the node is released.
+  /// </remarks>
   /// <value>The locked state.</value>
   /// <seealso cref="linkState"/>
   /// <seealso cref="isNodeBlocked"/>
   bool isLocked { get; }
 
-  /// <summary>Tells if the peer's attach node is occupied by an incpompatible part.</summary>
+  /// <summary>Tells if the peer's attach node is occupied by an incompatible part.</summary>
   /// <value>
   /// <c>true</c> if the state is <see cref="LinkState.NodeIsBlocked"/>, or <c>false</c>, otherwise.
   /// </value>

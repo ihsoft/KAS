@@ -11,10 +11,10 @@ namespace KASAPIv1 {
 /// needs to implement this interface.
 /// </remarks>
 public interface ILinkStateEventListener {
-  /// <summary>Triggers when any module on the part has create a link.</summary>
+  /// <summary>Triggers when any module on the part has created a link.</summary>
   /// <remarks>
-  /// This is a notification event. When it triggers, the modules, involved in the link, has
-  /// completed their settings.
+  /// This is a notification event. When it triggers, the modules, involved in the link, has already
+  /// completed their settings change.
   /// </remarks>
   /// <param name="info">The source and target information about the link.</param>
   /// <param name="isLinked">The new link state.</param>
