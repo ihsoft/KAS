@@ -38,6 +38,25 @@ public interface ILinkPeer {
   /// </remarks>
   string cfgAttachNodeName { get; }
 
+  /// <summary>
+  /// List of the attach node names, which this module doesn't own, but wants to align the state
+  /// with.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The module will track the nodes, and will adjust its state as those nodes were owned by the
+  /// module. However, this module will never change the mode of those nodes. This can be used to
+  /// lock or block the peer modules that control the different primary nodes, but need to cooperate
+  /// with the other similar modules on the part. This settings allows defining a group of peer
+  /// modules which only allow linking of a single module at the time.
+  /// </para>
+  /// <para>
+  /// Note, that the <seealso cref="cfgAttachNodeName"/> is <i>not</i> present in this list by
+  /// default. The implementations should explicitly check the primary node when appropriate.
+  /// </para>
+  /// </remarks>
+  string[] cfgDependentNodeNames { get; }
+
   /// <summary>Current state of the peer.</summary>
   /// <value>The current state.</value>
   /// <seealso cref="isLinked"/>

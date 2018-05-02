@@ -123,6 +123,17 @@ public abstract class AbstractLinkPeer : PartModule,
   public string cfgAttachNodeName { get { return attachNodeName; } }
 
   /// <inheritdoc/>
+  public string[] cfgDependentNodeNames {
+    get {
+      if (_dependentNodeNames == null) {
+        _dependentNodeNames = dependentNodes.Split(new[] {','});
+      }
+      return _dependentNodeNames;
+    }
+  }
+  string[] _dependentNodeNames;
+
+  /// <inheritdoc/>
   /// <seealso cref="persistedLinkState"/>
   public LinkState linkState {
     get {
@@ -250,19 +261,6 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <summary>Tells if the attach node in this module is dynamically created when needed.</summary>
   /// <value><c>true</c> if the node only exists for the coupling.</value>
   protected bool isAutoAttachNode { get; private set; }
-
-  /// <summary>
-  /// Accessor to the dependent nodes setting. See <see cref="dependentNodes"/>
-  /// </summary>
-  protected string[] dependentNodeNames {
-    get {
-      if (_dependentNodeNames == null) {
-        _dependentNodeNames = dependentNodes.Split(new[] {','});
-      }
-      return _dependentNodeNames;
-    }
-  }
-  string[] _dependentNodeNames;
   #endregion
 
   #region IActivateOnDecouple implementation
@@ -352,6 +350,13 @@ public abstract class AbstractLinkPeer : PartModule,
                 }
               });
         }
+        // This may break a lot of logic, built on top of the KAS basic modules. However, it will
+        // allow the main logic to work. Given it's a fallback, it's OK.
+        part.Modules.OfType<AbstractLinkPeer>()
+            .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
+                                       || p.cfgDependentNodeNames.Contains(attachNodeName)))
+            .ToList()
+            .ForEach(m => m.isLocked = false);
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }
@@ -475,7 +480,7 @@ public abstract class AbstractLinkPeer : PartModule,
         : info.target as ILinkPeer;
     if (!ReferenceEquals(peer, this)
         && (peer.cfgAttachNodeName == attachNodeName
-            || !dependentNodeNames.Contains(peer.cfgAttachNodeName))) {
+            || !cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
       isLocked = isLinked;
     }
   }
@@ -483,7 +488,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
     if (ownerPeer.cfgAttachNodeName == attachNodeName
-        || dependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
+        || cfgDependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
       // This is a notification handler, so don't use the isNodeBlocked property to not trigger
       // more notifications.
       //FIXME: fix the comment when migrated to the setter methods.
