@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.31</name>
+        <name>KSPDev_Utils.0.33</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -865,6 +865,10 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentField.ReadFromConfig(ConfigNode,System.Object)">
             <summary>Reads the field from a config node.</summary>
+            <remarks>
+            The readonly fields will be refused. In spite of they can be changed via reflections, there
+            are the edge cases, which this code won't handle. 
+            </remarks>
             <param name="node">The node to read the state from.</param>
             <param name="instance">
             The owner of the field. It can be <c>null</c> for the static fields.
@@ -901,9 +905,10 @@
         <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
             <summary>A simple attribute for the fields that need (de)serialization.</summary>
             <remarks>
-            This form allows adjusting any <see cref="T:KSPDev.ConfigUtils.BasePersistentFieldAttribute"/> property
-            in the annotation, and has a shortcut to mark a field as a collection
-            (<c><see cref="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection"/> = true</c>).
+            <para>
+            The readonly fields cannot be restored from a persistent state. However, they can be written
+            out.
+            </para>
             <para>
             By default the ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
             and the collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
@@ -1300,6 +1305,150 @@
             <summary>Returns full path to the plugins root folder (a.k.a. <c>GameData</c>).</summary>
             <value>The full path to the plugins folder.</value>
         </member>
+        <member name="T:KSPDev.GUIUtils.GUILayoutButtons">
+            <summary>Utility class to help building GUI layout buttons.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutButtons.Push(System.Boolean,UnityEngine.GUIContent,UnityEngine.GUIStyle,UnityEngine.GUILayoutOption[],System.Action,System.Action,KSPDev.GUIUtils.GuiActionsList)">
+            <summary>Makes a button that fires a callback when pressed or released.</summary>
+            <remarks>
+            The callbacks are only fired once for every state change, and are guarnteed to not be called
+            during the layout phase. The callback is called *after* the state is updated. 
+            </remarks>
+            <param name="btnState">The current press state of the button.</param>
+            <param name="guiCnt">The GUI content to present as the button's caption.</param>
+            <param name="style">The GUI style of the control.</param>
+            <param name="options">
+            The GUILayout options to apply to the control. It can be <c>null</c>.
+            </param>
+            <param name="fnPush">
+            The callback to call when the button is pressed. Can be <c>null</c>.
+            </param>
+            <param name="fnRelease">
+            The callback to call when the button is released. Can be <c>null</c>.
+            </param>
+            <param name="actionsList">
+            The action list to add to use to fire a callback. If the list is onitted, then the callback is
+            fired right away.
+            </param>
+            <returns>The new button press state.</returns>
+            <seealso cref="T:KSPDev.GUIUtils.GuiActionsList"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutButtons.Toggle(System.Boolean,UnityEngine.GUIContent,UnityEngine.GUIStyle,UnityEngine.GUILayoutOption[],System.Action,System.Action,KSPDev.GUIUtils.GuiActionsList)">
+            <summary>Makes a toggle control that fires a callback when the state changes.</summary>
+            <remarks>
+            The callbacks are only fired once for every state change, and are guaranteed to not be called
+            during the layout phase. The callback is called *after* the state is updated.
+            </remarks>
+            <param name="btnState">The current toggle state.</param>
+            <param name="guiCnt">The GUI content to present as the button's caption.</param>
+            <param name="style">The GUI style of the control.</param>
+            <param name="options">
+            The GUILayout options to apply to the control. It can be <c>null</c>.
+            </param>
+            <param name="fnOn">
+            The callback to call when the control is checked. Can be <c>null</c>.
+            </param>
+            <param name="fnOff">The callback to call when the control is checked. Can be <c>null</c>.
+            </param>
+            <param name="actionsList">
+            The action list to add to use to fire a callback. If the list is onitted, then the callback is
+            fired right away.
+            </param>
+            <returns>The new button toggle state.</returns>
+            <seealso cref="T:KSPDev.GUIUtils.GuiActionsList"/>
+        </member>
+        <member name="T:KSPDev.GUIUtils.GUILayoutStringTable">
+            <summary>Utility class to draw a simple table with the text colum contents.</summary>
+            <remarks>
+            <para>
+            This table cannot hold non-string content. It keeps all the columns to be of the same, and the
+            size is adjusted to the maximum column's size in the rows. There is a one frame delay between
+            the content change and the column resizing, which may result in flickering if the content
+            changes too frequently. The columns try to take as small space as possible, so defining the
+            minimum size may be a good bet.
+            </para>
+            <para>
+            This class is designed to be called on every frame. It's heavily performance optimized.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GUILayoutStringTable.currentIndex">
+            <summary>Index of the curently rendered column.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GUILayoutStringTable.columnWidths">
+            <summary>Current frame maximum widths of the columns.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GUILayoutStringTable.lastFrameColumnWidths">
+            <summary>The maximum widths of the columns from the previous frame.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.#ctor(System.Int32)">
+            <summary>Creates a table of the specified column width.</summary>
+            <remarks>
+            It's OK to render more columns than reserved. They won't resized, but it's not an error.
+            </remarks>
+            <param name="columns">The number of columns to track.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.UpdateFrame">
+            <summary>Updates the table state each frame toremember the best column size values.</summary>
+            <remarks>
+            This method is only interested in the <c>EventType.Layout</c> phase, so no need to call it on
+            each GUI event when there is a cheap way to detect it.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.StartNewRow">
+            <summary>Tells that a new row is about to be rendered.</summary>
+            <remarks>Call it before every new row.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.AddTextColumn(System.String,UnityEngine.GUIStyle)">
+            <summary>Adds a text column into the table.</summary>
+            <param name="text">The text to add.</param>
+            <param name="style">
+            The style to apply to the text. If not set, then <c>GUI.skin.label</c> is used.
+            </param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.AddTextColumn(System.String,KSPDev.GUIUtils.LocalizableMessage,UnityEngine.GUIStyle)">
+            <summary>Adds a text column into the table.</summary>
+            <param name="text">The text to add.</param>
+            <param name="message">The localizable message to get the minimum size from.</param>
+            <param name="style">
+            The style to apply to the text. If not set, then <c>GUI.skin.label</c> is used.
+            </param>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.AddTextColumn(System.String,System.String,UnityEngine.GUIStyle)">
+            <summary>Adds a text column into the table with a value tooltip.</summary>
+            <param name="text">The text to add.</param>
+            <param name="tooltip">
+            The tooltip for the column value. Note, that the tooltip is not handled by the table, it gets
+            rendered by the Unity GUI functionality, which may need to be configured.
+            </param>
+            <param name="style">
+            The style to apply to the text. If not set, then <c>GUI.skin.label</c> is used.
+            </param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.AddTextColumn(System.String,System.String,KSPDev.GUIUtils.LocalizableMessage,UnityEngine.GUIStyle)">
+            <summary>Adds a text column into the table with a value tooltip.</summary>
+            <param name="text">The text to add.</param>
+            <param name="tooltip">
+            The tooltip for the column value. Note, that the tooltip is not handled by the table, it gets
+            rendered by the Unity GUI functionality, which may need to be configured.
+            </param>
+            <param name="message">The localizable message to get the minimum size from.</param>
+            <param name="style">
+            The style to apply to the text. If not set, then <c>GUI.skin.label</c> is used.
+            </param>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GUILayoutStringTable.AddTextColumn(UnityEngine.GUIContent,UnityEngine.GUIStyle,System.Single,System.Single)">
+            <summary>Adds a content into the table column.</summary>
+            <remarks>
+            When possible, this method should be preferred over the other methods, which are simply the
+            shortcuts to this one.</remarks>
+            <param name="content">The text/tooltip content of the column to add.</param>
+            <param name="style">The style to apply to the text.</param>
+            <param name="minWidth">The minimum width of the column.</param>
+            <param name="maxWidth">The maximum width of the column.</param>
+        </member>
         <member name="T:KSPDev.GUIUtils.IHasGUI">
             <summary>Generic interface for the modules that implement a GUI events handling.</summary>
         </member>
@@ -1348,42 +1497,6 @@
             The descendants may want to react on the callback as well.
             </remarks>
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo2"/></example>
-        </member>
-        <member name="T:KSPDev.GUIUtils.KSPUtilsGUILayout">
-            <summary>Utility class to help building various GUILayout controls.</summary>
-        </member>
-        <member name="M:KSPDev.GUIUtils.KSPUtilsGUILayout.PushButton(System.Boolean@,UnityEngine.GUIContent,UnityEngine.GUIStyle,UnityEngine.GUILayoutOption[],System.Action,System.Action)">
-            <summary>Makes a button that fires a callback when pressed or released.</summary>
-            <remarks>
-            The callabacks are only fired once for every state change, and are guarnteed to not be called
-            during the layout phase. The callback is called *after* the state is updated. 
-            </remarks>
-            <param name="btnState">The state to read and modify.</param>
-            <param name="guiCnt">The GUI content to present as the button's caption.</param>
-            <param name="style">The GUI style of the control.</param>
-            <param name="options">The GUILayout options to apply to the control.</param>
-            <param name="fnPush">The callback to call when the button is pressed.</param>
-            <param name="fnRelease">The callback to call when the button is released.</param>
-        </member>
-        <member name="M:KSPDev.GUIUtils.KSPUtilsGUILayout.ToggleButton(System.Boolean@,UnityEngine.GUIContent,UnityEngine.GUIStyle,UnityEngine.GUILayoutOption[],System.Action,System.Action)">
-            <summary>Makes a toggle control that fires a callback when teh state changes.</summary>
-            <remarks>
-            <para>
-            The callabacks are only fired once for every state change, and are guarnteed to not be called
-            during the layout phase. The callback is called *after* the state is updated.
-            </para>
-            <para>
-            The <c>GUI.changed</c> state is preserved by these control. I.e. if the button state has
-            changed, then <c>GUI.changed</c> will be <c>true</c>. Otherwise, it will retain its value
-            before entering the method.
-            </para>
-            </remarks>
-            <param name="btnState">The state to read and modify.</param>
-            <param name="guiCnt">The GUI content to present as the button's caption.</param>
-            <param name="style">The GUI style of the control.</param>
-            <param name="options">The GUILayout options to apply to the control.</param>
-            <param name="fnOn">The callback to call when the control is checked.</param>
-            <param name="fnOff">The callback to call when the control is released.</param>
         </member>
         <member name="T:KSPDev.GUIUtils.MessageLookup`1">
             <summary>Holds a mapping of a value to a localized message.</summary>
@@ -1601,6 +1714,11 @@
             cached and reused in the subsequent calls. The cache can be reset by incrementing the
             <see cref="F:KSPDev.GUIUtils.LocalizableMessage.systemLocVersion"/>.
             </para>
+            <para>
+            The template of the messages supports special tags that may give a hint to the caller code on
+            how the messages should be rendered. Those tags must be palced at the beginning of the template.
+            For the available tags see <see cref="T:KSPDev.GUIUtils.LocalizableMessage.GuiTags"/>.
+            </para>
             </remarks>
             <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
             <seealso cref="F:KSPDev.GUIUtils.LocalizableMessage.systemLocVersion"/>
@@ -1637,6 +1755,15 @@
             <item name="T:KSP.Localization.Localizer">
   <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
 </item>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.guiTags">
+            <summary>GUI specific settings that suggest how to show the message.</summary>
+            <remarks>
+            Due to the lazzy update nature of the localized messages, these settings are <i>not</i>
+            loaded until the message is used at least once. The caller code may ensure the values are
+            updated by calling to <see cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/>, or by simply getting the
+            <see cref="P:KSPDev.GUIUtils.LocalizableMessage.localizedTemplate"/> value.
+            </remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.loadedLocVersion">
             <summary>Currently cached version of the localization content.</summary>
@@ -1679,6 +1806,9 @@
             </param>
             <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
         </member>
+        <member name="M:KSPDev.GUIUtils.LocalizableMessage.HandleSpecialTags">
+            <summary>Handles any special tags that can prefix the actual template.</summary>
+        </member>
         <member name="P:KSPDev.GUIUtils.LocalizableMessage.localizedTemplate">
             <summary>Localized Lingoona Grammar template for the <c>tag</c>.</summary>
             <remarks>
@@ -1704,6 +1834,29 @@
             <item name="T:KSP.Localization.Localizer">
   <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
 </item>
+        </member>
+        <member name="T:KSPDev.GUIUtils.LocalizableMessage.GuiTags">
+            <summary>Various values that give hints on how the messages should be presented in GUI.</summary>
+            <remarks>
+            It's up to the caller to handle theses settings. They improve the appearence, but are not
+            required for the proper content presentation.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.minWidth">
+            <summary>Minimum width of the area in GUI.</summary>
+            <remarks>Defined via tag: &lt;gui:min:width,heigth&gt;</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.minHeight">
+            <summary>Minimum height of the area in GUI.</summary>
+            <remarks>Defined via tag: &lt;gui:min:width,heigth&gt;</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.maxWidth">
+            <summary>Maximum width of the area in GUI.</summary>
+            <remarks>Defined via tag: &lt;gui:max:width,heigth&gt;</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.maxHeight">
+            <summary>Maximum height of the area in GUI.</summary>
+            <remarks>Defined via tag: &lt;gui:max:width,heigth&gt;</remarks>
         </member>
         <member name="T:KSPDev.GUIUtils.LocalizationLoader">
             <summary>A utility class to localize the annotated members</summary>
@@ -2318,7 +2471,7 @@
         <member name="F:KSPDev.GUIUtils.GuiActionsList.guiActions">
             <summary>A list of pending actions.</summary>
         </member>
-        <member name="M:KSPDev.GUIUtils.GuiActionsList.Add(KSPDev.GUIUtils.GuiActionsList.GuiAction)">
+        <member name="M:KSPDev.GUIUtils.GuiActionsList.Add(System.Action)">
             <summary>Adds an action to the pending list.</summary>
             <param name="actionFn">An action callback.</param>
         </member>
@@ -2327,9 +2480,6 @@
             <remarks>It's safe to call this method in every pass. It will detect when it's safe to apply
             the changes and apply the changes only once per a frame.</remarks>
             <returns><c>true</c> if actions have been applied.</returns>
-        </member>
-        <member name="T:KSPDev.GUIUtils.GuiActionsList.GuiAction">
-            <summary>GUI action type.</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.AngleType">
             <summary>
@@ -4190,6 +4340,37 @@
             <param name="args">The arguments for the format string.</param>
             <seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)"/>
         </member>
+        <member name="T:KSPDev.MathUtils.Mathd">
+            <summary>
+            Gives some common methods for handling dobule values in the game.
+            </summary>
+        </member>
+        <member name="F:KSPDev.MathUtils.Mathd.Epsilon">
+            <summary>Value which can be safely considered to be <c>0</c>.</summary>
+        </member>
+        <member name="M:KSPDev.MathUtils.Mathd.Approximately(System.Double,System.Double)">
+            <summary>Tells if the two double values look the same in the geme's units.</summary>
+            <remarks>
+            This method gives the same logic as <c>Mathf.Approximately</c>, but for the double values.
+            </remarks>
+            <param name="a">The first value to test.</param>
+            <param name="b">The second value to test.</param>
+            <returns>
+            <c>true</c> if the values difference is negligible from the game's perspective.
+            </returns>
+        </member>
+        <member name="M:KSPDev.MathUtils.Mathd.AreSame(System.Double,System.Double)">
+            <summary>Tells if the two double are the same, allowing some small error.</summary>
+            <remarks>
+            This method requires the difference between the values to be negligible. The absolute values
+            are not counted.
+            </remarks>
+            <param name="a">The first value to test.</param>
+            <param name="b">The second value to test.</param>
+            <returns>
+            <c>true</c> if the values difference is negligible.
+            </returns>
+        </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
             <summary>Helper methods to align transformations relative to each other.</summary>
         </member>
@@ -4445,10 +4626,11 @@
             </item>
             <item>
             <c>**</c> - any <i>path</i> matches. What will eventually be found depends on the pattern to
-            the right of <c>**</c>. The path match pattern does a "breadth-first" search, i.e. it tries to
-            find the shortest path possible. E.g. <c>**/a/b</c> will go through all the nodes starting
-            from the parent until path <c>a/b</c> is found. Be careful with this pattern since in case of
-            not matching anything it will walk thought the <i>whole</i> hirerachy.
+            the right of <c>**</c>. E.g. <c>**/a/b</c> will go through all the nodes starting from the
+            parent until path <c>a/b</c> is found. If multiple paths have matched the pattern, then the
+            shortest path will be returned. Be careful with this pattern since in case of not matching
+            anything it will walk thought the <i>whole</i> hirerachy, starting from
+            <paramref name="parent"/>.
             </item>
             </list>
             <para>
@@ -4472,7 +4654,7 @@
             <returns>Transform or <c>null</c> if nothing found.</returns>
             <example>
             Given the following hierarchy:
-            <code lang="c++"><![CDATA[
+            <code><![CDATA[
             // a
             // + b
             // | + c
@@ -4484,22 +4666,24 @@
             // |       + e1
             // + abc
             ]]></code>
-            <para>The following pattern/output will be possible:</para>
+            <para>Here are some matching examples:</para>
             <code><![CDATA[
-            // a/b/c/d/e/e1 => node "e1"
-            // a/b/*/d/e/e1 => node "e1"
-            // a/b/*/*/e/e1 => node "e1"
-            // a/b/c/c1 => node "с1"
-            // a/b/*:0 => branch "a/b/c/c1", node "c"
-            // a/b/*:1 => branch "a/b/c/d/e/e1", node "c"
-            // a/b/c:1/d => branch "a/b/c/d/e/e1", node "d"
-            // **/e1 => node "e1"
-            // **/c1 => node "c1"
-            // **/c/d => AMBIGUITY! The first found branch will be taken
-            // a/**/e1 => node "e1"
-            // *bc => node "abc"
-            // ab* => node "abc"
-            // *b* => node "abc"
+            // a/b/c/d/e/e1 => a/b/c/d/e/e1
+            // a/b/c/c1 => a/b/c/c1
+            // a/b/*/d/e/e1 => a/b/c/d/e/e1
+            // a/b/*/*/e/e1 => a/b/c/d/e/e1
+            // a/b/* => a/b/c, branch a/b/c/c1/d (the first match)
+            // a/b/*:0 => a/b/c, branch a/b/c/c1/d
+            // a/b/*:1 => a/b/c, branch a/b/c/d/e/e1
+            // a/b/c:1/d => a/b/c/d, branch a/b/c/d/e/e1
+            // **/e1 => a/b/c/d/e/e1
+            // **/c1 => a/b/c/c1
+            // **/c/d => a/b/c/d, branch a/b/c/d
+            // **/*c => a/abc. The other matched branch (a/b/c) will be refused due to the length. 
+            // a/**/e1 => a/b/c/d/e/e1
+            // *bc => a/abc
+            // ab* => a/abc
+            // *b* => a/abc
             ]]></code>
             </example>
             <seealso cref="M:KSPDev.ModelUtils.Hierarchy.UnescapeName(System.String)"/>
@@ -4567,6 +4751,9 @@
             </remarks>
             <param name="unescapedName">The raw name with any symbols.</param>
             <returns>A name where all the special symbols are properly escaped.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPathInternal(UnityEngine.Transform,System.String[],System.Int32,System.Int32@,UnityEngine.Transform@)">
+            <summary>Searches thru the nodes, implementing the BFS algorithm.</summary>
         </member>
         <member name="T:KSPDev.ModelUtils.KspLayer">
             <summary>Defines various layers used in the game.</summary>
@@ -5057,7 +5244,7 @@
         </member>
         <member name="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.#ctor(System.Boolean)">
             <summary>Constructs a new uninitialized state machine.</summary>
-            <param name="strict">Tells if all the transitions must be excplicitly declared.</param>
+            <param name="strict">Tells if all the transitions must be explicitly declared.</param>
             <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.isStrict"/>
             <seealso cref="P:KSPDev.ProcessingUtils.SimpleStateMachine`1.currentState"/>
             <seealso cref="M:KSPDev.ProcessingUtils.SimpleStateMachine`1.SetTransitionConstraint(`0,`0[])"/>
@@ -5290,35 +5477,62 @@
             <returns>An ID of the resource.</returns>
             <code source="Examples/ResourceUtils/StockResourceNames-Examples.cs" region="StockResourceNames1"/>
         </member>
-        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceTitle(System.String)">
+        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceTitle(System.String,System.Boolean)">
             <summary>Returns a user friendly name of the resource.</summary>
+            <remarks>
+            This could be a rather expensive call. Cach the result if the timing is critical.
+            </remarks>
             <param name="resourceName">The resource common name.</param>
+            <param name="removeLingoonaTags">
+            Specifies if any Lingoona tags on the name must be removed. Keep it default if the name is
+            intended to be used 'as-is". If the name is to be used as a parameter to localizable phrase,
+            then the tags should be kept.
+            </param>
             <returns>A user friendly string that identifies the resource.</returns>
             <code source="Examples/ResourceUtils/StockResourceNames-Examples.cs" region="StockResourceNames1"/>
         </member>
-        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceTitle(System.Int32)">
+        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceTitle(System.Int32,System.Boolean)">
             <summary>Returns a user friendly name of the resource.</summary>
+            <remarks>
+            This could be a rather expensive call. Cach the result if the timing is critical.
+            </remarks>
             <param name="resourceId">The resource ID.</param>
+            <param name="removeLingoonaTags">
+            Specifies if any Lingoona tags on the name must be removed. Keep it default if the name is
+            intended to be used 'as-is". If the name is to be used as a parameter to localizable phrase,
+            then the tags should be kept.
+            </param>
             <returns>A user friendly string that identifies the resource.</returns>
             <code source="Examples/ResourceUtils/StockResourceNames-Examples.cs" region="StockResourceNames1"/>
         </member>
-        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceAbbreviation(System.String)">
+        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceAbbreviation(System.String,System.Boolean)">
             <summary>Returns a user friendly name of the resource bsort name (abbreviation).</summary>
             <remarks>
             If the abbreviation is not set for the resource, then the first 3 letters of its display name
             are returned.
             </remarks>
             <param name="resourceName">The resource common name.</param>
+            <param name="removeLingoonaTags">
+            Specifies if any Lingoona tags on the name must be removed. Keep it default if the name is
+            intended to be used 'as-is". If the name is to be used as a parameter to localizable phrase,
+            then the tags should be kept.
+            </param>
             <returns>A user friendly string that identifies the resource.</returns>
             <code source="Examples/ResourceUtils/StockResourceNames-Examples.cs" region="StockResourceNames1"/>
         </member>
-        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceAbbreviation(System.Int32)">
+        <member name="M:KSPDev.ResourceUtils.StockResourceNames.GetResourceAbbreviation(System.Int32,System.Boolean)">
             <summary>Returns a user friendly name of the resource bsort name (abbreviation).</summary>
             <remarks>
             If the abbreviation is not set for the resource, then the first 3 letters of its display name
-            are returned.
+            are returned.  This could be a rather expensive call. Cach the result if the timing is
+            critical.
             </remarks>
             <param name="resourceId">The resource ID.</param>
+            <param name="removeLingoonaTags">
+            Specifies if any Lingoona tags on the name must be removed. Keep it default if the name is
+            intended to be used 'as-is". If the name is to be used as a parameter to localizable phrase,
+            then the tags should be kept.
+            </param>
             <returns>A user friendly string that identifies the resource.</returns>
             <code source="Examples/ResourceUtils/StockResourceNames-Examples.cs" region="StockResourceNames1"/>
         </member>
@@ -5341,7 +5555,7 @@
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.Types.PersistentConfigNode.Load(ConfigNode)">
-            <summary>Copies valus from a node.</summary>
+            <summary>Copies values from a node.</summary>
             <param name="node">The node to copy from.</param>
         </member>
         <member name="M:KSPDev.Types.PersistentConfigNode.Save(ConfigNode)">
