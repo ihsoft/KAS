@@ -341,9 +341,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       if (property != newValue) {
         if (property) {
           StopAllTransfers();
-          previousUpdate = Time.time;
         }
         property = newValue;
+        if (newValue) {
+          previousUpdate = Time.time;
+        }
       }
     }
   }
