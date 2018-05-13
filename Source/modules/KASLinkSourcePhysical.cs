@@ -344,7 +344,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>Anchor transform at the connector to attach with the part.</summary>
   protected Transform connectorPartAnchor { get; private set; }
 
-  /// <summary>Anchor transform at the woning part to attach the cable.</summary>
+  /// <summary>Anchor transform at the owning part to attach the cable.</summary>
   protected Transform partCableAnchor { get; private set; }
 
   /// <summary>State of the connector head.</summary>
