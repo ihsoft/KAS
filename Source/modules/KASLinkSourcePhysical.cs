@@ -177,6 +177,18 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   [KSPField]
   public string connectorCableAttachAtPosAndRot;
 
+  /// <summary>Offset from the link node for the physical connector to park.</summary>
+  /// <remarks>
+  /// When the connector is "locked" to the owner part, it will be placed here, aligned at the
+  /// connector's cable anchor.
+  /// </remarks>
+  /// <seealso cref="ILinkPeer.nodeTransform"/>
+  /// <seealso cref="connectorCableAttachAt"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
+  [KSPField]
+  public Vector3 connectorParkPositionOffset = Vector3.zero;
+
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
   /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
@@ -533,7 +545,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Locked,
         enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
+          connectorModelObj.parent = nodeTransform;
           PartModel.UpdateHighlighters(part);
           connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
               .ForEach(r => r.SetPropertyBlock(part.mpb));
@@ -547,7 +559,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Docked,
         enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;  // Ensure it for consistency.
+          connectorModelObj.parent = nodeTransform;
           AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, partCableAnchor);
           SetCableLength(0);
 
@@ -795,42 +807,64 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </para>
   /// </remarks>
   void LoadOrCreateConnectorModel() {
-    connectorModelObj = Hierarchy.FindPartModelByPath(part, connectorModel);
-    if (connectorModelObj != null) {
-      connectorCableAnchor = Hierarchy.FindTransformByPath(connectorModelObj, connectorCableAttachAt);
+    var ConnectorModelName = "ConnectorModel" + part.Modules.IndexOf(this);
+    var ConnectorParkAnchorName = "ConnectorParkAnchor" + part.Modules.IndexOf(this);
+    const string CableAnchorName = "CableAnchor";
+    const string PartAnchorName = "PartAnchor";
+    
+    if (!PartLoader.Instance.IsReady()) {
+      // Make the missing models and set the proper hierarchy.
+      connectorModelObj = Hierarchy.FindPartModelByPath(part, connectorModel);
+      connectorCableAnchor = connectorCableAttachAt != ""
+          ? Hierarchy.FindPartModelByPath(part, connectorCableAttachAt) : null;
+      connectorPartAnchor = connectorPartAttachAt != ""
+          ? Hierarchy.FindPartModelByPath(part, connectorPartAttachAt) : null;
+
+      if (connectorModelObj == null) {
+        HostedDebugLog.Error(this, "Cannot find a connector model: {0}", connectorModel);
+        // Fallback to not have the whole code to crash.
+        connectorModelObj = new GameObject().transform;
+      }
+      connectorModelObj.name = ConnectorModelName;
+      connectorModelObj.parent = nodeTransform;
+      
+
       if (connectorCableAnchor == null) {
-        HostedDebugLog.Info(this, "Creating connector's cable transform");
-        connectorCableAnchor = new GameObject(connectorCableAttachAt).transform;
+        if (connectorCableAttachAt != "") {
+          HostedDebugLog.Error(
+              this, "Cannot find cable anchor transform: {0}", connectorCableAttachAt);
+        }
+        connectorCableAnchor = new GameObject().transform;
         var posAndRot = PosAndRot.FromString(connectorCableAttachAtPosAndRot);
         Hierarchy.MoveToParent(connectorCableAnchor, connectorModelObj,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
-      connectorPartAnchor = Hierarchy.FindTransformByPath(connectorModelObj, connectorPartAttachAt);
+      connectorCableAnchor.name = CableAnchorName;
+      connectorCableAnchor.parent = connectorModelObj;
+
       if (connectorPartAnchor == null) {
-        HostedDebugLog.Info(this, "Creating connector's part transform");
-        connectorPartAnchor = new GameObject(connectorPartAttachAt).transform;
+        if (connectorPartAttachAt != "") {
+          HostedDebugLog.Error(
+              this, "Cannot find part anchor transform: {0}", connectorPartAttachAt);
+        }
+        connectorPartAnchor = new GameObject().transform;
         var posAndRot = PosAndRot.FromString(connectorPartAttachAtPosAndRot);
         Hierarchy.MoveToParent(connectorPartAnchor, connectorModelObj,
                                newPosition: posAndRot.pos, newRotation: posAndRot.rot);
       }
+      connectorPartAnchor.name = PartAnchorName;
+      connectorPartAnchor.parent = connectorModelObj;
+
+      partCableAnchor = new GameObject(ConnectorParkAnchorName).transform;
+      Hierarchy.MoveToParent(
+          partCableAnchor, nodeTransform, newPosition: connectorParkPositionOffset);
     } else {
-      HostedDebugLog.Error(this, "Cannot find a connector model: {0}", connectorModel);
-      // Fallback to not have the whole code to crash. 
-      connectorModelObj = new GameObject().transform;
-      connectorCableAnchor = connectorModelObj;
-      connectorPartAnchor = connectorModelObj;
+      connectorModelObj = nodeTransform.Find(ConnectorModelName);
+      connectorCableAnchor = connectorModelObj.Find(CableAnchorName);
+      connectorPartAnchor = connectorModelObj.Find(PartAnchorName);
+      partCableAnchor = nodeTransform.Find(ConnectorParkAnchorName);
     }
-    const string WinchCableAnchorName = "winchCableAnchor";
-    partCableAnchor = Hierarchy.FindPartModelByPath(part, WinchCableAnchorName);
-    if (partCableAnchor == null) {
-      partCableAnchor = new GameObject(WinchCableAnchorName).transform;
-      // This anchor must match the one set in the Joint module!
-      var physicalAnchorOffset =
-          (connectorPartAnchor.position - connectorCableAnchor.position).magnitude;
-      Hierarchy.MoveToParent(partCableAnchor, nodeTransform,
-                             newPosition: new Vector3(0, 0, -physicalAnchorOffset));
-      HostedDebugLog.Info(this, "Winch cable anchor offset: {0}", physicalAnchorOffset);
-    }
+    AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, partCableAnchor);
   }
 
   /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
