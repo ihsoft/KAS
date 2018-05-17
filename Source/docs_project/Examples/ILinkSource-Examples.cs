@@ -58,8 +58,7 @@ public class ILinkSourceExample1  {
       source.CancelLinking();
       return false;
     }
-    Debug.LogFormat("Established link with part: id={0}, mode={1}",
-                    source.linkPartId, source.cfgLinkMode);
+    Debug.LogFormat("Established link with part: id={0}", source.linkPartId);
     return true;
   }
   #endregion
@@ -186,12 +185,11 @@ public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, I
   public abstract bool StartLinking(GUILinkMode mode, LinkActorType actor);
   public abstract void CancelLinking();
   public abstract bool LinkToTarget(ILinkTarget target);
-  public abstract void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
-  public abstract bool CheckCanLinkTo(
-      ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
+  public abstract bool LinkToTarget(LinkActorType actor, ILinkTarget target);
+  public abstract void BreakCurrentLink(LinkActorType actorType);
+  public abstract bool CheckCanLinkTo(ILinkTarget target, bool checkStates = true, bool reportToGUI = false, bool reportToLog = true);
   public abstract Part part { get; }
   public abstract string cfgLinkType { get; }
-  public abstract LinkMode cfgLinkMode { get; }
   public abstract Transform nodeTransform { get; }
   public abstract Transform physicalAnchorTransform { get; }
   public abstract ILinkTarget linkTarget { get; }
@@ -205,6 +203,12 @@ public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, I
   public abstract ILinkPeer otherPeer { get; }
   public abstract uint linkPartId { get; }
   public abstract AttachNode couplingNode { get; }
+  public abstract string cfgAttachNodeName { get; }
+  public abstract string[] cfgDependentNodeNames { get; }
+  public abstract int linkModuleIndex { get; }
+  public abstract AttachNode coupleNode { get; }
+  public abstract AttachNode attachNode { get; }
+  public abstract bool isNodeBlocked { get; }
 }
 
 #region ILinkSourceExample_BreakFromPhysyicalMethod
