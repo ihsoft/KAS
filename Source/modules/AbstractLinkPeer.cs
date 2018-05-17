@@ -282,8 +282,8 @@ public abstract class AbstractLinkPeer : PartModule,
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
+    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
-    ConfigAccessor.ReadPartConfig(this);
 
     LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
@@ -293,9 +293,9 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-    ConfigAccessor.ReadPartConfig(this);
+    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
     ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
+    base.OnLoad(node);
 
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;

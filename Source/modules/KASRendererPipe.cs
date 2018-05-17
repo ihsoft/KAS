@@ -52,9 +52,11 @@ namespace KAS {
 /// </list>
 /// </para>
 /// <para>
-/// This module implements custom persistent fields concept. The descendants can decalre fields of
-/// the custom types that are supported by <c>KSPDevUtils.ConfigUtils</c>.
+/// The descendants of this module can use the custom persistent fields of groups:
 /// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// </list>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkRenderer"/>
@@ -463,13 +465,11 @@ public class KASRendererPipe : AbstractProceduralModel,
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Configuration of the source joint model.</summary>
-  /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
-  /// <seealso cref="LoadPartConfig"/>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   public JointConfig targetJointConfig = new JointConfig();
@@ -528,15 +528,22 @@ public class KASRendererPipe : AbstractProceduralModel,
 
   #region PartModule overrides
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-    LoadPartConfig();
+  public override void OnAwake() {
+    ConfigAccessor.CopyPartConfigFromPrefab(this);
+    base.OnAwake();
   }
 
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    LoadPartConfig();
+  public override void OnLoad(ConfigNode node) {
+    ConfigAccessor.ReadPartConfig(this, node);
+    // For the procedural and simple modes use the hardcoded model names.
+    if (sourceJointConfig.type != PipeEndType.PrefabModel) {
+      sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
+    }
+    if (targetJointConfig.type != PipeEndType.PrefabModel) {
+      targetJointConfig.modelPath = ProceduralTargetJointObjectName;
+    }
+    base.OnLoad(node);
   }
 
   /// <inheritdoc/>
@@ -699,23 +706,6 @@ public class KASRendererPipe : AbstractProceduralModel,
     return node;
   }
   
-  /// <summary>Loads the dynamic properties from the part's config.</summary>
-  /// <remarks>
-  /// It triggers every time when a new instance of the part instantiates. Use it to react on the
-  /// values in the custom fields (see teh class description for more information).
-  /// </remarks>
-  protected virtual void LoadPartConfig() {
-    ConfigAccessor.ReadPartConfig(this);
-
-    // For the procedural and simple modes use the hardcoded model names.
-    if (sourceJointConfig.type != PipeEndType.PrefabModel) {
-      sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
-    }
-    if (targetJointConfig.type != PipeEndType.PrefabModel) {
-      targetJointConfig.modelPath = ProceduralTargetJointObjectName;
-    }
-  }
-
   /// <summary>
   /// Creates and displays a mesh that represents a connecting pipe between the source and the
   /// target parts.
