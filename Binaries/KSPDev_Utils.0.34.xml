@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.33</name>
+        <name>KSPDev_Utils.0.34</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -272,21 +272,6 @@
             <summary>Restores the object's state from a plain string.</summary>
             <param name="value">String value to restore from.</param>
             <remarks>It's OK to throw exceptions if the value cannot be parsed.</remarks>
-        </member>
-        <member name="T:KSPDev.ConfigUtils.PartConfig">
-            <summary>Helper methods to access and manipulate part's configs.</summary>
-        </member>
-        <member name="M:KSPDev.ConfigUtils.PartConfig.GetModuleConfig(PartModule,ConfigNode)">
-            <summary>Gets a config of the part module.</summary>
-            <remarks>
-            It takes into account the module index, so in case of the part has multiple modules of the
-            same type, the right module config will be returned.
-            </remarks>
-            <param name="module">The module to get config for.</param>
-            <param name="partNode">
-            The part's config to use. If omitted then part's prefab config is used.
-            </param>
-            <returns>Either the found config node or an empty node. It's never <c>null</c>.</returns>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute">
             <summary>
@@ -559,15 +544,32 @@
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute"/>
         </member>
-        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule)">
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)">
             <summary>Reads custom type fileds from the part's config.</summary>
             <remarks>
-            The consumer code must call this method from both the <c>OnAwake</c> and <c>OnLoad</c>
-            methods. Depending on the game scene, the part can be either created or cloned, and the fields
-            initalization is different depending on the case. See the example for more details.
+            <para>
+            The consumer code must call this method from the <c>OnLoad</c> method to capture the
+            PartLoader initalization. This method automatically detects the game loading phase, so it's
+            safe to call it in every <c>OnLoad</c> inovacation.
+            </para>
             </remarks>
             <param name="module">The module to load the data for.</param>
+            <param name="cfgNode">The config node, passed by the game to the module.</param>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso cref="F:KSPDev.ConfigUtils.StdPersistentGroups.PartConfigLoadGroup"/>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.CopyPartConfigFromPrefab(PartModule)"/>
+            <example>
+            <code source="Examples/ConfigUtils/ConfigAccessor-Examples.cs" region="ReadPartConfigExample"/>
+            </example>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.CopyPartConfigFromPrefab(PartModule)">
+            <summary>Copies the custom part fields from the prefab into the instance.</summary>
+            <remarks>
+            The consumer code must call this method from the <c>OnAwake</c> method to esnure the custom
+            fields are properly intialized.
+            </remarks>
+            <param name="tgtModule">The module to copy the fields into.</param>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)"/>
             <example>
             <code source="Examples/ConfigUtils/ConfigAccessor-Examples.cs" region="ReadPartConfigExample"/>
             </example>
@@ -1122,7 +1124,7 @@
             use this group when defining the persistent fields via annotations.  
             </remarks>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
-            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule)"/>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)"/>
         </member>
         <member name="T:KSPDev.Extensions.DictExtensions">
             <summary>Helper extensions for the generic dictionary container.</summary>
