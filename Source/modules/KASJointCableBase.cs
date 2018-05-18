@@ -60,6 +60,18 @@ public class KASJointCableBase : AbstractJoint,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cableSpringDamper = 1f;
+
+  /// <summary>
+  /// Tells if the stock joint must be kept in case of the parts have coupled at the zero distance.
+  /// </summary>
+  /// <remarks>
+  /// Since the the stock joint is rigid, it's always destroyed by this module. However, in some
+  /// cases the parts coupled at zero distance (docked) need to stay fixed. Set this setting to
+  /// <c>true</c> to allow this behavior.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public bool allowDockingAtZeroDistance;
   #endregion
 
   #region ILinkCableJoint CFG properties
@@ -119,6 +131,12 @@ public class KASJointCableBase : AbstractJoint,
     CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
                         GetTargetPhysicalAnchor(linkSource, linkTarget),
                         originalLength);
+    if (partJoint != null
+        && (!allowDockingAtZeroDistance || Mathf.Approximately(realCableLength, 0))) {
+      HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
+      partJoint.DestroyJoint();
+      partJoint.Child.attachJoint = null;
+    }
   }
 
   /// <inheritdoc/>
