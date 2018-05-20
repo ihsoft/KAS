@@ -264,7 +264,7 @@ public abstract class AbstractJoint : PartModule,
   protected DockedVesselInfo persistedTgtVesselInfo;
   #endregion
 
-  #region ILinkJoint implementation
+  #region ILinkJoint properties
   /// <inheritdoc/>
   public ILinkSource linkSource { get; private set; }
 

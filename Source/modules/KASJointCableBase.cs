@@ -121,7 +121,7 @@ public class KASJointCableBase : AbstractJoint,
   protected Transform headPhysicalAnchor { get; private set; }
   #endregion
 
-  #region AbstractLinkJoint overrides
+  #region AbstractJoint overrides
   /// <inheritdoc/>
   protected override void SetupPhysXJoints() {
     if (isHeadStarted) {
