@@ -378,6 +378,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
                  && !linkTarget.part.vessel.isEVA;
     });
   }
+
+  /// <inheritdoc/>
+  protected override void PhysicaLink() {
+    base.PhysicaLink();
+    SetCableLength(float.PositiveInfinity);
+  }
   #endregion
 
   #region IHasGUI implementation
