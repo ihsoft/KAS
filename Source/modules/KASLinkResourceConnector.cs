@@ -77,15 +77,17 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> OwnerVesselTxt = new Message<string>(
       "#kasLOC_12006",
-      defaultTemplate: "Owner: <<1>>",
-      description: "The string that tells which vessels owns the resource transfer part."
+      defaultTemplate: "Owner (left): <<1>>",
+      description: "The string that tells which vessels owns the resource transfer part. Its stats"
+      + " are displayed on the left side of the dialog."
       + "\nArgument <<1>> is the name of the owner vessel.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> ConnectedVesselTxt = new Message<string>(
       "#kasLOC_12007",
-      defaultTemplate: "Connected: <<1>>",
+      defaultTemplate: "Connected (right): <<1>>",
       description: "The string that tells which vessels is connected to the resource transfer part."
+      + " Its stats are displayed on the right side of the dialog."
       + "\nArgument <<1>> is the name of the connected vessel.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
