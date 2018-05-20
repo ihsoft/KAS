@@ -144,6 +144,15 @@ public class KASJointCableBase : AbstractJoint,
     base.CleanupPhysXJoints();
     cableJoint = null;
   }
+
+  /// <inheritdoc/>
+  public override bool SetCoupleOnLinkMode(bool isCoupleOnLink) {
+    var oldLimit = deployedCableLength;
+    var res = base.SetCoupleOnLinkMode(isCoupleOnLink);if (res) {
+      SetCableLength(oldLimit);  // Keep the same deployed length.
+    }
+    return res;
+  }
   #endregion
 
   #region ILinkCableJoint implementation
