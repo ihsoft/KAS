@@ -23,7 +23,7 @@
     <DocumentationFile>bin\Release\KAS-1.0.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <BaseAddress>4194304</BaseAddress>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
@@ -56,8 +56,8 @@
       <HintPath>Q:\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.29">
-      <HintPath>..\Binaries\KSPDev_Utils.0.29.dll</HintPath>
+    <Reference Include="KSPDev_Utils.0.34">
+      <HintPath>..\Binaries\KSPDev_Utils.0.34.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
@@ -93,41 +93,45 @@
     <Compile Include="api_v1\CommonConfig.cs" />
     <Compile Include="api_v1\GUILinkMode.cs" />
     <Compile Include="api_v1\IKasJointEventsListener.cs" />
+    <Compile Include="api_v1\ILinkPeer.cs" />
     <Compile Include="api_v1\ILinkCableJoint.cs" />
     <Compile Include="api_v1\ILinkJoint.cs" />
     <Compile Include="api_v1\ILinkRenderer.cs" />
     <Compile Include="api_v1\ILinkSource.cs" />
     <Compile Include="api_v1\ILinkStateEventListener.cs" />
     <Compile Include="api_v1\ILinkTarget.cs" />
-    <Compile Include="api_v1\IKasPropertyChangeListener.cs" />
     <Compile Include="api_v1\ILinkVesselInfo.cs" />
+    <Compile Include="api_v1\IWinchControl.cs" />
     <Compile Include="api_v1\KASAPI.cs" />
     <Compile Include="api_v1\KASEvents.cs" />
     <Compile Include="api_v1\LinkActorType.cs" />
-    <Compile Include="api_v1\LinkMode.cs" />
     <Compile Include="api_v1\LinkState.cs" />
+    <Compile Include="api_v1\PartType.cs" />
     <Compile Include="api_v1\Utils\IAttachNodesUtils.cs" />
     <Compile Include="api_v1\Utils\IJointUtils.cs" />
     <Compile Include="api_v1\Utils\ILinkUtils.cs" />
     <Compile Include="api_v1\Utils\IPhysicsUtils.cs" />
-    <Compile Include="modules\InternalKASModulePhysicalConnector.cs" />
-    <Compile Include="modules\KASModuleCableJointBase.cs" />
-    <Compile Include="modules\KASModuleJointBase.cs" />
+    <Compile Include="modules\AbstractJoint.cs" />
+    <Compile Include="modules\AbstractLinkPeer.cs" />
+    <Compile Include="modules\KASInternalPhysicalConnector.cs" />
+    <Compile Include="modules\KASJointCableBase.cs" />
+    <Compile Include="modules\KASJointRigid.cs" />
     <Compile Include="modules\AbstractProceduralModel.cs" />
-    <Compile Include="modules\BrokenJointListener.cs" />
-    <Compile Include="modules\KASModuleCableJoint.cs" />
-    <Compile Include="modules\KASModuleInteractiveLinkSource.cs" />
-    <Compile Include="modules\KASModuleKerbalLinkTarget.cs" />
-    <Compile Include="modules\KASModuleLinkSourceBase.cs" />
-    <Compile Include="modules\KASModuleLinkTargetBase.cs" />
-    <Compile Include="modules\KASModulePipeRendererWithHead.cs" />
-    <Compile Include="modules\KASModuleTelescopicPipeModel.cs" />
-    <Compile Include="modules\KASModuleTowBarActiveJoint.cs" />
-    <Compile Include="modules\KASModulePipeRenderer.cs" />
-    <Compile Include="modules\KASModuleTwoEndsSphereJoint.cs" />
-    <Compile Include="modules\KASModuleVesselInfo.cs" />
-    <Compile Include="modules\KASModuleWinchNew.cs" />
+    <Compile Include="modules\KASInternalBrokenJointListener.cs" />
+    <Compile Include="modules\KASLinkResourceConnector.cs" />
+    <Compile Include="modules\KASLinkSourceInteractive.cs" />
+    <Compile Include="modules\KASLinkSourcePhysical.cs" />
+    <Compile Include="modules\KASLinkTargetKerbal.cs" />
+    <Compile Include="modules\KASLinkSourceBase.cs" />
+    <Compile Include="modules\KASLinkTargetBase.cs" />
+    <Compile Include="modules\KASRendererPipeWithHead.cs" />
+    <Compile Include="modules\KASRendererTelescopicPipe.cs" />
+    <Compile Include="modules\KASJointTowBar.cs" />
+    <Compile Include="modules\KASRendererPipe.cs" />
+    <Compile Include="modules\KASJointTwoEndsSphere.cs" />
+    <Compile Include="modules\KASLinkWinch.cs" />
     <Compile Include="modules\KSPDev_candidates.cs" />
+    <Compile Include="modules\ControllerWinchRemote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

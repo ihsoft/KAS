@@ -3,8 +3,6 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using UnityEngine;
-
 namespace KASAPIv1 {
 
 /// <summary>Base interface for a KAS joint.</summary>
@@ -53,8 +51,7 @@ public interface ILinkJoint {
   /// </para>
   /// <para>
   /// This method will call the <see cref="CheckConstraints"/> method to ensure there are no errors.
-  /// If there are some, then the link is not created and the errors are reported to the logs as
-  /// errors. However, in case of the part loading, the check is not performed.
+  /// If there are some, then the link is not created and the errors are reported to the logs.
   /// </para>
   /// </remarks>
   /// <returns><c>true</c> if joint was successfully created or updated.</returns>
@@ -85,29 +82,35 @@ public interface ILinkJoint {
 
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
-  /// If the new mode is "coupling", and the source and the target vessels are different, then a
-  /// coupling action will trigger. If the new mode is "don't couple", and the source and the target
-  /// parts are coupled, then a decoupling event is triggered. In all the other cases it's just a
-  /// boolean property change.
+  /// <para>
+  /// When both the source and the target peers support coupling, this mode can be arbitrary set or
+  /// reset via the joint module. If the new mode is "coupling", and the source and the target
+  /// vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
+  /// and the source and the target parts are coupled, then a decoupling event is triggered. In all
+  /// the other cases it's just a boolean property change.
+  /// </para>
+  /// <para>
+  /// The modules must support the cycles and be ready to pick up the coupling role when the former
+  /// part has gave up.
+  /// </para>
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
+  /// <returns>
+  /// <c>true</c> if the new mode has been accepted. The change may be refused for any reason by the
+  /// implementation, and the caller must react accordingly.
+  /// </returns>
   /// <seealso cref="coupleOnLinkMode"/>
-  void SetCoupleOnLinkMode(bool isCoupleOnLink);
+  /// <seealso cref="ILinkPeer.coupleNode"/>
+  bool SetCoupleOnLinkMode(bool isCoupleOnLink);
 
   /// <summary>Checks if the joint constraints allow the link to be established.</summary>
-  /// <remarks>This method assumes that the <paramref name="targetTransform"/> is a possible
-  /// <see cref="ILinkTarget.nodeTransform"/> on the target. For this reason the source's
-  /// <see cref="ILinkSource.targetPhysicalAnchor"/> is applied towards it when doing the
-  /// calculations.
-  /// </remarks>
-  /// <param name="source">The source that probes the link.</param>
-  /// <param name="targetTransform">The target of the link to check the lmits against.</param>
+  /// <param name="source">The possible source of the link.</param>
+  /// <param name="target">The possible target of the link.</param>
   /// <returns>
   /// An empty array if the link can be created, or a list of user friendly errors otherwise.
   /// </returns>
-  /// <seealso cref="ILinkSource"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  string[] CheckConstraints(ILinkSource source, Transform targetTransform);
+  string[] CheckConstraints(ILinkSource source, ILinkTarget target);
 }
 
 }  // namespace

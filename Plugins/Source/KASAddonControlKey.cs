@@ -45,7 +45,7 @@ public class KASAddonControlKey : MonoBehaviour {
   }
 
   public static void LoadKeyConfig() {
-    var node = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/KAS/settings.cfg")
+    var node = ConfigNode.Load(KSPUtil.ApplicationRootPath + "GameData/KAS/settings-legacy.cfg")
         ?? new ConfigNode();
     foreach (ConfigNode winchNode in node.GetNodes("WinchModule")) {
       if (winchNode.HasValue("grabConnectorKey")) {

@@ -1,25 +1,29 @@
 {
-  "PACKAGE_NAME": "KAS",
-  "SRC" : "..",
-  "DEST" : "../Release",
-  "ARCHIVE_DEST" : "..",
-  "SRC_COMPILED_BINARY" : "/Plugins/Source/bin/Release/{PACKAGE_NAME}.dll",
-  "SRC_VERSIONS_FILE" : "/Plugins/Source/Properties/AssemblyInfo.cs",
+  "JSON_SCHEMA_VERSION": "1.1",
+
+  "PACKAGE_NAME": "KAS-1.0",
+
+  "SHELL_COMPILE_BINARY_SCRIPT" : "make_binary.cmd",
+
+  "RELEASE_NAME_FREE_FORMAT" : "KAS_v{0}.{1}_beta9",
+
   "STRUCTURE" : {
     "" : [
-      "/LICENSE.md",
-      "/settings.cfg",
+      "/README.md",
+      "/LICENSE-1.0.md",
+      "/Lang",
+      "/Models",
       "/Parts",
+      "/Patches",
       "/Sounds",
-      "/Textures"
+      "/Textures",
+      "/settings.cfg"
     ],
     "Plugins" : [
-      "{SRC_COMPILED_BINARY}",
-      "{SRC_REPOSITORY_VERSION_FILE}",
-      "/Plugins/MiniAVC.dll"
+      "{COMPILED_BINARY}",
+      "bin/Release/{PACKAGE_NAME}.xml",
+      "{MINIAVC_VERSION_FILE}",
+      "/Binaries/*"
     ]
-  },
-  "POST_BUILD_COPY" : [
-    ["{SRC}{SRC_REPOSITORY_VERSION_FILE}", "{SRC}/Plugins/{PACKAGE_NAME}.version"]
-  ]
+  }
 }

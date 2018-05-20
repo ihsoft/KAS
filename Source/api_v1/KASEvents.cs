@@ -1,9 +1,7 @@
 ﻿// Kerbal Attachment System
-// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
-
-using System;
 
 namespace KASAPIv1 {
 
@@ -21,11 +19,9 @@ public static class KASEvents {
     public LinkActorType actor;
 
     /// <summary>Creates an event info.</summary>
-    /// <param name="source">Source that initiated the link.</param>
-    /// <param name="target">Target that accepted the link.</param>
-    /// <param name="actorType">
-    /// Actor that did the change. <see cref="LinkActorType.API"/> by default.
-    /// </param>
+    /// <param name="source">The source that initiated the link.</param>
+    /// <param name="target">The target that accepted the link.</param>
+    /// <param name="actorType">The actor that did the change.</param>
     public LinkEvent(ILinkSource source, ILinkTarget target,
                      LinkActorType actorType = LinkActorType.API) {
       this.source = source;
@@ -42,18 +38,18 @@ public static class KASEvents {
   public static EventData<ILinkSource> OnStopLinking =
       new EventData<ILinkSource>("KASOnStopLinking");
 
-  /// <summary>Triggers when target has accepted the pending link.</summary>
-  public static EventData<ILinkTarget> OnLinkAccepted =
-      new EventData<ILinkTarget>("KASOnLinkAccepted");
-
   /// <summary>Triggers when link between two parts has been successfully established.</summary>
-  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkCreatedEvent"/> when this
-  /// state change is needed in scope of just one part.</remarks>
+  /// <remarks>
+  /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
+  /// is needed in scope of just one part.
+  /// </remarks>
   public static EventData<LinkEvent> OnLinkCreated = new EventData<LinkEvent>("KASOnLinkCreated");
 
   /// <summary>Triggers when link between two parts has been broken.</summary>
-  /// <remarks>Consider using <see cref="ILinkStateEventListener.OnKASLinkBrokenEvent"/> when this
-  /// state change is needed in scope of just one part.</remarks>
+  /// <remarks>
+  /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
+  /// is needed in scope of just one part.
+  /// </remarks>
   public static EventData<LinkEvent> OnLinkBroken = new EventData<LinkEvent>("KASOnLinkBroken");
 }
 

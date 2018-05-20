@@ -1,5 +1,5 @@
 <!-- Index file for KSPDev methods help -->
-<!-- v7, 07.14.2017 -->
+<!-- v8, 04.05.2018 -->
 <index>
 
 <!--************ TYPES ************-->
@@ -8,6 +8,9 @@
 </item>
 <item name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+</item>
+<item name="T:KSPDev.ConfigUtils.StdPersistentGroups">
+  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_StdPersistentGroups.htm">KSPDev Utils: ConfigUtils.StdPersistentGroups</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.AngleType">
   <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_AngleType.htm">KSPDev Utils: GUIUtils.AngleType</seealso>

@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using System;
 using UnityEngine;
 
 namespace KASImpl {

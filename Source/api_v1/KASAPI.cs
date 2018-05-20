@@ -13,8 +13,6 @@
 // case every following version is an ancestor of the previous version(s), so the migration should
 // be trivial. Though, in case of methods/interfaces deprecation some extra work may be required. 
 
-using System;
-
 // Name of the namespace denotes the API version.
 namespace KASAPIv1 {
 

@@ -1,15 +1,14 @@
 ﻿// Kerbal Attachment System
-// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
 using UnityEngine;
 
 namespace KASAPIv1 {
 
 /// <summary>Interface that notifies listeners about joints breaking.</summary>
-/// <seealso cref="KAS.BrokenJointListener"/>
+/// <seealso cref="KAS.KASInternalBrokenJointListener"/>
 /// <example><code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/></example>
 public interface IKasJointEventsListener {
   /// <summary>Triggers when connection is broken due to too strong force applied.</summary>

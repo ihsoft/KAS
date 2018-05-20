@@ -58,8 +58,7 @@ public class ILinkSourceExample1  {
       source.CancelLinking();
       return false;
     }
-    Debug.LogFormat("Established link with part: id={0}, mode={1}",
-                    source.linkTargetPartId, source.cfgLinkMode);
+    Debug.LogFormat("Established link with part: id={0}", source.linkPartId);
     return true;
   }
   #endregion
@@ -78,31 +77,6 @@ public class ILinkSourceExample1  {
       Debug.Log("Link is obstructed. Silently cancel the action");
       return false;
     }
-    if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
-      Debug.LogError("Linking failed");
-      source.CancelLinking();
-      return false;
-    }
-    return true;
-  }
-  #endregion
-
-  #region ConnectNodes
-  // Connects two parts using the link type and the attach node names to find the right link's
-  // source and target.
-  public static bool ConnectNodes(string linkType,
-                                  Part srcPart, string srcNodeName,
-                                  Part tgtPart, string tgtNodeName) {
-    var source = srcPart.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(s => s.cfgAttachNodeName == srcNodeName && s.cfgLinkType == linkType);
-    var target = tgtPart.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.cfgAttachNodeName == tgtNodeName && t.cfgLinkType == linkType);
-    if (source == null || target == null) {
-      Debug.LogError("Cannot link the nodes");
-      return false;
-    }
-    // GUILinkMode.API mode tells the implementation to not execute any user facing effects on the
-    // link. See GUILinkMode for more details. 
     if (!source.StartLinking(GUILinkMode.API, LinkActorType.API) || !source.LinkToTarget(target)) {
       Debug.LogError("Linking failed");
       source.CancelLinking();
@@ -142,14 +116,6 @@ public class ILinkSourceExample1  {
   }
   #endregion
 
-  #region FindSourceByAttachNode
-  // Returns a source module given an attach node name.
-  public static ILinkSource FindSourceByAttachNode(Part srcPart, string srcNodeName) {
-    return srcPart.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(s => s.cfgAttachNodeName == srcNodeName);
-  }
-  #endregion
-
   #region CheckIfConnected
   // Checks if the two parts are connected via a KAS link. 
   public static bool CheckIfConnected(Part srcPart, Part tgtPart) {
@@ -169,7 +135,7 @@ public class ILinkSourceExample1  {
   readonly Part part = null;
 
   #region HighlightLocked
-  // Highlights the part in RED if it it could potentionally link with the linking source, but
+  // Highlights the part in RED if it could potentionally link with the linking source, but
   // it was explicitly disallowed (e.g. due to the state model).
   public bool isLocked {
     get { return _isLocked; }
@@ -200,30 +166,10 @@ public class ILinkSourceExample1  {
     renderer.StartRenderer(source.nodeTransform, target.nodeTransform);
   }
   #endregion
-
-  #region FindSourceAtAttachNode
-  // Finds the KAS source at the specified part's attach node.
-  public static ILinkSource FindSourceAtAttachNode(AttachNode an) {
-    return an.owner.FindModulesImplementing<ILinkSource>()
-        .FirstOrDefault(s => s.cfgAttachNodeName == an.id);
-  }
-  #endregion
-
-  #region FindTargetAtAttachNode
-  // Finds the KAS target connected to the specified part's attach node.
-  public static ILinkTarget FindTargetAtAttachNode(AttachNode an) {
-    var otherAn = an.FindOpposingNode();
-    if (otherAn == null) {
-      Debug.LogError("Attach node is not connected");
-      return null;
-    }
-    return otherAn.owner.FindModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.cfgAttachNodeName == otherAn.id);
-  }
-  #endregion
 }
 
 public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, ILinkSource {
+
   #region ILinkSourceExample_linkRenderer
   public ILinkRenderer linkRenderer { get; private set; }
 
@@ -239,24 +185,30 @@ public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, I
   public abstract bool StartLinking(GUILinkMode mode, LinkActorType actor);
   public abstract void CancelLinking();
   public abstract bool LinkToTarget(ILinkTarget target);
-  public abstract void BreakCurrentLink(LinkActorType actorType, bool moveFocusOnTarget = false);
-  public abstract bool CheckCanLinkTo(
-      ILinkTarget target, bool reportToGUI = false, bool reportToLog = true);
-  public Part part { get; private set; }
-  public string cfgLinkType { get; private set; }
-  public LinkMode cfgLinkMode { get; private set; }
-  public string cfgAttachNodeName { get; private set; }
-  public Transform nodeTransform { get; private set; }
-  public Transform physicalAnchorTransform { get; private set; }
-  public ILinkTarget linkTarget { get; private set; }
-  public uint linkTargetPartId { get; private set; }
-  public LinkState linkState { get; private set; }
-  public bool isLocked { get; set; }
-  public bool isLinked { get; private set; }
-  public GUILinkMode guiLinkMode { get; private set; }
-  public LinkActorType linkActor { get; private set; }
-  public Vector3 targetPhysicalAnchor { get; private set; }
-  public ILinkJoint linkJoint { get; private set; }
+  public abstract bool LinkToTarget(LinkActorType actor, ILinkTarget target);
+  public abstract void BreakCurrentLink(LinkActorType actorType);
+  public abstract bool CheckCanLinkTo(ILinkTarget target, bool checkStates = true, bool reportToGUI = false, bool reportToLog = true);
+  public abstract Part part { get; }
+  public abstract string cfgLinkType { get; }
+  public abstract Transform nodeTransform { get; }
+  public abstract Transform physicalAnchorTransform { get; }
+  public abstract ILinkTarget linkTarget { get; }
+  public abstract LinkState linkState { get; }
+  public abstract bool isLocked { get; set; }
+  public abstract bool isLinked { get; }
+  public abstract GUILinkMode guiLinkMode { get; }
+  public abstract LinkActorType linkActor { get; }
+  public abstract Vector3 targetPhysicalAnchor { get; }
+  public abstract ILinkJoint linkJoint { get; }
+  public abstract ILinkPeer otherPeer { get; }
+  public abstract uint linkPartId { get; }
+  public abstract AttachNode couplingNode { get; }
+  public abstract string cfgAttachNodeName { get; }
+  public abstract string[] cfgDependentNodeNames { get; }
+  public abstract int linkModuleIndex { get; }
+  public abstract AttachNode coupleNode { get; }
+  public abstract AttachNode attachNode { get; }
+  public abstract bool isNodeBlocked { get; }
 }
 
 #region ILinkSourceExample_BreakFromPhysyicalMethod

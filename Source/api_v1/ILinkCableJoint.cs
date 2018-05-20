@@ -1,5 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
@@ -8,87 +8,70 @@ using UnityEngine;
 namespace KASAPIv1 {
 
 /// <summary>
-/// The full set of all the public properties that fires the
-/// <see cref="IKasPropertyChangeListener.OnKASPropertyChanged"/> event on the
-/// <see cref="ILinkCableJoint"/> interface.
-/// </summary>
-/// <remarks>Keep the property names matching their actual names in the code.</remarks>
-public static class ILinkCableJoint_Properties {
-  /// <summary>See <see cref="ILinkCableJoint.maxAllowedCableLength"/></summary>
-  public const string maxAllowedCableLength = "maxAllowedCableLength";
-}
-
-/// <summary>
-/// Interafce for a physical cable link. Such links keep the dsitance between the object below the
+/// Interface for a physical cable link. Such links keep the dsitance between the object below the
 /// maximum but don't restict any other movements of the objects relative to each other.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The specifics of this module is that the distance between the linked parts becomes variable.
+/// Once the link is created, the distance limit is set to the actual distance between the source
+/// and target. This limit won't allow the objects to separate too far from each other, but the
+/// objects will be allowed to come closer. The code can adjust the limit once the joint is
+/// created.
+/// </para>
+/// <para>
+/// Due to the specifics of handling this kind of joints in PhysX, the real distance between the
+/// objects <i>can</i> become greater than the distance limit. In fact, if there are forces that try
+/// to separate the objects, then the actual distance will always be a bit more than the limit. Do
+/// not expect this difference to have any meaning, it depends on the PhysX engine and can be
+/// anything.
+/// </para>
+/// </remarks>
+/// <seealso cref="deployedCableLength"/>
+/// <seealso cref="realCableLength"/>
+/// <seealso cref="SetCableLength"/>
 public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Maximum allowed distance between the parts to establish a link.</summary>
   /// <value>Distance in meters.</value>
   float cfgMaxCableLength { get; }
-
-  /// <summary>Physical joint object that connects source to the target.</summary>
-  /// <value>The PhysX joint that connects the parts.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.SpringJoint']/*"/>
-  SpringJoint cableJointObj { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
   /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   Rigidbody headRb { get; }
 
-  /// <summary>Source that owns the physical head.</summary>
-  /// <value>The source, or <c>null</c> if the head is not started.</value>
-  /// <seealso cref="ILinkSource"/>
-  ILinkSource headSource { get; }
-
-  /// <summary>Head's transform at which the cable is attached.</summary>
-  /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
-  Transform headPhysicalAnchorObj { get; }
-
   /// <summary>
-  /// Maximum possible distance between the source's physical and head/target physical anchors.
+  /// Maximum possible distance between the source and head/target physical anchors.
   /// </summary>
   /// <remarks>
-  /// <para>
-  /// Reducing the value of this property may trigger the physical effects if the value is less than
-  /// <see cref="realCableLength"/>, a physical effect will trigger. Don't reduce the value too
-  /// rapidly since it will apply a higher force on the connected objects.
-  /// </para>
-  /// <para>
-  /// This value will be used when establishing a link to a physical head. If it's lower than the
-  /// actual distance between the objects, then the real distance will be used instead.   
-  /// </para>
-  /// <para>
-  /// When this property is changed, it fires a notification for name
-  /// <see cref="ILinkCableJoint_Properties.maxAllowedCableLength"/>.
-  /// </para>
+  /// This is a <i>desired</i> distance. The engine will try to keep it equal or less to this value,
+  /// but depending on the forces that affect the objects, this distance may be never reached.
   /// </remarks>
-  /// <value>The length in meters.</value>
+  /// <value>The length in meters. Always positive.</value>
   /// <seealso cref="headRb"/>
-  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
-  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
-  /// <seealso cref="headPhysicalAnchorObj"/>
+  /// <seealso cref="realCableLength"/>
   /// <seealso cref="StartPhysicalHead"/>
-  float maxAllowedCableLength { get; set; }
+  /// <seealso cref="SetCableLength"/>
+  float deployedCableLength { get; }
 
   /// <summary>
   /// Returns the actual distance between the source and target/head physical anchors.
   /// </summary>
   /// <remarks>
-  /// It's always <c>0</c> if the link is not established and there is no head
-  /// started.
+  /// It's always <c>0</c> if the link is not established and there is no head started. Keep in mind
+  /// that the real length is almost never equal to the deployed cable lenght. This is due to how
+  /// the PhysX engine works: the force can only be applied when the joint is stretched.
   /// </remarks>
   /// <value>The distance in meters.</value>
-  /// <seealso cref="ILinkSource.physicalAnchorTransform"/>
-  /// <seealso cref="ILinkTarget.physicalAnchorTransform"/>
-  /// <seealso cref="headPhysicalAnchorObj"/>
+  /// <seealso cref="deployedCableLength"/>
   float realCableLength { get; }
 
   /// <summary>
   /// Attaches the specified object to the source and starts the environmental forces on it.  
   /// </summary>
+  /// <remarks>
+  /// The cable maximum length will be set to the actual distance between the source and the head.
+  /// </remarks>
   /// <param name="source">The source object that owns the head.</param>
   /// <param name="headObjAnchor">
   /// The transform at the head object to attach the cable to. It's also used as a starting point
@@ -96,6 +79,8 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </param>
   /// <seealso cref="StopPhysicalHead"/>
   /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="deployedCableLength"/>
+  /// <seealso cref="realCableLength"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
   void StartPhysicalHead(ILinkSource source, Transform headObjAnchor);
@@ -109,6 +94,43 @@ public interface ILinkCableJoint : ILinkJoint {
   /// </remarks>
   /// <seealso cref="StartPhysicalHead"/>
   void StopPhysicalHead();
+
+  /// <summary>
+  /// Sets the maximum possible distance between the source and the head/target physical anchors.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Setting the new length may trigger the physical effects if the value is less than the real
+  /// cable length, since it will force the engine to pull the objects together. Don't reduce the
+  /// length too rapidly to avoid the strong forces applied.
+  /// </para>
+  /// <para>
+  /// Calling for this method doesn't have any effect if the PhysX joint is not created. When a
+  /// brand new joint is created, it always has the distance limit set to the actual distance
+  /// between the physical objects. I.e. this method must be called <i>after</i> the physical joint
+  /// is created.
+  /// </para>
+  /// </remarks>
+  /// <param name="length">
+  /// The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
+  /// within the limits, then it's rounded to the closest boundary. Also, there are special values:
+  /// <list type="bullet">
+  /// <item>
+  /// <c>PositiveInfinity</c>. Set the length to the maximum possible value, configured via
+  /// <see cref="cfgMaxCableLength"/>.
+  /// </item>
+  /// <item>
+  /// <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
+  /// less than the current limit. When the real distance is greater than the limit, it means the
+  /// cable is under a strain due to the physical forces, and nothing will be changed to not trigger
+  /// extra effects.
+  /// </item>
+  /// </list>
+  /// </param>
+  /// <seealso cref="cfgMaxCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
+  /// <seealso cref="realCableLength"/>
+  void SetCableLength(float length);
 }
 
 }  // namespace

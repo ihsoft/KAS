@@ -3,7 +3,6 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
 using UnityEngine;
 
 // Name of the namespace denotes the API version. If new version is released the old one remains

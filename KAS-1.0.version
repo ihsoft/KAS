@@ -1,25 +1,25 @@
 {
     "KSP_VERSION": {
         "MAJOR": 1, 
-        "MINOR": 3, 
+        "MINOR": 4, 
         "PATCH": 0
     }, 
     "KSP_VERSION_MAX": {
         "MAJOR": 1, 
-        "MINOR": 3, 
+        "MINOR": 4, 
         "PATCH": 99
     }, 
     "KSP_VERSION_MIN": {
         "MAJOR": 1, 
-        "MINOR": 3, 
+        "MINOR": 4, 
         "PATCH": 0
     }, 
     "NAME": "KAS-1.0", 
     "URL": "https://raw.githubusercontent.com/ihsoft/KAS/KAS-v1.0/KAS-1.0.version", 
     "VERSION": {
-        "BUILD": 42858, 
+        "BUILD": 41093, 
         "MAJOR": 1, 
         "MINOR": 0, 
-        "PATCH": 6507
+        "PATCH": 6713
     }
 }

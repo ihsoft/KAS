@@ -1,9 +1,7 @@
 ﻿// Kerbal Attachment System
-// Mod's author: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
+// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
-
-using System;
 
 namespace KASAPIv1 {
 
@@ -34,7 +32,12 @@ public enum LinkState {
   /// the final attempt.</remarks>
   AcceptingLinks,
   /// <summary>Module doesn't accept link and will reject any request.</summary>
-  RejectingLinks
+  RejectingLinks,
+  /// <summary>
+  /// The attach node, allocated to the module, is occupied by another part, which doesn't support
+  /// linking.
+  /// </summary>
+  NodeIsBlocked,
 }
 
 }  // namespace

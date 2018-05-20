@@ -3,9 +3,9 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
-using UnityEngine;
+using KSPDev.LogUtils;
 using System.Text;
+using UnityEngine;
 
 namespace KASImpl {
 
@@ -17,7 +17,7 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     }
     var msg = DumpBaseJoint(joint);
     // Geometry.
-    msg.Append("secondaryAxis: ").Append(joint.secondaryAxis).AppendLine();
+    msg.Append("secondaryAxis: ").Append(DbgFormatter.Vector(joint.secondaryAxis)).AppendLine();
     // X axis settings.
     msg.Append("xDrive: ").Append(Dump(joint.xDrive)).AppendLine();
     msg.Append("xMotion: ").Append(joint.xMotion).AppendLine();
@@ -207,6 +207,12 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
   StringBuilder DumpBaseJoint(Joint joint) {
     var msg = new StringBuilder();
     msg.Append("name: ").Append(joint.name).AppendLine();
+    msg.Append("ownerBody: ")
+        .Append(DebugEx.ObjectToString(joint.gameObject.GetComponent<Rigidbody>()))
+        .AppendLine();
+    msg.Append("connectedBody: ")
+        .Append(DebugEx.ObjectToString(joint.connectedBody))
+        .AppendLine();
     // Collider setup.
     msg.Append("enableCollision: ").Append(joint.enableCollision).AppendLine();
     // Optimization.
@@ -215,9 +221,11 @@ class JointUtilsImpl : KASAPIv1.IJointUtils {
     msg.Append("breakForce: ").Append(joint.breakForce).AppendLine();
     msg.Append("breakTorque: ").Append(joint.breakTorque).AppendLine();
     // Geometry.
-    msg.Append("axis: ").Append(joint.axis).AppendLine();
-    msg.Append("anchor: ").Append(joint.anchor).AppendLine();
-    msg.Append("connectedAnchor: ").Append(joint.connectedAnchor).AppendLine();
+    msg.Append("anchor: ").Append(DbgFormatter.Vector(joint.anchor)).AppendLine();
+    msg.Append("connectedAnchor: ")
+        .Append(DbgFormatter.Vector(joint.connectedAnchor))
+        .AppendLine();
+    msg.Append("axis: ").Append(DbgFormatter.Vector(joint.axis)).AppendLine();
     return msg;
   }
 
