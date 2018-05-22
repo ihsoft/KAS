@@ -70,22 +70,20 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   #endregion
 
   #region Local fields and properties
-  /// <summary>The closest connector that is compatible with the kerbal's target.</summary>
-  /// <value>COnnector module or <c>null</c>.</value>
+  /// <summary>The closest connector.</summary>
+  /// <remarks>
+  /// If the closes connector is incompatible with the target, then <c>null</c> is returned.
+  /// </remarks>
+  /// <value>Connector module or <c>null</c>.</value>
   KASInternalPhysicalConnector closestConnector {
     get {
       return connectorsInRange
           .Where(x => x != null && x.ownerModule as ILinkSource != null && x.connectorRb != null)
-          .Select(x => new {
-              connector = x,
-              source = x.ownerModule as ILinkSource,
-              distance = Vector3.Distance(gameObject.transform.position,
-                                          x.connectorRb.transform.position)
-          })
-          .Where(x => x.source.linkState == LinkState.Available && x.source.cfgLinkType == linkType)
-          .OrderBy(x => x.distance)
-          .Select(x => x.connector)
-          .FirstOrDefault();
+          .Where(x => (x.ownerModule as ILinkSource).linkState == LinkState.Available)
+          .OrderBy(x => Vector3.Distance(gameObject.transform.position,
+                                         x.connectorRb.transform.position))
+          .Take(1)
+          .FirstOrDefault(x => (x.ownerModule as ILinkSource).cfgLinkType == linkType);
     }
   }
 
@@ -259,7 +257,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <inheritdoc/>
   public void OnGUI() {
     var thisVesselIsActive = FlightGlobals.ActiveVessel == vessel;
-    var pickupConnector = thisVesselIsActive && !isLinked ? closestConnector : null;
+    var pickupConnector = thisVesselIsActive && linkState == LinkState.Available
+        ? closestConnector : null;
 
     if (pickupConnector != focusedPickupConnector) {
       if (focusedPickupConnector != null) {
