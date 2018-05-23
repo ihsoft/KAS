@@ -7,6 +7,7 @@ using KSPDev.GUIUtils;
 using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.MathUtils;
+using KSPDev.ModelUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,6 +155,22 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float autolSpeedTransferDuration = 4.0f;
+
+  /// <summary>
+  /// Pattern to find the model which will be rotating around X-axis when the hose is
+  /// extended/retracted.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string rotatingWinchCylinderModel = "";
+
+  /// <summary>
+  /// The total length of the cilinder on the outer radius. It's used to calculate the ratio of how
+  /// significantly the cylinder need to rotate when 1m of hose is extended/retarted.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public float cylinderPerimeterLength = 1.0f;
   #endregion
 
   #region Context menu events/actions
@@ -212,6 +229,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   int[] unmovableResources = {
       StockResourceNames.GetId(StockResourceNames.SolidFuel)
   };
+
+  /// <summary>Model of the cylinder to rotate when the hose is extended/retracted.</summary>
+  /// <remarks>Can be <c>null</c>.</remarks>
+  Transform rotaingCylinder;
   #endregion
 
   #region GUI styles & contents
@@ -330,7 +351,28 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
   #endregion
 
+  #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnUpdate() {
+    base.OnUpdate();
+    //var c = Hierarchy.FindPartModelByPath(part, "**/Winch/Cylinder");
+    if (rotaingCylinder != null) {
+      if (cableJoint.realCableLength > float.Epsilon) {
+        var angle = 360.0f
+            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
+        rotaingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
+      }
+    }
+  }
+  #endregion
+  
   #region KASLinkSourcePhysical overrides
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
+  }
+
   /// <inheritdoc/>
   public override void LocalizeModule() {
     base.LocalizeModule();
