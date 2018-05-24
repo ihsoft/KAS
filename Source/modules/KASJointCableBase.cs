@@ -128,9 +128,8 @@ public class KASJointCableBase : AbstractJoint,
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
-                        GetTargetPhysicalAnchor(linkSource, linkTarget),
-                        originalLength);
+    CreateDistanceJoint(
+        linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     if (partJoint != null
         && (!allowDockingAtZeroDistance || Mathf.Approximately(realCableLength, 0))) {
       HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
@@ -143,15 +142,6 @@ public class KASJointCableBase : AbstractJoint,
   protected override void CleanupPhysXJoints() {
     base.CleanupPhysXJoints();
     cableJoint = null;
-  }
-
-  /// <inheritdoc/>
-  public override bool SetCoupleOnLinkMode(bool isCoupleOnLink) {
-    var oldLimit = deployedCableLength;
-    var res = base.SetCoupleOnLinkMode(isCoupleOnLink);if (res) {
-      SetCableLength(oldLimit);  // Keep the same deployed length.
-    }
-    return res;
   }
   #endregion
 
@@ -170,10 +160,7 @@ public class KASJointCableBase : AbstractJoint,
     headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
-    CreateDistanceJoint(source, headRb,
-                        headObjAnchor.position,
-                        Vector3.Distance(GetSourcePhysicalAnchor(source), headObjAnchor.position));
-    SetCableLength(float.NegativeInfinity);
+    CreateDistanceJoint(source, headRb, headObjAnchor.position);
   }
 
   /// <inheritdoc/>
@@ -183,6 +170,7 @@ public class KASJointCableBase : AbstractJoint,
     headPhysicalAnchor = null;
     DestroyImmediate(cableJoint);
     cableJoint = null;
+    SetOrigianlLength(null);
   }
 
   /// <inheritdoc/>
@@ -196,6 +184,7 @@ public class KASJointCableBase : AbstractJoint,
         length = Mathf.Max(length, 0);
       }
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
+      SetOrigianlLength(length);
     }
   }
   #endregion
@@ -222,9 +211,9 @@ public class KASJointCableBase : AbstractJoint,
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
-  /// <param name="distanceLimit">The distance limit to set on the joint.</param>
-  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor,
-                           float distanceLimit) {
+  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
+    var distanceLimit =
+        originalLength ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupDistanceJoint(

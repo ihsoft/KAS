@@ -262,6 +262,15 @@ public abstract class AbstractJoint : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
   protected DockedVesselInfo persistedTgtVesselInfo;
+
+  /// <summary>Length at the moment of creating the joint.</summary>
+  /// <remarks>
+  /// This value is used to restore the link state, but only if it's greater than zero. If it's
+  /// less, then the implementation should decide which length to set when the joint is created.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public float persistedLinkLength = -1.0f;
   #endregion
 
   #region ILinkJoint properties
@@ -282,12 +291,17 @@ public abstract class AbstractJoint : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Length at the moment of creating the joint.</summary>
-  /// <value>Distance in meters.</value>
-  /// <remarks>
-  /// The elastic joints may allow the length deviation. This value can be used as a base.
-  /// </remarks>
-  protected float originalLength { get; private set; }
+  /// <summary>
+  /// Length at the moment of creating the joint, or a whatever length which deserves restoring
+  /// "as-is" on the scene load.
+  /// </summary>
+  /// <value>
+  /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
+  /// about the particular length in the current state, and it's up to the implementation.
+  /// </value>
+  protected float? originalLength {
+    get { return persistedLinkLength < 0 ? (float?) null : persistedLinkLength; }
+  }
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
@@ -427,8 +441,10 @@ public abstract class AbstractJoint : PartModule,
     }
     linkSource = source;
     linkTarget = target;
-    originalLength = Vector3.Distance(
-        GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
+    if (!originalLength.HasValue) {
+      SetOrigianlLength(Vector3.Distance(
+          GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target)));
+    }
     isLinked = true;
     // If the parts are already coupled at this moment, then the mode must be set as such.      
     coupleOnLinkMode |= isCoupled;
@@ -452,6 +468,7 @@ public abstract class AbstractJoint : PartModule,
       }
     }
     SetCustomJoints(null);
+    SetOrigianlLength(null);
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -566,6 +583,21 @@ public abstract class AbstractJoint : PartModule,
   #endregion
 
   #region Inheritable methods
+  /// <summary>Sets the original length of the joint.</summary>
+  /// <remarks>
+  /// This length is a base for many manipulations with the joint. It should only be changed when
+  /// the new value is a length which this joint is going to maintain the long-term (e.g. between
+  /// the scenes).
+  /// </remarks>
+  /// <param name="newLength">
+  /// The new length in meters. Can be <c>null</c> if the implementation is allowed to decide what
+  /// length to set on the joint creation.
+  /// </param>
+  /// <seealso cref="originalLength"/>
+  protected void SetOrigianlLength(float? newLength) {
+    persistedLinkLength = newLength.HasValue ? newLength.Value : -1;
+  }
+
   /// <summary>Creates the actual PhysX joints between the rigid objects.</summary>
   /// <remarks>
   /// <para>
