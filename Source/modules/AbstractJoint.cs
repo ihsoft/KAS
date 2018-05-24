@@ -340,7 +340,7 @@ public abstract class AbstractJoint : PartModule,
   protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
   readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
 
-  /// <summary>The objects that were sued by the custom joints.</summary>
+  /// <summary>The objects that were used by the custom joints.</summary>
   /// <remarks>These object will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
@@ -654,7 +654,7 @@ public abstract class AbstractJoint : PartModule,
   /// </param>
   /// <seealso cref="customExtraObjects"/>
   /// <seealso cref="customJoints"/>
-  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints = null,
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints,
                                  IEnumerable<Object> extraObjects = null) {
     CleanupPhysXJoints();
     if (joints != null) {

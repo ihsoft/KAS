@@ -157,7 +157,7 @@ public class KASJointCableBase : AbstractJoint,
 
   #region ILinkCableJoint implementation
   /// <inheritdoc/>
-  public void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
+  public virtual void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
     //FIXME: add the physical head module here.
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
@@ -177,7 +177,7 @@ public class KASJointCableBase : AbstractJoint,
   }
 
   /// <inheritdoc/>
-  public void StopPhysicalHead() {
+  public virtual void StopPhysicalHead() {
     headRb = null;
     headSource = null;
     headPhysicalAnchor = null;
@@ -186,15 +186,15 @@ public class KASJointCableBase : AbstractJoint,
   }
 
   /// <inheritdoc/>
-  public void SetCableLength(float length) {
-    if (float.IsPositiveInfinity(length)) {
-      length = cfgMaxCableLength;
-    } else if (float.IsNegativeInfinity(length)) {
-      length = Mathf.Min(realCableLength, deployedCableLength);
-    } else {
-      length = Mathf.Max(length, 0);
-    }
+  public virtual void SetCableLength(float length) {
     if (cableJoint != null) {
+      if (float.IsPositiveInfinity(length)) {
+        length = cfgMaxCableLength;
+      } else if (float.IsNegativeInfinity(length)) {
+        length = Mathf.Min(realCableLength, deployedCableLength);
+      } else {
+        length = Mathf.Max(length, 0);
+      }
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
     }
   }
