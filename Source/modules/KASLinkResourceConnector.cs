@@ -355,7 +355,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
-    //var c = Hierarchy.FindPartModelByPath(part, "**/Winch/Cylinder");
     if (rotaingCylinder != null) {
       if (cableJoint.realCableLength > float.Epsilon) {
         var angle = 360.0f
