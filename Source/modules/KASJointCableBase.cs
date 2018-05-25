@@ -62,13 +62,22 @@ public class KASJointCableBase : AbstractJoint,
   public float cableSpringDamper = 1f;
 
   /// <summary>
-  /// Tells if the stock joint must be kept in case of the parts have coupled at the zero distance.
+  /// Tells if the stock joint must be kept in case of the parts have coupled at the
+  /// <i>deployed cable length</i> set to zero.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// Since the the stock joint is rigid, it's always destroyed by this module. However, in some
   /// cases the parts coupled at zero distance (docked) need to stay fixed. Set this setting to
-  /// <c>true</c> to allow this behavior.
+  /// <c>true</c> to allow this behavior. Note, that the <i>deployed cable</i> length can differ
+  /// from the real distance between the objects. If the former is significantly less than the
+  /// latter, then the physical effects can trigger on dock.
+  /// </para>
+  /// <para>The cable joint is created even when the stock joint is present.</para>
   /// </remarks>
+  /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
+  /// <seealso cref="realCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool allowDockingAtZeroDistance;
@@ -131,7 +140,7 @@ public class KASJointCableBase : AbstractJoint,
     CreateDistanceJoint(
         linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     if (partJoint != null
-        && (!allowDockingAtZeroDistance || Mathf.Approximately(realCableLength, 0))) {
+        && (!allowDockingAtZeroDistance || !Mathf.Approximately(deployedCableLength, 0))) {
       HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
