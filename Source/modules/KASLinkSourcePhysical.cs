@@ -564,13 +564,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           SetCableLength(0);
 
           // Align the docking part to the nodes if it's a separate vessel.
-          if (oldState != null && linkTarget.part.vessel != vessel) {
-            AlignTransforms.SnapAlign(
-                linkTarget.part.transform, linkTarget.nodeTransform, nodeTransform);
+          if (oldState.HasValue && linkTarget.part.vessel != vessel) {
+            AlignTransforms.SnapAlignNodes(linkTarget.coupleNode, coupleNode);
             linkJoint.SetCoupleOnLinkMode(true);
-            if (oldState.HasValue) {  // Skip when restoring state.
-              UISoundPlayer.instance.Play(sndPathDockConnector);
-            }
+            UISoundPlayer.instance.Play(sndPathDockConnector);
           }
         },
         leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false),
