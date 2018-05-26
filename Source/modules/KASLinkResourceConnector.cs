@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
@@ -18,6 +19,8 @@ namespace KAS {
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12016
+// TODO(ihsoft): Use database when the path is changed to no "." path.
+[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {
@@ -171,6 +174,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float cylinderPerimeterLength = 1.0f;
+
+  /// <summary>List of the resource types that must not offered fro the transfer.</summary>
+  [PersistentField("RTS/ignoreResource", isCollection = true)]
+  public List<string> ignoreResourceNames = new List<string>();
   #endregion
 
   #region Context menu events/actions
@@ -223,12 +230,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Tells if the transfer speed can be managed by the code.</summary>
   bool autoScaleSpeed;
-
-  /// <summary>List of all fuel types that cannot be moved.</summary>
-  /// TODO(ihsoft): Make it configurable.
-  int[] unmovableResources = {
-      StockResourceNames.GetId(StockResourceNames.SolidFuel)
-  };
 
   /// <summary>Model of the cylinder to rotate when the hose is extended/retracted.</summary>
   /// <remarks>Can be <c>null</c>.</remarks>
@@ -370,6 +371,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
+    ConfigAccessor.ReadFieldsInType(GetType(), this);
   }
 
   /// <inheritdoc/>
@@ -690,10 +692,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var allResources = leftResources
         .Union(rightResources)
         .Distinct()
-        .OrderByDescending(x => x)  // The GUI function will render the list in the reveresd order.
+        .OrderByDescending(x => x)  // The GUI function will render the list in the reversed order.
         .ToList();
+    var skipIds = ignoreResourceNames
+        .Select(x => StockResourceNames.GetId(x))
+        .ToArray();
     var resources = allResources
-        .Where(id => unmovableResources.IndexOf(id) == -1)
+        .Where(id => skipIds.IndexOf(id) == -1)
         .Select(id => new ResourceTransferOption(new[] {id}, new[] {1.0}))
         .ToList();
 
