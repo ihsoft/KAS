@@ -178,6 +178,35 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>List of the resource types that must not offered fro the transfer.</summary>
   [PersistentField("RTS/ignoreResource", isCollection = true)]
   public List<string> ignoreResourceNames = new List<string>();
+
+  /// <summary>Container for the fuel mixutre component.</summary>
+  public class FuelMixtureComponent {
+    /// <summary>Name of the resource.</summary>
+    [PersistentField("name")]
+    public string name = "";
+
+    /// <summary>
+    /// Weight of the component in the mixture. It can be any number, it will be scaled down to
+    /// <c>1.0</c> to get the percentage.
+    /// </summary>
+    [PersistentField("ratio")]
+    public double ratio;
+  }
+
+  /// <summary>Container for the fuel mixture.</summary>
+  public class FuelMixture {
+    /// <summary>The mixuture components.</summary>
+    [PersistentField("component", isCollection = true)]
+    public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
+  }
+
+  /// <summary>List of the supported fuel mixtures.</summary>
+  /// <remarks>
+  /// The mixture will only be presented if <i>all</i> of the components are present in any of the
+  /// vessels.
+  /// </remarks>
+  [PersistentField("RTS/fuelMixture", isCollection = true)]
+  public List<FuelMixture> fuelMixtures = new List<FuelMixture>();
   #endregion
 
   #region Context menu events/actions
@@ -702,18 +731,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         .Select(id => new ResourceTransferOption(new[] {id}, new[] {1.0}))
         .ToList();
 
-    // Add known mixtures.
-    // TODO(ihsoft): Load them from the config.
-    if (allResources.Contains(StockResourceNames.GetId(StockResourceNames.LiquidFuel))
-        && allResources.Contains(StockResourceNames.GetId(StockResourceNames.Oxidizer))) {
-      resources.Insert(0, new ResourceTransferOption(
-          new[] {
-            StockResourceNames.GetId(StockResourceNames.LiquidFuel),
-            StockResourceNames.GetId(StockResourceNames.Oxidizer)
-          },
-          new[] { 0.9, 1.1 }));
+    // Add the mixtures.
+    foreach (var mixture in fuelMixtures) {
+      if (mixture.components.All(c => allResources.Contains(StockResourceNames.GetId(c.name)))) {
+        resources.Insert(0, new ResourceTransferOption(
+            mixture.components.Select(x => StockResourceNames.GetId(x.name)).ToArray(),
+            mixture.components.Select(x => x.ratio).ToArray()));
+      }
     }
-    
+
     resourceRows = resources
         .Select(resource => resourceRowsHash.ContainsKey(resource.GetHashCode())
             ? resourceRowsHash[resource.GetHashCode()]
