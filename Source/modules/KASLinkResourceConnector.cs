@@ -5,10 +5,11 @@
 
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
-using KSPDev.PartUtils;
-using KSPDev.ResourceUtils;
+using KSPDev.LogUtils;
 using KSPDev.MathUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
+using KSPDev.ResourceUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -219,7 +220,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public void OpenGUIEvent() {
     if (isLinked && vessel != linkTarget.part.vessel) {
       isGUIOpen = true;
-      UpdateResourceOptionList();
+      resourceListNeedsUpdate = true;
+      MaybeUpdateResourceOptionList();
     }
   }
   #endregion
@@ -263,6 +265,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Model of the cylinder to rotate when the hose is extended/retracted.</summary>
   /// <remarks>Can be <c>null</c>.</remarks>
   Transform rotaingCylinder;
+
+  /// <summary>
+  /// Tells if the resources options need to be refreshed from the attached vessels.
+  /// </summary>
+  bool resourceListNeedsUpdate;
   #endregion
 
   #region GUI styles & contents
@@ -397,6 +404,22 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   
   #region KASLinkSourcePhysical overrides
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onVesselWasModified.Add(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Add(OnVesselUpdated);
+    GameEvents.onVesselCreate.Add(OnVesselUpdated);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onVesselWasModified.Remove(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Remove(OnVesselUpdated);
+    GameEvents.onVesselCreate.Remove(OnVesselUpdated);
+  }
+
+  /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
     rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
@@ -455,9 +478,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     MakeGuiStyles();
 
     if (guiActions.ExecutePendingGuiActions()) {
+      MaybeUpdateResourceOptionList();
       guiResourcesTable.UpdateFrame();
-      //TODO(ihsoft): Update resources on the vessel events.
-      UpdateResourceOptionList();
       if (pendingOption != null) {
         if (!DoTransfer()) {
           SetPendingTransferOption(null);  // Cancel all transfers.
@@ -711,7 +733,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>
   /// Makes the list of all fuels and mixtures that can be moved between the linked vessels.
   /// </summary>
-  void UpdateResourceOptionList() {
+  /// <remarks>This is a very expensive operation.</remarks>
+  void MaybeUpdateResourceOptionList() {
+    if (!resourceListNeedsUpdate) {
+      return; // Nothing to do.
+    }
+    resourceListNeedsUpdate = false;
+    HostedDebugLog.Fine(this, "Refreshing resources...");
     var leftResources = new HashSet<int>(vessel.parts
         .SelectMany(p => p.Resources)
         .Select(r => r.info.id));
@@ -758,6 +786,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (pendingOption == null && autoScaleSpeed) {
       transferSpeed = 1.0f;
     }
+  }
+
+  /// <summary>
+  /// Forces an update of the list of the available resources. It's an expensive operation.
+  /// </summary>
+  void OnVesselUpdated(Vessel v) {
+    resourceListNeedsUpdate = true;
   }
   #endregion
 }
