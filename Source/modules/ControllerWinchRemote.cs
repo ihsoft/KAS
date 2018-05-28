@@ -549,7 +549,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   }
 
   /// <summary>
-  /// Forces an updated on the list of the cached wiches. It's an expensive operation.
+  /// Forces an update of the list of the cached wiches. It's an expensive operation.
   /// </summary>
   void OnVesselUpdated(Vessel v) {
     modulesNeedUpdate = true;
