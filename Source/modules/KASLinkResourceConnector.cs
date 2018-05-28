@@ -279,6 +279,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   const float TRANSFER_STATE_UPDATE_PERIOD = 0.1f;
   #endregion
 
+  #region Cached values
+  Part currentFromPart;
+  double[] currentFromPartCapacities;
+  double[] currentFromPartAmounts;
+  Part currentToPart;
+  double[] currentToPartCapacities;
+  double[] currentToPartAmounts;
+  #endregion
+
   #region GUI styles & contents
   GUIStyle guiNoWrapStyle;
   GUIStyle guiNoWrapCenteredStyle;
@@ -588,33 +597,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (!autoScaleSpeed || pendingOption == null) {
       return;
     }
-    //FIXME: pre-cache selections somehow
-    double[] fromPartCapacities;
-    double[] fromPartAmounts;
-    double[] toPartCapacities;
-    double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
-      fromPartCapacities = pendingOption.leftCapacities;
-      fromPartAmounts = pendingOption.leftAmounts;
-      toPartCapacities = pendingOption.rightCapacities;
-      toPartAmounts = pendingOption.rightAmounts;
-    } else {
-      fromPartCapacities = pendingOption.rightCapacities;
-      fromPartAmounts = pendingOption.rightAmounts;
-      toPartCapacities = pendingOption.leftCapacities;
-      toPartAmounts = pendingOption.leftAmounts;
-    }
-
     // Determine the maximum unscaled amount to transfer.
     var maxUnscaledAmount = double.PositiveInfinity;
     for (var i = pendingOption.resources.Length - 1; i >= 0; i--) {
       var unit = pendingOption.resourceRatios[i];
       var resource = pendingOption.resources[i];
-      var amount = fromPartAmounts[i] / unit;
+      var amount = currentFromPartAmounts[i] / unit;
       if (amount < maxUnscaledAmount) {
         maxUnscaledAmount = amount;
       }
-      var capacity = (toPartCapacities[i] - toPartAmounts[i]) / unit;
+      var capacity = (currentToPartCapacities[i] - currentToPartAmounts[i]) / unit;
       if (capacity < maxUnscaledAmount) {
         maxUnscaledAmount = capacity;
       }
@@ -631,37 +623,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (updateDelta < float.Epsilon) {
       return true;  // Cannot do transfer, but the state must not be reset yet.
     }
-    
-    //FIXME: pre-cache selections somehow
-    Part fromPart;
-    double[] fromPartCapacities;
-    double[] fromPartAmounts;
-    Part toPart;
-    double[] toPartCapacities;
-    double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
-      fromPart = part;
-      fromPartCapacities = pendingOption.leftCapacities;
-      fromPartAmounts = pendingOption.leftAmounts;
-      toPart = linkTarget.part;
-      toPartCapacities = pendingOption.rightCapacities;
-      toPartAmounts = pendingOption.rightAmounts;
-    } else if (pendingOption.rightToLeftTransferPress || pendingOption.rightToLeftTransferToggle) {
-      fromPart = linkTarget.part;
-      fromPartCapacities = pendingOption.rightCapacities;
-      fromPartAmounts = pendingOption.rightAmounts;
-      toPart = part;
-      toPartCapacities = pendingOption.leftCapacities;
-      toPartAmounts = pendingOption.leftAmounts;
-    } else {
-      fromPart = null;
-      fromPartCapacities = null;
-      fromPartAmounts = null;
-      toPart = null;
-      toPartCapacities = null;
-      toPartAmounts = null;
-      return false;
-    }
 
     // Below a tricky logic starts. It's intended to properly work with the mixtures of multiple
     // resources. When moving a mixture, we should know in advance how much amount of each component
@@ -674,16 +635,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // Now, check if each component request transfer can be fulfilled.
     var scale = 1.0;
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
-      fromPart.GetConnectedResourceTotals(
-          resources[i], out fromPartAmounts[i], out fromPartCapacities[i]);
-      toPart.GetConnectedResourceTotals(
-          resources[i], out toPartAmounts[i], out toPartCapacities[i]);
+      currentFromPart.GetConnectedResourceTotals(
+          resources[i], out currentFromPartAmounts[i], out currentFromPartCapacities[i]);
+      currentToPart.GetConnectedResourceTotals(
+          resources[i], out currentToPartAmounts[i], out currentToPartCapacities[i]);
       var amount = moveAmounts[i];
-      if (amount > fromPartAmounts[i]) {
-        amount = fromPartAmounts[i];
+      if (amount > currentFromPartAmounts[i]) {
+        amount = currentFromPartAmounts[i];
       }
-      if (amount > toPartCapacities[i] - toPartAmounts[i]) {
-        amount = toPartCapacities[i] - toPartAmounts[i];
+      if (amount > currentToPartCapacities[i] - currentToPartAmounts[i]) {
+        amount = currentToPartCapacities[i] - currentToPartAmounts[i];
       }
       var newScale = amount / moveAmounts[i];
       if (newScale < scale) {
@@ -694,8 +655,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
       var resource = resources[i];
       var amount = scale * moveAmounts[i];
-      var actualAmount = fromPart.RequestResource(resource, amount);
-      toPart.RequestResource(resource, -actualAmount);
+      var actualAmount = currentFromPart.RequestResource(resource, amount);
+      currentToPart.RequestResource(resource, -actualAmount);
     }
     return Mathd.AreSame(scale, 1.0);
   }
@@ -805,6 +766,28 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     pendingOption = newOption;
     if (pendingOption == null && autoScaleSpeed) {
       transferSpeed = 1.0f;
+    }
+    if (pendingOption != null) {
+      if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
+        currentFromPart = part;
+        currentFromPartCapacities = pendingOption.leftCapacities;
+        currentFromPartAmounts = pendingOption.leftAmounts;
+        currentToPart = linkTarget.part;
+        currentToPartCapacities = pendingOption.rightCapacities;
+        currentToPartAmounts = pendingOption.rightAmounts;
+      } else {
+        currentFromPart = linkTarget.part;
+        currentFromPartCapacities = pendingOption.rightCapacities;
+        currentFromPartAmounts = pendingOption.rightAmounts;
+        currentToPart = part;
+        currentToPartCapacities = pendingOption.leftCapacities;
+        currentToPartAmounts = pendingOption.leftAmounts;
+      }
+    } else {
+      currentFromPartCapacities = null;
+      currentFromPartAmounts = null;
+      currentToPartCapacities = null;
+      currentToPartAmounts = null;
     }
     UpdateResourcesTransferGui(force: true);
   }
