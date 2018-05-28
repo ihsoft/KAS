@@ -270,6 +270,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// Tells if the resources options need to be refreshed from the attached vessels.
   /// </summary>
   bool resourceListNeedsUpdate;
+
+  /// <summary>Last time the resoucres counts were updated in GUI.</summary>
+  float lastResourcesGUIUpdate;
+
+  /// <summary>The timeout to update the resoucres countes in GUI in seconds.</summary>
+  /// <remarks>It's a performance affecting settings.</remarks>
+  const float TRANSFER_STATE_UPDATE_PERIOD = 0.1f;
   #endregion
 
   #region GUI styles & contents
@@ -485,10 +492,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           SetPendingTransferOption(null);  // Cancel all transfers.
         }
       }
-      //TODO(ihsoft): Check for an update timeout, don't do it in each frame.
-      for (var i = resourceRows.Length - 1; i >= 0; i--) {
-        UpdateTransferState(resourceRows[i]);
-      }
+      UpdateResourcesTransferGui();
     }
     
     GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), GUI.skin.box);
@@ -696,10 +700,26 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     return Mathd.AreSame(scale, 1.0);
   }
 
-  /// <summary>Updates the resources amounts and the transfer states.</summary>
+  /// <summary>Updates GUI for all the resoucres.</summary>
+  /// <remarks>
+  /// To not waste too much CPU, this method opdates by timer. However, when an instant update is
+  /// needed, it can be requested via the parameter.
+  /// </remarks>
+  /// <param name="force">Tells if GUI must be upadted regardless to the timer.</param>
+  void UpdateResourcesTransferGui(bool force = false) {
+    if (!force && Time.unscaledTime - lastResourcesGUIUpdate < TRANSFER_STATE_UPDATE_PERIOD) {
+      return;
+    }
+    lastResourcesGUIUpdate = Time.unscaledTime;
+    for (var i = resourceRows.Length - 1; i >= 0; i--) {
+      UpdateOptionTransferGui(resourceRows[i]);
+    }
+  }
+
+  /// <summary>Updates the resources amounts and the transfer states in GUI.</summary>
   /// <remarks>This method must be performance optimized.</remarks>
   /// <param name="resOption">The resource transfer option to update.</param>
-  void UpdateTransferState(ResourceTransferOption resOption) {
+  void UpdateOptionTransferGui(ResourceTransferOption resOption) {
     var leftInfoString = "";
     var rightInfoString = "";
     resOption.canMoveRightToLeft = true;
@@ -786,6 +806,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (pendingOption == null && autoScaleSpeed) {
       transferSpeed = 1.0f;
     }
+    UpdateResourcesTransferGui(force: true);
   }
 
   /// <summary>
