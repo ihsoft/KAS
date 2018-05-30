@@ -67,7 +67,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string sndPathBroken = "";
+  public string sndPathBroke = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -236,7 +236,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
           if (linkActor == LinkActorType.Player) {
             UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathUndock : sndPathUnplug);
           } else if (linkActor == LinkActorType.Physics) {
-            UISoundPlayer.instance.Play(sndPathBroken);
+            UISoundPlayer.instance.Play(sndPathBroke);
           }
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, BreakLinkContextMenuAction, module);
