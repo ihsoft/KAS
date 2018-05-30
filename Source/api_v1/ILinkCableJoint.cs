@@ -32,7 +32,7 @@ namespace KASAPIv1 {
 /// <seealso cref="SetCableLength"/>
 public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Maximum allowed distance between the parts to establish a link.</summary>
-  /// <value>Distance in meters.</value>
+  /// <value>Distance in meters. It's constant and doesn't depend on the joint state.</value>
   float cfgMaxCableLength { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
@@ -46,8 +46,12 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <remarks>
   /// This is a <i>desired</i> distance. The engine will try to keep it equal or less to this value,
   /// but depending on the forces that affect the objects, this distance may be never reached.
+  /// Various implementations can adjust this value, but not greater than
+  /// <see cref="cfgMaxCableLength"/>.
   /// </remarks>
-  /// <value>The length in meters. Always positive.</value>
+  /// <value>
+  /// The length in meters. Always positive, if the PhysX joint is created. Zero, otherwise.
+  /// </value>
   /// <seealso cref="headRb"/>
   /// <seealso cref="realCableLength"/>
   /// <seealso cref="StartPhysicalHead"/>
@@ -62,7 +66,9 @@ public interface ILinkCableJoint : ILinkJoint {
   /// that the real length is almost never equal to the deployed cable lenght. This is due to how
   /// the PhysX engine works: the force can only be applied when the joint is stretched.
   /// </remarks>
-  /// <value>The distance in meters.</value>
+  /// <value>
+  /// The distance in meters. Always positive, if the PhysX joint is created. Zero, otherwise.
+  /// </value>
   /// <seealso cref="deployedCableLength"/>
   float realCableLength { get; }
 
