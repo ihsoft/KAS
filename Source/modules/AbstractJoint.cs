@@ -383,10 +383,33 @@ public abstract class AbstractJoint : PartModule,
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
     HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
+    Part parentPart = null;
+    Vector3 relPos = Vector3.zero;
+    Quaternion relRot = Quaternion.identity;
+    if (part.parent != linkTarget.part) {
+      // Calculate relative position and rotation of the part to properly restore the coupling.
+      parentPart = part.parent;
+      var root = vessel.rootPart.transform;
+      var thisPartPos = root.TransformPoint(part.orgPos);
+      var thisPartRot = root.rotation * part.orgRot;
+      var parentPartPos = root.TransformPoint(parentPart.orgPos);
+      var parentPartRot = root.rotation * parentPart.orgRot;
+      relPos = parentPartRot.Inverse() * (thisPartPos - parentPartPos);
+      relRot = parentPartRot.Inverse() * thisPartRot;
+    }
+    
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        if (parentPart != null) {
+          HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
+          part.transform.position =
+              parentPart.transform.position + parentPart.transform.rotation * relPos;
+          part.transform.rotation = parentPart.transform.rotation * relRot;
+          part.Couple(parentPart);
+        }
+        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
         linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
     });
