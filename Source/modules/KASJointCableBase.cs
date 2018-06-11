@@ -184,16 +184,16 @@ public class KASJointCableBase : AbstractJoint,
 
   /// <inheritdoc/>
   public virtual void SetCableLength(float length) {
+    if (float.IsPositiveInfinity(length)) {
+      length = cfgMaxCableLength;
+    } else if (float.IsNegativeInfinity(length)) {
+      length = Mathf.Min(realCableLength, deployedCableLength);
+    } else {
+      length = Mathf.Max(length, 0);
+    }
+    SetOrigianlLength(length);
     if (cableJoint != null) {
-      if (float.IsPositiveInfinity(length)) {
-        length = cfgMaxCableLength;
-      } else if (float.IsNegativeInfinity(length)) {
-        length = Mathf.Min(realCableLength, deployedCableLength);
-      } else {
-        length = Mathf.Max(length, 0);
-      }
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
-      SetOrigianlLength(length);
     }
   }
   #endregion
