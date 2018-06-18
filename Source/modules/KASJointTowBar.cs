@@ -25,7 +25,9 @@ namespace KAS {
 // Next localization ID: #kasLOC_05010.
 public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
-    IsPhysicalObject {
+    IsPhysicalObject,
+    // KSPDev interfaces.
+    IHasContextMenu {
 
   #region Localizable strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -318,13 +320,10 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     }
   }
   #endregion
-  
-  #region Local utility methods
-  /// <summary>
-  /// Updates GUI context menu items status according to the current module state. Call it every
-  /// time the state is changed.
-  /// </summary>
-  void UpdateContextMenu() {
+
+  #region IHasContextMenu implemenation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
     Fields["lockStatus"].guiActive = isLinked;
     Fields["steeringStatus"].guiActive = isLinked;
     Fields["steeringInvert"].guiActive = isLinked && persistedActiveSteeringEnabled;
@@ -344,6 +343,9 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
         e => e.active = isLinked && !persistedActiveSteeringEnabled);
   }
 
+  #endregion
+
+  #region Local utility methods
   /// <summary>
   /// Sets current locking state. Updates UI, vessel, and joints states as needed.
   /// </summary>
