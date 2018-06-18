@@ -145,12 +145,12 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public bool activeSteeringEnabled;
+  public bool persistedActiveSteeringEnabled;
 
   /// <summary>Current locking mode of the tow bar.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public LockMode lockingMode = LockMode.Disabled;
+  public LockMode persistedLockingMode = LockMode.Disabled;
   #endregion
 
   #region GUI status/mode fields
@@ -234,7 +234,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
     if (HighLogic.LoadedSceneIsFlight) {
       // Trigger updates with the loaded value.
-      SetActiveSteeringState(activeSteeringEnabled);
+      SetActiveSteeringState(persistedActiveSteeringEnabled);
     }
   }
   #endregion
@@ -245,8 +245,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (!base.CreateJoint(source, target)) {
       return false;
     }
-    SetLockingMode(lockingMode);
-    SetActiveSteeringState(activeSteeringEnabled);
+    SetLockingMode(persistedLockingMode);
+    SetActiveSteeringState(persistedActiveSteeringEnabled);
     return true;
   }
 
@@ -292,7 +292,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (!isLinked) {
       return;
     }
-    if (lockingMode == LockMode.Locking) {
+    if (persistedLockingMode == LockMode.Locking) {
       var yaw = GetYawAngle(linkTarget.nodeTransform, linkSource.nodeTransform);
       var absYaw = Mathf.Abs(yaw);
       if (absYaw < trgJoint.angularZLimit.limit) {
@@ -310,7 +310,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       }
       ShowLockingProgress(angleDiff: yaw);
     }
-    if (activeSteeringEnabled) {
+    if (persistedActiveSteeringEnabled) {
       UpdateActiveSteering();
     }
   }
@@ -324,16 +324,21 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   void UpdateContextMenu() {
     Fields["lockStatus"].guiActive = isLinked;
     Fields["steeringStatus"].guiActive = isLinked;
-    Fields["steeringInvert"].guiActive = isLinked && activeSteeringEnabled;
-    Fields["steeringSensitivity"].guiActive = isLinked && activeSteeringEnabled;
-    PartModuleUtils.SetupEvent(this, StartLockLockingAction,
-                               e => e.active = isLinked && lockingMode == LockMode.Disabled);
-    PartModuleUtils.SetupEvent(this, UnlockAction,
-                               e => e.active = isLinked && lockingMode != LockMode.Disabled);
-    PartModuleUtils.SetupEvent(this, DeactiveSteeringAction,
-                               e => e.active = isLinked && activeSteeringEnabled);
-    PartModuleUtils.SetupEvent(this, ActiveSteeringAction,
-                               e => e.active = isLinked && !activeSteeringEnabled);
+    Fields["steeringInvert"].guiActive = isLinked && persistedActiveSteeringEnabled;
+    Fields["steeringSensitivity"].guiActive = isLinked && persistedActiveSteeringEnabled;
+    
+    PartModuleUtils.SetupEvent(
+        this, StartLockLockingAction,
+        e => e.active = isLinked && persistedLockingMode == LockMode.Disabled);
+    PartModuleUtils.SetupEvent(
+        this, UnlockAction,
+        e => e.active = isLinked && persistedLockingMode != LockMode.Disabled);
+    PartModuleUtils.SetupEvent(
+        this, DeactiveSteeringAction,
+        e => e.active = isLinked && persistedActiveSteeringEnabled);
+    PartModuleUtils.SetupEvent(
+        this, ActiveSteeringAction,
+        e => e.active = isLinked && !persistedActiveSteeringEnabled);
   }
 
   /// <summary>
@@ -345,8 +350,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <param name="mode"></param>
   void SetLockingMode(LockMode mode) {
-    lockingMode = mode;
-    lockStatus = LockStatusMsgLookup.Lookup(lockingMode);
+    persistedLockingMode = mode;
+    lockStatus = LockStatusMsgLookup.Lookup(persistedLockingMode);
 
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
@@ -373,10 +378,10 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <param name="state"></param>
   void SetActiveSteeringState(bool state) {
-    activeSteeringEnabled = state;
+    persistedActiveSteeringEnabled = state;
     steeringStatus = SteeringStatusMsgLookup.Lookup(
-        activeSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
-    if (isLinked && linkTarget != null && !activeSteeringEnabled) {
+        persistedActiveSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
+    if (isLinked && linkTarget != null && !persistedActiveSteeringEnabled) {
       linkTarget.part.vessel.ctrlState.wheelSteer = 0;
     }
     UpdateContextMenu();
@@ -406,9 +411,9 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.CurrentVesselIsTarget);
     } else if (!linkTarget.part.vessel.IsControllable) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.TargetIsNotControllable);
-    } else if (lockingMode != LockMode.Locked) {
+    } else if (persistedLockingMode != LockMode.Locked) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.NotLocked);
-    } else if (activeSteeringEnabled) {
+    } else if (persistedActiveSteeringEnabled) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.Active);
       var srcJointYaw = GetYawAngle(linkSource.nodeTransform, linkTarget.nodeTransform);
       if (steeringInvert) {
