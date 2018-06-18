@@ -34,9 +34,9 @@ public class KASJointCableBase : AbstractJoint,
   readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
       "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
-      description: "Info string in the editor for the cable spring force setting. The argument is"
-      + " of type ForceType.",
-      example: "Cable break force: 1.2 kN");
+      description: "Info string in the editor for the cable spring force setting."
+      + "\nArgument <<1>> is the force of type ForceType.",
+      example: "Spring force: 1.2 kN");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitle = new Message(

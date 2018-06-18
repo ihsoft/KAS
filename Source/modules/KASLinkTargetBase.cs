@@ -26,7 +26,7 @@ namespace KAS {
 /// public use <b>regardless</b> to their visibility level.
 /// </para>
 /// </remarks>
-// Next localization ID: #kasLOC_03004.
+// Next localization ID: #kasLOC_03002.
 public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,

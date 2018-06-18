@@ -46,7 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-// Next localization ID: #kasLOC_02013.
+// Next localization ID: #kasLOC_02008.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
@@ -68,19 +68,19 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
-      "#kasLOC_02003",
+      "#kasLOC_02001",
       defaultTemplate: "Source is not available for a link",
       description: "Message to display when a source is refusing to start the link.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message TargetDoesntAcceptLinksMsg = new Message(
-      "#kasLOC_02004",
+      "#kasLOC_02002",
       defaultTemplate: "Target doesn't accept links",
       description: "Message to display when the target is refusing to accept the link.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   readonly static Message<string> CannotRestoreLinkMsg = new Message<string>(
-      "#kasLOC_02005",
+      "#kasLOC_02003",
       defaultTemplate: "Cannot restore link for: <<1>>",
       description: "Message to display when a linked source and target cannot be matched on load."
       + "\nArgument <<1>> is a name of the SOURCE part.",
@@ -88,20 +88,20 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   readonly static Message<string> LinksWithSocketTypeInfo = new Message<string>(
-      "#kasLOC_02006",
+      "#kasLOC_02004",
       defaultTemplate: "Links with socket type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitleInfo = new Message(
-      "#kasLOC_02007",
+      "#kasLOC_02005",
       defaultTemplate: "KAS Joint Source",
       description: "Title of the module to present in the editor details window.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DockedModeMenuTxt = new Message(
-      "#kasLOC_02011",
+      "#kasLOC_02006",
       defaultTemplate: "Link mode: DOCKED",
       description: "The name of the part's context menu event that triggers a separtation of the"
       + " linked parts into two different vessels if they are coupled thru this link. At the same"
@@ -109,7 +109,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message UndockedModeMenuTxt = new Message(
-      "#kasLOC_02012",
+      "#kasLOC_02007",
       defaultTemplate: "Link mode: UNDOCKED",
       description: "The name of the part's context menu event that triggers a merging of the"
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
