@@ -46,12 +46,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Orientation of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public Vector3 parkedOrientation = Vector3.zero;
+  public Vector3 persistedParkedOrientation = Vector3.zero;
 
   /// <summary>Extended length of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public float parkedLength = 0;  // If 0 then minimum link length will be used.
+  public float persistedParkedLength = 0;  // If 0 then minimum link length will be used.
   #endregion
 
   #region Part's config fields
@@ -501,7 +501,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPEvent(guiName = "Pipe position 0", guiActiveUnfocused = true, guiActiveEditor = true,
             active = false)]
   public void ParkedOrientationMenuAction0() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
+    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     UpdateLinkLengthAndOrientation();
   }
 
@@ -510,7 +510,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPEvent(guiName = "Pipe position 1", guiActiveUnfocused = true, guiActiveEditor = true,
             active = false)]
   public void ParkedOrientationMenuAction1() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
+    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
     UpdateLinkLengthAndOrientation();
   }
 
@@ -519,7 +519,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPEvent(guiName = "Pipe position 2", guiActiveUnfocused = true, guiActiveEditor = true,
             active = false)]
   public void ParkedOrientationMenuAction2() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
+    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
     UpdateLinkLengthAndOrientation();
   }
 
@@ -528,7 +528,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPEvent(guiName = "Extend to max", guiActiveUnfocused = true, guiActiveEditor = true,
             active = false)]
   public void ExtendAtMaxMenuAction() {
-    parkedLength = maxLinkLength;
+    persistedParkedLength = maxLinkLength;
     UpdateLinkLengthAndOrientation();
   }
 
@@ -537,7 +537,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPEvent(guiName = "Retract to min", guiActiveUnfocused = true, guiActiveEditor = true,
             active = false)]
   public void RetractToMinMenuAction() {
-    parkedLength = minLinkLength;
+    persistedParkedLength = minLinkLength;
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -557,11 +557,11 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
         pistonLength, outerPistonDiameter);
 
     // Init parked state. It must go after all the models are created.
-    parkedOrientation = parkedOrientationMenu0 != ""
+    persistedParkedOrientation = parkedOrientationMenu0 != ""
         ? ExtractOrientationVector(parkedOrientationMenu0)
         : Vector3.forward;
-    if (Mathf.Approximately(parkedLength, 0)) {
-      parkedLength = minLinkLength;
+    if (Mathf.Approximately(persistedParkedLength, 0)) {
+      persistedParkedLength = minLinkLength;
     }
 
     UpdateLinkLengthAndOrientation();
@@ -601,9 +601,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     if (!isStarted) {
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
-      srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
+      srcPartJointPivot.localRotation = Quaternion.LookRotation(persistedParkedOrientation);
       tgtStrutJoint.localPosition =
-          GetUnscaledStrutVector(new Vector3(0, 0, parkedLength - tgtJointHandleLength));
+          GetUnscaledStrutVector(new Vector3(0, 0, persistedParkedLength - tgtJointHandleLength));
       tgtStrutJoint.localRotation = Quaternion.identity;
       tgtStrutJointPivot.localRotation = Quaternion.identity;
     } else {
