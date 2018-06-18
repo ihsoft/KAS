@@ -82,6 +82,7 @@ public abstract class AbstractProceduralModel : PartModule,
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
+    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
     LocalizeModule();
   }
