@@ -153,7 +153,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public LockMode persistedLockingMode = LockMode.Disabled;
   #endregion
 
-  #region GUI status/mode fields
+  #region The context menu fields
   /// <summary>Status field to display current lock state.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiName = "Lock status")]
@@ -178,7 +178,9 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public bool steeringInvert;
   #endregion
 
+  #region Internal properties
   /// <summary>Current locking mode.</summary>
+  /// <remarks>It's declared public only to make the KSP peristense working.</remarks>
   public enum LockMode {
     /// <summary>Not requested.</summary>
     Disabled,
@@ -186,6 +188,20 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     Locking,
     /// <summary>Target joint is locked on Z axis (a normal vector to the surface).</summary>
     Locked,
+  }
+
+  /// <summary>Status helper. Only used to present GUI status.</summary>
+  enum SteeringStatus {
+    /// <summary>Not requested.</summary>
+    Disabled,
+    /// <summary>Requested and currently active.</summary>
+    Active,
+    /// <summary>Requested but inactive due to active vessel is the same as link's target.</summary>
+    CurrentVesselIsTarget,
+    /// <summary>Requested but inactive due to target vessel has no active control module.</summary>
+    TargetIsNotControllable,
+    /// <summary>Requested but inactive due to link has not yet locked.</summary>
+    NotLocked,
   }
 
   /// <summary>
@@ -205,22 +221,9 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// Once angle decreases down to this value active steering stops affecting towed vessel.
   /// </remarks>
   const float ZeroSteeringAngle = 0.05f;
+  #endregion
 
-  /// <summary>Status helper. Only used to present GUI status.</summary>
-  enum SteeringStatus {
-    /// <summary>Not requested.</summary>
-    Disabled,
-    /// <summary>Requested and currently active.</summary>
-    Active,
-    /// <summary>Requested but inactive due to active vessel is the same as link's target.</summary>
-    CurrentVesselIsTarget,
-    /// <summary>Requested but inactive due to target vessel has no active control module.</summary>
-    TargetIsNotControllable,
-    /// <summary>Requested but inactive due to link has not yet locked.</summary>
-    NotLocked,
-  }
-
-  #region PartModule overrides
+  #region KASJointTwoEndsSphere overrides
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
@@ -302,7 +305,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
         // Either Unity or KSP applies a cap to the minimum allowed limit. It makes it impossible to
         // iteratively reduce the limit down to zero. So check when we hit the cap and just activate
         // locked mode assuming the limit cap was chosen wise.
-        // TODO(ihsoft): Track last known yaw and lock when at starts increasing.
+        // TODO(ihsoft): Track last known yaw and lock when it starts increasing.
         if (!Mathf.Approximately(absYaw, trgJoint.angularZLimit.limit) || absYaw < LockJointAngle) {
           yaw = 0f;
           SetLockingMode(LockMode.Locked);
