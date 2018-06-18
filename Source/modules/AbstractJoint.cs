@@ -24,19 +24,21 @@ namespace KAS {
 /// the descendants.
 /// </para>
 /// <para>
-/// Descendants can use custom persistent fields offered by <c>KSPDevUtils.ConfigUtils</c>. For
-/// this, use the persistence group <c>StdPersistentGroups.PartPersistant</c> and declare the
-/// memebers either as protected or public. E.g. as it's done for the
-/// <see cref="persistedSrcVesselInfo"/> struct.
-/// </para>
-/// <para>
 /// At the very least, the descendants must implement the <see cref="SetupPhysXJoints"/> method. In
 /// the unusual cases an overriding of <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
+/// <para>
+/// The descendants of this module can use the custom persistent fields of groups:
+/// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
+/// </list>
 /// </remarks>
 /// <seealso cref="SetupPhysXJoints"/>
 /// <seealso cref="CleanupPhysXJoints"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_00011.
 public abstract class AbstractJoint : PartModule,
     // KSP interfaces.
@@ -428,16 +430,15 @@ public abstract class AbstractJoint : PartModule,
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
+    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
     base.OnLoad(node);
-    ConfigAccessor.ReadFieldsFromNode(
-        node, GetType(), this, group: StdPersistentGroups.PartPersistant);
   }
 
   /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(
-        node, GetType(), this, group: StdPersistentGroups.PartPersistant);
+    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
   }
   #endregion
 
