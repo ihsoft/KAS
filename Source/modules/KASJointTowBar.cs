@@ -22,7 +22,7 @@ namespace KAS {
 /// </item>
 /// </list>
 /// </remarks>
-// Next localization ID: #kasLOC_05010.
+// Next localization ID: #kasLOC_05020.
 public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
     IsPhysicalObject,
@@ -124,6 +124,20 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   
   /// <summary>Status screen message to be displayed during the locking process.</summary>
   ScreenMessage lockStatusScreenMessage;
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringNormalToggle = new Message(
+      "#kasLOC_05018",
+      defaultTemplate: "Normal",
+      description: "A string in the context menu that tells if the steering commands are sent to"
+      + " the linked vessel in the exact form as they've emitted for the source vessel.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringInvertToggle = new Message(
+      "#kasLOC_05019",
+      defaultTemplate: "Inverted",
+      description: "A string in the context menu that tells if the steering commands are sent to"
+      + " the linked vessel in the inverted form relative to the source vessel.");
   #endregion
 
   #region Part's config fields
@@ -158,25 +172,44 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   #region The context menu fields
   /// <summary>Status field to display current lock state.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Lock status")]
+  [KSPField]
+  [LocalizableItem(
+      tag = "#kasLOC_05010",
+      defaultTemplate = "Lock status",
+      description = "A context menu item that displays the current status of the bar locking.")]
   public string lockStatus = "";
 
   /// <summary>Status field to display current steering status.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Steering status")]
+  [KSPField]
+  [LocalizableItem(
+      tag = "#kasLOC_05011",
+      defaultTemplate = "Steering status",
+      description = "A context menu item that displays the current steering status.")]
   public string steeringStatus = "";
 
   /// <summary>Defines responsiveness of the towed vessel to the steering.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Steering sensitivity", guiFormat = "0.0", isPersistant = true),
+  [KSPField(guiFormat = "0.0", isPersistant = true),
    UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
                  stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
+  [LocalizableItem(
+      tag = "#kasLOC_05012",
+      defaultTemplate = "Steering sensitivity",
+      description = "A context menu item that displays and allows changing the strength of the"
+      + " steering commands, that the tow bar sends to the linked vessel.")]
   public float steeringSensitivity = 1.0f;
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// FIXME: localization for the invert modes
   [KSPField(guiName = "Steering: Direction", isPersistant = true),
    UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
+  [LocalizableItem(
+      tag = "#kasLOC_05013",
+      defaultTemplate = "Steering: Direction",
+      description = "A context menu item that displays and allows changing the direction of the"
+      + " steering commands.")]
   public bool steeringInvert;
   #endregion
 
@@ -241,6 +274,18 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       // Trigger updates with the loaded value.
       SetActiveSteeringState(persistedActiveSteeringEnabled);
     }
+    UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
+  public override void LocalizeModule() {
+    base.LocalizeModule();
+
+    var toggle = Fields["steeringInvert"].uiControlFlight as UI_Toggle;
+    if (toggle != null) {
+      toggle.disabledText = SteeringNormalToggle;
+      toggle.enabledText = SteeringInvertToggle;
+    }
   }
   #endregion
 
@@ -267,25 +312,42 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
 
   #region GUI menu action handlers
   /// <summary>Starts mode to lock target joint.</summary>
-  [KSPEvent(guiName = "Start locking", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05014",
+      defaultTemplate = "Start locking",
+      description = "A context menu event that starts the locking process on a linked vessel.")]
   public void StartLockLockingAction() {
     SetLockingMode(LockMode.Locking);
   }
 
   /// <summary>Unlocks target joint and disables active steering.</summary>
-  [KSPEvent(guiName = "Unlock joint", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05015",
+      defaultTemplate = "Unlock joint",
+      description = "A context menu event that disables the locking of the tow bar joints and turns"
+      + " off the active steering mode.")]
   public void UnlockAction() {
     SetLockingMode(LockMode.Disabled);
   }
 
   /// <summary>Enables active steering of the towed vessel.</summary>
-  [KSPEvent(guiName = "Enable active steering", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05016",
+      defaultTemplate = "Enable active steering",
+      description = "A context menu event that enables the active steering mode.")]
   public void ActiveSteeringAction() {
     SetActiveSteeringState(true);
   }
 
   /// <summary>Disables active steering of the towed vessel.</summary>
-  [KSPEvent(guiName = "Disable active steering", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05017",
+      defaultTemplate = "Disable active steering",
+      description = "A context menu event that disables the active steering mode.")]
   public void DeactiveSteeringAction() {
     SetActiveSteeringState(false);
   }
