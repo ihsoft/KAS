@@ -43,6 +43,8 @@ public abstract class AbstractJoint : PartModule,
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
     ILinkJoint,
+    // KSPDev parents.
+    IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
@@ -421,6 +423,7 @@ public abstract class AbstractJoint : PartModule,
   public override void OnAwake() {
     base.OnAwake();
     GameEvents.onVesselRename.Add(OnVesselRename);
+    LocalizeModule();
   }
 
   /// <inheritdoc/>
@@ -545,6 +548,13 @@ public abstract class AbstractJoint : PartModule,
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
     return true;
+  }
+  #endregion
+
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 

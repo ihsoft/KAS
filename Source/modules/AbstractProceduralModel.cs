@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using System.Collections.Generic;
+using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
@@ -16,7 +17,12 @@ namespace KAS {
 /// This class offers a common functionality for creating meshes in the part's model and loading
 /// them when needed.
 /// </remarks>
-public abstract class AbstractProceduralModel : PartModule, IPartModule {
+public abstract class AbstractProceduralModel : PartModule,
+    // KSPDev parents.
+    IsLocalizableModule,
+    // KSPDev syntax sugar interfaces.
+    IPartModule {
+
   /// <summary>Standard KSP part shader name.</summary>
   public const string KspPartShaderName = "KSP/Bumped Specular";
 
@@ -54,7 +60,20 @@ public abstract class AbstractProceduralModel : PartModule, IPartModule {
   // Internal cache of the textures used by this renderer (and its descendants).
   readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
+  }
+  #endregion
+
   #region PartModule overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    LocalizeModule();
+  }
+
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     LoadPartModel();
