@@ -19,6 +19,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
+// Next localization ID: #kasLOC_04004.
 public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
@@ -498,8 +499,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region GUI menu action handlers
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu0"/>
-  [KSPEvent(guiName = "Pipe position 0", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(tag = null)]
   public void ParkedOrientationMenuAction0() {
     persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
     UpdateLinkLengthAndOrientation();
@@ -507,8 +508,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu1"/>
-  [KSPEvent(guiName = "Pipe position 1", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(tag = null)]
   public void ParkedOrientationMenuAction1() {
     persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
     UpdateLinkLengthAndOrientation();
@@ -516,8 +517,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
   /// <seealso cref="parkedOrientationMenu2"/>
-  [KSPEvent(guiName = "Pipe position 2", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(tag = null)]
   public void ParkedOrientationMenuAction2() {
     persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
     UpdateLinkLengthAndOrientation();
@@ -525,8 +526,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
   /// <seealso cref="maxLinkLength"/>
-  [KSPEvent(guiName = "Extend to max", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04002",
+      defaultTemplate = "Extend to max",
+      description = "A context menu item that expands a non-linked telescopic pipe to its maximum"
+      + " length.")]
   public void ExtendAtMaxMenuAction() {
     persistedParkedLength = maxLinkLength;
     UpdateLinkLengthAndOrientation();
@@ -534,8 +539,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
   /// <seealso cref="minLinkLength"/>
-  [KSPEvent(guiName = "Retract to min", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04003",
+      defaultTemplate = "Retract to min",
+      description = "A context menu item that shrinks a non-linked telescopic pipe to its minimum"
+      + " length.")]
   public void RetractToMinMenuAction() {
     persistedParkedLength = minLinkLength;
     UpdateLinkLengthAndOrientation();
