@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
+using KSPDev.ConfigUtils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -47,7 +48,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Orientation of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public Vector3 persistedParkedOrientation = Vector3.zero;
+  public Vector3 persistedParkedOrientation = Vector3.forward;
 
   /// <summary>Extended length of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
@@ -143,39 +144,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPField]
   public float pistonMinShift = 0.02f;
 
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu0 = "";
-
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu1 = "";
-
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu2 = "";
-
   /// <summary>Name of the renderer for this procedural part.</summary>
   /// <remarks>
   /// This setting is used to let link source know primary renderer for the linked state.
@@ -185,6 +153,25 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
+
+  /// <summary>
+  /// Container for the menu item description which tells how to park the unlinked strut.
+  /// </summary>
+  public class Orientation {
+    /// <summary>Direction of the pipe.</summary>
+    [PersistentField("direction")]
+    public Vector3 direction = Vector3.forward;
+
+    /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
+    [PersistentField("title")]
+    public string title = "";
+  }
+
+  /// <summary>List of the available menu items for the unlinked pipe oriaentation.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [PersistentField("parkedOrientation", isCollection = true,
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public List<Orientation> parkedOrientations = new List<Orientation>();
   #endregion
 
   #region ILinkRenderer properties
@@ -405,6 +392,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
   #endregion
 
+  /// <summary>Instances of the events, that were created for orientation menu items.</summary>
+  readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
+
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
@@ -421,6 +411,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
+
+    InjectOrientationMenuItems();
     UpdateContextMenu();
     UpdateLinkLengthAndOrientation();
   }
@@ -478,18 +470,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region IHasContextMenu implemenation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction0, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu0);
-      x.active = x.guiName != "" && !isLinked;
-    });
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction1, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu1);
-      x.active = x.guiName != "" && !isLinked;
-    });
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction2, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu2);
-      x.active = x.guiName != "" && !isLinked;
-    });
+    injectedOrientationEvents.ForEach(e => e.active = !isLinked);
     PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
     PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
   }
@@ -497,33 +478,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   // FIXME: check colliders.
   #region GUI menu action handlers
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu0"/>
-  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
-  [LocalizableItem(tag = null)]
-  public void ParkedOrientationMenuAction0() {
-    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu1"/>
-  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
-  [LocalizableItem(tag = null)]
-  public void ParkedOrientationMenuAction1() {
-    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu2"/>
-  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
-  [LocalizableItem(tag = null)]
-  public void ParkedOrientationMenuAction2() {
-    persistedParkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
-    UpdateLinkLengthAndOrientation();
-  }
-
   /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
   /// <seealso cref="maxLinkLength"/>
   [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
@@ -566,9 +520,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
         pistonLength, outerPistonDiameter);
 
     // Init parked state. It must go after all the models are created.
-    persistedParkedOrientation = parkedOrientationMenu0 != ""
-        ? ExtractOrientationVector(parkedOrientationMenu0)
-        : Vector3.forward;
+    if (parkedOrientations.Count > 0) {
+      persistedParkedOrientation = parkedOrientations[0].direction;
+    }
     if (Mathf.Approximately(persistedParkedLength, 0)) {
       persistedParkedLength = minLinkLength;
     }
@@ -601,6 +555,14 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
     UpdateValuesFromModel();
     UpdateLinkLengthAndOrientation();
+  }
+
+  /// <inheritdoc/>
+  public override void LocalizeModule() {
+    base.LocalizeModule();
+    for (var i = 0; i < parkedOrientations.Count && i < injectedOrientationEvents.Count; i++) {
+      injectedOrientationEvents[i].guiName = parkedOrientations[i].title;
+    }
   }
   #endregion
 
@@ -657,6 +619,27 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     }
   }
 
+  /// <summary>Creates the context menu events from the orientation descriptions.</summary>
+  /// <seealso cref="parkedOrientations"/>
+  void InjectOrientationMenuItems() {
+    foreach (var orientation in parkedOrientations) {
+      var eventInject = new BaseEvent(
+          Events,
+          "autoEventOrientation" + part.Modules.IndexOf(this),
+          () => {
+            persistedParkedOrientation = orientation.direction;
+            UpdateLinkLengthAndOrientation();
+          },
+          new KSPEvent());
+      eventInject.guiName = orientation.title;
+      eventInject.guiActive = false;
+      eventInject.guiActiveEditor = true;
+      eventInject.guiActiveUnfocused = true;
+      PartModuleUtils.AddEvent(this, eventInject);
+      injectedOrientationEvents.Add(eventInject);
+    }
+  }
+
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
@@ -671,36 +654,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       return maxLinkLength;
     }
     return linkLength;
-  }
-
-  /// <summary>Returns a direction vector for the parked string.</summary>
-  /// <param name="cfgSetting">
-  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>, where
-  /// <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c> is a
-  /// string to show in the context menu.
-  /// </param>
-  /// <returns>The direction vector for the action.</returns>
-  Vector3 ExtractOrientationVector(string cfgSetting) {
-    var lastCommaPos = cfgSetting.LastIndexOf(',');
-    if (lastCommaPos == -1) {
-      HostedDebugLog.Warning(this, "Cannot extract direction from string: {0}", cfgSetting);
-      return Vector3.forward;
-    }
-    return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
-  }
-
-  /// <summary>Returns a context menu item name from the packed string.</summary>
-  /// <param name="cfgSetting">
-  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>,
-  /// where <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c>
-  /// is a string to show in the context menu.
-  /// </param>
-  /// <returns>The display string for the action.</returns>
-  string ExtractPositionName(string cfgSetting) {
-    var lastCommaPos = cfgSetting.LastIndexOf(',');
-    return lastCommaPos != -1
-        ? cfgSetting.Substring(lastCommaPos + 1)
-        : cfgSetting;
   }
 
   /// <summary>
