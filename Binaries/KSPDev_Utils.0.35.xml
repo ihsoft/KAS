@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.34</name>
+        <name>KSPDev_Utils.0.35</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -278,34 +278,40 @@
             A simple annotation to associate a persistent group with a game's database key.
             </summary>
             <remarks>
-            <para>This annotation is basically a shortcut to <see cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>.
-            You may use the latter with an empty config file path if you find it more convinient.</para>
-            <para>Each <c>.cfg</c> file in the mod's folders is scanned and indexed by the game on start. The
+            <para>
+            Each <c>.cfg</c> file in the mod's folders is scanned and indexed by the game on start. The
             data is stored in the database where it can be accessed from the game. The access is read-only,
-            any changes to the node returned from the database won't affect the database state.</para>
-            <para>The config file in the database is identified by a key which is made of three major parts:
+            any changes to the node returned from the database won't affect the database state.
+            </para>
+            <para>
+            The config file in the database is identified by a key which is made of three major parts:
             <list type="">
-            <item>A file path relative to <c>GameData</c>.</item>
+            <item>A file path relative to <c>GameData</c>. ATTENTION: the path must not contain "."!</item>
             <item>The config filename without extension.</item>
             <item>Node path inside the file starting from the root. I.e. the root node should have name as
             well.</item>
             </list>
             </para>
-            <para>E.g. key <c>KIS/settings/KISConfig/Global</c> addresses a node <c>KISConfig/Global</c> in file
+            <para>
+            E.g. key <c>KIS/settings/KISConfig/Global</c> addresses a node <c>KISConfig/Global</c> in file
             stored at <c>GameData/KIS/settings.cfg</c>.
             </para>
-            <para>Special case is subfolders <c>PluginData</c>, they are ignored during database scan. Put
+            <para>
+            Special case is subfolders <c>PluginData</c>, they are ignored during database scan. Put
             there configs that can change during the gameplay. Remember, that even a tiny change in the
             config will trigger database re-compilation on the next start which may significantly impact
-            game loading time.</para>
-            <para>Database is actively used by
+            game loading time.
+            </para>
+            <para>
+            Database is actively used by
             <see href="https://github.com/sarbian/ModuleManager">ModuleManager</see> (a.k.a. MM). Be wise
-            when choosing if fields should be read from a file or from the database. Module manager
-            patches are only applied on the database, they don't affect the config files. E.g. part configs
-            are frequently updated by the patches but never updated from the gameplay so, reading them via
-            database is the best choice. Various mod's settings, on the other hand, can change during the
-            game but will unlikely be a target for a MM patch, put them into <c>PluginData</c> folder and
-            read/write via file methods.</para>
+            when choosing if the fields should be read from a file or from the database. The module manager
+            patches are only applied on the database, they don't affect the config files. E.g. if the part
+            config is expected to be a target of the MM patches but never updated from the gameplay, then
+            reading id via the database is the best choice. However, various mod's settings, that change
+            during the game, will unlikely be a target for a MM patch - put the config into
+            <c>PluginData</c> and read it as a file.
+            </para>
             </remarks>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsFileAttribute"/>
             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadFieldsInType(System.Type,System.Object,System.String)"/>
@@ -565,7 +571,7 @@
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.CopyPartConfigFromPrefab(PartModule)">
             <summary>Copies the custom part fields from the prefab into the instance.</summary>
             <remarks>
-            The consumer code must call this method from the <c>OnAwake</c> method to esnure the custom
+            The consumer code must call this method from the <c>OnAwake</c> method to ensure the custom
             fields are properly intialized.
             </remarks>
             <param name="tgtModule">The module to copy the fields into.</param>
@@ -828,6 +834,7 @@
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentFieldsFactory.GetPersistentFields(System.Type,System.Boolean,System.Boolean,System.String)">
             <summary>Gathers persitent fields for a type.</summary>
+            <remarks>It will only find the persistent fields of the same Utils version!</remarks>
             <param name="type">A type of to gather persistent fields for.</param>
             <param name="needStatic">Specifies if static fields need to be returned.</param>
             <param name="needInstance">Specifies if non-static fields need to be returned.</param>
@@ -1125,6 +1132,25 @@
             </remarks>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)"/>
+        </member>
+        <member name="T:KSPDev.GUIUtils.StdSpecTags">
+            <summary>Standard localization tag specification.</summary>
+            <remarks>The specification tells which property of the localizable entity to affect.</remarks>
+            <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
+            <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.StdSpecTags.Units">
+            <summary>
+            Specification for the <see cref="T:KSPField"/> <c>guiUnits</c> localization. 
+            </summary>
+            <remarks>
+            Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a field
+            with the units.
+            </remarks>
+            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_WithUnits"/></example>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
         </member>
         <member name="T:KSPDev.Extensions.DictExtensions">
             <summary>Helper extensions for the generic dictionary container.</summary>
@@ -1875,17 +1901,21 @@
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo1"/></example>
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo2"/></example>
         </member>
-        <member name="F:KSPDev.GUIUtils.LocalizationLoader.KspFieldUnitsSpec">
+        <member name="F:KSPDev.GUIUtils.LocalizationLoader.cachedReadValueMethod">
             <summary>
-            Specification for the <see cref="T:KSPField"/> <c>guiUnits</c> localization. 
+            The stock method from ConfigNode to transform string values to the game supported types.
             </summary>
             <remarks>
-            Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a field with the units.
+            This method is private and we extract it via reflection. This is an error prone way (not to
+            mention how bad it is from the coding practices standpoint), so there is a fallback strategy:
+            if the method with the proper signature cannot be extracted, then only update the string
+            values since don't need conversion.
             </remarks>
-            <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_WithUnits"/></example>
-            <item name="T:KSPField">
-  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
-</item>
+            <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.GetTransformValueMethod"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.LocalizationLoader.readValueMethodChecked">
+            <summary>Tells if the transform method existence has already been checked.</summary>
+            <remarks>For the performance purpose only.</remarks>
         </member>
         <member name="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)">
             <summary>Localizes the <see cref="T:PartModule"/> items.</summary>
@@ -1896,7 +1926,7 @@
             <list type="bullet">
             <item>
             <see cref="T:KSPField"/>. This type may have multiple localization items: for <c>guiName</c>
-            (spec=<c>null</c>) and for <c>guiUnits</c> (spec=<see cref="F:KSPDev.GUIUtils.LocalizationLoader.KspFieldUnitsSpec"/>).
+            (spec=<c>null</c>) and for <c>guiUnits</c> (spec=<see cref="F:KSPDev.GUIUtils.StdSpecTags.Units"/>).
             </item>
             <item><see cref="T:KSPEvent"/>.</item>
             <item><see cref="T:KSPAction"/>.</item>
@@ -1940,6 +1970,31 @@
         <member name="M:KSPDev.GUIUtils.LocalizationLoader.UpdateLocalizationInPartModules(Part)">
             <summary>Updates all the localizable strings in a part.</summary>
             <param name="part">The part to load the data in.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.IsModuleOfThisVersion(PartModule)">
+            <summary>
+            Checks if the module was built using the same version of the Utils assembly as this one.
+            </summary>
+            <param name="module">The module to check.</param>
+            <returns><c>true</c> if the module refers our version of the Utils assembly.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.LoadKSPFieldsFromNode(PartModule,ConfigNode)">
+            <summary>Reloads the [KSPField] annotated fields from the provided config.</summary>
+            <remarks>
+            This method tries to reload all the fields in the module using the stock methods. However, the
+            stock game libraries can change and become incompatible, in which case this method will only
+            update the string fields. Updating only the strings is enough in 99% of the localization
+            cases.
+            </remarks>
+            <param name="module">The module to reload the fields for.</param>
+            <param name="node">The config node to geth te values from.</param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.LocalizationLoader.GetTransformValueMethod">
+            <summary>Gets a method that transforms a string value into the provided type.</summary>
+            <returns>
+            The method which returns the converted value or <c>null</c> if the conversion is failed or not
+            possible.
+            </returns>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
@@ -2617,6 +2672,10 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/CostType-Examples.cs" region="CostTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/CostType-Examples.cs" region="CostTypeDemo2_FormatFixed"/></example>
         </member>
+        <member name="F:KSPDev.GUIUtils.CostType.FundPrefix">
+            <summary>The prefix to use to denote the "money" cost values.</summary>
+            <remarks>This is an icon, so it's not localizable.</remarks>
+        </member>
         <member name="F:KSPDev.GUIUtils.CostType.value">
             <summary>A wrapped numeric value.</summary>
             <remarks>This is the original non-rounded and unscaled value.</remarks>
@@ -2688,6 +2747,12 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatWithScale"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/DistanceType-Examples.cs" region="DistanceTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.DistanceType.MeterLocTag">
+            <summary>Localization tag for the "meter" units.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.DistanceType.KilometerLocTag">
+            <summary>Localization tag for the "kilometer" units.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.DistanceType.meter">
             <summary>Localized suffix for the "meter" units. Scale x1.</summary>
@@ -2774,8 +2839,11 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/ForceType-Examples.cs" region="ForceTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/ForceType-Examples.cs" region="ForceTypeDemo2_FormatFixed"/></example>
         </member>
+        <member name="F:KSPDev.GUIUtils.ForceType.KilonewtonLocTag">
+            <summary>Localization tag for the "kilonewton" units.</summary>
+        </member>
         <member name="F:KSPDev.GUIUtils.ForceType.kiloNewton">
-            <summary>Localized suffix for the "kilonewton" untis. Scale x1.</summary>
+            <summary>Localized suffix for the "kilonewton" units. Scale x1.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.ForceType.value">
             <summary>A wrapped numeric value.</summary>
@@ -2885,6 +2953,15 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/MassType-Examples.cs" region="MassTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/MassType-Examples.cs" region="MassTypeDemo2_FormatWithScale"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/MassType-Examples.cs" region="MassTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.GramLocTag">
+            <summary>Localization tag for the "gram" units.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.KilogramLocTag">
+            <summary>Localization tag for the "kilogram" units.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.MassType.TonLocTag">
+            <summary>Localization tag for the "ton" units.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.MassType.gram">
             <summary>Localized suffix for the "gram" units. Scale <c>0.000001</c>.</summary>
@@ -3036,6 +3113,9 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/PressureType-Examples.cs" region="PressureTypeDemo1"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/PressureType-Examples.cs" region="PressureTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/PressureType-Examples.cs" region="PressureTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.PressureType.KilopascalLocTag">
+            <summary>Localization tag for the "kilopascal" units.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.PressureType.kiloPascal">
             <summary>Localized suffix for the "kilopascal" units. Scale x1.</summary>
@@ -3261,6 +3341,9 @@
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo1"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo2_FormatFixed"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.VelocityType.MeterPerSecondLocTag">
+            <summary>Localization tag for the "meter per second" units.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.VelocityType.metrePerSecond">
             <summary>Localized suffix for the "metre per second" units. Scale x1.</summary>
