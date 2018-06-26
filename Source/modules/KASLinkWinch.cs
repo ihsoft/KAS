@@ -11,6 +11,7 @@ using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace KAS {
@@ -37,7 +38,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08013.
+// Next localization ID: #kasLOC_08015.
 public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
@@ -103,6 +104,20 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       "#kasLOC_08008",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  readonly static Message ModuleTitleInfo = new Message(
+      "#kasLOC_08013",
+      defaultTemplate: "KAS Winch",
+      description: "Title of the module to present in the editor details window.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// FIXME: make a new type
+  readonly static Message<SpeedType> MotorSpeedInfo = new Message<SpeedType>(
+      "#kasLOC_08014",
+      defaultTemplate: "Max motor speed: <<1>>",
+      description: "Info string that tells how fast the winch can extend or retract the cable."
+      + "\nArgument <<1>> is the speed of type SpeedType.");
   #endregion
 
   #region Part's config fields
@@ -306,9 +321,31 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
 
+    if (resHandler.inputResources.Count == 0) {
+      var moduleResource = new ModuleResource();
+      moduleResource.name = StockResourceNames.ElectricCharge;
+      moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
+      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
+      moduleResource.rate = (double) motorPowerDrain;
+      resHandler.inputResources.Add(moduleResource);
+    }
+
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+  }
+
+  /// <inheritdoc/>
+  public override string GetModuleTitle() {
+    return ModuleTitleInfo;
+  }
+
+  /// <inheritdoc/>
+  public override string GetInfo() {
+    var sb = new StringBuilder(base.GetInfo());
+    sb.AppendLine(MotorSpeedInfo.Format(motorMaxSpeed));
+    sb.AppendLine(resHandler.PrintModuleResources());
+    return sb.ToString();
   }
   #endregion
 
