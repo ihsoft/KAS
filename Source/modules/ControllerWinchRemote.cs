@@ -212,6 +212,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #endregion
 
   #region GUI styles and contents
+  GUIStyle guiNoWrapStyle;
+  GUIStyle guiNoWrapCenteredStyle;
   // These fields are set/updated in LoadLocalizedContent.
   GUIContent highlightWinchCnt;
   GUIContent startRetractingCnt;
@@ -321,11 +323,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
-    // HACK: Workaround a bug in the Unity GUI system. The alignment setting is not honored when set
-    // in a customized style.
-    GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-    var guiNoWrapStyle = new GUIStyle(GUI.skin.label);
-    guiNoWrapStyle.wordWrap = false;
+    MakeGuiStyles();
 
     if (guiActions.ExecutePendingGuiActions()) {
       MaybeUpdateModules();
@@ -394,7 +392,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         
         // Cable lenght/status column.
         if (winchStatusCnt != null) {
-          GUILayout.Label(winchStatusCnt, guiNoWrapStyle, GUILayout.Width(150));
+          GUILayout.Label(winchStatusCnt, guiNoWrapCenteredStyle, GUILayout.Width(150));
         } else {
           var text = DistanceType.Format(winch.currentCableLength) + " / ";
           var realLength = winchCable.realCableLength;
@@ -405,7 +403,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             text += DistanceType.Format(realLength);
           }
           cableStatusCnt.text = text;
-          GUILayout.Label(cableStatusCnt, guiNoWrapStyle, GUILayout.Width(150));
+          GUILayout.Label(cableStatusCnt, guiNoWrapCenteredStyle, GUILayout.Width(150));
         }
 
         // Cable extending controls.
@@ -457,7 +455,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             VelocityType.Format(Mathf.Abs(winch.motorCurrentSpeed))
             + " / "
             + VelocityType.Format(motorSpeed);
-        GUILayout.Label(motorSpeedCnt, guiNoWrapStyle, GUILayout.Width(150f));
+        GUILayout.Label(motorSpeedCnt, guiNoWrapCenteredStyle, GUILayout.Width(150f));
 
         // Release cable column.
         using (new GuiEnabledStateScope(
@@ -493,6 +491,18 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
     // Allow the window to be dragged by its title bar.
     GuiWindow.DragWindow(ref windowRect, titleBarRect);
+  }
+
+  /// <summary>Creates the styles. Only does it once.</summary>
+  void MakeGuiStyles() {
+    if (guiNoWrapStyle == null) {
+      guiNoWrapStyle = new GUIStyle(GUI.skin.label);
+      guiNoWrapStyle.stretchHeight = true;
+      guiNoWrapStyle.wordWrap = false;
+      guiNoWrapStyle.alignment = TextAnchor.MiddleLeft;
+      guiNoWrapCenteredStyle = new GUIStyle(guiNoWrapStyle);
+      guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleCenter;
+    }
   }
 
   /// <summary>Prepares or updates the localizable GUI strings.</summary>
