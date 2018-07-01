@@ -348,7 +348,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.AppendLine(LinksWithSocketTypeInfo.Format(linkType));
+    sb.AppendLine(LinksWithSocketTypeInfo.Format(
+        !string.IsNullOrEmpty(linkTypeDisplayName)
+        ? linkTypeDisplayName
+        : linkType));
     return sb.ToString();
   }
 

@@ -47,6 +47,13 @@ public abstract class AbstractLinkPeer : PartModule,
   [KSPField]
   public string linkType = "";
 
+  /// <summary>The localized string to display for the link type.</summary>
+  /// <remarks>If mising or empty, then the types is show "as-is".</remarks>
+  /// <seealso cref="cfgLinkType"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string linkTypeDisplayName = "";
+
   /// <summary>
   /// Definition of the attach node to automatically create when the coupling is needed.
   /// </summary>

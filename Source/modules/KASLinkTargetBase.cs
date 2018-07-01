@@ -164,7 +164,10 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
-    sb.Append(AcceptsLinkTypeInfo.Format(linkType));
+    sb.AppendLine(AcceptsLinkTypeInfo.Format(
+        !string.IsNullOrEmpty(linkTypeDisplayName)
+        ? linkTypeDisplayName
+        : linkType));
     return sb.ToString();
   }
 
