@@ -403,6 +403,10 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     PartModuleUtils.SetupEvent(
         this, ActiveSteeringAction,
         e => e.active = isLinked && !persistedActiveSteeringEnabled);
+
+    lockStatus = LockStatusMsgLookup.Lookup(persistedLockingMode);
+    steeringStatus = SteeringStatusMsgLookup.Lookup(
+        persistedActiveSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
   }
 
   #endregion
@@ -418,7 +422,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <param name="mode"></param>
   void SetLockingMode(LockMode mode) {
     persistedLockingMode = mode;
-    lockStatus = LockStatusMsgLookup.Lookup(persistedLockingMode);
 
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
@@ -446,8 +449,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <param name="state"></param>
   void SetActiveSteeringState(bool state) {
     persistedActiveSteeringEnabled = state;
-    steeringStatus = SteeringStatusMsgLookup.Lookup(
-        persistedActiveSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
     if (isLinked && linkTarget != null && !persistedActiveSteeringEnabled) {
       linkTarget.part.vessel.ctrlState.wheelSteer = 0;
     }
