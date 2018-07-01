@@ -37,7 +37,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly Message<string> resourceName = new Message<string>(
       "#kasLOC_12001",
       defaultTemplate: "<<1>>",
-      description: "The resource in the transfer options table. Its main purpose is dealing dealing"
+      description: "The resource in the transfer options table. Its main purpose is dealing"
       + " with the Lingoona modifiers, applied to the resource name."
       + "\nArgument <<1>> is the full localized resource name with the Lingoona modifiers"
       + " (if any).");
