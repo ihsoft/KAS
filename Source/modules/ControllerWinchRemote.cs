@@ -275,7 +275,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       ToggleGUI(!isGUIOpen);
     }
     if (isGUIOpen) {
-      windowRect = GUILayout.Window(0, windowRect, ConsoleWindowFunc, WindowTitleTxt,
+      windowRect = GUILayout.Window(GetInstanceID(), windowRect, ConsoleWindowFunc, WindowTitleTxt,
                                     GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }

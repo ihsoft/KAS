@@ -481,8 +481,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public void OnGUI() {
     isGUIOpen &= linkTarget != null && vessel != linkTarget.part.vessel;
     if (isGUIOpen) {
-      windowRect = GUILayout.Window(0, windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
-                                    GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      windowRect = GUILayout.Window(
+          GetInstanceID(), windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
+          GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }
   #endregion
