@@ -354,7 +354,6 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         winchStatusCnt = winchModeRetractedCnt;
       }
 
-      //using (new GUILayout.HorizontalScope(GUI.skin.box)) {
       using (new GUILayout.HorizontalScope(GUI.skin.box)) {
         // Winch highlighting column.
         var highlighted = GUILayout.Toggle(
