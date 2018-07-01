@@ -258,7 +258,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   [LocalizableItem(
       tag = "#kasLOC_13010",
       defaultTemplate = "Lock connector",
-      description = "Context menu item to instantly lock the deployed connector into the base.")]
+      description = "Advanced tweakable. Context menu item to instantly lock the deployed connector"
+                    + " into the base.")]
   public virtual void InstantLockConnectorEvent() {
     if (connectorState == ConnectorState.Deployed) {
       SetConnectorState(ConnectorState.Locked);

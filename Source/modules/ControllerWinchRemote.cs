@@ -267,7 +267,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    if (Mathf.Approximately(Time.timeScale, 0)) {
+    if (Time.timeScale <= float.Epsilon) {
       return;  // No events and menu in the paused mode.
     }
     if (Event.current.Equals(openGUIEvent)) {
