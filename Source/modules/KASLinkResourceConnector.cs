@@ -480,6 +480,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public void OnGUI() {
     isGUIOpen &= linkTarget != null && vessel != linkTarget.part.vessel;
+    if (Time.timeScale <= float.Epsilon) {
+      return;  // No events and menu in the paused mode.
+    }
     if (isGUIOpen) {
       windowRect = GUILayout.Window(
           GetInstanceID(), windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
