@@ -24,10 +24,12 @@ namespace KAS {
 sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message WindowTitleTxt = new Message(
+  static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(
       "#kasLOC_11000",
-      defaultTemplate: "Winch Remote Control",
-      description: "The title of the remote control dialog.");
+      defaultTemplate: "Winch Remote Control (<<1>>)"
+      + "\nArgument <<1>> is the keyboard even of type KeyboardEventType.",
+      description: "The title of the remote control dialog. It also gives a hint on the keyboard"
+      + " sequence that brings the GUI up.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ReleaseBtn = new Message(
@@ -277,8 +279,9 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       ToggleGUI(!isGUIOpen);
     }
     if (isGUIOpen) {
-      windowRect = GUILayout.Window(GetInstanceID(), windowRect, ConsoleWindowFunc, WindowTitleTxt,
-                                    GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      windowRect = GUILayout.Window(
+          GetInstanceID(), windowRect, ConsoleWindowFunc, WindowTitleTxt.Format(openGUIEvent),
+          GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }
   #endregion
