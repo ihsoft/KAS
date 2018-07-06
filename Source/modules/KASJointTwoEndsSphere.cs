@@ -109,7 +109,9 @@ public class KASJointTwoEndsSphere : AbstractJoint,
     connectorObj = new GameObject("ConnectorObj");
     connectorObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
     connectorObj.transform.position = (srcAchorPos + tgtAchorPos) / 2;
+    connectorObj.transform.LookAt(tgtAchorPos);
     var connectorRb = connectorObj.AddComponent<Rigidbody>();
+    //FIXME: scale it?
     connectorRb.mass = 0.001f;  // Set the minimum allowed mass.
     connectorRb.useGravity = false;
     connectorRb.velocity = linkSource.part.rb.velocity;
@@ -127,7 +129,8 @@ public class KASJointTwoEndsSphere : AbstractJoint,
 
     trgJoint = connectorObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(trgJoint);
-    KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit);
+    //KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit);
+    KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit, angleLimitForce: 10000000f);
     trgJoint.enablePreprocessing = true;
     trgJoint.autoConfigureConnectedAnchor = false;
     trgJoint.connectedBody = linkTarget.part.rb;
