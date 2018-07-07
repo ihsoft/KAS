@@ -102,41 +102,48 @@ public class KASJointTwoEndsSphere : AbstractJoint,
     }
 
     HostedDebugLog.Fine(this, "Creating a 2-joints assembly");
-    var srcAchorPos = GetSourcePhysicalAnchor(linkSource);
-    var tgtAchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    var srcAnchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAnchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
     
     // TODO(ihsoft): Assign the renderer's colliders to the real RBs instead of the part's RB.
     connectorObj = new GameObject("ConnectorObj");
     connectorObj.AddComponent<KASInternalBrokenJointListener>().hostPart = part;
-    connectorObj.transform.position = (srcAchorPos + tgtAchorPos) / 2;
-    connectorObj.transform.LookAt(tgtAchorPos);
     var connectorRb = connectorObj.AddComponent<Rigidbody>();
-    //FIXME: scale it?
-    connectorRb.mass = 0.001f;  // Set the minimum allowed mass.
+    // PhysX behaves weird if the linked rigidbodies are too different in mass, so make the
+    // connector obejct "somehwat" the same in mass as the both ends of the towbar link.
+    connectorRb.mass = (linkSource.part.rb.mass + linkTarget.part.rb.mass) / 2;
     connectorRb.useGravity = false;
     connectorRb.velocity = linkSource.part.rb.velocity;
     connectorRb.angularVelocity = linkSource.part.rb.angularVelocity;
 
+    var pipeLength = (tgtAnchorPos - srcAnchorPos).magnitude;
+
     srcJoint = connectorObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(srcJoint);
     KASAPI.JointUtils.SetupSphericalJoint(srcJoint, angleLimit: sourceLinkAngleLimit);
+    connectorObj.transform.position =
+        srcAnchorPos + linkSource.nodeTransform.rotation * (Vector3.forward * pipeLength / 2);
+    connectorObj.transform.rotation = Quaternion.LookRotation(
+        linkSource.nodeTransform.forward, linkSource.nodeTransform.up);
     srcJoint.enablePreprocessing = true;
-    srcJoint.autoConfigureConnectedAnchor = false;
+    srcJoint.anchor = -Vector3.forward * pipeLength / 2;
     srcJoint.connectedBody = linkSource.part.rb;
-    srcJoint.anchor = connectorObj.transform.InverseTransformPoint(srcAchorPos);
-    srcJoint.connectedAnchor = srcJoint.connectedBody.transform.InverseTransformPoint(srcAchorPos);
     SetBreakForces(srcJoint, linkBreakForce, linkBreakTorque);
 
     trgJoint = connectorObj.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(trgJoint);
-    //KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit);
-    KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit, angleLimitForce: 10000000f);
+    KASAPI.JointUtils.SetupSphericalJoint(trgJoint, angleLimit: targetLinkAngleLimit);
+    connectorObj.transform.position =
+        tgtAnchorPos + linkTarget.nodeTransform.rotation * (Vector3.forward * pipeLength / 2);
+    connectorObj.transform.rotation = Quaternion.LookRotation(
+        -linkTarget.nodeTransform.forward, linkTarget.nodeTransform.up);
     trgJoint.enablePreprocessing = true;
-    trgJoint.autoConfigureConnectedAnchor = false;
+    trgJoint.anchor = Vector3.forward * pipeLength / 2;
     trgJoint.connectedBody = linkTarget.part.rb;
-    trgJoint.anchor = connectorObj.transform.InverseTransformPoint(tgtAchorPos);
-    trgJoint.connectedAnchor = trgJoint.connectedBody.transform.InverseTransformPoint(tgtAchorPos);
     SetBreakForces(trgJoint, linkBreakForce, linkBreakTorque);
+
+    connectorObj.transform.position = (srcAnchorPos + tgtAnchorPos) / 2;
+    connectorObj.transform.LookAt(tgtAnchorPos, linkSource.nodeTransform.up);
     
     // This "joint" is only needed to disable the collisions between the parts.
     var collisionJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
