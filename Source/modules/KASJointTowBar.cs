@@ -141,16 +141,19 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   #endregion
 
   #region Part's config fields
-  /// <summary>Link angle at the source part that produces maximum steering.</summary>
+  /// <summary>The link angle at the source part that produces the maximum steering.</summary>
   /// <remarks>
-  /// E.g. if this settings is <c>25</c> degrees and the angle at the source is <c>10</c> degrees
-  /// then steering power will be <c>10/25=0.4</c>. If angle at the source goes beyond the limit
-  /// then steering power is just clamped to <c>1.0</c>. What is good value for this limit depends
-  /// on the towing speed: the higher the speed the lower you want this limit to be.
+  /// This is a denominator that tells at which steering angle the steering power on the towed
+  /// vessel is at <c>1.0</c>. E.g. if this settings is <c>25</c> degrees and the angle at the
+  /// source is <c>10</c> degrees, then the steering power will be <c>10/25=0.4</c>. In the
+  /// contrast, if the angle at the source is <c>40</c>, then the towed vessel will be steering at
+  /// power <c>1.6</c>, bringing it back to line more quick but with less course stability. In
+  /// general, this setting defines the maximum comfort speed of towing: the lower values are good
+  /// for the higher speed towing.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float maxSteeringAngle;
+  public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
   #endregion
 
   #region Persistent fields
@@ -240,21 +243,15 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   }
 
   /// <summary>
-  /// Angle between port normal and the link vector to consdier locking process is done.
+  /// The maximum angle between the port normal and the link vector to consdier the locking process
+  /// is done.
   /// </summary>
-  /// <remarks>
-  /// Once angle dcereases down to this value PhysX joint is set to <c>Locked</c> state and any
-  /// rotation error will get fixed by an instant angular force. If error is significant it may
-  /// result in joint breakage.
-  /// </remarks>
-  const float LockJointAngle = 0.05f;
+  /// <remarks>Once the angle decreases down to this value, the towbar locks down.</remarks>
 
   /// <summary>
   /// Minumal angle between port normal and the link vector to continue apply steering commands.
   /// </summary>
-  /// <remarks>
-  /// Once angle decreases down to this value active steering stops affecting towed vessel.
-  /// </remarks>
+  /// <remarks>The angles below this value don't affect the towed vessel.</remarks>
   const float ZeroSteeringAngle = 0.05f;
   #endregion
 
@@ -287,9 +284,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       toggle.enabledText = SteeringInvertToggle;
     }
   }
-  #endregion
 
-  #region ILinkJoint implementation
   /// <inheritdoc/>
   public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
     if (!base.CreateJoint(source, target)) {
@@ -408,7 +403,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     steeringStatus = SteeringStatusMsgLookup.Lookup(
         persistedActiveSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
   }
-
   #endregion
 
   #region Local utility methods
