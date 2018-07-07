@@ -154,6 +154,14 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
+
+  /// <summary>
+  /// The maximum angle between the port normal and the link vector to consdier the locking process
+  /// is done.
+  /// </summary>
+  /// <remarks>Once the angle decreases down to this value, the towbar will lock down.</remarks>
+  [KSPField]
+  public float lockAngleThreshold = 3f;
   #endregion
 
   #region Persistent fields
@@ -243,12 +251,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   }
 
   /// <summary>
-  /// The maximum angle between the port normal and the link vector to consdier the locking process
-  /// is done.
-  /// </summary>
-  /// <remarks>Once the angle decreases down to this value, the towbar locks down.</remarks>
-
-  /// <summary>
   /// Minumal angle between port normal and the link vector to continue apply steering commands.
   /// </summary>
   /// <remarks>The angles below this value don't affect the towed vessel.</remarks>
@@ -290,7 +292,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (!base.CreateJoint(source, target)) {
       return false;
     }
-    SetLockingMode(persistedLockingMode);
+    trgJoint.angularXMotion = ConfigurableJointMotion.Locked;
+    SetLockingMode(persistedLockingMode, updateUi: false);
     SetActiveSteeringState(persistedActiveSteeringEnabled);
     return true;
   }
@@ -355,22 +358,21 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       return;
     }
     if (persistedLockingMode == LockMode.Locking) {
-      var yaw = GetYawAngle(linkTarget.nodeTransform, linkSource.nodeTransform);
+      var yaw = GetTargetYawAngle();
       var absYaw = Mathf.Abs(yaw);
-      if (absYaw < trgJoint.angularZLimit.limit) {
-        trgJoint.angularZLimit = new SoftJointLimit() {
-          limit = absYaw,
-        };
-        // Either Unity or KSP applies a cap to the minimum allowed limit. It makes it impossible to
-        // iteratively reduce the limit down to zero. So check when we hit the cap and just activate
-        // locked mode assuming the limit cap was chosen wise.
-        // TODO(ihsoft): Track last known yaw and lock when it starts increasing.
-        if (!Mathf.Approximately(absYaw, trgJoint.angularZLimit.limit) || absYaw < LockJointAngle) {
-          yaw = 0f;
-          SetLockingMode(LockMode.Locked);
+      // Reaching zero is too hard to achieve, so wait for a minimum ange and simply lock.
+      // It will trigger sime jitter and momentum, though.
+      if (absYaw < lockAngleThreshold) {
+        SetLockingMode(LockMode.Locked);
+      } else {
+        if (absYaw < trgJoint.angularZLimit.limit) {
+          var angularLimit = trgJoint.angularZLimit;
+          angularLimit.limit = absYaw;
+          trgJoint.angularZLimit = angularLimit;
         }
+        lockStatusScreenMessage.message = LockingStatusMsg.Format(yaw);
+        ScreenMessages.PostScreenMessage(lockStatusScreenMessage);
       }
-      ShowLockingProgress(angleDiff: yaw);
     }
     if (persistedActiveSteeringEnabled) {
       UpdateActiveSteering();
@@ -413,21 +415,31 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// This method may be called from a cleanup routines, so make it safe to execute in incomplete
   /// states.
   /// </remarks>
-  /// <param name="mode"></param>
-  void SetLockingMode(LockMode mode) {
+  /// <param name="mode">The new mode.</param>
+  /// <param name="updateUi">Tells if the related GUI messages should be shown/hidden.</param>
+  void SetLockingMode(LockMode mode, bool updateUi = true) {
     persistedLockingMode = mode;
 
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
       var angularLimit = trgJoint.angularZLimit;
-      angularLimit.limit = targetLinkAngleLimit;
+      if (mode == LockMode.Locked) {
+        angularLimit.limit = 0;
+        trgJoint.angularZMotion = ConfigurableJointMotion.Locked;
+      } else {
+        angularLimit.limit = targetLinkAngleLimit;
+        trgJoint.angularZMotion = ConfigurableJointMotion.Limited;
+      }
       trgJoint.angularZLimit = angularLimit;
-      trgJoint.angularZMotion = mode == LockMode.Locked
-          ? ConfigurableJointMotion.Locked
-          : ConfigurableJointMotion.Limited;
+    }
+    if (updateUi && mode == LockMode.Locked) {
+      ScreenMessages.PostScreenMessage(LockedStatusMsg, ScreenMessaging.DefaultMessageTimeout,
+                                   ScreenMessageStyle.UPPER_LEFT);
+    }
+    if (updateUi && (mode == LockMode.Disabled || mode == LockMode.Locked)) {
+      ScreenMessages.RemoveMessage(lockStatusScreenMessage);
     }
     if (mode == LockMode.Disabled) {
-      ShowLockingProgress(hideMessages: true);
       SetActiveSteeringState(false);  // No active steering in unlocked mode.
     }
     UpdateContextMenu();
@@ -449,16 +461,23 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     UpdateContextMenu();
   }
 
-  /// <summary>
-  /// Gets yaw angle between the tranformations. Angle is calculated on the plane defined by the
-  /// <paramref name="refTransform"/> up direction.
-  /// </summary>
-  /// <param name="refTransform">Transformation to use as base of the calculation.</param>
-  /// <param name="targetTransform">Transformation of the target.</param>
-  /// <returns></returns>
-  float GetYawAngle(Transform refTransform, Transform targetTransform) {
-    var linkVector = targetTransform.position - refTransform.position;
-    var partLinkVector = refTransform.InverseTransformDirection(linkVector);
+  /// <summary>Gets yaw angle between the source attach node and the link.</summary>
+  float GetSourceYawAngle() {
+    var srcAnchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAnchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    var partLinkVector =
+        linkSource.nodeTransform.InverseTransformDirection(tgtAnchorPos - srcAnchorPos);
+    var eulerAngle = Quaternion.LookRotation(partLinkVector).eulerAngles.y;
+    eulerAngle = eulerAngle > 180 ? eulerAngle - 360 : eulerAngle;
+    return eulerAngle;
+  }
+
+  /// <summary>Gets yaw angle between the target attach node and the link.</summary>
+  float GetTargetYawAngle() {
+    var srcAnchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAnchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    var partLinkVector =
+        linkTarget.nodeTransform.InverseTransformDirection(srcAnchorPos - tgtAnchorPos);
     var eulerAngle = Quaternion.LookRotation(partLinkVector).eulerAngles.y;
     eulerAngle = eulerAngle > 180 ? eulerAngle - 360 : eulerAngle;
     return eulerAngle;
@@ -477,34 +496,13 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.NotLocked);
     } else if (persistedActiveSteeringEnabled) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.Active);
-      var srcJointYaw = GetYawAngle(linkSource.nodeTransform, linkTarget.nodeTransform);
+      var srcJointYaw = GetSourceYawAngle();
       if (steeringInvert) {
         srcJointYaw = -srcJointYaw;
       }
       linkTarget.part.vessel.ctrlState.wheelSteer = Mathf.Abs(srcJointYaw) > ZeroSteeringAngle
           ? Mathf.Clamp(steeringSensitivity * srcJointYaw / maxSteeringAngle, -1.0f, 1.0f)
           : 0;
-    }
-  }
-
-  /// <summary>\Displays current locking state in the upper left corner of the screen.</summary>
-  /// <param name="angleDiff">
-  /// Value of the difference between port normal and link vector projected on the surface plane.
-  /// If value is close to zero then locking state is assumed to be LOCKED.
-  /// </param>
-  /// <param name="hideMessages">Specifies if any progress display should be hidden.</param>
-  void ShowLockingProgress(float angleDiff = 0f, bool hideMessages = false) {
-    if (lockStatusScreenMessage != null) {
-      if (hideMessages) {
-        ScreenMessages.RemoveMessage(lockStatusScreenMessage);
-      } else if (Mathf.Approximately(angleDiff, 0)) {
-        ScreenMessages.RemoveMessage(lockStatusScreenMessage);
-        ScreenMessages.PostScreenMessage(LockedStatusMsg, ScreenMessaging.DefaultMessageTimeout,
-                                         ScreenMessageStyle.UPPER_LEFT);
-      } else {
-        lockStatusScreenMessage.message = LockingStatusMsg.Format(angleDiff);
-        ScreenMessages.PostScreenMessage(lockStatusScreenMessage);
-      }
     }
   }
   #endregion
