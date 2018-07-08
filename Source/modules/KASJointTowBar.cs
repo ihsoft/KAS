@@ -124,20 +124,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   
   /// <summary>Status screen message to be displayed during the locking process.</summary>
   ScreenMessage lockStatusScreenMessage;
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringNormalToggle = new Message(
-      "#kasLOC_05018",
-      defaultTemplate: "Normal",
-      description: "A string in the context menu that tells if the steering commands are sent to"
-      + " the linked vessel in the exact form as they've emitted for the source vessel.");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringInvertToggle = new Message(
-      "#kasLOC_05019",
-      defaultTemplate: "Inverted",
-      description: "A string in the context menu that tells if the steering commands are sent to"
-      + " the linked vessel in the inverted form relative to the source vessel.");
   #endregion
 
   #region Part's config fields
@@ -213,14 +199,25 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  /// FIXME: localization for the invert modes
-  [KSPField(guiName = "Steering: Direction", isPersistant = true),
-   UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
+  [KSPField(isPersistant = true)]
+  [UI_Toggle(scene = UI_Scene.All)]
   [LocalizableItem(
       tag = "#kasLOC_05013",
       defaultTemplate = "Steering: Direction",
       description = "A context menu item that displays and allows changing the direction of the"
       + " steering commands.")]
+  [LocalizableItem(
+      tag = "#kasLOC_05018",
+      spec = StdSpecTags.ToggleDisabled,
+      defaultTemplate = "Normal",
+      description = "The name of the active steering mode, in which the steering commands are sent"
+      + " to the linked vessel in the exact form as they've emitted for the source vessel.")]
+  [LocalizableItem(
+      tag = "#kasLOC_05019",
+      spec = StdSpecTags.ToggleEnabled,
+      defaultTemplate = "Inverted",
+      description = "The name of the active steering mode, in which the steering commands are sent"
+        + " to the linked vessel in the inverted form relative to the source vessel.")]
   public bool steeringInvert;
   #endregion
 
@@ -274,17 +271,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       SetActiveSteeringState(persistedActiveSteeringEnabled);
     }
     UpdateContextMenu();
-  }
-
-  /// <inheritdoc/>
-  public override void LocalizeModule() {
-    base.LocalizeModule();
-
-    var toggle = Fields["steeringInvert"].uiControlFlight as UI_Toggle;
-    if (toggle != null) {
-      toggle.disabledText = SteeringNormalToggle;
-      toggle.enabledText = SteeringInvertToggle;
-    }
   }
 
   /// <inheritdoc/>
