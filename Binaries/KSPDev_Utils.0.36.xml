@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.35</name>
+        <name>KSPDev_Utils.0.36</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1133,21 +1133,56 @@
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)"/>
         </member>
+        <member name="F:KSPDev.ConfigUtils.StdPersistentGroups.SessionGroup">
+            <summary>
+            A public group of the persistent fields which need to persist their values between the game
+            scene changes. Including the game reload. 
+            </summary>
+            <remarks>
+            It's a good idea to store these values to a file, located in the "PlugindData" folder.
+            Otherwise, this any changes to this file will trigger a full game database update on the game
+            load.
+            </remarks>
+        </member>
         <member name="T:KSPDev.GUIUtils.StdSpecTags">
-            <summary>Standard localization tag specification.</summary>
-            <remarks>The specification tells which property of the localizable entity to affect.</remarks>
+            <summary>Standard specialization tags.</summary>
+            <remarks>The specialization tells which property of the localizable entity to affect.</remarks>
             <seealso cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/>
             <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)"/>
         </member>
         <member name="F:KSPDev.GUIUtils.StdSpecTags.Units">
             <summary>
-            Specification for the <see cref="T:KSPField"/> <c>guiUnits</c> localization. 
+            Specialization for the <see cref="T:KSPField"/> <c>guiUnits</c> localization. 
             </summary>
             <remarks>
             Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a field
             with the units.
             </remarks>
             <example><code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_WithUnits"/></example>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
+        </member>
+        <member name="F:KSPDev.GUIUtils.StdSpecTags.ToggleEnabled">
+            <summary>
+            Specialization for the <see cref="T:UI_Toggle"/> <c>enabledText</c> localization. 
+            </summary>
+            <remarks>
+            Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a toggle
+            field.
+            </remarks>
+            <item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
+        </member>
+        <member name="F:KSPDev.GUIUtils.StdSpecTags.ToggleDisabled">
+            <summary>
+            Specialization for the <see cref="T:UI_Toggle"/> <c>disabledText</c> localization. 
+            </summary>
+            <remarks>
+            Use it when specifying a <see cref="T:KSPDev.GUIUtils.LocalizableItemAttribute"/> for a toggle
+            field.
+            </remarks>
             <item name="T:KSPField">
   <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
 </item>
@@ -1521,8 +1556,14 @@
         <member name="M:KSPDev.GUIUtils.IsLocalizableModule.LocalizeModule">
             <summary>A callback which is called when the localization vesion has changed.</summary>
             <remarks>
+            <para>
+            This method can be called before the module is fully initialized! A very common use-case is
+            calling this method from the part module <c>OnAwake()</c> method.
+            </para>
+            <para>
             Unless the implementing class is <i>sealed</i>, the method must be declared as <i>virtual</i>.
             The descendants may want to react on the callback as well.
+            </para>
             </remarks>
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo2"/></example>
         </member>
@@ -1988,6 +2029,7 @@
             </remarks>
             <param name="module">The module to reload the fields for.</param>
             <param name="node">The config node to geth te values from.</param>
+            FIXME: move it to the localization tool?
         </member>
         <member name="M:KSPDev.GUIUtils.LocalizationLoader.GetTransformValueMethod">
             <summary>Gets a method that transforms a string value into the provided type.</summary>
@@ -3331,7 +3373,7 @@
             Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
             </para>
             <para>
-            The class uses the unit name localizations from the stock module <c>ModuleEnviroSensor</c>. In
+            The class uses the unit name localizations from the stock module <c>InternalSpeed</c>. In
             case of this module is deprecated or the tags are changed, the default English values will be
             used for the unit names.
             </para>
@@ -3345,8 +3387,20 @@
         <member name="F:KSPDev.GUIUtils.VelocityType.MeterPerSecondLocTag">
             <summary>Localization tag for the "meter per second" units.</summary>
         </member>
-        <member name="F:KSPDev.GUIUtils.VelocityType.metrePerSecond">
-            <summary>Localized suffix for the "metre per second" units. Scale x1.</summary>
+        <member name="F:KSPDev.GUIUtils.VelocityType.KilometerPerSecondLocTag">
+            <summary>Localization tag for the "kilometer per second" units.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.VelocityType.MegameterPerSecondLocTag">
+            <summary>Localization tag for the "megameter per second" units.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.VelocityType.meterPerSecond">
+            <summary>Localized suffix for the "meter per second" units. Scale x1.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.VelocityType.kilometerPerSecond">
+            <summary>Localized suffix for the "kilometer per second" units. Scale x1000.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.VelocityType.megameterPerSecond">
+            <summary>Localized suffix for the "megameter per second" units. Scale x1000000.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.VelocityType.value">
             <summary>A wrapped numeric value.</summary>
@@ -3355,7 +3409,7 @@
         <member name="M:KSPDev.GUIUtils.VelocityType.#ctor(System.Double)">
             <summary>Constructs an object from a numeric value.</summary>
             <param name="value">The numeric value in the base units.</param>
-            <seealso cref="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.String)"/>
+            <seealso cref="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo1"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo2_FormatDefault"/></example>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo2_FormatFixed"/></example>
@@ -3370,7 +3424,7 @@
             <param name="obj">The object type to convert.</param>
             <returns>A numeric value.</returns>
         </member>
-        <member name="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.String)">
+        <member name="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.Nullable{System.Double},System.String)">
             <summary>Formats the value into a human friendly string with a unit specification.</summary>
             <remarks>
             <para>
@@ -3382,10 +3436,25 @@
             units is <i>one meter per second</i>. Keep it in mind when passing the argument.
             </para>
             </remarks>
-            <param name="value">The numeric value to format.</param>
+            <param name="value">The unscaled numeric value to format.</param>
+            <param name="scale">
+            The fixed scale to apply to the value before formatting. The formatting method can uderstand
+            only a few scales:
+            <list type="bullet">
+            <item>m/s: scale=<c>1.0</c>. <i>It's a base velocity unit in the game.</i></item>
+            <item>km/s: scale=<c>1.0e+3</c>.</item>
+            <item>Mm/s: scale=<c>1.0e+6</c>.</item>
+            </list>
+            <para>
+            The unknown scales will be rounded <i>up</i> to the closest known scale. If this parameter
+            is omitted, then the best scale for the value will be choosen automatically.
+            </para>
+            </param>
             <param name="format">
-            The specific float number format to use. If the format is not specified, then it's choosen
-            basing on the value.
+            The specific numeric number format to use. If this parameter is specified, then the method
+            doesn't try to guess the right scale. Instead, it uses either the provided
+            <paramref name="scale"/>, or <c>1.0</c> if nothing is provided. If the format is not
+            specified, then it's choosen basing on the scale.
             </param>
             <returns>A formatted and localized string</returns>
             <example><code source="Examples/GUIUtils/TypeFormatters/VelocityType-Examples.cs" region="VelocityTypeDemo2_FormatDefault"/></example>
@@ -3394,7 +3463,7 @@
         <member name="M:KSPDev.GUIUtils.VelocityType.ToString">
             <summary>Returns a string formatted as a human friendly pressure specification.</summary>
             <returns>A string representing the value.</returns>
-            <seealso cref="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.String)"/>
+            <seealso cref="M:KSPDev.GUIUtils.VelocityType.Format(System.Double,System.Nullable{System.Double},System.String)"/>
         </member>
         <member name="T:KSPDev.GUIUtils.UISoundPlayer">
             <summary>Helper class to play sounds in the game GUI. Such sounds are not 3D aligned.</summary>
