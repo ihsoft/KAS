@@ -174,6 +174,35 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   public List<Orientation> parkedOrientations = new List<Orientation>();
   #endregion
 
+  // FIXME: check colliders.
+  #region Context menu events/actions
+  /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
+  /// <seealso cref="maxLinkLength"/>
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04002",
+      defaultTemplate = "Extend to max",
+      description = "A context menu item that expands a non-linked telescopic pipe to its maximum"
+      + " length.")]
+  public void ExtendAtMaxMenuAction() {
+    persistedParkedLength = maxLinkLength;
+    UpdateLinkLengthAndOrientation();
+  }
+
+  /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
+  /// <seealso cref="minLinkLength"/>
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04003",
+      defaultTemplate = "Retract to min",
+      description = "A context menu item that shrinks a non-linked telescopic pipe to its minimum"
+      + " length.")]
+  public void RetractToMinMenuAction() {
+    persistedParkedLength = minLinkLength;
+    UpdateLinkLengthAndOrientation();
+  }
+  #endregion
+
   #region ILinkRenderer properties
   /// <inheritdoc/>
   public string cfgRendererName { get { return rendererName; } }
@@ -392,10 +421,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
   #endregion
 
+  #region Local fields & properties
   /// <summary>Instances of the events, that were created for orientation menu items.</summary>
   readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
+  #endregion
 
-  #region PartModule overrides
+  #region AbstractProceduralModel overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -424,88 +455,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       UpdateLink();
     }
   }
-  #endregion
 
-  #region ILinkRenderer implemetation
-  /// <inheritdoc/>
-  public void StartRenderer(Transform source, Transform target) {
-    sourceTransform = source;
-    targetTransform = target;
-    UpdateContextMenu();
-  }
-
-  /// <inheritdoc/>
-  public void StopRenderer() {
-    sourceTransform = null;
-    targetTransform = null;
-    UpdateContextMenu();
-  }
-
-  /// <inheritdoc/>
-  public void UpdateLink() {
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <inheritdoc/>
-  public string[] CheckColliderHits(Transform source, Transform target) {
-    var hitMessages = new HashSet<string>();  // Same object can be hit multiple times.
-    var sourcePos = GetLinkVectorSourcePos(source);
-    var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
-    var hits = Physics.SphereCastAll(
-        sourcePos, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
-        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
-        QueryTriggerInteraction.Ignore);
-    foreach (var hit in hits) {
-      if (hit.transform.root != source.root && hit.transform.root != target.root) {
-        var hitPart = hit.transform.root.GetComponent<Part>();
-        hitMessages.Add(hitPart != null
-            ? LinkCollidesWithObjectMsg.Format(hitPart)
-            : LinkCollidesWithSurfaceMsg.Format());
-      }
-    }
-    return hitMessages.ToArray();
-  }
-  #endregion
-
-  #region IHasContextMenu implemenation
-  /// <inheritdoc/>
-  public void UpdateContextMenu() {
-    injectedOrientationEvents.ForEach(e => e.active = !isLinked);
-    PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
-    PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
-  }
-  #endregion
-
-  // FIXME: check colliders.
-  #region GUI menu action handlers
-  /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
-  /// <seealso cref="maxLinkLength"/>
-  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
-  [LocalizableItem(
-      tag = "#kasLOC_04002",
-      defaultTemplate = "Extend to max",
-      description = "A context menu item that expands a non-linked telescopic pipe to its maximum"
-      + " length.")]
-  public void ExtendAtMaxMenuAction() {
-    persistedParkedLength = maxLinkLength;
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
-  /// <seealso cref="minLinkLength"/>
-  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
-  [LocalizableItem(
-      tag = "#kasLOC_04003",
-      defaultTemplate = "Retract to min",
-      description = "A context menu item that shrinks a non-linked telescopic pipe to its minimum"
-      + " length.")]
-  public void RetractToMinMenuAction() {
-    persistedParkedLength = minLinkLength;
-    UpdateLinkLengthAndOrientation();
-  }
-  #endregion
-
-  #region AbstractProceduralModel implementation
   /// <inheritdoc/>
   protected override void CreatePartModel() {
     CreateLeverModels();
@@ -563,6 +513,56 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     for (var i = 0; i < parkedOrientations.Count && i < injectedOrientationEvents.Count; i++) {
       injectedOrientationEvents[i].guiName = parkedOrientations[i].title;
     }
+  }
+  #endregion
+
+  #region ILinkRenderer implemetation
+  /// <inheritdoc/>
+  public void StartRenderer(Transform source, Transform target) {
+    sourceTransform = source;
+    targetTransform = target;
+    UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
+  public void StopRenderer() {
+    sourceTransform = null;
+    targetTransform = null;
+    UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
+  public void UpdateLink() {
+    UpdateLinkLengthAndOrientation();
+  }
+
+  /// <inheritdoc/>
+  public string[] CheckColliderHits(Transform source, Transform target) {
+    var hitMessages = new HashSet<string>();  // Same object can be hit multiple times.
+    var sourcePos = GetLinkVectorSourcePos(source);
+    var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
+    var hits = Physics.SphereCastAll(
+        sourcePos, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
+        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
+        QueryTriggerInteraction.Ignore);
+    foreach (var hit in hits) {
+      if (hit.transform.root != source.root && hit.transform.root != target.root) {
+        var hitPart = hit.transform.root.GetComponent<Part>();
+        hitMessages.Add(hitPart != null
+            ? LinkCollidesWithObjectMsg.Format(hitPart)
+            : LinkCollidesWithSurfaceMsg.Format());
+      }
+    }
+    return hitMessages.ToArray();
+  }
+  #endregion
+
+  #region IHasContextMenu implemenation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
+    injectedOrientationEvents.ForEach(e => e.active = !isLinked);
+    PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
+    PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
   }
   #endregion
 
