@@ -26,10 +26,10 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(
       "#kasLOC_11000",
-      defaultTemplate: "Winch Remote Control (<<1>>)"
-      + "\nArgument <<1>> is the keyboard even of type KeyboardEventType.",
+      defaultTemplate: "Winch Remote Control (<<1>>)",
       description: "The title of the remote control dialog. It also gives a hint on the keyboard"
-      + " sequence that brings the GUI up.");
+      + " sequence that brings the GUI up."
+      + "\nArgument <<1>> is the keyboard even of type KeyboardEventType.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ReleaseBtn = new Message(
