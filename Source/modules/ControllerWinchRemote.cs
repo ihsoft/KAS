@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using System.Collections.Generic;
@@ -20,7 +21,9 @@ namespace KAS {
 /// for the winches that belong to a controllable vessel. 
 /// </remarks>
 // Next localization ID: #kasLOC_11025.
+// TODO(ihsoft): Use database when the path is changed to no "." path.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
+[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
 sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -193,8 +196,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Configuration settings
   /// <summary>Keyboard key to trigger the GUI.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// TODO(ihsoft): Load from config.
-  string openGUIKey = "&P";  // Alt+P
+  [PersistentField("Winch/remoteControlKey")]
+  public string openGUIKey = "&P";  // Alt+P
   #endregion
 
   #region Internal helper types
@@ -304,6 +307,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region MonoBehavour methods
   void Awake() {
     DebugEx.Info("Winch remote controller created");
+    ConfigAccessor.ReadFieldsInType(GetType(), this);
     openGUIEvent = Event.KeyboardEvent(openGUIKey);
     instance = this;
     LoadLocalizedContent();
