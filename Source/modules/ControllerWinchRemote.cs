@@ -384,7 +384,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               GUI.skin.button,
               new[] {MinSizeLayout},
               fnOn: () => winch.SetMotor(-motorSpeed),
-              fnOff: () => winch.SetMotor(0));
+              fnOff: () => winch.SetMotor(0),
+              actionsList: guiActions);
           // Retract the cable column.
           winchState.retracting &= winch.motorTargetSpeed < 0;
           winchState.retracting = GUILayoutButtons.Push(
@@ -393,7 +394,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               GUI.skin.button,
               new[] {MinSizeLayout},
               fnPush: () => winch.SetMotor(-motorSpeed),
-              fnRelease: () => winch.SetMotor(0));
+              fnRelease: () => winch.SetMotor(0),
+              actionsList: guiActions);
         }
         
         // Cable lenght/status column.
@@ -423,7 +425,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               GUI.skin.button,
               new[] {MinSizeLayout},
               fnOn: () => winch.SetMotor(motorSpeed),
-              fnOff: () => winch.SetMotor(0));
+              fnOff: () => winch.SetMotor(0),
+              actionsList: guiActions);
           // Extend the cable column.
           winchState.extending &= winch.motorTargetSpeed > 0;
           winchState.extending = GUILayoutButtons.Push(
@@ -432,7 +435,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               GUI.skin.button,
               new[] {MinSizeLayout},
               fnPush: () => winch.SetMotor(motorSpeed),
-              fnRelease: () => winch.SetMotor(0));
+              fnRelease: () => winch.SetMotor(0),
+              actionsList: guiActions);
         }
 
         using (new GuiEnabledStateScope(!disableWinchGUI)) {
@@ -467,21 +471,21 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         using (new GuiEnabledStateScope(
             !disableWinchGUI && winch.currentCableLength < winch.cfgMaxCableLength)) {
           if (GUILayout.Button(releaseBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            winch.ReleaseCable();
+            guiActions.Add(winch.ReleaseCable);
           }
         }
 
         // Stretch cable column.
         using (new GuiEnabledStateScope(!disableWinchGUI && !winch.isConnectorLocked)) {
           if (GUILayout.Button(stretchBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            winch.StretchCable();
+            guiActions.Add(winch.StretchCable);
           }
         }
 
         // Disconnect connector column.
         using (new GuiEnabledStateScope(!disableWinchGUI && winch.isLinked)) {
           if (GUILayout.Button(detachBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            winch.BreakCurrentLink(LinkActorType.Player);
+            guiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
           }
         }
       }
