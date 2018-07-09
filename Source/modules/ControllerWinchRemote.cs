@@ -20,7 +20,7 @@ namespace KAS {
 /// if they implement the <see cref="IWinchControl"/> interface. The remote control will only work
 /// for the winches that belong to a controllable vessel. 
 /// </remarks>
-// Next localization ID: #kasLOC_11027.
+// Next localization ID: #kasLOC_11028.
 // TODO(ihsoft): Use database when the path is changed to no "." path.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
 [PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
@@ -211,6 +211,15 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
           + " I.e. its actual length is greater than the winch allows."
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
           + "\nArgument <<2>> is the real cable length of type DistanceType.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
+  static readonly Message<VelocityType, VelocityType> MotorSpeedTxt =
+      new Message<VelocityType, VelocityType>(
+          "#kasLOC_11027",
+          defaultTemplate: "<gui:min:150,0><<1>> / <<2>>",
+          description: "The formatter string for the winch motor speed."
+          + "\nArgument <<1>> is the current motor speed type VelocityType."
+          + "\nArgument <<2>> is the settings for the desired motor speed of type VelocityType.");
   #endregion
 
   #region Configuration settings
@@ -479,11 +488,9 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         }
 
         // Motor speed info column.
-        motorSpeedCnt.text =
-            VelocityType.Format(Mathf.Abs(winch.motorCurrentSpeed))
-            + " / "
-            + VelocityType.Format(motorSpeed);
-        GUILayout.Label(motorSpeedCnt, guiNoWrapCenteredStyle, GUILayout.Width(150f));
+        motorSpeedCnt.text = MotorSpeedTxt.Format(Mathf.Abs(winch.motorCurrentSpeed), motorSpeed);
+        guiWinchTable.AddTextColumn(
+            motorSpeedCnt, guiNoWrapCenteredStyle, minWidth: MotorSpeedTxt.guiTags.minWidth);
 
         // Release cable column.
         using (new GuiEnabledStateScope(
@@ -548,6 +555,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     motorSpeedSettingsCnt = new GUIContent("", MotorSpeedSettingsTxtHint);
     cableStatusCnt = new GUIContent("", CableLengthTxtHint);
     motorSpeedCnt = new GUIContent("", MotorSpeedStatusTxtHint);
+    MotorSpeedTxt.LoadLocalization();  // To update guiTags. 
 
     winchModeOfflineCnt = new GUIContent(
         ScreenMessaging.SetColorToRichText(WinchModeOfflineTxt, Color.red),
