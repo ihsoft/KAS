@@ -404,20 +404,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
   #endregion
 
-  #region PartModule overrides
-  /// <inheritdoc/>
-  public override void OnUpdate() {
-    base.OnUpdate();
-    if (rotaingCylinder != null) {
-      if (cableJoint.realCableLength > float.Epsilon) {
-        var angle = 360.0f
-            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
-        rotaingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
-      }
-    }
-  }
-  #endregion
-  
   #region KASLinkSourcePhysical overrides
   /// <inheritdoc/>
   public override void OnAwake() {
@@ -440,6 +426,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.OnLoad(node);
     rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
     ConfigAccessor.ReadFieldsInType(GetType(), this);
+  }
+
+  /// <inheritdoc/>
+  public override void OnUpdate() {
+    base.OnUpdate();
+    if (rotaingCylinder != null) {
+      if (cableJoint.realCableLength > float.Epsilon) {
+        var angle = 360.0f
+            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
+        rotaingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
+      }
+    }
   }
 
   /// <inheritdoc/>
