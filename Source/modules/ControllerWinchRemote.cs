@@ -346,7 +346,8 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       var winchState = sortedSceneModules[i];
       var winch = winchState.winchModule;
       var winchCable = winchState.winchModule.linkJoint as ILinkCableJoint;
-      var disableWinchGUI = false;
+      var disableWinchGUI =
+          !winch.part.vessel.IsControllable || winch.isNodeBlocked || winch.isLocked;
       var motorSpeed = winchState.motorSpeedSetting * winch.cfgMotorMaxSpeed;
 
       // Resolve the winche's state.
