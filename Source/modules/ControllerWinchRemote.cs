@@ -98,7 +98,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeOfflineTxt = new Message(
       "#kasLOC_11011",
-      defaultTemplate: "<gui:min:150,0>Offline",
+      defaultTemplate: "<gui:min:150,0><color=red>Offline</color>",
       description: "The text for the winch status in which it cannot be remotely operated for any"
       + " reason.");
 
@@ -111,7 +111,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeBlockedTxt = new Message(
       "#kasLOC_11013",
-      defaultTemplate: "<gui:min:150,0>Blocked",
+      defaultTemplate: "<gui:min:150,0><color=red>Blocked</color>",
       description: "The text for the winch status that tells that the main winch attach node is"
       + " occupied by an incompatible (non-KAS) part.");
 
@@ -124,7 +124,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeRetractedTxt = new Message(
       "#kasLOC_11015",
-      defaultTemplate: "<gui:min:150,0>Retracted",
+      defaultTemplate: "<gui:min:150,0><color=#00ff00>Retracted</color>",
       description: "The text for the winch status that tells that the cable connector is locked to"
       + " the winch, and the cable length is zero.");
 
@@ -559,15 +559,9 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     motorSpeedCnt = new GUIContent("", MotorSpeedStatusTxtHint);
     MotorSpeedTxt.LoadLocalization();  // To update guiTags. 
 
-    winchModeOfflineCnt = new GUIContent(
-        ScreenMessaging.SetColorToRichText(WinchModeOfflineTxt, Color.red),
-        WinchModeOfflineTxtHint);
-    winchModeBlockedCnt = new GUIContent(
-        ScreenMessaging.SetColorToRichText(WinchModeBlockedTxt, Color.red),
-        WinchModeBlockedTxtHint);
-    winchModeRetractedCnt = new GUIContent(
-        ScreenMessaging.SetColorToRichText(WinchModeRetractedTxt, Color.green),
-        WinchModeRetractedTxtHint);
+    winchModeOfflineCnt = new GUIContent(WinchModeOfflineTxt, WinchModeOfflineTxtHint);
+    winchModeBlockedCnt = new GUIContent(WinchModeBlockedTxt, WinchModeBlockedTxtHint);
+    winchModeRetractedCnt = new GUIContent(WinchModeRetractedTxt, WinchModeRetractedTxtHint);
     RelaxedCableLengthTxt.LoadLocalization();  // To update guiTags.
     StrainedCableLengthTxt.LoadLocalization();  // To update guiTags.
     winchCableStatusMinWidth = Mathf.Max(
