@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.0.36</name>
+        <name>KSPDev_Utils.0.37</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1942,22 +1942,6 @@
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo1"/></example>
             <example><code source="Examples/GUIUtils/LocalizationLoader-Examples.cs" region="LocalizationLoaderDemo2"/></example>
         </member>
-        <member name="F:KSPDev.GUIUtils.LocalizationLoader.cachedReadValueMethod">
-            <summary>
-            The stock method from ConfigNode to transform string values to the game supported types.
-            </summary>
-            <remarks>
-            This method is private and we extract it via reflection. This is an error prone way (not to
-            mention how bad it is from the coding practices standpoint), so there is a fallback strategy:
-            if the method with the proper signature cannot be extracted, then only update the string
-            values since don't need conversion.
-            </remarks>
-            <seealso cref="M:KSPDev.GUIUtils.LocalizationLoader.GetTransformValueMethod"/>
-        </member>
-        <member name="F:KSPDev.GUIUtils.LocalizationLoader.readValueMethodChecked">
-            <summary>Tells if the transform method existence has already been checked.</summary>
-            <remarks>For the performance purpose only.</remarks>
-        </member>
         <member name="M:KSPDev.GUIUtils.LocalizationLoader.LoadItemsInModule(PartModule)">
             <summary>Localizes the <see cref="T:PartModule"/> items.</summary>
             <remarks>
@@ -2018,25 +2002,6 @@
             </summary>
             <param name="module">The module to check.</param>
             <returns><c>true</c> if the module refers our version of the Utils assembly.</returns>
-        </member>
-        <member name="M:KSPDev.GUIUtils.LocalizationLoader.LoadKSPFieldsFromNode(PartModule,ConfigNode)">
-            <summary>Reloads the [KSPField] annotated fields from the provided config.</summary>
-            <remarks>
-            This method tries to reload all the fields in the module using the stock methods. However, the
-            stock game libraries can change and become incompatible, in which case this method will only
-            update the string fields. Updating only the strings is enough in 99% of the localization
-            cases.
-            </remarks>
-            <param name="module">The module to reload the fields for.</param>
-            <param name="node">The config node to geth te values from.</param>
-            FIXME: move it to the localization tool?
-        </member>
-        <member name="M:KSPDev.GUIUtils.LocalizationLoader.GetTransformValueMethod">
-            <summary>Gets a method that transforms a string value into the provided type.</summary>
-            <returns>
-            The method which returns the converted value or <c>null</c> if the conversion is failed or not
-            possible.
-            </returns>
         </member>
         <member name="T:KSPDev.GUIUtils.ScreenMessaging">
             <summary>Helper class to present global UI messages.</summary>
