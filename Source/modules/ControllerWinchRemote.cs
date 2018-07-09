@@ -364,16 +364,16 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
       using (new GUILayout.HorizontalScope(GUI.skin.box)) {
         // Winch highlighting column.
-        var highlighted = GUILayout.Toggle(
-            winchState.highlighted, highlightWinchCnt, GUI.skin.button, MinSizeLayout);
-        if (highlighted && !winchState.highlighted) {
-          winch.part.SetHighlight(true, false);
-          winch.part.SetHighlightType(Part.HighlightType.AlwaysOn);
-          winchState.highlighted = true;
-        } else if (!highlighted && winchState.highlighted) {
-          winch.part.SetHighlightDefault();
-          winchState.highlighted = false;
-        }
+        winchState.highlighted = GUILayoutButtons.Toggle(
+            winchState.highlighted, highlightWinchCnt, GUI.skin.button, null,
+            fnOn: () => {
+              winch.part.SetHighlight(true, false);
+              winch.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+            },
+            fnOff: () => {
+              winch.part.SetHighlightDefault();
+            },
+            actionsList: guiActions);
 
         // Cable retracting controls.
         using (new GuiEnabledStateScope(!disableWinchGUI && winchCable.realCableLength > 0)) {
