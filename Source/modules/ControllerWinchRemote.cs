@@ -468,22 +468,24 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
         using (new GuiEnabledStateScope(!disableWinchGUI)) {
           // Motor speed settings column.
-          GUI.changed = false;
-          var newMotorSpeedSetting = GUILayout.HorizontalSlider(
-              winchState.motorSpeedSetting, 0.1f, 1.0f,
-              GUILayout.Width(100f));
-          GUI.Box(GUILayoutUtility.GetLastRect(), motorSpeedSettingsCnt);
-          if (GUI.changed) {
-            guiActions.Add(() => {
-              winchState.motorSpeedSetting = newMotorSpeedSetting;
-              var newSpeed = newMotorSpeedSetting * winch.cfgMotorMaxSpeed;
-              if (winchState.extending || winchState.extendBtnPressed) {
-                winch.SetMotor(newSpeed);
-              }
-              if (winchState.retracting || winchState.retractBtnPressed) {
-                winch.SetMotor(-newSpeed);
-              }
-            });
+          using (new GUILayout.VerticalScope(motorSpeedSettingsCnt, GUI.skin.label)) {
+            GUI.changed = false;
+            GUILayout.FlexibleSpace();
+            var newMotorSpeedSetting = GUILayout.HorizontalSlider(
+                winchState.motorSpeedSetting, 0.1f, 1.0f,
+                GUILayout.Width(100f));
+            if (GUI.changed) {
+              guiActions.Add(() => {
+                winchState.motorSpeedSetting = newMotorSpeedSetting;
+                var newSpeed = newMotorSpeedSetting * winch.cfgMotorMaxSpeed;
+                if (winchState.extending || winchState.extendBtnPressed) {
+                  winch.SetMotor(newSpeed);
+                }
+                if (winchState.retracting || winchState.retractBtnPressed) {
+                  winch.SetMotor(-newSpeed);
+                }
+              });
+            }
           }
         }
 
