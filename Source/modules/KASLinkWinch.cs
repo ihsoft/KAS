@@ -113,11 +113,11 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   /// FIXME: make a new type
-  readonly static Message<SpeedType> MotorSpeedInfo = new Message<SpeedType>(
+  readonly static Message<VelocityType> MotorSpeedInfo = new Message<VelocityType>(
       "#kasLOC_08014",
       defaultTemplate: "Max motor speed: <<1>>",
       description: "Info string that tells how fast the winch can extend or retract the cable."
-      + "\nArgument <<1>> is the speed of type SpeedType.");
+      + "\nArgument <<1>> is the speed of type VelocityType.");
   #endregion
 
   #region Part's config fields
