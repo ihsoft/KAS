@@ -3,10 +3,13 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.LogUtils;
+using KSPDev.MathUtils;
+using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
-using KSPDev.MathUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,8 @@ namespace KAS {
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12016
+// TODO(ihsoft): Use database when the path is changed to no "." path.
+[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {
@@ -32,7 +37,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly Message<string> resourceName = new Message<string>(
       "#kasLOC_12001",
       defaultTemplate: "<<1>>",
-      description: "The resource in the transfer options table. Its main purpose is dealing dealing"
+      description: "The resource in the transfer options table. Its main purpose is dealing"
       + " with the Lingoona modifiers, applied to the resource name."
       + "\nArgument <<1>> is the full localized resource name with the Lingoona modifiers"
       + " (if any).");
@@ -154,6 +159,55 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public float autolSpeedTransferDuration = 4.0f;
+
+  /// <summary>
+  /// Pattern to find the model which will be rotating around X-axis when the hose is
+  /// extended/retracted.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string rotatingWinchCylinderModel = "";
+
+  /// <summary>
+  /// The total length of the cilinder on the outer radius. It's used to calculate the ratio of how
+  /// significantly the cylinder need to rotate when 1m of hose is extended/retarted.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public float cylinderPerimeterLength = 1.0f;
+
+  /// <summary>List of the resource types that must not offered fro the transfer.</summary>
+  [PersistentField("RTS/ignoreResource", isCollection = true)]
+  public List<string> ignoreResourceNames = new List<string>();
+
+  /// <summary>Container for the fuel mixutre component.</summary>
+  public class FuelMixtureComponent {
+    /// <summary>Name of the resource.</summary>
+    [PersistentField("name")]
+    public string name = "";
+
+    /// <summary>
+    /// Weight of the component in the mixture. It can be any number, it will be scaled down to
+    /// <c>1.0</c> to get the percentage.
+    /// </summary>
+    [PersistentField("ratio")]
+    public double ratio;
+  }
+
+  /// <summary>Container for the fuel mixture.</summary>
+  public class FuelMixture {
+    /// <summary>The mixuture components.</summary>
+    [PersistentField("component", isCollection = true)]
+    public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
+  }
+
+  /// <summary>List of the supported fuel mixtures.</summary>
+  /// <remarks>
+  /// The mixture will only be presented if <i>all</i> of the components are present in any of the
+  /// vessels.
+  /// </remarks>
+  [PersistentField("RTS/fuelMixture", isCollection = true)]
+  public List<FuelMixture> fuelMixtures = new List<FuelMixture>();
   #endregion
 
   #region Context menu events/actions
@@ -166,13 +220,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public void OpenGUIEvent() {
     if (isLinked && vessel != linkTarget.part.vessel) {
       isGUIOpen = true;
-      leftVessel = vessel;
-      rightVessel = linkTarget.part.vessel;
-      UpdateResourceOptionList();
-    } else {
-      isGUIOpen = false;
-      leftVessel = null;
-      rightVessel = null;
+      resourceListNeedsUpdate = true;
+      MaybeUpdateResourceOptionList();
     }
   }
   #endregion
@@ -204,12 +253,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   Dictionary<int, ResourceTransferOption> resourceRowsHash =
       new Dictionary<int, ResourceTransferOption>();
 
-  /// <summary>The vessel that owns the module. The owner.</summary>
-  Vessel leftVessel;
-
-  /// <summary>The vessel that is connected to the module. The target.</summary>
-  Vessel rightVessel;
-
   /// <summary>The currently behaving resource transfer.</summary>
   ResourceTransferOption pendingOption;
 
@@ -219,11 +262,30 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Tells if the transfer speed can be managed by the code.</summary>
   bool autoScaleSpeed;
 
-  /// <summary>List of all fuel types that cannot be moved.</summary>
-  /// TODO(ihsoft): Make it configurable.
-  int[] unmovableResources = {
-      StockResourceNames.GetId(StockResourceNames.SolidFuel)
-  };
+  /// <summary>Model of the cylinder to rotate when the hose is extended/retracted.</summary>
+  /// <remarks>Can be <c>null</c>.</remarks>
+  Transform rotaingCylinder;
+
+  /// <summary>
+  /// Tells if the resources options need to be refreshed from the attached vessels.
+  /// </summary>
+  bool resourceListNeedsUpdate;
+
+  /// <summary>Last time the resoucres counts were updated in GUI.</summary>
+  float lastResourcesGUIUpdate;
+
+  /// <summary>The timeout to update the resoucres countes in GUI in seconds.</summary>
+  /// <remarks>It's a performance affecting settings.</remarks>
+  const float TRANSFER_STATE_UPDATE_PERIOD = 0.1f;
+  #endregion
+
+  #region Cached values
+  Part currentFromPart;
+  double[] currentFromPartCapacities;
+  double[] currentFromPartAmounts;
+  Part currentToPart;
+  double[] currentToPartCapacities;
+  double[] currentToPartAmounts;
   #endregion
 
   #region GUI styles & contents
@@ -248,15 +310,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public readonly double[] leftCapacities;
     public readonly double[] rightAmounts;
     public readonly double[] rightCapacities;
-
-    //FIXME: can be omitted. we work in a glbal context.
-    public readonly Part leftPart;
-    public readonly Part rightPart;
-
-    //FIXME: make readonly and create once
-    public GUIContent caption;
-    public GUIContent leftInfo;
-    public GUIContent rightInfo;
+    public readonly GUIContent caption = new GUIContent();
+    public readonly GUIContent leftInfo = new GUIContent();
+    public readonly GUIContent rightInfo = new GUIContent();
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
@@ -292,14 +348,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
 
     /// <summary>Makes the transfer option.</summary>
-    /// <param name="parent"></param>
     /// <param name="availabeResources"></param>
     /// <param name="resourceRatio"></param>
     public ResourceTransferOption(
-        KASLinkResourceConnector parent,
         IEnumerable<int> availabeResources, IEnumerable<double> resourceRatio) {
-      leftPart = parent.part;
-      rightPart = parent.linkTarget.part;
       resources = availabeResources.ToArray();
       resourceRatios = resourceRatio.ToArray();
       leftAmounts = new double[resources.Length];
@@ -312,9 +364,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     /// <summary>Updates the GUI strings that don't depend on the amounts/capacities.</summary>
     public void UpdateStaticStrings() {
       if (resources.Length == 1) {
-        caption = new GUIContent(
-            resourceName.Format(StockResourceNames.GetResourceTitle(
-                resources[0], removeLingoonaTags: false)));
+        caption.text = resourceName.Format(
+            StockResourceNames.GetResourceTitle(resources[0], removeLingoonaTags: false));
       } else {
         var texts = new string[resources.Length];
         var totalAmount = resourceRatios.Sum();
@@ -324,8 +375,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
               StockResourceNames.GetResourceAbbreviation(resources[i], removeLingoonaTags: false));
         }
         var resourceNames = resources.Select(r => StockResourceNames.GetResourceTitle(r)).ToArray();
-        caption = new GUIContent(
-            string.Join("\n", texts), MixtureHint.Format(string.Join(" + ", resourceNames)));
+        caption.text = string.Join("\n", texts);
+        caption.tooltip = MixtureHint.Format(string.Join(" + ", resourceNames));
       }
     }
 
@@ -354,6 +405,41 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region KASLinkSourcePhysical overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    GameEvents.onVesselWasModified.Add(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Add(OnVesselUpdated);
+    GameEvents.onVesselCreate.Add(OnVesselUpdated);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onVesselWasModified.Remove(OnVesselUpdated);
+    GameEvents.onVesselDestroy.Remove(OnVesselUpdated);
+    GameEvents.onVesselCreate.Remove(OnVesselUpdated);
+  }
+
+  /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
+    ConfigAccessor.ReadFieldsInType(GetType(), this);
+  }
+
+  /// <inheritdoc/>
+  public override void OnUpdate() {
+    base.OnUpdate();
+    if (rotaingCylinder != null) {
+      if (cableJoint.realCableLength > float.Epsilon) {
+        var angle = 360.0f
+            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
+        rotaingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
+      }
+    }
+  }
+
   /// <inheritdoc/>
   public override void LocalizeModule() {
     base.LocalizeModule();
@@ -392,9 +478,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public void OnGUI() {
     isGUIOpen &= linkTarget != null && vessel != linkTarget.part.vessel;
+    if (Time.timeScale <= float.Epsilon) {
+      return;  // No events and menu in the paused mode.
+    }
     if (isGUIOpen) {
-      windowRect = GUILayout.Window(0, windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
-                                    GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      windowRect = GUILayout.Window(
+          GetInstanceID(), windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
+          GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }
   #endregion
@@ -406,22 +496,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     MakeGuiStyles();
 
     if (guiActions.ExecutePendingGuiActions()) {
+      MaybeUpdateResourceOptionList();
       guiResourcesTable.UpdateFrame();
-      //TODO(ihsoft): Update resources on the vessel events.
-      UpdateResourceOptionList();
       if (pendingOption != null) {
         if (!DoTransfer()) {
           SetPendingTransferOption(null);  // Cancel all transfers.
         }
       }
-      //TODO(ihsoft): Check for an update timeout, don't do it in each frame.
-      for (var i = resourceRows.Length - 1; i >= 0; i--) {
-        UpdateTransferState(resourceRows[i]);
-      }
+      UpdateResourcesTransferGui();
     }
     
-    GUILayout.Label(OwnerVesselTxt.Format(leftVessel.vesselName), GUI.skin.box);
-    GUILayout.Label(ConnectedVesselTxt.Format(rightVessel.vesselName), GUI.skin.box);
+    GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), GUI.skin.box);
+    GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), GUI.skin.box);
     for (var i = resourceRows.Length - 1; i >= 0; i--) {
       var row = resourceRows[i];
       guiResourcesTable.StartNewRow();
@@ -513,33 +599,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (!autoScaleSpeed || pendingOption == null) {
       return;
     }
-    //FIXME: pre-cache selections somehow
-    double[] fromPartCapacities;
-    double[] fromPartAmounts;
-    double[] toPartCapacities;
-    double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
-      fromPartCapacities = pendingOption.leftCapacities;
-      fromPartAmounts = pendingOption.leftAmounts;
-      toPartCapacities = pendingOption.rightCapacities;
-      toPartAmounts = pendingOption.rightAmounts;
-    } else {
-      fromPartCapacities = pendingOption.rightCapacities;
-      fromPartAmounts = pendingOption.rightAmounts;
-      toPartCapacities = pendingOption.leftCapacities;
-      toPartAmounts = pendingOption.leftAmounts;
-    }
-
     // Determine the maximum unscaled amount to transfer.
     var maxUnscaledAmount = double.PositiveInfinity;
     for (var i = pendingOption.resources.Length - 1; i >= 0; i--) {
       var unit = pendingOption.resourceRatios[i];
       var resource = pendingOption.resources[i];
-      var amount = fromPartAmounts[i] / unit;
+      var amount = currentFromPartAmounts[i] / unit;
       if (amount < maxUnscaledAmount) {
         maxUnscaledAmount = amount;
       }
-      var capacity = (toPartCapacities[i] - toPartAmounts[i]) / unit;
+      var capacity = (currentToPartCapacities[i] - currentToPartAmounts[i]) / unit;
       if (capacity < maxUnscaledAmount) {
         maxUnscaledAmount = capacity;
       }
@@ -556,39 +625,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (updateDelta < float.Epsilon) {
       return true;  // Cannot do transfer, but the state must not be reset yet.
     }
-    
-    //FIXME: pre-cache selections somehow
-    Part fromPart;
-    double[] fromPartCapacities;
-    double[] fromPartAmounts;
-    Part toPart;
-    double[] toPartCapacities;
-    double[] toPartAmounts;
-    if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
-      fromPart = pendingOption.leftPart;
-      fromPartCapacities = pendingOption.leftCapacities;
-      fromPartAmounts = pendingOption.leftAmounts;
-      toPart = pendingOption.rightPart;
-      toPartCapacities = pendingOption.rightCapacities;
-      toPartAmounts = pendingOption.rightAmounts;
-    } else if (pendingOption.rightToLeftTransferPress || pendingOption.rightToLeftTransferToggle) {
-      fromPart = pendingOption.rightPart;
-      fromPartCapacities = pendingOption.rightCapacities;
-      fromPartAmounts = pendingOption.rightAmounts;
-      toPart = pendingOption.leftPart;
-      toPartCapacities = pendingOption.leftCapacities;
-      toPartAmounts = pendingOption.leftAmounts;
-    } else {
-      fromPart = null;
-      fromPartCapacities = null;
-      fromPartAmounts = null;
-      toPart = null;
-      toPartCapacities = null;
-      toPartAmounts = null;
-      return false;
-    }
 
-    // Below a tricky logic starts. It's intendent to properly work with the mixtures of multiple
+    // Below a tricky logic starts. It's intended to properly work with the mixtures of multiple
     // resources. When moving a mixture, we should know in advance how much amount of each component
     // can be transferred before the capacity/reserve limit hit.
     var resources = pendingOption.resources;
@@ -599,16 +637,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // Now, check if each component request transfer can be fulfilled.
     var scale = 1.0;
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
-      fromPart.GetConnectedResourceTotals(
-          resources[i], out fromPartAmounts[i], out fromPartCapacities[i]);
-      toPart.GetConnectedResourceTotals(
-          resources[i], out toPartAmounts[i], out toPartCapacities[i]);
+      currentFromPart.GetConnectedResourceTotals(
+          resources[i], out currentFromPartAmounts[i], out currentFromPartCapacities[i]);
+      currentToPart.GetConnectedResourceTotals(
+          resources[i], out currentToPartAmounts[i], out currentToPartCapacities[i]);
       var amount = moveAmounts[i];
-      if (amount > fromPartAmounts[i]) {
-        amount = fromPartAmounts[i];
+      if (amount > currentFromPartAmounts[i]) {
+        amount = currentFromPartAmounts[i];
       }
-      if (amount > toPartCapacities[i] - toPartAmounts[i]) {
-        amount = toPartCapacities[i] - toPartAmounts[i];
+      if (amount > currentToPartCapacities[i] - currentToPartAmounts[i]) {
+        amount = currentToPartCapacities[i] - currentToPartAmounts[i];
       }
       var newScale = amount / moveAmounts[i];
       if (newScale < scale) {
@@ -619,28 +657,44 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
       var resource = resources[i];
       var amount = scale * moveAmounts[i];
-      var actualAmount = fromPart.RequestResource(resource, amount);
-      toPart.RequestResource(resource, -actualAmount);
+      var actualAmount = currentFromPart.RequestResource(resource, amount);
+      currentToPart.RequestResource(resource, -actualAmount);
     }
     return Mathd.AreSame(scale, 1.0);
   }
 
-  /// <summary>Updates the resources amounts and the transfer states.</summary>
+  /// <summary>Updates GUI for all the resoucres.</summary>
+  /// <remarks>
+  /// To not waste too much CPU, this method opdates by timer. However, when an instant update is
+  /// needed, it can be requested via the parameter.
+  /// </remarks>
+  /// <param name="force">Tells if GUI must be upadted regardless to the timer.</param>
+  void UpdateResourcesTransferGui(bool force = false) {
+    if (!force && Time.unscaledTime - lastResourcesGUIUpdate < TRANSFER_STATE_UPDATE_PERIOD) {
+      return;
+    }
+    lastResourcesGUIUpdate = Time.unscaledTime;
+    for (var i = resourceRows.Length - 1; i >= 0; i--) {
+      UpdateOptionTransferGui(resourceRows[i]);
+    }
+  }
+
+  /// <summary>Updates the resources amounts and the transfer states in GUI.</summary>
   /// <remarks>This method must be performance optimized.</remarks>
   /// <param name="resOption">The resource transfer option to update.</param>
-  void UpdateTransferState(ResourceTransferOption resOption) {
+  void UpdateOptionTransferGui(ResourceTransferOption resOption) {
     var leftInfoString = "";
     var rightInfoString = "";
     resOption.canMoveRightToLeft = true;
     resOption.canMoveLeftToRight = true;
     for (var i = 0; i < resOption.resources.Length; i++) {
-      resOption.leftPart.GetConnectedResourceTotals(
+      part.GetConnectedResourceTotals(
           resOption.resources[i], out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
       leftInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.leftAmounts[i])
           + " / "
           + CompactNumberType.Format(resOption.leftCapacities[i]);
-      resOption.rightPart.GetConnectedResourceTotals(
+      linkTarget.part.GetConnectedResourceTotals(
           resOption.resources[i], out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
       rightInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.rightAmounts[i])
@@ -655,43 +709,48 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         resOption.canMoveLeftToRight = false;
       }
     }
-    resOption.leftInfo = new GUIContent(leftInfoString); 
-    resOption.rightInfo = new GUIContent(rightInfoString);
+    resOption.leftInfo.text = leftInfoString; 
+    resOption.rightInfo.text = rightInfoString;
   }
 
   /// <summary>
   /// Makes the list of all fuels and mixtures that can be moved between the linked vessels.
   /// </summary>
-  void UpdateResourceOptionList() {
-    var leftResources = new HashSet<int>(leftVessel.parts
+  /// <remarks>This is a very expensive operation.</remarks>
+  void MaybeUpdateResourceOptionList() {
+    if (!resourceListNeedsUpdate) {
+      return; // Nothing to do.
+    }
+    resourceListNeedsUpdate = false;
+    HostedDebugLog.Fine(this, "Refreshing resources...");
+    var leftResources = new HashSet<int>(vessel.parts
         .SelectMany(p => p.Resources)
         .Select(r => r.info.id));
-    var rightResources = new HashSet<int>(rightVessel.parts
+    var rightResources = new HashSet<int>(linkTarget.part.vessel.parts
         .SelectMany(p => p.Resources)
         .Select(r => r.info.id));
     var allResources = leftResources
         .Union(rightResources)
         .Distinct()
-        .OrderByDescending(x => x)  // The GUI function will render the list in the reveresd order.
+        .OrderByDescending(x => x)  // The GUI function will render the list in the reversed order.
         .ToList();
+    var skipIds = ignoreResourceNames
+        .Select(x => StockResourceNames.GetId(x))
+        .ToArray();
     var resources = allResources
-        .Where(id => unmovableResources.IndexOf(id) == -1)
-        .Select(id => new ResourceTransferOption(this, new[] {id}, new[] {1.0}))
+        .Where(id => skipIds.IndexOf(id) == -1)
+        .Select(id => new ResourceTransferOption(new[] {id}, new[] {1.0}))
         .ToList();
 
-    // Add known mixtures.
-    // TODO(ihsoft): Load them from the config.
-    if (allResources.Contains(StockResourceNames.GetId(StockResourceNames.LiquidFuel))
-        && allResources.Contains(StockResourceNames.GetId(StockResourceNames.Oxidizer))) {
-      resources.Insert(0, new ResourceTransferOption(
-          this,
-          new[] {
-            StockResourceNames.GetId(StockResourceNames.LiquidFuel),
-            StockResourceNames.GetId(StockResourceNames.Oxidizer)
-          },
-          new[] { 0.9, 1.1 }));
+    // Add the mixtures.
+    foreach (var mixture in fuelMixtures) {
+      if (mixture.components.All(c => allResources.Contains(StockResourceNames.GetId(c.name)))) {
+        resources.Insert(0, new ResourceTransferOption(
+            mixture.components.Select(x => StockResourceNames.GetId(x.name)).ToArray(),
+            mixture.components.Select(x => x.ratio).ToArray()));
+      }
     }
-    
+
     resourceRows = resources
         .Select(resource => resourceRowsHash.ContainsKey(resource.GetHashCode())
             ? resourceRowsHash[resource.GetHashCode()]
@@ -710,6 +769,36 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (pendingOption == null && autoScaleSpeed) {
       transferSpeed = 1.0f;
     }
+    if (pendingOption != null) {
+      if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
+        currentFromPart = part;
+        currentFromPartCapacities = pendingOption.leftCapacities;
+        currentFromPartAmounts = pendingOption.leftAmounts;
+        currentToPart = linkTarget.part;
+        currentToPartCapacities = pendingOption.rightCapacities;
+        currentToPartAmounts = pendingOption.rightAmounts;
+      } else {
+        currentFromPart = linkTarget.part;
+        currentFromPartCapacities = pendingOption.rightCapacities;
+        currentFromPartAmounts = pendingOption.rightAmounts;
+        currentToPart = part;
+        currentToPartCapacities = pendingOption.leftCapacities;
+        currentToPartAmounts = pendingOption.leftAmounts;
+      }
+    } else {
+      currentFromPartCapacities = null;
+      currentFromPartAmounts = null;
+      currentToPartCapacities = null;
+      currentToPartAmounts = null;
+    }
+    UpdateResourcesTransferGui(force: true);
+  }
+
+  /// <summary>
+  /// Forces an update of the list of the available resources. It's an expensive operation.
+  /// </summary>
+  void OnVesselUpdated(Vessel v) {
+    resourceListNeedsUpdate = true;
   }
   #endregion
 }

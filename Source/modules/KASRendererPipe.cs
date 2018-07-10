@@ -63,6 +63,7 @@ namespace KAS {
 /// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
+// Next localization ID: #kasLOC_07003.
 public class KASRendererPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,

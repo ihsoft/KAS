@@ -13,7 +13,7 @@ namespace KASAPIv1 {
 public static class CommonConfig {
   /// <summary>URL of the sound for the impossible action.</summary>
   [PersistentField("Sounds/bipWrong")]
-  public static string sndPathBipWrong = "KAS-1.0/Sounds/bipwrong2";
+  public static string sndPathBipWrong = "KAS-1.0/Sounds/bipwrong";
 
   /// <summary>Keyboard key to trigger the drop connector event.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>

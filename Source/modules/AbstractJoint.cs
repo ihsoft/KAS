@@ -24,25 +24,29 @@ namespace KAS {
 /// the descendants.
 /// </para>
 /// <para>
-/// Descendants can use custom persistent fields offered by <c>KSPDevUtils.ConfigUtils</c>. For
-/// this, use the persistence group <c>StdPersistentGroups.PartPersistant</c> and declare the
-/// memebers either as protected or public. E.g. as it's done for the
-/// <see cref="persistedSrcVesselInfo"/> struct.
-/// </para>
-/// <para>
 /// At the very least, the descendants must implement the <see cref="SetupPhysXJoints"/> method. In
 /// the unusual cases an overriding of <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
+/// <para>
+/// The descendants of this module can use the custom persistent fields of groups:
+/// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
+/// </list>
 /// </remarks>
 /// <seealso cref="SetupPhysXJoints"/>
 /// <seealso cref="CleanupPhysXJoints"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.ConfigAccessor']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_00011.
 public abstract class AbstractJoint : PartModule,
     // KSP interfaces.
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
     ILinkJoint,
+    // KSPDev parents.
+    IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
@@ -262,6 +266,15 @@ public abstract class AbstractJoint : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
   protected DockedVesselInfo persistedTgtVesselInfo;
+
+  /// <summary>Length at the moment of creating the joint.</summary>
+  /// <remarks>
+  /// This value is used to restore the link state, but only if it's greater than zero. If it's
+  /// less, then the implementation should decide which length to set when the joint is created.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [KSPField(isPersistant = true)]
+  public float persistedLinkLength = -1.0f;
   #endregion
 
   #region ILinkJoint properties
@@ -282,12 +295,17 @@ public abstract class AbstractJoint : PartModule,
   #endregion
 
   #region Inheritable properties
-  /// <summary>Length at the moment of creating the joint.</summary>
-  /// <value>Distance in meters.</value>
-  /// <remarks>
-  /// The elastic joints may allow the length deviation. This value can be used as a base.
-  /// </remarks>
-  protected float originalLength { get; private set; }
+  /// <summary>
+  /// Length at the moment of creating the joint, or a whatever length which deserves restoring
+  /// "as-is" on the scene load.
+  /// </summary>
+  /// <value>
+  /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
+  /// about the particular length in the current state, and it's up to the implementation.
+  /// </value>
+  protected float? originalLength {
+    get { return persistedLinkLength < 0 ? (float?) null : persistedLinkLength; }
+  }
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
@@ -340,7 +358,7 @@ public abstract class AbstractJoint : PartModule,
   protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
   readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
 
-  /// <summary>The objects that were sued by the custom joints.</summary>
+  /// <summary>The objects that were used by the custom joints.</summary>
   /// <remarks>These object will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
@@ -369,10 +387,33 @@ public abstract class AbstractJoint : PartModule,
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
     HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
+    Part parentPart = null;
+    Vector3 relPos = Vector3.zero;
+    Quaternion relRot = Quaternion.identity;
+    if (part.parent != linkTarget.part) {
+      // Calculate relative position and rotation of the part to properly restore the coupling.
+      parentPart = part.parent;
+      var root = vessel.rootPart.transform;
+      var thisPartPos = root.TransformPoint(part.orgPos);
+      var thisPartRot = root.rotation * part.orgRot;
+      var parentPartPos = root.TransformPoint(parentPart.orgPos);
+      var parentPartRot = root.rotation * parentPart.orgRot;
+      relPos = parentPartRot.Inverse() * (thisPartPos - parentPartPos);
+      relRot = parentPartRot.Inverse() * thisPartRot;
+    }
+    
     // The break event is sent for *any* joint on the game object that got broken. However, it may
     // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        if (parentPart != null) {
+          HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
+          part.transform.position =
+              parentPart.transform.position + parentPart.transform.rotation * relPos;
+          part.transform.rotation = parentPart.transform.rotation * relRot;
+          part.Couple(parentPart);
+        }
+        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
         linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
     });
@@ -382,22 +423,23 @@ public abstract class AbstractJoint : PartModule,
   #region PartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
+    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
     GameEvents.onVesselRename.Add(OnVesselRename);
+    LocalizeModule();
   }
 
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
+    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
+    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
     base.OnLoad(node);
-    ConfigAccessor.ReadFieldsFromNode(
-        node, GetType(), this, group: StdPersistentGroups.PartPersistant);
   }
 
   /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(
-        node, GetType(), this, group: StdPersistentGroups.PartPersistant);
+    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
   }
   #endregion
 
@@ -427,8 +469,10 @@ public abstract class AbstractJoint : PartModule,
     }
     linkSource = source;
     linkTarget = target;
-    originalLength = Vector3.Distance(
-        GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target));
+    if (!originalLength.HasValue) {
+      SetOrigianlLength(Vector3.Distance(
+          GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target)));
+    }
     isLinked = true;
     // If the parts are already coupled at this moment, then the mode must be set as such.      
     coupleOnLinkMode |= isCoupled;
@@ -452,6 +496,7 @@ public abstract class AbstractJoint : PartModule,
       }
     }
     SetCustomJoints(null);
+    SetOrigianlLength(null);
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -505,6 +550,13 @@ public abstract class AbstractJoint : PartModule,
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
     return true;
+  }
+  #endregion
+
+  #region IsLocalizableModule implementation
+  /// <inheritdoc/>
+  public virtual void LocalizeModule() {
+    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
@@ -566,6 +618,21 @@ public abstract class AbstractJoint : PartModule,
   #endregion
 
   #region Inheritable methods
+  /// <summary>Sets the original length of the joint.</summary>
+  /// <remarks>
+  /// This length is a base for many manipulations with the joint. It should only be changed when
+  /// the new value is a length which this joint is going to maintain the long-term (e.g. between
+  /// the scenes).
+  /// </remarks>
+  /// <param name="newLength">
+  /// The new length in meters. Can be <c>null</c> if the implementation is allowed to decide what
+  /// length to set on the joint creation.
+  /// </param>
+  /// <seealso cref="originalLength"/>
+  protected void SetOrigianlLength(float? newLength) {
+    persistedLinkLength = newLength.HasValue ? newLength.Value : -1;
+  }
+
   /// <summary>Creates the actual PhysX joints between the rigid objects.</summary>
   /// <remarks>
   /// <para>
@@ -654,7 +721,7 @@ public abstract class AbstractJoint : PartModule,
   /// </param>
   /// <seealso cref="customExtraObjects"/>
   /// <seealso cref="customJoints"/>
-  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints = null,
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints,
                                  IEnumerable<Object> extraObjects = null) {
     CleanupPhysXJoints();
     if (joints != null) {

@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
+using KSPDev.ConfigUtils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace KAS {
 /// Module that keeps all pieces of the link in the model. I.e. it's a material representation of
 /// the part that can link to another part.
 /// </summary>
+// Next localization ID: #kasLOC_04004.
 public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
@@ -46,12 +48,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Orientation of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public Vector3 parkedOrientation = Vector3.zero;
+  public Vector3 persistedParkedOrientation = Vector3.forward;
 
   /// <summary>Extended length of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public float parkedLength = 0;  // If 0 then minimum link length will be used.
+  public float persistedParkedLength = 0;  // If 0 then minimum link length will be used.
   #endregion
 
   #region Part's config fields
@@ -142,39 +144,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   [KSPField]
   public float pistonMinShift = 0.02f;
 
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu0 = "";
-
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu1 = "";
-
-  /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
-  /// <remarks>
-  /// This value is encoded like this: &lt;orientation vector&gt;,&lt;menu item title&gt;. Set it to
-  /// empty string to not show the menu item.
-  /// </remarks>
-  /// <seealso cref="ExtractOrientationVector"/>
-  /// <seealso cref="ExtractPositionName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string parkedOrientationMenu2 = "";
-
   /// <summary>Name of the renderer for this procedural part.</summary>
   /// <remarks>
   /// This setting is used to let link source know primary renderer for the linked state.
@@ -184,6 +153,54 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
+
+  /// <summary>
+  /// Container for the menu item description which tells how to park the unlinked strut.
+  /// </summary>
+  public class Orientation {
+    /// <summary>Direction of the pipe.</summary>
+    [PersistentField("direction")]
+    public Vector3 direction = Vector3.forward;
+
+    /// <summary>User friendly name for a menu item to adjust unlinked strut orientation.</summary>
+    [PersistentField("title")]
+    public string title = "";
+  }
+
+  /// <summary>List of the available menu items for the unlinked pipe oriaentation.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  [PersistentField("parkedOrientation", isCollection = true,
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public List<Orientation> parkedOrientations = new List<Orientation>();
+  #endregion
+
+  // FIXME: check colliders.
+  #region Context menu events/actions
+  /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
+  /// <seealso cref="maxLinkLength"/>
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04002",
+      defaultTemplate = "Extend to max",
+      description = "A context menu item that expands a non-linked telescopic pipe to its maximum"
+      + " length.")]
+  public void ExtendAtMaxMenuAction() {
+    persistedParkedLength = maxLinkLength;
+    UpdateLinkLengthAndOrientation();
+  }
+
+  /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
+  /// <seealso cref="minLinkLength"/>
+  [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
+  [LocalizableItem(
+      tag = "#kasLOC_04003",
+      defaultTemplate = "Retract to min",
+      description = "A context menu item that shrinks a non-linked telescopic pipe to its minimum"
+      + " length.")]
+  public void RetractToMinMenuAction() {
+    persistedParkedLength = minLinkLength;
+    UpdateLinkLengthAndOrientation();
+  }
   #endregion
 
   #region ILinkRenderer properties
@@ -404,7 +421,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
   #endregion
 
-  #region PartModule overrides
+  #region Local fields & properties
+  /// <summary>Instances of the events, that were created for orientation menu items.</summary>
+  readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
+  #endregion
+
+  #region AbstractProceduralModel overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -420,6 +442,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
+
+    InjectOrientationMenuItems();
     UpdateContextMenu();
     UpdateLinkLengthAndOrientation();
   }
@@ -429,6 +453,65 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     base.OnUpdate();
     if (isStarted) {
       UpdateLink();
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void CreatePartModel() {
+    CreateLeverModels();
+    CreatePistonModels();
+    UpdateValuesFromModel();
+    // Log basic part values to help part's designers.
+    HostedDebugLog.Info(this,
+        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
+        + " pistonLength={3}, outerPistonDiameter={4}",
+        minLinkLength, maxLinkLength,
+        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
+        pistonLength, outerPistonDiameter);
+
+    // Init parked state. It must go after all the models are created.
+    if (parkedOrientations.Count > 0) {
+      persistedParkedOrientation = parkedOrientations[0].direction;
+    }
+    if (Mathf.Approximately(persistedParkedLength, 0)) {
+      persistedParkedLength = minLinkLength;
+    }
+
+    UpdateLinkLengthAndOrientation();
+  }
+
+  /// <inheritdoc/>
+  protected override void LoadPartModel() {
+    // Source pivot.
+    srcPartJoint = Hierarchy.FindTransformByPath(
+        partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
+    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
+
+    // Source strut joint.
+    srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
+    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
+
+    // Target strut joint.
+    tgtStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TgtStrutJointObjName);
+    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
+    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
+
+    // Pistons.
+    pistons = new GameObject[pistonsCount];
+    for (var i = 0; i < pistonsCount; ++i) {
+      pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
+    }
+
+    UpdateValuesFromModel();
+    UpdateLinkLengthAndOrientation();
+  }
+
+  /// <inheritdoc/>
+  public override void LocalizeModule() {
+    base.LocalizeModule();
+    for (var i = 0; i < parkedOrientations.Count && i < injectedOrientationEvents.Count; i++) {
+      injectedOrientationEvents[i].guiName = parkedOrientations[i].title;
     }
   }
   #endregion
@@ -477,121 +560,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region IHasContextMenu implemenation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction0, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu0);
-      x.active = x.guiName != "" && !isLinked;
-    });
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction1, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu1);
-      x.active = x.guiName != "" && !isLinked;
-    });
-    PartModuleUtils.SetupEvent(this, ParkedOrientationMenuAction2, x => {
-      x.guiName = ExtractPositionName(parkedOrientationMenu2);
-      x.active = x.guiName != "" && !isLinked;
-    });
+    injectedOrientationEvents.ForEach(e => e.active = !isLinked);
     PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
     PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
-  }
-  #endregion
-
-  // FIXME: check colliders.
-  #region GUI menu action handlers
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu0"/>
-  [KSPEvent(guiName = "Pipe position 0", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
-  public void ParkedOrientationMenuAction0() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu0);
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu1"/>
-  [KSPEvent(guiName = "Pipe position 1", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
-  public void ParkedOrientationMenuAction1() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu1);
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Changes orientation of the unlinked strut.</summary>
-  /// <seealso cref="parkedOrientationMenu2"/>
-  [KSPEvent(guiName = "Pipe position 2", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
-  public void ParkedOrientationMenuAction2() {
-    parkedOrientation = ExtractOrientationVector(parkedOrientationMenu2);
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
-  /// <seealso cref="maxLinkLength"/>
-  [KSPEvent(guiName = "Extend to max", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
-  public void ExtendAtMaxMenuAction() {
-    parkedLength = maxLinkLength;
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
-  /// <seealso cref="minLinkLength"/>
-  [KSPEvent(guiName = "Retract to min", guiActiveUnfocused = true, guiActiveEditor = true,
-            active = false)]
-  public void RetractToMinMenuAction() {
-    parkedLength = minLinkLength;
-    UpdateLinkLengthAndOrientation();
-  }
-  #endregion
-
-  #region AbstractProceduralModel implementation
-  /// <inheritdoc/>
-  protected override void CreatePartModel() {
-    CreateLeverModels();
-    CreatePistonModels();
-    UpdateValuesFromModel();
-    // Log basic part values to help part's designers.
-    HostedDebugLog.Info(this,
-        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
-        + " pistonLength={3}, outerPistonDiameter={4}",
-        minLinkLength, maxLinkLength,
-        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
-        pistonLength, outerPistonDiameter);
-
-    // Init parked state. It must go after all the models are created.
-    parkedOrientation = parkedOrientationMenu0 != ""
-        ? ExtractOrientationVector(parkedOrientationMenu0)
-        : Vector3.forward;
-    if (Mathf.Approximately(parkedLength, 0)) {
-      parkedLength = minLinkLength;
-    }
-
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <inheritdoc/>
-  protected override void LoadPartModel() {
-    // Source pivot.
-    srcPartJoint = Hierarchy.FindTransformByPath(
-        partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
-
-    // Source strut joint.
-    srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
-    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-
-    // Target strut joint.
-    tgtStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TgtStrutJointObjName);
-    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
-    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
-
-    // Pistons.
-    pistons = new GameObject[pistonsCount];
-    for (var i = 0; i < pistonsCount; ++i) {
-      pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
-    }
-
-    UpdateValuesFromModel();
-    UpdateLinkLengthAndOrientation();
   }
   #endregion
 
@@ -601,9 +572,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     if (!isStarted) {
       // Simply align everyting along Z axis, and rotate source pivot according to the settings.
       srcPartJoint.localRotation = Quaternion.identity;
-      srcPartJointPivot.localRotation = Quaternion.LookRotation(parkedOrientation);
+      srcPartJointPivot.localRotation = Quaternion.LookRotation(persistedParkedOrientation);
       tgtStrutJoint.localPosition =
-          GetUnscaledStrutVector(new Vector3(0, 0, parkedLength - tgtJointHandleLength));
+          GetUnscaledStrutVector(new Vector3(0, 0, persistedParkedLength - tgtJointHandleLength));
       tgtStrutJoint.localRotation = Quaternion.identity;
       tgtStrutJointPivot.localRotation = Quaternion.identity;
     } else {
@@ -648,6 +619,27 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     }
   }
 
+  /// <summary>Creates the context menu events from the orientation descriptions.</summary>
+  /// <seealso cref="parkedOrientations"/>
+  void InjectOrientationMenuItems() {
+    foreach (var orientation in parkedOrientations) {
+      var eventInject = new BaseEvent(
+          Events,
+          "autoEventOrientation" + part.Modules.IndexOf(this),
+          () => {
+            persistedParkedOrientation = orientation.direction;
+            UpdateLinkLengthAndOrientation();
+          },
+          new KSPEvent());
+      eventInject.guiName = orientation.title;
+      eventInject.guiActive = false;
+      eventInject.guiActiveEditor = true;
+      eventInject.guiActiveUnfocused = true;
+      PartModuleUtils.AddEvent(this, eventInject);
+      injectedOrientationEvents.Add(eventInject);
+    }
+  }
+
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
@@ -662,36 +654,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       return maxLinkLength;
     }
     return linkLength;
-  }
-
-  /// <summary>Returns a direction vector for the parked string.</summary>
-  /// <param name="cfgSetting">
-  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>, where
-  /// <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c> is a
-  /// string to show in the context menu.
-  /// </param>
-  /// <returns>The direction vector for the action.</returns>
-  Vector3 ExtractOrientationVector(string cfgSetting) {
-    var lastCommaPos = cfgSetting.LastIndexOf(',');
-    if (lastCommaPos == -1) {
-      HostedDebugLog.Warning(this, "Cannot extract direction from string: {0}", cfgSetting);
-      return Vector3.forward;
-    }
-    return ConfigNode.ParseVector3(cfgSetting.Substring(0, lastCommaPos));
-  }
-
-  /// <summary>Returns a context menu item name from the packed string.</summary>
-  /// <param name="cfgSetting">
-  /// String from the config of the following format: <c>X,Y,Z,&lt;menu text&gt;</c>,
-  /// where <c>X,Y,Z</c> defines a direction in the node's local coordinates, and <c>menu text</c>
-  /// is a string to show in the context menu.
-  /// </param>
-  /// <returns>The display string for the action.</returns>
-  string ExtractPositionName(string cfgSetting) {
-    var lastCommaPos = cfgSetting.LastIndexOf(',');
-    return lastCommaPos != -1
-        ? cfgSetting.Substring(lastCommaPos + 1)
-        : cfgSetting;
   }
 
   /// <summary>

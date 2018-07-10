@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KSPDev.FSUtils;
+using KSPDev.LogUtils;
 using UnityEngine;
 
 namespace KASAPIv1 {
@@ -20,9 +21,9 @@ sealed class KASAPILauncher : MonoBehaviour {
       KASAPI.isLoaded = true;
 
       var assembly = GetType().Assembly;
-      Debug.LogWarningFormat("Loading KAS API v1 from: {0} (v{1})",
-                             KspPaths.MakeRelativePathToGameData(assembly.Location),
-                             assembly.GetName().Version);
+      DebugEx.Info("Loading KAS API v1 from: {0} (v{1})",
+                   KspPaths.MakeRelativePathToGameData(assembly.Location),
+                   assembly.GetName().Version);
     }
   }
   

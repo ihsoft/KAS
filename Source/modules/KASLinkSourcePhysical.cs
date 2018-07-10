@@ -46,7 +46,7 @@ namespace KAS {
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkCableJoint"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-// Next localization ID: #kasLOC_13010.
+// Next localization ID: #kasLOC_13011.
 public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -251,6 +251,21 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Context menu events/actions
+  /// <summary>Context menu to instantly lock the deployed connector.</summary>
+  /// <remarks>It's a hack, but sometimes it's the only way to recover the connector.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true, advancedTweakable = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_13010",
+      defaultTemplate = "Lock connector",
+      description = "Advanced tweakable. Context menu item to instantly lock the deployed connector"
+                    + " into the base.")]
+  public virtual void InstantLockConnectorEvent() {
+    if (connectorState == ConnectorState.Deployed) {
+      SetConnectorState(ConnectorState.Locked);
+    }
+  }
+
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
@@ -564,13 +579,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           SetCableLength(0);
 
           // Align the docking part to the nodes if it's a separate vessel.
-          if (oldState != null && linkTarget.part.vessel != vessel) {
-            AlignTransforms.SnapAlign(
-                linkTarget.part.transform, linkTarget.nodeTransform, nodeTransform);
+          if (oldState.HasValue && linkTarget.part.vessel != vessel) {
+            AlignTransforms.SnapAlignNodes(linkTarget.coupleNode, coupleNode);
             linkJoint.SetCoupleOnLinkMode(true);
-            if (oldState.HasValue) {  // Skip when restoring state.
-              UISoundPlayer.instance.Play(sndPathDockConnector);
-            }
+            UISoundPlayer.instance.Play(sndPathDockConnector);
           }
         },
         leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false),
@@ -704,6 +716,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     });
     PartModuleUtils.SetupEvent(this, DetachConnectorEvent, e => {
       e.active = isLinked;
+    });
+    PartModuleUtils.SetupEvent(this, InstantLockConnectorEvent, e => {
+      e.active = connectorState == ConnectorState.Deployed;
     });
     GrabConnectorEventInject.active = linkTarget != null
         && FlightGlobals.ActiveVessel != linkTarget.part.vessel;

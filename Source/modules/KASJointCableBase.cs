@@ -34,9 +34,9 @@ public class KASJointCableBase : AbstractJoint,
   readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
       "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
-      description: "Info string in the editor for the cable spring force setting. The argument is"
-      + " of type ForceType.",
-      example: "Cable break force: 1.2 kN");
+      description: "Info string in the editor for the cable spring force setting."
+      + "\nArgument <<1>> is the force of type ForceType.",
+      example: "Spring force: 1.2 kN");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitle = new Message(
@@ -62,13 +62,22 @@ public class KASJointCableBase : AbstractJoint,
   public float cableSpringDamper = 1f;
 
   /// <summary>
-  /// Tells if the stock joint must be kept in case of the parts have coupled at the zero distance.
+  /// Tells if the stock joint must be kept in case of the parts have coupled at the
+  /// <i>deployed cable length</i> set to zero.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// Since the the stock joint is rigid, it's always destroyed by this module. However, in some
   /// cases the parts coupled at zero distance (docked) need to stay fixed. Set this setting to
-  /// <c>true</c> to allow this behavior.
+  /// <c>true</c> to allow this behavior. Note, that the <i>deployed cable</i> length can differ
+  /// from the real distance between the objects. If the former is significantly less than the
+  /// latter, then the physical effects can trigger on dock.
+  /// </para>
+  /// <para>The cable joint is created even when the stock joint is present.</para>
   /// </remarks>
+  /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
+  /// <seealso cref="realCableLength"/>
+  /// <seealso cref="deployedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool allowDockingAtZeroDistance;
@@ -128,11 +137,10 @@ public class KASJointCableBase : AbstractJoint,
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistanceJoint(linkSource, linkTarget.part.Rigidbody,
-                        GetTargetPhysicalAnchor(linkSource, linkTarget),
-                        originalLength);
+    CreateDistanceJoint(
+        linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     if (partJoint != null
-        && (!allowDockingAtZeroDistance || Mathf.Approximately(realCableLength, 0))) {
+        && (!allowDockingAtZeroDistance || !Mathf.Approximately(deployedCableLength, 0))) {
       HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
@@ -144,20 +152,11 @@ public class KASJointCableBase : AbstractJoint,
     base.CleanupPhysXJoints();
     cableJoint = null;
   }
-
-  /// <inheritdoc/>
-  public override bool SetCoupleOnLinkMode(bool isCoupleOnLink) {
-    var oldLimit = deployedCableLength;
-    var res = base.SetCoupleOnLinkMode(isCoupleOnLink);if (res) {
-      SetCableLength(oldLimit);  // Keep the same deployed length.
-    }
-    return res;
-  }
   #endregion
 
   #region ILinkCableJoint implementation
   /// <inheritdoc/>
-  public void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
+  public virtual void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
     //FIXME: add the physical head module here.
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
@@ -170,23 +169,21 @@ public class KASJointCableBase : AbstractJoint,
     headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
-    CreateDistanceJoint(source, headRb,
-                        headObjAnchor.position,
-                        Vector3.Distance(GetSourcePhysicalAnchor(source), headObjAnchor.position));
-    SetCableLength(float.NegativeInfinity);
+    CreateDistanceJoint(source, headRb, headObjAnchor.position);
   }
 
   /// <inheritdoc/>
-  public void StopPhysicalHead() {
+  public virtual void StopPhysicalHead() {
     headRb = null;
     headSource = null;
     headPhysicalAnchor = null;
     DestroyImmediate(cableJoint);
     cableJoint = null;
+    SetOrigianlLength(null);
   }
 
   /// <inheritdoc/>
-  public void SetCableLength(float length) {
+  public virtual void SetCableLength(float length) {
     if (float.IsPositiveInfinity(length)) {
       length = cfgMaxCableLength;
     } else if (float.IsNegativeInfinity(length)) {
@@ -194,6 +191,7 @@ public class KASJointCableBase : AbstractJoint,
     } else {
       length = Mathf.Max(length, 0);
     }
+    SetOrigianlLength(length);
     if (cableJoint != null) {
       cableJoint.linearLimit = new SoftJointLimit() { limit = length };
     }
@@ -222,9 +220,9 @@ public class KASJointCableBase : AbstractJoint,
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
-  /// <param name="distanceLimit">The distance limit to set on the joint.</param>
-  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor,
-                           float distanceLimit) {
+  void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
+    var distanceLimit =
+        originalLength ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupDistanceJoint(

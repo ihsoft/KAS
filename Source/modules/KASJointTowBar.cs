@@ -22,10 +22,12 @@ namespace KAS {
 /// </item>
 /// </list>
 /// </remarks>
-// Next localization ID: #kasLOC_05010.
+// Next localization ID: #kasLOC_05020.
 public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
-    IsPhysicalObject {
+    IsPhysicalObject,
+    // KSPDev interfaces.
+    IHasContextMenu {
 
   #region Localizable strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -125,16 +127,27 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   #endregion
 
   #region Part's config fields
-  /// <summary>Link angle at the source part that produces maximum steering.</summary>
+  /// <summary>The link angle at the source part that produces the maximum steering.</summary>
   /// <remarks>
-  /// E.g. if this settings is <c>25</c> degrees and the angle at the source is <c>10</c> degrees
-  /// then steering power will be <c>10/25=0.4</c>. If angle at the source goes beyond the limit
-  /// then steering power is just clamped to <c>1.0</c>. What is good value for this limit depends
-  /// on the towing speed: the higher the speed the lower you want this limit to be.
+  /// This is a denominator that tells at which steering angle the steering power on the towed
+  /// vessel is at <c>1.0</c>. E.g. if this settings is <c>25</c> degrees and the angle at the
+  /// source is <c>10</c> degrees, then the steering power will be <c>10/25=0.4</c>. In the
+  /// contrast, if the angle at the source is <c>40</c>, then the towed vessel will be steering at
+  /// power <c>1.6</c>, bringing it back to line more quick but with less course stability. In
+  /// general, this setting defines the maximum comfort speed of towing: the lower values are good
+  /// for the higher speed towing.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float maxSteeringAngle;
+  public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
+
+  /// <summary>
+  /// The maximum angle between the port normal and the link vector to consdier the locking process
+  /// is done.
+  /// </summary>
+  /// <remarks>Once the angle decreases down to this value, the towbar will lock down.</remarks>
+  [KSPField]
+  public float lockAngleThreshold = 3f;
   #endregion
 
   #region Persistent fields
@@ -145,40 +158,72 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public bool activeSteeringEnabled;
+  public bool persistedActiveSteeringEnabled;
 
   /// <summary>Current locking mode of the tow bar.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public LockMode lockingMode = LockMode.Disabled;
+  public LockMode persistedLockingMode = LockMode.Disabled;
   #endregion
 
-  #region GUI status/mode fields
+  #region The context menu fields
   /// <summary>Status field to display current lock state.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Lock status")]
+  [KSPField]
+  [LocalizableItem(
+      tag = "#kasLOC_05010",
+      defaultTemplate = "Lock status",
+      description = "A context menu item that displays the current status of the bar locking.")]
   public string lockStatus = "";
 
   /// <summary>Status field to display current steering status.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Steering status")]
+  [KSPField]
+  [LocalizableItem(
+      tag = "#kasLOC_05011",
+      defaultTemplate = "Steering status",
+      description = "A context menu item that displays the current steering status.")]
   public string steeringStatus = "";
 
   /// <summary>Defines responsiveness of the towed vessel to the steering.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Steering sensitivity", guiFormat = "0.0", isPersistant = true),
+  [KSPField(guiFormat = "0.0", isPersistant = true),
    UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
                  stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
+  [LocalizableItem(
+      tag = "#kasLOC_05012",
+      defaultTemplate = "Steering sensitivity",
+      description = "A context menu item that displays and allows changing the strength of the"
+      + " steering commands, that the tow bar sends to the linked vessel.")]
   public float steeringSensitivity = 1.0f;
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
-  [KSPField(guiName = "Steering: Direction", isPersistant = true),
-   UI_Toggle(disabledText = "Normal", enabledText = "Inverted", scene = UI_Scene.All)]
+  [KSPField(isPersistant = true)]
+  [UI_Toggle(scene = UI_Scene.All)]
+  [LocalizableItem(
+      tag = "#kasLOC_05013",
+      defaultTemplate = "Steering: Direction",
+      description = "A context menu item that displays and allows changing the direction of the"
+      + " steering commands.")]
+  [LocalizableItem(
+      tag = "#kasLOC_05018",
+      spec = StdSpecTags.ToggleDisabled,
+      defaultTemplate = "Normal",
+      description = "The name of the active steering mode, in which the steering commands are sent"
+      + " to the linked vessel in the exact form as they've emitted for the source vessel.")]
+  [LocalizableItem(
+      tag = "#kasLOC_05019",
+      spec = StdSpecTags.ToggleEnabled,
+      defaultTemplate = "Inverted",
+      description = "The name of the active steering mode, in which the steering commands are sent"
+        + " to the linked vessel in the inverted form relative to the source vessel.")]
   public bool steeringInvert;
   #endregion
 
+  #region Internal properties
   /// <summary>Current locking mode.</summary>
+  /// <remarks>It's declared public only to make the KSP peristense working.</remarks>
   public enum LockMode {
     /// <summary>Not requested.</summary>
     Disabled,
@@ -187,24 +232,6 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     /// <summary>Target joint is locked on Z axis (a normal vector to the surface).</summary>
     Locked,
   }
-
-  /// <summary>
-  /// Angle between port normal and the link vector to consdier locking process is done.
-  /// </summary>
-  /// <remarks>
-  /// Once angle dcereases down to this value PhysX joint is set to <c>Locked</c> state and any
-  /// rotation error will get fixed by an instant angular force. If error is significant it may
-  /// result in joint breakage.
-  /// </remarks>
-  const float LockJointAngle = 0.05f;
-
-  /// <summary>
-  /// Minumal angle between port normal and the link vector to continue apply steering commands.
-  /// </summary>
-  /// <remarks>
-  /// Once angle decreases down to this value active steering stops affecting towed vessel.
-  /// </remarks>
-  const float ZeroSteeringAngle = 0.05f;
 
   /// <summary>Status helper. Only used to present GUI status.</summary>
   enum SteeringStatus {
@@ -220,7 +247,14 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     NotLocked,
   }
 
-  #region PartModule overrides
+  /// <summary>
+  /// Minumal angle between port normal and the link vector to continue apply steering commands.
+  /// </summary>
+  /// <remarks>The angles below this value don't affect the towed vessel.</remarks>
+  const float ZeroSteeringAngle = 0.05f;
+  #endregion
+
+  #region KASJointTwoEndsSphere overrides
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
@@ -234,19 +268,19 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
     if (HighLogic.LoadedSceneIsFlight) {
       // Trigger updates with the loaded value.
-      SetActiveSteeringState(activeSteeringEnabled);
+      SetActiveSteeringState(persistedActiveSteeringEnabled);
     }
+    UpdateContextMenu();
   }
-  #endregion
 
-  #region ILinkJoint implementation
   /// <inheritdoc/>
   public override bool CreateJoint(ILinkSource source, ILinkTarget target) {
     if (!base.CreateJoint(source, target)) {
       return false;
     }
-    SetLockingMode(lockingMode);
-    SetActiveSteeringState(activeSteeringEnabled);
+    trgJoint.angularXMotion = ConfigurableJointMotion.Locked;
+    SetLockingMode(persistedLockingMode, updateUi: false);
+    SetActiveSteeringState(persistedActiveSteeringEnabled);
     return true;
   }
 
@@ -262,25 +296,42 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
 
   #region GUI menu action handlers
   /// <summary>Starts mode to lock target joint.</summary>
-  [KSPEvent(guiName = "Start locking", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05014",
+      defaultTemplate = "Start locking",
+      description = "A context menu event that starts the locking process on a linked vessel.")]
   public void StartLockLockingAction() {
     SetLockingMode(LockMode.Locking);
   }
 
   /// <summary>Unlocks target joint and disables active steering.</summary>
-  [KSPEvent(guiName = "Unlock joint", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05015",
+      defaultTemplate = "Unlock joint",
+      description = "A context menu event that disables the locking of the tow bar joints and turns"
+      + " off the active steering mode.")]
   public void UnlockAction() {
     SetLockingMode(LockMode.Disabled);
   }
 
   /// <summary>Enables active steering of the towed vessel.</summary>
-  [KSPEvent(guiName = "Enable active steering", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05016",
+      defaultTemplate = "Enable active steering",
+      description = "A context menu event that enables the active steering mode.")]
   public void ActiveSteeringAction() {
     SetActiveSteeringState(true);
   }
 
   /// <summary>Disables active steering of the towed vessel.</summary>
-  [KSPEvent(guiName = "Disable active steering", guiActive = true, guiActiveUnfocused = true)]
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_05017",
+      defaultTemplate = "Disable active steering",
+      description = "A context menu event that disables the active steering mode.")]
   public void DeactiveSteeringAction() {
     SetActiveSteeringState(false);
   }
@@ -292,50 +343,57 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (!isLinked) {
       return;
     }
-    if (lockingMode == LockMode.Locking) {
-      var yaw = GetYawAngle(linkTarget.nodeTransform, linkSource.nodeTransform);
+    if (persistedLockingMode == LockMode.Locking) {
+      var yaw = GetTargetYawAngle();
       var absYaw = Mathf.Abs(yaw);
-      if (absYaw < trgJoint.angularZLimit.limit) {
-        trgJoint.angularZLimit = new SoftJointLimit() {
-          limit = absYaw,
-        };
-        // Either Unity or KSP applies a cap to the minimum allowed limit. It makes it impossible to
-        // iteratively reduce the limit down to zero. So check when we hit the cap and just activate
-        // locked mode assuming the limit cap was chosen wise.
-        // TODO(ihsoft): Track last known yaw and lock when at starts increasing.
-        if (!Mathf.Approximately(absYaw, trgJoint.angularZLimit.limit) || absYaw < LockJointAngle) {
-          yaw = 0f;
-          SetLockingMode(LockMode.Locked);
+      // Reaching zero is too hard to achieve, so wait for a minimum ange and simply lock.
+      // It will trigger sime jitter and momentum, though.
+      if (absYaw < lockAngleThreshold) {
+        SetLockingMode(LockMode.Locked);
+      } else {
+        if (absYaw < trgJoint.angularZLimit.limit) {
+          var angularLimit = trgJoint.angularZLimit;
+          angularLimit.limit = absYaw;
+          trgJoint.angularZLimit = angularLimit;
         }
+        lockStatusScreenMessage.message = LockingStatusMsg.Format(yaw);
+        ScreenMessages.PostScreenMessage(lockStatusScreenMessage);
       }
-      ShowLockingProgress(angleDiff: yaw);
     }
-    if (activeSteeringEnabled) {
+    if (persistedActiveSteeringEnabled) {
       UpdateActiveSteering();
     }
   }
   #endregion
-  
-  #region Local utility methods
-  /// <summary>
-  /// Updates GUI context menu items status according to the current module state. Call it every
-  /// time the state is changed.
-  /// </summary>
-  void UpdateContextMenu() {
+
+  #region IHasContextMenu implemenation
+  /// <inheritdoc/>
+  public void UpdateContextMenu() {
     Fields["lockStatus"].guiActive = isLinked;
     Fields["steeringStatus"].guiActive = isLinked;
-    Fields["steeringInvert"].guiActive = isLinked && activeSteeringEnabled;
-    Fields["steeringSensitivity"].guiActive = isLinked && activeSteeringEnabled;
-    PartModuleUtils.SetupEvent(this, StartLockLockingAction,
-                               e => e.active = isLinked && lockingMode == LockMode.Disabled);
-    PartModuleUtils.SetupEvent(this, UnlockAction,
-                               e => e.active = isLinked && lockingMode != LockMode.Disabled);
-    PartModuleUtils.SetupEvent(this, DeactiveSteeringAction,
-                               e => e.active = isLinked && activeSteeringEnabled);
-    PartModuleUtils.SetupEvent(this, ActiveSteeringAction,
-                               e => e.active = isLinked && !activeSteeringEnabled);
-  }
+    Fields["steeringInvert"].guiActive = isLinked && persistedActiveSteeringEnabled;
+    Fields["steeringSensitivity"].guiActive = isLinked && persistedActiveSteeringEnabled;
+    
+    PartModuleUtils.SetupEvent(
+        this, StartLockLockingAction,
+        e => e.active = isLinked && persistedLockingMode == LockMode.Disabled);
+    PartModuleUtils.SetupEvent(
+        this, UnlockAction,
+        e => e.active = isLinked && persistedLockingMode != LockMode.Disabled);
+    PartModuleUtils.SetupEvent(
+        this, DeactiveSteeringAction,
+        e => e.active = isLinked && persistedActiveSteeringEnabled);
+    PartModuleUtils.SetupEvent(
+        this, ActiveSteeringAction,
+        e => e.active = isLinked && !persistedActiveSteeringEnabled);
 
+    lockStatus = LockStatusMsgLookup.Lookup(persistedLockingMode);
+    steeringStatus = SteeringStatusMsgLookup.Lookup(
+        persistedActiveSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
+  }
+  #endregion
+
+  #region Local utility methods
   /// <summary>
   /// Sets current locking state. Updates UI, vessel, and joints states as needed.
   /// </summary>
@@ -343,22 +401,31 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// This method may be called from a cleanup routines, so make it safe to execute in incomplete
   /// states.
   /// </remarks>
-  /// <param name="mode"></param>
-  void SetLockingMode(LockMode mode) {
-    lockingMode = mode;
-    lockStatus = LockStatusMsgLookup.Lookup(lockingMode);
+  /// <param name="mode">The new mode.</param>
+  /// <param name="updateUi">Tells if the related GUI messages should be shown/hidden.</param>
+  void SetLockingMode(LockMode mode, bool updateUi = true) {
+    persistedLockingMode = mode;
 
     if (isLinked && trgJoint != null && (mode == LockMode.Locked || mode == LockMode.Disabled)) {
       // Restore joint state that could be affected during locking.
       var angularLimit = trgJoint.angularZLimit;
-      angularLimit.limit = targetLinkAngleLimit;
+      if (mode == LockMode.Locked) {
+        angularLimit.limit = 0;
+        trgJoint.angularZMotion = ConfigurableJointMotion.Locked;
+      } else {
+        angularLimit.limit = targetLinkAngleLimit;
+        trgJoint.angularZMotion = ConfigurableJointMotion.Limited;
+      }
       trgJoint.angularZLimit = angularLimit;
-      trgJoint.angularZMotion = mode == LockMode.Locked
-          ? ConfigurableJointMotion.Locked
-          : ConfigurableJointMotion.Limited;
+    }
+    if (updateUi && mode == LockMode.Locked) {
+      ScreenMessages.PostScreenMessage(LockedStatusMsg, ScreenMessaging.DefaultMessageTimeout,
+                                   ScreenMessageStyle.UPPER_LEFT);
+    }
+    if (updateUi && (mode == LockMode.Disabled || mode == LockMode.Locked)) {
+      ScreenMessages.RemoveMessage(lockStatusScreenMessage);
     }
     if (mode == LockMode.Disabled) {
-      ShowLockingProgress(hideMessages: true);
       SetActiveSteeringState(false);  // No active steering in unlocked mode.
     }
     UpdateContextMenu();
@@ -373,25 +440,30 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <param name="state"></param>
   void SetActiveSteeringState(bool state) {
-    activeSteeringEnabled = state;
-    steeringStatus = SteeringStatusMsgLookup.Lookup(
-        activeSteeringEnabled ? SteeringStatus.Active : SteeringStatus.Disabled);
-    if (isLinked && linkTarget != null && !activeSteeringEnabled) {
+    persistedActiveSteeringEnabled = state;
+    if (isLinked && linkTarget != null && !persistedActiveSteeringEnabled) {
       linkTarget.part.vessel.ctrlState.wheelSteer = 0;
     }
     UpdateContextMenu();
   }
 
-  /// <summary>
-  /// Gets yaw angle between the tranformations. Angle is calculated on the plane defined by the
-  /// <paramref name="refTransform"/> up direction.
-  /// </summary>
-  /// <param name="refTransform">Transformation to use as base of the calculation.</param>
-  /// <param name="targetTransform">Transformation of the target.</param>
-  /// <returns></returns>
-  float GetYawAngle(Transform refTransform, Transform targetTransform) {
-    var linkVector = targetTransform.position - refTransform.position;
-    var partLinkVector = refTransform.InverseTransformDirection(linkVector);
+  /// <summary>Gets yaw angle between the source attach node and the link.</summary>
+  float GetSourceYawAngle() {
+    var srcAnchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAnchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    var partLinkVector =
+        linkSource.nodeTransform.InverseTransformDirection(tgtAnchorPos - srcAnchorPos);
+    var eulerAngle = Quaternion.LookRotation(partLinkVector).eulerAngles.y;
+    eulerAngle = eulerAngle > 180 ? eulerAngle - 360 : eulerAngle;
+    return eulerAngle;
+  }
+
+  /// <summary>Gets yaw angle between the target attach node and the link.</summary>
+  float GetTargetYawAngle() {
+    var srcAnchorPos = GetSourcePhysicalAnchor(linkSource);
+    var tgtAnchorPos = GetTargetPhysicalAnchor(linkSource, linkTarget);
+    var partLinkVector =
+        linkTarget.nodeTransform.InverseTransformDirection(srcAnchorPos - tgtAnchorPos);
     var eulerAngle = Quaternion.LookRotation(partLinkVector).eulerAngles.y;
     eulerAngle = eulerAngle > 180 ? eulerAngle - 360 : eulerAngle;
     return eulerAngle;
@@ -406,38 +478,17 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.CurrentVesselIsTarget);
     } else if (!linkTarget.part.vessel.IsControllable) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.TargetIsNotControllable);
-    } else if (lockingMode != LockMode.Locked) {
+    } else if (persistedLockingMode != LockMode.Locked) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.NotLocked);
-    } else if (activeSteeringEnabled) {
+    } else if (persistedActiveSteeringEnabled) {
       steeringStatus = SteeringStatusMsgLookup.Lookup(SteeringStatus.Active);
-      var srcJointYaw = GetYawAngle(linkSource.nodeTransform, linkTarget.nodeTransform);
+      var srcJointYaw = GetSourceYawAngle();
       if (steeringInvert) {
         srcJointYaw = -srcJointYaw;
       }
       linkTarget.part.vessel.ctrlState.wheelSteer = Mathf.Abs(srcJointYaw) > ZeroSteeringAngle
           ? Mathf.Clamp(steeringSensitivity * srcJointYaw / maxSteeringAngle, -1.0f, 1.0f)
           : 0;
-    }
-  }
-
-  /// <summary>\Displays current locking state in the upper left corner of the screen.</summary>
-  /// <param name="angleDiff">
-  /// Value of the difference between port normal and link vector projected on the surface plane.
-  /// If value is close to zero then locking state is assumed to be LOCKED.
-  /// </param>
-  /// <param name="hideMessages">Specifies if any progress display should be hidden.</param>
-  void ShowLockingProgress(float angleDiff = 0f, bool hideMessages = false) {
-    if (lockStatusScreenMessage != null) {
-      if (hideMessages) {
-        ScreenMessages.RemoveMessage(lockStatusScreenMessage);
-      } else if (Mathf.Approximately(angleDiff, 0)) {
-        ScreenMessages.RemoveMessage(lockStatusScreenMessage);
-        ScreenMessages.PostScreenMessage(LockedStatusMsg, ScreenMessaging.DefaultMessageTimeout,
-                                         ScreenMessageStyle.UPPER_LEFT);
-      } else {
-        lockStatusScreenMessage.message = LockingStatusMsg.Format(angleDiff);
-        ScreenMessages.PostScreenMessage(lockStatusScreenMessage);
-      }
     }
   }
   #endregion
