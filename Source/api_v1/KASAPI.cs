@@ -9,9 +9,10 @@
 // completely new assembly that is supplied together with the old versions.
 //
 // It's unspecified how many old versions of the API are to be preserved in the distribution. Mods
-// developers should migrate to the newest available API version as soon as possible. In normal
-// case every following version is an ancestor of the previous version(s), so the migration should
-// be trivial. Though, in case of methods/interfaces deprecation some extra work may be required. 
+// developers should migrate to the newest available API version as soon as possible. In a normal
+// case, the every following version is an ancestor of the previous version(s), so the migration
+// should be trivial. However, in case of there is some methods/interfaces deprecation, an extra
+// work may be required to migrate.
 
 // Name of the namespace denotes the API version.
 namespace KASAPIv1 {
