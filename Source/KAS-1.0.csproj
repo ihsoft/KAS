@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
+    <Compile Include="api_impl\CommonConfig.cs" />
     <Compile Include="api_impl\JointUtilsImpl.cs" />
     <Compile Include="api_impl\KASAPILauncher.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />

@@ -3,7 +3,6 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KSPDev.ConfigUtils;
 using KSPDev.FSUtils;
 using KSPDev.LogUtils;
 using UnityEngine;
@@ -12,16 +11,13 @@ namespace KASAPIv1 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
 sealed class KASAPILauncher : MonoBehaviour {
-  const string CommonConfigFile = "KAS-1.0/settings.cfg";
-  const string CommonConfigNode = "KASConfig";
-  
   void LoadApi() {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();
       KASAPI.AttachNodesUtils = new KASImpl.AttachNodesUtilsImpl();
       KASAPI.LinkUtils = new KASImpl.LinkUtilsImpl();
       KASAPI.PhysicsUtils = new KASImpl.PhysicsUtilsImpl();
-      LoadCommonConfig();
+      KASAPI.CommonConfig = new CommonConfig();
       KASAPI.isLoaded = true;
 
       var assembly = GetType().Assembly;
@@ -30,27 +26,9 @@ sealed class KASAPILauncher : MonoBehaviour {
                    assembly.GetName().Version);
     }
   }
-  
+
   void Awake() {
     LoadApi();
-  }
-
-  void LoadCommonConfig() {
-    var node = ConfigNode.Load(KspPaths.MakeAbsPathForGameData(CommonConfigFile));
-    if (node != null && CommonConfigNode.Length > 0) {
-      node = node.GetNode(CommonConfigNode);
-    }
-    if (node != null) {
-      CommonConfig.keyDropConnector =
-          ConfigAccessor.GetValueByPath(node, "Winch/dropConnectorKey");
-      CommonConfig.keyPickupConnector =
-          ConfigAccessor.GetValueByPath(node, "Winch/pickupConnectorKey");
-      CommonConfig.sndPathBipWrong =
-          ConfigAccessor.GetValueByPath(node, "Sounds/bipWrong");
-    } else {
-      DebugEx.Error("Cannot load the KAS common config: node={0}, file={1}",
-                    CommonConfigNode, CommonConfigFile);
-    }
   }
 }
 

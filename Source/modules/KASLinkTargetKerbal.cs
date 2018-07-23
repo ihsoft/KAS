@@ -179,7 +179,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
           updatableMenu.UpdateContextMenu();
         }
       } else {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+        UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
     }
   }
@@ -191,8 +191,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     base.OnAwake();
 
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
-    dropConnectorKeyEvent = Event.KeyboardEvent(CommonConfig.keyDropConnector);
-    pickupConnectorKeyEvent = Event.KeyboardEvent(CommonConfig.keyPickupConnector);
+    dropConnectorKeyEvent = Event.KeyboardEvent(KASAPI.CommonConfig.keyDropConnector);
+    pickupConnectorKeyEvent = Event.KeyboardEvent(KASAPI.CommonConfig.keyPickupConnector);
     useGUILayout = false;
     dropConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
@@ -418,10 +418,10 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       var source = linkSource;
       source.BreakCurrentLink(LinkActorType.API);
       if (!source.LinkToTarget(LinkActorType.Player, target)) {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+        UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
     } else {
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
     }
   }
 

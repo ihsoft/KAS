@@ -6,16 +6,15 @@
 namespace KASAPIv1 {
 
 /// <summary>Container for the various global settings of the mod.</summary>
-//FIXME: Make it API compatible (via an interface).
-public static class CommonConfig {
+public interface ICommonConfig {
   /// <summary>URL of the sound for the impossible action.</summary>
-  public static string sndPathBipWrong = "";
+  string sndPathBipWrong { get; }
 
   /// <summary>Keyboard key to trigger the drop connector event.</summary>
-  public static string keyDropConnector = "";
+  string keyDropConnector { get; }
 
   /// <summary>Keyboard key to trigger the pickup connector event.</summary>
-  public static string keyPickupConnector = "";
+  string keyPickupConnector { get; }
 }
   
 }  // namespace

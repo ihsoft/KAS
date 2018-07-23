@@ -201,7 +201,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   [LocalizableItem(tag = null)]
   public virtual void ToggleVesselsDockModeEvent() {
     if (!linkJoint.SetCoupleOnLinkMode(!linkJoint.coupleOnLinkMode)) {
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
     } else {
       if (isLinked) {
         UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathUndock);

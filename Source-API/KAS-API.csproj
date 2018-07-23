@@ -66,8 +66,8 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="api\CommonConfig.cs" />
     <Compile Include="api\GUILinkMode.cs" />
+    <Compile Include="api\ICommonConfig.cs" />
     <Compile Include="api\IKasJointEventsListener.cs" />
     <Compile Include="api\ILinkPeer.cs" />
     <Compile Include="api\ILinkCableJoint.cs" />
