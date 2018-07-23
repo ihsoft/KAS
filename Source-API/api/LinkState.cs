@@ -11,7 +11,6 @@ namespace KASAPIv1 {
 /// handle a very specific set of actions. Such approach helps keeping module logic more clear and
 /// granular.
 /// </remarks>
-/// <seealso cref="KSPDev.ProcessingUtils.SimpleStateMachine&lt;T&gt;"/>
 public enum LinkState {
   /// <summary>Initial and an invalid state. It must never be normally used.</summary>
   None = 0,

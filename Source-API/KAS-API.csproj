@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{5DD0400D-C1BA-4ED9-AE7B-C4F3DCB964B1}</ProjectGuid>
-    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{28BA6AD6-D3B9-4B90-9B76-B7FB3B2D93E0}</ProjectGuid>
+    <ProjectTypeGuids>{08E73C60-97DB-4494-94BF-5F59C0A94767}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>KAS</RootNamespace>
-    <AssemblyName>KAS-1.0</AssemblyName>
+    <AssemblyName>KAS-API-v1</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -20,7 +20,7 @@
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
-    <DocumentationFile>bin\Release\KAS-1.0.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\KAS-API-v1.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -36,6 +36,8 @@
     <Optimize>False</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -51,21 +53,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="KAS-API-v1">
-      <HintPath>..\Binaries\KAS-API-v1.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPDev_Utils.0.37">
-      <HintPath>..\Binaries\KSPDev_Utils.0.37.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>Q:\KSP_x64_Data\Managed\System.Core.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
@@ -74,55 +61,43 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="api_impl" />
-    <Folder Include="modules" />
+    <Folder Include="api" />
+    <Folder Include="api\Utils" />
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
-    <Compile Include="api_impl\JointUtilsImpl.cs" />
-    <Compile Include="api_impl\KASAPILauncher.cs" />
-    <Compile Include="api_impl\LinkUtilsImpl.cs" />
-    <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
-    <Compile Include="modules\AbstractJoint.cs" />
-    <Compile Include="modules\AbstractLinkPeer.cs" />
-    <Compile Include="modules\KASInternalPhysicalConnector.cs" />
-    <Compile Include="modules\KASJointCableBase.cs" />
-    <Compile Include="modules\KASJointRigid.cs" />
-    <Compile Include="modules\AbstractProceduralModel.cs" />
-    <Compile Include="modules\KASInternalBrokenJointListener.cs" />
-    <Compile Include="modules\KASLinkResourceConnector.cs" />
-    <Compile Include="modules\KASLinkSourceInteractive.cs" />
-    <Compile Include="modules\KASLinkSourcePhysical.cs" />
-    <Compile Include="modules\KASLinkTargetKerbal.cs" />
-    <Compile Include="modules\KASLinkSourceBase.cs" />
-    <Compile Include="modules\KASLinkTargetBase.cs" />
-    <Compile Include="modules\KASRendererPipeWithHead.cs" />
-    <Compile Include="modules\KASRendererTelescopicPipe.cs" />
-    <Compile Include="modules\KASJointTowBar.cs" />
-    <Compile Include="modules\KASRendererPipe.cs" />
-    <Compile Include="modules\KASJointTwoEndsSphere.cs" />
-    <Compile Include="modules\KASLinkWinch.cs" />
-    <Compile Include="modules\KSPDev_candidates.cs" />
-    <Compile Include="modules\ControllerWinchRemote.cs" />
+    <Compile Include="api\CommonConfig.cs" />
+    <Compile Include="api\GUILinkMode.cs" />
+    <Compile Include="api\IKasJointEventsListener.cs" />
+    <Compile Include="api\ILinkPeer.cs" />
+    <Compile Include="api\ILinkCableJoint.cs" />
+    <Compile Include="api\ILinkJoint.cs" />
+    <Compile Include="api\ILinkRenderer.cs" />
+    <Compile Include="api\ILinkSource.cs" />
+    <Compile Include="api\ILinkStateEventListener.cs" />
+    <Compile Include="api\ILinkTarget.cs" />
+    <Compile Include="api\ILinkVesselInfo.cs" />
+    <Compile Include="api\IWinchControl.cs" />
+    <Compile Include="api\KASAPI.cs" />
+    <Compile Include="api\KASEvents.cs" />
+    <Compile Include="api\LinkActorType.cs" />
+    <Compile Include="api\LinkState.cs" />
+    <Compile Include="api\Utils\IAttachNodesUtils.cs" />
+    <Compile Include="api\Utils\IJointUtils.cs" />
+    <Compile Include="api\Utils\ILinkUtils.cs" />
+    <Compile Include="api\Utils\IPhysicsUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="KSPAPI_HelpIndex.xml" />
     <None Include="KSPDevUtilsAPI_HelpIndex.xml" />
     <None Include="SpecialDocTags.xml" />
-    <None Include="SpecialDocTagsExpand.xslt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Unity3D_HelpIndex.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KAS-API-v1.*" "Q:\GameData\KAS-1.0\Plugins\" /Y
-"$(ProjectDir)..\Tools\msxsl.exe" -t "KAS-1.0.xml" "SpecialDocTagsExpand.xslt" -o KAS-1.0.xml
-
+    <PostBuildEvent>xcopy "$(TargetPath)" "..\..\..\Binaries\" /Y
+xcopy "$(TargetDir)$(TargetName).xml" "..\..\..\Binaries\" /Y
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

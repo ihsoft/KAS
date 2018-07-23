@@ -16,10 +16,6 @@ public static class CommonConfig {
 
   /// <summary>Keyboard key to trigger the pickup connector event.</summary>
   public static string keyPickupConnector = "";
-
-  internal static void Load() {
-    ConfigAccessor.ReadFieldsInType(typeof(CommonConfig), null);
-  }
 }
   
 }  // namespace
