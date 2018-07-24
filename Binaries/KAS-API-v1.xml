@@ -23,60 +23,98 @@
         </member>
         <member name="P:KASAPIv1.ICommonConfig.sndPathBipWrong">
             <summary>URL of the sound for the impossible action.</summary>
+            <value>An empty string or a path to the sounds resource.</value>
         </member>
         <member name="P:KASAPIv1.ICommonConfig.keyDropConnector">
             <summary>Keyboard key to trigger the drop connector event.</summary>
+            <value>The Unity coded keyboard event string.</value>
+            <example><code source="Examples/ICommonConfig-Examples.cs" region="ShortcutsDemo"/></example>
         </member>
         <member name="P:KASAPIv1.ICommonConfig.keyPickupConnector">
             <summary>Keyboard key to trigger the pickup connector event.</summary>
+            <value>The Unity coded keyboard event string.</value>
+            <example><code source="Examples/ICommonConfig-Examples.cs" region="ShortcutsDemo"/></example>
         </member>
         <member name="T:KASAPIv1.IKasEvents">
             <summary>Defines global events that are triggered by KAS.</summary>
+            <remarks>
+            Each collection is a list of callbacks that are called when the triggering event has happen.
+            The subscribers should add themselves into the appropriate list to get notified. If subscriber
+            object is being destroyed, then it <i>must</i> remove itself from the lists! Otherwise, the NRE
+            will be thrown and the subscribers downstream will not get the notification.
+            </remarks>
+            <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
         </member>
         <member name="P:KASAPIv1.IKasEvents.OnStartLinking">
             <summary>Triggers when a source has initiated linking mode.</summary>
+            <remarks>The argument of the callback is the link source that started the mode.</remarks>
+            <value>Collection to add or remove a callback.</value>
+            <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
         </member>
         <member name="P:KASAPIv1.IKasEvents.OnStopLinking">
-            <summary>Triggers when source has stopped linking mode.</summary>
+            <summary>Triggers when a source has stopped linking mode.</summary>
+            <remarks>The argument of the callback is the link source that ended the mode.</remarks>
+            <value>Collection to add or remove a callback.</value>
+            <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
         </member>
         <member name="P:KASAPIv1.IKasEvents.OnLinkCreated">
-            <summary>Triggers when link between two parts has been successfully established.</summary>
+            <summary>Triggers when a link between two parts has been successfully established.</summary>
             <remarks>
+            <para>The argument of the callback is a KAS event object that describes the link.</para>
+            <para>
             Consider using <see cref="M:KASAPIv1.ILinkStateEventListener.OnKASLinkedState(KASAPIv1.IKasLinkEvent,System.Boolean)"/> when this state change
             is needed in scope of just one part.
+            </para>
             </remarks>
+            <value>Collection to add or remove a callback.</value>
+            <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
         </member>
         <member name="P:KASAPIv1.IKasEvents.OnLinkBroken">
-            <summary>Triggers when link between two parts has been broken.</summary>
+            <summary>Triggers when a link between two parts has been broken.</summary>
             <remarks>
+            <para>The argument of the callback is a KAS event object that describes the link.</para>
+            <para>
             Consider using <see cref="M:KASAPIv1.ILinkStateEventListener.OnKASLinkedState(KASAPIv1.IKasLinkEvent,System.Boolean)"/> when this state change
             is needed in scope of just one part.
+            </para>
             </remarks>
+            <value>Collection to add or remove a callback.</value>
+            <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
         </member>
         <member name="T:KASAPIv1.IKasJointEventsListener">
             <summary>Interface that notifies listeners about joints breaking.</summary>
-            <example><code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/></example>
+            <remarks>
+            This interface must be supported on the "other" side. The object that implements it only
+            declares a desire to know about the joint state. However, when the joint state is actually
+            changed, some other code needs to take care of calling the callback.
+            </remarks>
+            <example><code source="Examples/IKasJointEventsListener-Examples.cs" region="BrokenJointListenerExample"/></example>
         </member>
         <member name="M:KASAPIv1.IKasJointEventsListener.OnKASJointBreak(UnityEngine.GameObject,System.Single)">
-            <summary>Triggers when connection is broken due to too strong force applied.</summary>
+            <summary>
+            Triggers when a connection on the object is broken due to too strong force applied.
+            </summary>
             <remarks>
-            This event is expected to be called from Unity <c>OnJointBreak</c> callback. It means it will
-            come from fixed frame update thread. Not all operations can be done from this thread.
+            This event is expected to be called from a Unity physics method. Not all actions can be done
+            from this kind of handlers.
             </remarks>
-            <param name="hostObj">Game object that owns the joint.</param>
-            <param name="breakForce">Actual force that has been applied.</param>
+            <param name="hostObj">The game object that owns the joint.</param>
+            <param name="breakForce">The actual force that has been applied to break the joint.</param>
         </member>
         <member name="T:KASAPIv1.IKasLinkEvent">
             <summary>A holder for simple source-to-target event.</summary>
         </member>
         <member name="P:KASAPIv1.IKasLinkEvent.source">
             <summary>Link source.</summary>
+            <value>The link source module.</value>
         </member>
         <member name="P:KASAPIv1.IKasLinkEvent.target">
             <summary>Link target.</summary>
+            <value>The link target module.</value>
         </member>
         <member name="P:KASAPIv1.IKasLinkEvent.actor">
             <summary>Actor who changed the links tate.</summary>
+            <value>The actor type that initated teh action.</value>
         </member>
         <member name="T:KASAPIv1.ILinkPeer">
             <summary>Base interface for an end of the link.</summary>
@@ -117,17 +155,19 @@
             </summary>
             <remarks>
             <para>
-            The module will track the nodes, and will adjust its state as those nodes were owned by the
+            The module will track the nodes and will adjust its state as those nodes were owned by the
             module. However, this module will never change the mode of those nodes. This can be used to
             lock or block the peer modules that control the different primary nodes, but need to cooperate
-            with the other similar modules on the part. This settings allows defining a group of peer
+            with the other similar modules on the part. This setting allows defining a group of peer
             modules which only allow linking of a single module at the time.
             </para>
             <para>
-            Note, that the <seealso cref="P:KASAPIv1.ILinkPeer.cfgAttachNodeName"/> is <i>not</i> present in this list by
-            default. The implementations should explicitly check the primary node when appropriate.
+            Note, that the part's <see cref="P:KASAPIv1.ILinkPeer.cfgAttachNodeName"/> is <i>not</i> present in this list by
+            default. The implementation should explicitly check for the primary node, or the config must
+            take care of it.
             </para>
             </remarks>
+            <value>The list of the node names. It's never <c>null</c>.</value>
         </member>
         <member name="P:KASAPIv1.ILinkPeer.linkState">
             <summary>Current state of the peer.</summary>
@@ -983,9 +1023,10 @@
             <remarks>
             In the locked state there is no free cable available, and there is no moving part
             (the connector). If the winch is linked to a part and the connector is locked, then the traget
-            part is docked to the vessel that owns the winch. When the connector unlocks, the attached
-            part undocks from the vessel.
+            part is <i>docked</i> to the vessel that owns the winch. When the connector unlocks, the
+            attached part <i>undocks</i> from the vessel.
             </remarks>
+            <value><c>true</c> if the connector is rigid relative to the owner part.</value>
             <seealso cref="P:KASAPIv1.ILinkPeer.isLinked"/>
             <seealso cref="P:KASAPIv1.ILinkSource.linkJoint"/>
             <seealso cref="P:KASAPIv1.ILinkJoint.coupleOnLinkMode"/>
@@ -1057,7 +1098,7 @@
             <summary>KAS common config settings.</summary>
         </member>
         <member name="F:KASAPIv1.KASAPI.KasEvents">
-            <summary>KAS common config settings.</summary>
+            <summary>KAS global events.</summary>
         </member>
         <member name="T:KASAPIv1.LinkActorType">
             <summary>Defines an actor that changes KAS link.</summary>
@@ -1163,7 +1204,7 @@
             KSP: AttachNode.NodeType</seealso>
         </member>
         <member name="M:KASAPIv1.IAttachNodesUtils.AddNode(Part,AttachNode)">
-            <summary>Adds an existing atatch node into the part.</summary>
+            <summary>Adds an existing attach node into the part.</summary>
             <remarks>
             If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
             Normally, it's not expected to add an attach node into a part that doesn't own it. If the node
@@ -1234,7 +1275,7 @@
             </returns>
         </member>
         <member name="M:KASAPIv1.IAttachNodesUtils.GetTransformForNode(Part,AttachNode)">
-            <summary>Gets or creates a transfrom object for the attach node.</summary>
+            <summary>Gets or creates a transform object for the attach node.</summary>
             <remarks>The trasnform is added into the root of the part model.</remarks>
             <param name="ownerPart">The part that owns the node.</param>
             <param name="an">The attach node to create the transform for.</param>
