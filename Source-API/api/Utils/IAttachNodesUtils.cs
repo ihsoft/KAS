@@ -36,7 +36,7 @@ public interface IAttachNodesUtils {
   /// KSP: AttachNode.NodeType</seealso>
   AttachNode CreateNode(Part part, string nodeName, Transform nodeTransform);
 
-  /// <summary>Adds an existing atatch node into the part.</summary>
+  /// <summary>Adds an existing attach node into the part.</summary>
   /// <remarks>
   /// If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
   /// Normally, it's not expected to add an attach node into a part that doesn't own it. If the node
@@ -107,7 +107,7 @@ public interface IAttachNodesUtils {
   /// </returns>
   AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId);
 
-  /// <summary>Gets or creates a transfrom object for the attach node.</summary>
+  /// <summary>Gets or creates a transform object for the attach node.</summary>
   /// <remarks>The trasnform is added into the root of the part model.</remarks>
   /// <param name="ownerPart">The part that owns the node.</param>
   /// <param name="an">The attach node to create the transform for.</param>

@@ -24,9 +24,10 @@ public interface IWinchControl : ILinkSource {
   /// <remarks>
   /// In the locked state there is no free cable available, and there is no moving part
   /// (the connector). If the winch is linked to a part and the connector is locked, then the traget
-  /// part is docked to the vessel that owns the winch. When the connector unlocks, the attached
-  /// part undocks from the vessel.
+  /// part is <i>docked</i> to the vessel that owns the winch. When the connector unlocks, the
+  /// attached part <i>undocks</i> from the vessel.
   /// </remarks>
+  /// <value><c>true</c> if the connector is rigid relative to the owner part.</value>
   /// <seealso cref="ILinkPeer.isLinked"/>
   /// <seealso cref="ILinkSource.linkJoint"/>
   /// <seealso cref="ILinkJoint.coupleOnLinkMode"/>

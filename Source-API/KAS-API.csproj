@@ -70,7 +70,7 @@
     <Compile Include="api\ICommonConfig.cs" />
     <Compile Include="api\IKasEvents.cs" />
     <Compile Include="api\IKasJointEventsListener.cs" />
-    <Compile Include="api\IKasSLinkEvent.cs" />
+    <Compile Include="api\IKasLinkEvent.cs" />
     <Compile Include="api\ILinkPeer.cs" />
     <Compile Include="api\ILinkCableJoint.cs" />
     <Compile Include="api\ILinkJoint.cs" />

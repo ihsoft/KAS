@@ -37,7 +37,7 @@ public static class KASAPI {
   /// <summary>KAS common config settings.</summary>
   public static ICommonConfig CommonConfig;
 
-  /// <summary>KAS common config settings.</summary>
+  /// <summary>KAS global events.</summary>
   public static IKasEvents KasEvents;
 }
 
