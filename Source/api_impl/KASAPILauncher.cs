@@ -11,13 +11,14 @@ namespace KASAPIv1 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
 sealed class KASAPILauncher : MonoBehaviour {
-  void LoadApi() {
+  void Awake() {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();
       KASAPI.AttachNodesUtils = new KASImpl.AttachNodesUtilsImpl();
       KASAPI.LinkUtils = new KASImpl.LinkUtilsImpl();
       KASAPI.PhysicsUtils = new KASImpl.PhysicsUtilsImpl();
-      KASAPI.CommonConfig = new CommonConfig();
+      KASAPI.CommonConfig = new KASImpl.CommonConfigImpl();
+      KASAPI.KasEvents = new KASImpl.KasEventsImpl();
       KASAPI.isLoaded = true;
 
       var assembly = GetType().Assembly;
@@ -25,10 +26,6 @@ sealed class KASAPILauncher : MonoBehaviour {
                    KspPaths.MakeRelativePathToGameData(assembly.Location),
                    assembly.GetName().Version);
     }
-  }
-
-  void Awake() {
-    LoadApi();
   }
 }
 

@@ -13,7 +13,7 @@ namespace KASAPIv1 {
 /// logic to manage the sate of the links. For all the other types it's up to the implementation how
 /// to present it.
 /// </remarks>
-/// <seealso cref="KASEvents.LinkEvent"/>
+/// <seealso cref="IKasLinkEvent"/>
 /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
 public enum LinkActorType {
   /// <summary>Actor is unspecified.</summary>

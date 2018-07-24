@@ -97,12 +97,10 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
 
   /// <summary>Keyboard event to react to drop the carried connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
-  /// <seealso cref="CommonConfig.keyDropConnector"/>
   static Event dropConnectorKeyEvent;
 
   /// <summary>Keyboard event to react to pucik up a dropped connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
-  /// <seealso cref="CommonConfig.keyPickupConnector"/>
   static Event pickupConnectorKeyEvent;
 
   /// <summary>Message to show when there is a dropped connector in the pickup range.</summary>

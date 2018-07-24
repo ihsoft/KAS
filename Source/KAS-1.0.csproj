@@ -80,9 +80,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="api_impl\AttachNodesUtilsImpl.cs" />
-    <Compile Include="api_impl\CommonConfig.cs" />
+    <Compile Include="api_impl\CommonConfigImpl.cs" />
     <Compile Include="api_impl\JointUtilsImpl.cs" />
     <Compile Include="api_impl\KASAPILauncher.cs" />
+    <Compile Include="api_impl\KasEventsImpl.cs" />
+    <Compile Include="api_impl\KasLinkEventImpl.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
     <Compile Include="modules\AbstractJoint.cs" />

@@ -68,7 +68,9 @@
   <ItemGroup>
     <Compile Include="api\GUILinkMode.cs" />
     <Compile Include="api\ICommonConfig.cs" />
+    <Compile Include="api\IKasEvents.cs" />
     <Compile Include="api\IKasJointEventsListener.cs" />
+    <Compile Include="api\IKasSLinkEvent.cs" />
     <Compile Include="api\ILinkPeer.cs" />
     <Compile Include="api\ILinkCableJoint.cs" />
     <Compile Include="api\ILinkJoint.cs" />
@@ -79,7 +81,6 @@
     <Compile Include="api\ILinkVesselInfo.cs" />
     <Compile Include="api\IWinchControl.cs" />
     <Compile Include="api\KASAPI.cs" />
-    <Compile Include="api\KASEvents.cs" />
     <Compile Include="api\LinkActorType.cs" />
     <Compile Include="api\LinkState.cs" />
     <Compile Include="api\Utils\IAttachNodesUtils.cs" />

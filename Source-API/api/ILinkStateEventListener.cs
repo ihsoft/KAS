@@ -18,7 +18,7 @@ public interface ILinkStateEventListener {
   /// </remarks>
   /// <param name="info">The source and target information about the link.</param>
   /// <param name="isLinked">The new link state.</param>
-  void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked);
+  void OnKASLinkedState(IKasLinkEvent info, bool isLinked);
 
   /// <summary>
   /// Triggers when a peer locks itself due to its attach node is blocked by an incompatible part.

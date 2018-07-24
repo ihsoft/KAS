@@ -3,13 +3,14 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv1;
 using KSPDev.ConfigUtils;
 
-namespace KASAPIv1 {
+namespace KASImpl {
 
 /// <summary>Container for the various global settings of the mod.</summary>
 [PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
-public class CommonConfig : ICommonConfig {
+public class CommonConfigImpl : ICommonConfig {
   #region ICommonConfig implementation
   /// <inheritdoc/>
   public string sndPathBipWrong { get { return _sndPathBipWrong; } }
@@ -30,7 +31,7 @@ public class CommonConfig : ICommonConfig {
   [PersistentField("Winch/pickupConnectorKey")]
   string _keyPickupConnector = "Y";
 
-  internal CommonConfig() {
+  internal CommonConfigImpl() {
     ConfigAccessor.ReadFieldsInType(GetType(), this);
   }
 }

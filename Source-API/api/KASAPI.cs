@@ -34,8 +34,11 @@ public static class KASAPI {
   /// <summary>KAS physics utils.</summary>
   public static IPhysicsUtils PhysicsUtils;
 
-  /// <summary>KAS commong config settings.</summary>
+  /// <summary>KAS common config settings.</summary>
   public static ICommonConfig CommonConfig;
+
+  /// <summary>KAS common config settings.</summary>
+  public static IKasEvents KasEvents;
 }
 
 }  // namespace
