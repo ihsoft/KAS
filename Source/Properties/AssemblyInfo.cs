@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("KAS")]
+[assembly: AssemblyTitle ("Kerbal Attachment System")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("KerbalSoft Systems")]
-[assembly: AssemblyProduct ("KAS")]
-[assembly: AssemblyCopyright ("Copyright © KerbalSoft Systems 2016-2018")]
+[assembly: AssemblyCompany ("KAS")]
+[assembly: AssemblyProduct ("")]
+[assembly: AssemblyCopyright ("Unlicense")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -29,7 +29,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion ("1.0.*")]
 [assembly: AssemblyInformationalVersion ("1.0 Beta 11 for KSP 1.4")]
 [assembly: KSPAssembly ("KAS", 1, 0)]
