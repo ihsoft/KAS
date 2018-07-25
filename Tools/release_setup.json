@@ -1,23 +1,26 @@
 {
   "JSON_SCHEMA_VERSION": "1.1",
 
-  "PACKAGE_NAME": "KAS-1.0",
+  "PACKAGE_NAME": "KAS",
 
   "SHELL_COMPILE_BINARY_SCRIPT" : "make_binary.cmd",
 
-  "RELEASE_NAME_FREE_FORMAT" : "KAS_v{0}.{1}_beta11",
+  "RELEASE_NAME_FREE_FORMAT" : "KAS_v{0}.{1}.{2}_rc1",
 
   "STRUCTURE" : {
     "" : [
-      "/README.md",
-      "/LICENSE-1.0.md",
+      "/LICENSE.md",
       "/Lang",
+      "/LEGACY",
       "/Models",
       "/Parts",
       "/Patches",
       "/Sounds",
       "/Textures",
       "/settings.cfg"
+    ],
+    "LEGACY": [
+      "-Source"
     ],
     "Plugins" : [
       "{COMPILED_BINARY}",
