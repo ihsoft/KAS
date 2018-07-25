@@ -14,7 +14,7 @@
         "MINOR": 4, 
         "PATCH": 0
     }, 
-    "NAME": "KAS-1.0", 
+    "NAME": "KAS", 
     "URL": "https://raw.githubusercontent.com/ihsoft/KAS/KAS-v1.0/KAS-1.0.version", 
     "VERSION": {
         "BUILD": 35927, 
