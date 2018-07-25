@@ -1,0 +1,337 @@
+<doc>
+  <assembly>
+    <name>_InheritedDocs_</name>
+  </assembly>
+  <members>
+  <member name="M:KSPDev.ConfigUtils.PersistentFieldsFileAttribute.#ctor(System.String,System.String,System.String)">
+  
+<summary>Constructor for a persistent field.</summary><param name="configFilePath">
+            A relative or an absolute path to the file. It's resolved via
+            <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])" />. If empty then data is read from
+            database.
+            </param><param name="nodePath">
+            A root for the persistent fields when saving or loading via this annotation. If empty then
+            root node of the file is used. Cannot be <c>null</c></param><param name="group">
+            A group of the annotation. When saving or loading persistent fields only the fields of this
+            group will be considered. Must not be <c>null</c>.
+            </param></member><member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.#ctor(System.Type)">
+  
+<param name="containerType">A type of the collection (i.e. an immediate field's type).</param></member><member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.GetItemType">
+  
+<summary>Returns type of items in the collection.</summary><returns>An item type.</returns></member><member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.GetEnumerator(System.Object)">
+  
+<summary>Returns enumerable object for the collection.</summary><param name="instance">An instance to get the enumerable for.</param><returns>
+            An enumerable of objects. Type of the items is determined by the relevant
+            <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto" />.
+            </returns></member><member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.AddItem(System.Object,System.Object)">
+  
+<summary>Adds an item into the collection.</summary><param name="instance">A collection instance to add item into.</param><param name="item">
+            An item to add. The item must be of the same type as <see cref="M:KSPDev.ConfigUtils.AbstractCollectionTypeProto.GetItemType" /> specifies.
+            </param></member><member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.ClearItems(System.Object)">
+  
+<summary>Removes all items from the collection.</summary><param name="instance">A collection instance to clear.</param></member><member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.CanHandle(System.Type)">
+  
+<summary>Tells if proto can handle the specified type.</summary><param name="type">A type in question.</param><returns><c>true</c> if proto can (de)serialize values of the type.</returns></member><member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.SerializeToString(System.Object)">
+  
+<summary>Serializes value into a string.</summary><remarks>In general avoid using <c>ToString()</c> methods to produce the serialized value.
+            Such methods are not designed to be unambiguous.</remarks><param name="value">A value to serialize.</param><returns>A string representation of the value. It doesn't need to be human readable.</returns></member><member name="M:KSPDev.ConfigUtils.PrimitiveTypesProto.ParseFromString(System.String,System.Type)">
+  
+<summary>Makes a value from the string representation.</summary><param name="value">A string produced by <see cref="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.SerializeToString(System.Object)" />.</param><param name="type">A type to convert the value into.</param><returns>A new and initialized instance of the requested type.</returns><exception cref="T:System.ArgumentException">If value cannot be parsed.</exception></member><member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.CanHandle(System.Type)">
+  
+<summary>Tells if proto can handle the specified type.</summary><param name="type">A type in question.</param><returns><c>true</c> if proto can (de)serialize values of the type.</returns></member><member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.SerializeToString(System.Object)">
+  
+<summary>Serializes value into a string.</summary><remarks>In general avoid using <c>ToString()</c> methods to produce the serialized value.
+            Such methods are not designed to be unambiguous.</remarks><param name="value">A value to serialize.</param><returns>A string representation of the value. It doesn't need to be human readable.</returns></member><member name="M:KSPDev.ConfigUtils.StandardOrdinaryTypesProto.ParseFromString(System.String,System.Type)">
+  
+<summary>Makes a value from the string representation.</summary><param name="value">A string produced by <see cref="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.SerializeToString(System.Object)" />.</param><param name="type">A type to convert the value into.</param><returns>A new and initialized instance of the requested type.</returns><exception cref="T:System.ArgumentException">If value cannot be parsed.</exception></member><member name="M:KSPDev.ConfigUtils.PersistentFieldAttribute.#ctor(System.String)">
+  
+<param name="cfgPath">
+            A path to the fields's value in the config. Components must be separated by symbol <c>/</c>.
+            The path is relative, the absolute path is determined when doing actual (de)serialization.
+            The path is case-insensitive.
+            </param></member><member name="M:KSPDev.ConfigUtils.KspTypesProto.CanHandle(System.Type)">
+  
+<summary>Tells if proto can handle the specified type.</summary><param name="type">A type in question.</param><returns><c>true</c> if proto can (de)serialize values of the type.</returns></member><member name="M:KSPDev.ConfigUtils.KspTypesProto.SerializeToString(System.Object)">
+  
+<summary>Serializes value into a string.</summary><remarks>In general avoid using <c>ToString()</c> methods to produce the serialized value.
+            Such methods are not designed to be unambiguous.</remarks><param name="value">A value to serialize.</param><returns>A string representation of the value. It doesn't need to be human readable.</returns></member><member name="M:KSPDev.ConfigUtils.KspTypesProto.ParseFromString(System.String,System.Type)">
+  
+<summary>Makes a value from the string representation.</summary><param name="value">A string produced by <see cref="M:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto.SerializeToString(System.Object)" />.</param><param name="type">A type to convert the value into.</param><returns>A new and initialized instance of the requested type.</returns><exception cref="T:System.ArgumentException">If value cannot be parsed.</exception></member><member name="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Object)">
+  
+<summary>Returns a relative game's path to the mod's root folder.</summary><example><para>
+            Given the mod's assembly was loaded from
+            <c>GameData/ModFolder1/ModFolder2/Plugins/mod.dll</c>, the returned path will be
+            <c>GameData/ModFolder1/ModFolder2/</c> because of <c>Plugins</c> folder name is considered to
+            be a common name for the mod's  binaries.
+            </para><para>
+            If the mod's DLL is located in the folder other than <c>Plugins</c>, then just the parent
+            folder is returned. E.g. for <c>GameData/ModFolder1/ModFolder2/MyDLLs/mod.dll</c>, the result
+            would be <c>GameData/ModFolder1/ModFolder2/MyDLLs/</c>.
+            </para></example><param name="target">The target to resolve the assembly for.</param><returns>
+            An absolute path. There is always a trailing directory separator symbol.
+            </returns></member><member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.defaultTemplate">
+  
+  <example>
+    <code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField" />
+  </example>
+<summary>Template to use if no localized template found.</summary></member><member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.description">
+  
+  <example>
+    <code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField" />
+  </example>
+<summary>Description for the message.</summary><remarks>
+            This string is not presented anywhere in the game, but it can be presented to the people who
+            will be translating the template into a different language.
+            </remarks></member><member name="F:KSPDev.GUIUtils.LocalizableItemAttribute.tag">
+  
+  <remarks>
+            It can be set to <c>null</c> to indicate that the attributed item doesn't need localization.
+            Such attributes are NO-OP during the game, but for the localization tool it's a signal to not
+            include the item into the localization config.
+            </remarks>
+  <example>
+    <code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField" />
+  </example>
+  <example>
+    <code source="Examples/GUIUtils/LocalizableItemAttribute-Examples.cs" region="ItemField_NullTag" />
+  </example>
+<summary>Tag to use when resolving the string via the Localizer.</summary><item name="T:KSP.Localization.Localizer"><seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso></item></member><member name="M:KSPDev.GUIUtils.Message.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="MessageDemo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.GUIUtils.Message`1.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="Message1Demo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.GUIUtils.Message`2.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="Message2Demo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.GUIUtils.Message`3.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="Message3Demo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.GUIUtils.Message`4.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="Message4Demo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.GUIUtils.Message`5.#ctor(System.String,System.String,System.String,System.String)">
+  
+  <seealso cref="T:KSPDev.GUIUtils.LocalizableMessage" />
+  <example>
+    <code source="Examples/GUIUtils/Message-Examples.cs" region="Message5Demo" />
+  </example>
+<summary>Constructs a localizable message.</summary><param name="tag">
+            The tag to use when getting the localized version of the template. If <c>null</c> then the
+            message will alaways use <paramref name="defaultTemplate" /> as text.
+            </param><param name="defaultTemplate"><para>
+            The template to use if no localizable content can be found. It can be in any language, but
+            it's strongly encouraged to put it in English. For the template syntax see the documentation
+            on the Lingoona website.
+            </para><para>
+            If this parameter is omitted, then the <paramref name="tag" /> will be used as a default
+            template. I.e. in case of the tag lookup failed, the tag string will be presented instead of
+            a human readable string.
+            </para></param><param name="description">
+            A helper text for the translators to give them a context. Try to be reasonably verbose when
+            specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
+            </param><param name="example">
+            An example of how the template can be used and what is the output in the langauge of the
+            <paramref name="defaultTemplate" />. Provide it to illustrate the non-obvious cases. 
+            </param><seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso></member><member name="M:KSPDev.LogUtils.DebugEx.Fine(System.String,System.Object[])">
+  <summary>
+            Logs a formatted INFO message when the <i>verbose</i> logging mode is enabled.
+            </summary>
+  
+<remarks>
+            The arguments are not just transformed into the strings by using their <c>ToString</c> method.
+            Instead, this method tries to make a best guess of what the object is, and gives more context
+            when possible. Read the full list of the supported objects in the
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /> method docs.
+            </remarks><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.DebugEx.Log(UnityEngine.LogType,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.DebugEx.Warning(System.String,System.Object[])">
+  <summary>Logs a formatted WARNING message with a host identifier.</summary>
+  
+<remarks>
+            The arguments are not just transformed into the strings by using their <c>ToString</c> method.
+            Instead, this method tries to make a best guess of what the object is, and gives more context
+            when possible. Read the full list of the supported objects in the
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /> method docs.
+            </remarks><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.DebugEx.Log(UnityEngine.LogType,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.DebugEx.Error(System.String,System.Object[])">
+  <summary>Logs a formatted ERROR message with a host identifier.</summary>
+  
+<remarks>
+            The arguments are not just transformed into the strings by using their <c>ToString</c> method.
+            Instead, this method tries to make a best guess of what the object is, and gives more context
+            when possible. Read the full list of the supported objects in the
+            <see cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /> method docs.
+            </remarks><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.DebugEx.Log(UnityEngine.LogType,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Info(PartModule,System.String,System.Object[])">
+  
+<summary>Logs a formatted INFO message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Info(UnityEngine.Transform,System.String,System.Object[])">
+  
+<summary>Logs a formatted INFO message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(Part,System.String,System.Object[])">
+  <summary>
+            Logs a formatted INFO message with a host identifier when the <i>verbose</i> logging mode is
+            enabled.
+            </summary>
+  
+<param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(PartModule,System.String,System.Object[])">
+  
+<summary>Logs a formatted INFO message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Fine(UnityEngine.Transform,System.String,System.Object[])">
+  
+<summary>Logs a formatted INFO message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(Part,System.String,System.Object[])">
+  <summary>Logs a formatted WARNING message with a host identifier.</summary>
+  
+<param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(PartModule,System.String,System.Object[])">
+  
+<summary>Logs a formatted WARNING message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Warning(UnityEngine.Transform,System.String,System.Object[])">
+  
+<summary>Logs a formatted WARNING message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Error(Part,System.String,System.Object[])">
+  <summary>Logs a formatted ERROR message with a host identifier.</summary>
+  
+<param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Error(PartModule,System.String,System.Object[])">
+  
+<summary>Logs a formatted ERROR message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.LogUtils.HostedDebugLog.Error(UnityEngine.Transform,System.String,System.Object[])">
+  
+<summary>Logs a formatted ERROR message with a host identifier.</summary><param name="host">
+            The host object which is bound to the log record. It can be <c>null</c>.
+            </param><param name="format">The format string for the log message.</param><param name="args">The arguments for the format string.</param><example><code source="Examples/LogUtils/HostedDebugLog-Examples.cs" region="HostedDebugLog1" /></example><seealso cref="M:KSPDev.LogUtils.DebugEx.ObjectToString(System.Object)" /><seealso cref="M:KSPDev.LogUtils.HostedDebugLog.Log(UnityEngine.LogType,System.Object,System.String,System.Object[])" /></member><member name="M:KSPDev.ModelUtils.Hierarchy.FindPartModelByPath(Part,System.String,UnityEngine.Transform)">
+  
+<summary>Finds a transform in the hirerachy by the provided path.</summary><remarks>
+            See the path format in <see cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[],UnityEngine.Transform)" />.
+            </remarks><param name="parent">The transfrom to start looking from.</param><param name="path">
+            The path to the target. The name components must be escaped if they contain the special
+            symbols.
+            </param><param name="defValue">
+            An object to return if the path is not found. This situation will be treated as a danger, and
+            a warning log record will be made.
+            </param><returns>A transform or <c>null</c> if nothing found.</returns><seealso cref="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)" /><seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso></member><member name="M:KSPDev.ModelUtils.Hierarchy.FindPartModelByPath(Part,System.String[],UnityEngine.Transform)">
+  
+<summary>Finds a transform in the hirerachy by the provided path.</summary><remarks>
+            See the path format in <see cref="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String[],UnityEngine.Transform)" />.
+            </remarks><param name="parent">The transfrom to start looking from.</param><param name="path">
+            The path to the target. The name components must be escaped if they contain the special
+            symbols.
+            </param><param name="defValue">
+            An object to return if the path is not found. This situation will be treated as a danger, and
+            a warning log record will be made.
+            </param><returns>A transform or <c>null</c> if nothing found.</returns><seealso cref="M:KSPDev.ModelUtils.Hierarchy.EscapeName(System.String)" /><seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso></member><member name="M:KSPDev.Types.PosAndRot.SerializeToString">
+  
+<summary>Returns the object's state as a plain string.</summary><returns>Object's state.</returns></member><member name="M:KSPDev.Types.PosAndRot.ParseFromString(System.String)">
+  
+<summary>Restores the object's state from a plain string.</summary><param name="value">String value to restore from.</param><remarks>It's OK to throw exceptions if the value cannot be parsed.</remarks></member></members>
+</doc>
