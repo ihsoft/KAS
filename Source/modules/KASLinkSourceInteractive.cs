@@ -159,7 +159,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
         if (targetCandidateIsGood ) {
           AsyncCall.CallOnEndOfFrame(this, () => LinkToTarget(targetCandidate));
         } else {
-          UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+          UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
         }
       }
     }

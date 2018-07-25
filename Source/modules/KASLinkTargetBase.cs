@@ -99,16 +99,16 @@ public class KASLinkTargetBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartConnecting),
-        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartConnecting),
+        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
         enterHandler: x => SetEligiblePartHighlighting(true),
@@ -124,7 +124,7 @@ public class KASLinkTargetBase :
     // Trigger events on the part.
     var oldSource = oldPeer as ILinkSource;
     if (linkStateMachine.currentState != null && oldSource != linkSource) {
-      var linkInfo = new KASEvents.LinkEvent(linkSource ?? oldSource, this);
+      var linkInfo = new KasLinkEventImpl(linkSource ?? oldSource, this);
       if (linkSource != null) {
         part.Modules.OfType<ILinkStateEventListener>().ToList()
             .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));

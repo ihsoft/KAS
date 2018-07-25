@@ -21,9 +21,8 @@ namespace KAS {
 /// for the winches that belong to a controllable vessel. 
 /// </remarks>
 // Next localization ID: #kasLOC_11028.
-// TODO(ihsoft): Use database when the path is changed to no "." path.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
-[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
+[PersistentFieldsDatabase("KAS/settings", "KASConfig")]
 sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>

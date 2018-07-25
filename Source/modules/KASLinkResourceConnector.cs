@@ -20,8 +20,7 @@ namespace KAS {
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12016
-// TODO(ihsoft): Use database when the path is changed to no "." path.
-[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
+[PersistentFieldsDatabase("KAS/settings", "KASConfig")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {

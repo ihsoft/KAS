@@ -1,0 +1,27 @@
+<!-- Index file for KSP core methods help -->
+<!-- v5, 08.08.2017 -->
+<index>
+
+<item name="T:BaseField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_base_field.html">KSP: BaseField</seealso>
+</item>
+<item name="T:KSPAction">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_action.html">KSP: KSPAction</seealso>
+</item>
+<item name="T:KSPField">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_field.html">KSP: KSPField</seealso>
+</item>
+<item name="T:KSPEvent">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_event.html">KSP: KSPEvent</seealso>
+</item>
+<item name="T:Part">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part.html">KSP: Part</seealso>
+</item>
+<item name="T:PartModule">
+  <seealso href="https://kerbalspaceprogram.com/api/class_part_module.html">KSP: PartModule</seealso>
+</item>
+<item name="T:KSP.Localization.Localizer">
+  <seealso href="https://kerbalspaceprogram.com/api/class_k_s_p_1_1_localization_1_1_localizer.html">KSP.Localization.Localizer</seealso>
+</item>
+
+</index>

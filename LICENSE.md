@@ -1,19 +1,42 @@
-**Copyright Overview**
+# KAS: Kerbal Attachment System
 
-- Models and textures of connector, ports, winches and magnet parts was created by Winn75, who retains the copyright.
-- Models and textures of containers, bays, strut, pipe and pylon was created by zzz, who retains the copyright.
-- Models for all remaining parts were created by KospY, who retains the copyrights.
-- Config files, shaders, source code and compiled binaries are under copyright retained by KospY.
- 
+- KAS idea: KospY.
+- Models and textures:
+  - Winn75 (erwin.eninger@gmail.com).
+  - Shatten (shatten93@gmail.com).
+  - Enceos (enceos@gmail.com).
+  - IgorZ (igor.zavoychinskiy@gmail.com).
+- KAS 1.0 concept, coding, and maintaining: IgorZ (igor.zavoychinskiy@gmail.com).
 
-**YOU MAY :**
+Code, binaries, models and textures are released under Public Domain license.
 
-- Distribute your own parts using any part modules included in KAS.
-- Distribute fixes in case of a compatibility problem with a new version of KSP (.dll only).
-- Distribute video, screenshots or other media portraying unmodified versions of KAS in action.
-- Distribute modified or unmodified versions of the KAS plugin source code on condition that a link to this license is - included.
-- Modify KAS in any way for personal use.
-- Request a waiver of any of these terms.
- 
+GitHub: https://github.com/ihsoft/KAS/tree/KAS-v1.0
 
-**All other rights are reserved.**
+* * *
+
+## License
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>

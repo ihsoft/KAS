@@ -426,7 +426,7 @@ public class KASRendererPipe : AbstractProceduralModel,
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string pipeTexturePath = "KAS-1.0/Textures/pipe";
+  public string pipeTexturePath = "KAS/Textures/pipe";
 
   /// <summary>Normals texture to use for the pipe. If empty string then no normals.</summary>
   /// <seealso cref="pipeTexturePath"/>

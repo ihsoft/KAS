@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--The configuration and platform will be used to determine which
+assemblies to include from solution and project documentation
+sources-->
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{58ca1263-9176-4693-9505-d9dd5e8448af}</ProjectGuid>
+    <SHFBSchemaVersion>2017.9.26.0</SHFBSchemaVersion>
+    <AssemblyName>Documentation</AssemblyName>
+    <RootNamespace>Documentation</RootNamespace>
+    <Name>Documentation</Name>
+    <OutputPath>..\..\docs\APIv1\</OutputPath>
+    <HtmlHelpName>KAS_API_v1</HtmlHelpName>
+    <DocumentationSources>
+      <DocumentationSource sourceFile="..\KAS-API.csproj" />
+    </DocumentationSources>
+    <HelpFileVersion>1.0.0.0</HelpFileVersion>
+    <MaximumGroupParts>2</MaximumGroupParts>
+    <NamespaceGrouping>False</NamespaceGrouping>
+    <SyntaxFilters>C#</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <PresentationStyle>VS2013</PresentationStyle>
+    <Preliminary>False</Preliminary>
+    <NamingMethod>MemberName</NamingMethod>
+    <Language>en-US</Language>
+    <HelpTitle>KAS API v1</HelpTitle>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+    <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
+    <HelpFileFormat>Website</HelpFileFormat>
+    <IndentHtml>False</IndentHtml>
+    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
+    <KeepLogFile>False</KeepLogFile>
+    <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
+    <CleanIntermediates>True</CleanIntermediates>
+    <FeedbackEMailAddress>igor.zavoychinskiy%40gmail.com</FeedbackEMailAddress>
+    <CopyrightText>Public Domain</CopyrightText>
+    <CopyrightHref>http://unlicense.org/</CopyrightHref>
+    <VisibleItems>Attributes, ExplicitInterfaceImplementations, Protected, ProtectedInternalAsProtected, PublicCompilerGenerated, EditorBrowsableNever, NonBrowsable</VisibleItems>
+    <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
+    <ComponentConfigurations>
+      <ComponentConfig id="API Token Resolution" enabled="True">
+        <component id="API Token Resolution">{@TokenFiles}
+<replace elements="/*//token" item="string(.)" /></component>
+      </ComponentConfig>
+      <ComponentConfig id="Code Block Component" enabled="True">
+        <component id="Code Block Component">
+          <basePath value="{@HtmlEncProjectFolder}" />
+          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+          <allowMissingSource value="false" />
+          <removeRegionMarkers value="false" />
+          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="2" numberLines="false" outlining="true" keepSeeTags="true" defaultTitle="false" />
+        </component>
+      </ComponentConfig>
+    </ComponentConfigurations>
+    <SourceCodeBasePath>..\</SourceCodeBasePath>
+    <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
+    <TransformComponentArguments>
+      <Argument Key="logoFile" Value="KAS-logo.png" />
+      <Argument Key="logoHeight" Value="" />
+      <Argument Key="logoWidth" Value="" />
+      <Argument Key="logoAltText" Value="" />
+      <Argument Key="logoPlacement" Value="left" />
+      <Argument Key="logoAlignment" Value="left" />
+      <Argument Key="maxVersionParts" Value="" />
+      <Argument Key="defaultLanguage" Value="cs" />
+      <Argument Key="includeEnumValues" Value="true" />
+      <Argument Key="baseSourceCodeUrl" Value="https://github.com/ihsoft/KAS/tree/KAS-v1.0/Source/" />
+      <Argument Key="requestExampleUrl" Value="https://github.com/ihsoft/KAS/issues/new" />
+    </TransformComponentArguments>
+    <NamespaceSummaries>
+      <NamespaceSummaryItem name="KAS" isDocumented="False">&lt;para&gt;The main namespace for the KAS functionality &lt;i&gt;implementations&lt;/i&gt;.&lt;/para&gt;
+&lt;para&gt;A third-party code usually don't need to access anything from this namespace. The only legitimate exception is writing a module that inherits a KAS module. In all the other cases a third-party code must use &lt;see cref="N:KASAPIv1"&gt;KAS API&lt;/see&gt; to interact with the KAS modules.&lt;/para&gt;
+&lt;para&gt;If inheriting is the case then a depedent mod must include a reference to the &lt;c&gt;KAS.dll&lt;/c&gt; assembly. However, this assembly must not be released together with the mod. Having two KAS assemblies in the game may badly break it.&lt;/para&gt;</NamespaceSummaryItem>
+<NamespaceSummaryItem name="KASAPIv1" isDocumented="True">&lt;para&gt;KAS API namespace. The third-party code must use the types and interfaces from this namespace instead of depending on the mod modules.&lt;/para&gt;
+&lt;para&gt;Each API release has a version. Once the API is released to the public, its methods cannot be changed. In case of a new functionality is relased, a new version (and the namespace) will be created. The old namespace will not be removed, so the mods that were built with the old version will continue to work.&lt;/para&gt;
+&lt;para&gt;If API is needed, the depedent mod should only include a reference to &lt;c&gt;KAS-API-v1.dll&lt;/c&gt; (version number may vary). This assembly version never changes, so the dependency will never break. It's OK to provide an API assembly with the mod since multliple API assemblies will not conflict with each other. Moreover, having "own" copy of the API ensures the mod will load even if KAS is not installed in the game. There is an ability to check if KAS is installed in the run-time (see example below).&lt;/para&gt;
+&lt;example&gt;
+Always use API interfaces, they are clearly defined and never change once released.
+&lt;code&gt;&lt;![CDATA[	
+using KASAPIv1;
+
+public class MyModule : PartModule {
+  public void RightSample() {
+    var source = part.FindModuleImplementing&lt;ILinkSource&gt;();
+    if (KASAPI.isLoaded) {
+      var model = KASAPI.LinkUtils.DecoupleParts(part, part.parent);
+    } else {
+      Debug.LogWarning("KAS is not installed");
+    }
+  }
+}
+]]&gt;&lt;/code&gt;
+&lt;/example&gt;</NamespaceSummaryItem>
+<NamespaceSummaryItem name="(global)" isDocumented="False" /></NamespaceSummaries>
+    <PlugInConfigurations>
+      <PlugInConfig id="Additional Reference Links" enabled="True">
+        <configuration>
+          <targets>
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="KSP_API.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="KSPDevUtils_API.shfbproj" />
+          </targets>
+        </configuration>
+      </PlugInConfig>
+    </PlugInConfigurations>
+    <WorkingPath>Help\Working\KAS\</WorkingPath>
+    <MissingTags>Summary, Parameter, Returns, Value, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
+    <HtmlSdkLinkType>Msdn</HtmlSdkLinkType>
+    <BinaryTOC>False</BinaryTOC>
+    <IncludeFavorites>False</IncludeFavorites>
+    <WebsiteSdkLinkType>Msdn</WebsiteSdkLinkType>
+    <AppendMarkdownFileExtensionsToUrls>False</AppendMarkdownFileExtensionsToUrls>
+  </PropertyGroup>
+  <!--There are no properties for these groups.  AnyCPU needs to appear in
+order for Visual Studio to perform the build.  The others are optional
+common platform types that may appear.-->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' " />
+  <ItemGroup>
+    <Folder Include="icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\KAS-logo.png">
+      <ImageId>KAS-logo</ImageId>
+      <AlternateText>KAS-logo</AlternateText>
+    </Content>
+  </ItemGroup>
+  <!--Import the SHFB build targets-->
+  <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
+</Project>

@@ -62,14 +62,14 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string sourceJointModel = "KAS-1.0/Models/Joint/model";
+  public string sourceJointModel = "KAS/Models/Joint/model";
 
   /// <summary>
   /// Model for a joint lever at the target part. Two such models are used to form a complete joint.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string targetJointModel = "KAS-1.0/Models/Joint/model";
+  public string targetJointModel = "KAS/Models/Joint/model";
 
   /// <summary>Number of pistons in the link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -83,7 +83,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public string pistonModel = "KAS-1.0/Models/Piston/model";
+  public string pistonModel = "KAS/Models/Piston/model";
 
   /// <summary>Scale of the piston comparing to the prefab.</summary>
   /// <remarks>

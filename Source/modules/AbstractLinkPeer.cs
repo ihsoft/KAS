@@ -481,7 +481,7 @@ public abstract class AbstractLinkPeer : PartModule,
 
   #region ILinkStateEventListener implementation
   /// <inheritdoc/>
-  public virtual void OnKASLinkedState(KASEvents.LinkEvent info, bool isLinked) {
+  public virtual void OnKASLinkedState(IKasLinkEvent info, bool isLinked) {
     var peer = info.source.part == part
         ? info.source as ILinkPeer
         : info.target as ILinkPeer;

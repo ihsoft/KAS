@@ -283,7 +283,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       if (kerbalTarget != null && LinkToTarget(LinkActorType.Player, kerbalTarget)) {
         SetCableLength(float.PositiveInfinity);
       } else {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+        UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
     }
   }
@@ -692,7 +692,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     if (linkState == LinkState.NodeIsBlocked && coupleNode.attachedPart != null) {
       HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
                              coupleNode.FindOpposingNode().attachedPart);
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       ShowStatusMessage(
           CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
       KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
@@ -896,7 +896,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         }
       }
       if (!isLinked || !linkTarget.part.vessel.isEVA) {
-        UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+        UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
     }
   }

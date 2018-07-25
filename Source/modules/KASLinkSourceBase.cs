@@ -201,7 +201,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   [LocalizableItem(tag = null)]
   public virtual void ToggleVesselsDockModeEvent() {
     if (!linkJoint.SetCoupleOnLinkMode(!linkJoint.coupleOnLinkMode)) {
-      UISoundPlayer.instance.Play(CommonConfig.sndPathBipWrong);
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
     } else {
       if (isLinked) {
         UISoundPlayer.instance.Play(linkJoint.coupleOnLinkMode ? sndPathDock : sndPathUndock);
@@ -238,12 +238,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
-        leaveHandler: x => KASEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
+        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
-        enterHandler: x => KASEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
-        leaveHandler: x => KASEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
         enterHandler: x => {
@@ -258,8 +258,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         });
     linkStateMachine.AddStateHandlers(
         LinkState.Linking,
-        enterHandler: x => KASEvents.OnStartLinking.Fire(this),
-        leaveHandler: x => KASEvents.OnStopLinking.Fire(this));
+        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Fire(this),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Fire(this));
   }
 
   /// <inheritdoc/>
@@ -484,12 +484,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <param name="target">The target to link with.</param>
   protected virtual void LogicalLink(ILinkTarget target) {
     HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}", target, linkActor);
-    var linkInfo = new KASEvents.LinkEvent(this, target, linkActor);
+    var linkInfo = new KasLinkEventImpl(this, target, linkActor);
     otherPeer = target;
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
     linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    KASEvents.OnLinkCreated.Fire(linkInfo);
+    KASAPI.KasEvents.OnLinkCreated.Fire(linkInfo);
     part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
   }
@@ -502,7 +502,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   protected virtual void LogicalUnlink(LinkActorType actorType) {
     HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
     linkActor = actorType;
-    var linkInfo = new KASEvents.LinkEvent(this, linkTarget, actorType);
+    var linkInfo = new KasLinkEventImpl(this, linkTarget, actorType);
     linkRenderer.StopRenderer();
     linkState = LinkState.Available;
     if (linkTarget != null) {
@@ -510,7 +510,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       otherPeer = null;
     }
     linkActor = LinkActorType.None;
-    KASEvents.OnLinkBroken.Fire(linkInfo);
+    KASAPI.KasEvents.OnLinkBroken.Fire(linkInfo);
     part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: false));
   }
@@ -562,7 +562,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region KASEvents listeners
   /// <summary>Sets rejecting state when some other source has started connection mode.</summary>
   /// <remarks>It's only listened in state <see cref="LinkState.Available"/>.
-  /// <para>Event handler for <see cref="KASEvents.OnStopLinking"/>.</para>
+  /// <para>Event handler for <see cref="IKasEvents.OnStopLinking"/>.</para>
   /// </remarks>
   /// <param name="source">Source module that started connecting mode.</param>
   void OnStartLinkingKASEvent(ILinkSource source) {
@@ -571,7 +571,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Restores available state when connection mode is over.</summary>
   /// <remarks>It's only listened in state <see cref="LinkState.RejectingLinks"/>.  
-  /// <para>Event handler for <see cref="KASEvents.OnStopLinking"/>.</para>
+  /// <para>Event handler for <see cref="IKasEvents.OnStopLinking"/>.</para>
   /// </remarks>
   /// <param name="source">Source module that started the mode.</param>
   void OnStopLinkingKASEvent(ILinkSource source) {
