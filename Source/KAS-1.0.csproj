@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>KAS</RootNamespace>
-    <AssemblyName>KAS-1.0</AssemblyName>
+    <AssemblyName>KAS</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -20,7 +20,7 @@
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
-    <DocumentationFile>bin\Release\KAS-1.0.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\KAS.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -36,6 +36,7 @@
     <Optimize>False</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -121,10 +122,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetPath)" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS-1.0\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS-1.0" xcopy "$(TargetDir)KAS-API-v1.*" "Q:\GameData\KAS-1.0\Plugins\" /Y
-"$(ProjectDir)..\Tools\msxsl.exe" -t "KAS-1.0.xml" "SpecialDocTagsExpand.xslt" -o KAS-1.0.xml
+    <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
+IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS\Plugins\" /Y
+IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KAS-API-v1.*" "Q:\GameData\KAS\Plugins\" /Y
+"$(ProjectDir)..\Tools\msxsl.exe" -t "KAS.xml" "SpecialDocTagsExpand.xslt" -o KAS.xml
 
 </PostBuildEvent>
   </PropertyGroup>

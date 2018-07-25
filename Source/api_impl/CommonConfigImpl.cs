@@ -9,7 +9,7 @@ using KSPDev.ConfigUtils;
 namespace KASImpl {
 
 /// <summary>Container for the various global settings of the mod.</summary>
-[PersistentFieldsFile("KAS-1.0/settings.cfg", "KASConfig")]
+[PersistentFieldsDatabase("KAS/settings", "KASConfig")]
 public class CommonConfigImpl : ICommonConfig {
   #region ICommonConfig implementation
   /// <inheritdoc/>
