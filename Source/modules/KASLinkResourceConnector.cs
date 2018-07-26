@@ -20,7 +20,7 @@ namespace KAS {
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12016
-[PersistentFieldsDatabase("KAS/settings", "KASConfig")]
+[PersistentFieldsDatabase("KAS/settings/KASConfig", "")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {
