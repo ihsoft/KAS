@@ -373,7 +373,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         var totalAmount = resourceRatios.Sum();
         for (var i = 0; i < resources.Length; i++) {
           texts[i] = compoundResourceName.Format(
-              100.0 * resourceRatios[i] / totalAmount,
+              resourceRatios[i] / totalAmount,
               StockResourceNames.GetResourceAbbreviation(resources[i], removeLingoonaTags: false));
         }
         var resourceNames = resources.Select(r => StockResourceNames.GetResourceTitle(r)).ToArray();
