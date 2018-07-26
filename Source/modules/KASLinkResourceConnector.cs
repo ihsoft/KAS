@@ -20,7 +20,7 @@ namespace KAS {
 
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
-// Next localization ID: #kasLOC_12016
+// Next localization ID: #kasLOC_12017
 [PersistentFieldsDatabase("KAS/settings/KASConfig", "")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
@@ -145,6 +145,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       description: "The hint text to explain the button action that does transferring the"
       + " resource from the owner of the resource transfer part to the connected vessel. When the"
       + " button is released, the transfer stops.");
+
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message NotAvailableInDockedMode = new Message(
+      "#kasLOC_12016",
+      defaultTemplate: "Not available in the docked mode",
+      description: "The message to present in the transfer dialog when the parts are docked."
+      + " Hence, the stock game functionality must be used to transfer the resources.");
   #endregion
 
   #region Part's config fields
@@ -218,7 +225,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate = "Open GUI",
       description = "The context menu event that opens the resources transfer GUI.")]
   public void OpenGUIEvent() {
-    if (isLinked && vessel != linkTarget.part.vessel) {
+    if (isLinked) {
       isGUIOpen = true;
       resourceListNeedsUpdate = true;
       MaybeUpdateResourceOptionList();
@@ -463,8 +470,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.UpdateContextMenu();
 
     PartModuleUtils.SetupEvent(this, OpenGUIEvent, e => {
-      e.active = linkTarget != null && vessel != linkTarget.part.vessel
-                 && !linkTarget.part.vessel.isEVA;
+      e.active = linkTarget != null && !linkTarget.part.vessel.isEVA;
     });
   }
 
@@ -478,7 +484,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    isGUIOpen &= linkTarget != null && vessel != linkTarget.part.vessel;
+    isGUIOpen &= linkTarget != null;
     if (Time.timeScale <= float.Epsilon) {
       return;  // No events and menu in the paused mode.
     }
@@ -495,6 +501,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
     MakeGuiStyles();
+
+    // In the docked mode the players must use the stock transfer mechanism.
+    if (vessel == linkTarget.part.vessel) {
+      GUILayout.Label(NotAvailableInDockedMode, new GUIStyle(GUI.skin.label) { wordWrap = false });
+      if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
+        isGUIOpen = false;
+      }
+      return;
+    }
 
     if (guiActions.ExecutePendingGuiActions()) {
       MaybeUpdateResourceOptionList();
