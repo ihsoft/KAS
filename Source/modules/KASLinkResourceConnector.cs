@@ -316,6 +316,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
     public float previousUpdate;
+    
+    readonly int hashCode;
 
     public bool leftToRightTransferToggle {
       get { return _leftToRightTransferToggle; }
@@ -343,7 +345,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     /// <inheritdoc/>
     public override int GetHashCode() {
-      return resources.Sum();
+      return hashCode;
     }
 
     /// <summary>Makes the transfer option.</summary>
@@ -352,6 +354,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public ResourceTransferOption(
         IEnumerable<int> availabeResources, IEnumerable<double> resourceRatio) {
       resources = availabeResources.ToArray();
+      hashCode = resources.Aggregate((t, v) => ((t << 3) | (t >> 29)) ^ v);
       resourceRatios = resourceRatio.ToArray();
       leftAmounts = new double[resources.Length];
       leftCapacities = new double[resources.Length];
