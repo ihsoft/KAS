@@ -289,11 +289,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region GUI styles & contents
-  GUIStyle guiNoWrapStyle;
   GUIStyle guiNoWrapCenteredStyle;
   GUIStyle guiResourceStyle;
   GUIStyle guiTransferBtnStyle;
-  GUIStyle guiLabelCenteredStyle;
   GUIContent autoScaleToggleCnt;
   GUIContent leftToRigthToggleCnt;
   GUIContent leftToRigthButtonCnt;
@@ -577,18 +575,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Creates the styles. Only does it once.</summary>
   void MakeGuiStyles() {
-    if (guiNoWrapStyle == null) {
-      guiNoWrapStyle = new GUIStyle(GUI.skin.box);
-      guiNoWrapStyle.wordWrap = false;
-      guiNoWrapStyle.alignment = TextAnchor.MiddleLeft;
-      guiNoWrapCenteredStyle = new GUIStyle(guiNoWrapStyle);
+    if (guiNoWrapCenteredStyle == null) {
+      guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box);
+      guiNoWrapCenteredStyle.wordWrap = false;
+      guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleLeft;
       guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleCenter;
       guiResourceStyle = new GUIStyle(guiNoWrapCenteredStyle);
       guiTransferBtnStyle = new GUIStyle(GUI.skin.button);
       guiTransferBtnStyle.alignment = TextAnchor.MiddleCenter;
       guiTransferBtnStyle.stretchHeight = true;
-      guiLabelCenteredStyle = new GUIStyle(GUI.skin.label);
-      guiLabelCenteredStyle.alignment = TextAnchor.MiddleCenter;
     }
   }
   #endregion
