@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv1.GUIUtils;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
@@ -42,8 +43,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + " (if any).");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  static readonly Message<PercentType, string> compoundResourceName =
-      new Message<PercentType, string>(
+  static readonly Message<PercentTypeTwoDigits, string> compoundResourceName =
+      new Message<PercentTypeTwoDigits, string>(
           "#kasLOC_12002",
           defaultTemplate: "<<1>> <<2>>",
           description: "The string to present for a fuel mixture component."
