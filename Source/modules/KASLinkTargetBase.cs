@@ -141,7 +141,8 @@ public class KASLinkTargetBase :
     // The source is responsible to handle the link, which may be done at the end of frame. So put
     // our check at the end of the frame queue to go behind any delayed actions.
     AsyncCall.CallOnEndOfFrame(this, () => {
-      if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
+      if (linkState == LinkState.Available
+          && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
         isNodeBlocked = true;
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
         isNodeBlocked = false;
