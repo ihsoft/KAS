@@ -10,29 +10,46 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Module that controls a stock-alike physical joint on a KAS part.</summary>
-/// <remarks>
-/// The joint is rigid. It's similar to what is created between the parts, coupled in the editor.
-/// </remarks>
+/// <remarks>This module handles all the stock attach node settings.</remarks>
 public class KASJointRigid : AbstractJoint {
 
   #region AbstractLinkJoint overrides
   /// <inheritdoc/>
   protected override void SetupPhysXJoints() {
     if (isCoupled) {
-      return;  // We're fine with the stock joint, created by the game core.
+      MaybeCreateStockJoint();
+    } else {
+      CreateCustomJoint();
     }
-    HostedDebugLog.Fine(this, "Create a rigid link between: {0} <=> {1}", linkSource, linkTarget);
-    var rigidJoint = linkSource.part.gameObject.AddComponent<ConfigurableJoint>();
-    KASAPI.JointUtils.ResetJoint(rigidJoint);
-    rigidJoint.enablePreprocessing = true;
-    rigidJoint.autoConfigureConnectedAnchor = false;
-    rigidJoint.connectedBody = linkTarget.part.Rigidbody;
-    rigidJoint.anchor = linkSource.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    rigidJoint.connectedAnchor = linkTarget.part.Rigidbody.transform.InverseTransformPoint(
-        GetSourcePhysicalAnchor(linkSource));
-    SetBreakForces(rigidJoint);
-    SetCustomJoints(new[] {rigidJoint});
+  }
+  #endregion
+
+  #region Local utility methods
+  /// <summary>
+  /// Creates a stock joint between the coupled parts, given there is none already created.
+  /// </summary>
+  /// <remarks>The created joint (if any) is populated to the hosting part.</remarks>
+  void MaybeCreateStockJoint() {
+    if (linkTarget.part.parent == linkSource.part && linkTarget.part.attachJoint == null) {
+      HostedDebugLog.Fine(
+          this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
+      linkTarget.part.CreateAttachJoint(AttachModes.STACK);
+    } if (linkSource.part.parent == linkTarget.part && linkTarget.part.attachJoint) {
+      HostedDebugLog.Fine(
+          this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
+      linkTarget.part.CreateAttachJoint(AttachModes.STACK);
+    }
+  }
+
+  /// <summary>Creates a stock-aloke joint between the unrealted parts.</summary>
+  /// <remarks>The physical joints will be controlled by the module.</remarks>
+  void CreateCustomJoint() {
+    HostedDebugLog.Fine(
+        this, "Create a stock-alike joint between: {0} <=> {1}", linkSource, linkTarget);
+    var stockJoint = PartJoint.Create(linkSource.part, linkTarget.part,
+                                      linkSource.coupleNode, linkTarget.coupleNode,
+                                      AttachModes.STACK);
+    SetCustomJoints(stockJoint.joints.ToArray());
   }
   #endregion
 }
