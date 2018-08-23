@@ -9,7 +9,7 @@ namespace KASAPIv1 {
 
 /// <summary>
 /// Interface for a physical cable link. Such links keep the dsitance between the object below the
-/// maximum but don't restict any other movements of the objects relative to each other.
+/// maximum, but don't restict any other movements of the objects relative to each other.
 /// </summary>
 /// <remarks>
 /// <para>

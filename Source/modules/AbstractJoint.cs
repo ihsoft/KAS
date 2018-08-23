@@ -19,13 +19,14 @@ namespace KAS {
 /// <summary>Module that implements basic logic for a physical joint on a KAS part.</summary>
 /// <remarks>
 /// <para>
-/// This module reacts on the KAS initated events to create/remove a physical joint between the
-/// source and target. However, it doesn't create the actual Unity joints. This has to be done by
-/// the descendants.
+/// This module implements the logical part of managing the joints but doesn't actually create any.
+/// By the contract, the joint state is never persisted. Instead, the link source should take care
+/// of it and call <seealso cref="CreateJoint"/> when the part is loaded.
 /// </para>
 /// <para>
-/// At the very least, the descendants must implement the <see cref="SetupPhysXJoints"/> method. In
-/// the unusual cases an overriding of <seealso cref="CleanupPhysXJoints"/> may be needed.
+/// At the very least, the descendants must implement the <see cref="SetupPhysXJoints"/> method,
+/// which establishes the PhysX joints. In the unusual cases an overriding of
+/// <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
 /// <para>
 /// The descendants of this module can use the custom persistent fields of groups:

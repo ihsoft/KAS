@@ -112,7 +112,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       description: "Title of the module to present in the editor details window.");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  /// FIXME: make a new type
   readonly static Message<VelocityType> MotorSpeedInfo = new Message<VelocityType>(
       "#kasLOC_08014",
       defaultTemplate: "Max motor speed: <<1>>",
@@ -352,7 +351,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region IsPhysicalObject implementation
   /// <inheritdoc/>
   public virtual void FixedUpdate() {
-    //TODO: Do it in the OnFixedUpdate().
     if (HighLogic.LoadedSceneIsEditor) {
       return;
     }
@@ -542,7 +540,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       return false;
     }
     if (isLinked) {
-      //FIXME: support decoupling by external actors and reset to Locked state
       SetConnectorState(ConnectorState.Docked);
       ShowStatusMessage(ConnectorDockedMsg);
     } else {
