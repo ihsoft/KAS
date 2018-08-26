@@ -22,7 +22,7 @@ namespace KAS {
 //  Next localization ID: #kasLOC_09002.
 public class KASJointCableBase : AbstractJoint,
     // KSP interfaces.
-    IModuleInfo,
+    IModuleInfo, IJointLockState,
     // KAS interfaces.
     ILinkCableJoint,
     // KSPDev syntax sugar interfaces.
@@ -81,6 +81,13 @@ public class KASJointCableBase : AbstractJoint,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public bool allowDockingAtZeroDistance;
+  #endregion
+
+  #region IJointLockState implemenation
+  /// <inheritdoc/>
+  public bool IsJointUnlocked() {
+    return true;  // Cables are always unlocked!
+  }
   #endregion
 
   #region ILinkCableJoint CFG properties
