@@ -351,13 +351,30 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     Plugged,
   }
 
-  /// <inheritdoc/>
+  /// <summary>Maximum possible distance between the owner part and the connector.</summary>
+  /// <remarks>
+  /// This is a desired distance. The engine will try to keep it equal or less to this value, but
+  /// depending on the forces that affect the objects, this distance may be never reached. Various
+  /// implementations can adjust this value, but not greater than <see cref="cfgMaxCableLength"/>.
+  /// </remarks>
+  /// <value>
+  /// The length in meters. Always positive, if the PhysX joint is created. Zero, otherwise.
+  /// </value>
+  /// <seealso cref="SetCableLength"/>
+  /// <seealso cref="cableJoint"/>
   protected float currentCableLength { get { return cableJoint.deployedCableLength; } }
 
-  /// <inheritdoc/>
+  /// <summary>
+  /// Maximum allowed distance between the owner part and the connector to establish a link.
+  /// </summary>
+  /// <value>Distance in meters. It's constant and doesn't depend on the joint state.</value>
+  /// <seealso cref="currentCableLength"/>
   protected float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
 
-  /// <inheritdoc/>
+  /// <summary>
+  /// Tells if the connector is physicsless, and its model is a child of the owning part.
+  /// </summary>
+  /// <value>The status of the connector model.</value>
   protected bool isConnectorLocked {
     get {
       return connectorState == ConnectorState.Locked
