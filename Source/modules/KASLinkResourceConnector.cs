@@ -593,7 +593,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (guiNoWrapCenteredStyle == null) {
       guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box);
       guiNoWrapCenteredStyle.wordWrap = false;
-      guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleLeft;
       guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleCenter;
       guiResourceStyle = new GUIStyle(guiNoWrapCenteredStyle);
       guiTransferBtnStyle = new GUIStyle(GUI.skin.button);
