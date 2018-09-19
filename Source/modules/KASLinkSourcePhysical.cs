@@ -479,9 +479,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     // Persist the connector data only if its position is not fixed to the winch model.
     // It must be the peristsent state since the state machine can be in a different state at this
     // moment (e.g. during the vessel backup).
-    if (!persistedIsConnectorLocked) {
+    if (!persistedIsConnectorLocked && !isLinked) {
       persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
           new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
+    } else {
+      // In linked or locked state the connector is fixed to either source or target part. 
+      persistedConnectorPosAndRot = null;
     }
     base.OnSave(node);
   }
@@ -523,13 +526,15 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     // state handlers reset the state back to the default.
     connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
     connectorStateMachine.onAfterTransition += (start, end) => {
-      persistedIsConnectorLocked = isConnectorLocked;
-      if (end == ConnectorState.Locked) {
-        KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
-      } else if (coupleNode.attachedPart == null) {
-        KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
+      if (end != null) { // Do nothing on state machine shutdown.
+        persistedIsConnectorLocked = isConnectorLocked;
+        if (end == ConnectorState.Locked) {
+          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
+        } else if (coupleNode.attachedPart == null) {
+          KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
+        }
+        UpdateContextMenu();
       }
-      UpdateContextMenu();
       HostedDebugLog.Info(this, "Connector state changed: {0} => {1}", start, end);
     };
     connectorStateMachine.SetTransitionConstraint(
@@ -679,9 +684,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   protected override void RestoreOtherPeer() {
     base.RestoreOtherPeer();
     if (linkTarget != null) {
-      // Only do it for the visual improvements. The base class will attach the renderer to
-      // the node, instead of the cable attach position. The state machine will get it fixed, but
-      // it'll only happen when the physics is started.
+      // Do it before physics kicked-in to have the cable distance calculated correctly.
+      AlignTransforms.SnapAlign(
+          connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
+      // Only do it for the visual improvements of the vessel loading. The connector state machine
+      // will handle it right, but it only happens when the physics is started.
       linkRenderer.StartRenderer(partCableAnchor, connectorCableAnchor);
     }
   }
