@@ -1,0 +1,7 @@
+--user=ihsoft
+--repo=KAS
+--token=<<secret>>
+--changelog=../CHANGELOG.md
+--as_draft
+--title=KAS v{tag}
+--archive=../KAS_v1.0.6845_rc2.zip
