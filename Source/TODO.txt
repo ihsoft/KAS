@@ -1,3 +1,7 @@
+IDEAS:
+- Restrict RTS functionality to a controllable vessel.
+- Consume electricity in RTS.
+
 IMPORTANT:
 - Connector rot differs by 90 in Locked vs plugged mode. BUG/UX
 - Winch eject. PARITY
