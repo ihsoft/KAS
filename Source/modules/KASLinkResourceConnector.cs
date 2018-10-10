@@ -500,6 +500,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Shows a window that displays the resource transfer controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
+    // Allow the window to be dragged by its title bar.
+    GuiWindow.DragWindow(ref windowRect, titleBarRect);
+
     MakeGuiStyles();
 
     // In the docked mode the players must use the stock transfer mechanism.
@@ -574,9 +577,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       GUILayout.Label("");
       GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
     }
-
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref windowRect, titleBarRect);
   }
 
   /// <summary>Finds the currently active option and makes it active.</summary>
