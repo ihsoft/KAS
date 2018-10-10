@@ -235,13 +235,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region Local fields & properties
   /// <summary>Actual screen position of the console window.</summary>
-  static Rect windowRect = new Rect(100, 100, 1, 1);
+  Rect windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
-  static Rect titleBarRect = new Rect(0, 0, 10000, 20);
+  Rect titleBarRect = new Rect(0, 0, 10000, 20);
 
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
-  static readonly GuiActionsList guiActions = new GuiActionsList();
+  readonly GuiActionsList guiActions = new GuiActionsList();
 
   /// <summary>Style to draw a control of the minimum size.</summary>
   static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);

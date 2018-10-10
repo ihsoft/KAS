@@ -1,4 +1,5 @@
 # RC3 (pre-release):
+* [Fix #238] Multiple RTS dialogs conflict with each other.
 
 # RC2 (Sep 29th, 2018):
 * [Fix] Small fix to RU localization.
