@@ -1,3 +1,5 @@
+# RC3 (pre-release):
+
 # RC2 (Sep 29th, 2018):
 * [Fix] Small fix to RU localization.
 * [Fix #230] Cable joints get reinforced by the autostruts.
