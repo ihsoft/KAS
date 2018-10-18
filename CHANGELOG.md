@@ -1,4 +1,5 @@
 # RC3 (pre-release):
+* [Change] KSP 1.5 compatibility.
 * [Fix #238] Multiple RTS dialogs conflict with each other.
 * [Fix #239] RTS dialog cannot be moved.
 

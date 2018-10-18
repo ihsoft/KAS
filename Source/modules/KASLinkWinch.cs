@@ -7,6 +7,7 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.MathUtils;
 using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using KSPDev.SoundsUtils;
@@ -162,7 +163,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <summary>Amount of the electricity to consume each second of the motor activity.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float motorPowerDrain = 0.5f;
+  public double motorPowerDrain = 0.5f;
 
   /// <summary>URL of the sound for the working winch motor.</summary>
   /// <remarks>This sound will be looped while the motor is active.</remarks>
@@ -457,7 +458,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     // Consume energy and adjust the cable length.
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
-    if (Mathf.Approximately(gotEnergy, powerDemand)) {
+    if (Mathd.AreSame(gotEnergy, powerDemand)) {
       SetCableLength(
           cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
