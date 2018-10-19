@@ -650,9 +650,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var scale = 1.0;
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
       currentFromPart.GetConnectedResourceTotals(
-          resources[i], out currentFromPartAmounts[i], out currentFromPartCapacities[i]);
+          resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
+          out currentFromPartAmounts[i], out currentFromPartCapacities[i]);
       currentToPart.GetConnectedResourceTotals(
-          resources[i], out currentToPartAmounts[i], out currentToPartCapacities[i]);
+          resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
+          out currentToPartAmounts[i], out currentToPartCapacities[i]);
       var amount = moveAmounts[i];
       if (amount > currentFromPartAmounts[i]) {
         amount = currentFromPartAmounts[i];
@@ -669,8 +671,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
       var resource = resources[i];
       var amount = scale * moveAmounts[i];
-      var actualAmount = currentFromPart.RequestResource(resource, amount);
-      currentToPart.RequestResource(resource, -actualAmount);
+      var actualAmount = currentFromPart.RequestResource(
+          resource, amount, ResourceFlowMode.ALL_VESSEL_BALANCE);
+      currentToPart.RequestResource(
+          resource, -actualAmount, ResourceFlowMode.ALL_VESSEL_BALANCE);
     }
     return Mathd.AreSame(scale, 1.0);
   }
@@ -701,13 +705,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     resOption.canMoveLeftToRight = true;
     for (var i = 0; i < resOption.resources.Length; i++) {
       part.GetConnectedResourceTotals(
-          resOption.resources[i], out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
+          resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
+          out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
       leftInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.leftAmounts[i])
           + " / "
           + CompactNumberType.Format(resOption.leftCapacities[i]);
       linkTarget.part.GetConnectedResourceTotals(
-          resOption.resources[i], out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
+          resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
+          out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
       rightInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.rightAmounts[i])
           + " / "
