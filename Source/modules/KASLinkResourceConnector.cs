@@ -183,7 +183,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   [KSPField]
   public float cylinderPerimeterLength = 1.0f;
 
-  /// <summary>List of the resource types that must not offered fro the transfer.</summary>
+  /// <summary>List of the resource types that must not offered for the transfer.</summary>
   [PersistentField("RTS/ignoreResource", isCollection = true)]
   public List<string> ignoreResourceNames = new List<string>();
 
@@ -727,7 +727,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         resOption.canMoveLeftToRight = false;
       }
     }
-    resOption.leftInfo.text = leftInfoString; 
+    resOption.leftInfo.text = leftInfoString;
     resOption.rightInfo.text = rightInfoString;
   }
 
@@ -741,12 +741,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
     resourceListNeedsUpdate = false;
     HostedDebugLog.Fine(this, "Refreshing resources...");
-    var leftResources = new HashSet<int>(vessel.parts
-        .SelectMany(p => p.Resources)
-        .Select(r => r.info.id));
-    var rightResources = new HashSet<int>(linkTarget.part.vessel.parts
-        .SelectMany(p => p.Resources)
-        .Select(r => r.info.id));
+    var leftResources = new HashSet<int>(
+        vessel.parts
+            .SelectMany(p => p.Resources)
+            .Select(r => r.info.id));
+    var rightResources = new HashSet<int>(
+        linkTarget.part.vessel.parts
+            .SelectMany(p => p.Resources)
+            .Select(r => r.info.id));
     var allResources = leftResources
         .Union(rightResources)
         .Distinct()
