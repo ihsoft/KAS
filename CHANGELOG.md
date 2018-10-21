@@ -3,6 +3,7 @@
 * [Fix #238] Multiple RTS dialogs conflict with each other.
 * [Fix #239] RTS dialog cannot be moved.
 * [Fix #244] GP-20 & BGP-400 are not in the KAS tab in VAB.
+* [Fix #246] Timewarp doesn't affect the RTS-1 transfer speed.
 
 # RC2 (Sep 29th, 2018):
 * [Fix] Small fix to RU localization.

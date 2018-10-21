@@ -359,7 +359,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
-    public float previousUpdate;
+    public double previousUpdate;
     
     readonly int hashCode;
 
@@ -443,7 +443,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         }
         property = newValue;
         if (newValue) {
-          previousUpdate = Time.time;
+          previousUpdate = Planetarium.GetUniversalTime();
         }
       }
     }
@@ -670,8 +670,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Does actual resource transfer on the selected option.</summary>
   /// <remarks>This method must be performance optimized since it called each frame.</remarks>
   bool DoTransfer() {
-    var updateDelta = Time.time - pendingOption.previousUpdate;
-    pendingOption.previousUpdate = Time.time;
+    var updateDelta = Planetarium.GetUniversalTime() - pendingOption.previousUpdate;
+    pendingOption.previousUpdate = Planetarium.GetUniversalTime();
     if (updateDelta < float.Epsilon) {
       return true;  // Cannot do transfer, but the state must not be reset yet.
     }
