@@ -40,7 +40,7 @@ HINT. Passing all the arguments via the command line may be not convinient.
 Not to mention the quotes and back slashes issues. To avoid all this burden,
 simple put all the options into a text file and provide it to the script:
 
-  $ PublishCurseForge.py @my_params.txt
+  $ PublishGitHub.py @my_params.txt
 
 Don't bother about escaping in this file. Anything, placed in a line goes to
 the parameter value *as-is*. So you don't need to escape backslashes,
