@@ -27,7 +27,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     IHasGUI {
 
   #region Localizable GUI strings.
-   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WindowTitleTxt = new Message(
       "#kasLOC_12000",
       defaultTemplate: "Resource Transfer",
@@ -460,7 +460,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     rightToLeftToggleCnt = new GUIContent(">>", RightToLeftToggleHint);
     rightToLeftButtonCnt = new GUIContent(">", RightToLeftButtonHint);
 
-    // Force the strings loading since their guiTags are used in GUI. 
+    // Force the strings loading since their guiTags are used in GUI.
     resourceName.LoadLocalization();
     resourceAmounts.LoadLocalization();
   }
