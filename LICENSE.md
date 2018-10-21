@@ -1,12 +1,12 @@
 # KAS: Kerbal Attachment System
 
-- KAS idea: KospY.
-- Models and textures:
-  - Winn75 (erwin.eninger@gmail.com).
-  - Shatten (shatten93@gmail.com).
-  - Enceos (enceos@gmail.com).
-  - IgorZ (igor.zavoychinskiy@gmail.com).
-- KAS 1.0 concept, coding, and maintaining: IgorZ (igor.zavoychinskiy@gmail.com).
+* KAS idea: [KospY](https://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/).
+* KAS 1.0 concept, coding, and maintaining: [IgorZ](igor.zavoychinskiy@gmail.com).
+* Models and textures:
+  * [Winn75](erwin.eninger@gmail.com).
+  * [Shatten](shatten93@gmail.com).
+  * [Enceos](enceos@gmail.com).
+  * [IgorZ](igor.zavoychinskiy@gmail.com).
 
 Code, binaries, models and textures are released under Public Domain license.
 
