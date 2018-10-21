@@ -1,0 +1,5 @@
+--project=1987
+--login=<<secret>>
+--changelog=../CHANGELOG.md
+--ksp_version=latest
+--archive=../KAS_v1.0.zip

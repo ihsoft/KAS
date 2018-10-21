@@ -1,7 +1,6 @@
---user=ihsoft
---repo=KAS
+--project=223900
 --token=<<secret>>
 --changelog=../CHANGELOG.md
---as_draft
---title=KAS v{tag}
+--versions=latest_all_builds
+--title=KAS {tag}
 --archive=../KAS_v1.0.zip

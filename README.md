@@ -18,4 +18,4 @@ It gives some purpose to EVA and can be used for many things:
 
 ---
 
-Forum thread: [KAS](https://forum.kerbalspaceprogram.com/index.php?/topic/150195-14-beta-kerbal-attachment-system-kas-v10-release-candidate-1)
+Forum thread: [KAS](https://forum.kerbalspaceprogram.com/index.php?/topic/142594-14-kerbal-attachment-system-kas-v064/)

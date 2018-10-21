@@ -1,31 +1,31 @@
 {
-    "CHANGE_LOG_URL": "https://github.com/ihsoft/KAS/blob/next-1.0/CHANGELOG.md",
-    "DOWNLOAD": "https://forum.kerbalspaceprogram.com/index.php?/topic/150195-14-beta-kerbal-attachment-system-kas-v10-release-candidate-1/",
+    "CHANGE_LOG_URL": "https://github.com/ihsoft/KAS/blob/master/CHANGELOG.md", 
+    "DOWNLOAD": "https://forum.kerbalspaceprogram.com/index.php?/topic/150195-14-beta-kerbal-attachment-system-kas-v10-release-candidate-1/", 
     "GITHUB": {
-        "REPOSITORY": "KAS",
+        "REPOSITORY": "KAS", 
         "USERNAME": "ihsoft"
-    },
+    }, 
     "KSP_VERSION": {
         "MAJOR": 1, 
-        "MINOR": 4, 
-        "PATCH": 0
+        "MINOR": 5, 
+        "PATCH": 1
     }, 
     "KSP_VERSION_MAX": {
         "MAJOR": 1, 
-        "MINOR": 4, 
+        "MINOR": 5, 
         "PATCH": 99
     }, 
     "KSP_VERSION_MIN": {
         "MAJOR": 1, 
-        "MINOR": 4, 
+        "MINOR": 5, 
         "PATCH": 0
     }, 
     "NAME": "KAS", 
-    "URL": "https://github.com/ihsoft/KAS/blob/next-1.0/KAS.version",
+    "URL": "https://github.com/ihsoft/KAS/blob/master/KAS.version", 
     "VERSION": {
-        "BUILD": 42939, 
+        "BUILD": 27506, 
         "MAJOR": 1, 
         "MINOR": 0, 
-        "PATCH": 6845
+        "PATCH": 6868
     }
 }
