@@ -9,9 +9,7 @@
         "bugtracker": "https://github.com/ihsoft/KAS/issues"
     },
     "recommends"      : [
-        { "name": "KIS" }
-    ],
-    "suggests"        : [
+        { "name": "KIS" },
         { "name": "EasyVesselSwitch" }
     ],
     "license"         : "public-domain",
