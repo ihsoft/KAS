@@ -2,6 +2,9 @@
 * [Change] KSP 1.5 compatibility.
 * [Fix #238] Multiple RTS dialogs conflict with each other.
 * [Fix #239] RTS dialog cannot be moved.
+* [Fix #240] RTS-1 doesn't see all the resources on the vessel.
+* [Fix #241] RTS-1 doesn't allow passing fuel in the docked.
+* [Fix #242] Use resource definition to check if it can be transferred in RTS.
 * [Fix #244] GP-20 & BGP-400 are not in the KAS tab in VAB.
 * [Fix #246] Timewarp doesn't affect the RTS-1 transfer speed.
 
