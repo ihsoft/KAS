@@ -183,9 +183,47 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   [KSPField]
   public float cylinderPerimeterLength = 1.0f;
 
-  /// <summary>List of the resource types that must not offered for the transfer.</summary>
-  [PersistentField("RTS/ignoreResource", isCollection = true)]
-  public List<string> ignoreResourceNames = new List<string>();
+  /// <summary>
+  /// The full list of the resources that this part can transfer in the undocked mode. Anything
+  /// beyond this list will be ignored.
+  /// </summary>
+  /// <remarks>
+  /// <see cref="resourceOverride"/> is ignored when the allowed resources list is set.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [PersistentField("allowedResource", isCollection = true,
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public List<string> allowedResource = new List<string>();
+
+  /// <summary>
+  /// The list of the resources that will be forcibly allowed or disallowed for the transfer via
+  /// the part.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This settings is only handled when no specific resources are defined for the part. In this
+  /// case all the resources on the vessel are allowed to be moved, except the resources that are:
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Not material. I.e. their unit cost or volume is <i>zero</i>.</item>
+  /// <item>Not allowed for pumping (e.g. "solid fuel").</item>
+  /// </list>
+  /// <para>
+  /// To override the rule above, the override can be used. Lis the names of the resources with a
+  /// prefix to tell how to handle the resource: prefix "+" means the resource must be allowed to
+  /// move no matter what; prefix "-" means the resource(s) must not be allowed to move.
+  /// </para>
+  /// <para>
+  /// The simplest example is <c>ElectricCharge</c> resource, which is not material (no volume).
+  /// To allow it on the part, add a positive override: <c>+ElectricCharge</c>. Similary, to
+  /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="resourceOverride"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [PersistentField("resourceOverride", isCollection = true,
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public List<string> resourceOverride = new List<string>();
 
   /// <summary>Container for the fuel mixutre component.</summary>
   public class FuelMixtureComponent {
@@ -741,6 +779,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
     resourceListNeedsUpdate = false;
     HostedDebugLog.Fine(this, "Refreshing resources...");
+
+    // Gather all the resources that *both* vessel have.
     var leftResources = new HashSet<int>(
         vessel.parts
             .SelectMany(p => p.Resources)
@@ -749,29 +789,57 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         linkTarget.part.vessel.parts
             .SelectMany(p => p.Resources)
             .Select(r => r.info.id));
-    var allResources = leftResources
+    var availableResources = leftResources
         .Union(rightResources)
         .Distinct()
-        .OrderByDescending(x => x)  // The GUI function will render the list in the reversed order.
         .ToList();
-    var skipIds = ignoreResourceNames
+
+    // Find the predefined resources that the part can pump between the vessels.
+    var allowedResourceIds = allowedResource
         .Select(x => StockResourceNames.GetId(x))
         .ToArray();
-    var resources = allResources
-        .Where(id => skipIds.IndexOf(id) == -1)
+
+    if (allowedResourceIds.Length == 0) {
+      // If no specific resources set, then allow all the vessel resources that are material and
+      // not restricted for pumping. Allow overriding to include/exclude a specific resource. 
+      var overrideEnabled = resourceOverride
+          .Where(x => x.Length > 0 && x[0] == '+')
+          .Select(x => StockResourceNames.GetId(x.Substring(1)))
+          .ToArray();
+      var overrideDisabled = resourceOverride
+          .Where(x => x.Length > 0 && x[0] == '-')
+          .Select(x => StockResourceNames.GetId(x.Substring(1)));
+      var nonMovableIds = PartResourceLibrary.Instance.resourceDefinitions
+          .Cast<PartResourceDefinition>()
+          .Where(d => overrideEnabled.IndexOf(d.id) == -1
+                      && (d.unitCost < float.Epsilon
+                          || d.volume < float.Epsilon
+                          || d.resourceTransferMode == ResourceTransferMode.NONE))
+          .Select(d => d.id)
+          .Union(overrideDisabled)
+          .ToArray();
+      allowedResourceIds = availableResources
+          .Where(x => nonMovableIds.IndexOf(x) == -1)
+          .ToArray();
+    }
+    var movableResources = availableResources
+        .Where(id => allowedResourceIds.IndexOf(id) != -1)
+        // The GUI function will render the list in the reversed order.
+        .OrderByDescending(id => id)
         .Select(id => new ResourceTransferOption(new[] {id}, new[] {1.0}))
         .ToList();
 
     // Add the mixtures.
-    foreach (var mixture in fuelMixtures) {
-      if (mixture.components.All(c => allResources.Contains(StockResourceNames.GetId(c.name)))) {
-        resources.Insert(0, new ResourceTransferOption(
-            mixture.components.Select(x => StockResourceNames.GetId(x.name)).ToArray(),
-            mixture.components.Select(x => x.ratio).ToArray()));
-      }
+    var availableMixtures = fuelMixtures
+        .Where(m =>
+            m.components.All(c => availableResources.Contains(StockResourceNames.GetId(c.name))));
+    foreach (var mixture in availableMixtures) {
+      movableResources.Insert(0, new ResourceTransferOption(
+          mixture.components.Select(x => StockResourceNames.GetId(x.name)).ToArray(),
+          mixture.components.Select(x => x.ratio).ToArray()));
     }
 
-    resourceRows = resources
+    resourceRows = movableResources
         .Select(resource => resourceRowsHash.ContainsKey(resource.GetHashCode())
             ? resourceRowsHash[resource.GetHashCode()]
             : resource)
