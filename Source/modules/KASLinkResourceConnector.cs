@@ -263,8 +263,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate = "Open GUI",
       description = "The context menu event that opens the resources transfer GUI.")]
   public void OpenGUIEvent() {
-    if (isLinked) {
+    if (isLinked && !isGUIOpen) {
       isGUIOpen = true;
+      SetPendingTransferOption(null);
       resourceListNeedsUpdate = true;
       MaybeUpdateResourceOptionList();
     }
@@ -549,6 +550,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
         isGUIOpen = false;
       }
+      SetPendingTransferOption(null);  // Cancel all transfers.
       return;
     }
 
@@ -717,7 +719,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     return Mathd.AreSame(scale, 1.0);
   }
 
-  /// <summary>Updates GUI for all the resoucres.</summary>
+  /// <summary>Updates GUI for all the resources.</summary>
   /// <remarks>
   /// To not waste too much CPU, this method opdates by timer. However, when an instant update is
   /// needed, it can be requested via the parameter.
