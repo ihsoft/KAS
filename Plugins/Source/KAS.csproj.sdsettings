@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Properties>
-  <Properties key="CSharpFormatting">
-    <SerializedObject key="IndentNamespaceBody">
-      <x:Boolean xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">False</x:Boolean>
-    </SerializedObject>
-  </Properties>
-</Properties>

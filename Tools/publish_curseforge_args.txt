@@ -1,0 +1,6 @@
+--project=223900
+--token=<<secret>>
+--changelog=../CHANGELOG.md
+--versions=latest_all_builds
+--title=KAS {tag}
+--archive=../KAS_v1.0.zip

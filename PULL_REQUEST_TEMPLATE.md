@@ -1,11 +1,12 @@
-1. _Replace all the sections in italic befor submitting the PR. Also, drop the sections that are not applicable to the PR._
-2. _Ensure you're following the code style for this mod. The PR's that are not following the style will be rejected._
+__Make sure you've read and understood the code style for the PR's__. The
+changes that don't follow the code style will be _rejected_. Read
+`README.md` in the `Source` folder for more details.
 
-### Fixes
-_Refer all the issues that this PR is fixing. If there is no issue created, give your own description._
+Make sure the PR, you're sending out, is expected by the maintainer(s). A
+small fix of couple of lines can be simply sent out, but anything bigger
+requires either an issue in the tracker, or the maintainers/authors
+pre-approval.
 
-### Changes
-_Describe all the changes in the mod behavior after the PR is merged._
-
-### Improvements
-_Describe all the extra features which will appear in the mod once the PR is merged._
+_Always provide a brief description of the change and its impact to the
+code._ If the change is not backwards compatible, it __must__ be explictly
+pointed.

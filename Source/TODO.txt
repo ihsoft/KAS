@@ -1,0 +1,50 @@
+IDEAS:
+- Restrict RTS functionality to a controllable vessel.
+- Consume electricity in RTS.
+
+IMPORTANT:
+- Connector rot differs by 90 in Locked vs plugged mode. BUG/UX
+- Winch eject. PARITY
+- Support harpoons, etc PARITY
+- There is a big difference in the cable strength when it's almost 0 deployed and actually 0 deployed. Winch. UX
+- Load Winch GUI settings from settings. UX
+- If cable is stretched, cannot grab the conenctor due to distance - UX/BUG
+  protected string CheckLengthLimit(ILinkSource source, ILinkTarget target) {
+    //FIXME: in case of linked, conisder length not greater than existing. Don't block on simple check.
+- Use regular cable joint in PCB components. STYLE/COMPATIBILITY
+- Support (or check if works) physicsless parts in the joints - PERF
+- Make feature to see the compatible targets when a key is pressed (and a conenctor is being carried) FR/UX
+- Support blocked mode in winch. FR
+- Support dependent node in winch. FR
+- Properly handle extend (unlock from winch) event on a non-powered winch. How? UX
+- Stop locking modules on link state (allow multiple source/targets per a part). UX
+- Show updates om the connectors state and cable length in the status messages. UX
+- Refactor winch to handle things in the state handlers instead of overrides. STYLE
+- Winch connector on detach doesnt handle collisions to the former target part
+  - To reproduce it load a vessel with JS and Winch on the same vessel. BUG/UX
+- Globally drop the properties setters in favor of the setting mthods (can be virtual). STYLE
+- LINK JOINT: exclusiveDocker - allow only this part to maintain the coupling role. The others should reset with no option to set.
+- LINK JOINT: noCouplingDelegation - don't delegate the coupling role for the mode above. Drop all other links on decouple.
+- ILinkPeer FindLinkPeer(ILinkPeer srcPeer): add parameter to report errors
+- Implement hollow method in the renderer. FR/STYLE
+
+ILinkRenderer:
+  /// FIXME: deprecate the property in favor of SetFixedLength.
+  /// FIXME: adjust the cable link module accordingly.
+  float stretchRatio { get; set; }
+
+IWinchControl
+  //FIXME: provide the real cable length too
+  //FIXME: provide the cable joint
+  /// FIXME: what if the motor cannot go?
+  float motorTargetSpeed { get; }
+  /// FIXME: add comments with regard how the speed is changed
+  void SetMotor(float targetSpeed);
+
+KASLinkSourcePhysical
+  public override void OnPartDie() {
+    base.OnPartDie();
+    // Make sure the connector is locked into the winch to not leave it behind.
+    //FIXME: this throws NRE on destruction
+    SetConnectorState(ConnectorState.Locked);
+  }
