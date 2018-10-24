@@ -45,9 +45,10 @@ If you want doing EVA comfortably, you really should consider adding these mods 
 
 * Download the ZIP archive.
 * If you have an older version of the mod in your game, you __must__ delete all the old files first! __Do not just copy over__, this will likely result in compatibility issues.
-* Unzip release archive into the game's `GameData` folder.
+* Unzip the release archive into the game's `GameData` folder.
+  * Note, that names of the folders __must__ be exactly like in the archive or the mod __won't work__.
+  * The release archive contains the minimum versions of the required dependencies: `ModuleManager` and `CommunityCatgeoryKit`. If your game has better versions, do not overwrite!
 * Verify the installation: the mod's `LICENSE.md` file must be located at `<game root>/GameData/KAS/LICENSE.md`.
-* Note, that all the names must be __exactly__ like in the archive or it __won't work__.
 
 # Forum
 
