@@ -44,20 +44,20 @@ If you want doing EVA comfortably, you really should consider adding these mods 
 # How to install
 
 * _Recommended_:
-  * Install and run [CKAN](https://github.com/KSP-CKAN/CKAN/releases).
-  * Search for "Kerbal Attachment System" or just "KAS", then install the mod.
-  * Occasionally run CKAN client to update KAS (and other mods) to the latest version.
-  * If you follow this path, then all the KAS dependencies will be updated _automatically_. It may save you a lot of time during the update.
+    * Install and run [CKAN](https://github.com/KSP-CKAN/CKAN/releases).
+    * Search for "Kerbal Attachment System" or just "KAS", then install the mod.
+    * Occasionally run CKAN client to update KAS (and other mods) to the latest version.
+    * If you follow this path, then all the KAS dependencies will be updated _automatically_. It may save you a lot of time during the update.
 * Manual:
-  * Download the ZIP archive:
-    * From [CurseForge](https://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files).
-    * From [Spacedock](https://spacedock.info/mod/1987/Kerbal%20Attachment%20System%20%28KAS%29).
-    * From [GitHub](https://github.com/ihsoft/KAS/releases).
-  * If you have an older version of the mod in your game, you __must__ delete all the old files first! __Do not just copy over__, this will likely result in compatibility issues.
-  * Unzip the release archive into the game's `GameData` folder.
-    * Note, that names of the folders __must__ be exactly like in the archive or the mod __won't work__.
-    * The release archive contains the minimum versions of the required dependencies: `ModuleManager` and `CommunityCatgeoryKit`. If your game has better versions, do not overwrite!
-  * Verify the installation: the mod's `LICENSE.md` file must be located at `<game root>/GameData/KAS/LICENSE.md`.
+    * Download the ZIP archive:
+        * From [CurseForge](https://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files).
+        * From [Spacedock](https://spacedock.info/mod/1987/Kerbal%20Attachment%20System%20%28KAS%29).
+        * From [GitHub](https://github.com/ihsoft/KAS/releases).
+    * If you have an older version of the mod in your game, you __must__ delete all the old files first! __Do not just copy over__, this will likely result in compatibility issues.
+    * Unzip the release archive into the game's `GameData` folder.
+        * Note, that names of the folders __must__ be exactly like in the archive or the mod __won't work__.
+        * The release archive contains the minimum versions of the required dependencies: `ModuleManager` and `CommunityCatgeoryKit`. If your game has better versions, do not overwrite!
+    * Verify the installation: the mod's `LICENSE.md` file must be located at `<game root>/GameData/KAS/LICENSE.md`.
 
 # Forum
 
