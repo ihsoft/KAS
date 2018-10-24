@@ -1,3 +1,6 @@
+# 1.1 (pre-release):
+* [Enhancement] Add ES-ES localization.
+
 # 1.0 (October 21st, 2018):
 * [Change] KSP 1.5 compatibility.
 * [Fix #238] Multiple RTS dialogs conflict with each other.
