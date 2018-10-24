@@ -58,5 +58,5 @@ Ask questions and propose suggestions on
 
 To start your local building envirtonment read [BUILD.md](https://github.com/ihsoft/KAS/blob/master/BUILD.md).
 
-If you're going to request a pull request, please, read [code rules](https://github.com/ihsoft/KAS/blob/master/Source/README.md) first.
+If you're going to make a pull request, please, read [the code rules](https://github.com/ihsoft/KAS/blob/master/Source/README.md) first.
 Changes that don't follow the rules will be **rejected**.
