@@ -1,5 +1,6 @@
 # 1.1 (pre-release):
 * [Enhancement] Add ES-ES localization.
+* [Fix #249] Pylons are not get equipped when carried.
 
 # 1.0 (October 21st, 2018):
 * [Change] KSP 1.5 compatibility.
