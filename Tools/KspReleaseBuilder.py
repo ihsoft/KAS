@@ -1,6 +1,6 @@
 # Public domain license.
 # Author: igor.zavoychinskiy@gmail.com
-# GitHub: https://github.com/ihsoft/KSPDev/tree/master/Sources/ReleaseBuilder
+# GitHub: https://github.com/ihsoft/KSPDev_ReleaseBuilder
 SCRIPT_VERSION = "2.1"  # (check if SUPPORTED_JSON_SCHEMA_VERSION needs to be updated!)
 
 # A very simple class to produce a .ZIP archive with a KSP mod distribution.

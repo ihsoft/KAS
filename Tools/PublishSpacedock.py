@@ -1,8 +1,8 @@
 # Public domain license.
 # Author: igor.zavoychinskiy@gmail.com
 # GitHub: https://github.com/ihsoft/KSPDev_ReleaseBuilder
-# $version: 1
-# $date: 07/13/2018
+# $version: 5
+# $date: 10/28/2018
 
 """ Script to publish releases to Spacedock.
 
@@ -62,6 +62,7 @@ import sys
 import textwrap
 
 from clients import SpacedockClient
+from utils import ChangelogUtils
 
 
 LOGGER = logging.getLogger()
@@ -90,7 +91,7 @@ def main(argv):
   parser.add_argument(
       '--project', action='store', metavar='<project ID>', required=True,
       help='''the ID of the project to publish to. To get it, go to the mod
-          overview on Spacedock and extarct the number from the URL:
+          overview on Spacedock and extract the number from the URL:
           /mod/<project ID>/...''')
   parser.add_argument(
       '--changelog', action='store', metavar='<file path>', required=True,
@@ -125,6 +126,10 @@ def main(argv):
       '--pass', action='store', metavar='<SD password>',
       help='''the password for the Spacedock account. If not set, then it will
           be asked in the command line.''')
+  parser.add_argument(
+      '--github', action='store', metavar='<GitHub>',
+      help='''the GitHub project and user, separated by "/" symbol. Used when
+          expanding the GitHub links. Example: "ihsoft/KIS"''')
   opts = vars(parser.parse_args(argv[1:]))
 
   mod_id = opts['project']
@@ -149,7 +154,10 @@ def main(argv):
       exit(-1)
     game_version = all_versions[0]['name']
 
-  desc = _ExtractDescription(opts['changelog'], opts['changelog_breaker'])
+  desc = ChangelogUtils.ExtractDescription(
+      opts['changelog'], opts['changelog_breaker'])
+  if opts['github']:
+    desc = ChangelogUtils.ProcessGitHubLinks(desc, opts['github'])
   filename = opts['archive']
 
   parts = re.findall(opts['version_extract'], os.path.basename(filename))
@@ -212,22 +220,6 @@ def _Shutdown():
   """Finilizes the logging system."""
   LOGGER.info('Ending SpaceDock session...')
   logging.shutdown()
-
-
-def _ExtractDescription(changelog_file, breaker_re):
-  """Helper method to extract the meaningful part of the release changelog."""
-  with open(changelog_file, 'r') as f:
-    lines= f.readlines()
-  changelog = ''
-  for line in lines:
-    # Ignore any trailing empty lines.
-    if not changelog and not line.strip():
-      continue
-    # Stop at the breaker.
-    if re.match(breaker_re, line.strip()):
-      break
-    changelog += line
-  return changelog.strip()
 
 
 main(sys.argv)
