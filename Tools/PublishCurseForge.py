@@ -1,8 +1,8 @@
 # Public domain license.
 # Author: igor.zavoychinskiy@gmail.com
 # GitHub: https://github.com/ihsoft/KSPDev_ReleaseBuilder
-# $version: 2
-# $date: 10/16/2018
+# $version: 4
+# $date: 10/28/2018
 
 """ Script to publish releases to Kerbal CurseForge.
 
@@ -72,6 +72,7 @@ import sys
 import textwrap
 
 from clients import CurseForgeClient
+from utils import ChangelogUtils
 
 
 LOGGER = logging.getLogger()
@@ -138,6 +139,10 @@ def main(argv):
       default='.+?_(v.+?)\\.zip',
       help='''the RegExp to extract the version tag from the archive name.
           [Default: %(default)s]''')
+  parser.add_argument(
+      '--github', action='store', metavar='<GitHub>',
+      help='''the GitHub project and user, separated by "/" symbol. Used when
+          expanding the GitHub links. Example: "ihsoft/KIS"''')
   opts = vars(parser.parse_args(argv[1:]))
 
   project_id = opts['project']
@@ -166,7 +171,10 @@ def main(argv):
       print 'ERROR: No versions found for RegExp: %s' % versions_re
       exit(-1)
 
-  desc = _ExtractDescription(opts['changelog'], opts['changelog_breaker'])
+  desc = ChangelogUtils.ExtractDescription(
+      opts['changelog'], opts['changelog_breaker'])
+  if opts['github']:
+    desc = ChangelogUtils.ProcessGitHubLinks(desc, opts['github'])
   filename = opts['archive']
 
   if opts['title']:
@@ -217,22 +225,6 @@ def _Shutdown():
   """Finilizes the logging system."""
   LOGGER.info('Ending CurseForge session...')
   logging.shutdown()
-
-
-def _ExtractDescription(changelog_file, breaker_re):
-  """Helper method to extract the meaningful part of the release changelog."""
-  with open(changelog_file, 'r') as f:
-    lines= f.readlines()
-  changelog = ''
-  for line in lines:
-    # Ignore any trailing empty lines.
-    if not changelog and not line.strip():
-      continue
-    # Stop at the breaker.
-    if re.match(breaker_re, line.strip()):
-      break
-    changelog += line
-  return changelog.strip()
 
 
 main(sys.argv)

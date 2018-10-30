@@ -5,6 +5,7 @@
 using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using System;
 using System.Linq;
@@ -208,11 +209,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     base.OnStart(state);
 
     if (equipMeshName != "") {
-      attachBoneTransform = part.GetComponentsInChildren<SkinnedMeshRenderer>()
-          .Where(m => m.name == equipMeshName)
-          .Select(m => m.bones.FirstOrDefault(b => b.name == equipBoneName))
-          .Select(b => b.transform)
-          .FirstOrDefault();
+      attachBoneTransform = Hierarchy.FindTransformByPath(part.transform, equipBoneName);
       if (attachBoneTransform != null) {
         boneAttachNodePosition = attachBoneTransform.InverseTransformPoint(nodeTransform.position);
         boneAttachNodeRotation =

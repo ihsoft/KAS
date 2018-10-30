@@ -1,8 +1,8 @@
 # Public domain license.
 # Author: igor.zavoychinskiy@gmail.com
 # GitHub: https://github.com/ihsoft/KSPDev_ReleaseBuilder
-# $version: 1
-# $date: 07/17/2018
+# $version: 2
+# $date: 10/28/2018
 
 """ Script to publish releases to GitHub.
 
@@ -11,7 +11,7 @@ Once you have it, define how you'd like the target release be created.
 
 Example:
 
-  $ PublishCurseForge.py\
+  $ PublishGitHub.py\
     --user=my_github_user\
     --repo=MyGitHubMod\
     --token=1111111111122222222222222333333333333333\
@@ -67,6 +67,7 @@ import sys
 import textwrap
 
 from clients import GitHubClient
+from utils import ChangelogUtils
 
 
 LOGGER = logging.getLogger()
@@ -136,10 +137,11 @@ def main(argv):
   user = opts['user']
   repo = opts['repo']
 
-  # Init CurseForge client.
+  # Init GitHub client.
   GitHubClient.API_TOKEN = opts['token']
 
-  desc = _ExtractDescription(opts['changelog'], opts['changelog_breaker'])
+  desc = ChangelogUtils.ExtractDescription(
+      opts['changelog'], opts['changelog_breaker'])
   filename = opts['archive']
   as_draft = opts['as_draft']
 
@@ -188,22 +190,6 @@ def _Shutdown():
   """Finilizes the logging system."""
   LOGGER.info('Ending GitHub session...')
   logging.shutdown()
-
-
-def _ExtractDescription(changelog_file, breaker_re):
-  """Helper method to extract the meaningful part of the release changelog."""
-  with open(changelog_file, 'r') as f:
-    lines= f.readlines()
-  changelog = ''
-  for line in lines:
-    # Ignore any trailing empty lines.
-    if not changelog and not line.strip():
-      continue
-    # Stop at the breaker.
-    if re.match(breaker_re, line.strip()):
-      break
-    changelog += line
-  return changelog.strip()
 
 
 try:
