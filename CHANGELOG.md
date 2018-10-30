@@ -1,4 +1,4 @@
-# 1.1 (pre-release):
+# 1.1 (October 29th, 2018):
 * [Enhancement] Add ES-ES localization.
 * [Fix #249] Pylons are not get equipped when carried.
 

@@ -3,4 +3,4 @@
 --changelog=../CHANGELOG.md
 --github=ihsoft/KIS
 --ksp_version=latest
---archive=../KAS_v1.0.zip
+--archive=../KAS_v1.1.zip
