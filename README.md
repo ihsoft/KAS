@@ -1,4 +1,4 @@
-# Kerbal Attachment System (KAS)
+﻿# Kerbal Attachment System (KAS)
 
 This mod is another extension to the EVA duty of the kerbonauts. Now they can link different vessels together. Why linking? Well, how about transferring resources without docking? Or maybe two vessels need to stay together while not docked. Even more, this mod has active parts that can work as  winches!
 
@@ -28,6 +28,8 @@ Almost any type allows remotely docking the vessels. Once docked, the vessels be
 ![Русский](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Russian-small-flag.png) Русский
 
 ![Italiano](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Italian-small-flag.png) Italiano
+
+![Español](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Spanish-small-flag.png) Español
 
 # Support
 
