@@ -58,7 +58,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region Part's config fields
   /// <summary>
-  /// Model for a joint lever at the soucre part. Two such models are used to form a complete joint.
+  /// Model for a joint lever at the source part. Two such models are used to form a complete joint.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -108,8 +108,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-
   public bool pistonModelRandomRotation = true;
+
   /// <summary>Amount to decrease the scale of an inner pistons diameter.</summary>
   /// <remarks>
   /// To keep models consistent every nested piston must be slightly less in diameter than the
