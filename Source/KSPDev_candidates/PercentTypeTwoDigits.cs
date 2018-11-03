@@ -1,56 +1,11 @@
-﻿// This is an intermediate module for methods and classes that are considred as candidates for
-// KSPDev Utilities. Ideally, this module is always empty but there may be short period of time
-// when new functionality lives here and not in KSPDev.
+﻿// Kerbal Development tools.
+// Author: igor.zavoychinskiy@gmail.com
+// This software is distributed under Public domain license.
 
 using System;
-using System.Linq;
 using KSPDev.GUIUtils;
 
 namespace KASAPIv1.GUIUtils {
-
-/// <summary>Localized message formatting class for a part.</summary>
-/// <remarks>
-/// This type is similar to the other GUI formatting types declared in KSPDev.GUIUtils. Use it as a
-/// generic parameter when creating a <c>KSPDev.GUIUtils.LocalizableMessage</c>
-/// </remarks>
-public sealed class PartType {
-  /// <summary>A wrapped part.</summary>
-  public readonly Part value;
-
-  /// <summary>Constructs an object from a part.</summary>
-  /// <param name="value">The part to represent.</param>
-  /// <seealso cref="Format"/>
-  public PartType(Part value) {
-    this.value = value;
-  }
-
-  /// <summary>Coverts a part value into a type object.</summary>
-  /// <param name="value">The part to convert.</param>
-  /// <returns>An object.</returns>
-  public static implicit operator PartType(Part value) {
-    return new PartType(value);
-  }
-
-  /// <summary>Converts a type object into a part value.</summary>
-  /// <param name="obj">The object type to convert.</param>
-  /// <returns>A numeric value.</returns>
-  public static implicit operator Part(PartType obj) {
-    return obj.value;
-  }
-
-  /// <summary>Formats the value into a human friendly string.</summary>
-  /// <param name="value">The part to format.</param>
-  public static string Format(Part value) {
-    return value.partInfo.title;
-  }
-
-  /// <summary>Returns a string formatted as a human friendly volume specification.</summary>
-  /// <returns>A string representing the value.</returns>
-  /// <seealso cref="Format"/>
-  public override string ToString() {
-    return Format(value);
-  }
-}
 
 /// <summary>
 /// Localized message formatting class for a numeric value that represents a <i>percentage</i> with
