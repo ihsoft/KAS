@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="api_impl" />
+    <Folder Include="controllers" />
     <Folder Include="modules" />
     <Folder Include="KSPDev_candidates" />
     <Folder Include="Properties" />
@@ -89,6 +90,7 @@
     <Compile Include="api_impl\KasLinkEventImpl.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="KSPDev_candidates\PartType.cs" />
     <Compile Include="KSPDev_candidates\PercentTypeTwoDigits.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
@@ -110,7 +112,6 @@
     <Compile Include="modules\KASRendererPipe.cs" />
     <Compile Include="modules\KASJointTwoEndsSphere.cs" />
     <Compile Include="modules\KASLinkWinch.cs" />
-    <Compile Include="modules\ControllerWinchRemote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
