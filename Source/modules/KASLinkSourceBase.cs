@@ -430,7 +430,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot break link in state: {0}", linkState);
       return;
     }
-    PhysicaUnlink();
+    PhysicalUnlink();
     LogicalUnlink(actorType);
   }
 
@@ -523,7 +523,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Destroys the physical link between the parts.</summary>
   /// <remarks>It's called before the logical link is dropped.</remarks>
-  protected virtual void PhysicaUnlink() {
+  protected virtual void PhysicalUnlink() {
     linkJoint.DropJoint();
   }
 

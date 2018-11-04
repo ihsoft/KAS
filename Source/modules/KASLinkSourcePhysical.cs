@@ -692,9 +692,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  protected override void PhysicaUnlink() {
+  protected override void PhysicalUnlink() {
     SetCableLength(cableJoint.realCableLength);
-    base.PhysicaUnlink();
+    base.PhysicalUnlink();
   }
 
   /// <inheritdoc/>
