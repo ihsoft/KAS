@@ -90,6 +90,7 @@
     <Compile Include="api_impl\KasLinkEventImpl.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="KSPDev_candidates\GUILayoutTextField.cs" />
     <Compile Include="KSPDev_candidates\IDebugAdjustable.cs" />
