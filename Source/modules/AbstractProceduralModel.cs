@@ -163,13 +163,18 @@ public abstract class AbstractProceduralModel : PartModule,
   /// not have the file extension.
   /// </param>
   /// <param name="asNormalMap">If <c>true</c> then the texture will be loaded as a bumpmap.</param>
+  /// <param name="notFoundFillColor">
+  /// The color of the simulated texture in case of the asset was not found in the game database. By
+  /// defaut a red colored texture will be created.
+  /// </param>
   /// <returns>
   /// The texture. Note that it's a shared object. Don't execute actions on it which you don't want
   /// to affect the other meshes in the game.
   /// </returns>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Texture2D.html">
   /// Unity3D: Texture2D</seealso>
-  protected Texture2D GetTexture(string textureFileName, bool asNormalMap = false) {
+  protected Texture2D GetTexture(string textureFileName, bool asNormalMap = false,
+                                 Color? notFoundFillColor = null) {
     Texture2D texture;
     if (!textures.TryGetValue(textureFileName, out texture)) {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
@@ -177,7 +182,7 @@ public abstract class AbstractProceduralModel : PartModule,
         // Use a "red" texture if no file found.
         HostedDebugLog.Warning(this, "Cannot load texture: {0}", textureFileName);
         texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        texture.SetPixels(new[] {Color.red});
+        texture.SetPixels(new[] {notFoundFillColor ?? Color.red});
         texture.Apply();
         texture.Compress(highQuality: false);
       }
