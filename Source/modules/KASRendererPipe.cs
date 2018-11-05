@@ -664,8 +664,7 @@ public class KASRendererPipe : AbstractProceduralModel,
       if (config.type == PipeEndType.ProceduralModel) {
         // Create procedural models at the point where the pipe connects to the part's node.
         var material = CreateMaterial(
-            GetTexture(config.texture),
-            mainTexNrm: config.textureNrm != "" ? GetTexture(config.textureNrm) : null);
+            GetTexture(config.texture), mainTexNrm: GetNormalMap(config.textureNrm));
         var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
                                          colliderType: Colliders.PrimitiveCollider.Shape);
         sphere.name = PipeJointTransformName;

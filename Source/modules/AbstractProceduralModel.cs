@@ -190,6 +190,15 @@ public abstract class AbstractProceduralModel : PartModule,
     }
     return texture;
   }
+
+  /// <summary>Shortcut to load an optional normals map.</summary>
+  /// <param name="textureFileName">The name of the texture or <c>null</c>.</param>
+  /// <returns>The normals map or <c>null</c> if no name was provided.</returns>
+  protected Texture2D GetNormalMap(string textureFileName) {
+    return !string.IsNullOrEmpty(textureFileName)
+        ? GetTexture(textureFileName, asNormalMap: true, notFoundFillColor: Color.black)
+        : null;
+  }
   #endregion
 }
 
