@@ -189,7 +189,7 @@ public class KASRendererPipe : AbstractProceduralModel,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("textureSamplesPerMeter")]
-    public float textureSamplesPerMeter;
+    public float textureSamplesPerMeter = 1.0f;
 
     /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
     /// <remarks>
