@@ -529,12 +529,6 @@ public class KASRendererPipe : AbstractProceduralModel,
 
   #region PartModule overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
-    base.OnAwake();
-  }
-
-  /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     ConfigAccessor.ReadPartConfig(this, node);
     // For the procedural and simple modes use the hardcoded model names.
