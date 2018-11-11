@@ -235,7 +235,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     linkStateMachine.SetTransitionConstraint(
         LinkState.RejectingLinks,
         new[] {LinkState.Available, LinkState.Locked});
-
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
         enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
@@ -256,10 +255,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, ToggleVesselsDockModeEvent, module);
         });
-    linkStateMachine.AddStateHandlers(
-        LinkState.Linking,
-        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Fire(this),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Fire(this));
   }
 
   /// <inheritdoc/>
@@ -384,6 +379,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     guiLinkMode = mode;
     linkActor = actor;
     linkState = LinkState.Linking;
+    KASAPI.KasEvents.OnStartLinking.Fire(this);
     return true;
   }
 
@@ -394,6 +390,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       return;
     }
     linkState = LinkState.Available;
+    KASAPI.KasEvents.OnStopLinking.Fire(this);
   }
 
   /// <inheritdoc/>
@@ -489,9 +486,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     linkTarget.linkSource = this;
     linkState = LinkState.Linked;
     linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
-    KASAPI.KasEvents.OnLinkCreated.Fire(linkInfo);
     part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
+    KASAPI.KasEvents.OnStopLinking.Fire(this);
+    KASAPI.KasEvents.OnLinkCreated.Fire(linkInfo);
   }
 
   /// <summary>
@@ -575,7 +573,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// </remarks>
   /// <param name="source">Source module that started the mode.</param>
   void OnStopLinkingKASEvent(ILinkSource source) {
-    linkState = LinkState.Available;
+    if (!isLocked) {
+      linkState = LinkState.Available;
+    }
   }
   #endregion 
 

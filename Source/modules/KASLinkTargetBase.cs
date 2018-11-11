@@ -99,16 +99,16 @@ public class KASLinkTargetBase :
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.RejectingLinks,
-        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
         enterHandler: x => SetEligiblePartHighlighting(true),
@@ -194,15 +194,17 @@ public class KASLinkTargetBase :
   /// </summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
-  protected virtual void OnStartConnecting(ILinkSource source) {
+  protected virtual void OnStartLinkingKASEvent(ILinkSource source) {
     linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
   }
 
   /// <summary>Cancels  the linking mode on this module.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="connectionSource"></param>
-  protected virtual void OnStopConnecting(ILinkSource connectionSource) {
-    linkState = LinkState.Available;
+  protected virtual void OnStopLinkingKASEvent(ILinkSource connectionSource) {
+    if (!isLocked) {
+      linkState = LinkState.Available;
+    }
   }
   #endregion
 
