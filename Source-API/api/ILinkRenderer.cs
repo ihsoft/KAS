@@ -132,8 +132,8 @@ public interface ILinkRenderer {
 
   /// <summary>Verifies that there are no obstacles beween the points.</summary>
   /// <remarks>The renderer is not required to be started for this method to call.</remarks>
-  /// <param name="source">Source node.</param>
-  /// <param name="target">Target node.</param>
+  /// <param name="source">The source node.</param>
+  /// <param name="target">The target node.</param>
   /// <returns>
   /// An empty array if no hits were detected, or a list of user friendly errors otherwise.
   /// </returns>
