@@ -401,13 +401,6 @@ public class KASRendererPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public Transform targetTransform { get; private set; }
-
-  /// <inheritdoc/>
-  public virtual float stretchRatio {
-    get { return _stretchRatio; }
-    set { _stretchRatio = value; }
-  }
-  float _stretchRatio = 1.0f;
   #endregion
 
   #region Part's config fields
@@ -608,8 +601,7 @@ public class KASRendererPipe : AbstractProceduralModel,
       SetupPipe(linkPipe.transform,
                 sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
-        RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter,
-                               renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
+        RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter, renderer: linkPipeMR);
       }
     }
   }
@@ -724,8 +716,7 @@ public class KASRendererPipe : AbstractProceduralModel,
     linkPipeMR = linkPipe.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
     SetupPipe(linkPipe.transform,
               sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
-    RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter,
-                           renderer: linkPipeMR, scaleRatio: 1 / stretchRatio);
+    RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter, renderer: linkPipeMR);
     // Let the part know about the new mesh so that it could be properly highlighted.
     part.RefreshHighlighter();
   }
@@ -764,10 +755,9 @@ public class KASRendererPipe : AbstractProceduralModel,
   /// Optional renderer that owns the material. If not provided then renderer will be obtained via
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
-  /// <param name="scaleRatio">Additional scale to apply to the pipe texture.</param>
   protected void RescaleTextureToLength(
-      GameObject obj, float samplesPerMeter, Renderer renderer = null, float scaleRatio = 1.0f) {
-    var newScale = obj.transform.localScale.z * samplesPerMeter * scaleRatio / baseScale;
+      GameObject obj, float samplesPerMeter, Renderer renderer = null) {
+    var newScale = obj.transform.localScale.z * samplesPerMeter / baseScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
     if (mr.material.GetTexture(BumpMapProp) != null) {

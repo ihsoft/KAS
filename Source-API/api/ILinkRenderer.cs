@@ -71,19 +71,6 @@ public interface ILinkRenderer {
   /// <seealso cref="StartRenderer"/>
   Transform targetTransform { get; }
 
-  /// <summary>
-  /// Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
-  /// </summary>
-  /// <value>The stretch/shrink ratio.</value>
-  /// <remarks>
-  /// A value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
-  /// <para>
-  /// This ratio only affects the visual representation. For the renderers that don't care about
-  /// stretching it's ok to always return <c>1.0</c> from the getter and ignore calls to the setter.
-  /// </para>
-  /// </remarks>
-  float stretchRatio { get; set; }
-
   /// <summary>Starts rendering a link between the objects.</summary>
   /// <remarks>
   /// <para>

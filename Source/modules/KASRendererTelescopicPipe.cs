@@ -232,16 +232,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   string _shaderNameOverride;
 
   /// <inheritdoc/>
-  public float stretchRatio {
-    get { return 1.0f; }
-    set {
-      HostedDebugLog.Warning(
-          this, "Stretch ratio of the telescopic link is fixed and cannnot be changed to {0}",
-          value);
-    }
-  }
-
-  /// <inheritdoc/>
   public bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
     set {
