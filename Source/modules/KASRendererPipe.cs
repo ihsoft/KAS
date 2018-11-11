@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv1.GUIUtils;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;

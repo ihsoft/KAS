@@ -10,7 +10,7 @@ namespace KSPDev.GUIUtils {
 /// <summary>GUI text field to edit and set complex types.</summary>
 /// <remarks>
 /// <para>
-/// Use it when the type is more comples than a single value. E.g. a vector. Thos GUI field needs to
+/// Use it when the type is more comples than a single value. E.g. a vector. This GUI field needs to
 /// have methods to parse/serialize the value from/to string. The actual value is untouched until
 /// user explictily selects set or reset in the control.
 /// </para>
@@ -48,14 +48,14 @@ public class GUILayoutTextField<T> {
   /// <remarks>Call it from the <c>OnGUI</c> callback.</remarks>
   /// <param name="value">The source value.</param>
   /// <param name="ownLayoutStyle">The style to use when making own horizontal layout.</param>
-  /// <param name="textfieldOptions">The options to apply to the input field.</param>
+  /// <param name="textFieldOptions">The GUI options to apply to the input field.</param>
   /// <param name="onValueSet">The method to call when a value is applied.</param>
   /// <param name="actionsList">The action list to use to submit the value update job to.</param>
   /// <returns>
   /// The new value. It's the same as <paramref name="value"/> until user explicitly chose to set
   /// the value.
   /// </returns>
-  public T UpdateFrame(T value, GUIStyle ownLayoutStyle, GUILayoutOption[] textfieldOptions,
+  public T UpdateFrame(T value, GUIStyle ownLayoutStyle, GUILayoutOption[] textFieldOptions,
                        Action<T> onValueSet = null, GuiActionsList actionsList = null) {
     if (useOwnLayout) {
       GUILayout.BeginHorizontal(ownLayoutStyle);
@@ -72,7 +72,7 @@ public class GUILayoutTextField<T> {
       validValue = false;
     }
     using (new GuiColorScope(contentColor: validValue ? Color.white : Color.red)) {
-      currentTxt = GUILayout.TextField(changed ? currentTxt : valueTxt, textfieldOptions);
+      currentTxt = GUILayout.TextField(changed ? currentTxt : valueTxt, textFieldOptions);
     }
     using (new GuiEnabledStateScope(changed)) {
       using (new GuiEnabledStateScope(changed && validValue)) {

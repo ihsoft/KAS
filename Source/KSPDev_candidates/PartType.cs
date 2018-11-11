@@ -2,7 +2,7 @@
 // Author: igor.zavoychinskiy@gmail.com
 // This software is distributed under Public domain license.
 
-namespace KASAPIv1.GUIUtils {
+namespace KSPDev.GUIUtils {
 
 /// <summary>Localized message formatting class for a part.</summary>
 /// <remarks>
