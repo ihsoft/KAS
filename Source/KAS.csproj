@@ -92,6 +92,7 @@
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
+    <Compile Include="KSPDev_candidates\GUILayoutSwitchField.cs" />
     <Compile Include="KSPDev_candidates\GUILayoutTextField.cs" />
     <Compile Include="KSPDev_candidates\IDebugAdjustable.cs" />
     <Compile Include="KSPDev_candidates\PartType.cs" />
