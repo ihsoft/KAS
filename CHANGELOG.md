@@ -1,4 +1,5 @@
 # 1.2 (pre-release):
+* [Fix #252] NRE when entering the vessel from EVA
 
 # 1.1 (October 29th, 2018):
 * [Enhancement] Add ES-ES localization.
