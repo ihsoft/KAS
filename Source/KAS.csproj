@@ -113,6 +113,7 @@
     <Compile Include="modules\KASLinkTargetKerbal.cs" />
     <Compile Include="modules\KASLinkSourceBase.cs" />
     <Compile Include="modules\KASLinkTargetBase.cs" />
+    <Compile Include="modules\KASRendererBezierPipe.cs" />
     <Compile Include="modules\KASRendererPipeWithHead.cs" />
     <Compile Include="modules\KASRendererTelescopicPipe.cs" />
     <Compile Include="modules\KASJointTowBar.cs" />
