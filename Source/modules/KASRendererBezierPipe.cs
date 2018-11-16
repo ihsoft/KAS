@@ -74,6 +74,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <seealso cref="AbstractPipeRenderer.pipeTexturePath"/>
   /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
   protected bool reskinTexture;
 
   /// <summary>Number of texture samples on the perimeter.</summary>
