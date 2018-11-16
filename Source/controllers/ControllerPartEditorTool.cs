@@ -158,19 +158,22 @@ sealed class ControllerPartEditorTool : MonoBehaviour,
   /// <summary>Creates the styles. Only does it once.</summary>
   void MakeGuiStyles() {
     if (guiNoWrapStyle == null) {
-      guiNoWrapStyle = new GUIStyle(GUI.skin.box);
-      guiNoWrapStyle.wordWrap = false;
-      guiCaptionStyle = new GUIStyle(GUI.skin.label);
-      guiCaptionStyle.wordWrap = false;
-      guiCaptionStyle.alignment = TextAnchor.MiddleLeft;
-      guiCaptionStyle.padding = GUI.skin.textField.padding;
-      guiCaptionStyle.margin = GUI.skin.textField.margin;
-      guiCaptionStyle.border = GUI.skin.textField.border;
-      guiValueStyle = new GUIStyle(GUI.skin.label);
-      guiValueStyle.padding = new RectOffset(0, 0, 0, 0);
-      guiValueStyle.margin = new RectOffset(0, 0, 0, 0);
-      guiValueStyle.border = new RectOffset(0, 0, 0, 0);
-      guiValueStyle.alignment = TextAnchor.MiddleRight;
+      guiNoWrapStyle = new GUIStyle(GUI.skin.box) {
+        wordWrap = false,
+      };
+      guiCaptionStyle = new GUIStyle(GUI.skin.label) {
+        wordWrap = false,
+        alignment = TextAnchor.MiddleLeft,
+        padding = GUI.skin.textField.padding,
+        margin = GUI.skin.textField.margin,
+        border = GUI.skin.textField.border,
+      };
+      guiValueStyle = new GUIStyle(GUI.skin.label) {
+        padding = new RectOffset(0, 0, 0, 0),
+        margin = new RectOffset(0, 0, 0, 0),
+        border = new RectOffset(0, 0, 0, 0),
+        alignment = TextAnchor.MiddleRight,
+      };
     }
   }
 }
