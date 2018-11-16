@@ -3,6 +3,7 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using System;
 using System.Linq;
@@ -31,6 +32,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="AbstractPipeRenderer.pipeDiameter"/>
   [KSPField]
+  [DebugAdjustable("Pipe bend resistance")]
   public float pipeBendResistance = 0.7f;
 
   /// <summary>Recommended number of the adjustable sections in the pipe mesh.</summary>
@@ -42,6 +44,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Pipe mesh sections")]
   public int pipeMeshSections = 21;
 
   /// <summary>Number of the segments in the pipe perimeter shape.</summary>
@@ -53,6 +56,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
 
   /// <summary>
@@ -75,6 +79,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Reskin texture")]
   protected bool reskinTexture;
 
   /// <summary>Number of texture samples on the perimeter.</summary>
@@ -85,6 +90,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Texture wraps")]
   public int pipeTextureWraps = 2;
   #endregion
 
@@ -108,84 +114,6 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <seealso cref="MakeBoneSamples"/>
   /// <seealso cref="pipeMeshSections"/>
   protected float[] boneOffsets;
-  #endregion
-
-  #region IDebugAdjustable implementation
-  bool controlsCreated;
-  GUILayoutTextField<float> pipeBendResitanceDbg;
-  GUILayoutTextField<int> pipeMeshSectionsDbg;
-  GUILayoutTextField<int> pipeShapeSmoothnessDbg;
-  GUILayoutTextField<int> textureWrapsDbg;
-
-  void MakeGUI() {
-    if (!controlsCreated) {
-      pipeBendResitanceDbg = new GUILayoutFloatField(useOwnLayout: false);
-      pipeMeshSectionsDbg = new GUILayoutIntegerField(useOwnLayout: false);
-      pipeShapeSmoothnessDbg = new GUILayoutIntegerField(useOwnLayout: false);
-      textureWrapsDbg = new GUILayoutIntegerField(useOwnLayout: false);
-      controlsCreated = true;
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void RenderGUI(GuiActionsList actionsList,
-                                 GUIStyle captionStyle, GUILayoutOption[] captionLayouts,
-                                 GUIStyle valueStyle, GUILayoutOption[] valueLayouts) {
-    base.RenderGUI(actionsList, captionStyle, captionLayouts, valueStyle, valueLayouts);
-    MakeGUI();
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Bend resistance:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeBendResitanceDbg.UpdateFrame(
-          pipeBendResistance, null, valueLayouts,
-          onValueSet: v => {
-            pipeBendResistance = v;
-            RefreshRenderer();
-          },
-          actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Mesh sections:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeMeshSectionsDbg.UpdateFrame(
-          pipeMeshSections, null, valueLayouts,
-          onValueSet: v => {
-            pipeMeshSections = v;
-            RefreshRenderer();
-          },
-          actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Shape smoothness:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeShapeSmoothnessDbg.UpdateFrame(
-          pipeShapeSmoothness, null, valueLayouts,
-          onValueSet: v => {
-            pipeShapeSmoothness = v;
-            RefreshRenderer();
-          },
-          actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Texture warps:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      textureWrapsDbg.UpdateFrame(
-          pipeTextureWraps, null, valueLayouts,
-          onValueSet: v => {
-            pipeTextureWraps = v;
-            RefreshRenderer();
-          },
-          actionsList: actionsList);
-    }
-    GUI.changed = false;
-    var newReskinTexture = GUILayout.Toggle(reskinTexture, "Re-skin texture", GUI.skin.toggle);
-    if (GUI.changed) {
-      actionsList.Add(() => {
-        reskinTexture = newReskinTexture;
-        RefreshRenderer();
-      });
-    }
-  }
   #endregion
 
   #region AbstractPipeRenderer overrides

@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
+using KSPDev.DebugUtils;
 using KSPDev.ModelUtils;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KSPDev interfaces
-    IDebugAdjustable {
+    IHasDebugAdjustables {
 
   // FIXME: Offload the GUI logic to the callers.
   #region Localizable GUI strings
@@ -53,6 +54,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Diameter of the pipe in meters.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Pipe diameter")]
   public float pipeDiameter = 0.7f;
 
   /// <summary>Main texture to use for the pipe.</summary>
@@ -60,12 +62,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Pipe texture")]
   public string pipeTexturePath = "KAS/TExtures/hose-d70-1kn";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Pipe texture NRM")]
   public string pipeNormalsTexturePath = "";
 
   /// <summary>
@@ -79,13 +83,16 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [DebugAdjustable("Texture samples per meter")]
   public float pipeTextureSamplesPerMeter = 1.0f;
 
   /// <summary>Defines how the texture should cover the pipe.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// FIXME; make it adjustable
   [KSPField]
+  [DebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
   #endregion
 
@@ -152,71 +159,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected Transform pipeTransform;
   #endregion
 
-  #region IDebugAdjustable implementation
-  bool dbgControlsCreated;
-  GUILayoutTextField<float> pipeDiameterDbg;
-  GUILayoutTextField<string> pipeTexturePathDbg;
-  GUILayoutTextField<string> pipeNormalsTexturePathDbg;
-  GUILayoutTextField<float> pipeTextureSamplesPerMeterDbg;
-  GUILayoutSwitchField<PipeTextureRescaleMode> pipeTextureRescaleModeDbg;
-
-  void MakeGUI() {
-    if (!dbgControlsCreated) {
-      pipeDiameterDbg = new GUILayoutFloatField(useOwnLayout: false);
-      pipeTexturePathDbg = new GUILayoutStringField(useOwnLayout: false);
-      pipeNormalsTexturePathDbg = new GUILayoutStringField(useOwnLayout: false);
-      pipeTextureSamplesPerMeterDbg = new GUILayoutFloatField(useOwnLayout: false);
-      pipeTextureRescaleModeDbg = new GUILayoutSwitchField<PipeTextureRescaleMode>(
-          new[] {
-              PipeTextureRescaleMode.Stretch,
-              PipeTextureRescaleMode.TileFromSource,
-              PipeTextureRescaleMode.TileFromTarget
-          },
-          useOwnLayout: false);
-      dbgControlsCreated = true;
-    }
-  }
-
+  #region IHasDebugAdjustables implementation
   /// <inheritdoc/>
-  public virtual void RenderGUI(GuiActionsList actionsList,
-                                GUIStyle captionStyle, GUILayoutOption[] captionLayouts,
-                                GUIStyle valueStyle, GUILayoutOption[] valueLayouts) {
-    MakeGUI();
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Pipe diameter:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeDiameter = pipeDiameterDbg.UpdateFrame(
-          pipeDiameter, valueStyle, valueLayouts,
-          onValueSet: v => RefreshRenderer(), actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Pipe texture:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeTexturePath = pipeTexturePathDbg.UpdateFrame(
-          pipeTexturePath, null, valueLayouts,
-          onValueSet: v => RefreshRenderer(), actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Texture normals:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeNormalsTexturePath = pipeNormalsTexturePathDbg.UpdateFrame(
-          pipeNormalsTexturePath, null, valueLayouts,
-          onValueSet: v => RefreshRenderer(), actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Samples per meter:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeTextureSamplesPerMeter = pipeTextureSamplesPerMeterDbg.UpdateFrame(
-          pipeTextureSamplesPerMeter, null, valueLayouts,
-          onValueSet: v => RefreshRenderer(), actionsList: actionsList);
-    }
-    using (new GUILayout.HorizontalScope(GUI.skin.box)) {
-      GUILayout.Label("Texture rescale mode:", captionStyle, captionLayouts);
-      GUILayout.FlexibleSpace();
-      pipeTextureRescaleMode = pipeTextureRescaleModeDbg.UpdateFrame(
-          pipeTextureRescaleMode, null, valueLayouts,
-          onValueSet: v => RefreshRenderer(), actionsList: actionsList);
-    }
+  public void OnDebugAdjustablesUpdated() {
+    RefreshRenderer();
   }
   #endregion
 
