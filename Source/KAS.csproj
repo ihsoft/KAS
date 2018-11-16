@@ -55,9 +55,6 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KAS-API-v1">
-      <HintPath>..\Binaries\KAS-API-v1.dll</HintPath>
-    </Reference>
     <Reference Include="KSPDev_Utils.0.37">
       <HintPath>..\Binaries\KSPDev_Utils.0.37.dll</HintPath>
     </Reference>
@@ -130,6 +127,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Unity3D_HelpIndex.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Source-API\KAS-API.csproj">
+      <Project>{28ba6ad6-d3b9-4b90-9b76-b7fb3b2d93e0}</Project>
+      <Name>KAS-API</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
