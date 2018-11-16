@@ -91,8 +91,6 @@
     <Compile Include="KSPDev_candidates\GUILayoutSwitchField.cs" />
     <Compile Include="KSPDev_candidates\GUILayoutTextField.cs" />
     <Compile Include="KSPDev_candidates\IDebugAdjustable.cs" />
-    <Compile Include="KSPDev_candidates\PartType.cs" />
-    <Compile Include="KSPDev_candidates\PercentTypeTwoDigits.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />
