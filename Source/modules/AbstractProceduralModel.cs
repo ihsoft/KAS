@@ -3,6 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
 using System.Collections.Generic;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
@@ -69,8 +70,14 @@ public abstract class AbstractProceduralModel : PartModule,
   public Color materialColor = Color.white;
   #endregion
 
+  #region Local fields and properties
   // Internal cache of the textures used by this renderer (and its descendants).
   readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
+
+  /// <summary>The shader to sue if no suitable shaders were found.</summary>
+  /// <see cref="GetShader"/>
+  const string FallbackShaderName = "Standard";
+  #endregion
 
   #region IsLocalizableModule implementation
   /// <inheritdoc/>
@@ -141,7 +148,7 @@ public abstract class AbstractProceduralModel : PartModule,
                                     Texture2D mainTexNrm = null,
                                     string overrideShaderName = null,
                                     Color? overrideColor = null) {
-    var material = new Material(Shader.Find(overrideShaderName ?? shaderName));
+    var material = new Material(GetShader(overrideShaderName: overrideShaderName));
     material.mainTexture = mainTex;
     material.color = overrideColor ?? materialColor;
     if (mainTexNrm != null) {
@@ -150,6 +157,27 @@ public abstract class AbstractProceduralModel : PartModule,
     }
     
     return material;
+  }
+
+  /// <summary>Get the module's model shader.</summary>
+  /// <remarks>Implements a fallback logic to not crash if the shader is not found.</remarks>
+  /// <param name="overrideShaderName">
+  /// The alternative name of the shader to prefer. If set, then the module's shader name is ignored
+  /// in favor of the one provided.
+  /// </param>
+  /// <returns>The requested shader, or a fallback share. It's never <c>null</c>.</returns>
+  protected Shader GetShader(string overrideShaderName = null) {
+    var shaderToFind = overrideShaderName ?? shaderName;
+    var shader = Shader.Find(shaderToFind);
+    if (shader == null) {
+      // Fallback if the shader cannot be found.
+      HostedDebugLog.Error(this, "Cannot find shader: {0}. Using default.", shaderToFind);
+      shader = Shader.Find(FallbackShaderName);
+      if (shader == null) {
+        throw new ArgumentException("Failed to create a fallabck shadre: " + FallbackShaderName);
+      }
+    }
+    return shader;
   }
 
   /// <summary>Gets the texture from either a KSP gamebase or the internal cache.</summary>
