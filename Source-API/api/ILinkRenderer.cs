@@ -108,8 +108,9 @@ public interface ILinkRenderer {
 
   /// <summary>Called when a link representation update is required.</summary>
   /// <remarks>
-  /// The performance cost of this method is rated as moderate. The callers should consider
-  /// optimization techniques to avoid calling this method on the every frame update.
+  /// It's called on every frame update if the link is started. The performance cost of this method
+  /// is rated as moderate. The callers should consider optimization techniques to avoid calling
+  /// this method on the every frame update.
   /// <para>
   /// A specific renderer implementation may introduce own optimization algorithm when the call
   /// becomes too heavy and slow.
