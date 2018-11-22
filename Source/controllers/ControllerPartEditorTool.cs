@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace KAS {
+namespace KAS.Debug {
 
 /// <summary>
 /// Dialog for adjusting parts.
@@ -30,13 +30,15 @@ sealed class ControllerPartEditorTool : MonoBehaviour,
   #endregion
 
   #region Local fields
+  /// <summary>GUI dialog's title.</summary>
   const string DialogTitle = "KAS part adjustment tool";
-  #endregion
+
+  /// <summary>Dialogs instance. There must be only one in the game.</summary>
+  static PartDebugAdjustmentDialog dlg;
 
   /// <summary>Keyboard event that opens/closes the remote GUI.</summary>
   static Event openGUIEvent;
-
-  PartDebugAdjustmentDialog dlg;
+  #endregion
 
   #region IHasGUI implementation
   /// <inheritdoc/>
@@ -44,7 +46,8 @@ sealed class ControllerPartEditorTool : MonoBehaviour,
     if (openGUIEvent != null && Event.current.Equals(openGUIEvent)) {
       Event.current.Use();
       if (dlg == null) {
-        dlg = DebugGui.MakePartDebugDialog(DialogTitle);
+        dlg = DebugGui.MakePartDebugDialog(
+            DialogTitle, group: KASAPIv2.KASDebugAdjustableAttribute.DebugGroup);
       } else {
         DebugGui.DestroyPartDebugDialog(dlg);
         dlg = null;

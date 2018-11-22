@@ -87,6 +87,7 @@
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
+    <Compile Include="KASAPI_candidates\KASDebugAdjustableAttribute.cs" />
     <Compile Include="KASAPI_candidates\PipeTextureRescaleMode.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />

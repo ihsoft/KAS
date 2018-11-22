@@ -3,8 +3,8 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv2;
 using KSPDev.DebugUtils;
-using KSPDev.GUIUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -32,7 +32,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="AbstractPipeRenderer.pipeDiameter"/>
   [KSPField]
-  [DebugAdjustable("Pipe bend resistance")]
+  [KASDebugAdjustable("Pipe bend resistance")]
   public float pipeBendResistance = 0.7f;
 
   /// <summary>Recommended number of the adjustable sections in the pipe mesh.</summary>
@@ -44,7 +44,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Pipe mesh sections")]
+  [KASDebugAdjustable("Pipe mesh sections")]
   public int pipeMeshSections = 21;
 
   /// <summary>Number of the segments in the pipe perimeter shape.</summary>
@@ -56,7 +56,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Pipe shape smoothness")]
+  [KASDebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
 
   /// <summary>
@@ -79,7 +79,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Reskin texture")]
+  [KASDebugAdjustable("Reskin texture")]
   protected bool reskinTexture;
 
   /// <summary>Number of texture samples on the perimeter.</summary>
@@ -90,7 +90,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Texture wraps")]
+  [KASDebugAdjustable("Texture wraps")]
   public int pipeTextureWraps = 2;
   #endregion
 

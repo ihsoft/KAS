@@ -5,8 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using KASAPIv2;
 using KSPDev.ConfigUtils;
-using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -63,13 +63,13 @@ public abstract class AbstractProceduralModel : PartModule,
   /// <summary>Shader to use for meshes by default.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Shader name")]
+  [KASDebugAdjustable("Shader name")]
   public string shaderName = KspPartShaderName;
 
   /// <summary>Main material color to use for meshes by default.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Material color")]
+  [KASDebugAdjustable("Material color")]
   public Color materialColor = Color.white;
   #endregion
 

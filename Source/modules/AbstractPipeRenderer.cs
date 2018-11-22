@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.DebugUtils;
 using KSPDev.ModelUtils;
@@ -54,7 +55,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Diameter of the pipe in meters.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Pipe diameter")]
+  [KASDebugAdjustable("Pipe diameter")]
   public float pipeDiameter = 0.7f;
 
   /// <summary>Main texture to use for the pipe.</summary>
@@ -62,14 +63,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Pipe texture")]
+  [KASDebugAdjustable("Pipe texture")]
   public string pipeTexturePath = "KAS/TExtures/hose-d70-1kn";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Pipe texture NRM")]
+  [KASDebugAdjustable("Pipe texture NRM")]
   public string pipeNormalsTexturePath = "";
 
   /// <summary>
@@ -83,7 +84,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [DebugAdjustable("Texture samples per meter")]
+  [KASDebugAdjustable("Texture samples per meter")]
   public float pipeTextureSamplesPerMeter = 1.0f;
 
   /// <summary>Defines how the texture should cover the pipe.</summary>
@@ -92,7 +93,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// FIXME; make it adjustable
   [KSPField]
-  [DebugAdjustable("Texture rescale mode")]
+  [KASDebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
   #endregion
 
