@@ -345,7 +345,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
       var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
       //FIXME: optimize - use length intervals?
       var currentLength = 0.0f;
-      for (var i = 1; i < bones.Length - 1; i++) {
+      for (var i = 1; i < bones.Length; i++) {
         currentLength += (bones[i].position - bones[i - 1].position).magnitude;
         for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
           var vertexIdx = i * (pipeShapeSmoothness + 1) + j;
