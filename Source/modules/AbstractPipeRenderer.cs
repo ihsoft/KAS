@@ -16,7 +16,7 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Base class for the renderers that represent the links as a "pipe".</summary>
-// Next localization ID: #kasLOC_14002.
+// Next localization ID: #kasLOC_07002.
 public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
@@ -26,16 +26,16 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   // FIXME: Offload the GUI logic to the callers.
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
-      "#kasLOC_14000",
+  public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
+      "#kasLOC_07000",
       defaultTemplate: "Link collides with: <<1>>",
       description: "Message to display when the link cannot be created due to an obstacle."
       + "\nArgument <<1>> is the part that would collide with the proposed link.",
       example: "Link collides with: Mk2 Cockpit");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LinkCollidesWithSurfaceMsg = new Message(
-      "#kasLOC_14001",
+  public static readonly Message LinkCollidesWithSurfaceMsg = new Message(
+      "#kasLOC_07001",
       defaultTemplate: "Link collides with the surface",
       description: "Message to display when the link strut orientation cannot be changed due to it"
       + " would hit the surface.");

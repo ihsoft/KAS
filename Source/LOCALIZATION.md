@@ -23,12 +23,11 @@ not use the same namespace as the parent. No modules are allowed to define own v
 | KASLinkTargetBase              | 03     | #kasLOC_03000   | #kasLOC_03999 |
 | KASRendererTelescopicPipe      | 04     | #kasLOC_04000   | #kasLOC_04999 |
 | KASJointTowBar                 | 05     | #kasLOC_05000   | #kasLOC_05999 |
-| KASRendererPipe                | 07     | #kasLOC_07000   | #kasLOC_07999 |
+| AbstractPipeRenderer           | 07     | #kasLOC_07000   | #kasLOC_07999 |
 | KASLinkWinch                   | 08     | #kasLOC_08000   | #kasLOC_08999 |
 | KASJointCableBase              | 09     | #kasLOC_09000   | #kasLOC_09999 |
 | KASLinkTargetKerbal            | 10     | #kasLOC_10000   | #kasLOC_10999 |
 | ControllerWinchRemote          | 11     | #kasLOC_11000   | #kasLOC_11999 |
 | KASLinkResourceConnector       | 12     | #kasLOC_12000   | #kasLOC_12999 |
 | KASLinkSourcePhysical          | 13     | #kasLOC_13000   | #kasLOC_13999 |
-| AbstractPipeRenderer           | 14     | #kasLOC_14000   | #kasLOC_14999 |
-| _Next available value_         | 15     | #kasLOC_?????   | #kasLOC_????? |
+| _Next available value_         | 14     | #kasLOC_?????   | #kasLOC_????? |
