@@ -435,8 +435,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   public virtual bool CheckCanLinkTo(ILinkTarget target,
                                      bool checkStates = true,
                                      bool reportToGUI = false, bool reportToLog = true) {
-    var errors = new string[]{ };
-    errors = errors
+    var errors = new List<string>()
         .Concat(CheckBasicLinkConditions(target, checkStates))
         .Concat(linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform))
         .Concat(linkJoint.CheckConstraints(this, target))

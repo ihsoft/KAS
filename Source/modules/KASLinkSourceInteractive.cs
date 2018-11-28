@@ -8,6 +8,7 @@ using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -258,7 +259,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
-          var linkStatusErrors = new string[]{ }
+          var linkStatusErrors = new List<string>()
               .Concat(CheckBasicLinkConditions(targetCandidate, checkStates: true))
               .Concat(linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform))
               .Concat(linkJoint.CheckConstraints(this, targetCandidate))
