@@ -334,11 +334,10 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     var newScale = linkLength * pipeTextureSamplesPerMeter;
     pipeSkinnedMeshRenderer.material.mainTextureScale =
         new Vector2(pipeSkinnedMeshRenderer.material.mainTextureScale.x, newScale);
-    if (pipeSkinnedMeshRenderer.material.HasProperty(AbstractProceduralModel.BumpMapProp)) {
-      var nrmScale = pipeSkinnedMeshRenderer.material.GetTextureScale(
-          AbstractProceduralModel.BumpMapProp);
+    if (pipeSkinnedMeshRenderer.material.HasProperty(BumpMapProp)) {
+      var nrmScale = pipeSkinnedMeshRenderer.material.GetTextureScale(BumpMapProp);
       pipeSkinnedMeshRenderer.material.SetTextureScale(
-          AbstractProceduralModel.BumpMapProp, new Vector2(nrmScale.x, newScale));
+          BumpMapProp, new Vector2(nrmScale.x, newScale));
     }
     // Re-skin the deformed sections.
     if (reskinTexture || forceReskin) {
