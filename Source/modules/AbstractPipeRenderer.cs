@@ -7,7 +7,6 @@ using KASAPIv1;
 using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.DebugUtils;
-using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using System;
 using System.Collections.Generic;
@@ -24,7 +23,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KSPDev interfaces
     IHasDebugAdjustables {
 
-  // FIXME: Offload the GUI logic to the callers.
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
@@ -40,6 +38,34 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       defaultTemplate: "Link collides with the surface",
       description: "Message to display when the link strut orientation cannot be changed due to it"
       + " would hit the surface.");
+  #endregion
+
+  #region Intrenal types
+  /// <summary>
+  /// Mode of adjusting the main texture (and its normals map) when the pipe length is changed.
+  /// </summary>
+  public enum PipeTextureRescaleMode {
+    /// <summary>
+    /// Texture stretches to the pipe's size. The resolution of the texture per meter of the link's
+    /// length is chnaging as the link's length is updating.
+    /// </summary>
+    /// <seealso cref="pipeTextureSamplesPerMeter"/>
+    Stretch,
+  
+    /// <summary>
+    /// Texture is tiled starting from the source to the target. The resolution of the texture per
+    /// meter of the link's length is kept constant and depends on the part's settings.
+    /// </summary>
+    /// <seealso cref="pipeTextureSamplesPerMeter"/>
+    TileFromSource,
+  
+    /// <summary>
+    /// Texture is tiled starting from the target to the source. The resolution of the texture per
+    /// meter of the link's length is kept constant and depends on the part's settings.
+    /// </summary>
+    /// <seealso cref="pipeTextureSamplesPerMeter"/>
+    TileFromTarget,
+  }
   #endregion
 
   #region Part's config fields
