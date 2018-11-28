@@ -7,6 +7,7 @@ using KASAPIv1;
 using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.DebugUtils;
+using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using System;
 using System.Collections.Generic;
@@ -91,10 +92,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// FIXME; make it adjustable
   [KSPField]
   [KASDebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
+
+  /// <summary>Defines if pipe's collider should interact with the physics objects.</summary>
+  /// <remarks>
+  /// If this setting is <c>false</c> the link mesh still may have a collider, but it will not
+  /// trigger physical effects.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [KASDebugAdjustable("Physical collider")]
+  public bool pipeColliderIsPhysical;
   #endregion
 
   #region ILinkRenderer properties
@@ -102,37 +112,38 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   public string cfgRendererName { get { return rendererName; } }
 
   /// <inheritdoc/>
-  public Color? colorOverride {
+  public virtual Color? colorOverride {
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-      if (pipeTransform != null) {
-        Meshes.UpdateMaterials(pipeTransform.gameObject, newColor: _colorOverride ?? materialColor);
+      if (sourceTransform != null) {
+        Meshes.UpdateMaterials(
+            sourceTransform.gameObject, newColor: _colorOverride ?? materialColor);
       }
     }
   }
   Color? _colorOverride;
 
   /// <inheritdoc/>
-  public string shaderNameOverride {
+  public virtual string shaderNameOverride {
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
-      if (pipeTransform != null) {
+      if (sourceTransform != null) {
         Meshes.UpdateMaterials(
-            pipeTransform.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
+            sourceTransform.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
       }
     }
   }
   string _shaderNameOverride;
 
   /// <inheritdoc/>
-  public bool isPhysicalCollider {
+  public virtual bool isPhysicalCollider {
     get { return _isPhysicalCollider; }
     set {
       _isPhysicalCollider = value;
-      if (pipeTransform != null) {
-        Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: value);
+      if (sourceTransform != null) {
+        Colliders.UpdateColliders(sourceTransform.gameObject, isEnabled: value);
       }
     }
   }
@@ -151,13 +162,15 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Inheritable fields and properties
-  /// <summary>Name of the root object of the pipe mesh.</summary>
-  protected string PipeModelName {
-    get { return "pipeMesh-" + rendererName; }
+  /// <summary>Basename of the module's model objects.</summary>
+  /// <remarks>
+  /// Use this name as a part of the full name to any dynamically created object within the module.
+  /// The name is guaranteed to be unique in the part's hierarchy, so it can always be looked up
+  /// once the object is created.
+  /// </remarks>
+  protected string ModelBasename {
+    get { return "$rendererRoot-" + rendererName; }
   }
-
-  /// <summary>Root object of the pipe mesh.</summary>
-  protected Transform pipeTransform;
   #endregion
 
   #region IHasDebugAdjustables implementation
@@ -189,9 +202,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public abstract void UpdateLink();
-
-  /// <inheritdoc/>
   public virtual string[] CheckColliderHits(Transform source, Transform target) {
     var hitParts = new HashSet<Part>();
     var ignoreRoots = new HashSet<Transform>() {source.root, target.root};
@@ -220,14 +230,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Inheritable methods
-  /// <summary>Creates the pipe mesh, given the source and the target anchors.</summary>
+  /// <inheritdoc/>
+  public abstract void UpdateLink();
+
+  /// <summary>Creates the dynamic pipe mesh(-es).</summary>
   /// <remarks>
   /// This method can be called at any moment of the renderer life cycle. If there was a mesh
-  /// already existing, it must get destroyed via <see cref="DestroyPipeMesh"/> first.
+  /// already existing, it must be destroyed via <see cref="DestroyPipeMesh"/> or adjusted.
   /// </remarks>
+  /// <seealso cref="StartRenderer"/>
   protected abstract void CreatePipeMesh();
 
-  /// <summary>Destroys the current pipe mesh.</summary>
+  /// <summary>Destroys the dynamic pipe mesh(-es).</summary>
+  /// <seealso cref="StopRenderer"/>
   protected abstract void DestroyPipeMesh();
 
   /// <summary>Gives an approximate path for the collision check.</summary>

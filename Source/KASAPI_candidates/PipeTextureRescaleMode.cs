@@ -3,11 +3,12 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KAS {
+namespace KASAPIv2 {
 
 /// <summary>
 /// Mode of adjusting the main texture (aznd its normals map) when the pipe length is changed.
 /// </summary>
+//FIXME: hide into the abstract pipe
 public enum PipeTextureRescaleMode {
   /// <summary>
   /// Texture stretches to the pipe's size. The resolution of the texture per meter of the link's

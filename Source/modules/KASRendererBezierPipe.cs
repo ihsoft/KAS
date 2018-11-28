@@ -5,6 +5,7 @@
 
 using KASAPIv2;
 using KSPDev.DebugUtils;
+using KSPDev.LogUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -98,6 +99,12 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <summary>Skinned mesh renderer that controls the pipe mesh.</summary>
   protected SkinnedMeshRenderer pipeSkinnedMeshRenderer { get; private set; }
 
+  /// <summary>Root object of the dynamic pipe mesh(-es).</summary>
+  /// <value>The root transform.</value>
+  /// <seealso cref="CreatePipeMesh"/>
+  /// <seealso cref="DestroyPipeMesh"/>
+  protected Transform pipeTransform { get; private set; }
+
   /// <summary>The <c>t</c> parameter value of the Bezier Curve per mesh bone.</summary>
   /// <remarks>
   /// <para>
@@ -141,12 +148,8 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   protected override void CreatePipeMesh() {
     DestroyPipeMesh();
     MakeBoneSamples();
-
-    pipeTransform = new GameObject(PipeModelName).transform;
+    pipeTransform = new GameObject(ModelBasename + "-pipe").transform;
     pipeTransform.parent = sourceTransform;
-    pipeTransform.localPosition = Vector3.zero;
-    pipeTransform.localRotation = Quaternion.identity;
-    pipeTransform.localScale = Vector3.one;
 
     // Make the boned cylinder vertices. To properly wrap the texture we need an extra vertex.
     //FIXME: vectrex groups = sections + 1
@@ -213,7 +216,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
       bones[j].localPosition = Vector3.forward * boneOffsets[j];
       bindPoses[j] = bones[j].worldToLocalMatrix * pipeTransform.localToWorldMatrix;
     }
-    
+
     pipeSkinnedMeshRenderer = pipeTransform.gameObject.AddComponent<SkinnedMeshRenderer>();
     pipeSkinnedMeshRenderer.material = CreatePipeMaterial();
 
