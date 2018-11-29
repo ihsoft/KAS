@@ -208,14 +208,14 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Name of the node's model for the end that attaches to the source part.</summary>
   protected string ProceduralSourceJointObjectName {
     get {
-      return "$sourceJointEnd-" + part.Modules.IndexOf(this);
+      return "$sourceJointEnd-" + rendererName;
     }
   }
 
   /// <summary>Name of the node's model for the end that attaches to the target part.</summary>
   protected string ProceduralTargetJointObjectName {
     get {
-      return "$targetJointEnd-" + part.Modules.IndexOf(this);
+      return "$targetJointEnd-" + rendererName;
     }
   }
 
