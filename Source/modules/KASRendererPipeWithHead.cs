@@ -63,25 +63,15 @@ public class KASRendererPipeWithHead : KASRendererPipe {
 
   #region KASModulePipeRenderer overrides
   /// <inheritdoc/>
-  protected override void CreateJointEndModels(string modelName, JointConfig config) {
-    base.CreateJointEndModels(modelName, config);
-    if (modelName == ProceduralTargetJointObjectName) {
+  protected override Transform CreateJointEndModels(string modelName, JointConfig config) {
+    var res = base.CreateJointEndModels(modelName, config);
+    if (modelName.EndsWith("-targetNode")) {
       var partAtTransform = new GameObject(ParkAtPartObjectName).transform;
       Hierarchy.MoveToParent(partAtTransform, partModelTransform,
                              newPosition: parkAtPart.pos,
                              newRotation: parkAtPart.rot);
     }
-  }
-
-  /// <inheritdoc/>
-  protected override ModelPipeEndNode LoadJointNode(string modelName) {
-    if (modelName == ProceduralTargetJointObjectName) {
-      var node = new ParkedHead(partModelTransform.Find(modelName),
-                                partModelTransform.Find(ParkAtPartObjectName));
-      node.AlignTo(null);  // Init mode objects state.
-      return node;
-    }
-    return base.LoadJointNode(modelName);
+    return res;
   }
   #endregion
 }

@@ -105,6 +105,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <summary>Defines how to obtain the joint model.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("type")]
+    [KASDebugAdjustable("Pipe type")]
     public PipeEndType type = PipeEndType.Simple;
     
     /// <summary>Defines if model's should trigger physical effects on collision.</summary>
@@ -115,14 +116,17 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("colliderIsPhysical")]
+    [KASDebugAdjustable("Collider is physical")]
     public bool colliderIsPhysical;
 
     /// <summary>Height of the joint sphere over the attach node.</summary>
     /// <remarks>
+    /// It can be negative to shift the "joint" point in the opposite direction.
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
+    [KASDebugAdjustable("Sphere offset")]
     public float sphereOffset;
 
     /// <summary>Diameter of the joint sphere. It must be zero or positive.</summary>
@@ -131,6 +135,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
+    [KASDebugAdjustable("Sphere diameter")]
     public float sphereDiameter;
 
     /// <summary>
@@ -143,6 +148,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
+    [KASDebugAdjustable("Arm diameter")]
     public float armDiameter;
 
     /// <summary>Defines how the texture is tiled on the sphere and arm primitives.</summary>
@@ -151,6 +157,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("textureSamplesPerMeter")]
+    [KASDebugAdjustable("Texture samples per meter")]
     public float textureSamplesPerMeter = 1.0f;
 
     /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
@@ -159,6 +166,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("texture")]
+    [KASDebugAdjustable("Main texture")]
     public string texture = "";
 
     /// <summary>Normals texture for the primitives. Can be omitted.</summary>
@@ -167,6 +175,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("textureNrm")]
+    [KASDebugAdjustable("Main texture normals")]
     public string textureNrm = "";
 
     /// <summary>Path to the model that represents the joint.</summary>
@@ -182,6 +191,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
+    [KASDebugAdjustable("Prefab model")]
     public string modelPath = "";
 
     /// <summary>
@@ -194,6 +204,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("partAttachAt")]
+    [KASDebugAdjustable("Prefab part attach pos&rot")]
     public PosAndRot partAttachAt = new PosAndRot();
 
     /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
@@ -204,25 +215,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("pipeAttachAt")]
+    [KASDebugAdjustable("Prefab pipe attach pos&rot")]
     public PosAndRot pipeAttachAt = new PosAndRot();
   }
   #endregion
 
   #region Object names for the procedural model construction
-  /// <summary>Name of the node's model for the end that attaches to the source part.</summary>
-  protected string ProceduralSourceJointObjectName {
-    get {
-      return "$sourceJointEnd-" + rendererName;
-    }
-  }
-
-  /// <summary>Name of the node's model for the end that attaches to the target part.</summary>
-  protected string ProceduralTargetJointObjectName {
-    get {
-      return "$targetJointEnd-" + rendererName;
-    }
-  }
-
   /// <summary>
   /// Name of the object in the node's model that defines where it attaches to the part.
   /// </summary>
@@ -312,11 +310,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Configuration of the source joint model.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
+  [KASDebugAdjustable("Source joint config")]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
+  [KASDebugAdjustable("Target joint config")]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 
@@ -324,7 +324,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Pipe's mesh.</summary>
   /// <value>The root object the link mesh. <c>null</c> if the renderer is not started.</value>
   /// <seealso cref="CreateLinkPipe"/>
-  protected GameObject linkPipe { get; private set; }
+  protected Transform pipeTransform { get; private set; }
 
   /// <summary>Pipe's mesh renderer. Used to speedup the updates.</summary>
   /// <value>
@@ -337,7 +337,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <seealso cref="CreateLinkPipe"/>
   /// <seealso cref="UpdateLink"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
-  protected Renderer linkPipeMR { get; private set; }
+  protected Renderer pipeMeshRenderer { get; private set; }
 
   /// <summary>Pipe ending node at the source.</summary>
   /// <value>The source node container.</value>
@@ -355,6 +355,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// equal. If they are not, then the renderer's behavior may be inconsistent.
   /// </remarks>
   /// <value>The scale to be applied to all the components.</value>
+  /// FIXME: move to the abstract!
   protected float baseScale {
     get {
       if (_baseScale < 0) {
@@ -371,21 +372,6 @@ public class KASRendererPipe : AbstractPipeRenderer,
   float _baseScale = -1;
   #endregion
 
-  #region PartModule overrides
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, node);
-    // For the procedural and simple modes use the hardcoded model names.
-    if (sourceJointConfig.type != PipeEndType.PrefabModel) {
-      sourceJointConfig.modelPath = ProceduralSourceJointObjectName;
-    }
-    if (targetJointConfig.type != PipeEndType.PrefabModel) {
-      targetJointConfig.modelPath = ProceduralTargetJointObjectName;
-    }
-    base.OnLoad(node);
-  }
-  #endregion
-
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
@@ -393,38 +379,33 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
   #endregion
 
-  #region AbstractProceduralModel abstract members
+  #region AbstractPipeRenderer abstract members
   /// <inheritdoc/>
   protected override void CreatePartModel() {
-    CreateJointEndModels(ProceduralSourceJointObjectName, sourceJointConfig);
-    CreateJointEndModels(ProceduralTargetJointObjectName, targetJointConfig);
-    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName);
-    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName);
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    sourceJointNode = LoadJointNode(ProceduralSourceJointObjectName);
-    targetJointNode = LoadJointNode(ProceduralTargetJointObjectName);
   }
-  #endregion
 
-  #region AbstractPipeRenderer abstract members
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
+    var sourceNodeModel = CreateJointEndModels(ModelBasename + "-sourceNode", sourceJointConfig);
+    sourceJointNode = new ModelPipeEndNode(sourceNodeModel);
     sourceJointNode.AlignTo(sourceTransform);
-    sourceJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
+    var targetNodeModel = CreateJointEndModels(ModelBasename + "-targetNode", targetJointConfig);
+    targetJointNode = new ModelPipeEndNode(targetNodeModel);
     targetJointNode.AlignTo(targetTransform);
-    targetJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
     CreateLinkPipe();
-    isPhysicalCollider = isPhysicalCollider;  // Update the status.
   }
 
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
     if (isStarted) {
-      sourceJointNode.AlignTo(null);
-      targetJointNode.AlignTo(null);
+      Object.Destroy(sourceJointNode.model.gameObject);
+      sourceJointNode = null;
+      Object.Destroy(targetJointNode.model.gameObject);
+      targetJointNode = null;
       DestroyLinkPipe();
     }
   }
@@ -433,10 +414,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
   public override void UpdateLink() {
     if (isStarted) {
       targetJointNode.AlignTo(targetTransform);
-      SetupPipe(linkPipe.transform,
-                sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+      SetupPipe(
+          pipeTransform, sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
-        RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter, renderer: linkPipeMR);
+        RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
       }
     }
   }
@@ -454,7 +435,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <param name="modelName">The joint transform name.</param>
   /// <param name="config">The joint configuration from the part's config.</param>
-  protected virtual void CreateJointEndModels(string modelName, JointConfig config) {
+  /// <returns>The created object.</returns>
+  protected virtual Transform CreateJointEndModels(string modelName, JointConfig config) {
     // FIXME: Prefix the model name with the renderer name.
     // Make or get the root.
     Transform root = null;
@@ -480,7 +462,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       Hierarchy.MoveToParent(root, partModelTransform);
       var partJoint = new GameObject(PartJointTransformName).transform;
       Hierarchy.MoveToParent(partJoint, root);
-      partJoint.rotation = Quaternion.LookRotation(Vector3.forward);
+      partJoint.localRotation = Quaternion.LookRotation(Vector3.forward);
       if (config.type == PipeEndType.ProceduralModel) {
         // Create procedural models at the point where the pipe connects to the part's node.
         var material = CreateMaterial(
@@ -488,17 +470,17 @@ public class KASRendererPipe : AbstractPipeRenderer,
         var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
                                          colliderType: Colliders.PrimitiveCollider.Shape);
         sphere.name = PipeJointTransformName;
-        sphere.transform.rotation = Quaternion.LookRotation(Vector3.back);
-        RescaleTextureToLength(sphere, samplesPerMeter: config.textureSamplesPerMeter);
+        sphere.transform.localRotation = Quaternion.LookRotation(Vector3.back);
+        RescaleTextureToLength(sphere.transform, samplesPerMeter: config.textureSamplesPerMeter);
         if (Mathf.Abs(config.sphereOffset) > float.Epsilon) {
           sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
           if (config.armDiameter > float.Epsilon) {
             var arm = Meshes.CreateCylinder(
-                config.armDiameter, config.sphereOffset, material, root,
+                config.armDiameter, Mathf.Abs(config.sphereOffset), material, root,
                 colliderType: Colliders.PrimitiveCollider.Shape);
             arm.transform.localPosition += new Vector3(0, 0, config.sphereOffset / 2);
             arm.transform.LookAt(sphere.transform.position);
-            RescaleTextureToLength(arm, samplesPerMeter: config.textureSamplesPerMeter);
+            RescaleTextureToLength(arm.transform, samplesPerMeter: config.textureSamplesPerMeter);
           }
         }
       } else {
@@ -509,12 +491,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
         }
         var pipeJoint = new GameObject(PipeJointTransformName);
         Hierarchy.MoveToParent(pipeJoint.transform, root);
-        pipeJoint.transform.rotation = Quaternion.LookRotation(Vector3.back);
+        pipeJoint.transform.localRotation = Quaternion.LookRotation(Vector3.back);
       }
     }
     Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
     root.gameObject.SetActive(false);
     root.name = modelName;
+    return root;
   }
 
   /// <summary>Constructs a joint node for the requested config.</summary>
@@ -535,28 +518,29 @@ public class KASRendererPipe : AbstractPipeRenderer,
                                   mainTexNrm: GetNormalMap(pipeNormalsTexturePath),
                                   overrideShaderName: shaderNameOverride,
                                   overrideColor: colorOverride);
-    linkPipe = Meshes.CreateCylinder(pipeDiameter, 1f, material, partModelTransform,
-                                     colliderType: Colliders.PrimitiveCollider.Shape);
-    Colliders.UpdateColliders(linkPipe, isPhysical: pipeColliderIsPhysical);
+    pipeTransform = Meshes.CreateCylinder(
+        pipeDiameter, 1f, material, partModelTransform,
+        colliderType: Colliders.PrimitiveCollider.Shape).transform;
+    Colliders.UpdateColliders(pipeTransform.gameObject, isPhysical: pipeColliderIsPhysical);
     if (pipeColliderIsPhysical) {
       CollisionManager.IgnoreCollidersOnVessel(
-          vessel, linkPipe.GetComponentsInChildren<Collider>());
+          vessel, pipeTransform.GetComponentsInChildren<Collider>());
       // TODO(ihsoft): Ignore the parts when migrated to the interfaces.
       Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
     }
-    linkPipeMR = linkPipe.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
-    SetupPipe(linkPipe.transform,
+    pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
+    SetupPipe(pipeTransform.transform,
               sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
-    RescaleTextureToLength(linkPipe, pipeTextureSamplesPerMeter, renderer: linkPipeMR);
+    RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
     // Let the part know about the new mesh so that it could be properly highlighted.
     part.RefreshHighlighter();
   }
 
   /// <summary>Destroys any meshes that represent a connection pipe.</summary>
   protected virtual void DestroyLinkPipe() {
-    Destroy(linkPipe);
-    linkPipe = null;
-    linkPipeMR = null;
+    Object.Destroy(pipeTransform.gameObject);
+    pipeTransform = null;
+    pipeMeshRenderer = null;
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
@@ -587,8 +571,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
   protected void RescaleTextureToLength(
-      GameObject obj, float samplesPerMeter, Renderer renderer = null) {
-    var newScale = obj.transform.localScale.z * samplesPerMeter / baseScale;
+      Transform obj, float samplesPerMeter, Renderer renderer = null) {
+    var newScale = obj.localScale.z * samplesPerMeter / baseScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
     if (mr.material.HasProperty(BumpMapProp)) {
