@@ -759,7 +759,7 @@ public class KASRendererPipe : AbstractProceduralModel,
     var newScale = obj.transform.localScale.z * samplesPerMeter / baseScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
-    if (mr.material.GetTexture(BumpMapProp) != null) {
+    if (mr.material.HasProperty(BumpMapProp)) {
       var nrmScale = mr.material.GetTextureScale(BumpMapProp);
       mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
     }
