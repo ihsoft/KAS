@@ -16,6 +16,17 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Base class for the renderers that represent the links as a "pipe".</summary>
+/// <remarks>
+/// <para>
+/// The descendants of this module can use the custom persistent fields of groups:
+/// </para>
+/// <list type="bullet">
+/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
+/// </list>
+/// </remarks>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_07002.
 public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.

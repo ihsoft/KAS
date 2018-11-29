@@ -52,6 +52,7 @@ namespace KAS {
 /// </para>
 /// <list type="bullet">
 /// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
+/// <item><c>StdPersistentGroups.PartPersistant</c></item>
 /// </list>
 /// </remarks>
 /// <seealso cref="KASAPIv1.ILinkSource"/>
@@ -59,6 +60,8 @@ namespace KAS {
 /// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 public class KASRendererPipe : AbstractPipeRenderer,
     // KPSDev sugar interfaces.    
     IsDestroyable {
@@ -114,9 +117,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     [PersistentField("colliderIsPhysical")]
     public bool colliderIsPhysical;
 
-    /// <summary>
-    /// Height of the joint sphere over the attach node. It's either zero or a positive number.
-    /// </summary>
+    /// <summary>Height of the joint sphere over the attach node.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -124,7 +125,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     [PersistentField("sphereOffset")]
     public float sphereOffset;
 
-    /// <summary>Diameter of the joint sphere.</summary>
+    /// <summary>Diameter of the joint sphere. It must be zero or positive.</summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
     /// </remarks>
@@ -132,7 +133,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     [PersistentField("sphereDiameter")]
     public float sphereDiameter;
 
-    /// <summary>Diameter of the pipe that connects the attach node and the sphere.</summary>
+    /// <summary>
+    /// Diameter of the pipe that connects the attach node and the sphere. It must be zero or
+    /// positive.
+    /// </summary>
     /// <remarks>
     /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
     /// <see cref="sphereOffset"/> is greater than zero.
@@ -220,19 +224,19 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
 
   /// <summary>
-  /// Name of the object in the node's model that defines how it's attached to the part.
+  /// Name of the object in the node's model that defines where it attaches to the part.
   /// </summary>
   /// <remarks>
-  /// The source node attaches to the source part, and the target node attaches to the target part.
-  /// The node will be oriented so that its direction looks agains the part's attach node direction. 
+  /// The source part's attach node attaches to the pipe at the point, defined by this object.
+  /// The part's attach node and the are oriented so that their directions look at each other. 
   /// </remarks>
-  protected const string PartJointTransformName = "$partAttach";
+  protected const string PartJointTransformName = "partAttach";
 
   /// <summary>
-  /// Name of the object in the node's model that defines where the connecting pipe is attached to
-  /// node.
+  /// Name of the object in the node's model that defines where it attaches to the pipe mesh.
   /// </summary>
-  protected const string PipeJointTransformName = "$pipeAttach";
+  /// <remarks>This object looks in the direction of the pipe, towards the other end.</remarks>
+  protected const string PipeJointTransformName = "pipeAttach";
   #endregion
 
   #region Helper class for drawing a pipe's end
@@ -240,6 +244,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <seealso cref="KASRendererPipe"/>
   protected class ModelPipeEndNode {
     /// <summary>The main node's model.</summary>
+    /// <remarks>All other objects of the node <i>must</i> be children to this model.</remarks>
     public readonly Transform model;
 
     /// <summary>Transform at which the node attaches to the target part.</summary>
@@ -255,9 +260,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
     public ModelPipeEndNode(Transform model) {
       this.model = model;
       partAttach = GetTransformByName(PartJointTransformName);
-      partAttach.parent = model;
+      partAttach.parent = model;  // Prefab can have different hierarchy.
       pipeAttach = GetTransformByName(PipeJointTransformName);
-      pipeAttach.parent = model;
+      pipeAttach.parent = model;  // Prefab can have different hierarchy.
     }
 
     /// <summary>Aligns node against the target.</summary>
@@ -446,7 +451,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   #endregion
 
   #region Inheritable utility methods
-  /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
+  /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <param name="modelName">The joint transform name.</param>
   /// <param name="config">The joint configuration from the part's config.</param>
   protected virtual void CreateJointEndModels(string modelName, JointConfig config) {
