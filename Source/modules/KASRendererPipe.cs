@@ -531,11 +531,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// target parts.
   /// </summary>
   protected virtual void CreateLinkPipe() {
-    var nrmTexture = pipeNormalsTexturePath != ""
-        ? GetTexture(pipeNormalsTexturePath, asNormalMap: true)
-        : null;
     var material = CreateMaterial(GetTexture(pipeTexturePath),
-                                  mainTexNrm: nrmTexture,
+                                  mainTexNrm: GetNormalMap(pipeNormalsTexturePath),
                                   overrideShaderName: shaderNameOverride,
                                   overrideColor: colorOverride);
     linkPipe = Meshes.CreateCylinder(pipeDiameter, 1f, material, partModelTransform,
