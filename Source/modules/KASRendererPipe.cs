@@ -447,8 +447,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
   #region Inheritable utility methods
   /// <summary>Builds a model for the joint end basing on the procedural configuration.</summary>
-  /// <param name="modelName">Joint transform name.</param>
-  /// <param name="config">Joint configuration from the part's config.</param>
+  /// <param name="modelName">The joint transform name.</param>
+  /// <param name="config">The joint configuration from the part's config.</param>
   protected virtual void CreateJointEndModels(string modelName, JointConfig config) {
     // FIXME: Prefix the model name with the renderer name.
     // Make or get the root.
