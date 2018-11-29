@@ -3,15 +3,12 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
 using KSPDev.ConfigUtils;
-using KSPDev.GUIUtils;
+using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace KAS {
@@ -57,34 +54,14 @@ namespace KAS {
 /// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
 /// </list>
 /// </remarks>
-/// <seealso cref="ILinkSource"/>
-/// <seealso cref="ILinkRenderer"/>
+/// <seealso cref="KASAPIv1.ILinkSource"/>
+/// <seealso cref="KASAPIv1.ILinkRenderer"/>
 /// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
-// Next localization ID: #kasLOC_07003.
-public class KASRendererPipe : AbstractProceduralModel,
-    // KAS interfaces.
-    ILinkRenderer,
+public class KASRendererPipe : AbstractPipeRenderer,
     // KPSDev sugar interfaces.    
-    IPartModule, IsDestroyable {
-
-  #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  protected static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
-      "#kasLOC_07000",
-      defaultTemplate: "Link collides with: <<1>>",
-      description: "Message to display when the link cannot be created due to an obstacle."
-      + "\nArgument <<1>> is the part that would collide with the proposed link.",
-      example: "Link collides with: Mk2 Cockpit");
-
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  protected static readonly Message LinkCollidesWithSurfaceMsg = new Message(
-      "#kasLOC_07001",
-      defaultTemplate: "Link collides with the surface",
-      description: "Message to display when the link strut orientation cannot be changed due to it"
-      + " would hit the surface.");
-  #endregion
+    IsDestroyable {
 
   #region Public config types
   /// <summary>Type if the end of the pipe.</summary>
@@ -117,24 +94,6 @@ public class KASRendererPipe : AbstractProceduralModel,
     /// </remarks>
     /// <seealso cref="JointConfig"/>
     PrefabModel,
-  }
-
-  /// <summary>Mode of adjusting texture when pipe length is changed.</summary>
-  public enum PipeTextureRescaleMode {
-    /// <summary>Texture simply stretches to the pipe's size.</summary>
-    Stretch,
-    /// <summary>
-    /// Texture is tiled starting from the source. The size of single texture sample depends
-    /// on the settings.
-    /// </summary>
-    /// <seealso cref="pipeTextureSamplesPerMeter"/>
-    TileFromSource,
-    /// <summary>
-    /// Texture is tiled starting from the target. The size of single texture sample depends
-    /// on the settings.
-    /// </summary>
-    /// <seealso cref="pipeTextureSamplesPerMeter"/>
-    TileFromTarget,
   }
 
   /// <summary>Helper structure to hold the joint model setup.</summary>
@@ -344,118 +303,6 @@ public class KASRendererPipe : AbstractProceduralModel,
   }
   #endregion
 
-  #region ILinkRenderer properties
-  /// <inheritdoc/>
-  public string cfgRendererName { get { return rendererName; } }
-
-  /// <inheritdoc/>
-  public Color? colorOverride {
-    get { return _colorOverride; }
-    set {
-      _colorOverride = value;
-      var newColor = _colorOverride ?? materialColor;
-      sourceJointNode.UpdateMaterial(newColor: newColor);
-      targetJointNode.UpdateMaterial(newColor: newColor);
-      if (linkPipe != null) {
-        Meshes.UpdateMaterials(linkPipe, newColor: newColor);
-      }
-    }
-  }
-  Color? _colorOverride;
-
-  /// <inheritdoc/>
-  public virtual string shaderNameOverride {
-    get { return _shaderNameOverride; }
-    set {
-      _shaderNameOverride = value;
-      var newShader = _shaderNameOverride ?? shaderName;
-      sourceJointNode.UpdateMaterial(newShaderName: newShader);
-      targetJointNode.UpdateMaterial(newShaderName: newShader);
-      if (linkPipe) {
-        Meshes.UpdateMaterials(linkPipe, newShaderName: newShader);
-      }
-    }
-  }
-  string _shaderNameOverride;
-
-  /// <inheritdoc/>
-  public virtual bool isPhysicalCollider {
-    get { return _collidersEnabled; }
-    set {
-      _collidersEnabled = value;
-      sourceJointNode.SetColliderEnabled(_collidersEnabled);
-      targetJointNode.SetColliderEnabled(_collidersEnabled);
-      if (linkPipe != null) {
-        Colliders.UpdateColliders(linkPipe.gameObject, isEnabled: _collidersEnabled);
-      }
-    }
-  }
-  bool _collidersEnabled = true;
-
-  /// <inheritdoc/>
-  public bool isStarted { get { return linkPipe != null; } }
-
-  /// <inheritdoc/>
-  public Transform sourceTransform { get; private set; }
-
-  /// <inheritdoc/>
-  public Transform targetTransform { get; private set; }
-  #endregion
-
-  #region Part's config fields
-  /// <summary>See <see cref="cfgRendererName"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string rendererName = string.Empty;
-
-  /// <summary>Diameter of the pipe.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float pipeDiameter = 0.15f;
-
-  /// <summary>Texture to use for the pipe.</summary>
-  /// <seealso cref="pipeTextureRescaleMode"/>
-  /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string pipeTexturePath = "KAS/Textures/pipe";
-
-  /// <summary>Normals texture to use for the pipe. If empty string then no normals.</summary>
-  /// <seealso cref="pipeTexturePath"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string pipeNormalsTexturePath = "";
-
-  /// <summary>Defines how the texture should cover the pipe.</summary>
-  /// <seealso cref="pipeTexturePath"/>
-  /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
-
-  /// <summary>
-  /// Defines how many texture samples to apply per one meter of the pipe's length.
-  /// </summary>
-  /// <remarks>
-  /// This setting is ignored if texture rescale mode is
-  /// <see cref="PipeTextureRescaleMode.Stretch"/>.
-  /// </remarks>
-  /// <seealso cref="pipeTexturePath"/>
-  /// <seealso cref="pipeTextureRescaleMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public float pipeTextureSamplesPerMeter = 1f;
-
-  /// <summary>Defines if pipe's collider should interact with the physics objects.</summary>
-  /// <remarks>
-  /// If this setting is <c>false</c> the link mesh will still have a collider, but it will not
-  /// trigger physical effects.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public bool pipeColliderIsPhysical;
-  #endregion
-
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Configuration of the source joint model.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
@@ -532,14 +379,6 @@ public class KASRendererPipe : AbstractProceduralModel,
     }
     base.OnLoad(node);
   }
-
-  /// <inheritdoc/>
-  public override void OnUpdate() {
-    base.OnUpdate();
-    if (isStarted) {
-      UpdateLink();
-    }
-  }
   #endregion
 
   #region IsDestroyable implementation
@@ -565,27 +404,19 @@ public class KASRendererPipe : AbstractProceduralModel,
   }
   #endregion
 
-  #region ILinkRenderer implementation
+  #region AbstractPipeRenderer abstract members
   /// <inheritdoc/>
-  public virtual void StartRenderer(Transform source, Transform target) {
-    if (isStarted) {
-      if (sourceTransform == source && targetTransform == target) {
-        return;  // NO-OP
-      }
-      StopRenderer();
-    }
-    sourceTransform = source;
-    sourceJointNode.AlignTo(source);
+  protected override void CreatePipeMesh() {
+    sourceJointNode.AlignTo(sourceTransform);
     sourceJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
-    targetTransform = target;
-    targetJointNode.AlignTo(target);
+    targetJointNode.AlignTo(targetTransform);
     targetJointNode.UpdateMaterial(newShaderName: shaderNameOverride, newColor: colorOverride);
     CreateLinkPipe();
     isPhysicalCollider = isPhysicalCollider;  // Update the status.
   }
-  
+
   /// <inheritdoc/>
-  public virtual void StopRenderer() {
+  protected override void DestroyPipeMesh() {
     if (isStarted) {
       sourceJointNode.AlignTo(null);
       targetJointNode.AlignTo(null);
@@ -594,7 +425,7 @@ public class KASRendererPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public virtual void UpdateLink() {
+  public override void UpdateLink() {
     if (isStarted) {
       targetJointNode.AlignTo(targetTransform);
       SetupPipe(linkPipe.transform,
@@ -606,12 +437,11 @@ public class KASRendererPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public virtual string[] CheckColliderHits(Transform source, Transform target) {
+  protected override Vector3[] GetPipePath(Transform start, Transform end) {
     // TODO(ihsoft): Implement a full check that includes the pipe ends as well.
-    // TODO(ihsoft): Add a parameter to request only the physical colision.
-    return pipeColliderIsPhysical
-        ? DoSimpleSphereCheck(target, source, pipeDiameter)
-        : new string[] { };
+    return isPhysicalCollider
+        ? new[] { start.position, end.position }
+        : new Vector3[0];
   }
   #endregion
 
@@ -763,36 +593,6 @@ public class KASRendererPipe : AbstractProceduralModel,
       var nrmScale = mr.material.GetTextureScale(BumpMapProp);
       mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
     }
-  }
-
-  /// <summary>
-  /// Performs a simple collision check for a vector that connects two transforms.
-  /// </summary>
-  /// <remarks>
-  /// The method ignores the colliders that belong to the source or target object hierarchies.
-  /// </remarks>
-  /// <param name="source">Transform to start from.</param>
-  /// <param name="target">Transform to end at.</param>
-  /// <param name="radius">Radius of the spehere to use for the check.</param>
-  /// <returns>
-  /// <c>null</c> if nothing has been hit or a message for the first hit detected.
-  /// </returns>
-  protected string[] DoSimpleSphereCheck(Transform source, Transform target, float radius) {
-    var hitMessages = new HashSet<string>();  // Same object can be hit multiple times.
-    var linkVector = target.position - source.position;
-    var hits = Physics.SphereCastAll(
-        source.position, radius * baseScale, linkVector, linkVector.magnitude,
-        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
-        QueryTriggerInteraction.Ignore);
-    foreach (var hit in hits) {
-      var hitPart = hit.transform.root.GetComponent<Part>();
-      if (hit.transform.root != source.root && hit.transform.root != target.root) {
-        hitMessages.Add(hitPart != null
-            ? LinkCollidesWithObjectMsg.Format(hitPart)
-            : LinkCollidesWithSurfaceMsg.Format());
-      }
-    }
-    return hitMessages.ToArray();
   }
   #endregion
 }
