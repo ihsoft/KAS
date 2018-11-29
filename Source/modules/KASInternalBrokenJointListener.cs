@@ -27,7 +27,7 @@ namespace KAS {
 /// overcome this limitation, an extra game object and this component can be used:
 /// <code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/>
 /// </example>
-public class KASInternalBrokenJointListener : MonoBehaviour,
+sealed class KASInternalBrokenJointListener : MonoBehaviour,
     // KSP syntax sugar interfaces.
     IJointEventsListener {
 
