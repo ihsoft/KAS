@@ -436,8 +436,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
           }
           sphere.transform.localRotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
           RescaleTextureToLength(sphere.transform,
-                                 samplesPerMeter: config.textureSamplesPerMeter,
-                                 extraScale: config.sphereDiameter);
+                                 samplesPerMeter: pipeTextureSamplesPerMeter,
+                                 extraScale: config.sphereDiameter * 2.0f);
         }
         if (offset > float.Epsilon) {
           if (config.armDiameter > float.Epsilon) {
