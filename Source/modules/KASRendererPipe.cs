@@ -570,9 +570,14 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// Optional renderer that owns the material. If not provided then renderer will be obtained via
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
+  /// <param name="extraScale">
+  /// The multiplier to add to the base scale. Normally, the method uses a scale from the object and
+  /// the part, but if the mesh itself was scaled, then an extra scale may be needed to properly
+  /// adjust the texture.
+  /// </param>
   protected void RescaleTextureToLength(
-      Transform obj, float samplesPerMeter, Renderer renderer = null) {
-    var newScale = obj.localScale.z * samplesPerMeter / baseScale;
+      Transform obj, float samplesPerMeter, Renderer renderer = null, float extraScale = 1.0f) {
+    var newScale = obj.localScale.z * samplesPerMeter / baseScale * extraScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
     if (mr.material.HasProperty(BumpMapProp)) {
