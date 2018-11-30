@@ -369,7 +369,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       return _baseScale;
     }
   }
-  float _baseScale = -1;
+  float _baseScale = -1;  // Negative means unintialized.
   #endregion
 
   #region IsDestroyable implementation
@@ -519,7 +519,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
                                   overrideShaderName: shaderNameOverride,
                                   overrideColor: colorOverride);
     pipeTransform = Meshes.CreateCylinder(
-        pipeDiameter, 1f, material, partModelTransform,
+        pipeDiameter, 1.0f, material, partModelTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
     Colliders.UpdateColliders(pipeTransform.gameObject, isPhysical: pipeColliderIsPhysical);
     if (pipeColliderIsPhysical) {

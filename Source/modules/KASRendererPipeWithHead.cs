@@ -65,7 +65,7 @@ public class KASRendererPipeWithHead : KASRendererPipe {
   /// <inheritdoc/>
   protected override Transform CreateJointEndModels(string modelName, JointConfig config) {
     var res = base.CreateJointEndModels(modelName, config);
-    if (modelName.EndsWith("-targetNode")) {
+    if (modelName.EndsWith("-targetNode", System.StringComparison.Ordinal)) {
       var partAtTransform = new GameObject(ParkAtPartObjectName).transform;
       Hierarchy.MoveToParent(partAtTransform, partModelTransform,
                              newPosition: parkAtPart.pos,
