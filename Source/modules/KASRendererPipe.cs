@@ -5,7 +5,6 @@
 
 using KSPDev.ConfigUtils;
 using KASAPIv2;
-using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
@@ -62,9 +61,7 @@ namespace KAS {
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-public class KASRendererPipe : AbstractPipeRenderer,
-    // KPSDev sugar interfaces.    
-    IsDestroyable {
+public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Public config types
   /// <summary>Type if the end of the pipe.</summary>
@@ -346,13 +343,6 @@ public class KASRendererPipe : AbstractPipeRenderer,
     }
   }
   float _baseScale = -1;  // Negative means unintialized.
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    StopRenderer();
-  }
   #endregion
 
   #region AbstractPipeRenderer abstract members
