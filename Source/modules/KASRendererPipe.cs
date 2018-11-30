@@ -384,13 +384,19 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Inheritable utility methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
-  /// <remarks>The procedural models are created as children to the part's model.</remarks>
-  /// <param name="modelName">The joint transform name.</param>
+  /// <remarks>
+  /// The procedural models are created as children to the part's model. The prefab models will have
+  /// their parent re-defined to the part's model regardless to what was set in prefab.
+  /// </remarks>
+  /// <param name="modelName">
+  /// The game object name. If this name is used downstream to retrieve the object, then it must be
+  /// unique in scope of the part. Use <c>ModelBasename</c> to achieve it.
+  /// </param>
   /// <param name="config">The joint configuration from the part's config.</param>
   /// <returns>The created object.</returns>
   /// <seealso cref="PipeEndType"/>
+  /// <seealso cref="AbstractPipeRenderer.ModelBasename"/>
   protected virtual Transform CreateJointEndModels(string modelName, JointConfig config) {
-    // FIXME: Prefix the model name with the renderer name.
     // Make or get the root.
     Transform root = null;
     if (config.type == PipeEndType.PrefabModel) {
