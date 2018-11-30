@@ -218,7 +218,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     }
 
     pipeSkinnedMeshRenderer = pipeTransform.gameObject.AddComponent<SkinnedMeshRenderer>();
-    pipeSkinnedMeshRenderer.material = CreatePipeMaterial();
+    pipeSkinnedMeshRenderer.sharedMaterial = pipeMaterial;
 
     var mesh = new Mesh();
     mesh.vertices = vertices;
@@ -245,6 +245,11 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     }
 
     mesh.UploadMeshData(!reskinTexture);
+
+    // Have the overrides applied if any.
+    colorOverride = colorOverride;
+    shaderNameOverride = shaderNameOverride;
+    isPhysicalCollider = isPhysicalCollider;
   }
 
   /// <inheritdoc/>

@@ -137,33 +137,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
     [KASDebugAdjustable("Arm diameter")]
     public float armDiameter;
 
-    /// <summary>Defines how the texture is tiled on the sphere and arm primitives.</summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
-    /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    [PersistentField("textureSamplesPerMeter")]
-    [KASDebugAdjustable("Texture samples per meter")]
-    public float textureSamplesPerMeter = 1.0f;
-
-    /// <summary>Texture to use to cover the arm and sphere primitives.</summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
-    /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    [PersistentField("texture")]
-    [KASDebugAdjustable("Main texture")]
-    public string texture = "";
-
-    /// <summary>Normals texture for the primitives. Can be omitted.</summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
-    /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    [PersistentField("textureNrm")]
-    [KASDebugAdjustable("Main texture normals")]
-    public string textureNrm = "";
-
     /// <summary>Path to the model that represents the joint.</summary>
     /// <remarks>
     /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
@@ -344,7 +317,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
     targetJointNode.AlignTo(targetTransform);
     CreateLinkPipe();
     pipeTransform.parent = sourceTransform;
-    // Have the overrides applied.
+
+    // Have the overrides applied if any.
     colorOverride = colorOverride;
     shaderNameOverride = shaderNameOverride;
     isPhysicalCollider = isPhysicalCollider;
@@ -424,12 +398,11 @@ public class KASRendererPipe : AbstractPipeRenderer {
                              newRotation: Quaternion.LookRotation(Vector3.back));
       if (config.type == PipeEndType.ProceduralModel) {
         // Create procedural models at the point where the pipe connects to the part's node.
-        var material = CreateMaterial(
-            GetTexture(config.texture), mainTexNrm: GetNormalMap(config.textureNrm));
         var offset = Mathf.Abs(config.sphereOffset);
         if (Mathf.Abs(config.sphereDiameter) > float.Epsilon) {
-          var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
+          var sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, root,
                                            colliderType: Colliders.PrimitiveCollider.Shape);
+          sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
           sphere.name = PipeJointTransformName;
           if (offset > float.Epsilon) {
             sphere.transform.localPosition = new Vector3(0, 0, config.sphereOffset);
@@ -442,12 +415,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
         if (offset > float.Epsilon) {
           if (config.armDiameter > float.Epsilon) {
             var arm = Meshes.CreateCylinder(
-                config.armDiameter, offset, material, root,
+                config.armDiameter, offset, pipeMaterial, root,
                 colliderType: Colliders.PrimitiveCollider.Shape);
+            arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
             arm.transform.localPosition = new Vector3(0, 0, config.sphereOffset / 2);
             arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
             RescaleTextureToLength(
-                arm.transform, samplesPerMeter: config.textureSamplesPerMeter, extraScale: offset);
+                arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter, extraScale: offset);
           }
         }
       } else {
@@ -480,11 +454,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// </summary>
   /// <remarks>The models are created as children to the part's model.</remarks>
   protected virtual void CreateLinkPipe() {
-    var material = CreateMaterial(
-        GetTexture(pipeTexturePath), mainTexNrm: GetNormalMap(pipeNormalsTexturePath));
     pipeTransform = Meshes.CreateCylinder(
-        pipeDiameter, 1.0f, material, partModelTransform,
+        pipeDiameter, 1.0f, pipeMaterial, partModelTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
+    pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     CollisionManager.IgnoreCollidersOnVessel(
         vessel, pipeTransform.GetComponentsInChildren<Collider>());
     // TODO(ihsoft): Ignore the parts when migrated to the interfaces.

@@ -210,11 +210,25 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected string ModelBasename {
     get { return "$rendererRoot-" + rendererName; }
   }
+
+  /// <summary>Material to use for the pipe elements.</summary>
+  /// <remarks>It doesn't consider shader or color overrides.</remarks>
+  protected virtual Material pipeMaterial {
+    get {
+      if (_pipeMaterial == null) {
+        _pipeMaterial = CreateMaterial(
+            GetTexture(pipeTexturePath), mainTexNrm: GetNormalMap(pipeNormalsTexturePath));
+      }
+      return _pipeMaterial;
+    }
+  }
+  Material _pipeMaterial;
   #endregion
 
   #region IHasDebugAdjustables implementation
   /// <inheritdoc/>
   public void OnDebugAdjustablesUpdated() {
+    _pipeMaterial = null;
     RefreshRenderer();
   }
   #endregion
@@ -313,16 +327,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     if (oldSource != null && oldTarget != null) {
       StartRenderer(oldSource, oldTarget);
     }
-  }
-
-  /// <summary>Creates the pipe's material with respect to all the settings.</summary>
-  /// <returns>The new material.</returns>
-  protected virtual Material CreatePipeMaterial() {
-    return CreateMaterial(
-        GetTexture(pipeTexturePath),
-        mainTexNrm: GetNormalMap(pipeNormalsTexturePath),
-        overrideShaderName: shaderNameOverride,
-        overrideColor: colorOverride);
   }
   #endregion
 
