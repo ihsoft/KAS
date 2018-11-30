@@ -243,7 +243,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   protected class ModelPipeEndNode {
     /// <summary>The main node's model.</summary>
     /// <remarks>All other objects of the node <i>must</i> be children to this model.</remarks>
-    public readonly Transform model;
+    public readonly Transform rootModel;
 
     /// <summary>Transform at which the node attaches to the target part.</summary>
     /// <remarks>It's always a child of the main node's model.</remarks>
@@ -254,13 +254,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
     public readonly Transform pipeAttach;
 
     /// <summary>Creates a new attach node.</summary>
-    /// <param name="model">Model to use. It cannot be <c>null</c>.</param>
-    public ModelPipeEndNode(Transform model) {
-      this.model = model;
+    /// <param name="rootModel">Model to use. It cannot be <c>null</c>.</param>
+    public ModelPipeEndNode(Transform rootModel) {
+      this.rootModel = rootModel;
       partAttach = GetTransformByName(PartJointTransformName);
-      partAttach.parent = model;  // Prefab can have different hierarchy.
+      partAttach.parent = rootModel;  // Prefab can have different hierarchy.
       pipeAttach = GetTransformByName(PipeJointTransformName);
-      pipeAttach.parent = model;  // Prefab can have different hierarchy.
+      pipeAttach.parent = rootModel;  // Prefab can have different hierarchy.
     }
 
     /// <summary>Aligns node against the target.</summary>
@@ -270,10 +270,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.AlignTransforms.SnapAlign']/*"/>
     public virtual void AlignTo(Transform target) {
       if (target != null) {
-        AlignTransforms.SnapAlign(model, partAttach, target);
-        model.gameObject.SetActive(true);
+        AlignTransforms.SnapAlign(rootModel, partAttach, target);
+        rootModel.gameObject.SetActive(true);
       } else {
-        model.gameObject.SetActive(false);
+        rootModel.gameObject.SetActive(false);
       }
     }
 
@@ -281,13 +281,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <param name="newColor">New color.</param>
     /// <param name="newShaderName">New shader name.</param>
     public virtual void UpdateMaterial(Color? newColor = null, string newShaderName = null) {
-      Meshes.UpdateMaterials(model.gameObject, newShaderName: newShaderName, newColor: newColor);
+      Meshes.UpdateMaterials(rootModel.gameObject, newShaderName: newShaderName, newColor: newColor);
     }
 
     /// <summary>Turns model's collider(s) on/off.</summary>
     /// <param name="isEnabled">The new state.</param>
     public virtual void SetColliderEnabled(bool isEnabled) {
-      Colliders.UpdateColliders(model.gameObject, isEnabled: isEnabled);
+      Colliders.UpdateColliders(rootModel.gameObject, isEnabled: isEnabled);
     }
 
     /// <summary>
@@ -296,10 +296,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <param name="name">Name of the child object to find.</param>
     /// <returns>Object or node's model itself if the child is not found.</returns>
     protected Transform GetTransformByName(string name) {
-      var res = model.Find(name);
+      var res = rootModel.Find(name);
       if (res == null) {
-        HostedDebugLog.Error(model, "Cannot find transform: {0}", name);
-        res = model;  // Fallback.
+        HostedDebugLog.Error(rootModel, "Cannot find transform: {0}", name);
+        res = rootModel;  // Fallback.
       }
       return res;
     }
@@ -402,9 +402,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
     if (isStarted) {
-      Object.Destroy(sourceJointNode.model.gameObject);
+      Object.Destroy(sourceJointNode.rootModel.gameObject);
       sourceJointNode = null;
-      Object.Destroy(targetJointNode.model.gameObject);
+      Object.Destroy(targetJointNode.rootModel.gameObject);
       targetJointNode = null;
       DestroyLinkPipe();
     }

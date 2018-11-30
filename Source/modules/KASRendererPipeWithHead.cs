@@ -44,8 +44,8 @@ public class KASRendererPipeWithHead : KASRendererPipe {
     /// <inheritdoc/>
     public override void AlignTo(Transform target) {
       if (target == null) {
-        AlignTransforms.SnapAlign(model, pipeAttach, parkAt);
-        model.gameObject.SetActive(true);
+        AlignTransforms.SnapAlign(rootModel, pipeAttach, parkAt);
+        rootModel.gameObject.SetActive(true);
       } else {
         base.AlignTo(target);
       }
