@@ -43,6 +43,7 @@ public abstract class AbstractProceduralModel : PartModule,
   /// <summary>Name of bump map property in the renderer.</summary>
   protected const string BumpMapProp = "_BumpMap";
 
+  #region Inhertable utility methods
   /// <summary>Returns a cached part's model root transform.</summary>
   /// <value>The part's root model.</value>
   /// <remarks>
@@ -58,6 +59,28 @@ public abstract class AbstractProceduralModel : PartModule,
     }
   }
   Transform _partModelTransform;
+
+  /// <summary>The scale of the part models.</summary>
+  /// <remarks>
+  /// The scale of the part must be "even", i.e. all the components in the scale vector must be
+  /// equal. If they are not, then the renderer's behavior may be inconsistent.
+  /// </remarks>
+  /// <value>The scale to be applied to all the components.</value>
+  protected float baseScale {
+    get {
+      if (_baseScale < 0) {
+        var scale = partModelTransform.lossyScale;
+        if (Mathf.Abs(scale.x - scale.y) > 1e-05 || Mathf.Abs(scale.x - scale.z) > 1e-05) {
+          HostedDebugLog.Error(this, "Uneven part scale is not supported: {0}",
+                               DbgFormatter.Vector(scale));
+        }
+        _baseScale = scale.x;
+      }
+      return _baseScale;
+    }
+  }
+  float _baseScale = -1;  // Negative means unintialized.
+  #endregion
 
   #region Part's config fields
   /// <summary>Shader to use for meshes by default.</summary>
