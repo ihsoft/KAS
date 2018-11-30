@@ -41,7 +41,7 @@ public abstract class AbstractProceduralModel : PartModule,
   public const string KspPartShaderName = "KSP/Bumped Specular";
 
   /// <summary>Name of bump map property in the renderer.</summary>
-  protected const string BumpMapProp = "_BumpMap";
+  public const string BumpMapProp = "_BumpMap";
 
   #region Inhertable utility methods
   /// <summary>Returns a cached part's model root transform.</summary>
