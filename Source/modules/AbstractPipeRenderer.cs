@@ -176,15 +176,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
-    get { return _isPhysicalCollider; }
+    get { return pipeColliderIsPhysical; }
     set {
-      _isPhysicalCollider = value;
+      pipeColliderIsPhysical = value;
       if (sourceTransform != null) {
         Colliders.UpdateColliders(sourceTransform.gameObject, isPhysical: value, isEnabled: null);
       }
     }
   }
-  bool _isPhysicalCollider;
 
   /// <inheritdoc/>
   public bool isStarted {

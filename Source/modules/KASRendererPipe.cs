@@ -108,17 +108,6 @@ public class KASRendererPipe : AbstractPipeRenderer,
     [KASDebugAdjustable("Pipe type")]
     public PipeEndType type = PipeEndType.Simple;
     
-    /// <summary>Defines if model's should trigger physical effects on collision.</summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> or
-    /// <see cref="PipeEndType.PrefabModel"/>. If the prefab models are used then the colliders must
-    /// be existing in the model. If there are none then this settings doesn't have effect.
-    /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    [PersistentField("colliderIsPhysical")]
-    [KASDebugAdjustable("Collider is physical")]
-    public bool colliderIsPhysical;
-
     /// <summary>Height of the joint sphere over the attach node.</summary>
     /// <remarks>
     /// It can be negative to shift the "joint" point in the opposite direction.
@@ -277,19 +266,6 @@ public class KASRendererPipe : AbstractPipeRenderer,
       }
     }
 
-    /// <summary>Updates the material settings on the model meshes.</summary>
-    /// <param name="newColor">New color.</param>
-    /// <param name="newShaderName">New shader name.</param>
-    public virtual void UpdateMaterial(Color? newColor = null, string newShaderName = null) {
-      Meshes.UpdateMaterials(rootModel.gameObject, newShaderName: newShaderName, newColor: newColor);
-    }
-
-    /// <summary>Turns model's collider(s) on/off.</summary>
-    /// <param name="isEnabled">The new state.</param>
-    public virtual void SetColliderEnabled(bool isEnabled) {
-      Colliders.UpdateColliders(rootModel.gameObject, isEnabled: isEnabled);
-    }
-
     /// <summary>
     /// Finds and returns the requested child model, or the main model if the child is not found.  
     /// </summary>
@@ -391,12 +367,19 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
     var sourceNodeModel = CreateJointEndModels(ModelBasename + "-sourceNode", sourceJointConfig);
+    sourceNodeModel.parent = sourceTransform;
     sourceJointNode = new ModelPipeEndNode(sourceNodeModel);
     sourceJointNode.AlignTo(sourceTransform);
     var targetNodeModel = CreateJointEndModels(ModelBasename + "-targetNode", targetJointConfig);
+    targetNodeModel.parent = sourceTransform;
     targetJointNode = new ModelPipeEndNode(targetNodeModel);
     targetJointNode.AlignTo(targetTransform);
     CreateLinkPipe();
+    pipeTransform.parent = sourceTransform;
+    // Have the overrides applied.
+    colorOverride = colorOverride;
+    shaderNameOverride = shaderNameOverride;
+    isPhysicalCollider = isPhysicalCollider;
   }
 
   /// <inheritdoc/>
@@ -433,9 +416,11 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
   #region Inheritable utility methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
+  /// <remarks>The procedural models are created as children to the part's model.</remarks>
   /// <param name="modelName">The joint transform name.</param>
   /// <param name="config">The joint configuration from the part's config.</param>
   /// <returns>The created object.</returns>
+  /// <seealso cref="PipeEndType"/>
   protected virtual Transform CreateJointEndModels(string modelName, JointConfig config) {
     // FIXME: Prefix the model name with the renderer name.
     // Make or get the root.
@@ -458,29 +443,37 @@ public class KASRendererPipe : AbstractPipeRenderer,
       }
     }
     if (root == null) {
-      root = new GameObject().transform;
+      root = new GameObject(ModelBasename + "-pipe").transform;
       Hierarchy.MoveToParent(root, partModelTransform);
       var partJoint = new GameObject(PartJointTransformName).transform;
-      Hierarchy.MoveToParent(partJoint, root);
-      partJoint.localRotation = Quaternion.LookRotation(Vector3.forward);
+      Hierarchy.MoveToParent(partJoint, root,
+                             newRotation: Quaternion.LookRotation(Vector3.back));
       if (config.type == PipeEndType.ProceduralModel) {
         // Create procedural models at the point where the pipe connects to the part's node.
         var material = CreateMaterial(
             GetTexture(config.texture), mainTexNrm: GetNormalMap(config.textureNrm));
-        var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
-                                         colliderType: Colliders.PrimitiveCollider.Shape);
-        sphere.name = PipeJointTransformName;
-        sphere.transform.localRotation = Quaternion.LookRotation(Vector3.back);
-        RescaleTextureToLength(sphere.transform, samplesPerMeter: config.textureSamplesPerMeter);
-        if (Mathf.Abs(config.sphereOffset) > float.Epsilon) {
-          sphere.transform.localPosition += new Vector3(0, 0, config.sphereOffset);
+        var offset = Mathf.Abs(config.sphereOffset);
+        if (Mathf.Abs(config.sphereDiameter) > float.Epsilon) {
+          var sphere = Meshes.CreateSphere(config.sphereDiameter, material, root,
+                                           colliderType: Colliders.PrimitiveCollider.Shape);
+          sphere.name = PipeJointTransformName;
+          if (offset > float.Epsilon) {
+            sphere.transform.localPosition = new Vector3(0, 0, config.sphereOffset);
+          }
+          sphere.transform.localRotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
+          RescaleTextureToLength(sphere.transform,
+                                 samplesPerMeter: config.textureSamplesPerMeter,
+                                 extraScale: config.sphereDiameter);
+        }
+        if (offset > float.Epsilon) {
           if (config.armDiameter > float.Epsilon) {
             var arm = Meshes.CreateCylinder(
-                config.armDiameter, Mathf.Abs(config.sphereOffset), material, root,
+                config.armDiameter, offset, material, root,
                 colliderType: Colliders.PrimitiveCollider.Shape);
-            arm.transform.localPosition += new Vector3(0, 0, config.sphereOffset / 2);
-            arm.transform.LookAt(sphere.transform.position);
-            RescaleTextureToLength(arm.transform, samplesPerMeter: config.textureSamplesPerMeter);
+            arm.transform.localPosition = new Vector3(0, 0, config.sphereOffset / 2);
+            arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
+            RescaleTextureToLength(
+                arm.transform, samplesPerMeter: config.textureSamplesPerMeter, extraScale: offset);
           }
         }
       } else {
@@ -490,11 +483,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
           HostedDebugLog.Error(this, "Unknown joint type: {0}", config.type);
         }
         var pipeJoint = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeJoint.transform, root);
-        pipeJoint.transform.localRotation = Quaternion.LookRotation(Vector3.back);
+        Hierarchy.MoveToParent(pipeJoint.transform, root,
+                               newRotation: Quaternion.LookRotation(Vector3.forward));
       }
     }
-    Colliders.UpdateColliders(root.gameObject, isPhysical: config.colliderIsPhysical);
     root.gameObject.SetActive(false);
     root.name = modelName;
     return root;
@@ -510,14 +502,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
   
   /// <summary>
-  /// Creates and displays a mesh that represents a connecting pipe between the source and the
-  /// target parts.
+  /// Creates a mesh that represents the connecting pipe between the source and the target.
   /// </summary>
+  /// <remarks>The models are created as children to the part's model.</remarks>
   protected virtual void CreateLinkPipe() {
-    var material = CreateMaterial(GetTexture(pipeTexturePath),
-                                  mainTexNrm: GetNormalMap(pipeNormalsTexturePath),
-                                  overrideShaderName: shaderNameOverride,
-                                  overrideColor: colorOverride);
+    var material = CreateMaterial(
+        GetTexture(pipeTexturePath), mainTexNrm: GetNormalMap(pipeNormalsTexturePath));
     pipeTransform = Meshes.CreateCylinder(
         pipeDiameter, 1.0f, material, partModelTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
