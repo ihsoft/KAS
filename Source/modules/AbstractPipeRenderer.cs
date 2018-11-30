@@ -51,7 +51,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       + " would hit the surface.");
   #endregion
 
-  #region Intrenal types
+  #region Internal types
   /// <summary>
   /// Mode of adjusting the main texture (and its normals map) when the pipe length is changed.
   /// </summary>
@@ -272,8 +272,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Creates the dynamic pipe mesh(-es).</summary>
   /// <remarks>
-  /// This method can be called at any moment of the renderer life cycle. If there was a mesh
-  /// already existing, it must be destroyed via <see cref="DestroyPipeMesh"/> or adjusted.
+  /// The source and target must be already set at the momemnt of this method called. However,
+  /// it may be called without the prior call to <see cref="DestroyPipeMesh"/>. So any existing mesh
+  /// should be handled accrodingly (e.g. destroyed and re-created).
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
   protected abstract void CreatePipeMesh();
