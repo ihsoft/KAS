@@ -521,13 +521,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     pipeTransform = Meshes.CreateCylinder(
         pipeDiameter, 1.0f, material, partModelTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
-    Colliders.UpdateColliders(pipeTransform.gameObject, isPhysical: pipeColliderIsPhysical);
-    if (pipeColliderIsPhysical) {
-      CollisionManager.IgnoreCollidersOnVessel(
-          vessel, pipeTransform.GetComponentsInChildren<Collider>());
-      // TODO(ihsoft): Ignore the parts when migrated to the interfaces.
-      Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
-    }
+    CollisionManager.IgnoreCollidersOnVessel(
+        vessel, pipeTransform.GetComponentsInChildren<Collider>());
+    // TODO(ihsoft): Ignore the parts when migrated to the interfaces.
+    Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
     SetupPipe(pipeTransform.transform,
               sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
