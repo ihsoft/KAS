@@ -213,7 +213,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Material to use for the pipe elements.</summary>
   /// <remarks>It doesn't consider shader or color overrides.</remarks>
-  protected virtual Material pipeMaterial {
+  protected Material pipeMaterial {
     get {
       if (_pipeMaterial == null) {
         _pipeMaterial = CreateMaterial(
