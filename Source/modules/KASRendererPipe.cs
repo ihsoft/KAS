@@ -277,7 +277,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// The mesh renderer object the link mesh. <c>null</c> if the renderer is not started.
   /// </value>
   /// <remarks>
-  /// The pipe's mesh is updated in every farme. So, saving some performance by caching the 
+  /// The pipe's mesh is updated in every frame. So, saving some performance by caching the
   /// components is in general a good thing to do.
   /// </remarks>
   /// <seealso cref="CreateLinkPipe"/>
@@ -356,7 +356,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   }
   #endregion
 
-  #region Inheritable utility methods
+  #region Inheritable methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <remarks>
   /// The procedural models are created as children to the part's model. The prefab models will have

@@ -295,14 +295,15 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Creates the dynamic pipe mesh(-es).</summary>
   /// <remarks>
-  /// The source and target must be already set at the momemnt of this method called. However,
+  /// The source and target must be already set at the moment of this method called. However,
   /// it may be called without the prior call to <see cref="DestroyPipeMesh"/>. So any existing mesh
-  /// should be handled accrodingly (e.g. destroyed and re-created).
+  /// should be handled accordingly (e.g. destroyed and re-created).
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
   protected abstract void CreatePipeMesh();
 
   /// <summary>Destroys the dynamic pipe mesh(-es).</summary>
+  /// <remarks>This is a cleanup method. It must always succeed.</remarks>
   /// <seealso cref="StopRenderer"/>
   protected abstract void DestroyPipeMesh();
 
