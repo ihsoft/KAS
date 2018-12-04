@@ -183,7 +183,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     set {
       pipeColliderIsPhysical = value;
       if (sourceTransform != null) {
-        Colliders.UpdateColliders(sourceTransform.gameObject, isPhysical: value, isEnabled: null);
+        Colliders.UpdateColliders(sourceTransform.gameObject, isEnabled: value);
       }
     }
   }
