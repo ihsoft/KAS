@@ -472,8 +472,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <summary>Destroys any meshes that represent a connection pipe.</summary>
   protected virtual void DestroyLinkPipe() {
-    Object.Destroy(pipeTransform.gameObject);
-    pipeTransform = null;
+    if (pipeTransform != null) {
+      Object.Destroy(pipeTransform.gameObject);
+      pipeTransform = null;
+    }
     pipeMeshRenderer = null;
   }
 
