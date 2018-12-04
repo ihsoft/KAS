@@ -198,57 +198,23 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
-  /// <seealso cref="KASRendererPipe"/>
   protected class ModelPipeEndNode {
     /// <summary>The main node's model.</summary>
     /// <remarks>All other objects of the node <i>must</i> be children to this model.</remarks>
-    public readonly Transform rootModel;
+    public Transform rootModel;
 
     /// <summary>Transform at which the node attaches to the target part.</summary>
     /// <remarks>It's always a child of the main node's model.</remarks>
-    public readonly Transform partAttach;
+    public Transform partAttach;
 
     /// <summary>Transform at which the node attaches to the pipe mesh.</summary>
     /// <remarks>It's always a child of the main node's model.</remarks>
-    public readonly Transform pipeAttach;
-
-    /// <summary>Creates a new attach node.</summary>
-    /// <param name="rootModel">Model to use. It cannot be <c>null</c>.</param>
-    public ModelPipeEndNode(Transform rootModel) {
-      this.rootModel = rootModel;
-      partAttach = GetTransformByName(PartJointTransformName);
-      partAttach.parent = rootModel;  // Prefab can have different hierarchy.
-      pipeAttach = GetTransformByName(PipeJointTransformName);
-      pipeAttach.parent = rootModel;  // Prefab can have different hierarchy.
-    }
-
-    /// <summary>Aligns node against the target.</summary>
-    /// <param name="target">
-    /// The target object. Can be <c>null</c> in which case the node model will be hidden.
-    /// </param>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.AlignTransforms.SnapAlign']/*"/>
-    public virtual void AlignTo(Transform target) {
-      if (target != null) {
-        AlignTransforms.SnapAlign(rootModel, partAttach, target);
-        rootModel.gameObject.SetActive(true);
-      } else {
-        rootModel.gameObject.SetActive(false);
-      }
-    }
+    public Transform pipeAttach;
 
     /// <summary>
-    /// Finds and returns the requested child model, or the main model if the child is not found.  
+    /// Tells if the root model is dynamic and needs to be cleaned up on renderer stop.
     /// </summary>
-    /// <param name="name">Name of the child object to find.</param>
-    /// <returns>Object or node's model itself if the child is not found.</returns>
-    protected Transform GetTransformByName(string name) {
-      var res = rootModel.Find(name);
-      if (res == null) {
-        HostedDebugLog.Error(rootModel, "Cannot find transform: {0}", name);
-        res = rootModel;  // Fallback.
-      }
-      return res;
-    }
+    public bool cleanupRoot;
   }
   #endregion
 
@@ -287,12 +253,12 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <summary>Pipe ending node at the source.</summary>
   /// <value>The source node container.</value>
-  /// <seealso cref="LoadJointNode"/>
+  /// <seealso cref="CreateJointEndModels"/>
   protected ModelPipeEndNode sourceJointNode { get; private set; }
 
   /// <summary>Pipe ending node at the target.</summary>
   /// <value>The target node container.</value>
-  /// <seealso cref="LoadJointNode"/>
+  /// <seealso cref="CreateJointEndModels"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
@@ -303,20 +269,30 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
+    if (sourceJointConfig.type == PipeEndType.PrefabModel) {
+      var node = MakePrefabNode(sourceJointConfig);
+      if (node != null) {
+        node.rootModel.gameObject.SetActive(false);
+      }
+    }
+    if (targetJointConfig.type == PipeEndType.PrefabModel) {
+      var node = MakePrefabNode(targetJointConfig);
+      if (node != null) {
+        node.rootModel.gameObject.SetActive(false);
+      }
+    }
   }
 
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
-    var sourceNodeModel = CreateJointEndModels(ModelBasename + "-sourceNode", sourceJointConfig);
-    sourceNodeModel.parent = sourceTransform;
-    sourceJointNode = new ModelPipeEndNode(sourceNodeModel);
-    sourceJointNode.AlignTo(sourceTransform);
-    var targetNodeModel = CreateJointEndModels(ModelBasename + "-targetNode", targetJointConfig);
-    targetNodeModel.parent = sourceTransform;
-    targetJointNode = new ModelPipeEndNode(targetNodeModel);
-    targetJointNode.AlignTo(targetTransform);
+    DestroyPipeMesh();
+    sourceJointNode = CreateJointEndModels(sourceJointConfig);
+    AlignTransforms.SnapAlign(
+        sourceJointNode.rootModel, sourceJointNode.partAttach, sourceTransform);
+    targetJointNode = CreateJointEndModels(targetJointConfig);
+    AlignTransforms.SnapAlign(
+        targetJointNode.rootModel, targetJointNode.partAttach, targetTransform);
     CreateLinkPipe();
-    pipeTransform.parent = sourceTransform;
 
     // Have the overrides applied if any.
     colorOverride = colorOverride;
@@ -326,23 +302,37 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
-    if (isStarted) {
-      Object.Destroy(sourceJointNode.rootModel.gameObject);
+    if (sourceJointNode != null) {
+      if (sourceJointNode.cleanupRoot) {
+        Object.Destroy(sourceJointNode.rootModel.gameObject);
+      } else {
+        sourceJointNode.rootModel.gameObject.SetActive(false);
+        sourceJointNode.rootModel.parent = partModelTransform;
+      }
       sourceJointNode = null;
-      Object.Destroy(targetJointNode.rootModel.gameObject);
-      targetJointNode = null;
-      DestroyLinkPipe();
     }
+    if (targetJointNode != null) {
+      if (targetJointNode.cleanupRoot) {
+        Object.Destroy(targetJointNode.rootModel.gameObject);
+      } else {
+        targetJointNode.rootModel.gameObject.SetActive(false);
+        targetJointNode.rootModel.parent = partModelTransform;
+      }
+      targetJointNode = null;
+    }
+    DestroyLinkPipe();
   }
 
   /// <inheritdoc/>
   public override void UpdateLink() {
     if (isStarted) {
-      targetJointNode.AlignTo(targetTransform);
+      AlignTransforms.SnapAlign(
+          targetJointNode.rootModel, targetJointNode.partAttach, targetTransform);
       SetupPipe(
           pipeTransform, sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
-        RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
+        RescaleTextureToLength(
+            pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
       }
     }
   }
@@ -359,103 +349,46 @@ public class KASRendererPipe : AbstractPipeRenderer {
   #region Inheritable methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <remarks>
-  /// The procedural models are created as children to the part's model. The prefab models will have
-  /// their parent re-defined to the part's model regardless to what was set in prefab.
+  /// The models are created as the children of <see cref="AbstractPipeRenderer.sourceTransform"/>.
+  /// It applies to the prefab models as well, even though they are not dynamically created. So
+  /// calling this method may change the models state.
   /// </remarks>
-  /// <param name="modelName">
-  /// The game object name. If this name is used downstream to retrieve the object, then it must be
-  /// unique in scope of the part. Use <c>ModelBasename</c> to achieve it.
-  /// </param>
   /// <param name="config">The joint configuration from the part's config.</param>
-  /// <returns>The created object.</returns>
+  /// <returns>The pipe end node.</returns>
   /// <seealso cref="PipeEndType"/>
-  /// <seealso cref="AbstractPipeRenderer.ModelBasename"/>
-  protected virtual Transform CreateJointEndModels(string modelName, JointConfig config) {
-    // Make or get the root.
-    Transform root = null;
-    if (config.type == PipeEndType.PrefabModel) {
-      root = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
-      if (root != null) {
-        root.parent = partModelTransform;  // We need the part's model to be the root.
-        var partAttach = new GameObject(PartJointTransformName).transform;
-        Hierarchy.MoveToParent(partAttach, root,
-                               newPosition: config.partAttachAt.pos,
-                               newRotation: config.partAttachAt.rot);
-        var pipeAttach = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeAttach.transform, root,
-                               newPosition: config.pipeAttachAt.pos,
-                               newRotation: config.pipeAttachAt.rot);
-      } else {
-        HostedDebugLog.Error(this, "Cannot find model: {0}", config.modelPath);
-        config.type = PipeEndType.Simple;  // Fallback.
-      }
+  protected virtual ModelPipeEndNode CreateJointEndModels(JointConfig config) {
+    ModelPipeEndNode res;
+    switch (config.type) {
+      case PipeEndType.PrefabModel:
+        res = MakePrefabNode(config);
+        if (res == null) {
+          goto case PipeEndType.Simple;  // Fallback if no prefab found.
+        }
+        break;
+      case PipeEndType.Simple:
+        res = MakeSimpleNode();
+        break;
+      case PipeEndType.ProceduralModel:
+        res = MakeProceduralNode(config);
+        break;
+      default:
+        HostedDebugLog.Error(this, "Cannot create node of type: {0}", config.type);
+        res = MakeSimpleNode();
+        break;
     }
-    if (root == null) {
-      root = new GameObject(ModelBasename + "-pipe").transform;
-      Hierarchy.MoveToParent(root, partModelTransform);
-      var partJoint = new GameObject(PartJointTransformName).transform;
-      Hierarchy.MoveToParent(partJoint, root,
-                             newRotation: Quaternion.LookRotation(Vector3.back));
-      if (config.type == PipeEndType.ProceduralModel) {
-        // Create procedural models at the point where the pipe connects to the part's node.
-        var offset = Mathf.Abs(config.sphereOffset);
-        if (Mathf.Abs(config.sphereDiameter) > float.Epsilon) {
-          var sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, root,
-                                           colliderType: Colliders.PrimitiveCollider.Shape);
-          sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-          sphere.name = PipeJointTransformName;
-          if (offset > float.Epsilon) {
-            sphere.transform.localPosition = new Vector3(0, 0, config.sphereOffset);
-          }
-          sphere.transform.localRotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
-          RescaleTextureToLength(sphere.transform,
-                                 samplesPerMeter: pipeTextureSamplesPerMeter,
-                                 extraScale: config.sphereDiameter * 2.0f);
-        }
-        if (offset > float.Epsilon) {
-          if (config.armDiameter > float.Epsilon) {
-            var arm = Meshes.CreateCylinder(
-                config.armDiameter, offset, pipeMaterial, root,
-                colliderType: Colliders.PrimitiveCollider.Shape);
-            arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-            arm.transform.localPosition = new Vector3(0, 0, config.sphereOffset / 2);
-            arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-            RescaleTextureToLength(
-                arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter, extraScale: offset);
-          }
-        }
-      } else {
-        // No extra models are displayed at the joint, just attach the pipe to the part's node.
-        if (config.type != PipeEndType.Simple) {
-          // Normally, this error should never pop up.
-          HostedDebugLog.Error(this, "Unknown joint type: {0}", config.type);
-        }
-        var pipeJoint = new GameObject(PipeJointTransformName);
-        Hierarchy.MoveToParent(pipeJoint.transform, root,
-                               newRotation: Quaternion.LookRotation(Vector3.forward));
-      }
-    }
-    root.gameObject.SetActive(false);
-    root.name = modelName;
-    return root;
+    res.rootModel.parent = sourceTransform;
+    return res;
   }
 
-  /// <summary>Constructs a joint node for the requested config.</summary>
-  /// <param name="modelName">Name of the model in the hierarchy.</param>
-  /// <returns>Pipe's end node.</returns>
-  protected virtual ModelPipeEndNode LoadJointNode(string modelName) {
-    var node = new ModelPipeEndNode(partModelTransform.Find(modelName));
-    node.AlignTo(null);  // Init mode objects state.
-    return node;
-  }
-  
   /// <summary>
   /// Creates a mesh that represents the connecting pipe between the source and the target.
   /// </summary>
-  /// <remarks>The models are created as children to the part's model.</remarks>
+  /// <remarks>It's only called in the started state.</remarks>
+  /// <seealso cref="CreatePipeMesh"/>
+  /// <seealso cref="pipeTransform"/>
   protected virtual void CreateLinkPipe() {
     pipeTransform = Meshes.CreateCylinder(
-        pipeDiameter, 1.0f, pipeMaterial, partModelTransform,
+        pipeDiameter, 1.0f, pipeMaterial, sourceTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     CollisionManager.IgnoreCollidersOnVessel(
@@ -471,6 +404,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   }
 
   /// <summary>Destroys any meshes that represent a connection pipe.</summary>
+  /// <remarks>This is a cleanup method. It must always succeed.</remarks>
   protected virtual void DestroyLinkPipe() {
     if (pipeTransform != null) {
       Object.Destroy(pipeTransform.gameObject);
@@ -520,6 +454,88 @@ public class KASRendererPipe : AbstractPipeRenderer {
       var nrmScale = mr.material.GetTextureScale(BumpMapProp);
       mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
     }
+  }
+
+  /// <summary>Makes a node that doesn't have any meshes.</summary>
+  /// <returns>The node.</returns>
+  protected ModelPipeEndNode MakeSimpleNode() {
+    var res = new ModelPipeEndNode();
+    res.rootModel = new GameObject(ModelBasename + "-pipeNode").transform;
+    res.partAttach = new GameObject(PartJointTransformName).transform;
+    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+    res.pipeAttach = new GameObject(PipeJointTransformName).transform;
+    Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
+                           newRotation: Quaternion.LookRotation(Vector3.forward));
+    res.cleanupRoot = true;
+    return res;
+  }
+
+  /// <summary>Makes a node with the dynamically generated meshes.</summary>
+  /// <param name="config">The configuration object.</param>
+  /// <returns>The node or <c>null</c> if the prefab model cannot be found.</returns>
+  protected ModelPipeEndNode MakeProceduralNode(JointConfig config) {
+    var res = new ModelPipeEndNode();
+    res.rootModel = new GameObject(ModelBasename + "-pipeNode").transform;
+    res.partAttach = new GameObject(PartJointTransformName).transform;
+    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+    var offset = Mathf.Abs(config.sphereOffset);
+    if (Mathf.Abs(config.sphereDiameter) > float.Epsilon) {
+      res.pipeAttach = Meshes.CreateSphere(
+          config.sphereDiameter, pipeMaterial, res.rootModel,
+          colliderType: Colliders.PrimitiveCollider.Shape).transform;
+      res.pipeAttach.name = PipeJointTransformName;
+      res.pipeAttach.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
+      RescaleTextureToLength(res.pipeAttach,
+                             samplesPerMeter: pipeTextureSamplesPerMeter,
+                             extraScale: config.sphereDiameter * 2.0f);
+    } else {
+      res.pipeAttach = new GameObject(PipeJointTransformName).transform;
+      Hierarchy.MoveToParent(res.pipeAttach , res.rootModel);
+    }
+    res.pipeAttach.localPosition = new Vector3(0, 0, config.sphereOffset);
+    res.pipeAttach.localRotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
+    if (offset > float.Epsilon) {
+      if (Mathf.Abs(config.armDiameter) > float.Epsilon) {
+        var arm = Meshes.CreateCylinder(
+            config.armDiameter, offset, pipeMaterial, res.rootModel,
+            colliderType: Colliders.PrimitiveCollider.Shape);
+        arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
+        arm.transform.localPosition = new Vector3(0, 0, config.sphereOffset / 2);
+        arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
+        RescaleTextureToLength(
+            arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter, extraScale: offset);
+      }
+    }
+    res.cleanupRoot = true;
+    return res;
+  }
+
+  /// <summary>Makes a node with the meshes from prefab.</summary>
+  /// <remarks>The prefab model must be a child of the part's model.</remarks>
+  /// <param name="config">The configuration object.</param>
+  /// <returns>The node or <c>null</c> if the prefab model cannot be found.</returns>
+  protected ModelPipeEndNode MakePrefabNode(JointConfig config) {
+    var res = new ModelPipeEndNode();
+    res.rootModel = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
+    if (res.rootModel != null) {
+      res.rootModel.gameObject.SetActive(true);
+      res.partAttach = res.rootModel.Find(PartJointTransformName)
+          ?? new GameObject(PartJointTransformName).transform;
+      Hierarchy.MoveToParent(res.partAttach, res.rootModel,
+                             newPosition: config.partAttachAt.pos,
+                             newRotation: config.partAttachAt.rot);
+      res.pipeAttach = res.rootModel.Find(PipeJointTransformName) 
+          ?? new GameObject(PipeJointTransformName).transform;
+      Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
+                             newPosition: config.pipeAttachAt.pos,
+                             newRotation: config.pipeAttachAt.rot);
+    } else {
+      HostedDebugLog.Error(this, "Cannot find model: {0}", config.modelPath);
+      return null;
+    }
+    return res;
   }
   #endregion
 }

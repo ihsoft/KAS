@@ -22,34 +22,7 @@ public class KASRendererPipeWithHead : KASRendererPipe {
   /// Name of the object in the part's model to park the target node's model at.  
   /// </summary>
   protected string ParkAtPartObjectName {
-    get { return "$parkAtPartTarget-" + part.Modules.IndexOf(this); }
-  }
-  #endregion
-
-  #region Helper class for drawing a head model at the pipe's target emd.
-  /// <summary>Helper class for drawing a pipe's end.</summary>
-  protected class ParkedHead : ModelPipeEndNode {
-    /// <summary>
-    /// Transform at which the node's model should be parked when the renderer is stopped.
-    /// </summary>
-    public readonly Transform parkAt;
-
-    /// <summary>Creates a new attach node.</summary>
-    /// <param name="model">Model to use. It cannot be <c>null</c>.</param>
-    /// <param name="parkAt">Object ot park the model at when the renderer is stopped.</param>
-    public ParkedHead(Transform model, Transform parkAt) : base(model) {
-      this.parkAt = parkAt;
-    }
-
-    /// <inheritdoc/>
-    public override void AlignTo(Transform target) {
-      if (target == null) {
-        AlignTransforms.SnapAlign(rootModel, pipeAttach, parkAt);
-        rootModel.gameObject.SetActive(true);
-      } else {
-        base.AlignTo(target);
-      }
-    }
+    get { return ModelBasename + "-partAt"; }
   }
   #endregion
 
@@ -63,15 +36,34 @@ public class KASRendererPipeWithHead : KASRendererPipe {
 
   #region KASModulePipeRenderer overrides
   /// <inheritdoc/>
-  protected override Transform CreateJointEndModels(string modelName, JointConfig config) {
-    var res = base.CreateJointEndModels(modelName, config);
-    if (modelName.EndsWith("-targetNode", System.StringComparison.Ordinal)) {
-      var partAtTransform = new GameObject(ParkAtPartObjectName).transform;
-      Hierarchy.MoveToParent(partAtTransform, partModelTransform,
-                             newPosition: parkAtPart.pos,
-                             newRotation: parkAtPart.rot);
+  protected override void LoadPartModel() {
+    base.LoadPartModel();
+    ParkHead();
+  }
+
+  /// <inheritdoc/>
+  protected override void DestroyPipeMesh() {
+    base.DestroyPipeMesh();
+    ParkHead();
+  }
+  #endregion
+
+  #region Local utility methods
+  /// <summary>Place the unlinked head on the part's model.</summary>
+  void ParkHead() {
+    if (targetJointConfig.type == PipeEndType.PrefabModel) {
+      var headNode = MakePrefabNode(targetJointConfig);
+      if (headNode != null) {
+        var parkAt = partModelTransform.Find(ParkAtPartObjectName)
+            ?? new GameObject(ParkAtPartObjectName).transform;
+        Hierarchy.MoveToParent(parkAt, partModelTransform,
+                               newPosition: parkAtPart.pos,
+                               newRotation: parkAtPart.rot);
+        AlignTransforms.SnapAlign(headNode.rootModel, headNode.pipeAttach, parkAt);
+        headNode.rootModel.gameObject.SetActive(true);
+        headNode.rootModel.parent = partModelTransform;
+      }
     }
-    return res;
   }
   #endregion
 }
