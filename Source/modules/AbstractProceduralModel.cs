@@ -155,7 +155,7 @@ public abstract class AbstractProceduralModel : PartModule,
   protected abstract void LoadPartModel();
   #endregion
 
-  #region Protected utility methods
+  #region Inherited methods
   /// <summary>Creates a material with default color and shader settings.</summary>
   /// <param name="mainTex">Main texture of the material.</param>
   /// <param name="mainTexNrm">Normals texture.</param>
@@ -170,10 +170,10 @@ public abstract class AbstractProceduralModel : PartModule,
   /// Unity3D: Texture2D</seealso>
   /// <seealso href="https://docs.unity3d.com/Manual/MaterialsAccessingViaScript.html">
   /// Unity3D: Dealing with materials from scripts.</seealso>
-  protected Material CreateMaterial(Texture2D mainTex,
-                                    Texture2D mainTexNrm = null,
-                                    string overrideShaderName = null,
-                                    Color? overrideColor = null) {
+  protected virtual Material CreateMaterial(Texture2D mainTex,
+                                            Texture2D mainTexNrm = null,
+                                            string overrideShaderName = null,
+                                            Color? overrideColor = null) {
     var material = new Material(GetShader(overrideShaderName: overrideShaderName));
     material.mainTexture = mainTex;
     material.color = overrideColor ?? materialColor;
@@ -184,7 +184,9 @@ public abstract class AbstractProceduralModel : PartModule,
     
     return material;
   }
+  #endregion
 
+  #region Protected utility methods
   /// <summary>Get the module's model shader.</summary>
   /// <remarks>Implements a fallback logic to not crash if the shader is not found.</remarks>
   /// <param name="overrideShaderName">
