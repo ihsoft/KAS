@@ -395,16 +395,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform,
         colliderType: Colliders.PrimitiveCollider.Shape).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
-    CollisionManager.IgnoreCollidersOnVessel(
-        vessel, pipeTransform.GetComponentsInChildren<Collider>());
-    // TODO(ihsoft): Ignore the parts when migrated to the interfaces.
-    Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
     SetupPipe(pipeTransform.transform,
               sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
     RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
-    // Let the part know about the new mesh so that it could be properly highlighted.
-    part.RefreshHighlighter();
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>

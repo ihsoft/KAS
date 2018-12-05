@@ -252,6 +252,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     sourceTransform = source;
     targetTransform = target;
     CreatePipeMesh();
+    UpdateMeshes();
   }
 
   /// <inheritdoc/>
@@ -328,6 +329,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     if (oldSource != null && oldTarget != null) {
       StartRenderer(oldSource, oldTarget);
     }
+  }
+  #endregion
+
+  #region Utility methods
+  /// <summary>Updates the part to catch up with the dynamic meshes updates.</summary>
+  /// <remarks>
+  /// Call it if new dynamic meshes are created outside of the <see cref="CreatePipeMesh"/> method.
+  /// </remarks>
+  protected void UpdateMeshes() {
+    CollisionManager.IgnoreCollidersOnVessel(
+        vessel, sourceTransform.root.GetComponentsInChildren<Collider>());
+    Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
+    part.RefreshHighlighter();
   }
   #endregion
 
