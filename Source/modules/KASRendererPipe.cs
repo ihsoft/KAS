@@ -320,7 +320,11 @@ public class KASRendererPipe : AbstractPipeRenderer {
       }
       targetJointNode = null;
     }
-    DestroyLinkPipe();
+    if (pipeTransform != null) {
+      Object.Destroy(pipeTransform.gameObject);
+      pipeTransform = null;
+    }
+    pipeMeshRenderer = null;
   }
 
   /// <inheritdoc/>
@@ -401,16 +405,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
     RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
     // Let the part know about the new mesh so that it could be properly highlighted.
     part.RefreshHighlighter();
-  }
-
-  /// <summary>Destroys any meshes that represent a connection pipe.</summary>
-  /// <remarks>This is a cleanup method. It must always succeed.</remarks>
-  protected virtual void DestroyLinkPipe() {
-    if (pipeTransform != null) {
-      Object.Destroy(pipeTransform.gameObject);
-      pipeTransform = null;
-    }
-    pipeMeshRenderer = null;
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
