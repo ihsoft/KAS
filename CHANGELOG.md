@@ -1,5 +1,6 @@
 # 1.2 (pre-release):
-* [Fix #252] NRE when entering the vessel from EVA
+* [Change] Major update to the basic renderer module to increase UX experience.
+* [Fix #252] NRE when entering the vessel from EVA.
 
 # 1.1 (October 29th, 2018):
 * [Enhancement] Add ES-ES localization.
