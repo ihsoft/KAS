@@ -229,6 +229,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
+    LoadPartModel();
     RefreshRenderer();
   }
   #endregion
