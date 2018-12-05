@@ -5,6 +5,7 @@
 
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using KSPDev.MathUtils;
 using KSPDev.ModelUtils;

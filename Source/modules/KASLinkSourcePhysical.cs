@@ -8,6 +8,7 @@ using KSPDev.ConfigUtils;
 using KSPDev.Extensions;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;

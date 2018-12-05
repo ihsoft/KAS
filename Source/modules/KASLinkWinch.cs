@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.MathUtils;

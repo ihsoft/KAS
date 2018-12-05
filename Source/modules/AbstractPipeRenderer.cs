@@ -6,6 +6,7 @@
 using KASAPIv1;
 using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.ModelUtils;

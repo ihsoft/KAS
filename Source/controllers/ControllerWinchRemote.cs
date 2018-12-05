@@ -6,6 +6,7 @@
 using KASAPIv1;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using System.Collections.Generic;
 using System;

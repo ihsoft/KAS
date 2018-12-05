@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KASAPIv1;
