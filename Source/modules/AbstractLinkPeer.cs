@@ -36,7 +36,7 @@ public abstract class AbstractLinkPeer : PartModule,
     IActivateOnDecouple,
     // KAS interfaces.
     ILinkPeer, ILinkStateEventListener,
-    // KSPDev parents.
+    // KSPDev interfaces
     IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
     IPartModule, IKSPActivateOnDecouple, IsDestroyable {
