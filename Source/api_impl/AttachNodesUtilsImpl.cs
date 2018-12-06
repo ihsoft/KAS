@@ -115,11 +115,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
       DebugEx.Warning("Attach node {0} doesn't belong to part {1}", NodeId(an), ownerPart);
     }
     var objectName = "attachNode-" + an.id;
-    var nodeTransform = Hierarchy.FindPartModelByPath(ownerPart, objectName);
-    if (nodeTransform != null) {
-      return nodeTransform;
-    }
-    nodeTransform = new GameObject(objectName).transform;
+    var nodeTransform = Hierarchy.FindPartModelByPath(ownerPart, objectName)
+        ?? new GameObject(objectName).transform;
     Hierarchy.MoveToParent(
         nodeTransform,
         Hierarchy.GetPartModelTransform(ownerPart),
