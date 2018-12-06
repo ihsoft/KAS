@@ -67,6 +67,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="coupleNode"/>
   [KSPField]
+  [KASDebugAdjustable("Attach node definition")]
   public string attachNodeDef = "";
 
   /// <summary>Name of the attach node for the link and coupling operations.</summary>
@@ -77,6 +78,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
+  [KASDebugAdjustable("Attach node name")]
   public string attachNodeName = "";
 
   /// <summary>
@@ -93,6 +95,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
+  [KASDebugAdjustable("Dependent nodes")]
   public string dependentNodes = "";
 
   /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
@@ -306,29 +309,7 @@ public abstract class AbstractLinkPeer : PartModule,
     ConfigAccessor.ReadPartConfig(this, cfgNode: node);
     ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
     base.OnLoad(node);
-
-    parsedAttachNode = part.FindAttachNode(attachNodeName);
-    isAutoAttachNode = parsedAttachNode == null;
-    if (isAutoAttachNode) {
-      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
-          part, attachNodeDef, attachNodeName);
-      if (parsedAttachNode != null) {
-        HostedDebugLog.Fine(
-            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
-        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
-          // Only pre-add the node in the scenes that assume restoring a vessel state.
-          // We'll drop it in the OnStartFinished if not used.
-          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
-        }
-      } else {
-        HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
-      }
-    }
-    if (parsedAttachNode != null) {
-      // HACK: Handle a KIS issue which causes the nodes to be owned by the prefab part.
-      parsedAttachNode.owner = part;
-      nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
-    }
+    LoadModuleSettings();
   }
 
   /// <inheritdoc/>
@@ -479,6 +460,36 @@ public abstract class AbstractLinkPeer : PartModule,
         ? ScreenMessageStyle.UPPER_CENTER
         : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
     ScreenMessages.PostScreenMessage(msg, duration, location);
+  }
+
+  /// <summary>Initializes the module state according to the settings.</summary>
+  /// <remarks>
+  /// This method can be called multiple timesin the part's life. And the stettings can change in
+  /// between. Override this method if the descendant module needs initialization.
+  /// </remarks>
+  protected virtual void LoadModuleSettings() {
+    parsedAttachNode = part.FindAttachNode(attachNodeName);
+    isAutoAttachNode = parsedAttachNode == null;
+    if (isAutoAttachNode) {
+      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
+          part, attachNodeDef, attachNodeName);
+      if (parsedAttachNode != null) {
+        HostedDebugLog.Fine(
+            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
+        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+          // Only pre-add the node in the scenes that assume restoring a vessel state.
+          // We'll drop it in the OnStartFinished if not used.
+          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
+        }
+      } else {
+        HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
+      }
+    }
+    if (parsedAttachNode != null) {
+      // HACK: Handle a KIS issue which causes the nodes to be owned by the prefab part.
+      parsedAttachNode.owner = part;
+      nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
+    }
   }
   #endregion
 

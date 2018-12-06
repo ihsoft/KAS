@@ -11,6 +11,7 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -335,16 +336,30 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IHasDebugAdjustables implementation
+  ILinkTarget dbgOldTarget;
+
   /// <inheritdoc/>
-  public void OnDebugAdjustablesUpdated() {
-    if (isLinked) {
-      var oldTarget = linkTarget;
-      BreakCurrentLink(LinkActorType.Player);
-      AsyncCall.CallOnEndOfFrame(
-          this,
-          () => LinkToTarget(LinkActorType.Player, oldTarget),
-          skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
+  public virtual void OnBeforeDebugAdjustablesUpdate() {
+    if (linkState != LinkState.Linked && linkState != LinkState.Available) {
+      throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
+    dbgOldTarget = linkTarget;
+    if (isLinked) {
+      BreakCurrentLink(LinkActorType.Player);
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnDebugAdjustablesUpdated() {
+    AsyncCall.CallOnEndOfFrame(
+        this,
+        () => {
+          LoadModuleSettings();
+          if (dbgOldTarget != null) {
+            LinkToTarget(LinkActorType.Player, dbgOldTarget);
+          }
+        },
+        skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
   }
   #endregion
 
