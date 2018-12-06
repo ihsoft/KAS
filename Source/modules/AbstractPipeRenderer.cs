@@ -227,11 +227,23 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region IHasDebugAdjustables implementation
+  Transform dbgOldSource;
+  Transform dbgOldTarget;
+
   /// <inheritdoc/>
-  public void OnDebugAdjustablesUpdated() {
+  public virtual void OnBeforeDebugAdjustablesUpdate() {
+    dbgOldSource = sourceTransform;
+    dbgOldTarget = targetTransform;
+    StopRenderer();
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
     LoadPartModel();
-    RefreshRenderer();
+    if (dbgOldSource != null && dbgOldTarget != null) {
+      StartRenderer(dbgOldSource, dbgOldTarget);
+    }
   }
   #endregion
 
@@ -322,16 +334,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <returns>The control points or empty array.</returns>
   protected abstract Vector3[] GetPipePath(Transform start, Transform end);
-
-  /// <summary>Recreates the renderer to have its properties updated.</summary>
-  protected virtual void RefreshRenderer() {
-    var oldSource = sourceTransform;
-    var oldTarget = targetTransform;
-    StopRenderer();
-    if (oldSource != null && oldTarget != null) {
-      StartRenderer(oldSource, oldTarget);
-    }
-  }
   #endregion
 
   #region Utility methods
