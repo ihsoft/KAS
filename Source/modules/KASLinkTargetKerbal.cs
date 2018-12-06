@@ -3,6 +3,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
@@ -55,6 +56,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Connectors highlight color")]
   public Color closestConnectorHighlightColor = Color.cyan;
 
   /// <summary>

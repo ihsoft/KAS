@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -62,12 +63,16 @@ public class KASLinkTargetBase :
   /// Tells if compatible targets should highlight themselves when linking mode started.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// FIXME: debug?
   [KSPField]
+  [KASDebugAdjustable("Highlight parts")]
   public bool highlightCompatibleTargets = true;
 
   /// <summary>Defines highlight color for the compatible targets.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// FIXME: debug?
   [KSPField]
+  [KASDebugAdjustable("Highlight color")]
   public Color highlightColor = Color.cyan;
   #endregion
 

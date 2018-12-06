@@ -4,6 +4,8 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -55,7 +57,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
-    ILinkSource,
+    ILinkSource, IHasDebugAdjustables,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
@@ -135,6 +137,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <summary>Tells if coupling mode can be changed via the part's context menu.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Show coupling GUI")]
   public bool showCouplingUi;
   
   /// <summary>Name of the renderer that draws the link.</summary>
@@ -159,11 +162,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - part dock")]
   public string sndPathDock = "";
 
   /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - part undock")]
   public string sndPathUndock = "";
   #endregion
 
@@ -326,6 +331,20 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
 
     UpdateContextMenu();  // To update the dock/undock menu.
+  }
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  /// <inheritdoc/>
+  public void OnDebugAdjustablesUpdated() {
+    if (isLinked) {
+      var oldTarget = linkTarget;
+      BreakCurrentLink(LinkActorType.Player);
+      AsyncCall.CallOnEndOfFrame(
+          this,
+          () => LinkToTarget(LinkActorType.Player, oldTarget),
+          skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
+    }
   }
   #endregion
 

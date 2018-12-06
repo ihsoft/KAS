@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
@@ -45,6 +46,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Link type")]
   public string linkType = "";
 
   /// <summary>The localized string to display for the link type.</summary>
@@ -96,6 +98,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
   /// <seealso cref="coupleNode"/>
   [KSPField]
+  [KASDebugAdjustable("Allow coupling")]
   public bool allowCoupling;
   #endregion
 
