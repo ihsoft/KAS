@@ -869,13 +869,12 @@ public abstract class AbstractJoint : PartModule,
     SetCustomJoints(null);
   }
 
-  /// <summary>Checks if the peers are coupled via their attach nodes.</summary>
-  /// <param name="source">The peer the link.</param>
-  /// <param name="target">The peer the link.</param>
+  /// <summary>Checks if the peer parts are coupled in the vessel hierarchy.</summary>
+  /// <param name="source">The first peer of the link.</param>
+  /// <param name="target">The other peer of the link.</param>
   /// <returns><c>true</c> if the peers are coupled.</returns>
   static bool CheckCoupled(ILinkPeer source, ILinkPeer target) {
-    return source.coupleNode != null && source.coupleNode.attachedPart == target.part
-        && target.coupleNode != null && target.coupleNode.attachedPart == source.part;
+    return source.part.parent == target.part || target.part.parent == source.part;
   }
 
   /// <summary>Reacts on the vessel name change and updates the vessel infos.</summary>
