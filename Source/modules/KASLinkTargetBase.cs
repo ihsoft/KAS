@@ -6,9 +6,11 @@
 using KASAPIv1;
 using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
+using System;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -30,8 +32,8 @@ namespace KAS {
 public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
-    // KAS parents.
-    ILinkTarget,
+    // KAS interfaces.
+    ILinkTarget, IHasDebugAdjustables,
     // Syntax sugar parents.
     IsPartDeathListener, IKSPDevModuleInfo {
 
@@ -152,6 +154,43 @@ public class KASLinkTargetBase :
         isNodeBlocked = false;
       }
     });
+  }
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  ILinkSource dbgOldSource;
+  float cableLength;
+
+  /// <inheritdoc/>
+  public virtual void OnBeforeDebugAdjustablesUpdate() {
+    if (linkState != LinkState.Linked && linkState != LinkState.Available) {
+      throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
+    }
+    dbgOldSource = linkSource;
+    if (isLinked) {
+      var cableJoint = linkSource.linkJoint as ILinkCableJoint;
+      if (cableJoint != null) {
+        cableLength = cableJoint.deployedCableLength;
+      }
+      linkSource.BreakCurrentLink(LinkActorType.Player);
+    }
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnDebugAdjustablesUpdated() {
+    AsyncCall.CallOnEndOfFrame(
+        this,
+        () => {
+          LoadModuleSettings();
+          if (dbgOldSource != null) {
+            dbgOldSource.LinkToTarget(LinkActorType.Player, this);
+            var cableJoint = linkSource.linkJoint as ILinkCableJoint;
+            if (cableJoint != null) {
+              cableJoint.SetCableLength(cableLength);
+            }
+          }
+        },
+        skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
   }
   #endregion
 

@@ -64,6 +64,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <summary>Name of the bone within the skinned mesh to bind the attach the node to.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Equip bone name")]
   public string equipBoneName = "";
 
   /// <summary>
@@ -72,6 +73,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <remarks>The node transform will be dynamically adjusted to the bone movements.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("equipPosAndRot", group = StdPersistentGroups.PartConfigLoadGroup)]
+  [KASDebugAdjustable("Equip pos&rot")]
   PosAndRot equipPosAndRot = new PosAndRot();
   #endregion
 
