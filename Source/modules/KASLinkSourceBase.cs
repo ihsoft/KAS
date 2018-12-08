@@ -153,11 +153,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Renderer name")]
   public string linkRendererName = "";
 
   /// <summary>Name of the joint to use with this source.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Joint name")]
   public string jointName = "";
 
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
@@ -292,17 +294,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
-
-    linkJoint = part.Modules.OfType<ILinkJoint>()
-        .FirstOrDefault(x => x.cfgJointName == jointName);
-    if (linkJoint == null) {
-      HostedDebugLog.Error(this, "KAS part misses a joint module. It won't work properly");
-    }
-    linkRenderer = part.Modules.OfType<ILinkRenderer>()
-        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
-    if (linkRenderer == null) {
-      HostedDebugLog.Error(this, "KAS part misses a renderer module. It won't work properly");
-    }
+    InitStartState();
   }
 
   /// <inheritdoc/>
@@ -360,6 +352,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         this,
         () => {
           LoadModuleSettings();
+          InitStartState();
           if (dbgOldTarget != null) {
             LinkToTarget(LinkActorType.Player, dbgOldTarget);
             var cableJoint = linkJoint as ILinkCableJoint;
@@ -631,6 +624,28 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Info(
           this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
       BreakCurrentLink(LinkActorType.Physics);
+    }
+  }
+
+  /// <summary>Loads the state that should be processed after all the modules are created.</summary>
+  /// <remarks>
+  /// This method can be called by the debug tool, so add some extra checks to not critically fail
+  /// if the settings are not correct.
+  /// </remarks>
+  void InitStartState() {
+    var newLinkJoint = part.Modules.OfType<ILinkJoint>()
+        .FirstOrDefault(x => x.cfgJointName == jointName);
+    if (newLinkJoint != null) {
+      linkJoint = newLinkJoint;
+    } else {
+      HostedDebugLog.Error(this, "Cannot find joint module: {0}", jointName);
+    }
+    var newLinkRenderer = part.Modules.OfType<ILinkRenderer>()
+        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
+    if (newLinkRenderer != null) {
+      linkRenderer = newLinkRenderer;
+    } else {
+      HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
   }
   #endregion
