@@ -748,6 +748,20 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
   #endregion
 
+  #region IHasDebugAdjustables implementation
+  /// <inheritdoc/>
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
+    SetConnectorState(ConnectorState.Locked);  // To restore the attach node.
+  }
+
+  /// <inheritdoc/>
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
+  }
+  #endregion
+
+
   #region Inheritable utility methods
   /// <summary>Changes the connector state</summary>
   /// <remarks>
