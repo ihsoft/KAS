@@ -337,6 +337,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region IHasDebugAdjustables implementation
   ILinkTarget dbgOldTarget;
+  float cableLength;
 
   /// <inheritdoc/>
   public virtual void OnBeforeDebugAdjustablesUpdate() {
@@ -345,6 +346,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     dbgOldTarget = linkTarget;
     if (isLinked) {
+      var cableJoint = linkJoint as ILinkCableJoint;
+      if (cableJoint != null) {
+        cableLength = cableJoint.deployedCableLength;
+      }
       BreakCurrentLink(LinkActorType.Player);
     }
   }
@@ -357,6 +362,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           LoadModuleSettings();
           if (dbgOldTarget != null) {
             LinkToTarget(LinkActorType.Player, dbgOldTarget);
+            var cableJoint = linkJoint as ILinkCableJoint;
+            if (cableJoint != null) {
+              cableJoint.SetCableLength(cableLength);
+            }
           }
         },
         skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
