@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
@@ -132,6 +133,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Connector lock distance error")]
   public float connectorLockMaxErrorDist = 0.05f;
 
   /// <summary>
@@ -146,11 +148,13 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
+  [KASDebugAdjustable("Connector lock direction error")]
   public float connectorLockMaxErrorDir = 1;
 
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Motor max speed")]
   public float motorMaxSpeed = 2;
 
   /// <summary>
@@ -159,27 +163,32 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <remarks>It must not be <c>0</c>, since in this case the motor will never start.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Motor acceleration")]
   public float motorAcceleration = 0.4f;
 
   /// <summary>Amount of the electricity to consume each second of the motor activity.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Motor power drain")]
   public double motorPowerDrain = 0.5f;
 
   /// <summary>URL of the sound for the working winch motor.</summary>
   /// <remarks>This sound will be looped while the motor is active.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - motor running")]
   public string sndPathMotor = "";
 
   /// <summary>URL of the sound for the starting winch motor.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - motor started")]
   public string sndPathMotorStart = "";
 
   /// <summary>URL of the sound for the stopping winch motor.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - motor stopped")]
   public string sndPathMotorStop = "";
   #endregion
 

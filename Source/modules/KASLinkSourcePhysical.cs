@@ -4,6 +4,7 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.Extensions;
 using KSPDev.GUIUtils;
@@ -121,6 +122,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
 
   /// <summary>
@@ -191,36 +193,43 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
   /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
+  [KASDebugAdjustable("Connector interact distance")]
   public float connectorInteractDistance = 0.3f;
 
   /// <summary>URL of the sound for the event of returning the connector to the winch.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - lock connector")]
   public string sndPathLockConnector = "";
 
   /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - dock connector")]
   public string sndPathDockConnector = "";
 
   /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - grab connector")]
   public string sndPathGrabConnector = "";
 
   /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - plug connector")]
   public string sndPathPlugConnector = "";
   
   /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - unplug connector")]
   public string sndPathUnplugConnector = "";
 
   /// <summary>URL of the sound for the event of cable emergency detachment (link broken).</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Sound - link broke")]
   public string sndPathBroke = "";
   #endregion
 

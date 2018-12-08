@@ -78,11 +78,13 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Start link menu text")]
   public string startLinkMenu = "";
 
   /// <summary>Name of the menu item to break currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Break link menu text")]
   public string breakLinkMenu = "";
   #endregion
 
