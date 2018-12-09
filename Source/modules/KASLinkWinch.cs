@@ -339,10 +339,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       moduleResource.rate = (double) motorPowerDrain;
       resHandler.inputResources.Add(moduleResource);
     }
-
-    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
-    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
-    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
   }
 
   /// <inheritdoc/>
@@ -357,6 +353,15 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     sb.AppendLine(resHandler.PrintModuleResources());
     return sb.ToString();
   }
+
+  /// <inheritdoc/>
+  protected override void LoadModuleSettings() {
+    base.LoadModuleSettings();
+    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+  }
+
   #endregion
 
   #region IsPhysicalObject implementation

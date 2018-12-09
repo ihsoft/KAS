@@ -473,7 +473,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
+  protected override void LoadModuleSettings() {
     // The locked connector with a part attached is get docked. So we require docking mode here.
     // TODO(ihsoft): Allow non-docking mode.
     if (!allowCoupling) {
@@ -481,12 +481,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
                            + " allowCoupling settings to true.");
       allowCoupling = true;  // A bad approach, but better than not having the attach node.
     }
-    base.OnLoad(node);
     if (connectorMass > part.mass) {
       HostedDebugLog.Error(this,
           "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
     }
+    base.LoadModuleSettings();
     LoadOrCreateConnectorModel();
     if (!persistedIsConnectorLocked) {
       // In case of the connector is not locked to either the winch or the target part, adjust its
@@ -864,11 +864,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     if (!PartLoader.Instance.IsReady()) {
       // Make the missing models and set the proper hierarchy.
       connectorModelObj = Hierarchy.FindPartModelByPath(part, connectorModel);
-      connectorCableAnchor = connectorCableAttachAt != ""
-          ? Hierarchy.FindPartModelByPath(part, connectorCableAttachAt) : null;
-      connectorPartAnchor = connectorPartAttachAt != ""
-          ? Hierarchy.FindPartModelByPath(part, connectorPartAttachAt) : null;
-
       if (connectorModelObj == null) {
         HostedDebugLog.Error(this, "Cannot find a connector model: {0}", connectorModel);
         // Fallback to not have the whole code to crash.
@@ -877,6 +872,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       connectorModelObj.name = ConnectorModelName;
       connectorModelObj.parent = nodeTransform;
 
+      connectorCableAnchor = connectorCableAttachAt != ""
+          ? Hierarchy.FindTransformByPath(connectorModelObj, connectorCableAttachAt) : null;
       if (connectorCableAnchor == null) {
         if (connectorCableAttachAt != "") {
           HostedDebugLog.Error(
@@ -890,6 +887,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       connectorCableAnchor.name = CableAnchorName;
       connectorCableAnchor.parent = connectorModelObj;
 
+      connectorPartAnchor = connectorPartAttachAt != ""
+          ? Hierarchy.FindTransformByPath(connectorModelObj, connectorPartAttachAt) : null;
       if (connectorPartAnchor == null) {
         if (connectorPartAttachAt != "") {
           HostedDebugLog.Error(
