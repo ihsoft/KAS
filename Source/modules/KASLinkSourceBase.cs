@@ -633,18 +633,16 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// if the settings are not correct.
   /// </remarks>
   void InitStartState() {
-    var newLinkJoint = part.Modules.OfType<ILinkJoint>()
-        .FirstOrDefault(x => x.cfgJointName == jointName);
-    if (newLinkJoint != null) {
-      linkJoint = newLinkJoint;
-    } else {
+    linkJoint = part.Modules.OfType<ILinkJoint>()
+        .FirstOrDefault(x => x.cfgJointName == jointName)
+        ?? linkJoint;
+    if (linkJoint == null) {
       HostedDebugLog.Error(this, "Cannot find joint module: {0}", jointName);
     }
-    var newLinkRenderer = part.Modules.OfType<ILinkRenderer>()
-        .FirstOrDefault(x => x.cfgRendererName == linkRendererName);
-    if (newLinkRenderer != null) {
-      linkRenderer = newLinkRenderer;
-    } else {
+    linkRenderer = part.Modules.OfType<ILinkRenderer>()
+        .FirstOrDefault(x => x.cfgRendererName == linkRendererName)
+        ?? linkRenderer;
+    if (linkRenderer == null) {
       HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
   }
