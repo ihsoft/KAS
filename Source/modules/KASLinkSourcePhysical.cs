@@ -763,13 +763,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.OnBeforeDebugAdjustablesUpdate();
     SetConnectorState(ConnectorState.Locked);  // To restore the attach node.
   }
-
-  /// <inheritdoc/>
-  public override void OnDebugAdjustablesUpdated() {
-    base.OnDebugAdjustablesUpdated();
-  }
   #endregion
-
 
   #region Inheritable utility methods
   /// <summary>Changes the connector state</summary>
@@ -882,7 +876,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       }
       connectorModelObj.name = ConnectorModelName;
       connectorModelObj.parent = nodeTransform;
-      
 
       if (connectorCableAnchor == null) {
         if (connectorCableAttachAt != "") {
