@@ -150,8 +150,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <seealso cref="connectorPartAttachAt"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
-  [KSPField]
-  public string connectorPartAttachAtPosAndRot = "";
+  [PersistentField("connectorPartAttachAtPosAndRot",
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public PosAndRot connectorPartAttachAtPosAndRot = new PosAndRot();
 
   /// <summary>
   /// Name of the object that is used to align the cable mesh to the cable connector.
@@ -175,8 +176,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <seealso cref="connectorCableAttachAt"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
-  [KSPField]
-  public string connectorCableAttachAtPosAndRot;
+  [PersistentField("connectorCableAttachAtPosAndRot",
+                   group = StdPersistentGroups.PartConfigLoadGroup)]
+  public PosAndRot connectorCableAttachAtPosAndRot = new PosAndRot();
 
   /// <summary>Offset from the link node for the physical connector to park.</summary>
   /// <remarks>
@@ -880,9 +882,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
               this, "Cannot find cable anchor transform: {0}", connectorCableAttachAt);
         }
         connectorCableAnchor = new GameObject().transform;
-        var posAndRot = PosAndRot.FromString(connectorCableAttachAtPosAndRot);
         Hierarchy.MoveToParent(connectorCableAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
+                               newPosition: connectorCableAttachAtPosAndRot.pos,
+                               newRotation: connectorCableAttachAtPosAndRot.rot);
       }
       connectorCableAnchor.name = CableAnchorName;
       connectorCableAnchor.parent = connectorModelObj;
@@ -895,9 +897,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
               this, "Cannot find part anchor transform: {0}", connectorPartAttachAt);
         }
         connectorPartAnchor = new GameObject().transform;
-        var posAndRot = PosAndRot.FromString(connectorPartAttachAtPosAndRot);
         Hierarchy.MoveToParent(connectorPartAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
+                               newPosition: connectorPartAttachAtPosAndRot.pos,
+                               newRotation: connectorPartAttachAtPosAndRot.rot);
       }
       connectorPartAnchor.name = PartAnchorName;
       connectorPartAnchor.parent = connectorModelObj;
