@@ -248,7 +248,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
-  public virtual void StartRenderer(Transform source, Transform target) {
+  public void StartRenderer(Transform source, Transform target) {
     if (isStarted) {
       if (sourceTransform == source && targetTransform == target) {
         return;  // NO-OP
@@ -259,17 +259,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     targetTransform = target;
     CreatePipeMesh();
     UpdateMeshes();
+    part.RefreshHighlighter();
   }
 
   /// <inheritdoc/>
-  public virtual void StopRenderer() {
+  public void StopRenderer() {
     DestroyPipeMesh();
+    part.RefreshHighlighter();
     sourceTransform = null;
     targetTransform = null;
   }
 
   /// <inheritdoc/>
-  public virtual string[] CheckColliderHits(Transform source, Transform target) {
+  public string[] CheckColliderHits(Transform source, Transform target) {
     var hitParts = new HashSet<Part>();
     var ignoreRoots = new HashSet<Transform>() {source.root, target.root};
     var points = GetPipePath(source, target);
@@ -349,7 +351,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     CollisionManager.IgnoreCollidersOnVessel(
         vessel, sourceTransform.root.GetComponentsInChildren<Collider>());
     Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
-    part.RefreshHighlighter();
   }
   #endregion
 
