@@ -23,6 +23,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
+/// <seealso cref="Demote"/>
 sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
@@ -145,7 +146,7 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   void OnDestroy() {
-    CleanupModule();
+    CleanupModule(destroyImmediate: false);
     GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
     GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
   }
@@ -160,7 +161,11 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Local utility methods
   /// <summary>Destroys all the module's physical objects.</summary>
   /// <remarks>It doesn't (and must not) do it immediately.</remarks>
-  void CleanupModule() {
+  /// <param name="destroyImmediate">
+  /// Tells if all the object on the connector have to be dropped immediately. Never request it in
+  /// the cleanup methods like <c>OnDestroy</c>.
+  /// </param>
+  void CleanupModule(bool destroyImmediate = true) {
     SetHighlighting(null);
     if (ownerModule != null) {
       // Bring the model back to the part or to the new host.
@@ -169,10 +174,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
       PartModel.UpdateHighlighters(oldParent);
       PartModel.UpdateHighlighters(ownerModule.part);
     }
-    Destroy(interactionTriggerObj);
+    if (destroyImmediate) {
+      DestroyImmediate(connectorRb);
+      DestroyImmediate(interactionTriggerObj);
+    } else {
+      Destroy(connectorRb);
+      Destroy(interactionTriggerObj);
+    }
     interactionTriggerObj = null;
-    // Drop the RB immediately to not allow it affecting the connector state in the following frame.
-    DestroyImmediate(connectorRb);
     connectorRb = null;
     ownerModule = null;
   }
