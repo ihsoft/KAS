@@ -268,7 +268,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Inheritable fields & properties
   /// <summary>Pipe's mesh.</summary>
-  /// <value>The root object the link mesh. <c>null</c> if the renderer is not started.</value>
+  /// <value><c>null</c> if the renderer is not started.</value>
   /// <seealso cref="CreateLinkPipe"/>
   protected Transform pipeTransform { get; private set; }
 

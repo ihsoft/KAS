@@ -229,8 +229,8 @@ public class KASJointCableBase : AbstractJoint,
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
   void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
-    var distanceLimit =
-        originalLength ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
+    var distanceLimit = originalLength
+        ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
     KASAPI.JointUtils.SetupDistanceJoint(

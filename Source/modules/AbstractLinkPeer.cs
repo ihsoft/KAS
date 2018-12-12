@@ -98,7 +98,7 @@ public abstract class AbstractLinkPeer : PartModule,
   [KASDebugAdjustable("Dependent nodes")]
   public string dependentNodes = "";
 
-  /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
+  /// <summary>Specifies if this peer can couple (dock) into the vessel's hirerachy.</summary>
   /// <seealso cref="coupleNode"/>
   [KSPField]
   [KASDebugAdjustable("Allow coupling")]
