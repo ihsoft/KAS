@@ -404,6 +404,38 @@ public class KASRendererPipe : AbstractPipeRenderer {
         ? new[] { start.position, end.position }
         : new Vector3[0];
   }
+
+  /// <inheritdoc/>
+  protected override void UpdateMaterialOverrides() {
+    var color = colorOverride ?? materialColor;
+    var shader = shaderNameOverride ?? shaderName;
+    if (pipeTransform != null) {
+      Meshes.UpdateMaterials(pipeTransform.gameObject, newColor: color, newShaderName: shader);
+    }
+    if (sourceJointNode != null) {
+      Meshes.UpdateMaterials(
+          sourceJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
+    }
+    if (targetJointNode != null) {
+      Meshes.UpdateMaterials(
+          targetJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void UpdateColliderOverrides() {
+    if (pipeTransform != null) {
+      Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
+    }
+    if (sourceJointNode != null) {
+      Colliders.UpdateColliders(
+          sourceJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+    }
+    if (targetJointNode != null) {
+      Colliders.UpdateColliders(
+          targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+    }
+  }
   #endregion
 
   #region Inheritable methods

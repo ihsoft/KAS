@@ -6,6 +6,7 @@
 using KASAPIv2;
 using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
+using KSPDev.ModelUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -257,6 +258,22 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     if (pipeTransform != null) {
       UnityEngine.Object.Destroy(pipeTransform.gameObject);
       pipeTransform = null;
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void UpdateMaterialOverrides() {
+    if (pipeTransform != null) {
+      Meshes.UpdateMaterials(pipeTransform.gameObject,
+                             newColor: colorOverride ?? materialColor,
+                             newShaderName: shaderNameOverride ?? shaderName);
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void UpdateColliderOverrides() {
+    if (pipeTransform != null) {
+      Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
     }
   }
   #endregion

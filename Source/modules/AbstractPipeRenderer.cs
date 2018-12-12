@@ -157,10 +157,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-      if (sourceTransform != null) {
-        Meshes.UpdateMaterials(
-            sourceTransform.gameObject, newColor: _colorOverride ?? materialColor);
-      }
+      UpdateMaterialOverrides();
     }
   }
   Color? _colorOverride;
@@ -170,10 +167,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     get { return _shaderNameOverride; }
     set {
       _shaderNameOverride = value;
-      if (sourceTransform != null) {
-        Meshes.UpdateMaterials(
-            sourceTransform.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
-      }
+      UpdateMaterialOverrides();
     }
   }
   string _shaderNameOverride;
@@ -183,9 +177,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     get { return pipeColliderIsPhysical; }
     set {
       pipeColliderIsPhysical = value;
-      if (sourceTransform != null) {
-        Colliders.UpdateColliders(sourceTransform.gameObject, isEnabled: value);
-      }
+      UpdateColliderOverrides();
     }
   }
 
@@ -334,6 +326,18 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <returns>The control points or empty array.</returns>
   protected abstract Vector3[] GetPipePath(Transform start, Transform end);
+
+  /// <summary>Updates the pipe material(s) to the current module's state.</summary>
+  /// <remarks>It is called when the meterial mutable settings are changed.</remarks>
+  /// <seealso cref="colorOverride"/>
+  /// <seealso cref="shaderNameOverride"/>
+  protected abstract void UpdateMaterialOverrides();
+
+  /// <summary>Updates the pipe collider(s) to the current module's state.</summary>
+  /// <remarks>It is called when the collider mutable settings are changed.</remarks>
+  /// <seealso cref="isPhysicalCollider"/>
+  /// <seealso cref="pipeColliderIsPhysical"/>
+  protected abstract void UpdateColliderOverrides();
   #endregion
 
   #region Utility methods
