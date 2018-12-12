@@ -394,6 +394,9 @@ public class KASLinkWinch : KASLinkSourcePhysical,
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
+    PartModuleUtils.SetupEvent(this, InstantStretchEvent, e => {
+      e.active = !isConnectorLocked;
+    });
   }
   #endregion
 
