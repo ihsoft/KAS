@@ -145,12 +145,20 @@ public abstract class AbstractProceduralModel : PartModule,
 
   #region Abstract methods
   /// <summary>Creates part's model.</summary>
-  /// <remarks>Called when it's time to create meshes in the part's model.</remarks>
+  /// <remarks>
+  /// Called when it's time to create meshes in the part's model. Only create the permanent meshes
+  /// here. If a mesh is configurable via the part settings, then a better place for it is
+  /// the <see cref="LoadPartModel"/> method.
+  /// </remarks>
   /// <seealso cref="partModelTransform"/>
   protected abstract void CreatePartModel();
 
   /// <summary>Loads part's model.</summary>
-  /// <remarks>Called when a new part is being instantiated.</remarks>
+  /// <remarks>
+  /// Called when a new part is being instantiated. This method is expected to be idempotent. I.e.
+  /// multiple calls to this method should not create meshes. And if the part config has changed,
+  /// then the new state must be taken into account.
+  /// </remarks>
   /// <seealso cref="partModelTransform"/>
   protected abstract void LoadPartModel();
   #endregion

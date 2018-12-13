@@ -26,9 +26,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_01003.
-public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
-    // KSPDev interfaces.
-    IHasContextMenu {
+public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -139,7 +137,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   bool canAutoSaveState;
   #endregion
 
-  #region PartModule overrides
+  #region KASLinkSourceBase overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -194,9 +192,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
                                  e.active = linkState == LinkState.Linked;
                                });
   }
-  #endregion
 
-  #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
   public override bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     // Don't allow EVA linking mode.
