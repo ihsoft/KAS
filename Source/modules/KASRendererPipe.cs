@@ -339,9 +339,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
     CreateLinkPipe();
 
     // Have the overrides applied if any.
-    colorOverride = colorOverride;
-    shaderNameOverride = shaderNameOverride;
-    isPhysicalCollider = isPhysicalCollider;
+    UpdateMaterialOverrides();
+    UpdateColliderOverrides();
   }
 
   /// <inheritdoc/>
@@ -409,31 +408,49 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected override void UpdateMaterialOverrides() {
     var color = colorOverride ?? materialColor;
     var shader = shaderNameOverride ?? shaderName;
-    if (pipeTransform != null) {
+    if (isStarted) {
       Meshes.UpdateMaterials(pipeTransform.gameObject, newColor: color, newShaderName: shader);
-    }
-    if (sourceJointNode != null) {
       Meshes.UpdateMaterials(
           sourceJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
-    }
-    if (targetJointNode != null) {
       Meshes.UpdateMaterials(
           targetJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
+    } else {
+      // Special attention to the prefab nodes which exist in the scene even when the renderer is
+      // not started.
+      if (sourceJointConfig.type == PipeEndType.PrefabModel) {
+        var node = MakePrefabNode(SourceNodeName, sourceJointConfig);
+        Meshes.UpdateMaterials(
+            node.rootModel.gameObject, newColor: color, newShaderName: shader);
+      }
+      if (targetJointConfig.type == PipeEndType.PrefabModel) {
+        var node = MakePrefabNode(TargetNodeName, targetJointConfig);
+        Meshes.UpdateMaterials(
+            node.rootModel.gameObject, newColor: color, newShaderName: shader);
+      }
     }
   }
 
   /// <inheritdoc/>
   protected override void UpdateColliderOverrides() {
-    if (pipeTransform != null) {
+    if (isStarted) {
       Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
-    }
-    if (sourceJointNode != null) {
       Colliders.UpdateColliders(
           sourceJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
-    }
-    if (targetJointNode != null) {
       Colliders.UpdateColliders(
           targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+    } else {
+      // Special attention to the prefab nodes which exist in the scene even when the renderer is
+      // not started.
+      if (sourceJointConfig.type == PipeEndType.PrefabModel) {
+        var node = MakePrefabNode(SourceNodeName, sourceJointConfig);
+        Colliders.UpdateColliders(
+            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+      }
+      if (targetJointConfig.type == PipeEndType.PrefabModel) {
+        var node = MakePrefabNode(TargetNodeName, targetJointConfig);
+        Colliders.UpdateColliders(
+            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+      }
     }
   }
   #endregion
