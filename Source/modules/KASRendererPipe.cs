@@ -8,6 +8,7 @@ using KASAPIv2;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
+using System;
 using UnityEngine;
 
 namespace KAS {
@@ -347,7 +348,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected override void DestroyPipeMesh() {
     if (sourceJointNode != null) {
       if (sourceJointNode.cleanupRoot) {
-        Object.Destroy(sourceJointNode.rootModel.gameObject);
+        UnityEngine.Object.Destroy(sourceJointNode.rootModel.gameObject);
       } else {
         sourceJointNode.rootModel.parent = partModelTransform;
         if (sourceJointNode.parkAttach != null) {
@@ -362,7 +363,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     }
     if (targetJointNode != null) {
       if (targetJointNode.cleanupRoot) {
-        Object.Destroy(targetJointNode.rootModel.gameObject);
+        UnityEngine.Object.Destroy(targetJointNode.rootModel.gameObject);
       } else {
         targetJointNode.rootModel.parent = partModelTransform;
         if (targetJointNode.parkAttach != null) {
@@ -376,7 +377,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
       targetJointNode = null;
     }
     if (pipeTransform != null) {
-      Object.Destroy(pipeTransform.gameObject);
+      UnityEngine.Object.Destroy(pipeTransform.gameObject);
       pipeTransform = null;
     }
     pipeMeshRenderer = null;
@@ -415,18 +416,15 @@ public class KASRendererPipe : AbstractPipeRenderer {
       Meshes.UpdateMaterials(
           targetJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
     } else {
-      // Special attention to the prefab nodes which exist in the scene even when the renderer is
-      // not started.
-      if (sourceJointConfig.type == PipeEndType.PrefabModel) {
-        var node = MakePrefabNode(SourceNodeName, sourceJointConfig);
-        Meshes.UpdateMaterials(
-            node.rootModel.gameObject, newColor: color, newShaderName: shader);
-      }
-      if (targetJointConfig.type == PipeEndType.PrefabModel) {
-        var node = MakePrefabNode(TargetNodeName, targetJointConfig);
-        Meshes.UpdateMaterials(
-            node.rootModel.gameObject, newColor: color, newShaderName: shader);
-      }
+      // Prefab nodes has models that always exist in the scene. 
+      UpdatePrefabNode(
+          SourceNodeName, sourceJointConfig,
+          node => Meshes.UpdateMaterials(
+              node.rootModel.gameObject, newColor: color, newShaderName: shader));
+      UpdatePrefabNode(
+          TargetNodeName, targetJointConfig,
+          node => Meshes.UpdateMaterials(
+              node.rootModel.gameObject, newColor: color, newShaderName: shader));
     }
   }
 
@@ -439,18 +437,15 @@ public class KASRendererPipe : AbstractPipeRenderer {
       Colliders.UpdateColliders(
           targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
     } else {
-      // Special attention to the prefab nodes which exist in the scene even when the renderer is
-      // not started.
-      if (sourceJointConfig.type == PipeEndType.PrefabModel) {
-        var node = MakePrefabNode(SourceNodeName, sourceJointConfig);
-        Colliders.UpdateColliders(
-            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
-      }
-      if (targetJointConfig.type == PipeEndType.PrefabModel) {
-        var node = MakePrefabNode(TargetNodeName, targetJointConfig);
-        Colliders.UpdateColliders(
-            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
-      }
+      // Prefab nodes has models that always exist in the scene. 
+      UpdatePrefabNode(
+          SourceNodeName, sourceJointConfig,
+          node => Colliders.UpdateColliders(
+              node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
+      UpdatePrefabNode(
+          TargetNodeName, targetJointConfig,
+          node => Colliders.UpdateColliders(
+              node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
     }
   }
   #endregion
@@ -653,6 +648,21 @@ public class KASRendererPipe : AbstractPipeRenderer {
       return null;
     }
     return res;
+  }
+  #endregion
+
+  #region Local utility methods
+  /// <summary>Fires a callabck of the node config if it refers prefab model.</summary>
+  /// <param name="nodeName">The hierarchy obejct name.</param>
+  /// <param name="config">The node config.</param>
+  /// <param name="actionFn">The callback to call if the ndoe model is prefab.</param>
+  void UpdatePrefabNode(string nodeName, JointConfig config, Action<ModelPipeEndNode> actionFn) {
+    if (config.type == PipeEndType.PrefabModel) {
+      var node = MakePrefabNode(nodeName, config);
+      if (node != null) {
+        actionFn(node);
+      }
+    }
   }
   #endregion
 }
