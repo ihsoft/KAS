@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
+using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using System;
 using System.Collections.Generic;
@@ -216,6 +217,13 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
   }
   Material _pipeMaterial;
+
+  /// <summary>Part that owns the target tarnsform.</summary>
+  /// <remarks>
+  /// It can be <c>null</c> if the traget is not a part or the renderer is not started.
+  /// </remarks>
+  /// <seealso cref="StartRenderer"/>
+  protected Part targetPart { get; private set; }
   #endregion
 
   #region IHasDebugAdjustables implementation
@@ -232,6 +240,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
+    CreatePartModel();  // It's not exactly right place, but better than nothing.
     LoadPartModel();
     if (dbgOldSource != null && dbgOldTarget != null) {
       StartRenderer(dbgOldSource, dbgOldTarget);
@@ -257,9 +266,17 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
     sourceTransform = source;
     targetTransform = target;
+    targetPart = targetTransform.GetComponentInParent<Part>();
     CreatePipeMesh();
-    UpdateMeshes();
     part.RefreshHighlighter();
+    if (targetPart != null) {
+      targetPart.RefreshHighlighter();
+      targetPart.vessel.parts
+          .ForEach(p => SetCollisionIgnores(p, true));
+    }
+    GameEvents.onPartCoupleComplete.Add(OnPartCoupleCompleteEvent);
+    GameEvents.onPartDeCouple.Add(OnPartDeCoupleEvent);
+    GameEvents.onPartDeCoupleComplete.Add(OnPartDeCoupleCompleteEvent);
   }
 
   /// <inheritdoc/>
@@ -268,6 +285,17 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     part.RefreshHighlighter();
     sourceTransform = null;
     targetTransform = null;
+    if (targetPart != null) {
+      targetPart.RefreshHighlighter();
+      if (targetPart.vessel != vessel) {
+        targetPart.vessel.parts
+            .ForEach(p => SetCollisionIgnores(p, false));
+      }
+    }
+    targetPart = null;
+    GameEvents.onPartCoupleComplete.Remove(OnPartCoupleCompleteEvent);
+    GameEvents.onPartDeCouple.Remove(OnPartDeCoupleEvent);
+    GameEvents.onPartDeCoupleComplete.Remove(OnPartDeCoupleCompleteEvent);
   }
 
   /// <inheritdoc/>
@@ -307,8 +335,13 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// The source and target must be already set at the moment of this method called. However,
   /// it may be called without the prior call to <see cref="DestroyPipeMesh"/>. So any existing mesh
   /// should be handled accordingly (e.g. destroyed and re-created).
+  /// <para>
+  /// Note, that any mesh created outside of this method must track its collision and highlighting
+  /// states on its own.
+  /// </para>
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
+  /// <seealso cref="SetCollisionIgnores"/>
   protected abstract void CreatePipeMesh();
 
   /// <summary>Destroys the dynamic pipe mesh(-es).</summary>
@@ -343,15 +376,17 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Utility methods
-  /// <summary>Updates the part to catch up with the dynamic meshes updates.</summary>
+  /// <summary>
+  /// Enables or disables the collisions between the pipe meshes and the provided part.
+  /// </summary>
   /// <remarks>
-  /// Call it if new dynamic meshes are created outside of the <see cref="CreatePipeMesh"/> method.
+  /// There are multiple cases when this method can be called with different arguments. Some, but
+  /// not all are: make a link, couple a part, de-couple a part, create a new mesh, etc.
   /// </remarks>
-  protected void UpdateMeshes() {
-    CollisionManager.IgnoreCollidersOnVessel(
-        vessel, sourceTransform.root.GetComponentsInChildren<Collider>());
-    Colliders.SetCollisionIgnores(sourceTransform.root, targetTransform.root, true);
-  }
+  /// <param name="otherPart"></param>
+  /// <param name="ignore">Tells if the collision ignores must be set or reset.</param>
+  /// <seealso cref="targetPart"/>
+  protected abstract void SetCollisionIgnores(Part otherPart, bool ignore);
   #endregion
 
   #region Local utility methods
@@ -399,6 +434,66 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
         }
       }
     }
+  }
+  #endregion
+
+  #region Collision ignores tracking code (tricky!)
+  /// <summary>
+  /// Intermediate field to keep the vessel between starting and ending of the part decoupling
+  /// event.
+  /// </summary>
+  Vessel formerTargetVessel;
+
+  /// <summary>Reacts on a part coupling and adjusts its colliders as needed.</summary>
+  /// <remarks>
+  /// If the coupled part belongs to the same vessel as the target part of this pipe, then its
+  /// colliders should not interact with the source vessel even if the linked vessels are different. 
+  /// </remarks>
+  /// <param name="action">The callback action.</param>
+  void OnPartCoupleCompleteEvent(GameEvents.FromToAction<Part, Part> action) {
+    if (targetPart != null && targetPart.vessel != vessel
+        && (action.from.vessel == targetPart.vessel || action.to.vessel == targetPart.vessel)) {
+      if (action.from == targetPart) {
+        // The traget part has couple to a new vessel.
+        HostedDebugLog.Fine(this, "Set collision ignores on: {0}", action.to.vessel);
+        action.to.vessel.parts
+            .ForEach(p => SetCollisionIgnores(p, true));
+      } else {
+        // A part has joined the target vessel.
+        HostedDebugLog.Fine(this, "Set collision ignores on: {0}", action.from);
+        SetCollisionIgnores(action.from, true);
+      }
+    }
+  }
+
+  /// <summary>Records the owner vessel of the part being de-coupled.</summary>
+  /// <remarks>
+  /// This information will be used down the stream to detect if the collisions should be adjusted.
+  /// </remarks>
+  /// <param name="originator">The part that has dcoupled.</param>
+  void OnPartDeCoupleEvent(Part originator) {
+    if (targetPart != null && targetPart.vessel != vessel
+        && originator.vessel == targetPart.vessel) {
+      formerTargetVessel = originator.vessel;
+    }
+  }
+
+  /// <summary>Reacts on a part de-coupling and adjusts its colliders as needed.</summary>
+  /// <remarks>
+  /// The main idea is that the renderers meshes must not be colliding with any part of the target's
+  /// vessel, given the soucre and the traget point belong to different vessels.
+  /// </remarks>
+  /// <param name="originator">The part that has decoupled.</param>
+  void OnPartDeCoupleCompleteEvent(Part originator) {
+    if (formerTargetVessel != null && originator.vessel != formerTargetVessel) {
+      // It's either the traget part has decoupled from its vessel, or the owner vessel has
+      // abandoned the target part.
+      var leavingVessel = originator == targetPart ? formerTargetVessel : originator.vessel;
+      HostedDebugLog.Fine(this, "Restore collision ignores on: {0}", leavingVessel);
+      leavingVessel.parts
+          .ForEach(p => SetCollisionIgnores(p, false));
+    }
+    formerTargetVessel = null;
   }
   #endregion
 }

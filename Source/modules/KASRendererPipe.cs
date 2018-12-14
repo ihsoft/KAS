@@ -448,6 +448,23 @@ public class KASRendererPipe : AbstractPipeRenderer {
               node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
     }
   }
+
+  /// <inheritdoc/>
+  protected override void SetCollisionIgnores(Part otherPart, bool ignore) {
+    if (isStarted) {
+      Colliders.SetCollisionIgnores(pipeTransform, otherPart.transform, ignore);
+      Colliders.SetCollisionIgnores(sourceJointNode.rootModel, otherPart.transform, ignore);
+      Colliders.SetCollisionIgnores(targetJointNode.rootModel, otherPart.transform, ignore);
+    } else {
+      // Prefab nodes has models that always exist in the scene.
+      UpdatePrefabNode(
+          SourceNodeName, sourceJointConfig,
+          node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
+      UpdatePrefabNode(
+          TargetNodeName, targetJointConfig,
+          node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
+    }
+  }
   #endregion
 
   #region Inheritable methods

@@ -276,6 +276,13 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
       Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
     }
   }
+
+  /// <inheritdoc/>
+  protected override void SetCollisionIgnores(Part otherPart, bool ignore) {
+    if (pipeTransform != null) {
+      Colliders.SetCollisionIgnores(pipeTransform, otherPart.transform, ignore);
+    }
+  }
   #endregion
 
   #region Inheritable methods
