@@ -442,7 +442,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       return false;
     }
     LogicalLink(target);
-    PhysicaLink();
+    PhysicalLink();
     return true;
   }
 
@@ -550,7 +550,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Creates a physical link between the parts.</summary>
   /// <remarks>It's called after the logical link is established.</remarks>
-  protected virtual void PhysicaLink() {
+  protected virtual void PhysicalLink() {
     linkJoint.CreateJoint(this, linkTarget);
   }
 

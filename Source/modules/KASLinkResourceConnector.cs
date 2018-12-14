@@ -518,8 +518,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
 
   /// <inheritdoc/>
-  protected override void PhysicaLink() {
-    base.PhysicaLink();
+  protected override void PhysicalLink() {
+    base.PhysicalLink();
     SetCableLength(float.PositiveInfinity);
   }
   #endregion
