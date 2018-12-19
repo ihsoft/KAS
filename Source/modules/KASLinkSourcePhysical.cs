@@ -763,7 +763,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
     base.OnBeforeDebugAdjustablesUpdate();
-    SetConnectorState(ConnectorState.Locked);  // To restore the attach node.
+    // Lock to restore the attach node. Note, that only Linked & Available states are available for
+    // debug, so no need to remember and restore the connector state.
+    SetConnectorState(ConnectorState.Locked);
   }
   #endregion
 
