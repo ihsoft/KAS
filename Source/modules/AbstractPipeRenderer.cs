@@ -230,6 +230,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   Transform dbgOldSource;
   Transform dbgOldTarget;
 
+  /// <summary>Logs all the part's model objects.</summary>
+  [KASDebugAdjustable("Dump part's model hierarchy")]
+  public void ShowHirerachy() {
+    HostedDebugLog.Warning(this, "Part's model hierarchy:\n{0}",
+                           DbgFormatter.C2S(Hierarchy.ListHirerahcy(partModelTransform),
+                                            separator: "\n"));
+  }
+
   /// <inheritdoc/>
   public virtual void OnBeforeDebugAdjustablesUpdate() {
     dbgOldSource = sourceTransform;
