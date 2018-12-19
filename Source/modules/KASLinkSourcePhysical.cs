@@ -785,7 +785,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </summary>
   /// <returns><c>true</c> if the connector on the kerbal.</returns>
   protected bool IsActiveEvaHoldingConnector() {
-    return FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
+    return FlightGlobals.fetch != null  // To prevent NRE on the game shutdown. 
+        && FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
         && FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part != null
         && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
