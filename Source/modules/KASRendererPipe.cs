@@ -151,7 +151,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
-    [KASDebugAdjustable("Prefab model")]
     public string modelPath = "";
 
     /// <summary>
