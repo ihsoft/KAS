@@ -431,9 +431,18 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// Note, that the module will <i>not</i> notice any changes done to the joint. Always call
   /// <see cref="UpdateContextMenu"/> on this module after the update to the joint settings.
   /// </remarks>
-  /// <value>The module instance.</value>
+  /// <value>The module instance. It's never <c>null</c>.</value>
   /// <seealso cref="SetCableLength"/>
-  protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
+  protected ILinkCableJoint cableJoint {
+    get {
+      var res = linkJoint as ILinkCableJoint;
+      if (linkJoint != null && res == null) {
+        throw new InvalidOperationException(
+            "Joint is not cable: " + DebugEx.ObjectToString(linkJoint));
+      }
+      return res;
+    }
+  }
 
   /// <summary>State machine that defines and controls the connector state.</summary>
   /// <remarks>
