@@ -107,7 +107,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [KASDebugAdjustable("Pipe texture")]
-  public string pipeTexturePath = "KAS/TExtures/hose-d70-1kn";
+  public string pipeTexturePath = "";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
