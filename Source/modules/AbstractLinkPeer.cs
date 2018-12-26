@@ -126,7 +126,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <seealso cref="otherPeer"/>
   /// <seealso cref="linkNodeName"/>
   [KSPField(isPersistant = true)]
-  public string persistedLinkNodeName;
+  public string persistedLinkNodeName = "";
   #endregion
 
   #region ILinkPeer properties implementation
@@ -175,7 +175,7 @@ public abstract class AbstractLinkPeer : PartModule,
         persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
       } else {
         persistedLinkPartId = 0;
-        persistedLinkNodeName = null;
+        persistedLinkNodeName = "";
       }
       OnPeerChange(oldPeer);
     }
