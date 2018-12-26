@@ -12,33 +12,40 @@ namespace KASImpl {
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkPeer FindLinkPeer(ILinkPeer srcPeer) {
-    if (srcPeer.linkPartId == 0 || srcPeer.linkModuleIndex == -1) {
-      DebugEx.Error("Bad target part definition [Part:(id=F{0}#Module:{1}]",
-                    srcPeer.linkPartId, srcPeer.linkModuleIndex);
+    if (srcPeer.linkPartId == 0) {
+      DebugEx.Error("Bad target part: partId=F{0}", srcPeer.linkPartId);
       return null;
     }
+    ILinkPeer tgtPeer = null;
     var tgtPart = FlightGlobals.FindPartByID(srcPeer.linkPartId);
-    if (tgtPart == null) {
-      DebugEx.Error("Cannot find [Part:(id=F{0})]", srcPeer.linkPartId);
-      return null;
+
+    // In normal case we can lookup by the node name.
+    if (!string.IsNullOrEmpty(srcPeer.linkNodeName)) {
+      tgtPeer = tgtPart.Modules
+          .OfType<ILinkPeer>()
+          .FirstOrDefault(m => m.linkState == LinkState.Linked
+                               && m.linkPartId == srcPeer.part.flightID
+                               && m.linkNodeName == srcPeer.cfgAttachNodeName
+                               && m.cfgLinkType == srcPeer.cfgLinkType);
     }
-    if (srcPeer.linkModuleIndex >= tgtPart.Modules.Count) {
-      DebugEx.Error("The target part {0} doesn't have a module at index {1}",
-                    tgtPart, srcPeer.linkModuleIndex);
-      return null;
-    }
-    var tgtPeer = tgtPart.Modules[srcPeer.linkModuleIndex] as ILinkPeer;
+
+    // Fallback case. Try guessing the target peer by less strict conditions.
     if (tgtPeer == null) {
-      DebugEx.Error("The target module {0} is not a link peer",
-                    tgtPart.Modules[srcPeer.linkModuleIndex]);
-      return null;
+      var candidates = tgtPart.Modules
+          .OfType<ILinkPeer>()
+          .Where(m => m.linkState == LinkState.Linked
+                      && m.linkPartId == srcPeer.part.flightID
+                      && m.cfgLinkType == srcPeer.cfgLinkType)
+          .ToList();
+      if (candidates.Count == 1) {
+        tgtPeer = candidates[0];
+        DebugEx.Warning("FALLBACK: Found a link: {0} => {1}", srcPeer, tgtPeer);
+      }
     }
-    if (!tgtPeer.isLinked || tgtPeer.linkPartId != srcPeer.part.flightID
-        || tgtPeer.linkModuleIndex != srcPeer.part.Modules.IndexOf(srcPeer as PartModule)) {
-      DebugEx.Error("Source module {0} cannot be linked with the target module {1}",
-                    srcPeer.part.Modules[tgtPeer.linkModuleIndex],
-                    tgtPart.Modules[srcPeer.linkModuleIndex]);
-      return null;
+
+    if (tgtPeer == null) {
+      DebugEx.Error("Failed to find the link peer for: peer={0}, targetPartId={1}, targetNode={2}",
+                    srcPeer, srcPeer.linkPartId, srcPeer.linkNodeName);
     }
     return tgtPeer;
   }

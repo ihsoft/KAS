@@ -114,18 +114,19 @@ public abstract class AbstractLinkPeer : PartModule,
   public LinkState persistedLinkState = LinkState.Available;
 
   /// <summary>The other peer's part flight ID in the last save action.</summary>
-  /// <remarks>Normally, the base class handles it.</remarks>
+  /// <remarks>It's <c>0</c> if the peer is not linked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkPartId;
 
-  /// <summary>The other peer's module index in the last save action.</summary>
-  /// <remarks>Normally, the base class handles it.</remarks>
+  /// <summary>The other peer's module attach node name.</summary>
+  /// <remarks>It's <c>null</c> if the peer is not linked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
+  /// <seealso cref="linkNodeName"/>
   [KSPField(isPersistant = true)]
-  public int persistedLinkModuleIndex = -1;
+  public string persistedLinkNodeName;
   #endregion
 
   #region ILinkPeer properties implementation
@@ -169,10 +170,13 @@ public abstract class AbstractLinkPeer : PartModule,
     protected set {
       var oldPeer = _otherPeer;
       _otherPeer = value;
-      persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
-      persistedLinkModuleIndex = _otherPeer != null
-          ? _otherPeer.part.Modules.IndexOf(_otherPeer as PartModule)
-          : -1;
+      if (_otherPeer != null) {
+        persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
+        persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
+      } else {
+        persistedLinkPartId = 0;
+        persistedLinkNodeName = null;
+      }
       OnPeerChange(oldPeer);
     }
   }
@@ -184,8 +188,8 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
-  public int linkModuleIndex {
-    get { return persistedLinkModuleIndex; }
+  public string linkNodeName {
+    get { return persistedLinkNodeName; }
   }
 
   /// <inheritdoc/>
