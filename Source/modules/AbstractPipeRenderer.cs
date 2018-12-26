@@ -11,6 +11,7 @@ using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     IsDestroyable,
     // KSPDev interfaces
     IHasDebugAdjustables {
-
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
@@ -283,16 +283,28 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       }
       StopRenderer();
     }
+
     sourceTransform = source;
     targetTransform = target;
     targetPart = targetTransform.GetComponentInParent<Part>();
     CreatePipeMesh();
-    part.RefreshHighlighter();
+
+    // Update the meshes on the source vessel. 
+    PartModel.UpdateHighlighters(part);
+    sourceTransform.GetComponentsInChildren<Renderer>().ToList()
+        .ForEach(r => r.SetPropertyBlock(part.mpb));
+    vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+
+    // Update the target vessel relations (if any).
     if (targetPart != null) {
-      targetPart.RefreshHighlighter();
-      targetPart.vessel.parts
-          .ForEach(p => SetCollisionIgnores(p, true));
+      PartModel.UpdateHighlighters(targetPart);
+      targetTransform.GetComponentsInChildren<Renderer>().ToList()
+          .ForEach(r => r.SetPropertyBlock(targetPart.mpb));
+      if (targetPart.vessel != vessel) {
+        targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+      }
     }
+
     GameEvents.onPartCoupleComplete.Add(OnPartCoupleCompleteEvent);
     GameEvents.onPartDeCouple.Add(OnPartDeCoupleEvent);
     GameEvents.onPartDeCoupleComplete.Add(OnPartDeCoupleCompleteEvent);
@@ -300,18 +312,29 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public void StopRenderer() {
+    // Sync the renderers settinsg to the source part to handle the highlights.
+    if (isStarted) {
+      sourceTransform.GetComponentsInChildren<Renderer>().ToList()
+          .ForEach(r => r.SetPropertyBlock(part.mpb));
+      targetTransform.GetComponentsInChildren<Renderer>().ToList()
+          .ForEach(r => r.SetPropertyBlock(part.mpb));
+    }
+
     DestroyPipeMesh();
-    part.RefreshHighlighter();
-    sourceTransform = null;
-    targetTransform = null;
+    PartModel.UpdateHighlighters(part);
+
+    // Update the target vessel relations (if any).
     if (targetPart != null) {
-      targetPart.RefreshHighlighter();
+      PartModel.UpdateHighlighters(targetPart);
       if (targetPart.vessel != vessel) {
-        targetPart.vessel.parts
-            .ForEach(p => SetCollisionIgnores(p, false));
+        targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, false));
       }
     }
+
     targetPart = null;
+    sourceTransform = null;
+    targetTransform = null;
+
     GameEvents.onPartCoupleComplete.Remove(OnPartCoupleCompleteEvent);
     GameEvents.onPartDeCouple.Remove(OnPartDeCoupleEvent);
     GameEvents.onPartDeCoupleComplete.Remove(OnPartDeCoupleCompleteEvent);
@@ -355,8 +378,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// it may be called without the prior call to <see cref="DestroyPipeMesh"/>. So any existing mesh
   /// should be handled accordingly (e.g. destroyed and re-created).
   /// <para>
-  /// Note, that any mesh created outside of this method must track its collision and highlighting
-  /// states on its own.
+  /// All the meshes are expected to belong to either <see cref="sourceTransform"/> or
+  /// <see cref="targetTransform"/>. If it's not the case, then the creator must handle collision
+  /// ignores and highligher modules. Same applies to the meshes created outside of this method,
+  /// even when they belong to the proper source or target transform. 
   /// </para>
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
