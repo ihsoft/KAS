@@ -233,9 +233,20 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Logs all the part's model objects.</summary>
   [KASDebugAdjustable("Dump part's model hierarchy")]
   public void ShowHirerachy() {
-    HostedDebugLog.Warning(this, "Part's model hierarchy:\n{0}",
-                           DbgFormatter.C2S(Hierarchy.ListHirerahcy(partModelTransform),
-                                            separator: "\n"));
+    var modelPaths = Hierarchy.ListHirerahcy(partModelTransform);
+    var res = "";
+    foreach (var modelPath in modelPaths) {
+      var model = Hierarchy.FindTransformByPath(part.transform, modelPath);
+      if (model != null) {
+        res += modelPath
+            + " (localPos: " + DbgFormatter.Vector(model.localPosition)
+            + ", localRot" + DbgFormatter.Vector(model.localRotation.eulerAngles)
+            + ")\n";
+      } else {
+        res += modelPath + " (UNDEFINED)\n";
+      }
+    }
+    HostedDebugLog.Warning(this, "Part's model hierarchy:\n{0}", res);
   }
 
   /// <inheritdoc/>
