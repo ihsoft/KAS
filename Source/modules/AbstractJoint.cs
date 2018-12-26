@@ -361,7 +361,7 @@ public abstract class AbstractJoint : PartModule,
   readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
 
   /// <summary>The objects that were used by the custom joints.</summary>
-  /// <remarks>These object will be destoyed on the joints clean up.</remarks>
+  /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
   protected List<Object> customExtraObjects { get { return _customObjects; } }

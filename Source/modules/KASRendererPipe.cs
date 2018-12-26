@@ -41,7 +41,7 @@ namespace KAS {
 /// <item>
 /// <term><see cref="PipeEndType.PrefabModel"/></term>
 /// <description>
-/// A model form the part's prefab is used to draw the end of the pipe. No extra actions are made at
+/// A model from the part's prefab is used to draw the end of the pipe. No extra actions are made at
 /// the pipe's connect, so the model must be appropriately setup to make this joint looking cute.
 /// </description>
 /// </item>
@@ -163,7 +163,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("partAttachAt")]
-    [KASDebugAdjustable("Prefab part attach pos&rot")]
+    [KASDebugAdjustable("Prefab PART attach pos&rot")]
     public PosAndRot partAttachAt = new PosAndRot();
 
     /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
@@ -174,7 +174,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("pipeAttachAt")]
-    [KASDebugAdjustable("Prefab pipe attach pos&rot")]
+    [KASDebugAdjustable("Prefab PIPE attach pos&rot")]
     public PosAndRot pipeAttachAt = new PosAndRot();
 
     /// <summary>
