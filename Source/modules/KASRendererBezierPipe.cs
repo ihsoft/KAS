@@ -131,6 +131,12 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   }
 
   /// <inheritdoc/>
+  public override Transform GetMeshByName(string meshName) {
+    // TODO(ihsoft): Return the objects.
+    throw new NotImplementedException();
+  }
+
+  /// <inheritdoc/>
   protected override void CreatePartModel() {
   }
 

@@ -195,6 +195,17 @@ public class KASRendererPipe : AbstractPipeRenderer {
   }
   #endregion
 
+  #region Public mesh names
+  /// <summary>Mesh name for the node that attaches to the source part.</summary>
+  public const string SourceNodeMesh = "sourceNodeModel";
+
+  /// <summary>Mesh name for the node that attaches to the target part.</summary>
+  public const string TargetNodeMesh = "targetNodeModel";
+
+  /// <summary>Mesh name for the pipe between teh nodes.</summary>
+  public const string PipeMesh = "pipeModel";
+  #endregion
+
   #region Object names for the procedural model construction
   /// <summary>
   /// Name of the object in the node's model that defines where it attaches to the part.
@@ -398,6 +409,33 @@ public class KASRendererPipe : AbstractPipeRenderer {
             pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
       }
     }
+  }
+
+  /// <inheritdoc/>
+  public override Transform GetMeshByName(string meshName) {
+    if (isStarted) {
+      switch (meshName) {
+        case SourceNodeMesh:
+          return sourceJointNode.rootModel;
+        case TargetNodeMesh:
+          return targetJointNode.rootModel;
+        case PipeMesh:
+          return pipeTransform;
+      }
+    } else {
+      Transform res = null;
+      switch (meshName) {
+        case SourceNodeMesh:
+          LookupEndNode(null, SourceNodeName, sourceJointConfig, node => res = node.rootModel);
+          return res;
+        case TargetNodeMesh:
+          LookupEndNode(null, TargetNodeName, targetJointConfig, node => res = node.rootModel);
+          return res;
+        case PipeMesh:
+          return null;
+      }
+    }
+    throw new ArgumentException("Unknown mesh name: " + meshName);
   }
 
   /// <inheritdoc/>

@@ -356,6 +356,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
     return hitMessages.ToArray();
   }
+
+  /// <inheritdoc/>
+  public abstract Transform GetMeshByName(string meshName);
   #endregion
 
   #region AbstractProceduralModel overrides

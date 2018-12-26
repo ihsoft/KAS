@@ -3,6 +3,7 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
 using UnityEngine;
 
 namespace KASAPIv1 {
@@ -52,6 +53,16 @@ public interface ILinkRenderer {
   /// <value>The start state.</value>
   /// <seealso cref="StartRenderer"/>
   bool isStarted { get; }
+
+  /// <summary>Returns a mesh, created by the renderer.</summary>
+  /// <remarks>
+  /// It depends on the implementation which meshes a specific rednerer creates. The caller must be
+  /// aware of which renderer it uses and don't request unknown meshes.
+  /// </remarks>
+  /// <param name="meshName">The name of the mesh. It's not required to be the object name!</param>
+  /// <returns>The object or <c>null</c> if the named mesh is not created.</returns>
+  /// <exception cref="ArgumentException">If the request name is not supported.</exception>
+  Transform GetMeshByName(string meshName);
 
   /// <summary>
   /// Base position/direction of the connection point at the beginning of the link. The source

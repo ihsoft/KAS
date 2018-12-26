@@ -10,6 +10,7 @@ using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using KSPDev.ConfigUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -544,6 +545,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       }
     }
     return hitMessages.ToArray();
+  }
+
+  /// <inheritdoc/>
+  public Transform GetMeshByName(string meshName) {
+    // TODO(ihsoft): Return latches and pipes, and attach rigid bodies to them.
+    throw new NotImplementedException();
   }
   #endregion
 
