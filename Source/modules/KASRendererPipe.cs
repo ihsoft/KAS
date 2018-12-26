@@ -34,7 +34,8 @@ namespace KAS {
 /// This mode is good for the cases when the attach node is located on the surface of the part.
 /// <para>
 /// There is an option to raise the connection point over the attach node. In this case a simple
-/// cylinder (the "arm") is drawn between the attach node and the connection sphere.
+/// cylinder (the "arm") is drawn between the attach node and the connection sphere. Its diameter
+/// matches the diameter of the sphere.
 /// </para>
 /// </description>
 /// </item>
@@ -330,12 +331,15 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
     DestroyPipeMesh();
+
     sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
     AlignTransforms.SnapAlign(
         sourceJointNode.rootModel, sourceJointNode.partAttach, sourceTransform);
+    sourceJointNode.rootModel.parent = sourceTransform;
     targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
     AlignTransforms.SnapAlign(
         targetJointNode.rootModel, targetJointNode.partAttach, targetTransform);
+    targetJointNode.rootModel.parent = targetTransform;
     CreateLinkPipe();
 
     // Have the overrides applied if any.
@@ -358,9 +362,9 @@ public class KASRendererPipe : AbstractPipeRenderer {
           sourceJointNode.rootModel.gameObject.SetActive(false);
         }
       }
-      sourceJointNode = null;
     }
-    if (targetJointNode != null) {
+    // The target can be a separate vessel, hence it can get destroyed prior to the source.
+    if (targetJointNode != null && targetJointNode.rootModel != null) {
       if (targetJointNode.cleanupRoot) {
         UnityEngine.Object.Destroy(targetJointNode.rootModel.gameObject);
       } else {
@@ -373,20 +377,20 @@ public class KASRendererPipe : AbstractPipeRenderer {
           targetJointNode.rootModel.gameObject.SetActive(false);
         }
       }
-      targetJointNode = null;
     }
     if (pipeTransform != null) {
       UnityEngine.Object.Destroy(pipeTransform.gameObject);
-      pipeTransform = null;
     }
+
+    sourceJointNode = null;
+    targetJointNode = null;
+    pipeTransform = null;
     pipeMeshRenderer = null;
   }
 
   /// <inheritdoc/>
   public override void UpdateLink() {
     if (isStarted) {
-      AlignTransforms.SnapAlign(
-          targetJointNode.rootModel, targetJointNode.partAttach, targetTransform);
       SetupPipe(
           pipeTransform, sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
       if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
@@ -408,71 +412,51 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected override void UpdateMaterialOverrides() {
     var color = colorOverride ?? materialColor;
     var shader = shaderNameOverride ?? shaderName;
-    if (isStarted) {
+    if (pipeTransform != null) {
       Meshes.UpdateMaterials(pipeTransform.gameObject, newColor: color, newShaderName: shader);
-      Meshes.UpdateMaterials(
-          sourceJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
-      Meshes.UpdateMaterials(
-          targetJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
-    } else {
-      // Prefab nodes has models that always exist in the scene. 
-      UpdatePrefabNode(
-          SourceNodeName, sourceJointConfig,
-          node => Meshes.UpdateMaterials(
-              node.rootModel.gameObject, newColor: color, newShaderName: shader));
-      UpdatePrefabNode(
-          TargetNodeName, targetJointConfig,
-          node => Meshes.UpdateMaterials(
-              node.rootModel.gameObject, newColor: color, newShaderName: shader));
     }
+    LookupEndNode(
+        sourceJointNode, SourceNodeName, sourceJointConfig,
+        node => Meshes.UpdateMaterials(
+            node.rootModel.gameObject, newColor: color, newShaderName: shader));
+    LookupEndNode(
+        targetJointNode, TargetNodeName, targetJointConfig,
+        node => Meshes.UpdateMaterials(
+            node.rootModel.gameObject, newColor: color, newShaderName: shader));
   }
 
   /// <inheritdoc/>
   protected override void UpdateColliderOverrides() {
-    if (isStarted) {
+    if (pipeTransform != null) {
       Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
-      Colliders.UpdateColliders(
-          sourceJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
-      Colliders.UpdateColliders(
-          targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
-    } else {
-      // Prefab nodes has models that always exist in the scene. 
-      UpdatePrefabNode(
-          SourceNodeName, sourceJointConfig,
-          node => Colliders.UpdateColliders(
-              node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
-      UpdatePrefabNode(
-          TargetNodeName, targetJointConfig,
-          node => Colliders.UpdateColliders(
-              node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
     }
+    LookupEndNode(
+        sourceJointNode, SourceNodeName, sourceJointConfig,
+        node => Colliders.UpdateColliders(
+            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
+    LookupEndNode(
+        targetJointNode, TargetNodeName, targetJointConfig,
+        node => Colliders.UpdateColliders(
+            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
   }
 
   /// <inheritdoc/>
   protected override void SetCollisionIgnores(Part otherPart, bool ignore) {
-    if (isStarted) {
+    if (pipeTransform != null) {
       Colliders.SetCollisionIgnores(pipeTransform, otherPart.transform, ignore);
-      Colliders.SetCollisionIgnores(sourceJointNode.rootModel, otherPart.transform, ignore);
-      Colliders.SetCollisionIgnores(targetJointNode.rootModel, otherPart.transform, ignore);
-    } else {
-      // Prefab nodes has models that always exist in the scene.
-      UpdatePrefabNode(
-          SourceNodeName, sourceJointConfig,
-          node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
-      UpdatePrefabNode(
-          TargetNodeName, targetJointConfig,
-          node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
     }
+    LookupEndNode(
+        sourceJointNode, SourceNodeName, sourceJointConfig,
+        node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
+    LookupEndNode(
+        targetJointNode, TargetNodeName, targetJointConfig,
+        node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
   }
   #endregion
 
   #region Inheritable methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
-  /// <remarks>
-  /// The models are created as the children of <see cref="AbstractPipeRenderer.sourceTransform"/>.
-  /// It applies to the prefab models as well, even though they are not dynamically created. So
-  /// calling this method may change the models state.
-  /// </remarks>
+  /// <remarks>The root node model must be a child of the part model.</remarks>
   /// <param name="name">
   /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
   /// may not be used as is, the actual object can have a different full name.
@@ -485,9 +469,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
     switch (config.type) {
       case PipeEndType.PrefabModel:
         res = MakePrefabNode(name, config);
-        if (res == null) {
-          goto case PipeEndType.Simple;  // Fallback if no prefab found.
-        }
         break;
       case PipeEndType.Simple:
         res = MakeSimpleNode(name);
@@ -500,7 +481,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
         res = MakeSimpleNode(name);
         break;
     }
-    res.rootModel.parent = sourceTransform;
     return res;
   }
 
@@ -573,6 +553,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected ModelPipeEndNode MakeSimpleNode(string name) {
     var res = new ModelPipeEndNode();
     res.rootModel = new GameObject(ModelBasename + "-pipeNode" + name).transform;
+    res.rootModel.parent = partModelTransform;
     res.partAttach = new GameObject(PartJointTransformName).transform;
     Hierarchy.MoveToParent(res.partAttach, res.rootModel,
                            newRotation: Quaternion.LookRotation(Vector3.back));
@@ -593,6 +574,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected ModelPipeEndNode MakeProceduralNode(string name, JointConfig config) {
     var res = new ModelPipeEndNode();
     res.rootModel = new GameObject(ModelBasename + "-pipeNode" + name).transform;
+    res.rootModel.parent = partModelTransform;
     res.partAttach = new GameObject(PartJointTransformName).transform;
     Hierarchy.MoveToParent(res.partAttach, res.rootModel,
                            newRotation: Quaternion.LookRotation(Vector3.back));
@@ -638,9 +620,19 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <returns>The node or <c>null</c> if the prefab model cannot be found.</returns>
   protected ModelPipeEndNode MakePrefabNode(string name, JointConfig config) {
     var res = new ModelPipeEndNode();
-    res.rootModel = Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
+    var prefabName = ModelBasename + "-connector" + name;
+    res.rootModel = partModelTransform.Find(prefabName)
+        ?? Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
     if (res.rootModel != null) {
+      res.rootModel.name = prefabName;
       res.rootModel.gameObject.SetActive(true);
+      var parent = res.rootModel.parent;
+      res.rootModel.parent = partModelTransform;
+      while (parent != null && parent.childCount == 0) {
+        // Cleanup hierarchy in case of the models were dynamic (too many intermediate objects).
+        UnityEngine.Object.Destroy(parent.gameObject);
+        parent = parent.parent;
+      }
       res.partAttach = res.rootModel.Find(PartJointTransformName)
           ?? new GameObject(PartJointTransformName).transform;
       Hierarchy.MoveToParent(res.partAttach, res.rootModel,
@@ -660,7 +652,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
                                newRotation: config.parkAttachAt.rot);
       }
     } else {
-      HostedDebugLog.Error(this, "Cannot find model: {0}", config.modelPath);
+      HostedDebugLog.Error(
+          this, "Cannot find model: cfg={0}, setup={1}", config.modelPath, prefabName);
       return null;
     }
     return res;
@@ -668,16 +661,26 @@ public class KASRendererPipe : AbstractPipeRenderer {
   #endregion
 
   #region Local utility methods
-  /// <summary>Fires a callabck of the node config if it refers prefab model.</summary>
-  /// <param name="nodeName">The hierarchy obejct name.</param>
-  /// <param name="config">The node config.</param>
-  /// <param name="actionFn">The callback to call if the ndoe model is prefab.</param>
-  void UpdatePrefabNode(string nodeName, JointConfig config, Action<ModelPipeEndNode> actionFn) {
-    if (config.type == PipeEndType.PrefabModel) {
-      var node = MakePrefabNode(nodeName, config);
-      if (node != null) {
-        actionFn(node);
-      }
+  /// <summary>Applies action on the end node models in a safe way.</summary>
+  /// <param name="node">
+  /// The node to apply the action to. Can be <c>null</c> for the prerfab models.
+  /// </param>
+  /// <param name="nodeName">
+  /// The prefab node's root model name used in creation. See <see cref="CreateJointEndModels"/>.
+  /// </param>
+  /// <param name="config">The prefab node's configuration.</param>
+  /// <param name="actionFn">
+  /// The action to apply. The parameter of the action is the node. It's a real node if the renderer
+  /// is started, or a temporary object in case of the renderer is not started and the node model is
+  /// prefab.
+  /// </param>
+  void LookupEndNode(ModelPipeEndNode node, string nodeName, JointConfig config,
+                     Action<ModelPipeEndNode> actionFn) {
+    if (node == null && config.type == PipeEndType.PrefabModel) {
+      node = MakePrefabNode(nodeName, config);
+    }
+    if (node != null) {
+      actionFn(node);
     }
   }
   #endregion
