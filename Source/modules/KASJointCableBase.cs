@@ -169,7 +169,7 @@ public class KASJointCableBase : AbstractJoint,
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
       HostedDebugLog.Error(this,
-          "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1}, hasRb=[2}",
+          "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1}, hasRb={2}",
           isLinked, isHeadStarted, headRb != null);
       return;
     }
