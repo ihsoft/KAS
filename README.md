@@ -40,7 +40,7 @@ You can support this and the other of my mods on [Patreon](https://www.patreon.c
 If you want doing EVA comfortably, you really should consider adding these mods as well:
 
 * [Kerbal Inventory System (KIS)](https://forum.kerbalspaceprogram.com/index.php?/topic/149848-14-kerbal-inventory-system-kis-v114/). Now you can build and upgrade vessels in EVA!
-* [Easy Vessel Switch (EVS)](https://forum.kerbalspaceprogram.com/index.php?/topic/141180-15-easy-vessel-switch-evs-v19/). No more guessing how to switch to "that vessel" - simply point and click!
+* [Easy Vessel Switch (EVS)](https://github.com/ihsoft/EasyVesselSwitch). No more guessing how to switch to "that vessel" - simply point and click!
 * [Surface Mounted Lights](https://forum.kerbalspaceprogram.com/index.php?/topic/139724-15-surface-mounted-lights-v19/). Too dark for EVA on the other side of the moon? Problem solved with these ambient lights!
 
 # How to install
