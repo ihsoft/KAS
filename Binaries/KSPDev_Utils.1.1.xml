@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.1.0</name>
+        <name>KSPDev_Utils.1.1</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -272,6 +272,41 @@
             <summary>Restores the object's state from a plain string.</summary>
             <param name="value">String value to restore from.</param>
             <remarks>It's OK to throw exceptions if the value cannot be parsed.</remarks>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PartNodeUtils">
+            <summary>Various methods to deal with the config nodes of the parts.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodeUtils.GetModuleNode(ConfigNode,System.String)">
+            <summary>Extracts a module config node from the part config.</summary>
+            <param name="partNode">
+            The part's config. It can be a top-level node or the <c>PART</c> node.
+            </param>
+            <param name="moduleName">The name of the module to extract.</param>
+            <returns>The module node or <c>null</c> if not found.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodeUtils.GetModuleNode``1(ConfigNode)">
+            <summary>Extracts a module config node from the part config.</summary>
+            <param name="partNode">
+            The part's config. It can be a top-level node or the <c>PART</c> node.
+            </param>
+            <returns>The module node or <c>null</c> if not found.</returns>
+            <typeparam name="T">The type of the module to get node for.</typeparam>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodeUtils.GetModuleNodes(ConfigNode,System.String)">
+            <summary>Extracts all module config nodes from the part config.</summary>
+            <param name="partNode">
+            The part's config. It can be a top-level node or the <c>PART</c> node.
+            </param>
+            <param name="moduleName">The name of the module to extract.</param>
+            <returns>The array of found module nodes.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodeUtils.GetModuleNodes``1(ConfigNode)">
+            <summary>Extracts all module config nodes from the part config.</summary>
+            <param name="partNode">
+            The part's config. It can be a top-level node or the <c>PART</c> node.
+            </param>
+            <returns>The array of found module nodes.</returns>
+            <typeparam name="T">The type of the module to get node for.</typeparam>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute">
             <summary>
@@ -822,6 +857,45 @@
             </typeparam>
             <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
         </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath``1(ConfigNode,System.String,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Reads a value of an arbitrary type <typeparamref name="T"/> from the config node.
+            </summary>
+            <param name="node">The node to read data from.</param>
+            <param name="path">
+            The path to the node. The path components should be separated by '/' symbol.
+            </param>
+            <param name="typeProto">
+            A proto that can parse values of type <typeparamref name="T"/>. If not set, then
+            <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.
+            </param>
+            <returns>The parsed value or <c>null</c> if not found.</returns>
+            <typeparam name="T">
+            The value type to write. The <paramref name="typeProto"/> instance must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath``1(ConfigNode,System.String,``0,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath``1(ConfigNode,System.String[],KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)">
+            <summary>
+            Reads a value of an arbitrary type <typeparamref name="T"/> from the config node.
+            </summary>
+            <param name="node">The node to read data from.</param>
+            <param name="pathKeys">
+            The array of values that makes the full path. The first node in the array is the top most
+            component of the path.
+            </param>
+            <param name="typeProto">
+            A proto that can parse values of type <typeparamref name="T"/>. If not set, then
+            <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is used.
+            </param>
+            <returns>The parsed value or <c>null</c> if not found.</returns>
+            <typeparam name="T">
+            The value type to write. The <paramref name="typeProto"/> instance must be able to handle it.
+            </typeparam>
+            <exception cref="T:System.ArgumentException">If type cannot be handled by the proto.</exception>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.SetValueByPath``1(ConfigNode,System.String[],``0,KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto)"/>
+        </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.GetPersistentFieldsFiles(System.Type,System.String)">
             <summary>Gathers and returns persistent field fields annotations.</summary>
             <param name="type">A type to lookup for the field annotations.</param>
@@ -1213,6 +1287,15 @@
             <summary>Helper class to deal with the debug GUI functionality.</summary>
             <seealso cref="T:KSPDev.DebugUtils.DebugAdjustableAttribute"/>
         </member>
+        <member name="M:KSPDev.DebugUtils.DebugGui.DumpHierarchy(UnityEngine.Transform,UnityEngine.Transform)">
+            <summary>Dumps the objects hierarchy to the logs.</summary>
+            <remarks>
+            This method recirsively goes down to the all decendants, starting from
+            <paramref name="child"/>. The path, however, is shown realtive to <paramref name="root"/>.
+            </remarks>
+            <param name="root">The root object to make the path from.</param>
+            <param name="child">The descendant of <paramref name="root"/> to dump descendants for.</param>
+        </member>
         <member name="M:KSPDev.DebugUtils.DebugGui.GetAdjustableFields(System.Object,System.String)">
             <summary>Gets the fields, available for debugging.</summary>
             <param name="obj">The instance to get the fields from.</param>
@@ -1241,7 +1324,7 @@
             <returns>The member meta info for all the available methods.</returns>
             <seealso cref="T:KSPDev.DebugUtils.DebugAdjustableAttribute"/>
         </member>
-        <member name="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String)">
+        <member name="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String,Part)">
             <summary>Creates a debug dialog for the parts.</summary>
             <param name="title">The titile of the dialog.</param>
             <param name="dialogWidth">
@@ -1253,6 +1336,9 @@
             <param name="group">
             The group of the controls to present. If empty, then all the controls are shown.
             </param>
+            <param name="bindToPart">
+            The fixed part to attach the dialog to. The dialog won't allow changing the part.
+            </param>
             <returns>The created dialog.</returns>
             <seealso cref="M:KSPDev.DebugUtils.DebugGui.DestroyPartDebugDialog(KSPDev.DebugUtils.PartDebugAdjustmentDialog)"/>
             <seealso cref="T:KSPDev.DebugUtils.DebugAdjustableAttribute"/>
@@ -1260,11 +1346,11 @@
         <member name="M:KSPDev.DebugUtils.DebugGui.DestroyPartDebugDialog(KSPDev.DebugUtils.PartDebugAdjustmentDialog)">
             <summary>Destroys the debug dialog.</summary>
             <param name="dlg">The dialog to destroy.</param>
-            <seealso cref="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String)"/>
+            <seealso cref="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String,Part)"/>
         </member>
         <member name="P:KSPDev.DebugUtils.DebugGui.dialogsRoot">
             <summary>Game object to use to host the debug dialogs.</summary>
-            <seealso cref="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String)"/>
+            <seealso cref="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String,Part)"/>
         </member>
         <member name="T:KSPDev.DebugUtils.DebugGui.DebugMemberInfo">
             <summary>Metadata about the member that is available for debugging.</summary>
@@ -1364,16 +1450,62 @@
         <member name="F:KSPDev.DebugUtils.PartDebugAdjustmentDialog.controlsGroup">
             <summary>Controls group to show.</summary>
         </member>
+        <member name="F:KSPDev.DebugUtils.PartDebugAdjustmentDialog.lockToPart">
+            <summary>Tells if this dialog must be bound to one part only.</summary>
+            <remarks>
+            There will be no part selection UI offered, so the caller must set the part. If the parent
+            part dies, then the dialog automatically closes. 
+            </remarks>
+            <seealso cref="M:KSPDev.DebugUtils.PartDebugAdjustmentDialog.SetPart(Part)"/>
+        </member>
         <member name="M:KSPDev.DebugUtils.PartDebugAdjustmentDialog.OnGUI">
             <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.DebugUtils.PartDebugAdjustmentDialog.SetPart(Part)">
+            <summary>Sets the part to be adjusted.</summary>
+            <param name="part">The part to set.</param>
         </member>
         <member name="M:KSPDev.DebugUtils.PartDebugAdjustmentDialog.ConsoleWindowFunc(System.Int32)">
             <summary>Shows a window that displays the winch controls.</summary>
             <param name="windowId">Window ID.</param>
         </member>
-        <member name="M:KSPDev.DebugUtils.PartDebugAdjustmentDialog.SetPart(Part)">
-            <summary>Sets the part to be adjusted.</summary>
-            <param name="part">The part to set.</param>
+        <member name="T:KSPDev.DebugUtils.PerfCounter">
+            <summary>Simple performance counter to measure CPU cost of the code branch.</summary>
+            <remarks>
+            The counter itself can have a performance impact, but it's not counted towards the methods or
+            function cost being measured. Don't profile branches that have other performance counters, since
+            such measurements will also count the overhead of thouse counters.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.DebugUtils.PerfCounter.MeasureAction(System.Action)">
+            <summary>Measures timing in a simple action that doesn't return result.</summary>
+            <param name="fn">The action to measure.</param>
+        </member>
+        <member name="M:KSPDev.DebugUtils.PerfCounter.MeasureFunction``1(System.Func{``0})">
+            <summary>Measures timing in a function that returns result.</summary>
+            <param name="fn">The function to measure.</param>
+            <typeparam name="RetVal">The return parameter of the measured function.</typeparam>
+            <returns>The value from the measured function.</returns>
+        </member>
+        <member name="P:KSPDev.DebugUtils.PerfCounter.numSamples">
+            <summary>Total number of readings captured.</summary>
+            <value>The number of times <see cref="M:KSPDev.DebugUtils.PerfCounter.MeasureAction(System.Action)"/> was called.</value>
+        </member>
+        <member name="P:KSPDev.DebugUtils.PerfCounter.totalDurationMs">
+            <summary>Total elapsed milleseconds in all readings.</summary>
+            <value>The total number of milliseconds, spent in the measured code.</value>
+        </member>
+        <member name="P:KSPDev.DebugUtils.PerfCounter.avgDurationPerCallMs">
+            <summary>Average time spent per one reading.</summary>
+            <value>The average time in milliseconds.</value>
+        </member>
+        <member name="P:KSPDev.DebugUtils.PerfCounter.maxDurationPerCallMs">
+            <summary>Maximum time spent in one reading during the life of the counter.</summary>
+            <value>The maximum duration, taken by the measured code.</value>
+        </member>
+        <member name="P:KSPDev.DebugUtils.PerfCounter.minDurationPerCallMs">
+            <summary>Minimum time spent in one reading during the life of the counter.</summary>
+            <value>The minimum duration, taken by the measured code.</value>
         </member>
         <member name="T:KSPDev.DebugUtils.StdTypesDebugGuiControl">
             <summary>Wrapper class that gives a GUI control for editing the standard game types.</summary>
@@ -2095,6 +2227,11 @@
             Makes the window movable. It's an improved version of the stock <c>GUI.DragWindow()</c>
             method.
             </summary>
+            <remarks>
+            The main difference from the stock method is that the dragging state is not reset by the GUI
+            layout methods. Also, it reports the draggign state, so some updates to the dialog may be
+            frozen to not inerfere with the move operation.
+            </remarks>
             <param name="windowRect">
             The window rectangle. It must be the same instance which is passed to the
             <c>GUILayout.Window</c> method.
@@ -5012,6 +5149,24 @@
             <c>true</c> if the values difference is negligible.
             </returns>
         </member>
+        <member name="T:KSPDev.MathUtils.Mathf2">
+            <summary>Gives extra methods for handling float values in the game.</summary>
+        </member>
+        <member name="F:KSPDev.MathUtils.Mathf2.Epsilon">
+            <summary>Value which can be safely considered to be <c>0</c>.</summary>
+        </member>
+        <member name="M:KSPDev.MathUtils.Mathf2.AreSame(System.Single,System.Single)">
+            <summary>Tells if the two floats are the same, allowing some small error.</summary>
+            <remarks>
+            This method requires the difference between the values to be negligible. The absolute values
+            are not counted.
+            </remarks>
+            <param name="a">The first value to test.</param>
+            <param name="b">The second value to test.</param>
+            <returns>
+            <c>true</c> if the values difference is negligible.
+            </returns>
+        </member>
         <member name="T:KSPDev.ModelUtils.AlignTransforms">
             <summary>Helper methods to align transformations relative to each other.</summary>
         </member>
@@ -5132,6 +5287,8 @@
             <see cref="F:UnityEngine.PrimitiveType.Cylinder"/>, <see cref="F:UnityEngine.PrimitiveType.Sphere"/>, and
             <see cref="F:UnityEngine.PrimitiveType.Cube"/> are supported.
             </param>
+            FIXME: it's not working with asymetric meshes
+            FIXME: use GameOvbject.GetRedererBounds?
         </member>
         <member name="M:KSPDev.ModelUtils.Colliders.SetCollisionIgnores(UnityEngine.Transform,UnityEngine.Transform,System.Boolean)">
             <summary>Disables/enables all the colliders between the objects.</summary>
@@ -5169,6 +5326,35 @@
             <param name="part">The part to adjust colliders for.</param>
             <param name="vessel">The vessel to start/stop colliding with.</param>
             <param name="ignore">The desired state of the collision check.</param>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.GetSqrDistanceToPart(UnityEngine.Vector3,Part,System.Func{UnityEngine.Collider,System.Boolean})">
+            <summary>
+            Returns the minimum square distance to the nearest point on the part's collider surface.
+            </summary>
+            <remarks>This method skips triggers and inactive colliders.</remarks>
+            <param name="point">The reference point to find distance for.</param>
+            <param name="part">The part to check for.</param>
+            <param name="filterFn">
+            The filter function to apply to every collider. Return <c>false</c> from it to sklip the
+            collider in the following checks.
+            </param>
+            <returns>The square distance or <c>null</c> if no colliders found.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Colliders.GetSqrDistanceToPartOrDefault(UnityEngine.Vector3,Part,System.Single,System.Func{UnityEngine.Collider,System.Boolean})">
+            <summary>
+            Returns the minimum square distance to the nearest point on the part's collider surface.
+            </summary>
+            <remarks>This method skips triggers and inactive colliders.</remarks>
+            <param name="point">The reference point to find distance for.</param>
+            <param name="part">The part to check for.</param>
+            <param name="defaultValue">The value to return if no suitable colliders found.</param>
+            <param name="filterFn">
+            The filter function to apply to every collider. Return <c>false</c> from it to sklip the
+            collider in the following checks.
+            </param>
+            <returns>
+            The square distance or <paramref name="defaultValue"/> if no colliders found.
+            </returns>
         </member>
         <member name="T:KSPDev.ModelUtils.Colliders.PrimitiveCollider">
             <summary>Defines how collisions should be checked on a primitive.</summary>
@@ -5359,7 +5545,7 @@
             </summary>
             <param name="parent">The object to start from.</param>
             <param name="pathPrefix">The prefix to add to every path in the result.</param>
-            <returns>The paths to all the objects in the hirerachy separated by a LF symbol.</returns>
+            <returns>The paths to all the objects in the hierarchy separated by a LF symbol.</returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.GetFullPath(UnityEngine.Transform,UnityEngine.Transform)">
             <summary>Returns a full path to the object starting from the specified parent.</summary>
@@ -5411,6 +5597,7 @@
             It's not a full set of the layers. More investigation is needed to reveal all of them.
             </remarks>
             <seealso cref="T:KSPDev.ModelUtils.KspLayerMask"/>
+            <seealso href="https://wiki.kerbalspaceprogram.com/wiki/API:Layers">KSP API: Layers</seealso>
         </member>
         <member name="F:KSPDev.ModelUtils.KspLayer.Part">
             <summary>The layer for a regular part.</summary>
@@ -5728,6 +5915,48 @@
             <param name="srcModule">The module that originally owns the event.</param>
             <param name="srcEventFn">The event signature in the owner's module.</param>
             <param name="tgtModule">The part to withdraw the event from.</param>
+        </member>
+        <member name="T:KSPDev.PartUtils.VariantsUtils">
+            <summary>Various methods to deal with the part variants.</summary>
+        </member>
+        <member name="M:KSPDev.PartUtils.VariantsUtils.GetCurrentPartVariant(AvailablePart,ConfigNode)">
+            <summary>Gets the part's variant.</summary>
+            <param name="avPart">The part proto to get the variant for.</param>
+            <param name="partNode">The part's persistent state.</param>
+            <returns>The part's variant.</returns>
+        </member>
+        <member name="M:KSPDev.PartUtils.VariantsUtils.GetCurrentPartVariant(Part)">
+            <summary>Gets the part variant.</summary>
+            <param name="part">The part to get variant for.</param>
+            <returns>The part's variant.</returns>
+        </member>
+        <member name="M:KSPDev.PartUtils.VariantsUtils.ExecuteAtPartVariant(AvailablePart,PartVariant,System.Action{Part})">
+            <summary>Executes an action on a part with an arbitrary variant applied.</summary>
+            <remarks>
+            If the part doesn't support variants, then the action is executed for the unchanged prefab.
+            </remarks>
+            <param name="avPart">The part proto.</param>
+            <param name="variant">
+            The variant to apply. Set it to <c>null</c> to use the default part variant.
+            </param>
+            <param name="fn">
+            The action to call once the variant is applied. The argument is a prefab part with the variant
+            applied, so changing it or obtaining any hard references won't be a good idea. The prefab
+            part's variant will be reverted before the method return.
+            </param>
+        </member>
+        <member name="M:KSPDev.PartUtils.VariantsUtils.ApplyVariantOnAttachNodes(Part,PartVariant,System.Boolean)">
+            <summary>Applies variant settinsg to the part attach nodes.</summary>
+            <remarks>
+            The stock apply variant method only does it when the active scene is editor. So if there is a
+            part in the flight scene with a variant, it needs to be updated for the proper KIS behavior.
+            </remarks>
+            <param name="part">The part to apply the chnages to.</param>
+            <param name="variant">The variant to apply.</param>
+            <param name="updatePartPosition">
+            Tells if any connected parts at the attach nodes need to be repositioned accordingly. This may
+            trigger collisions in the scene, so use carefully.
+            </param>
         </member>
         <member name="T:KSPDev.ProcessingUtils.AsyncCall">
             <summary>Set of tools to execute a delayed code.</summary>
