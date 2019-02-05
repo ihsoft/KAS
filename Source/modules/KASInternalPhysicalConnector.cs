@@ -49,10 +49,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     // Create the interaction collider if requested.
     if (interactionDistance > 0) {
       // This mesh is placed on a special layer which is not rendered in the game. It's only
-      // used to detect the special zones triggers (like ladders, hatches, etc.).
-      var interactionTriggerObj = Meshes.CreateSphere(
-          2 * interactionDistance, null, obj.transform, Colliders.PrimitiveCollider.Shape);
+      // used to detect the special zones triggers, so keep it simple.
+      var interactionTriggerObj = Meshes.CreatePrimitive(
+          PrimitiveType.Quad, Vector3.one, null, obj.transform);
+      //interactionTriggerObj.SetActive(true);
       interactionTriggerObj.name = InteractionAreaCollider;
+      var collider = interactionTriggerObj.AddComponent<SphereCollider>();
+      collider.isTrigger = true;
+      collider.radius = interactionDistance;
       interactionTriggerObj.layer = (int) KspLayer.TriggerCollider;
       interactionTriggerObj.gameObject.GetComponent<Collider>().isTrigger = true;
       connectorModule.interactionTriggerObj = interactionTriggerObj;
