@@ -168,7 +168,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [KASDebugAdjustable("Auto speed duration threshold")]
-  public float autolSpeedTransferDuration = 4.0f;
+  public float autoSpeedTransferDuration = 4.0f;
 
   /// <summary>
   /// Pattern to find the model which will be rotating around X-axis when the hose is
@@ -497,7 +497,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     resourceRows.ToList().ForEach(x => x.UpdateStaticStrings());
 
     autoScaleToggleCnt = new GUIContent(
-        AutoScaleToggleTxt, AutoScaleToggleHint.Format(autolSpeedTransferDuration));
+        AutoScaleToggleTxt, AutoScaleToggleHint.Format(autoSpeedTransferDuration));
     leftToRigthToggleCnt = new GUIContent("<<", LeftToRigthToggleHint);
     leftToRigthButtonCnt = new GUIContent("<", LeftToRigthButtonHint);
     rightToLeftToggleCnt = new GUIContent(">>", RightToLeftToggleHint);
@@ -670,7 +670,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
     }
 
-    transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autolSpeedTransferDuration);
+    transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autoSpeedTransferDuration);
   }
   
   /// <summary>Does actual resource transfer on the selected option.</summary>
