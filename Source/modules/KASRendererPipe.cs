@@ -17,36 +17,38 @@ namespace KAS {
 /// <remarks>
 /// Usually, the renderer is started or stopped by a link source. However, it can be any module.  
 /// <para>
-/// Pipe ends can be constructed differently:
-/// <list type="table">
-/// <item>
-/// <term><see cref="PipeEndType.Simple"/></term>
-/// <description>
-/// A simple cylinder is drawn between the nodes. The ends of the pipe may look ugly at the large
-/// angles if they are not "sunken" into another mesh.
-/// </description>
-/// </item>
-/// <item>
-/// <term><see cref="PipeEndType.ProceduralModel"/></term>
-/// <description>
-/// A sphere is drawn at the end of the pipe. If sphere diameter matches the pipe's diameter then
-/// the pipe gets a capsule form. However, the sphere is not required to have the same diameter.
-/// This mode is good for the cases when the attach node is located on the surface of the part.
-/// <para>
-/// There is an option to raise the connection point over the attach node. In this case a simple
-/// cylinder (the "arm") is drawn between the attach node and the connection sphere. Its diameter
-/// can be adjusted separately.
+/// At each end of the pipe a model can be drawn to make the connection look nicer, it's
+/// configured separately for the pipe source and target. If nothing is configured, then the pipe
+/// (which is a cylinder mesh) simply toches the attach nodes of the parts. If the pipe diameter
+/// is big, then it may look bad since the edges of the cylinder won't mix nicely with the part
+/// meshes.
 /// </para>
-/// </description>
-/// </item>
-/// <item>
-/// <term><see cref="PipeEndType.PrefabModel"/></term>
-/// <description>
-/// A model from the part's prefab is used to draw the end of the pipe. No extra actions are made at
-/// the pipe's connect, so the model must be appropriately setup to make this joint looking cute.
-/// </description>
-/// </item>
-/// </list>
+/// <para>
+/// One way to improve appearance is adding a sphere mesh of the same or bigger diameter at the
+/// location where pipe touches the part. This way the cylinder edges will "sink" in the spheres.
+/// The sphere diameter can be set via <c>sphereDiameter</c> setting.
+/// </para>
+/// <para>
+/// By default, the sphere is placed at the part's mesh (depending on how the part's attach node
+/// is configured, actually). If it needs to be offset above or below of the default position, the
+/// <c>sphereOffset</c> setting can be used.
+/// </para>
+/// <para>
+/// If the sphere is offset above the part's mesh, there may be desirable to simulate a small
+/// piece of pipe between the part's mesh and the sphere. This can be done by defining pipe diameter
+/// via <c>armDiameter</c>.
+/// </para>
+/// <para>
+/// Finally, a complete prefab model can be inserted! This model will be inserted between the part
+/// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the model,
+/// two extra parameters are needed: <c>partAttachAt</c>, which defines how the model attches to
+/// the part; and <c>pipeAttachAt</c>, which defines where the pipe attaches to the model. If
+/// sphere or offsets were set, they will be counter relative to <c>pipeAttachAt</c>. 
+/// </para>
+/// <para>
+/// Normally, the pipe models are shown and hidden depending on the state the pipe. However, it's
+/// possible to define a static position where the model(s) will be placed when the renderer is
+/// stopped. This is done via setting <c>parkAttachAt</c>.
 /// </para>
 /// <para>
 /// The descendants of this module can use the custom persistent fields of groups:
@@ -58,7 +60,6 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="KASAPIv1.ILinkSource"/>
 /// <seealso cref="KASAPIv1.ILinkRenderer"/>
-/// <seealso cref="PipeEndType"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
@@ -66,112 +67,53 @@ namespace KAS {
 public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Public config types
-  /// <summary>Type if the end of the pipe.</summary>
-  public enum PipeEndType {
-    /// <summary>The pipe's mesh just touches the target's attach node.</summary>
-    /// <remarks>
-    /// It looks ugly on the large pipe diameters but may be fine when the diameter is not
-    /// significant. The problem can be mitigated by "sinking" the node into the part's mesh.
-    /// </remarks>
-    Simple,
-    /// <summary>Pipe's end is a model that is dynamically created.</summary>
-    /// <remarks>
-    /// <para>
-    /// A sphere mesh is rendered at the point where the pipe's mesh touches the target part's
-    /// attach node. The sphere diameter can be adjusted, and if it's equal or greater than the
-    /// diameter of the pipe then the joint looks smoother.
-    /// </para>
-    /// <para>
-    /// The actual connection point for the pipe mesh can be elevated over the target attach node.
-    /// In this case a simple cylinder, the "arm", can be rendered between the part and the joint
-    /// sphere. The diameter and the height of the arm can be adjusted.
-    /// </para>
-    /// </remarks>
-    /// <seealso cref="JointConfig"/>
-    ProceduralModel,
-    /// <summary>Pipe's end model is defined in the part's prefab.</summary>
-    /// <remarks>
-    /// The model must exist in the part's prefab. Also, some extra settings need to be setup to
-    /// tell how to align the model against the target part.
-    /// </remarks>
-    /// <seealso cref="JointConfig"/>
-    PrefabModel,
-  }
-
   /// <summary>Helper structure to hold the joint model setup.</summary>
   /// <seealso cref="KASRendererPipe"/>
   public class JointConfig {
-    /// <summary>Defines how to obtain the joint model.</summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    [PersistentField("type")]
-    [KASDebugAdjustable("Pipe type")]
-    public PipeEndType type = PipeEndType.Simple;
-    
-    /// <summary>Height of the joint sphere over the attach node.</summary>
+    /// <summary>Offset of the pipe joint relative to the attach node.</summary>
     /// <remarks>
-    /// It can be negative to shift the "joint" point in the opposite direction.
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
+    /// It can be negative to shift the "joint" point in the opposite direction. If prefab model is 
+    /// defined, then the offset is counted relative to <see cref="pipeAttachAt"/>.
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
     [KASDebugAdjustable("Sphere offset")]
     public float sphereOffset;
 
-    /// <summary>Diameter of the joint sphere. It must be zero or positive.</summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/>.
-    /// </remarks>
+    /// <summary>Diameter of the sphere to place at the pipe joint.</summary>
+    /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
     [KASDebugAdjustable("Sphere diameter")]
     public float sphereDiameter;
 
-    /// <summary>
-    /// Diameter of the pipe that connects the attach node and the sphere. It must be zero or
-    /// positive.
-    /// </summary>
-    /// <remarks>
-    /// Only used if <see cref="type"/> is <see cref="PipeEndType.ProceduralModel"/> and
-    /// <see cref="sphereOffset"/> is greater than zero.
-    /// </remarks>
+    /// <summary>Diameter of the pipe that connects the attach node and the pipe joint.</summary>
+    /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
     [KASDebugAdjustable("Arm diameter")]
     public float armDiameter;
 
-    /// <summary>Path to the model that represents the joint.</summary>
+    /// <summary>Path to the prefab model that represents the joint.</summary>
     /// <remarks>
-    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
-    /// <para>
     /// Note, that the model will be "consumed". I.e. the internal logic may change the name of the
-    /// prefab within the part's model, extend it with more objects, or destroy it altogether. If
+    /// object within the part's model, extend it with more objects, or destroy it altogether. If
     /// the same model is needed for the other purposes, add a copy via a <c>MODEL</c> tag in the
     /// part's config.
-    /// </para>
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
     public string modelPath = "";
 
-    /// <summary>
-    /// Setup of the node at which the node's model will attach to the target part.
-    /// </summary>
-    /// <remarks>
-    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
-    /// <para><i>IMPORTANT!</i> The position is affected by the prefab's scale.</para>
-    /// </remarks>
+    /// <summary>Position and rotation at which the model will attach to the target part.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("partAttachAt")]
     [KASDebugAdjustable("Prefab PART attach pos&rot")]
     public PosAndRot partAttachAt = new PosAndRot();
 
-    /// <summary>Setup of the node at which the node's model will attach to the pipe.</summary>
-    /// <remarks>
-    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
-    /// <para><i>IMPORTANT!</i> The position is affected by the prefab's scale.</para>
-    /// </remarks>
+    /// <summary>Position and rotation at which the node's model will attach to the pipe.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("pipeAttachAt")]
@@ -179,12 +121,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     public PosAndRot pipeAttachAt = new PosAndRot();
 
     /// <summary>
-    /// Defines the location where to attach the prefab model when the renderer is stopped. It's the
-    /// location at the <i>source</i> part.
+    /// Position and rotation at which the joint head attaches when the renderer is stopped.
     /// </summary>
     /// <remarks>
-    /// <para>Only used if <see cref="type"/> is <see cref="PipeEndType.PrefabModel"/>.</para>
-    /// <para><i>IMPORTANT!</i> The position is affected by the prefab's scale.</para>
+    /// <para>It's the location at the <i>source</i> part.</para>
     /// <para>If it's <c>null</c>, then the model will be simply hidden on the renderer stop.</para>
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
@@ -257,10 +197,53 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// </remarks>
     public Transform parkAttach;
 
-    /// <summary>
-    /// Tells if the root model is dynamic and needs to be cleaned up on renderer stop.
-    /// </summary>
-    public bool cleanupRoot;
+    /// <summary>Prefab model, used as a part of the attachement end node.</summary>
+    /// <remarks>
+    /// This object is never disposed. On dispose, it's returned to the part's model in the inactive
+    /// state.
+    /// </remarks>
+    public Transform prefabModel;
+
+    /// <summary>Part's model.</summary>
+    /// <remarks>Used to return the persistent objects on dispose.</remarks>
+    public Transform partModel;
+
+    /// <summary>Destroys the dynamically created objects and disables the prefab.</summary>
+    public void Dispose() {
+      // Do NOT destroy the prefab model. Only disable it.
+      if (prefabModel != null) {
+        prefabModel.parent = partModel;
+        prefabModel.gameObject.SetActive(false);
+      }
+
+      // Destroy the dynamically created objects. 
+      rootModel.parent = null;  // Remove from hierarchy immediately.
+      UnityEngine.Object.Destroy(rootModel.gameObject);
+      if (parkAttach != null) {
+        parkAttach.parent = null;  // Remove from hierarchy immediately.
+        UnityEngine.Object.Destroy(parkAttach.gameObject);
+      }
+    }
+
+    /// <summary>Updates the node's state to the target transform.</summary>
+    /// <param name="target">
+    /// The transfrom to align the node to. It can be <c>null</c> if there is no transform.
+    /// </param>
+    public void AlignToTransform(Transform target) {
+      if (target != null) {
+        rootModel.gameObject.SetActive(true);
+        AlignTransforms.SnapAlign(rootModel, partAttach, target);
+        rootModel.parent = target;
+      } else {
+        rootModel.parent = partModel;
+        if (parkAttach == null) {
+          rootModel.gameObject.SetActive(false);
+        } else {
+          rootModel.gameObject.SetActive(true);
+          AlignTransforms.SnapAlign(rootModel, pipeAttach, parkAttach);
+        }
+      }
+    }
   }
   #endregion
 
@@ -311,47 +294,31 @@ public class KASRendererPipe : AbstractPipeRenderer {
   #region AbstractPipeRenderer abstract members
   /// <inheritdoc/>
   protected override void CreatePartModel() {
+    LoadPartModel();
   }
 
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    if (sourceJointConfig.type == PipeEndType.PrefabModel) {
-      var node = MakePrefabNode(SourceNodeName, sourceJointConfig);
-      if (node != null) {
-        if (node.parkAttach == null) {
-          node.rootModel.gameObject.SetActive(false);
-        } else  {
-          node.rootModel.gameObject.SetActive(true);
-          AlignTransforms.SnapAlign(node.rootModel, node.pipeAttach, node.parkAttach);
-        }
-      }
+    if (sourceJointNode != null) {
+      sourceJointNode.Dispose();
+      sourceJointNode = null;
     }
-    if (targetJointConfig.type == PipeEndType.PrefabModel) {
-      var node = MakePrefabNode(TargetNodeName, targetJointConfig);
-      if (node != null) {
-        if (node.parkAttach == null) {
-          node.rootModel.gameObject.SetActive(false);
-        } else  {
-          node.rootModel.gameObject.SetActive(true);
-          AlignTransforms.SnapAlign(node.rootModel, node.pipeAttach, node.parkAttach);
-        }
-      }
+    if (targetJointNode != null) {
+      targetJointNode.Dispose();
+      targetJointNode = null;
     }
+    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
+    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
+    sourceJointNode.AlignToTransform(sourceTransform);
+    targetJointNode.AlignToTransform(targetTransform);
   }
 
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
     DestroyPipeMesh();
-
-    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
-    AlignTransforms.SnapAlign(
-        sourceJointNode.rootModel, sourceJointNode.partAttach, sourceTransform);
-    sourceJointNode.rootModel.parent = sourceTransform;
-    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
-    AlignTransforms.SnapAlign(
-        targetJointNode.rootModel, targetJointNode.partAttach, targetTransform);
-    targetJointNode.rootModel.parent = targetTransform;
     CreateLinkPipe();
+    sourceJointNode.AlignToTransform(sourceTransform);
+    targetJointNode.AlignToTransform(targetTransform);
 
     // Have the overrides applied if any.
     UpdateMaterialOverrides();
@@ -360,43 +327,17 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
-    if (sourceJointNode != null) {
-      if (sourceJointNode.cleanupRoot) {
-        UnityEngine.Object.Destroy(sourceJointNode.rootModel.gameObject);
-      } else {
-        sourceJointNode.rootModel.parent = partModelTransform;
-        if (sourceJointNode.parkAttach != null) {
-          AlignTransforms.SnapAlign(
-              sourceJointNode.rootModel, sourceJointNode.pipeAttach, sourceJointNode.parkAttach);
-          sourceJointNode.rootModel.gameObject.SetActive(true);
-        } else {
-          sourceJointNode.rootModel.gameObject.SetActive(false);
-        }
-      }
-    }
-    // The target can be a separate vessel, hence it can get destroyed prior to the source.
-    if (targetJointNode != null && targetJointNode.rootModel != null) {
-      if (targetJointNode.cleanupRoot) {
-        UnityEngine.Object.Destroy(targetJointNode.rootModel.gameObject);
-      } else {
-        targetJointNode.rootModel.parent = partModelTransform;
-        if (targetJointNode.parkAttach != null) {
-          AlignTransforms.SnapAlign(
-              targetJointNode.rootModel, targetJointNode.pipeAttach, targetJointNode.parkAttach);
-          targetJointNode.rootModel.gameObject.SetActive(true);
-        } else {
-          targetJointNode.rootModel.gameObject.SetActive(false);
-        }
-      }
-    }
     if (pipeTransform != null) {
       UnityEngine.Object.Destroy(pipeTransform.gameObject);
     }
-
-    sourceJointNode = null;
-    targetJointNode = null;
     pipeTransform = null;
     pipeMeshRenderer = null;
+    if (sourceJointNode != null) {
+      sourceJointNode.AlignToTransform(null);
+    }
+    if (targetJointNode != null) {
+      targetJointNode.AlignToTransform(null);
+    }
   }
 
   /// <inheritdoc/>
@@ -413,29 +354,22 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   public override Transform GetMeshByName(string meshName) {
-    if (isStarted) {
-      switch (meshName) {
-        case SourceNodeMesh:
-          return sourceJointNode.rootModel;
-        case TargetNodeMesh:
-          return targetJointNode.rootModel;
-        case PipeMesh:
-          return pipeTransform;
-      }
-    } else {
-      Transform res = null;
-      switch (meshName) {
-        case SourceNodeMesh:
-          LookupEndNode(null, SourceNodeName, sourceJointConfig, node => res = node.rootModel);
-          return res;
-        case TargetNodeMesh:
-          LookupEndNode(null, TargetNodeName, targetJointConfig, node => res = node.rootModel);
-          return res;
-        case PipeMesh:
-          return null;
-      }
+    Transform res = null;
+    switch (meshName) {
+      case SourceNodeMesh:
+        res = sourceJointNode.rootModel;
+        break;
+      case TargetNodeMesh:
+        res = targetJointNode.rootModel;
+        break;
+      case PipeMesh:
+        res = pipeTransform;
+        break;
     }
-    throw new ArgumentException("Unknown mesh name: " + meshName);
+    if (res == null) {
+      throw new ArgumentException("Unknown mesh name: " + meshName);
+    }
+    return res;
   }
 
   /// <inheritdoc/>
@@ -453,14 +387,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     if (pipeTransform != null) {
       Meshes.UpdateMaterials(pipeTransform.gameObject, newColor: color, newShaderName: shader);
     }
-    LookupEndNode(
-        sourceJointNode, SourceNodeName, sourceJointConfig,
-        node => Meshes.UpdateMaterials(
-            node.rootModel.gameObject, newColor: color, newShaderName: shader));
-    LookupEndNode(
-        targetJointNode, TargetNodeName, targetJointConfig,
-        node => Meshes.UpdateMaterials(
-            node.rootModel.gameObject, newColor: color, newShaderName: shader));
+    Meshes.UpdateMaterials(
+        sourceJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
+    Meshes.UpdateMaterials(
+        targetJointNode.rootModel.gameObject, newColor: color, newShaderName: shader);
   }
 
   /// <inheritdoc/>
@@ -468,14 +398,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     if (pipeTransform != null) {
       Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
     }
-    LookupEndNode(
-        sourceJointNode, SourceNodeName, sourceJointConfig,
-        node => Colliders.UpdateColliders(
-            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
-    LookupEndNode(
-        targetJointNode, TargetNodeName, targetJointConfig,
-        node => Colliders.UpdateColliders(
-            node.rootModel.gameObject, isEnabled: pipeColliderIsPhysical));
+    Colliders.UpdateColliders(
+        sourceJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+    Colliders.UpdateColliders(
+        targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
   }
 
   /// <inheritdoc/>
@@ -483,42 +409,102 @@ public class KASRendererPipe : AbstractPipeRenderer {
     if (pipeTransform != null) {
       Colliders.SetCollisionIgnores(pipeTransform, otherPart.transform, ignore);
     }
-    LookupEndNode(
-        sourceJointNode, SourceNodeName, sourceJointConfig,
-        node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
-    LookupEndNode(
-        targetJointNode, TargetNodeName, targetJointConfig,
-        node => Colliders.SetCollisionIgnores(node.rootModel, otherPart.transform, ignore));
+    Colliders.SetCollisionIgnores(sourceJointNode.rootModel, otherPart.transform, ignore);
+    Colliders.SetCollisionIgnores(targetJointNode.rootModel, otherPart.transform, ignore);
   }
   #endregion
 
   #region Inheritable methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
-  /// <remarks>The root node model must be a child of the part model.</remarks>
   /// <param name="name">
   /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
   /// may not be used as is, the actual object can have a different full name.
   /// </param>
   /// <param name="config">The joint configuration from the part's config.</param>
-  /// <returns>The pipe end node.</returns>
-  /// <seealso cref="PipeEndType"/>
+  /// <returns>The pipe end node. The root model will eb a child of the part's model.</returns>
   protected virtual ModelPipeEndNode CreateJointEndModels(string name, JointConfig config) {
-    ModelPipeEndNode res;
-    switch (config.type) {
-      case PipeEndType.PrefabModel:
-        res = MakePrefabNode(name, config);
-        break;
-      case PipeEndType.Simple:
-        res = MakeSimpleNode(name);
-        break;
-      case PipeEndType.ProceduralModel:
-        res = MakeProceduralNode(name, config);
-        break;
-      default:
-        HostedDebugLog.Error(this, "Cannot create node of type: {0}", config.type);
-        res = MakeSimpleNode(name);
-        break;
+    var res = new ModelPipeEndNode();
+    res.partModel = partModelTransform;
+    
+    // Create basic setup.
+    var nodeName = ModelBasename + "-pipeNode" + name;
+    res.rootModel = partModelTransform.Find(nodeName)
+        ?? new GameObject(nodeName).transform;
+    res.rootModel.parent = partModelTransform;
+    res.partAttach = res.rootModel.Find(PartJointTransformName)
+        ?? new GameObject(PartJointTransformName).transform;
+    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
+                           newPosition: Vector3.zero,
+                           newRotation: Quaternion.LookRotation(Vector3.back));
+    res.pipeAttach = res.rootModel.Find(PipeJointTransformName)
+        ?? new GameObject(PipeJointTransformName).transform;
+    Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
+                           newPosition: Vector3.zero,
+                           newRotation: Quaternion.LookRotation(Vector3.forward));
+
+    // Add a pipe attachment sphere if set.
+    if (config.sphereDiameter > float.Epsilon) {
+      const string sphereName = "pipeSphere";
+      var sphere = res.pipeAttach.Find(sphereName)
+          ?? Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, res.pipeAttach,
+                                 colliderType: Colliders.PrimitiveCollider.Shape).transform;
+      sphere.name = sphereName;
+      sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
+      RescaleTextureToLength(sphere,
+                             samplesPerMeter: pipeTextureSamplesPerMeter,
+                             extraScale: config.sphereDiameter * 2.0f);
+      Hierarchy.MoveToParent(sphere, res.pipeAttach,
+                             newPosition: Vector3.zero,
+                             newRotation: Quaternion.identity);
     }
+
+    // Parking position, if defined.
+    if (config.parkAttachAt != null) {
+      var parkObjectName = ModelBasename + "-park" + name;
+      res.parkAttach = partModelTransform.Find(parkObjectName)
+          ?? new GameObject(parkObjectName).transform;
+      Hierarchy.MoveToParent(res.parkAttach, partModelTransform,
+                             newPosition: config.parkAttachAt.pos,
+                             newRotation: config.parkAttachAt.rot);
+    }
+
+    // Place prefab between the part and the pipe if specified.
+    if (!string.IsNullOrEmpty(config.modelPath)) {
+      // The prefab model can move to the part's model, so make a unique name for it. 
+      var prefabName = ModelBasename + "-connector" + name;
+      var prefabModel = res.rootModel.Find(prefabName)
+          ?? partModelTransform.Find(prefabName)  // Models re-create case.
+          ?? Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
+      if (prefabModel != null) {
+        prefabModel.gameObject.SetActive(true);
+        prefabModel.name = prefabName;
+        prefabModel.parent = res.rootModel;
+        prefabModel.rotation = res.partAttach.rotation * config.partAttachAt.rot.Inverse();
+        prefabModel.position = res.partAttach.TransformPoint(config.partAttachAt.pos);
+        res.pipeAttach.rotation = prefabModel.rotation * config.pipeAttachAt.rot;
+        res.pipeAttach.position = prefabModel.TransformPoint(config.pipeAttachAt.pos);
+        res.prefabModel = prefabModel;
+      } else {
+        HostedDebugLog.Error(this, "Cannot find model: {0}", prefabName);
+      }
+    }
+
+    // Add arm pipe.
+    res.pipeAttach.localPosition += new Vector3(0, 0, config.sphereOffset);
+    if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon) {
+      const string armName = "sphereArm";
+      var arm = res.pipeAttach.Find(armName)
+          ?? Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                   res.pipeAttach,
+                                   colliderType: Colliders.PrimitiveCollider.Shape).transform;
+      arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
+      arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
+      arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
+      RescaleTextureToLength(
+          arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter,
+          extraScale: config.sphereOffset);
+    }
+
     return res;
   }
 
@@ -579,146 +565,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
     if (mr.material.HasProperty(BumpMapProp)) {
       var nrmScale = mr.material.GetTextureScale(BumpMapProp);
       mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
-    }
-  }
-
-  /// <summary>Makes a node that doesn't have any meshes.</summary>
-  /// <param name="name">
-  /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
-  /// may not be used as is, the actual object can have a different full name.
-  /// </param>
-  /// <returns>The node.</returns>
-  protected ModelPipeEndNode MakeSimpleNode(string name) {
-    var res = new ModelPipeEndNode();
-    res.rootModel = new GameObject(ModelBasename + "-pipeNode" + name).transform;
-    res.rootModel.parent = partModelTransform;
-    res.partAttach = new GameObject(PartJointTransformName).transform;
-    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
-                           newRotation: Quaternion.LookRotation(Vector3.back));
-    res.pipeAttach = new GameObject(PipeJointTransformName).transform;
-    Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
-                           newRotation: Quaternion.LookRotation(Vector3.forward));
-    res.cleanupRoot = true;
-    return res;
-  }
-
-  /// <summary>Makes a node with the dynamically generated meshes.</summary>
-  /// <param name="name">
-  /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
-  /// may not be used as is, the actual object can have a different full name.
-  /// </param>
-  /// <param name="config">The configuration object.</param>
-  /// <returns>The node or <c>null</c> if the prefab model cannot be found.</returns>
-  protected ModelPipeEndNode MakeProceduralNode(string name, JointConfig config) {
-    var res = new ModelPipeEndNode();
-    res.rootModel = new GameObject(ModelBasename + "-pipeNode" + name).transform;
-    res.rootModel.parent = partModelTransform;
-    res.partAttach = new GameObject(PartJointTransformName).transform;
-    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
-                           newRotation: Quaternion.LookRotation(Vector3.back));
-    var offset = Mathf.Abs(config.sphereOffset);
-    if (Mathf.Abs(config.sphereDiameter) > float.Epsilon) {
-      res.pipeAttach = Meshes.CreateSphere(
-          config.sphereDiameter, pipeMaterial, res.rootModel,
-          colliderType: Colliders.PrimitiveCollider.Shape).transform;
-      res.pipeAttach.name = PipeJointTransformName;
-      res.pipeAttach.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-      RescaleTextureToLength(res.pipeAttach,
-                             samplesPerMeter: pipeTextureSamplesPerMeter,
-                             extraScale: config.sphereDiameter * 2.0f);
-    } else {
-      res.pipeAttach = new GameObject(PipeJointTransformName).transform;
-      Hierarchy.MoveToParent(res.pipeAttach , res.rootModel);
-    }
-    res.pipeAttach.localPosition = new Vector3(0, 0, config.sphereOffset);
-    res.pipeAttach.localRotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
-    if (offset > float.Epsilon) {
-      if (Mathf.Abs(config.armDiameter) > float.Epsilon) {
-        var arm = Meshes.CreateCylinder(
-            config.armDiameter, offset, pipeMaterial, res.rootModel,
-            colliderType: Colliders.PrimitiveCollider.Shape);
-        arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-        arm.transform.localPosition = new Vector3(0, 0, config.sphereOffset / 2);
-        arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-        RescaleTextureToLength(
-            arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter, extraScale: offset);
-      }
-    }
-    res.cleanupRoot = true;
-    return res;
-  }
-
-  /// <summary>Makes a node with the meshes from prefab.</summary>
-  /// <remarks>The prefab model must be a child of the part's model.</remarks>
-  /// <param name="name">
-  /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
-  /// may not be used as is, the actual object can have a different full name.
-  /// </param>
-  /// <param name="config">The configuration object.</param>
-  /// <returns>The node or <c>null</c> if the prefab model cannot be found.</returns>
-  protected ModelPipeEndNode MakePrefabNode(string name, JointConfig config) {
-    var res = new ModelPipeEndNode();
-    var prefabName = ModelBasename + "-connector" + name;
-    res.rootModel = partModelTransform.Find(prefabName)
-        ?? Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
-    if (res.rootModel != null) {
-      res.rootModel.name = prefabName;
-      res.rootModel.gameObject.SetActive(true);
-      var parent = res.rootModel.parent;
-      res.rootModel.parent = partModelTransform;
-      while (parent != null && parent.childCount == 0) {
-        // Cleanup hierarchy in case of the models were dynamic (too many intermediate objects).
-        UnityEngine.Object.Destroy(parent.gameObject);
-        parent = parent.parent;
-      }
-      res.partAttach = res.rootModel.Find(PartJointTransformName)
-          ?? new GameObject(PartJointTransformName).transform;
-      Hierarchy.MoveToParent(res.partAttach, res.rootModel,
-                             newPosition: config.partAttachAt.pos,
-                             newRotation: config.partAttachAt.rot);
-      res.pipeAttach = res.rootModel.Find(PipeJointTransformName) 
-          ?? new GameObject(PipeJointTransformName).transform;
-      Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
-                             newPosition: config.pipeAttachAt.pos,
-                             newRotation: config.pipeAttachAt.rot);
-      if (config.parkAttachAt != null) {
-        var parkObjectName = ModelBasename + "-park" + name;
-        res.parkAttach = partModelTransform.Find(parkObjectName)
-            ?? new GameObject(parkObjectName).transform;
-        Hierarchy.MoveToParent(res.parkAttach, partModelTransform,
-                               newPosition: config.parkAttachAt.pos,
-                               newRotation: config.parkAttachAt.rot);
-      }
-    } else {
-      HostedDebugLog.Error(
-          this, "Cannot find model: cfg={0}, setup={1}", config.modelPath, prefabName);
-      return null;
-    }
-    return res;
-  }
-  #endregion
-
-  #region Local utility methods
-  /// <summary>Applies action on the end node models in a safe way.</summary>
-  /// <param name="node">
-  /// The node to apply the action to. Can be <c>null</c> for the prerfab models.
-  /// </param>
-  /// <param name="nodeName">
-  /// The prefab node's root model name used in creation. See <see cref="CreateJointEndModels"/>.
-  /// </param>
-  /// <param name="config">The prefab node's configuration.</param>
-  /// <param name="actionFn">
-  /// The action to apply. The parameter of the action is the node. It's a real node if the renderer
-  /// is started, or a temporary object in case of the renderer is not started and the node model is
-  /// prefab.
-  /// </param>
-  void LookupEndNode(ModelPipeEndNode node, string nodeName, JointConfig config,
-                     Action<ModelPipeEndNode> actionFn) {
-    if (node == null && config.type == PipeEndType.PrefabModel) {
-      node = MakePrefabNode(nodeName, config);
-    }
-    if (node != null) {
-      actionFn(node);
     }
   }
   #endregion
