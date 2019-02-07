@@ -472,6 +472,9 @@ public abstract class AbstractLinkPeer : PartModule,
   /// between. Override this method if the descendant module needs initialization.
   /// </remarks>
   protected virtual void LoadModuleSettings() {
+    if (isAutoAttachNode && parsedAttachNode != null) {
+      KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
+    }
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
     if (isAutoAttachNode) {
