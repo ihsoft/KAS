@@ -40,10 +40,10 @@ namespace KAS {
 /// </para>
 /// <para>
 /// Finally, a complete prefab model can be inserted! This model will be inserted between the part
-/// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the model,
-/// two extra parameters are needed: <c>partAttachAt</c>, which defines how the model attches to
-/// the part; and <c>pipeAttachAt</c>, which defines where the pipe attaches to the model. If
-/// sphere or offsets were set, they will be counter relative to <c>pipeAttachAt</c>. 
+/// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the
+/// model, two extra parameters are needed: <c>modelPartAttachAt</c>, which defines how the model
+/// attches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
+/// model. If sphere or offsets were set, they will be counter relative to <c>modelPipeAttachAt</c>. 
 /// </para>
 /// <para>
 /// Normally, the pipe models are shown and hidden depending on the state the pipe. However, it's
@@ -73,7 +73,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <summary>Offset of the pipe joint relative to the attach node.</summary>
     /// <remarks>
     /// It can be negative to shift the "joint" point in the opposite direction. If prefab model is 
-    /// defined, then the offset is counted relative to <see cref="pipeAttachAt"/>.
+    /// defined, then the offset is counted relative to <see cref="modelPipeAttachAt"/>.
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
@@ -109,16 +109,16 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <summary>Position and rotation at which the model will attach to the target part.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
-    [PersistentField("partAttachAt")]
+    [PersistentField("modelPartAttachAt")]
     [KASDebugAdjustable("Prefab PART attach pos&rot")]
-    public PosAndRot partAttachAt = new PosAndRot();
+    public PosAndRot modelPartAttachAt = new PosAndRot();
 
     /// <summary>Position and rotation at which the node's model will attach to the pipe.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
-    [PersistentField("pipeAttachAt")]
+    [PersistentField("modelPipeAttachAt")]
     [KASDebugAdjustable("Prefab PIPE attach pos&rot")]
-    public PosAndRot pipeAttachAt = new PosAndRot();
+    public PosAndRot modelPipeAttachAt = new PosAndRot();
 
     /// <summary>
     /// Position and rotation at which the joint head attaches when the renderer is stopped.
@@ -154,12 +154,14 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// The source part's attach node attaches to the pipe at the point, defined by this object.
   /// The part's attach node and the are oriented so that their directions look at each other. 
   /// </remarks>
+  /// FIXME: make public for winch
   protected const string PartJointTransformName = "partAttach";
 
   /// <summary>
   /// Name of the object in the node's model that defines where it attaches to the pipe mesh.
   /// </summary>
   /// <remarks>This object looks in the direction of the pipe, towards the other end.</remarks>
+  /// FIXME: make public for winch
   protected const string PipeJointTransformName = "pipeAttach";
 
   /// <summary>Base name of the source node models</summary>
@@ -479,10 +481,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
         prefabModel.gameObject.SetActive(true);
         prefabModel.name = prefabName;
         prefabModel.parent = res.rootModel;
-        prefabModel.rotation = res.partAttach.rotation * config.partAttachAt.rot.Inverse();
-        prefabModel.position = res.partAttach.TransformPoint(config.partAttachAt.pos);
-        res.pipeAttach.rotation = prefabModel.rotation * config.pipeAttachAt.rot;
-        res.pipeAttach.position = prefabModel.TransformPoint(config.pipeAttachAt.pos);
+        prefabModel.rotation = res.partAttach.rotation * config.modelPartAttachAt.rot.Inverse();
+        prefabModel.position = res.partAttach.TransformPoint(config.modelPartAttachAt.pos);
+        res.pipeAttach.rotation = prefabModel.rotation * config.modelPipeAttachAt.rot;
+        res.pipeAttach.position = prefabModel.TransformPoint(config.modelPipeAttachAt.pos);
         res.prefabModel = prefabModel;
       } else {
         HostedDebugLog.Error(this, "Cannot find model: {0}", prefabName);
