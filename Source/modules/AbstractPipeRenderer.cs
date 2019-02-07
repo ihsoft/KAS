@@ -390,7 +390,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// If there is a real path, then there can be any number of points, but not less than two. If no
   /// check is needed, then return an empty array.
   /// </para>
-  /// <para>If there is a part returned, then it's used to move a spehere collider along it to
+  /// <para>If there is a parth returned, then it's used to move a spehere collider along it to
   /// determine if the pipe mesh collides to anything.
   /// </para>
   /// </remarks>

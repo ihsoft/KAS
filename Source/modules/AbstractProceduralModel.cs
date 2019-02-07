@@ -156,8 +156,8 @@ public abstract class AbstractProceduralModel : PartModule,
   /// <summary>Loads part's model.</summary>
   /// <remarks>
   /// Called when a new part is being instantiated. This method is expected to be idempotent. I.e.
-  /// multiple calls to this method should not create meshes. And if the part config has changed,
-  /// then the new state must be taken into account.
+  /// multiple calls to this method should not create extra meshes or objects. And if the part
+  /// config has changed, then the new state must be taken into account on the call.
   /// </remarks>
   /// <seealso cref="partModelTransform"/>
   protected abstract void LoadPartModel();

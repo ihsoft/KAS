@@ -468,7 +468,7 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <summary>Initializes the module state according to the settings.</summary>
   /// <remarks>
-  /// This method can be called multiple times in the part's life. And the stettings can change in
+  /// This method can be called multiple times in the part's life. And the settings can change in
   /// between. Override this method if the descendant module needs initialization.
   /// </remarks>
   protected virtual void LoadModuleSettings() {

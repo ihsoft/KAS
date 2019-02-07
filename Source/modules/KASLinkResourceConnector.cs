@@ -179,8 +179,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public string rotatingWinchCylinderModel = "";
 
   /// <summary>
-  /// The total length of the cilinder on the outer radius. It's used to calculate the ratio of how
-  /// significantly the cylinder need to rotate when 1m of hose is extended/retarted.
+  /// The total length of the cylinder on the outer radius. It's used to calculate the ratio of how
+  /// significantly the cylinder need to rotate when 1m of hose is extended/retracted.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -213,7 +213,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <item>Not allowed for pumping (e.g. "solid fuel").</item>
   /// </list>
   /// <para>
-  /// To override the rule above, the override can be used. Lis the names of the resources with a
+  /// To override the rule above, the override can be used. List the names of the resources with a
   /// prefix to tell how to handle the resource: prefix "+" means the resource must be allowed to
   /// move no matter what; prefix "-" means the resource(s) must not be allowed to move.
   /// </para>
@@ -223,7 +223,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
   /// </para>
   /// </remarks>
-  /// <seealso cref="resourceOverride"/>
+  /// <seealso cref="allowedResource"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]

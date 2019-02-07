@@ -35,7 +35,7 @@ namespace KAS {
 /// <para>
 /// There is an option to raise the connection point over the attach node. In this case a simple
 /// cylinder (the "arm") is drawn between the attach node and the connection sphere. Its diameter
-/// matches the diameter of the sphere.
+/// can be adjusted separately.
 /// </para>
 /// </description>
 /// </item>

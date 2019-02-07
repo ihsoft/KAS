@@ -449,6 +449,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// It's not safe to change the connector state on a part with no physics! If the state needs to
   /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
   /// </remarks>
+  /// <value>The state machine instance. It's never <c>null</c>.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<ConnectorState> connectorStateMachine { get; private set; }
   #endregion
