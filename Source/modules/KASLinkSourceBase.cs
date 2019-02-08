@@ -329,7 +329,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region IHasDebugAdjustables implementation
   ILinkTarget dbgOldTarget;
-  float cableLength;
+  float dbgOldCableLength;
 
   /// <inheritdoc/>
   public virtual void OnBeforeDebugAdjustablesUpdate() {
@@ -337,10 +337,11 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
     dbgOldTarget = linkTarget;
+    dbgOldCableLength = -1;
     if (isLinked) {
       var cableJoint = linkJoint as ILinkCableJoint;
       if (cableJoint != null) {
-        cableLength = cableJoint.deployedCableLength;
+        dbgOldCableLength = cableJoint.deployedCableLength;
       }
       BreakCurrentLink(LinkActorType.Player);
     }
@@ -351,17 +352,20 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
+          HostedDebugLog.Warning(this, "Reloading settings...");
           LoadModuleSettings();
           InitStartState();
           if (dbgOldTarget != null) {
+            HostedDebugLog.Warning(this, "Relinking to target: {0}", dbgOldTarget);
             LinkToTarget(LinkActorType.Player, dbgOldTarget);
             var cableJoint = linkJoint as ILinkCableJoint;
             if (cableJoint != null) {
-              cableJoint.SetCableLength(cableLength);
+              HostedDebugLog.Warning(this, "Restoring cable length: {0}", dbgOldCableLength);
+              cableJoint.SetCableLength(dbgOldCableLength);
             }
           }
         },
-        skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
+        skipFrames: 1);  // The link's logic is asynchronous.
   }
   #endregion
 

@@ -250,6 +250,8 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     CreatePartModel();  // It's not exactly right place, but better than nothing.
     LoadPartModel();
     if (dbgOldSource != null && dbgOldTarget != null) {
+      HostedDebugLog.Warning(
+          this, "Restart renderer: src={0}, tgt={1}", dbgOldSource, dbgOldTarget);
       StartRenderer(dbgOldSource, dbgOldTarget);
     }
   }
