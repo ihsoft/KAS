@@ -154,15 +154,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// The source part's attach node attaches to the pipe at the point, defined by this object.
   /// The part's attach node and the are oriented so that their directions look at each other. 
   /// </remarks>
-  /// FIXME: make public for winch
-  protected const string PartJointTransformName = "partAttach";
+  public const string PartJointTransformName = "partAttach";
 
   /// <summary>
   /// Name of the object in the node's model that defines where it attaches to the pipe mesh.
   /// </summary>
   /// <remarks>This object looks in the direction of the pipe, towards the other end.</remarks>
-  /// FIXME: make public for winch
-  protected const string PipeJointTransformName = "pipeAttach";
+  public const string PipeJointTransformName = "pipeAttach";
 
   /// <summary>Base name of the source node models</summary>
   /// <seealso cref="CreatePipeMesh"/>

@@ -526,7 +526,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       return true;
     }
     // Check if the alignment error is small enough to not awake Krakken on dock.
-    var fwdAngleErr = 180 - Vector3.Angle(connectorCableAnchor.forward, nodeTransform.forward);
+    var fwdAngleErr =
+        180 - Vector3.Angle(GetConnectorModelPipeAnchor().forward, nodeTransform.forward);
     if (fwdAngleErr > connectorLockMaxErrorDir) {
       if (logCheckResult) {
         HostedDebugLog.Info(
