@@ -334,10 +334,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     }
     pipeTransform = null;
     pipeMeshRenderer = null;
-    if (sourceJointNode != null) {
+    if (sourceJointNode != null && sourceJointNode.rootModel != null) {
       sourceJointNode.AlignToTransform(null);
     }
-    if (targetJointNode != null) {
+    if (targetJointNode != null && targetJointNode.rootModel != null) {
       targetJointNode.AlignToTransform(null);
     }
   }
