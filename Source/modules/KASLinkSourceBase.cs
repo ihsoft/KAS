@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
@@ -138,7 +137,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <summary>Tells if coupling mode can be changed via the part's context menu.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Show coupling GUI")]
+  [Debug.KASDebugAdjustable("Show coupling GUI")]
   public bool showCouplingUi;
   
   /// <summary>Name of the renderer that draws the link.</summary>
@@ -153,25 +152,25 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Renderer name")]
+  [Debug.KASDebugAdjustable("Renderer name")]
   public string linkRendererName = "";
 
   /// <summary>Name of the joint to use with this source.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Joint name")]
+  [Debug.KASDebugAdjustable("Joint name")]
   public string jointName = "";
 
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Sound - part dock")]
+  [Debug.KASDebugAdjustable("Sound - part dock")]
   public string sndPathDock = "";
 
   /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Sound - part undock")]
+  [Debug.KASDebugAdjustable("Sound - part undock")]
   public string sndPathUndock = "";
   #endregion
 

@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
@@ -141,7 +140,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Max steering angle")]
+  [Debug.KASDebugAdjustable("Max steering angle")]
   public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
 
   /// <summary>
@@ -150,7 +149,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// </summary>
   /// <remarks>Once the angle decreases down to this value, the towbar will lock down.</remarks>
   [KSPField]
-  [KASDebugAdjustable("Lock angle threshold")]
+  [Debug.KASDebugAdjustable("Lock angle threshold")]
   public float lockAngleThreshold = 3f;
   #endregion
 

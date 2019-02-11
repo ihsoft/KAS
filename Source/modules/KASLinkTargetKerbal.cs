@@ -3,7 +3,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
@@ -58,13 +57,13 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Connectors highlight color")]
+  [Debug.KASDebugAdjustable("Connectors highlight color")]
   public Color closestConnectorHighlightColor = Color.cyan;
 
   /// <summary>Name of the bone within the skinned mesh to bind the attach the node to.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Equip bone name")]
+  [Debug.KASDebugAdjustable("Equip bone name")]
   public string equipBoneName = "";
 
   /// <summary>
@@ -73,7 +72,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <remarks>The node transform will be dynamically adjusted to the bone movements.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("equipPosAndRot", group = StdPersistentGroups.PartConfigLoadGroup)]
-  [KASDebugAdjustable("Equip pos&rot")]
+  [Debug.KASDebugAdjustable("Equip pos&rot")]
   PosAndRot equipPosAndRot = new PosAndRot();
   #endregion
 

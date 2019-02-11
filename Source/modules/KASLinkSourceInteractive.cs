@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.PartUtils;
@@ -58,31 +57,31 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Sound - plug")]
+  [Debug.KASDebugAdjustable("Sound - plug")]
   public string sndPathPlug = "";
 
   /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Sound - unplug")]
+  [Debug.KASDebugAdjustable("Sound - unplug")]
   public string sndPathUnplug = "";
 
   /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Sound - broke")]
+  [Debug.KASDebugAdjustable("Sound - broke")]
   public string sndPathBroke = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Start link menu text")]
+  [Debug.KASDebugAdjustable("Start link menu text")]
   public string startLinkMenu = "";
 
   /// <summary>Name of the menu item to break currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Break link menu text")]
+  [Debug.KASDebugAdjustable("Break link menu text")]
   public string breakLinkMenu = "";
   #endregion
 

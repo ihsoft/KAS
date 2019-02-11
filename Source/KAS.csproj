@@ -77,6 +77,7 @@
     <Folder Include="modules" />
     <Folder Include="KSPDev_candidates" />
     <Folder Include="KASAPI_candidates" />
+    <Folder Include="debug" />
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
@@ -90,7 +91,7 @@
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
-    <Compile Include="KASAPI_candidates\KASDebugAdjustableAttribute.cs" />
+    <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />

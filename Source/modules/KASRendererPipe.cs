@@ -3,7 +3,6 @@
 // License: Public Domain
 
 using KSPDev.ConfigUtils;
-using KASAPIv2;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
@@ -76,21 +75,21 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// </remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
-    [KASDebugAdjustable("Sphere offset")]
+    [Debug.KASDebugAdjustable("Sphere offset")]
     public float sphereOffset;
 
     /// <summary>Diameter of the sphere to place at the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
-    [KASDebugAdjustable("Sphere diameter")]
+    [Debug.KASDebugAdjustable("Sphere diameter")]
     public float sphereDiameter;
 
     /// <summary>Diameter of the pipe that connects the attach node and the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
-    [KASDebugAdjustable("Arm diameter")]
+    [Debug.KASDebugAdjustable("Arm diameter")]
     public float armDiameter;
 
     /// <summary>Path to the prefab model that represents the joint.</summary>
@@ -109,14 +108,14 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPartAttachAt")]
-    [KASDebugAdjustable("Prefab PART attach pos&rot")]
+    [Debug.KASDebugAdjustable("Prefab PART attach pos&rot")]
     public PosAndRot modelPartAttachAt = new PosAndRot();
 
     /// <summary>Position and rotation at which the node's model will attach to the pipe.</summary>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPipeAttachAt")]
-    [KASDebugAdjustable("Prefab PIPE attach pos&rot")]
+    [Debug.KASDebugAdjustable("Prefab PIPE attach pos&rot")]
     public PosAndRot modelPipeAttachAt = new PosAndRot();
 
     /// <summary>
@@ -129,7 +128,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("parkAttachAt")]
-    [KASDebugAdjustable("Park location pos&rot")]
+    [Debug.KASDebugAdjustable("Park location pos&rot")]
     public PosAndRot parkAttachAt;
   }
   #endregion
@@ -250,13 +249,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <summary>Configuration of the source joint model.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
-  [KASDebugAdjustable("Source joint config")]
+  [Debug.KASDebugAdjustable("Source joint config")]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
-  [KASDebugAdjustable("Target joint config")]
+  [Debug.KASDebugAdjustable("Target joint config")]
   public JointConfig targetJointConfig = new JointConfig();
   #endregion
 

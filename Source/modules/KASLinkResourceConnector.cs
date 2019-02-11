@@ -3,7 +3,6 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
@@ -159,7 +158,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Transfer speed")]
+  [Debug.KASDebugAdjustable("Transfer speed")]
   public float maxTransferSpeed = 20.0f;
 
   /// <summary>
@@ -167,7 +166,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Auto speed duration threshold")]
+  [Debug.KASDebugAdjustable("Auto speed duration threshold")]
   public float autoSpeedTransferDuration = 4.0f;
 
   /// <summary>
@@ -184,7 +183,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Rotating winch model perimeter")]
+  [Debug.KASDebugAdjustable("Rotating winch model perimeter")]
   public float cylinderPerimeterLength = 1.0f;
 
   /// <summary>

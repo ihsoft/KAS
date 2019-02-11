@@ -47,7 +47,7 @@ sealed class ControllerPartEditorTool : MonoBehaviour,
       Event.current.Use();
       if (dlg == null) {
         dlg = DebugGui.MakePartDebugDialog(
-            DialogTitle, group: KASAPIv2.KASDebugAdjustableAttribute.DebugGroup);
+            DialogTitle, group: Debug.KASDebugAdjustableAttribute.DebugGroup);
       } else {
         DebugGui.DestroyPartDebugDialog(dlg);
         dlg = null;

@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
@@ -46,7 +45,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Link type")]
+  [Debug.KASDebugAdjustable("Link type")]
   public string linkType = "";
 
   /// <summary>The localized string to display for the link type.</summary>
@@ -67,7 +66,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="coupleNode"/>
   [KSPField]
-  [KASDebugAdjustable("Attach node definition")]
+  [Debug.KASDebugAdjustable("Attach node definition")]
   public string attachNodeDef = "";
 
   /// <summary>Name of the attach node for the link and coupling operations.</summary>
@@ -78,7 +77,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
-  [KASDebugAdjustable("Attach node name")]
+  [Debug.KASDebugAdjustable("Attach node name")]
   public string attachNodeName = "";
 
   /// <summary>
@@ -95,13 +94,13 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
-  [KASDebugAdjustable("Dependent nodes")]
+  [Debug.KASDebugAdjustable("Dependent nodes")]
   public string dependentNodes = "";
 
   /// <summary>Specifies if this peer can couple (dock) into the vessel's hirerachy.</summary>
   /// <seealso cref="coupleNode"/>
   [KSPField]
-  [KASDebugAdjustable("Allow coupling")]
+  [Debug.KASDebugAdjustable("Allow coupling")]
   public bool allowCoupling;
   #endregion
 

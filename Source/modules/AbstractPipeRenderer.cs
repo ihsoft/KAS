@@ -3,7 +3,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
@@ -97,7 +96,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Diameter of the pipe in meters.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe diameter")]
+  [Debug.KASDebugAdjustable("Pipe diameter")]
   public float pipeDiameter = 0.7f;
 
   /// <summary>Main texture to use for the pipe.</summary>
@@ -105,14 +104,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe texture")]
+  [Debug.KASDebugAdjustable("Pipe texture")]
   public string pipeTexturePath = "";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe texture NRM")]
+  [Debug.KASDebugAdjustable("Pipe texture NRM")]
   public string pipeNormalsTexturePath = "";
 
   /// <summary>
@@ -126,7 +125,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Texture samples per meter")]
+  [Debug.KASDebugAdjustable("Texture samples per meter")]
   public float pipeTextureSamplesPerMeter = 1.0f;
 
   /// <summary>Defines how the texture should cover the pipe.</summary>
@@ -134,7 +133,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Texture rescale mode")]
+  [Debug.KASDebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
 
   /// <summary>Defines if pipe's collider should interact with the physics objects.</summary>
@@ -144,7 +143,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Physical collider")]
+  [Debug.KASDebugAdjustable("Physical collider")]
   public bool pipeColliderIsPhysical;
   #endregion
 
@@ -231,7 +230,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   Transform dbgOldTarget;
 
   /// <summary>Logs all the part's model objects.</summary>
-  [KASDebugAdjustable("Dump part's model hierarchy")]
+  [Debug.KASDebugAdjustable("Dump part's model hierarchy")]
   public void ShowHirerachyDbgAction() {
     HostedDebugLog.Warning(this, "Part's model hierarchy:");
     DebugGui.DumpHierarchy(partModelTransform, partModelTransform);

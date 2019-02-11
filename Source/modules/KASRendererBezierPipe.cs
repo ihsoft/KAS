@@ -3,7 +3,6 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv2;
 using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
@@ -34,7 +33,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="AbstractPipeRenderer.pipeDiameter"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe bend resistance")]
+  [Debug.KASDebugAdjustable("Pipe bend resistance")]
   public float pipeBendResistance = 0.7f;
 
   /// <summary>Recommended number of the adjustable sections in the pipe mesh.</summary>
@@ -46,7 +45,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe mesh sections")]
+  [Debug.KASDebugAdjustable("Pipe mesh sections")]
   public int pipeMeshSections = 21;
 
   /// <summary>Number of the segments in the pipe perimeter shape.</summary>
@@ -58,7 +57,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Pipe shape smoothness")]
+  [Debug.KASDebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
 
   /// <summary>
@@ -81,7 +80,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Reskin texture")]
+  [Debug.KASDebugAdjustable("Reskin texture")]
   protected bool reskinTexture;
 
   /// <summary>Number of texture samples on the perimeter.</summary>
@@ -92,7 +91,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Texture wraps")]
+  [Debug.KASDebugAdjustable("Texture wraps")]
   public int pipeTextureWraps = 2;
   #endregion
 

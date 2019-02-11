@@ -4,7 +4,6 @@
 // License: Public Domain
 
 using KASAPIv1;
-using KASAPIv2;
 using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
@@ -75,7 +74,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("SOURCE lever model")]
+  [Debug.KASDebugAdjustable("SOURCE lever model")]
   public string sourceJointModel = "KAS/Models/Joint/model";
 
   /// <summary>
@@ -83,7 +82,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("TARGET lever model")]
+  [Debug.KASDebugAdjustable("TARGET lever model")]
   public string targetJointModel = "KAS/Models/Joint/model";
 
   /// <summary>Model for the pistons.</summary>
@@ -93,13 +92,13 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("PISTON model")]
+  [Debug.KASDebugAdjustable("PISTON model")]
   public string pistonModel = "KAS/Models/Piston/model";
 
   /// <summary>Number of pistons in the link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Number of pistons")]
+  [Debug.KASDebugAdjustable("Number of pistons")]
   public int pistonsCount = 3;
 
   /// <summary>Scale of the piston comparing to the prefab.</summary>
@@ -112,7 +111,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Piston model scale")]
+  [Debug.KASDebugAdjustable("Piston model scale")]
   public Vector3 pistonModelScale = Vector3.one;
 
   /// <summary>
@@ -126,7 +125,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Randomize pistons rotation")]
+  [Debug.KASDebugAdjustable("Randomize pistons rotation")]
   public bool pistonModelRandomRotation = true;
 
   /// <summary>Amount to decrease the scale of an inner pistons diameter.</summary>
@@ -145,7 +144,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Piston diameter scale delta")]
+  [Debug.KASDebugAdjustable("Piston diameter scale delta")]
   public float pistonDiameterScaleDelta = 0.1f;
 
   /// <summary>Minimum allowed overlap of the pistons in the extended state in meters.</summary>
@@ -162,7 +161,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  [KASDebugAdjustable("Piston min shift")]
+  [Debug.KASDebugAdjustable("Piston min shift")]
   public float pistonMinShift = 0.02f;
 
   /// <summary>
@@ -429,7 +428,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region IHasDebugAdjustables implementation
   /// <summary>Dumps basic constraints of the renderer.</summary>
-  [KASDebugAdjustable("Dump render link contstrains")]
+  [Debug.KASDebugAdjustable("Dump render link contstrains")]
   public void DbgEventDumpLinkSettings() {
     HostedDebugLog.Warning(this,
         "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
