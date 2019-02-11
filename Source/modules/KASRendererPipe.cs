@@ -528,7 +528,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
     SetupPipe(pipeTransform.transform,
               sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
-    RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
+    var extraScale = 1.0f;
+    if (pipeTextureRescaleMode == PipeTextureRescaleMode.Stretch) {
+      extraScale /=
+          (sourceJointNode.pipeAttach.position - targetJointNode.pipeAttach.position).magnitude;
+    }
+    RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter,
+                           renderer: pipeMeshRenderer, extraScale: extraScale);
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
