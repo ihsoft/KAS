@@ -1,5 +1,4 @@
 ﻿// Kerbal Attachment System
-// https://forum.kerbalspaceprogram.com/index.php?/topic/142594-15-kerbal-attachment-system-kas-v11
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
@@ -63,7 +62,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   public enum PipeTextureRescaleMode {
     /// <summary>
     /// Texture stretches to the pipe's size. The resolution of the texture per meter of the link's
-    /// length is chnaging as the link's length is updating.
+    /// length is changing as the link's length is updating.
     /// </summary>
     /// <seealso cref="pipeTextureSamplesPerMeter"/>
     Stretch,
@@ -175,12 +174,13 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
-    get { return pipeColliderIsPhysical; }
+    get { return _isPhysicalCollider; }
     set {
-      pipeColliderIsPhysical = value;
+      _isPhysicalCollider = value;
       UpdateColliderOverrides();
     }
   }
+  bool _isPhysicalCollider;
 
   /// <inheritdoc/>
   public bool isStarted {

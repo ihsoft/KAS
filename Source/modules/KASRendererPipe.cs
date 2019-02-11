@@ -1,5 +1,4 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
@@ -521,9 +520,11 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <seealso cref="CreatePipeMesh"/>
   /// <seealso cref="pipeTransform"/>
   protected virtual void CreateLinkPipe() {
+    var colliderType = pipeColliderIsPhysical
+        ? Colliders.PrimitiveCollider.Shape
+        : Colliders.PrimitiveCollider.None;
     pipeTransform = Meshes.CreateCylinder(
-        pipeDiameter, 1.0f, pipeMaterial, sourceTransform,
-        colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
     SetupPipe(pipeTransform.transform,
