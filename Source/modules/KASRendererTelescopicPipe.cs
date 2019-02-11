@@ -4,6 +4,8 @@
 // License: Public Domain
 
 using KASAPIv1;
+using KASAPIv2;
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
@@ -26,7 +28,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KSPDev interfaces.
-    IHasContextMenu {
+    IHasContextMenu, IHasDebugAdjustables {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -58,11 +60,22 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
+  /// <summary>Name of the renderer for this procedural part.</summary>
+  /// <remarks>
+  /// This setting is used to let link source know primary renderer for the linked state.
+  /// </remarks>
+  /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string rendererName = "";
+
   /// <summary>
   /// Model for a joint lever at the source part. Two such models are used to form a complete joint.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("SOURCE lever model")]
   public string sourceJointModel = "KAS/Models/Joint/model";
 
   /// <summary>
@@ -70,12 +83,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("TARGET lever model")]
   public string targetJointModel = "KAS/Models/Joint/model";
-
-  /// <summary>Number of pistons in the link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public int pistonsCount = 3;
 
   /// <summary>Model for the pistons.</summary>
   /// <remarks>
@@ -84,7 +93,14 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("PISTON model")]
   public string pistonModel = "KAS/Models/Piston/model";
+
+  /// <summary>Number of pistons in the link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [KASDebugAdjustable("Number of pistons")]
+  public int pistonsCount = 3;
 
   /// <summary>Scale of the piston comparing to the prefab.</summary>
   /// <remarks>
@@ -96,6 +112,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Piston model scale")]
   public Vector3 pistonModelScale = Vector3.one;
 
   /// <summary>
@@ -109,6 +126,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Randomize pistons rotation")]
   public bool pistonModelRandomRotation = true;
 
   /// <summary>Amount to decrease the scale of an inner pistons diameter.</summary>
@@ -127,6 +145,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Piston diameter scale delta")]
   public float pistonDiameterScaleDelta = 0.1f;
 
   /// <summary>Minimum allowed overlap of the pistons in the extended state in meters.</summary>
@@ -143,17 +162,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [KASDebugAdjustable("Piston min shift")]
   public float pistonMinShift = 0.02f;
-
-  /// <summary>Name of the renderer for this procedural part.</summary>
-  /// <remarks>
-  /// This setting is used to let link source know primary renderer for the linked state.
-  /// </remarks>
-  /// <seealso cref="ILinkSource"/>
-  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string rendererName = "";
 
   /// <summary>
   /// Container for the menu item description which tells how to park the unlinked strut.
@@ -415,6 +425,28 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region Local fields & properties
   /// <summary>Instances of the events, that were created for orientation menu items.</summary>
   readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  /// <summary>Dumps basic constraints of the renderer.</summary>
+  [KASDebugAdjustable("Dump render link contstrains")]
+  public void DbgEventDumpLinkSettings() {
+    HostedDebugLog.Warning(this,
+        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
+        + " pistonLength={3}, outerPistonDiameter={4}",
+        minLinkLength, maxLinkLength,
+        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
+        pistonLength, outerPistonDiameter);
+  }
+
+  /// <inheritdoc/>
+  public void OnBeforeDebugAdjustablesUpdate() {
+  }
+
+  /// <inheritdoc/>
+  public void OnDebugAdjustablesUpdated() {
+    CreatePipeMeshes(recreate: true);
+  }
   #endregion
 
   #region AbstractProceduralModel overrides
