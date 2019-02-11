@@ -297,8 +297,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     LoadPartModel();
   }
 
+  #region IHasDebugAdjustables implementation
   /// <inheritdoc/>
-  protected override void LoadPartModel() {
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
     if (sourceJointNode != null) {
       sourceJointNode.Dispose();
       sourceJointNode = null;
@@ -307,8 +309,18 @@ public class KASRendererPipe : AbstractPipeRenderer {
       targetJointNode.Dispose();
       targetJointNode = null;
     }
-    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
-    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
+  }
+  #endregion
+
+  #region AbstractPipeRenderer abstract members
+  /// <inheritdoc/>
+  protected override void LoadPartModel() {
+    if (sourceJointNode == null) {
+      sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
+    }
+    if (targetJointNode == null) {
+      targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
+    }
     sourceJointNode.AlignToTransform(sourceTransform);
     targetJointNode.AlignToTransform(targetTransform);
   }
