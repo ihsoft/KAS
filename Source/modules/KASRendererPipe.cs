@@ -291,12 +291,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
-  #region AbstractPipeRenderer abstract members
-  /// <inheritdoc/>
-  protected override void CreatePartModel() {
-    LoadPartModel();
-  }
-
   #region IHasDebugAdjustables implementation
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {

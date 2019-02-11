@@ -137,10 +137,6 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   }
 
   /// <inheritdoc/>
-  protected override void CreatePartModel() {
-  }
-
-  /// <inheritdoc/>
   protected override void LoadPartModel() {
   }
 

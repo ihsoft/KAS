@@ -122,7 +122,9 @@ public abstract class AbstractProceduralModel : PartModule,
 
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
-    LoadPartModel();
+    if (HighLogic.LoadedSceneIsEditor) {
+      LoadPartModel();  // Editor doesn't call load OnLoad()
+    }
     base.OnStart(state);
   }
 
@@ -131,9 +133,7 @@ public abstract class AbstractProceduralModel : PartModule,
     ConfigAccessor.ReadPartConfig(this, cfgNode: node);
     ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
     base.OnLoad(node);
-    if (!PartLoader.Instance.IsReady()) {
-      CreatePartModel();
-    }
+    LoadPartModel();
   }
 
   /// <inheritdoc/>
@@ -144,20 +144,10 @@ public abstract class AbstractProceduralModel : PartModule,
   #endregion
 
   #region Abstract methods
-  /// <summary>Creates part's model.</summary>
-  /// <remarks>
-  /// Called when it's time to create meshes in the part's model. Only create the permanent meshes
-  /// here. If a mesh is configurable via the part settings, then a better place for it is
-  /// the <see cref="LoadPartModel"/> method.
-  /// </remarks>
-  /// <seealso cref="partModelTransform"/>
-  protected abstract void CreatePartModel();
-
   /// <summary>Loads part's model.</summary>
   /// <remarks>
-  /// Called when a new part is being instantiated. This method is expected to be idempotent. I.e.
-  /// multiple calls to this method should not create extra meshes or objects. And if the part
-  /// config has changed, then the new state must be taken into account on the call.
+  /// Called when the part's models need to be created/updated. This method must be
+  /// idempotent. I.e. multiple calls to it should not create extra meshes or objects.
   /// </remarks>
   /// <seealso cref="partModelTransform"/>
   protected abstract void LoadPartModel();

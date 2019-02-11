@@ -247,7 +247,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public virtual void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
-    CreatePartModel();  // It's not exactly right place, but better than nothing.
     LoadPartModel();
     if (dbgOldSource != null && dbgOldTarget != null) {
       HostedDebugLog.Warning(

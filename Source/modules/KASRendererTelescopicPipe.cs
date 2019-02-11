@@ -448,31 +448,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  protected override void CreatePartModel() {
-    CreateLeverModels();
-    CreatePistonModels();
-    UpdateValuesFromModel();
-    // Log basic part values to help part's designers.
-    HostedDebugLog.Info(this,
-        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
-        + " pistonLength={3}, outerPistonDiameter={4}",
-        minLinkLength, maxLinkLength,
-        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
-        pistonLength, outerPistonDiameter);
-
-    // Init parked state. It must go after all the models are created.
-    if (parkedOrientations.Count > 0) {
-      persistedParkedOrientation = parkedOrientations[0].direction;
-    }
-    if (Mathf.Approximately(persistedParkedLength, 0)) {
-      persistedParkedLength = minLinkLength;
-    }
-
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <inheritdoc/>
   protected override void LoadPartModel() {
+    CreatePipeMeshes(recreate: false);
+
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
@@ -814,6 +792,39 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // Don't use the stock translation methods since the handle length is already scaled. We don't
     // want the scale to be counted twice.
     return refTransform.position + refTransform.rotation * new Vector3(0, 0, tgtJointHandleLength);
+  }
+
+  /// <summary>Creates the telescopic pipe meshes.</summary>
+  /// <remarks>
+  /// If there were meshes created alreadym they will be destroyed. So this method can be called to
+  /// refresh the part settings.
+  /// </remarks>
+  void CreatePipeMeshes(bool recreate) {
+    var pipeRoot = Hierarchy.FindTransformByPath(
+        partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
+    if (pipeRoot != null && !recreate) {
+      return;
+    }
+    if (pipeRoot != null) {
+      HostedDebugLog.Warning(this, "Re-creating pipe meshes...");
+      UnityEngine.Object.DestroyImmediate(pipeRoot.gameObject);
+    }
+    
+    CreateLeverModels();
+    CreatePistonModels();
+    UpdateValuesFromModel();
+
+    // Init parked state. It must go after all the models are created.
+    if (parkedOrientations.Count > 0 && !isLinked) {
+      persistedParkedOrientation = parkedOrientations[0].direction;
+    }
+    if (persistedParkedLength < minLinkLength) {
+      persistedParkedLength = minLinkLength;
+    } else if (persistedParkedLength > maxLinkLength) {
+      persistedParkedLength = maxLinkLength;
+    }
+
+    UpdateLinkLengthAndOrientation();
   }
   #endregion
 }
