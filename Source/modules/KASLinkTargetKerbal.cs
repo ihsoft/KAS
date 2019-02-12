@@ -12,6 +12,7 @@ using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -210,15 +211,6 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   }
 
   /// <inheritdoc/>
-  public override void OnUpdate() {
-    base.OnUpdate();
-    if (attachBoneTransform != null && isLinked) {
-      nodeTransform.rotation = attachBoneTransform.rotation * equipPosAndRot.rot;
-      nodeTransform.position = attachBoneTransform.TransformPoint(equipPosAndRot.pos);
-    }
-  }
-
-  /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     if (HighLogic.LoadedSceneIsFlight) {
@@ -232,6 +224,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
           GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
         }
       };
+      linkStateMachine.AddStateHandlers(
+        LinkState.Linked, enterHandler: oldState => StartCoroutine(FollowTheBone()));
     }
   }
 
@@ -433,6 +427,15 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     ev.guiActiveUnfocused = true;
     ev.guiName = guiName;
     return ev;
+  }
+
+  /// <summary>Aligns the node transform to the bone while the link is active.</summary>
+  IEnumerator FollowTheBone() {
+    while (attachBoneTransform != null && isLinked) {
+      nodeTransform.rotation = attachBoneTransform.rotation * equipPosAndRot.rot;
+      nodeTransform.position = attachBoneTransform.TransformPoint(equipPosAndRot.pos);
+      yield return null;
+    }
   }
   #endregion
 }
