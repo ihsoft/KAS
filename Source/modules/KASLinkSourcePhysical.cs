@@ -805,9 +805,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorObj = new GameObject(
         "physicalConnectorObj" + part.launchID + "-" + linkRendererName).transform;
     connectorObj.SetPositionAndRotation(connectorModel.position, connectorModel.rotation);
-    var physPartAttach = UnityEngine.Object.Instantiate(partAttach, connectorObj).transform;
-    physPartAttach.rotation = Quaternion.LookRotation(-physPartAttach.forward, -physPartAttach.up);
-    var physPipeAttachObj = UnityEngine.Object.Instantiate(pipeAttach, connectorObj).transform;
+    var physPartAttach = new GameObject(partAttach.name + "-reverseAnchor").transform;
+    physPartAttach.SetPositionAndRotation(
+        partAttach.position, Quaternion.LookRotation(-partAttach.forward, -partAttach.up));
+    physPartAttach.parent = connectorObj;
+    var physPipeAttachObj = new GameObject(pipeAttach.name + "-Anchor").transform;
+    physPipeAttachObj.parent = connectorObj;
+    physPipeAttachObj.SetPositionAndRotation(pipeAttach.position, pipeAttach.rotation);
     connectorObj.SetPositionAndRotation(connectorPosAndRot.pos, connectorPosAndRot.rot);
 
     var connector = KASInternalPhysicalConnector.Promote(
