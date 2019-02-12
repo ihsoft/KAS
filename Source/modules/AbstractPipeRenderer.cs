@@ -234,6 +234,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   public void ShowHirerachyDbgAction() {
     HostedDebugLog.Warning(this, "Part's model hierarchy:");
     DebugGui.DumpHierarchy(partModelTransform, partModelTransform);
+    if (targetTransform != null) {
+      HostedDebugLog.Warning(this, "Model hierarchy at target:");
+      DebugGui.DumpHierarchy(targetTransform.root, targetTransform);
+    }
   }
 
   /// <inheritdoc/>
