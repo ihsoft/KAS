@@ -181,8 +181,7 @@ public class KASLinkTargetBase :
         this,
         () => {
           LoadModuleSettings();
-          if (dbgOldSource != null) {
-            dbgOldSource.LinkToTarget(LinkActorType.Player, this);
+          if (dbgOldSource != null && dbgOldSource.LinkToTarget(LinkActorType.Player, this)) {
             var cableJoint = linkSource.linkJoint as ILinkCableJoint;
             if (cableJoint != null) {
               cableJoint.SetCableLength(cableLength);
