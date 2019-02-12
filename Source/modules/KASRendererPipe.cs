@@ -501,6 +501,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
           ?? Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
                                    res.pipeAttach,
                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
+      arm.name = armName;
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
       arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
