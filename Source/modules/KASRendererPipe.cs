@@ -378,10 +378,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override Vector3[] GetPipePath(Transform start, Transform end) {
-    // TODO(ihsoft): Implement a full check that includes the pipe ends as well.
-    return isPhysicalCollider
-        ? new[] { start.position, end.position }
-        : new Vector3[0];
+    if (isPhysicalCollider && isStarted) {
+      return new[] {
+          sourceJointNode.partAttach.position, sourceJointNode.pipeAttach.position,
+          targetJointNode.pipeAttach.position, targetJointNode.partAttach.position
+      };
+    }
+    return new Vector3[0];
   }
 
   /// <inheritdoc/>
