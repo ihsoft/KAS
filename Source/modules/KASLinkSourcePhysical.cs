@@ -679,6 +679,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     return FlightGlobals.fetch != null  // To prevent NRE on the game shutdown. 
         && FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
         && FlightGlobals.ActiveVessel.isEVA
+        && isLinked
         && linkTarget != null && linkTarget.part != null
         && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
   }
