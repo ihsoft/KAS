@@ -198,7 +198,18 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
     pickupConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
+    if (HighLogic.LoadedSceneIsFlight) {
+      GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
+      GameEvents.onPartActionUIDismiss.Add(OnPartGUIStop);
+    }
     UpdateContextMenu();
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
+    GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
   }
 
   /// <inheritdoc/>
@@ -214,18 +225,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     if (HighLogic.LoadedSceneIsFlight) {
-      linkStateMachine.onBeforeTransition += (start, end) => {
-        if (!start.HasValue) {
-          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
-          GameEvents.onPartActionUIDismiss.Add(OnPartGUIStop);
-        }
-        if (!end.HasValue) {
-          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
-          GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
-        }
-      };
       linkStateMachine.AddStateHandlers(
-        LinkState.Linked, enterHandler: oldState => StartCoroutine(FollowTheBone()));
+          LinkState.Linked, enterHandler: oldState => StartCoroutine(FollowTheBone()));
     }
   }
 
