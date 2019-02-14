@@ -262,12 +262,12 @@ public abstract class AbstractJoint : PartModule,
   /// <summary>Vessel info of the source part.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedSrcVesselInfo", group = StdPersistentGroups.PartPersistant)]
-  protected DockedVesselInfo persistedSrcVesselInfo;
+  public DockedVesselInfo persistedSrcVesselInfo;
 
   /// <summary>Vessel info of the target part.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
-  protected DockedVesselInfo persistedTgtVesselInfo;
+  public DockedVesselInfo persistedTgtVesselInfo;
 
   /// <summary>Length at the moment of creating the joint.</summary>
   /// <remarks>
