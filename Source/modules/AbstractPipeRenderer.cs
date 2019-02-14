@@ -268,7 +268,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
-  public void StartRenderer(Transform source, Transform target) {
+  public virtual void StartRenderer(Transform source, Transform target) {
     if (isStarted) {
       if (sourceTransform == source && targetTransform == target) {
         return;  // NO-OP
@@ -303,7 +303,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public void StopRenderer() {
+  public virtual void StopRenderer() {
     // Sync the renderers settinsg to the source part to handle the highlights.
     if (isStarted) {
       sourceTransform.GetComponentsInChildren<Renderer>().ToList()
