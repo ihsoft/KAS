@@ -130,6 +130,20 @@ public class KASRendererPipe : AbstractPipeRenderer {
     [PersistentField("parkAttachAt")]
     [Debug.KASDebugAdjustable("Park location pos&rot")]
     public PosAndRot parkAttachAt;
+
+    /// <summary>
+    /// Tells if the only prefab model, but not the procedural models must be parked on renderer
+    /// stop.
+    /// </summary>
+    /// <remarks>
+    /// If this setting is <c>true</c> and tjhere is a parking position defined, then on renderer
+    /// stop all the procedural models (sphere and arm) will be removed. Changing this behavior
+    /// makes sense when the procedural models are parts of the connector rather than simple helpers
+    /// for the pipe mesh.
+    /// </remarks>
+    [PersistentField("parkAllModels")]
+    [Debug.KASDebugAdjustable("Park prefab model only")]
+    public bool parkPrefabOnly = true;
   }
   #endregion
 
@@ -185,42 +199,19 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
     /// <summary>Transform to attach the root model when the renderer stops.</summary>
     /// <remarks>
-    /// It's always a child of the main node's model.
-    /// <para>
-    /// Can be <c>null</c>, in which case the root model will be deactivated instead of aligned to
-    /// park location. Normally the alignment is done as "snap align" at the
-    /// <see cref="pipeAttach"/>.
-    /// </para>    
+    /// Can be <c>null</c>, in which case the root model will be deactivated instead of being
+    /// aligned to the park location. The alignment is done as "snap align" at
+    /// <see cref="pipeAttach"/>. Note, that this object only used for the <i>alignment</i>, the
+    /// parent of the parked/hidden model will be <see cref="parkRootObject"/>.
     /// </remarks>
     public Transform parkAttach;
 
-    /// <summary>Prefab model, used as a part of the attachement end node.</summary>
+    /// <summary>Object that becomes parent when the model is parked.</summary>
     /// <remarks>
-    /// This object is never disposed. On dispose, it's returned to the part's model in the inactive
-    /// state.
+    /// This obejct must never be <c>null</c>. Set it to the part's model when unsure what to
+    /// provide.
     /// </remarks>
-    public Transform prefabModel;
-
-    /// <summary>Part's model.</summary>
-    /// <remarks>Used to return the persistent objects on dispose.</remarks>
-    public Transform partModel;
-
-    /// <summary>Destroys the dynamically created objects and disables the prefab.</summary>
-    public void Dispose() {
-      // Do NOT destroy the prefab model. Only disable it.
-      if (prefabModel != null) {
-        prefabModel.parent = partModel;
-        prefabModel.gameObject.SetActive(false);
-      }
-
-      // Destroy the dynamically created objects. 
-      rootModel.parent = null;  // Remove from hierarchy immediately.
-      UnityEngine.Object.Destroy(rootModel.gameObject);
-      if (parkAttach != null) {
-        parkAttach.parent = null;  // Remove from hierarchy immediately.
-        UnityEngine.Object.Destroy(parkAttach.gameObject);
-      }
-    }
+    public Transform parkRootObject;
 
     /// <summary>Updates the node's state to the target transform.</summary>
     /// <param name="target">
@@ -233,7 +224,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
         AlignTransforms.SnapAlign(rootModel, partAttach, target);
         rootModel.parent = target;
       } else {
-        rootModel.parent = partModel;
+        rootModel.parent = parkRootObject;
         if (parkAttach == null) {
           rootModel.gameObject.SetActive(false);
         } else {
@@ -289,40 +280,20 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
-  #region IHasDebugAdjustables implementation
-  /// <inheritdoc/>
-  public override void OnBeforeDebugAdjustablesUpdate() {
-    base.OnBeforeDebugAdjustablesUpdate();
-    if (sourceJointNode != null) {
-      sourceJointNode.Dispose();
-      sourceJointNode = null;
-    }
-    if (targetJointNode != null) {
-      targetJointNode.Dispose();
-      targetJointNode = null;
-    }
-  }
-  #endregion
-
-  #region AbstractPipeRenderer abstract members
+  #region AbstractPipeRenderer abstract methods
   /// <inheritdoc/>
   protected override void LoadPartModel() {
-    if (sourceJointNode == null) {
-      sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig);
-    }
-    if (targetJointNode == null) {
-      targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig);
-    }
-    sourceJointNode.AlignToTransform(sourceTransform);
-    targetJointNode.AlignToTransform(targetTransform);
+    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, sourceTransform,
+                                           oldNode: sourceJointNode);
+    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, targetTransform,
+                                           oldNode: targetJointNode);
   }
 
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
-    DestroyPipeMesh();
     CreateLinkPipe();
-    sourceJointNode.AlignToTransform(sourceTransform);
-    targetJointNode.AlignToTransform(targetTransform);
+    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, sourceTransform);
+    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, targetTransform);
 
     // Have the overrides applied if any.
     UpdateMaterialOverrides();
@@ -336,11 +307,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
     }
     pipeTransform = null;
     pipeMeshRenderer = null;
-    if (sourceJointNode != null && sourceJointNode.rootModel != null) {
-      sourceJointNode.AlignToTransform(null);
+    if (sourceJointNode != null && sourceTransform != null) {
+      sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, null,
+                                             oldNode: sourceJointNode);
     }
-    if (targetJointNode != null && targetJointNode.rootModel != null) {
-      targetJointNode.AlignToTransform(null);
+    if (targetJointNode != null && targetTransform != null) {
+      targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, null,
+                                             oldNode: targetJointNode);
     }
   }
 
@@ -428,92 +401,125 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// may not be used as is, the actual object can have a different full name.
   /// </param>
   /// <param name="config">The joint configuration from the part's config.</param>
-  /// <returns>The pipe end node. The root model will eb a child of the part's model.</returns>
-  protected virtual ModelPipeEndNode CreateJointEndModels(string name, JointConfig config) {
-    var res = new ModelPipeEndNode();
-    res.partModel = partModelTransform;
+  /// <param name="alignTo">
+  /// The object to align the conenctor to. If it's <c>null</c>, then the model will be parked.
+  /// </param>
+  /// <param name="oldNode">
+  /// The existing node. If provided, then it will be updated instead of creating a new node. It's
+  /// the recommended way to call this method.
+  /// </param>
+  /// <returns>The new node or the updated <paramref name="oldNode"/>.</returns>
+  protected virtual ModelPipeEndNode CreateJointEndModels(
+      string name, JointConfig config, Transform alignTo, ModelPipeEndNode oldNode = null) {
+    var makeProceduralModels = alignTo != null || !config.parkPrefabOnly;
+    var node = oldNode ?? new ModelPipeEndNode();
+
+    // Return the models back to the owner part to make the search working properly.
+    if (node.rootModel != null) {
+      node.AlignToTransform(null);
+    }
+    
+    node.parkRootObject = partModelTransform;
     
     // Create basic setup.
     var nodeName = ModelBasename + "-pipeNode" + name;
-    res.rootModel = partModelTransform.Find(nodeName)
+    node.rootModel = partModelTransform.Find(nodeName)
         ?? new GameObject(nodeName).transform;
-    res.rootModel.parent = partModelTransform;
-    res.partAttach = res.rootModel.Find(PartJointTransformName)
+    node.rootModel.parent = partModelTransform;
+    node.partAttach = node.rootModel.Find(PartJointTransformName)
         ?? new GameObject(PartJointTransformName).transform;
-    Hierarchy.MoveToParent(res.partAttach, res.rootModel,
+    Hierarchy.MoveToParent(node.partAttach, node.rootModel,
                            newPosition: Vector3.zero,
                            newRotation: Quaternion.LookRotation(Vector3.back));
-    res.pipeAttach = res.rootModel.Find(PipeJointTransformName)
+    node.pipeAttach = node.rootModel.Find(PipeJointTransformName)
         ?? new GameObject(PipeJointTransformName).transform;
-    Hierarchy.MoveToParent(res.pipeAttach, res.rootModel,
+    Hierarchy.MoveToParent(node.pipeAttach, node.rootModel,
                            newPosition: Vector3.zero,
                            newRotation: Quaternion.LookRotation(Vector3.forward));
 
     // Add a pipe attachment sphere if set.
-    if (config.sphereDiameter > float.Epsilon) {
-      const string sphereName = "pipeSphere";
-      var sphere = res.pipeAttach.Find(sphereName)
-          ?? Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, res.pipeAttach,
-                                 colliderType: Colliders.PrimitiveCollider.Shape).transform;
-      sphere.name = sphereName;
+    const string sphereName = "pipeSphere";
+    var sphere = node.pipeAttach.Find(sphereName);
+    if (config.sphereDiameter > float.Epsilon && makeProceduralModels) {
+      if (sphere == null) {
+        sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
+                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        sphere.name = sphereName;
+      }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescaleTextureToLength(sphere,
                              samplesPerMeter: pipeTextureSamplesPerMeter,
                              extraScale: config.sphereDiameter * 2.0f);
-      Hierarchy.MoveToParent(sphere, res.pipeAttach,
+      Hierarchy.MoveToParent(sphere, node.pipeAttach,
                              newPosition: Vector3.zero,
                              newRotation: Quaternion.identity);
+    } else if (sphere != null) {
+      sphere.parent = null;
+      UnityEngine.Object.Destroy(sphere.gameObject);
     }
 
     // Parking position, if defined.
+    var parkObjectName = ModelBasename + "-park" + name;
+    var parkAttach = partModelTransform.Find(parkObjectName);
     if (config.parkAttachAt != null) {
-      var parkObjectName = ModelBasename + "-park" + name;
-      res.parkAttach = partModelTransform.Find(parkObjectName)
-          ?? new GameObject(parkObjectName).transform;
-      Hierarchy.MoveToParent(res.parkAttach, partModelTransform,
+      node.parkAttach = parkAttach ?? new GameObject(parkObjectName).transform;
+      Hierarchy.MoveToParent(node.parkAttach, partModelTransform,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
+    } else if (parkAttach != null) {
+      parkAttach.parent = null;
+      UnityEngine.Object.Destroy(parkAttach.gameObject);
     }
 
     // Place prefab between the part and the pipe if specified.
     if (!string.IsNullOrEmpty(config.modelPath)) {
-      // The prefab model can move to the part's model, so make a unique name for it. 
-      var prefabName = ModelBasename + "-connector" + name;
-      var prefabModel = res.rootModel.Find(prefabName)
-          ?? partModelTransform.Find(prefabName)  // Models re-create case.
+      // The prefab model can move to the part's model, so make a unique name for it.
+      const string prefabName = "prefabConnector";
+      var prefabModel = node.rootModel.Find(prefabName)
           ?? Hierarchy.FindTransformByPath(partModelTransform, config.modelPath);
       if (prefabModel != null) {
         prefabModel.gameObject.SetActive(true);
         prefabModel.name = prefabName;
-        prefabModel.parent = res.rootModel;
-        prefabModel.rotation = res.partAttach.rotation * config.modelPartAttachAt.rot.Inverse();
-        prefabModel.position = res.partAttach.TransformPoint(config.modelPartAttachAt.pos);
-        res.pipeAttach.rotation = prefabModel.rotation * config.modelPipeAttachAt.rot;
-        res.pipeAttach.position = prefabModel.TransformPoint(config.modelPipeAttachAt.pos);
-        res.prefabModel = prefabModel;
+        prefabModel.parent = node.rootModel;
+        prefabModel.rotation = node.partAttach.rotation * config.modelPartAttachAt.rot.Inverse();
+        prefabModel.position = node.partAttach.TransformPoint(config.modelPartAttachAt.pos);
+        node.pipeAttach.rotation = prefabModel.rotation * config.modelPipeAttachAt.rot;
+        node.pipeAttach.position = prefabModel.TransformPoint(config.modelPipeAttachAt.pos);
       } else {
-        HostedDebugLog.Error(this, "Cannot find model: {0}", prefabName);
+        HostedDebugLog.Error(this, "Cannot find prefab model: {0}", config.modelPath);
       }
     }
 
+    // The offset is intended for the sphere/arm models only.  
+    if (makeProceduralModels) {
+      node.pipeAttach.localPosition += new Vector3(0, 0, config.sphereOffset);
+    }
+
     // Add arm pipe.
-    res.pipeAttach.localPosition += new Vector3(0, 0, config.sphereOffset);
-    if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon) {
-      const string armName = "sphereArm";
-      var arm = res.pipeAttach.Find(armName)
-          ?? Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
-                                   res.pipeAttach,
-                                   colliderType: Colliders.PrimitiveCollider.Shape).transform;
-      arm.name = armName;
+    const string armName = "sphereArm";
+    var arm = node.pipeAttach.Find(armName);
+    if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon
+        && makeProceduralModels) {
+      if (arm == null) {
+        arm = Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                    node.pipeAttach,
+                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        arm.name = armName;
+      }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
       arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
       RescaleTextureToLength(
           arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter,
           extraScale: config.sphereOffset);
+    } else if (arm != null) {
+      arm.parent = null;
+      UnityEngine.Object.Destroy(arm.gameObject);
     }
 
-    return res;
+    // Adjust to the new target.
+    node.AlignToTransform(alignTo);
+    return node;
   }
 
   /// <summary>
