@@ -384,7 +384,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected abstract void CreatePipeMesh();
 
   /// <summary>Destroys the dynamic pipe mesh(-es).</summary>
-  /// <remarks>This is a cleanup method. It must always succeed.</remarks>
+  /// <remarks>
+  /// This is a cleanup method. It may be called at any time and must always succeed. Note, that
+  /// when this method is called the part's config may not be available. 
+  /// </remarks>
   /// <seealso cref="StopRenderer"/>
   protected abstract void DestroyPipeMesh();
 
@@ -478,22 +481,22 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region Collision ignores tracking code (tricky!)
   /// <summary>
-  /// Intermediate field to keep the vessel between starting and ending of the part decoupling
+  /// Intermediate field to save the vessel between starting and ending of the part decoupling
   /// event.
   /// </summary>
   Vessel formerTargetVessel;
 
   /// <summary>Reacts on a part coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
-  /// If the coupled part belongs to the same vessel as the target part of this pipe, then its
-  /// colliders should not interact with the source vessel even if the linked vessels are different. 
+  /// The pipe meshes should not collide with the target vessel. So track the part changes on the
+  /// target vessel and disable collisions on the newly appeared parts.
   /// </remarks>
   /// <param name="action">The callback action.</param>
   void OnPartCoupleCompleteEvent(GameEvents.FromToAction<Part, Part> action) {
     if (targetPart != null && targetPart.vessel != vessel
         && (action.from.vessel == targetPart.vessel || action.to.vessel == targetPart.vessel)) {
       if (action.from == targetPart) {
-        // The traget part has couple to a new vessel.
+        // The target part has couple to a new vessel.
         HostedDebugLog.Fine(this, "Set collision ignores on: {0}", action.to.vessel);
         action.to.vessel.parts
             .ForEach(p => SetCollisionIgnores(p, true));
@@ -519,8 +522,8 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Reacts on a part de-coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
-  /// The main idea is that the renderers meshes must not be colliding with any part of the target's
-  /// vessel, given the soucre and the traget point belong to different vessels.
+  /// When a part is leaving the target vessel, the collsions between this part and the pipe meshes
+  /// must be restored.
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleCompleteEvent(Part originator) {

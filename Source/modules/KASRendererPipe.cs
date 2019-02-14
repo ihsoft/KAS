@@ -172,16 +172,15 @@ public class KASRendererPipe : AbstractPipeRenderer {
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
   protected class ModelPipeEndNode {
-    /// <summary>The main node's model.</summary>
-    /// <remarks>All other objects of the node <i>must</i> be children to this model.</remarks>
+    /// <summary>The main node's model. All anchors are children to it.</summary>
     public Transform rootModel;
 
     /// <summary>Transform at which the node attaches to the target part.</summary>
-    /// <remarks>It's always a child of the main node's model.</remarks>
+    /// <remarks>It's always a child of <see cref="rootModel"/>.</remarks>
     public Transform partAttach;
 
     /// <summary>Transform at which the node attaches to the pipe mesh.</summary>
-    /// <remarks>It's always a child of the main node's model.</remarks>
+    /// <remarks>It's always a child of <see cref="rootModel"/>.</remarks>
     public Transform pipeAttach;
 
     /// <summary>Transform to attach the root model when the renderer stops.</summary>
@@ -225,8 +224,9 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
     /// <summary>Updates the node's state to the target transform.</summary>
     /// <param name="target">
-    /// The transfrom to align the node to. It can be <c>null</c> if there is no transform.
+    /// The transfrom to align the node to. If <c>null</c>, then the model will be "parked".
     /// </param>
+    /// <seealso cref="parkAttach"/>
     public void AlignToTransform(Transform target) {
       if (target != null) {
         rootModel.gameObject.SetActive(true);
