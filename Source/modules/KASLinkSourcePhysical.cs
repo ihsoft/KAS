@@ -568,6 +568,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Deployed,
+        enterHandler: oldState => StartPhysicsOnConnector(),
         leaveHandler: newState => StopPhysicsOnConnector(),
         callOnShutdown: false);
   }
@@ -597,19 +598,15 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
-    var oldTargetNode = linkTarget.nodeTransform;
-    SetConnectorState(isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed);
+    SaveConnectorModelPosAndRot(saveNonPhysical: true);
     if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ShowStatusMessage(CableLinkBrokenMsg, isError: true);
-    } else if (actorType == LinkActorType.Player) {
-      if (connectorState == ConnectorState.Deployed) {
-        UISoundPlayer.instance.Play(sndPathUnplugConnector);
-      }
     }
     base.LogicalUnlink(actorType);
-    if (connectorState == ConnectorState.Deployed) {
-      StartPhysicsOnConnector();
+    SetConnectorState(isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed);
+    if (actorType == LinkActorType.Player && connectorState == ConnectorState.Deployed) {
+      UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
   }
 
