@@ -186,6 +186,12 @@ public class KASRendererPipe : AbstractPipeRenderer {
   #region Helper class for drawing a pipe's end
   /// <summary>Helper class for drawing a pipe's end.</summary>
   protected class ModelPipeEndNode {
+    /// <summary>Node name, used to create the object name.</summary>
+    public readonly string name;
+
+    /// <summary>Config settings for this node.</summary>
+    public readonly JointConfig config;
+
     /// <summary>The main node's model. All anchors are children to it.</summary>
     public Transform rootModel;
 
@@ -212,6 +218,14 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// provide.
     /// </remarks>
     public Transform parkRootObject;
+
+    /// <summary>Creates a node.</summary>
+    /// <param name="name">The string to use when making model object name.</param>
+    /// <param name="config">The settings of the node.</param>
+    public ModelPipeEndNode(string name, JointConfig config) {
+      this.name = name;
+      this.config = config;
+    }
 
     /// <summary>Updates the node's state to the target transform.</summary>
     /// <param name="target">
@@ -271,29 +285,34 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <summary>Pipe ending node at the source.</summary>
   /// <value>The source node container.</value>
-  /// <seealso cref="CreateJointEndModels"/>
+  /// <seealso cref="UpdateJointNode"/>
   protected ModelPipeEndNode sourceJointNode { get; private set; }
 
   /// <summary>Pipe ending node at the target.</summary>
   /// <value>The target node container.</value>
-  /// <seealso cref="CreateJointEndModels"/>
+  /// <seealso cref="UpdateJointNode"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
   #region AbstractPipeRenderer abstract methods
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    sourceJointNode = new ModelPipeEndNode(SourceNodeName, sourceJointConfig);
+    targetJointNode = new ModelPipeEndNode(TargetNodeName, targetJointConfig);
+  }
+
+  /// <inheritdoc/>
   protected override void LoadPartModel() {
-    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, sourceTransform,
-                                           oldNode: sourceJointNode);
-    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, targetTransform,
-                                           oldNode: targetJointNode);
+    UpdateJointNode(sourceJointNode, sourceTransform);
+    UpdateJointNode(targetJointNode, targetTransform);
   }
 
   /// <inheritdoc/>
   protected override void CreatePipeMesh() {
     CreateLinkPipe();
-    sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, sourceTransform);
-    targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, targetTransform);
+    UpdateJointNode(sourceJointNode, sourceTransform);
+    UpdateJointNode(targetJointNode, targetTransform);
 
     // Have the overrides applied if any.
     UpdateMaterialOverrides();
@@ -308,12 +327,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
     pipeTransform = null;
     pipeMeshRenderer = null;
     if (sourceJointNode != null && sourceTransform != null) {
-      sourceJointNode = CreateJointEndModels(SourceNodeName, sourceJointConfig, null,
-                                             oldNode: sourceJointNode);
+      UpdateJointNode(sourceJointNode, null);
     }
     if (targetJointNode != null && targetTransform != null) {
-      targetJointNode = CreateJointEndModels(TargetNodeName, targetJointConfig, null,
-                                             oldNode: targetJointNode);
+      UpdateJointNode(targetJointNode, null);
     }
   }
 
@@ -396,23 +413,13 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   #region Inheritable methods
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
-  /// <param name="name">
-  /// The name of the node's root model to disambiguate the module's objects hierarchy. This name
-  /// may not be used as is, the actual object can have a different full name.
-  /// </param>
-  /// <param name="config">The joint configuration from the part's config.</param>
+  /// <param name="node">The node to setup.</param>
   /// <param name="alignTo">
   /// The object to align the conenctor to. If it's <c>null</c>, then the model will be parked.
   /// </param>
-  /// <param name="oldNode">
-  /// The existing node. If provided, then it will be updated instead of creating a new node. It's
-  /// the recommended way to call this method.
-  /// </param>
-  /// <returns>The new node or the updated <paramref name="oldNode"/>.</returns>
-  protected virtual ModelPipeEndNode CreateJointEndModels(
-      string name, JointConfig config, Transform alignTo, ModelPipeEndNode oldNode = null) {
+  protected virtual void UpdateJointNode(ModelPipeEndNode node, Transform alignTo) {
+    var config = node.config;
     var makeProceduralModels = alignTo != null || !config.parkPrefabOnly;
-    var node = oldNode ?? new ModelPipeEndNode();
 
     // Return the models back to the owner part to make the search working properly.
     if (node.rootModel != null) {
@@ -422,7 +429,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     node.parkRootObject = partModelTransform;
     
     // Create basic setup.
-    var nodeName = ModelBasename + "-pipeNode" + name;
+    var nodeName = ModelBasename + "-pipeNode" + node.name;
     node.rootModel = partModelTransform.Find(nodeName)
         ?? new GameObject(nodeName).transform;
     node.rootModel.parent = partModelTransform;
@@ -459,7 +466,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     }
 
     // Parking position, if defined.
-    var parkObjectName = ModelBasename + "-park" + name;
+    var parkObjectName = ModelBasename + "-park" + node.name;
     var parkAttach = partModelTransform.Find(parkObjectName);
     if (config.parkAttachAt != null) {
       node.parkAttach = parkAttach ?? new GameObject(parkObjectName).transform;
@@ -519,7 +526,6 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
     // Adjust to the new target.
     node.AlignToTransform(alignTo);
-    return node;
   }
 
   /// <summary>
