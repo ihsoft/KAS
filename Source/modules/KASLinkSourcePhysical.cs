@@ -534,7 +534,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         ConnectorState.Locked,
         enterHandler: oldState => {
           SaveConnectorModelPosAndRot();
-          SetCableLength(0);
           if (oldState.HasValue) {  // Skip when restoring state.
             UISoundPlayer.instance.Play(sndPathLockConnector);
           }
@@ -546,7 +545,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         ConnectorState.Docked,
         enterHandler: oldState => {
           SaveConnectorModelPosAndRot();
-          SetCableLength(0);
 
           // Align the docking part to the nodes if it's a separate vessel.
           if (oldState.HasValue && linkTarget.part.vessel != vessel) {
