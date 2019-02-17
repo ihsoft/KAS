@@ -438,6 +438,19 @@ public abstract class AbstractLinkPeer : PartModule,
     otherPeer = KASAPI.LinkUtils.FindLinkPeer(this);
   }
 
+  /// <summary>Verifies that all part's settings are consistent.</summary>
+  /// <remarks>
+  /// If there are contradicting settings detected, they must be fixed so that the part could behave
+  /// consistently. A warning must be logged to point out what was fixed and to what value.
+  /// <para>
+  /// Implementations may call this method multiple times at different stages. At the very least it
+  /// get called on the module load, but this must <i>not</i> be assumed the only use-case.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="LoadModuleSettings"/>
+  protected virtual void CheckSettingsConsistency() {
+  }
+
   /// <summary>Shows a UI messages with regard to the currently active vessel.</summary>
   /// <remarks>
   /// The UI messages from the active vessel are show n at the highest priority to bring attention
@@ -471,6 +484,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// between. Override this method if the descendant module needs initialization.
   /// </remarks>
   protected virtual void LoadModuleSettings() {
+    CheckSettingsConsistency();
     if (isAutoAttachNode && parsedAttachNode != null) {
       KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
     }
