@@ -185,6 +185,7 @@ public class KASJointCableBase : AbstractJoint,
 
     // Attach the head to the source.
     CreateDistanceJoint(source, headRb, headObjAnchor.position);
+    SetOrigianlLength(deployedCableLength);
   }
 
   /// <inheritdoc/>
