@@ -220,6 +220,28 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region AbstractLinkPeer overrides
   /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    InitStartState();
+  }
+
+  /// <inheritdoc/>
+  public override void OnInitialize() {
+    base.OnInitialize();
+    if (isLinked && linkTarget.part.vessel != vessel) {
+      // When the target is at the different vessel, there is no automatic collision ignore set.
+      AsyncCall.CallOnFixedUpdate(this, () => {
+        // Copied from KervalEVA.OnVesselGoOffRails() method.
+        // There must be a delay for at least 3 fixed frames.
+        if (isLinked) {  // Link may get broken during the physics easyment.
+          CollisionManager.IgnoreCollidersOnVessel(
+              linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
+        }
+      }, skipFrames: 3);
+    }
+  }
+
+  /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => HostedDebugLog.Fine(
@@ -272,28 +294,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     } else {
       ShowStatusMessage(CannotRestoreLinkMsg.Format(part.name), isError: true);
     }
-  }
-
-  /// <inheritdoc/>
-  public override void OnInitialize() {
-    base.OnInitialize();
-    if (isLinked && linkTarget.part.vessel != vessel) {
-      // When the target is at the different vessel, there is no automatic collision ignore set.
-      AsyncCall.CallOnFixedUpdate(this, () => {
-        // Copied from KervalEVA.OnVesselGoOffRails() method.
-        // There must be a delay for at least 3 fixed frames.
-        if (isLinked) {  // Link may get broken during the physics easyment.
-          CollisionManager.IgnoreCollidersOnVessel(
-              linkTarget.part.vessel, part.GetComponentsInChildren<Collider>());
-        }
-      }, skipFrames: 3);
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
-    base.OnStart(state);
-    InitStartState();
   }
 
   /// <inheritdoc/>

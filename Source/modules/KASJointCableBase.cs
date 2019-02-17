@@ -172,7 +172,6 @@ public class KASJointCableBase : AbstractJoint,
   #region ILinkCableJoint implementation
   /// <inheritdoc/>
   public virtual void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
-    //FIXME: add the physical head module here.
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
       HostedDebugLog.Error(this,
