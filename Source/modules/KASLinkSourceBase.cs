@@ -134,12 +134,21 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region Part's config fields
-  /// <summary>Tells if coupling mode can be changed via the part's context menu.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  [Debug.KASDebugAdjustable("Show coupling GUI")]
-  public bool showCouplingUi;
-  
+  /// <summary>Specifies how/if the parts should be coupled on link.</summary>
+  public enum CoupleMode {
+    /// <summary>Context menu will be presented to allow changing coupling.</summary>
+    /// <remarks>Both the source and traget parts must be enabled for coupling.</remarks>
+    SetViaGUI,
+
+    /// <summary>This source only links when it can immedieately dock with the target.</summary>
+    AlwaysCoupled,
+
+    /// <summary>
+    /// The link is always established in undocked mode, and it's not possible to change it.
+    /// </summary>
+    NeverCouple,
+  }
+
   /// <summary>Name of the renderer that draws the link.</summary>
   /// <value>Arbitrary string. Can be empty.</value>
   /// <remarks>
@@ -172,6 +181,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - part undock")]
   public string sndPathUndock = "";
+
+  /// <summary>Specifies if the parts should couple on link creation.</summary>
+  /// <remarks>
+  /// In case of <see cref="CoupleMode.AlwaysCoupled"/> mode is selected, the both parts must
+  /// support coupling. If they don't, then the coupling will be made without using the attach
+  /// nodes. An error will be logged, and the further behavior of the assembly is undetermined.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Coupling mode")]
+  public CoupleMode coupleMode = CoupleMode.NeverCouple;
   #endregion
 
   #region Inheritable fields & properties
@@ -324,6 +344,27 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
     UpdateContextMenu();  // To update the dock/undock menu.
   }
+
+  /// <inheritdoc/>
+  protected override void CheckSettingsConsistency() {
+    base.CheckSettingsConsistency();
+    if (!allowCoupling && coupleMode != CoupleMode.NeverCouple) {
+      allowCoupling = true;
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: allowCoupling => {0}, due to coupleMode={1}",
+          allowCoupling, coupleMode);
+    }
+    if (linkJoint != null && coupleMode != CoupleMode.SetViaGUI && linkJoint.coupleOnLinkMode) {
+      linkJoint.SetCoupleOnLinkMode(false);
+      HostedDebugLog.Warning(this, "Inconsistent setting fixed: reset joint on link couple state");
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void LoadModuleSettings() {
+    base.LoadModuleSettings();
+    UpdateContextMenu();
+  }
   #endregion
 
   #region IHasDebugAdjustables implementation
@@ -441,6 +482,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
+    if (coupleMode != CoupleMode.SetViaGUI) {
+      linkJoint.SetCoupleOnLinkMode(coupleMode == CoupleMode.AlwaysCoupled);
+    }
     if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
       return false;
     }
@@ -498,13 +542,16 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   public virtual void UpdateContextMenu() {
     PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
       if (linkJoint != null) {
-        if (linkJoint.coupleOnLinkMode) {
-          e.active = true;
-          e.guiName = DockedModeMenuTxt;
+        e.guiName = linkJoint.coupleOnLinkMode ? DockedModeMenuTxt : UndockedModeMenuTxt;
+        if (coupleMode == CoupleMode.SetViaGUI) {
+          e.active = linkTarget == null || linkTarget.coupleNode != null;
+        } else if (isLinked) {
+          // Just in case show GUI if the link is established, and its couple mode contradicts the
+          // joint setting. GUI will allow fixing it manually.
+          e.active = coupleMode == CoupleMode.NeverCouple && linkJoint.coupleOnLinkMode
+              || coupleMode == CoupleMode.AlwaysCoupled && !linkJoint.coupleOnLinkMode;
         } else {
-          e.active = showCouplingUi && allowCoupling
-              && (linkTarget == null || linkTarget.coupleNode != null);
-          e.guiName = UndockedModeMenuTxt;
+          e.active = false;
         }
       } else {
         e.active = false;
@@ -591,6 +638,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (cfgLinkType != target.cfgLinkType) {
       errors.Add(IncompatibleTargetLinkTypeMsg);
     }
+    if (coupleMode == CoupleMode.AlwaysCoupled && target.coupleNode == null) {
+      Message TargetCannotCouple = "Target cannot couple"; //FIXME
+      errors.Add(TargetCannotCouple);
+    }
     return errors.ToArray();
   }
   #endregion
@@ -651,6 +702,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
     linkRenderer = linkRenderer ?? oldLinkRenderer;
+    CheckSettingsConsistency();
   }
   #endregion
 }

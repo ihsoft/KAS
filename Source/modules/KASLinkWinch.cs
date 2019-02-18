@@ -361,6 +361,16 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
   }
 
+  /// <inheritdoc/>
+  protected override void CheckSettingsConsistency() {
+    if (coupleMode != CoupleMode.NeverCouple) {
+      coupleMode = CoupleMode.NeverCouple;
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: coupleMode => {0}, due to only this mode is supported",
+          coupleMode);
+    }
+    base.CheckSettingsConsistency();
+  }
   #endregion
 
   #region IsPhysicalObject implementation
@@ -476,8 +486,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathd.AreSame(gotEnergy, powerDemand)) {
-      SetCableLength(
-          cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
+      SetCableLength(cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
           && cableJoint.deployedCableLength >= cableJoint.cfgMaxCableLength) {
         KillMotor();

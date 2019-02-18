@@ -435,20 +435,26 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  protected override void LoadModuleSettings() {
-    // The locked connector with a part attached is get docked. So we require docking mode here.
-    // TODO(ihsoft): Allow non-docking mode.
+  protected override void CheckSettingsConsistency() {
     if (!allowCoupling) {
-      HostedDebugLog.Error(this, "The coupling must be allowed for this part to work. Overriding"
-                           + " allowCoupling settings to true.");
-      allowCoupling = true;  // A bad approach, but better than not having the attach node.
+      // Connector docking mode is required!
+      // TODO(ihsoft): Allow non-docking mode.
+      allowCoupling = true;
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: allowCoupling => {0}, due to it's required by physical"
+          + " source", allowCoupling);
     }
+    base.CheckSettingsConsistency();
     if (connectorMass > part.mass) {
-      HostedDebugLog.Error(this,
-          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: connectorMass => {0}, due to partMass={1}",
+          connectorMass, part.mass);
     }
-    base.LoadModuleSettings();
+    if (linkJoint != null && cableJoint == null) {
+      HostedDebugLog.Error(
+          this, "Cannot fix inconsistent setting: jointName={0} is not cable joint", jointName);
+    }
   }
 
   /// <inheritdoc/>
@@ -726,13 +732,17 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </para>
   /// </remarks>
   /// <param name="length">
-  /// The new length. Set it to <c>PositiveInfinity</c> to extend the cable at the maximum length.
-  /// Omit the parameter to macth the length to the current distance to the connector (stretch the
-  /// cable).
+  /// This argument is basically the same as the length, passed to
+  /// <see cref="ILinkCableJoint.SetCableLength"/>. However, if the value is not infinite, it's
+  /// brought to the range [0; maxLinkLength].
   /// </param>
   /// <seealso cref="connectorState"/>
+  /// <seealso cref="ILinkCableJoint"/>
   protected virtual void SetCableLength(float length) {
     if (cableJoint != null) {
+      if (!float.IsInfinity(length)) {
+        length = Mathf.Min(Mathf.Max(length, 0f), cableJoint.cfgMaxCableLength);
+      }
       cableJoint.SetCableLength(length);
     }
     UpdateContextMenu();
