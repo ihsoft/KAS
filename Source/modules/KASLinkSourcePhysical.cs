@@ -473,6 +473,17 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
+  protected override void RestoreOtherPeer() {
+    base.RestoreOtherPeer();
+    if (otherPeer == null) {
+      persistedIsConnectorLocked = true;
+      if (linkJoint != null) {
+        linkJoint.DropJoint();  // Cleanup the joints state.
+      }
+    }
+  }
+
+  /// <inheritdoc/>
   public override void OnPartDie() {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
