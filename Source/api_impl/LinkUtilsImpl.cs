@@ -12,14 +12,15 @@ namespace KASImpl {
 class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public ILinkPeer FindLinkPeer(ILinkPeer srcPeer) {
-    if (srcPeer.linkPartId == 0) {
-      DebugEx.Error("Bad target part: partId=F{0}", srcPeer.linkPartId);
+    var host = srcPeer as PartModule;
+    var tgtPart = FlightGlobals.FindPartByID(srcPeer.linkPartId);
+    if (tgtPart == null) {
+      HostedDebugLog.Warning(host, "Cannot find target part: partId=F{0}", srcPeer.linkPartId);
       return null;
     }
-    ILinkPeer tgtPeer = null;
-    var tgtPart = FlightGlobals.FindPartByID(srcPeer.linkPartId);
 
     // In normal case we can lookup by the node name.
+    ILinkPeer tgtPeer = null;
     if (!string.IsNullOrEmpty(srcPeer.linkNodeName)) {
       tgtPeer = tgtPart.Modules
           .OfType<ILinkPeer>()
@@ -39,13 +40,15 @@ class LinkUtilsImpl : ILinkUtils {
           .ToList();
       if (candidates.Count == 1) {
         tgtPeer = candidates[0];
-        DebugEx.Warning("FALLBACK: Found a link: {0} => {1}", srcPeer, tgtPeer);
+        HostedDebugLog.Warning(host, "FALLBACK: Found a link: {0} => {1}", srcPeer, tgtPeer);
       }
     }
 
     if (tgtPeer == null) {
-      DebugEx.Error("Failed to find the link peer for: peer={0}, targetPartId={1}, targetNode={2}",
-                    srcPeer, srcPeer.linkPartId, srcPeer.linkNodeName);
+      HostedDebugLog.Warning(
+          host,
+          "Failed to find the link: targetPartId={0}, targetNode={1}",
+          srcPeer.linkPartId, srcPeer.linkNodeName);
     }
     return tgtPeer;
   }
