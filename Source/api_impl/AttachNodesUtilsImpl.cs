@@ -5,6 +5,7 @@
 
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.ProcessingUtils;
 using System;
 using UnityEngine;
 
@@ -14,6 +15,9 @@ namespace KASImpl {
 class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
   /// <inheritdoc/>
   public AttachNode CreateNode(Part part, string nodeName, Transform nodeTransform) {
+    ArgumentGuard.NotNull(part, "part");
+    ArgumentGuard.NotNullOrEmpty(nodeName, "nodeName", context: part);
+    ArgumentGuard.NotNull(part, "nodeTransform", context: part);
     // Attach node wants the local coordinates! May be due to the prefab setup.
     var localNodeTransform = new GameObject(nodeName + "-autonode").transform;
     localNodeTransform.parent = part.transform;
@@ -37,6 +41,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public void AddNode(Part part, AttachNode attachNode) {
+    ArgumentGuard.NotNull(part, "part");
+    ArgumentGuard.NotNull(attachNode, "attachNode", context: part);
     if (attachNode.owner != part) {
       DebugEx.Warning(
           "Former owner of the attach node doesn't match the new one: old={0}, new={1}",
@@ -51,6 +57,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public void DropNode(Part part, AttachNode attachNode) {
+    ArgumentGuard.NotNull(part, "part");
+    ArgumentGuard.NotNull(attachNode, "attachNode", context: part);
     if (attachNode.attachedPart != null) {
       DebugEx.Error("Not dropping an attached node: {0}", NodeId(attachNode));
       return;
@@ -73,12 +81,14 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
 
   /// <inheritdoc/>
   public AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId) {
-    // The logic is borrowed from PartLoader.ParsePart.
+    ArgumentGuard.NotNull(ownerPart, "ownerPart");
+    ArgumentGuard.NotNullOrEmpty(def, "def", context: ownerPart);
+    ArgumentGuard.NotNullOrEmpty(nodeId, "nodeId", context: ownerPart);
     var array = def.Split(',');
+    ArgumentGuard.InRange(array.Length, "def", 6, 10,
+                          message: "Unexpected number of components", context: ownerPart);
     try {
-      if (array.Length < 6) {
-        throw new ArgumentException(string.Format("Not enough components: {0}", array.Length));
-      }
+      // The logic is borrowed from PartLoader.ParsePart.
       var attachNode = new AttachNode();
       attachNode.owner = ownerPart;
       attachNode.id = nodeId;
@@ -103,14 +113,16 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
       return attachNode;
     }
     catch (Exception ex) {
-      DebugEx.Error("Cannot parse node {0} for part {1} from: {2}\nError: {3}",
-                    nodeId, ownerPart, def, ex.Message);
+      HostedDebugLog.Error(ownerPart, "Cannot parse node '{0}' from: {1}\nError: {2}",
+                           nodeId, def, ex.Message);
       return null;
     }
   }
 
   /// <inheritdoc/>
   public Transform GetTransformForNode(Part ownerPart, AttachNode an) {
+    ArgumentGuard.NotNull(ownerPart, "ownerPart");
+    ArgumentGuard.NotNull(an, "an", context: ownerPart);
     if (an.owner != ownerPart) {
       DebugEx.Warning("Attach node {0} doesn't belong to part {1}", NodeId(an), ownerPart);
     }

@@ -8,6 +8,7 @@ using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.ProcessingUtils;
 using System;
 using System.Collections;
 using System.Text;
@@ -208,16 +209,7 @@ public class KASJointCableBase : AbstractJoint,
     } else if (float.IsNegativeInfinity(length)) {
       length = Mathf.Min(realCableLength, deployedCableLength);
     }
-    if (length < 0) {
-      HostedDebugLog.Error(this, "Negative length is not allowed");
-      throw new ArgumentOutOfRangeException("length", length, "Negative value is not allowed");
-    }
-    if (length > cfgMaxCableLength) {
-      HostedDebugLog.Error(
-          this, "Cannot set length: value={0}, maxAllowed={1}", length, cfgMaxCableLength);
-      throw new ArgumentOutOfRangeException(
-          "length", length, "Max allowed value is: " + cfgMaxCableLength);
-    }
+    ArgumentGuard.InRange(length, "length", 0, cfgMaxCableLength, context: this);
     SetOrigianlLength(length);
     cableJoint.linearLimit = new SoftJointLimit() { limit = length };
   }

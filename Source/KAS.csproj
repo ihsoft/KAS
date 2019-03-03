@@ -92,6 +92,7 @@
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
+    <Compile Include="KSPDev_candidates\ArgumentGuard.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />
