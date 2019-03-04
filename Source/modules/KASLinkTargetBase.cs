@@ -55,7 +55,7 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   public virtual ILinkSource linkSource {
     get { return otherPeer as ILinkSource; }
-    set { otherPeer = value; }
+    set { SetOtherPeer(value); }
   }
   #endregion
 
@@ -124,7 +124,7 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   protected override void OnPeerChange(ILinkPeer oldPeer) {
     base.OnPeerChange(oldPeer);
-    linkState = linkSource != null ? LinkState.Linked : LinkState.Available;
+    SetLinkState(linkSource != null ? LinkState.Linked : LinkState.Available);
 
     // Trigger events on the part.
     var oldSource = oldPeer as ILinkSource;
@@ -148,9 +148,9 @@ public class KASLinkTargetBase :
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available
           && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
-        isNodeBlocked = true;
+        SetIsNodeBlocked(true);
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        isNodeBlocked = false;
+        SetIsNodeBlocked(false);
       }
     });
   }
@@ -238,7 +238,7 @@ public class KASLinkTargetBase :
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   protected virtual void OnStartLinkingKASEvent(ILinkSource source) {
-    linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
+    SetLinkState(CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks);
   }
 
   /// <summary>Cancels  the linking mode on this module.</summary>
@@ -246,7 +246,7 @@ public class KASLinkTargetBase :
   /// <param name="connectionSource"></param>
   protected virtual void OnStopLinkingKASEvent(ILinkSource connectionSource) {
     if (!isLocked) {
-      linkState = LinkState.Available;
+      SetLinkState(LinkState.Available);
     }
   }
   #endregion

@@ -153,32 +153,14 @@ public abstract class AbstractLinkPeer : PartModule,
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
-      linkStateMachine.currentState = value;
-    }
   }
 
   /// <inheritdoc/>
-  /// <remarks>
-  /// The descendants must eitehr use this property when linking with the other peer, or fully mimic
-  /// the behavior.
-  /// </remarks>
   /// <seealso cref="persistedLinkPartId"/>
   /// <seealso cref="OnPeerChange"/>
+  /// <seealso cref="SetOtherPeer"/>
   public virtual ILinkPeer otherPeer {
     get { return _otherPeer; }
-    protected set {
-      var oldPeer = _otherPeer;
-      _otherPeer = value;
-      if (_otherPeer != null) {
-        persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
-        persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
-      } else {
-        persistedLinkPartId = 0;
-        persistedLinkNodeName = "";
-      }
-      OnPeerChange(oldPeer);
-    }
   }
   ILinkPeer _otherPeer;
 
@@ -211,34 +193,15 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
+  /// <seealso cref="SetIsLocked"/>
   public bool isLocked {
     get { return linkState == LinkState.Locked; }
-    protected set {
-      // Don't trigger state change events when the value hasn't changed.
-      if (value != isLocked) {
-        linkState = value ? LinkState.Locked : LinkState.Available;
-      }
-    }
   }
 
   /// <inheritdoc/>
-  /// <remarks>
-  /// The descendants <i>must</i> to change the blocked status via this property. Otherwise, the
-  /// notifications won't fire. The event will also not fire if the new value doesn't differ from
-  /// the old one.
-  /// </remarks>
+  /// <seealso cref="SetIsNodeBlocked"/>
   public bool isNodeBlocked {
     get { return linkState == LinkState.NodeIsBlocked; }
-    protected set {
-      // Don't trigger the change event when the value hasn't changed.
-      if (value != isNodeBlocked) {
-        linkState = value ? LinkState.NodeIsBlocked : LinkState.Available;
-        part.Modules.OfType<ILinkStateEventListener>()
-            .Where(l => !ReferenceEquals(l, this))
-            .ToList()
-            .ForEach(m => m.OnKASNodeBlockedState(this, value));
-      }
-    }
   }
   #endregion
 
@@ -382,12 +345,12 @@ public abstract class AbstractLinkPeer : PartModule,
             .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
                                        || p.cfgDependentNodeNames.Contains(attachNodeName)))
             .ToList()
-            .ForEach(m => m.isLocked = false);
+            .ForEach(m => SetIsLocked(false));
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }
     }
-    linkState = persistedLinkState;
+    SetLinkState(persistedLinkState);
   }
   #endregion
 
@@ -471,7 +434,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// </remarks>
   /// <seealso cref="otherPeer"/>
   protected virtual void RestoreOtherPeer() {
-    otherPeer = KASAPI.LinkUtils.FindLinkPeer(this);
+    SetOtherPeer(KASAPI.LinkUtils.FindLinkPeer(this));
   }
 
   /// <summary>Verifies that all part's settings are consistent.</summary>
@@ -557,6 +520,55 @@ public abstract class AbstractLinkPeer : PartModule,
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
   }
+
+  /// <summary>Sets the link state.</summary>
+  /// <param name="state">The new state.</param>
+  /// <seealso cref="linkStateMachine"/>
+  protected virtual void SetLinkState(LinkState state) {
+    linkStateMachine.currentState = state;
+  }
+
+  /// <summary>Sets the opposite point of the link.</summary>
+  /// <param name="peer">
+  /// The other endpoint. It's <c>null</c> when the endpoint must be reset.
+  /// </param>
+  /// <seealso cref="otherPeer"/>
+  protected virtual void SetOtherPeer(ILinkPeer peer) {
+    var oldPeer = _otherPeer;
+    _otherPeer = peer;
+    if (_otherPeer != null) {
+      persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
+      persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
+    } else {
+      persistedLinkPartId = 0;
+      persistedLinkNodeName = "";
+    }
+    OnPeerChange(oldPeer);
+  }
+
+  /// <summary>Sets the locked state of the peer.</summary>
+  /// <param name="state">The new state.</param>
+  /// <seealso cref="isLocked"/>
+  protected virtual void SetIsLocked(bool state) {
+    // Don't trigger state change events when the value hasn't changed.
+    if (state != isLocked) {
+      SetLinkState(state ? LinkState.Locked : LinkState.Available);
+    }
+  }
+
+  /// <summary>Sets the blocked node state.</summary>
+  /// <param name="blocked">The new state.</param>
+  /// <seealso cref="isNodeBlocked"/>
+  protected virtual void SetIsNodeBlocked(bool blocked) {
+    // Don't trigger the change event when the value hasn't changed.
+    if (blocked != isNodeBlocked) {
+      SetLinkState(blocked ? LinkState.NodeIsBlocked : LinkState.Available);
+      part.Modules.OfType<ILinkStateEventListener>()
+          .Where(l => !ReferenceEquals(l, this))
+          .ToList()
+          .ForEach(m => m.OnKASNodeBlockedState(this, blocked));
+    }
+  }
   #endregion
 
   #region ILinkStateEventListener implementation
@@ -568,7 +580,7 @@ public abstract class AbstractLinkPeer : PartModule,
     if (!ReferenceEquals(peer, this)
         && (peer.cfgAttachNodeName == attachNodeName
             || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
-      isLocked = isLinked;
+      SetIsLocked(isLinked);
     }
   }
 
@@ -576,10 +588,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
     if (ownerPeer.cfgAttachNodeName == attachNodeName
         || cfgDependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
-      // This is a notification handler, so don't use the isNodeBlocked property to not trigger
-      // more notifications.
-      //FIXME: fix the comment when migrated to the setter methods.
-      linkState = isBlocked ? LinkState.NodeIsBlocked : LinkState.Available;
+      SetLinkState(isBlocked ? LinkState.NodeIsBlocked : LinkState.Available);
     }
   }
   #endregion

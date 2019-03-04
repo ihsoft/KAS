@@ -359,10 +359,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       if (!isLinked) {
         HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
                                KASAPI.AttachNodesUtils.NodeId(parsedAttachNode.FindOpposingNode()));
-        isNodeBlocked = true;
+        SetIsNodeBlocked(true);
       }
     } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      isNodeBlocked = false;
+      SetIsNodeBlocked(false);
     }
     
     // Restore the link state if not yet done.
@@ -489,7 +489,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     guiLinkMode = mode;
     linkActor = actor;
-    linkState = LinkState.Linking;
+    SetLinkState(LinkState.Linking);
     KASAPI.KasEvents.OnStartLinking.Fire(this);
     return true;
   }
@@ -500,7 +500,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Fine(this, "Ignore linking mode cancel in state: {0}", linkState);
       return;
     }
-    linkState = LinkState.Available;
+    SetLinkState(LinkState.Available);
     KASAPI.KasEvents.OnStopLinking.Fire(this);
   }
 
@@ -598,9 +598,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   protected virtual void LogicalLink(ILinkTarget target) {
     HostedDebugLog.Info(this, "Linking to target: {0}, actor={1}", target, linkActor);
     var linkInfo = new KasLinkEventImpl(this, target, linkActor);
-    otherPeer = target;
+    SetOtherPeer(target);
     linkTarget.linkSource = this;
-    linkState = LinkState.Linked;
+    SetLinkState(LinkState.Linked);
     linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
     part.Modules.OfType<ILinkStateEventListener>().ToList()
         .ForEach(x => x.OnKASLinkedState(linkInfo, isLinked: true));
@@ -618,10 +618,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     linkActor = actorType;
     var linkInfo = new KasLinkEventImpl(this, linkTarget, actorType);
     linkRenderer.StopRenderer();
-    linkState = LinkState.Available;
+    SetLinkState(LinkState.Available);
     if (linkTarget != null) {
       linkTarget.linkSource = null;
-      otherPeer = null;
+      SetOtherPeer(null);
     }
     linkActor = LinkActorType.None;
     KASAPI.KasEvents.OnLinkBroken.Fire(linkInfo);
@@ -684,7 +684,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// </remarks>
   /// <param name="source">Source module that started connecting mode.</param>
   void OnStartLinkingKASEvent(ILinkSource source) {
-    linkState = LinkState.RejectingLinks;
+    SetLinkState(LinkState.RejectingLinks);
   }
 
   /// <summary>Restores available state when connection mode is over.</summary>
@@ -694,7 +694,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <param name="source">Source module that started the mode.</param>
   void OnStopLinkingKASEvent(ILinkSource source) {
     if (!isLocked) {
-      linkState = LinkState.Available;
+      SetLinkState(LinkState.Available);
     }
   }
   #endregion 
