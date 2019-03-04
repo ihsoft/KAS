@@ -319,7 +319,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     if (targetPart != null) {
       PartModel.UpdateHighlighters(targetPart);
       if (targetPart.vessel != vessel) {
-        targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, false));
+        targetPart.vessel.parts
+            .Where(p => p != null)  // It's a cleanup method.
+            .ToList()
+            .ForEach(p => SetCollisionIgnores(p, false));
       }
     }
 

@@ -512,7 +512,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.UpdateContextMenu();
 
     PartModuleUtils.SetupEvent(this, OpenGUIEvent, e => {
-      e.active = linkTarget != null && !linkTarget.part.vessel.isEVA;
+      e.active = linkTarget != null && linkTarget.part != null && !linkTarget.part.vessel.isEVA;
     });
   }
 
