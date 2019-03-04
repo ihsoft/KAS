@@ -46,6 +46,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     IWinchControl,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPhysicalObject {
+
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoEnergyMsg = new Message(

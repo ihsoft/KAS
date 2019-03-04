@@ -367,7 +367,7 @@ public abstract class AbstractLinkPeer : PartModule,
         HostedDebugLog.Error(this, "Cannot restore the link's peer");
         persistedLinkState = LinkState.Available;
         if (coupleNode != null && coupleNode.attachedPart != null) {
-          // Decouple the coupled part if the link cannor be restored. It'll allow the player to
+          // Decouple the coupled part if the link cannot be restored. It'll allow the player to
           // restore the game status without hacking the save files.
           AsyncCall.CallOnEndOfFrame(
               this, () => {
@@ -485,8 +485,8 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <summary>Shows a UI messages with regard to the currently active vessel.</summary>
   /// <remarks>
-  /// The UI messages from the active vessel are show n at the highest priority to bring attention
-  /// of the player. The messages from the inactive vessels are show only as a status, that is not
+  /// The UI messages from the active vessel are shown at the highest priority to bring attention
+  /// of the player. The messages from the inactive vessels are shown only as a status, that is not
   /// intended to distract the player from the current vessel operations.
   /// </remarks>
   /// <param name="msg">The message to show.</param>
@@ -581,6 +581,7 @@ public abstract class AbstractLinkPeer : PartModule,
   #endregion
 
   #region Local utility methods
+  /// <summary>Triggers coupled node check.</summary>
   void OnPartCoupleEvent(GameEvents.FromToAction<Part, Part> action) {
     AttachNode node = null;
     if (action.from == part) {

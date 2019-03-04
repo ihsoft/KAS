@@ -46,6 +46,7 @@ namespace KAS {
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13011.
 public class KASLinkSourcePhysical : KASLinkSourceBase {
+
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
