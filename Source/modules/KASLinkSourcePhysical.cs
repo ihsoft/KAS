@@ -635,7 +635,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
-    if (linkState == LinkState.NodeIsBlocked && coupleNode.attachedPart != null) {
+    if (linkState == LinkState.NodeIsBlocked
+        && coupleNode != null && coupleNode.attachedPart != null) {
       HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
                              coupleNode.FindOpposingNode().attachedPart);
       UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);

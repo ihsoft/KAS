@@ -419,6 +419,10 @@ public abstract class AbstractLinkPeer : PartModule,
   /// mean the node state has changed. It only means that it could have changed, and something has
   /// either coupled with or decoupled from the node. The code is responsible to verify it and act
   /// accordignly.
+  /// <para>
+  /// This callback is called regardless to the <see cref="allowCoupling"/> settings. If the peer,
+  /// being checked, cannot afford coupling, it must break the link.
+  /// </para>
   /// </remarks>
   protected virtual void CheckCoupleNode() {
     if (isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {

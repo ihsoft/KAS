@@ -319,6 +319,34 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
+    if (coupleNode == null) {
+      // If the part doesn't want to couple, then we should obey.
+      if (parsedAttachNode.attachedPart != null) {
+        HostedDebugLog.Error(
+            this, "Cannot maintain coupling with: {0}", parsedAttachNode.attachedPart);
+        if (linkState == LinkState.Available) {
+          AsyncCall.CallOnEndOfFrame(this, () => {
+            if (parsedAttachNode.attachedPart) {
+              HostedDebugLog.Info(
+                  this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
+              parsedAttachNode.attachedPart.decouple();
+            }
+          });
+        } else if (linkState == LinkState.Linked && linkTarget != null) {
+          HostedDebugLog.Warning(this, "Breaking the link to: {0}", linkTarget);
+          AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.API));
+        } else {
+          AsyncCall.CallOnEndOfFrame(this, () => {
+            if (parsedAttachNode.attachedPart) {
+              HostedDebugLog.Error(
+                  this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
+              parsedAttachNode.attachedPart.decouple();
+            }
+          });
+        }
+      }
+      return;
+    }
     if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
       var target = parsedAttachNode.attachedPart.Modules
           .OfType<ILinkTarget>()
