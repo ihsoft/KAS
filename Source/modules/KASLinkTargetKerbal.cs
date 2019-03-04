@@ -231,8 +231,8 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   }
 
   /// <inheritdoc/>
-  protected override void LoadModuleSettings() {
-    base.LoadModuleSettings();
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
     attachBoneTransform = Hierarchy.FindTransformByPath(part.transform, equipBoneName);
     if (attachBoneTransform == null) {
       HostedDebugLog.Error(this, "Cannot find bone for: {0}", equipBoneName);

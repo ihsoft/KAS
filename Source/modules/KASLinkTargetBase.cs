@@ -161,7 +161,8 @@ public class KASLinkTargetBase :
   float cableLength;
 
   /// <inheritdoc/>
-  public virtual void OnBeforeDebugAdjustablesUpdate() {
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
     if (linkState != LinkState.Linked && linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
@@ -176,11 +177,12 @@ public class KASLinkTargetBase :
   }
 
   /// <inheritdoc/>
-  public virtual void OnDebugAdjustablesUpdated() {
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
-          LoadModuleSettings();
+          InitModuleSettings();
           if (dbgOldSource != null && dbgOldSource.LinkToTarget(LinkActorType.Player, this)) {
             var cableJoint = linkSource.linkJoint as ILinkCableJoint;
             if (cableJoint != null) {

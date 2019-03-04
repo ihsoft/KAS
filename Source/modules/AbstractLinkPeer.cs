@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.ConfigUtils;
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -35,7 +36,7 @@ public abstract class AbstractLinkPeer : PartModule,
     // KSP interfaces.
     IActivateOnDecouple,
     // KAS interfaces.
-    ILinkPeer, ILinkStateEventListener,
+    ILinkPeer, ILinkStateEventListener, IHasDebugAdjustables,
     // KSPDev interfaces
     IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
@@ -279,6 +280,22 @@ public abstract class AbstractLinkPeer : PartModule,
   protected bool isAutoAttachNode { get; private set; }
   #endregion
 
+  #region IHasDebugAdjustables implementation
+  /// <inheritdoc/>
+  public virtual void OnBeforeDebugAdjustablesUpdate() {
+  }
+
+  /// <inheritdoc/>
+  public virtual void OnDebugAdjustablesUpdated() {
+    InitModuleSettings();
+  }
+  #endregion
+
+  #region Local fields
+  /// <summary>Tells if <see cref="InitModuleSettings"/> was called on the part.</summary>
+  bool moduleSettingsLoaded;
+  #endregion
+
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
@@ -312,7 +329,22 @@ public abstract class AbstractLinkPeer : PartModule,
     ConfigAccessor.ReadPartConfig(this, cfgNode: node);
     ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
     base.OnLoad(node);
-    LoadModuleSettings();
+    if (!moduleSettingsLoaded) {
+      moduleSettingsLoaded = true;
+      InitModuleSettings();
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnStart(StartState state) {
+    base.OnStart(state);
+    if (!moduleSettingsLoaded) {
+      moduleSettingsLoaded = true;
+      if (!HighLogic.LoadedSceneIsEditor) {
+        HostedDebugLog.Warning(this, "Late load of module settings. Save file incosistency?");
+      }
+      InitModuleSettings();
+    }
   }
 
   /// <inheritdoc/>
@@ -447,7 +479,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// get called on the module load, but this must <i>not</i> be assumed the only use-case.
   /// </para>
   /// </remarks>
-  /// <seealso cref="LoadModuleSettings"/>
+  /// <seealso cref="InitModuleSettings"/>
   protected virtual void CheckSettingsConsistency() {
   }
 
@@ -480,10 +512,20 @@ public abstract class AbstractLinkPeer : PartModule,
 
   /// <summary>Initializes the module state according to the settings.</summary>
   /// <remarks>
-  /// This method can be called multiple times in the part's life. And the settings can change in
-  /// between. Override this method if the descendant module needs initialization.
+  /// This method is normally called from <c>OnLoad</c> method, when all the part components are
+  /// created, but some of them may be not initialized yet. Under some circumstances it can be
+  /// called from the <c>OnStart</c> method (e.g. in the editor or when loading an inconsistent save
+  /// file).
+  /// <para>
+  /// This method is a good place for the module to become aware of the other part modules, but it's
+  /// not the right place to deal with the other module settings.
+  /// </para>
+  /// <para>
+  /// This method can be called multiple times in the part's life time, so keep this method
+  /// ideponent. Repetative calls to this method should not break the part's logic.
+  /// </para>
   /// </remarks>
-  protected virtual void LoadModuleSettings() {
+  protected virtual void InitModuleSettings() {
     CheckSettingsConsistency();
     if (isAutoAttachNode && parsedAttachNode != null) {
       KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);

@@ -361,8 +361,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  protected override void LoadModuleSettings() {
-    base.LoadModuleSettings();
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
     UpdateContextMenu();
   }
   #endregion
@@ -372,7 +372,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   float dbgOldCableLength;
 
   /// <inheritdoc/>
-  public virtual void OnBeforeDebugAdjustablesUpdate() {
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
     if (linkState != LinkState.Linked && linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
@@ -388,13 +389,15 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public virtual void OnDebugAdjustablesUpdated() {
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
           HostedDebugLog.Warning(this, "Reloading settings...");
-          LoadModuleSettings();
+          InitModuleSettings();
           InitStartState();
+          UpdateContextMenu();
           if (dbgOldTarget != null) {
             HostedDebugLog.Warning(this, "Relinking to target: {0}", dbgOldTarget);
             LinkToTarget(LinkActorType.Player, dbgOldTarget);

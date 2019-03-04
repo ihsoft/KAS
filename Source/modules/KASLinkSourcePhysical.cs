@@ -654,7 +654,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     });
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Locked;
-      GrabConnectorEventInject.guiName = e.guiName;
+      if (GrabConnectorEventInject != null) {
+        GrabConnectorEventInject.guiName = e.guiName;
+      }
     });
     PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
       e.active = IsActiveEvaHoldingConnector();
@@ -665,8 +667,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     PartModuleUtils.SetupEvent(this, InstantLockConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Deployed;
     });
-    GrabConnectorEventInject.active = linkTarget != null
-        && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
+    if (GrabConnectorEventInject != null) {
+      GrabConnectorEventInject.active = linkTarget != null
+          && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
+    }
   }
   #endregion
 

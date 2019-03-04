@@ -354,8 +354,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <inheritdoc/>
-  protected override void LoadModuleSettings() {
-    base.LoadModuleSettings();
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
