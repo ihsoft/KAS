@@ -93,6 +93,7 @@
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
     <Compile Include="KSPDev_candidates\ArgumentGuard.cs" />
+    <Compile Include="KSPDev_candidates\PersistentCustomFieldAttribute.cs" />
     <Compile Include="KSPDev_candidates\VersionTypeProto.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
