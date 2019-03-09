@@ -10,6 +10,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.ProcessingUtils;
 using UnityEngine;
 
 namespace KAS {
@@ -40,7 +41,17 @@ public abstract class AbstractProceduralModel : PartModule,
   public const string KspPartShaderName = "KSP/Bumped Specular";
 
   /// <summary>Name of bump map property in the renderer.</summary>
+  /// <remarks>Only bump shaders support it.</remarks>
+  /// <seealso cref="KspPartShaderName"/>
   public const string BumpMapProp = "_BumpMap";
+
+  /// <summary>Name of bump map with specular property in the renderer.</summary>
+  /// <remarks>Only bump specular shaders support it.</remarks>
+  /// <seealso cref="KspPartShaderName"/>
+  public const string BumpSpecMapProp = "_BumpSpecMap";
+
+  /// <summary>Name of the material shininess in the renderer.</summary>
+  public const string ShininessProp = "_Shininess";
 
   #region Inhertable utility methods
   /// <summary>Returns a cached part's model root transform.</summary>
@@ -93,6 +104,24 @@ public abstract class AbstractProceduralModel : PartModule,
   [KSPField]
   [Debug.KASDebugAdjustable("Material color")]
   public Color materialColor = Color.white;
+
+  /// <summary>Tells if the normals map should be used as bump specular map.</summary>
+  /// <remarks>The texture must be made in appropriate way to be compatible!</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Use NRM texture as bump specular")]
+  public bool isBumpSpecMap;
+
+  /// <summary>Sets the material Shininess.</summary>
+  /// <remarks>
+  /// Refer to the Unity editor for details. This value is passed "as is" to the shader. Default
+  /// value <c>-1.0</c> means "don't set anything". Whatever is the default value of the shader, it
+  /// will be used.
+  /// </remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Material shininess")]
+  public float materialShininess = -1f;
   #endregion
 
   #region Local fields and properties
@@ -176,9 +205,11 @@ public abstract class AbstractProceduralModel : PartModule,
     material.color = overrideColor ?? materialColor;
     if (mainTexNrm != null) {
       material.EnableKeyword("_NORMALMAP");
-      material.SetTexture(BumpMapProp, mainTexNrm);
+      material.SetTexture(isBumpSpecMap ? BumpSpecMapProp : BumpMapProp, mainTexNrm);
     }
-    
+    if (materialShininess >= 0) {
+      material.SetFloat(ShininessProp, materialShininess);
+    }
     return material;
   }
   #endregion
@@ -198,9 +229,10 @@ public abstract class AbstractProceduralModel : PartModule,
       // Fallback if the shader cannot be found.
       HostedDebugLog.Error(this, "Cannot find shader: {0}. Using default.", shaderToFind);
       shader = Shader.Find(FallbackShaderName);
-      if (shader == null) {
-        throw new ArgumentException("Failed to create a fallabck shadre: " + FallbackShaderName);
-      }
+      Preconditions.NotNull(
+          shader,
+          message: "Failed to create a fallback shader: " + FallbackShaderName,
+          context: this);
     }
     return shader;
   }
