@@ -4,6 +4,8 @@
 
 using KSPDev.LogUtils;
 using System;
+using System.Linq;
+using System.Collections;
 
 namespace KSPDev.ProcessingUtils {
 
@@ -47,10 +49,50 @@ public static class Preconditions {
   /// <exception cref="NullReferenceException">If the value is <c>null</c>.</exception>
   /// <exception cref="InvalidOperationException">If the value is an empty string.</exception>
   public static void ConfValueExists(object arg, string path, object context = null) {
+    if (context is ConfigNode) {
+      var node = context as ConfigNode;
+      context = node.GetValue("name") ?? "ConfigNode#" + node.name;
+    } else if (context is UrlDir.UrlConfig) {
+      var config = context as UrlDir.UrlConfig;
+      context = "Config#" + config.url;
+    }
     if (arg is string) {
       NotNullOrEmpty(arg as string, message: "No value at '" + path + "'", context: context);
     } else {
       NotNull(arg, message: "No node value at '" + path + "'", context: context);
+    }
+  }
+
+  /// <summary>Throws if collection has less elements than required.</summary>
+  /// <param name="arg">The argument value to check.</param>
+  /// <param name="minSize">The minimum collection size.</param>
+  /// <param name="message">An optional message to present in the error.</param>
+  /// <param name="context">The optional "owner" object.</param>
+  /// <exception cref="InvalidOperationException">If the collection has less elements.</exception>
+  public static void MinElements(
+      IList arg, int minSize, string message = null, object context = null) {
+    NotNull(arg, message: "Collection instance must not be null", context: context);
+    if (arg.Count < minSize) {
+      message = string.Format("Collection must have at least {0} elemets, it had {1}: {2}",
+                              minSize, arg.Count, message ?? "");
+      throw new InvalidOperationException(MakeContextError(context, message));
+    }
+  }
+
+  /// <summary>Throws if enum value is not in the expected set.</summary>
+  /// <param name="arg">The argument value to check.</param>
+  /// <param name="message">An optional message to present in the error.</param>
+  /// <param name="context">The optional "owner" object.</param>
+  /// <param name="values">The acceptable values of the enum.</param>
+  /// <exception cref="InvalidOperationException">
+  /// If the argument is not one of the specified.
+  /// </exception>
+  public static void OneOf<T>(T arg, T[] values,
+                              string message = null, object context = null) {
+    if (!values.Contains(arg)) {
+      throw new InvalidOperationException(
+          Preconditions.MakeContextError(
+              context, "Not one of: {1}. {2}", DbgFormatter.C2S(values), message));
     }
   }
 
@@ -64,7 +106,7 @@ public static class Preconditions {
     var res = "";
     if (context != null) {
       if (!string.IsNullOrEmpty(context as string)) {
-        res = "[Context:" + context + "]";
+        res = "[" + context + "]";
       } else {
         res = DebugEx.ObjectToString(context).ToString();
       }
