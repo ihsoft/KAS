@@ -265,7 +265,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => HostedDebugLog.Fine(
-        this, "Source state changed at {0}: {1} => {2}", attachNodeName, start, end);
+        this, "Source state changed: node={0}, state {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
         new[] {LinkState.Linking, LinkState.RejectingLinks, LinkState.NodeIsBlocked});

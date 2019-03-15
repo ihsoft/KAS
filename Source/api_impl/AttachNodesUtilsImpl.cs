@@ -26,7 +26,7 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     localNodeTransform.localScale = Vector3.one;  // The position has already the scale applied. 
     var attachNode = part.FindAttachNode(nodeName);
     if (attachNode != null) {
-      DebugEx.Warning("Not creating attach node {0} for {1} - already exists", nodeName, part);
+      HostedDebugLog.Warning(part, "Not creating attach node, already exists: id={0}", nodeName);
     } else {
       attachNode = new AttachNode(nodeName, localNodeTransform, 0, AttachNodeMethod.FIXED_JOINT,
                                   crossfeed: true, rigid: false);
@@ -44,13 +44,12 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     ArgumentGuard.NotNull(part, "part");
     ArgumentGuard.NotNull(attachNode, "attachNode", context: part);
     if (attachNode.owner != part) {
-      DebugEx.Warning(
-          "Former owner of the attach node doesn't match the new one: old={0}, new={1}",
-          attachNode.owner, part);
+      HostedDebugLog.Warning(
+          part, "Former owner of the attach node doesn't match the new one: {0}", attachNode.owner);
       attachNode.owner = part;
     }
     if (part.attachNodes.IndexOf(attachNode) == -1) {
-      DebugEx.Fine("Adding node {0} to {1}", NodeId(attachNode), part);
+      HostedDebugLog.Fine(part, "Adding node: {0}", NodeId(attachNode));
       part.attachNodes.Add(attachNode);
     }
   }
@@ -60,11 +59,11 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     ArgumentGuard.NotNull(part, "part");
     ArgumentGuard.NotNull(attachNode, "attachNode", context: part);
     if (attachNode.attachedPart != null) {
-      DebugEx.Error("Not dropping an attached node: {0}", NodeId(attachNode));
+      HostedDebugLog.Error(part, "Not dropping an attached node: {0}", NodeId(attachNode));
       return;
     }
     if (part.attachNodes.IndexOf(attachNode) != -1) {
-      DebugEx.Fine("Drop attach node: {0}", NodeId(attachNode));
+      HostedDebugLog.Fine(part, "Drop attach node: {0}", NodeId(attachNode));
       part.attachNodes.Remove(attachNode);
       attachNode.attachedPartId = 0;  // Just in case.
     }
@@ -124,7 +123,8 @@ class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
     ArgumentGuard.NotNull(ownerPart, "ownerPart");
     ArgumentGuard.NotNull(an, "an", context: ownerPart);
     if (an.owner != ownerPart) {
-      DebugEx.Warning("Attach node {0} doesn't belong to part {1}", NodeId(an), ownerPart);
+      HostedDebugLog.Warning(
+          ownerPart, "Attach node doesn't belong to the part: {0}", NodeId(an));
     }
     var partModel = Hierarchy.GetPartModelTransform(ownerPart);
     var objectName = "attachNode-" + an.id;

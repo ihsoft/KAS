@@ -541,11 +541,13 @@ public abstract class AbstractJoint : PartModule,
     }
     if (isCoupleOnLink && linkSource.part.vessel != linkTarget.part.vessel) {
       // Couple the parts, and drop the other link(s).
+      HostedDebugLog.Info(this, "Change coupling mode: ATTACHED => COUPLED");
       DetachParts();
       coupleOnLinkMode = isCoupleOnLink;
       CoupleParts();
     } else if (!isCoupleOnLink && isCoupled) {
       // Decouple the parts, and make the non-coupling link(s).
+      HostedDebugLog.Info(this, "Change coupling mode: COUPLED => ATTACHED");
       DecoupleParts();
       coupleOnLinkMode = isCoupleOnLink;
       AttachParts();
