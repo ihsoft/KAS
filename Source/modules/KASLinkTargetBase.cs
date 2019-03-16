@@ -238,7 +238,9 @@ public class KASLinkTargetBase :
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
   protected virtual void OnStartLinkingKASEvent(ILinkSource source) {
-    SetLinkState(CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks);
+    if (CheckCanLinkWith(source)) {
+      SetLinkState(LinkState.AcceptingLinks);
+    }
   }
 
   /// <summary>Cancels  the linking mode on this module.</summary>
@@ -253,6 +255,10 @@ public class KASLinkTargetBase :
 
   #region New inheritable methods
   /// <summary>Verifies that part can link with the source.</summary>
+  /// <remarks>
+  /// It only checks if the source is <i>eligibile</i> to link with this target, not the actual
+  /// conditions. The source is responsible to verify all the conditions before finiliszing the link.
+  /// </remarks>
   /// <param name="source">Source to check against.</param>
   /// <returns>
   /// <c>true</c> if link is <i>technically</i> possible. It's not guaranteed that the link will
