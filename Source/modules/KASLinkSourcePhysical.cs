@@ -601,6 +601,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.LogicalLink(target);
     if (target.part == parsedAttachNode.attachedPart && part == target.coupleNode.attachedPart) {
       // The target part is externally attached.
+      linkJoint.SetCoupleOnLinkMode(true);
       SetConnectorState(ConnectorState.Docked);
     } else {
       SetConnectorState(ConnectorState.Plugged);

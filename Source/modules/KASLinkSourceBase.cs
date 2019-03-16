@@ -513,11 +513,11 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
-    if (coupleMode != CoupleMode.SetViaGUI) {
-      linkJoint.SetCoupleOnLinkMode(coupleMode == CoupleMode.AlwaysCoupled);
-    }
     if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
       return false;
+    }
+    if (coupleMode != CoupleMode.SetViaGUI) {
+      linkJoint.SetCoupleOnLinkMode(coupleMode == CoupleMode.AlwaysCoupled);
     }
     LogicalLink(target);
     PhysicalLink();

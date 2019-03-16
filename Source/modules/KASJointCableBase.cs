@@ -156,8 +156,10 @@ public class KASJointCableBase : AbstractJoint,
     CreateDistanceJoint(
         linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     if (partJoint != null
-        && (!allowDockingAtZeroDistance || !Mathf.Approximately(deployedCableLength, 0))) {
-      HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
+        && (!allowDockingAtZeroDistance || deployedCableLength < 0.001f)) {
+      HostedDebugLog.Fine(
+          this, "Dropping the stock joint: to={0}, dockAtZeroDistance={1}, distance={2}",
+          partJoint.Child, allowDockingAtZeroDistance, deployedCableLength);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
     }
@@ -242,6 +244,12 @@ public class KASJointCableBase : AbstractJoint,
         ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
+    if (distanceLimit < 0.001f) {
+      // Reset the distance if it's below the KSP distance resolution.
+      HostedDebugLog.Fine(this, "Reset joint to zero: distance={0}", distanceLimit);
+      distanceLimit = 0;
+    }
+
     KASAPI.JointUtils.SetupDistanceJoint(
         joint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
