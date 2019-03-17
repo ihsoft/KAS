@@ -428,7 +428,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// There are multiple cases when this method can be called with different arguments. Some, but
   /// not all are: make a link, couple a part, de-couple a part, create a new mesh, etc.
   /// </remarks>
-  /// <param name="otherPart"></param>
+  /// <param name="otherPart">The part to update the colliders for.</param>
   /// <param name="ignore">Tells if the collision ignores must be set or reset.</param>
   /// <seealso cref="targetPart"/>
   protected abstract void SetCollisionIgnores(Part otherPart, bool ignore);

@@ -72,7 +72,9 @@ public static class ArgumentGuard {
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
   /// <param name="values">The acceptable values of the enum.</param>
-  /// <exception cref="ArgumentOutOfRangeException">If the argument is an empty string.</exception>
+  /// <exception cref="ArgumentOutOfRangeException">
+  /// If the argument is not one of the specified.
+  /// </exception>
   public static void OneOf<T>(T arg, string argName,
                               string message = null, object context = null,
                               params T[] values) {
@@ -88,7 +90,9 @@ public static class ArgumentGuard {
   /// <param name="arg">The argument value to check.</param>
   /// <param name="argName">The argument name.</param>
   /// <param name="values">The acceptable values of the enum.</param>
-  /// <exception cref="ArgumentOutOfRangeException">If the argument is an empty string.</exception>
+  /// <exception cref="ArgumentOutOfRangeException">
+  /// If the argument is not one of the specified.
+  /// </exception>
   public static void OneOf<T>(T arg, string argName, params T[] values) {
     OneOf(arg, argName, message: null, context: null, values: values);
   }

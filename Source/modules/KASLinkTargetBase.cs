@@ -64,14 +64,12 @@ public class KASLinkTargetBase :
   /// Tells if compatible targets should highlight themselves when linking mode started.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// FIXME: debug?
   [KSPField]
   [Debug.KASDebugAdjustable("Highlight parts")]
   public bool highlightCompatibleTargets = true;
 
   /// <summary>Defines highlight color for the compatible targets.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// FIXME: debug?
   [KSPField]
   [Debug.KASDebugAdjustable("Highlight color")]
   public Color highlightColor = Color.cyan;
