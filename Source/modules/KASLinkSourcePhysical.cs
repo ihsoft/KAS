@@ -488,6 +488,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public override void OnPartDie() {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
+    if (connectorObj != null) {
+      // Don't relay on the connector state machine, it will try to destory immediately.
+      KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
+    }
     SetConnectorState(ConnectorState.Locked);
   }
 
@@ -858,7 +862,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     HostedDebugLog.Info(this, "Make the cable connector non-physical");
     linkRenderer.StopRenderer();
     cableJoint.StopPhysicalHead();
-    KASInternalPhysicalConnector.Demote(connectorObj.gameObject);
+    KASInternalPhysicalConnector.Demote(connectorObj.gameObject, false);
     Destroy(connectorObj.gameObject);
     connectorObj = null;
     part.mass += connectorMass;

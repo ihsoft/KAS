@@ -67,14 +67,17 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
 
   /// <summary>Removes the physical behavior from the connector object.</summary>
   /// <param name="obj">The connector object to remove the behavior from.</param>
-  /// <returns></returns>
-  public static bool Demote(GameObject obj) {
+  /// <param name="cleanupMode">
+  /// Tells the owner part is being cleaned up and the object don't need to die immediately.
+  /// </param>
+  /// <returns><c>false</c> if the connector was not physical.</returns>
+  public static bool Demote(GameObject obj, bool cleanupMode) {
     var connectorModule = obj.GetComponent<KASInternalPhysicalConnector>();
     if (connectorModule == null) {
       return false;
     }
     // Don't wait for the module destruction and cleanup immediately.
-    connectorModule.CleanupModule();
+    connectorModule.CleanupModule(destroyImmediate: !cleanupMode);
     Destroy(connectorModule);
     return true;
   }
