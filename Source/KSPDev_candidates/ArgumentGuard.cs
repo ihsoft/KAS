@@ -69,15 +69,14 @@ public static class ArgumentGuard {
   /// <summary>Throws if enum value is not in the expected set.</summary>
   /// <param name="arg">The argument value to check.</param>
   /// <param name="argName">The argument name.</param>
+  /// <param name="values">The acceptable values of the enum.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <param name="values">The acceptable values of the enum.</param>
   /// <exception cref="ArgumentOutOfRangeException">
   /// If the argument is not one of the specified.
   /// </exception>
-  public static void OneOf<T>(T arg, string argName,
-                              string message = null, object context = null,
-                              params T[] values) {
+  public static void OneOf<T>(T arg, string argName, T[] values,
+                              string message = null, object context = null) {
     if (!values.Contains(arg)) {
       throw new ArgumentOutOfRangeException(
           argName, arg,
@@ -86,24 +85,15 @@ public static class ArgumentGuard {
     }
   }
 
-  /// <summary>Throws if enum value is not in the expected set.</summary>
-  /// <param name="arg">The argument value to check.</param>
-  /// <param name="argName">The argument name.</param>
-  /// <param name="values">The acceptable values of the enum.</param>
-  /// <exception cref="ArgumentOutOfRangeException">
-  /// If the argument is not one of the specified.
-  /// </exception>
-  public static void OneOf<T>(T arg, string argName, params T[] values) {
-    OneOf(arg, argName, message: null, context: null, values: values);
-  }
-
   /// <summary>Throws if collection has not the expected number of elements.</summary>
   /// <param name="arg">The argument value to check.</param>
   /// <param name="argName">The argument name.</param>
   /// <param name="size">The expected collection size.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="ArgumentOutOfRangeException">If the argument is an empty string.</exception>
+  /// <exception cref="ArgumentOutOfRangeException">
+  /// If the value has different number of elements.
+  /// </exception>
   public static void HasSize(IList arg, string argName, int size,
                              string message = null, object context = null) {
     if (arg.Count != size) {

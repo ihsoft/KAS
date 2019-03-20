@@ -64,7 +64,7 @@ public static class Preconditions {
   }
 
   /// <summary>Throws if collection has less elements than required.</summary>
-  /// <param name="arg">The argument value to check.</param>
+  /// <param name="arg">The value to check.</param>
   /// <param name="minSize">The minimum collection size.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
@@ -80,19 +80,34 @@ public static class Preconditions {
   }
 
   /// <summary>Throws if enum value is not in the expected set.</summary>
-  /// <param name="arg">The argument value to check.</param>
+  /// <param name="arg">The value to check.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
   /// <param name="values">The acceptable values of the enum.</param>
   /// <exception cref="InvalidOperationException">
-  /// If the argument is not one of the specified.
+  /// If the value is not one of the specified.
   /// </exception>
-  public static void OneOf<T>(T arg, T[] values,
-                              string message = null, object context = null) {
+  public static void OneOf<T>(T arg, T[] values, string message = null, object context = null) {
     if (!values.Contains(arg)) {
       throw new InvalidOperationException(
           Preconditions.MakeContextError(
               context, "Not one of: {1}. {2}", DbgFormatter.C2S(values), message));
+    }
+  }
+
+  /// <summary>Throws if collection has not the expected number of elements.</summary>
+  /// <param name="arg">The value to check.</param>
+  /// <param name="size">The expected collection size.</param>
+  /// <param name="message">An optional message to present in the error.</param>
+  /// <param name="context">The optional "owner" object.</param>
+  /// <exception cref="InvalidOperationException">
+  /// If the value has different number of elements.
+  /// </exception>
+  public static void HasSize(IList arg, int size, string message = null, object context = null) {
+    if (arg.Count != size) {
+      throw new InvalidOperationException(
+          Preconditions.MakeContextError(
+              context, "Expected collection size {0}, found {1}. {2}", size, arg.Count, message));
     }
   }
 
