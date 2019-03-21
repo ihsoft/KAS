@@ -90,6 +90,7 @@
     <Compile Include="api_impl\KasLinkEventImpl.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="compatibility\PatchFilesProcessor.cs" />
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
