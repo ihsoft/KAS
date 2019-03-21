@@ -379,15 +379,18 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   protected override void CheckSettingsConsistency() {
     base.CheckSettingsConsistency();
-    if (!allowCoupling && coupleMode != CoupleMode.NeverCouple) {
+    if (!allowCoupling && coupleMode == CoupleMode.AlwaysCoupled) {
       allowCoupling = true;
       HostedDebugLog.Warning(
-          this, "Inconsistent setting fixed: allowCoupling => {0}, due to coupleMode={1}",
-          allowCoupling, coupleMode);
+          this, "Inconsistent setting fixed: allowCoupling => true, due to coupleMode={0}",
+          coupleMode);
     }
-    if (linkJoint != null && coupleMode != CoupleMode.SetViaGUI && linkJoint.coupleOnLinkMode) {
+    if (!allowCoupling && linkJoint != null && linkJoint.coupleOnLinkMode) {
+      // This check is needed for debug only.
       linkJoint.SetCoupleOnLinkMode(false);
-      HostedDebugLog.Warning(this, "Inconsistent setting fixed: reset joint on link couple state");
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: coupleOnLinkMode => false, due to allowCoupling={0}",
+          allowCoupling);
     }
   }
 
