@@ -29,7 +29,8 @@ public enum LinkState {
   /// <remarks>It means all the reasonable conditions are met. Though, the link still can fail on
   /// the final attempt.</remarks>
   AcceptingLinks,
-  /// <summary>Module doesn't accept link and will reject any request.</summary>
+  /// <summary>Module cannot link and will reject any request.</summary>
+  /// <remarks>Link sources go into this state when one of them starts linking.</remarks>
   RejectingLinks,
   /// <summary>
   /// The attach node, allocated to the module, is occupied by another part, which doesn't support

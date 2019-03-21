@@ -50,7 +50,6 @@ namespace KAS {
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_02008.
 // TODO(ihsoft): Handle KIS actions.
-// TODO(ihsoft): Handle part destroyed action.
 // TODO(ihsoft): Handle part staged action.
 // FIXME: implement cable stretching
 public class KASLinkSourceBase : AbstractLinkPeer,
@@ -136,16 +135,23 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region Part's config fields
   /// <summary>Specifies how/if the parts should be coupled on link.</summary>
   public enum CoupleMode {
-    /// <summary>Context menu will be presented to allow changing coupling.</summary>
-    /// <remarks>Both the source and traget parts must be enabled for coupling.</remarks>
+    /// <summary>The docking state of the link is determined from the persistent state.</summary>
+    /// <remarks>
+    /// A context menu item will be presented to allow changing docking mode. Both the source and
+    /// target parts must be enabled for coupling in order to be able to dock. IF any of the peers
+    /// doesn't allow it, there will be no context menu option.
+    /// </remarks>
     SetViaGUI,
 
-    /// <summary>This source only links when it can immedieately dock with the target.</summary>
+    /// <summary>The link is always established in docked mode.</summary>
+    /// <remarks>
+    /// It implies that <see cref="AbstractLinkPeer.allowCoupling"/> must be <c>true</c>. If it's
+    /// not, then a warning will be thrown and the settings fixed.
+    /// </remarks>
+    /// <seealso cref="CheckSettingsConsistency"/>
     AlwaysCoupled,
 
-    /// <summary>
-    /// The link is always established in undocked mode, and it's not possible to change it.
-    /// </summary>
+    /// <summary>The link is always established in undocked mode.</summary>
     NeverCouple,
   }
 
