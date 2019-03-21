@@ -495,7 +495,6 @@ public abstract class AbstractJoint : PartModule,
     if (isLinked) {
       if (isCoupled) {
         DecoupleParts();
-        coupleOnLinkMode = false;
       } else {
         DetachParts();
       }
