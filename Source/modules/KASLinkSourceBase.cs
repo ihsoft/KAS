@@ -581,7 +581,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       if (linkJoint != null) {
         e.guiName = linkJoint.coupleOnLinkMode ? DockedModeMenuTxt : UndockedModeMenuTxt;
         if (coupleMode == CoupleMode.SetViaGUI) {
-          e.active = linkTarget == null || linkTarget.coupleNode != null;
+          e.active = coupleNode != null && (linkTarget == null || linkTarget.coupleNode != null);
         } else if (isLinked) {
           // Just in case show GUI if the link is established, and its couple mode contradicts the
           // joint setting. GUI will allow fixing it manually.
