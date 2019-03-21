@@ -392,7 +392,7 @@ public abstract class AbstractJoint : PartModule,
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
     Quaternion relRot = Quaternion.identity;
-    if (part.parent != linkTarget.part) {
+    if (isLinked && part.parent != linkTarget.part) {
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
@@ -404,10 +404,12 @@ public abstract class AbstractJoint : PartModule,
       relRot = parentPartRot.Inverse() * thisPartRot;
     }
     
-    // The break event is sent for *any* joint on the game object that got broken. However, it may
-    // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
+    // The break event is sent for *any* joint on the game object that got broken. Even though it
+    // may be KAS joint broken, the owner part will decouple from the vessel due to the KSP core
+    // doesn't validate which joint has actually broke.
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
           HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
           part.transform.position =
