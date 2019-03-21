@@ -10,6 +10,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -563,10 +564,6 @@ public abstract class AbstractLinkPeer : PartModule,
     // Don't trigger the change event when the value hasn't changed.
     if (blocked != isNodeBlocked) {
       SetLinkState(blocked ? LinkState.NodeIsBlocked : LinkState.Available);
-      part.Modules.OfType<ILinkStateEventListener>()
-          .Where(l => !ReferenceEquals(l, this))
-          .ToList()
-          .ForEach(m => m.OnKASNodeBlockedState(this, blocked));
     }
   }
   #endregion
@@ -586,11 +583,8 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
-  public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-    if (ownerPeer.cfgAttachNodeName == attachNodeName
-        || cfgDependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
-      SetLinkState(isBlocked ? LinkState.NodeIsBlocked : LinkState.Available);
-    }
+  public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
+    throw new NotImplementedException();  // Obsolete.
   }
   #endregion
 

@@ -83,7 +83,7 @@ public class KASLinkTargetBase :
         this, "Target state changed: node={0}, state {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
+        new[] {LinkState.AcceptingLinks, LinkState.NodeIsBlocked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
         new[] {LinkState.Available});
@@ -96,9 +96,6 @@ public class KASLinkTargetBase :
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
         new[] {LinkState.Available});
-    linkStateMachine.SetTransitionConstraint(
-        LinkState.RejectingLinks,
-        new[] {LinkState.Available, LinkState.Locked});
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
@@ -106,10 +103,6 @@ public class KASLinkTargetBase :
         leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
-    linkStateMachine.AddStateHandlers(
-        LinkState.RejectingLinks,
         enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
         leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(

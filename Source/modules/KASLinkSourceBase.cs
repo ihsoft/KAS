@@ -268,7 +268,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         this, "Source state changed: node={0}, state {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.Linking, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
+        new[] {
+            LinkState.Linking, LinkState.RejectingLinks,
+            LinkState.NodeIsBlocked, LinkState.Locked
+        });
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
         new[] {LinkState.Available});
