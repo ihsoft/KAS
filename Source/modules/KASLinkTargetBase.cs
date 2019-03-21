@@ -139,9 +139,9 @@ public class KASLinkTargetBase :
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available
           && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
-        SetIsNodeBlocked(true);
+        SetLinkState(LinkState.NodeIsBlocked);
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        SetIsNodeBlocked(false);
+        SetLinkState(LinkState.Available);
       }
     });
   }

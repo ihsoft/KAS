@@ -200,7 +200,7 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
-  /// <seealso cref="SetIsNodeBlocked"/>
+  /// <seealso cref="SetLinkState"/>
   public bool isNodeBlocked {
     get { return linkState == LinkState.NodeIsBlocked; }
   }
@@ -554,16 +554,6 @@ public abstract class AbstractLinkPeer : PartModule,
     // Don't trigger state change events when the value hasn't changed.
     if (state != isLocked) {
       SetLinkState(state ? LinkState.Locked : LinkState.Available);
-    }
-  }
-
-  /// <summary>Sets the blocked node state.</summary>
-  /// <param name="blocked">The new state.</param>
-  /// <seealso cref="isNodeBlocked"/>
-  protected virtual void SetIsNodeBlocked(bool blocked) {
-    // Don't trigger the change event when the value hasn't changed.
-    if (blocked != isNodeBlocked) {
-      SetLinkState(blocked ? LinkState.NodeIsBlocked : LinkState.Available);
     }
   }
   #endregion

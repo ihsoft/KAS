@@ -362,10 +362,10 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       if (!isLinked) {
         HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
                                KASAPI.AttachNodesUtils.NodeId(parsedAttachNode.FindOpposingNode()));
-        SetIsNodeBlocked(true);
+        SetLinkState(LinkState.NodeIsBlocked);
       }
     } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      SetIsNodeBlocked(false);
+      SetLinkState(LinkState.Available);
     }
     
     // Restore the link state if not yet done.
