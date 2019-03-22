@@ -5,6 +5,7 @@
 
 using KASAPIv1;
 using KSPDev.ConfigUtils;
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
@@ -48,7 +49,7 @@ public abstract class AbstractJoint : PartModule,
     // KAS interfaces.
     ILinkJoint,
     // KSPDev parents.
-    IsLocalizableModule,
+    IsLocalizableModule, IHasDebugAdjustables,
     // KSPDev syntax sugar interfaces.
     IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
@@ -182,6 +183,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Break force")]
   public float linkBreakForce;
 
   /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
@@ -191,6 +193,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Break torque")]
   public float linkBreakTorque;
 
   /// <summary>
@@ -200,6 +203,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Source angle limit")]
   public int sourceLinkAngleLimit;
 
   /// <summary>
@@ -209,6 +213,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Target angle limit")]
   public int targetLinkAngleLimit;
 
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
@@ -218,6 +223,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("MIN link length")]
   public float minLinkLength;
 
   /// <summary>Maximum allowed distance between parts to establish a link.</summary>
@@ -227,6 +233,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("MAX link length")]
   public float maxLinkLength;
 
   /// <summary>
@@ -236,6 +243,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Anchor at source")]
   public Vector3 anchorAtSource = Vector3.zero;
 
   /// <summary>
@@ -245,6 +253,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Anchor at target")]
   public Vector3 anchorAtTarget = Vector3.zero;
   #endregion
 
@@ -371,6 +380,40 @@ public abstract class AbstractJoint : PartModule,
   #region Local members
   /// <summary>Set when the coupled parts are decoupled by a self-triggered event.</summary>
   protected bool selfDecoupledAction { get; private set; }
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  ILinkSource dbgLinkSource;
+  ILinkTarget dbgLinkTarget;
+  
+  /// <inheritdoc/>
+  public virtual void OnBeforeDebugAdjustablesUpdate() {
+    dbgLinkSource = linkSource;
+    dbgLinkTarget = linkTarget;
+  }
+  
+  /// <inheritdoc/>
+  public virtual void OnDebugAdjustablesUpdated() {
+    if (isLinked) {
+      var checks = CheckConstraints(linkSource, linkTarget);
+      if (checks.Length == 0) {
+        // Given all checks are green, we can simply recreate the joint to update it.
+        HostedDebugLog.Warning(
+            this, "New settings fit the current link. Refreshing the joint...");
+        DropJoint();
+        CreateJoint(dbgLinkSource, dbgLinkTarget);
+      } else {
+        // STOP! The joint, once broken, won't re-establish with the new settings.
+        HostedDebugLog.Warning(this, "New settings DON'T fit the current link:\n{0}"
+                               + "\n\nNot refershing the joint, re-link manually to update.",
+                               DbgFormatter.C2S(checks, separator: "\n"));
+      }
+    } else {
+      // No joint, not update. However, it makes sense to note it.
+      HostedDebugLog.Warning(
+          this, "No link esatblished, only update the module settings");
+    }
+  }
   #endregion
 
   #region IActivateOnDecouple implementation

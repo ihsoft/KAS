@@ -33,16 +33,19 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   /// <summary>Spring force of the prismatic joint that limits the distance.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Strut spring force")]
   public float strutSpringForce = Mathf.Infinity;
 
   /// <summary>Damper force of the spring that limits the distance.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Strut damper ratio")]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
 
   /// <summary>Tells if joined parts can move relative to each other.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Is unlocked (needs save game reload)")]
   public bool isUnlockedJoint;
   #endregion
 

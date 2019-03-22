@@ -56,12 +56,14 @@ public class KASJointCableBase : AbstractJoint,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Cable spring force")]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
   /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Cable spring damper")]
   public float cableSpringDamper = 1f;
 
   /// <summary>
@@ -83,6 +85,7 @@ public class KASJointCableBase : AbstractJoint,
   /// <seealso cref="deployedCableLength"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Dock at zero distance")]
   public bool allowDockingAtZeroDistance;
   #endregion
 
