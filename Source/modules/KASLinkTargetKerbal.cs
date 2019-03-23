@@ -304,7 +304,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   }
   #endregion
 
-  #region Local utility methods
+  #region MonoBehaviour method implementations
   /// <summary>Collects a connector in the pickup range.</summary>
   /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
   /// <param name="other">The collider that triggered the pickup collider check.</param>
@@ -328,7 +328,9 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       }
     }
   }
+  #endregion
 
+  #region Local utility methods
   /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
   /// <remarks>
   /// <para>

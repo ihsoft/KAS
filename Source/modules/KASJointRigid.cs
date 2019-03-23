@@ -3,9 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
 using KSPDev.LogUtils;
-using UnityEngine;
 
 namespace KAS {
 

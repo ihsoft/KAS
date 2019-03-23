@@ -51,7 +51,6 @@ namespace KAS {
 // Next localization ID: #kasLOC_02008.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
-// FIXME: implement cable stretching
 public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
