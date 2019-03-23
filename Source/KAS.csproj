@@ -96,6 +96,7 @@
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
     <Compile Include="KSPDev_candidates\ArgumentGuard.cs" />
     <Compile Include="KSPDev_candidates\ConfigNodePatch.cs" />
+    <Compile Include="KSPDev_candidates\Hierarchy.cs" />
     <Compile Include="KSPDev_candidates\PartNodePatcher.cs" />
     <Compile Include="KSPDev_candidates\PersistentCustomFieldAttribute.cs" />
     <Compile Include="KSPDev_candidates\Preconditions.cs" />
