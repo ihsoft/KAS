@@ -457,12 +457,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
       RescaleTextureToLength(sphere,
                              samplesPerMeter: pipeTextureSamplesPerMeter,
                              extraScale: config.sphereDiameter * 2.0f);
-      Hierarchy.MoveToParent(sphere, node.pipeAttach,
-                             newPosition: Vector3.zero,
-                             newRotation: Quaternion.identity);
     } else if (sphere != null) {
-      sphere.parent = null;
-      UnityEngine.Object.Destroy(sphere.gameObject);
+      Hierarchy2.SafeDestory(sphere);
     }
 
     // Parking position, if defined.
@@ -474,8 +470,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
     } else if (parkAttach != null) {
-      parkAttach.parent = null;
-      UnityEngine.Object.Destroy(parkAttach.gameObject);
+      Hierarchy2.SafeDestory(parkAttach);
     }
 
     // Place prefab between the part and the pipe if specified.
@@ -520,8 +515,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
           arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter,
           extraScale: config.sphereOffset);
     } else if (arm != null) {
-      arm.parent = null;
-      UnityEngine.Object.Destroy(arm.gameObject);
+      Hierarchy2.SafeDestory(arm);
     }
 
     // Adjust to the new target.
