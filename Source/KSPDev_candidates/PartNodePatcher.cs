@@ -27,14 +27,7 @@ public static class PartNodePatcher {
     ArgumentGuard.NotNull(node, "node", context: node);
     ArgumentGuard.OneOf(loadContext, "loadContext", new[] {LoadContext.SFS, LoadContext.Craft},
                         context: node);
-    if (loadContext == LoadContext.SFS) {
-      return node.GetValue("name");
-    }
-    var craftPartName = node.GetValue("part");
-    Preconditions.ConfValueExists(craftPartName, "node/part", context: node);
-    var pair = craftPartName.Split(new[] {'_'}, 2);
-    Preconditions.HasSize(pair, 2, message: "craftPartName", context: node);
-    return pair[0];
+    return GetPartId(node, loadContext)[0];
   }
 
   /// <summary>Returns patch nodes for the tag.</summary>
@@ -76,6 +69,10 @@ public static class PartNodePatcher {
     ArgumentGuard.NotNull(partNode, "partNode", context: patch);
     ArgumentGuard.OneOf(loadContext, "loadContext", new[] {LoadContext.SFS, LoadContext.Craft},
                         context: patch);
+    if (partNode.name == "$DELETED") {
+      DebugEx.Error("Detected a deleted part. The editor will not be happy!");
+      return false;  // The node has been dropped via the patch.
+    }
 
     // Check if the part definition matches.
     var partName = GetPartNameFromUpgradeNode(partNode, loadContext);
@@ -135,13 +132,17 @@ public static class PartNodePatcher {
                         new[] {ConfigNodePatch.PatchAction.Drop, ConfigNodePatch.PatchAction.Fix},
                         context: patch);
     var oldPartNode = partNode.CreateCopy();
-    ApplyPatchToNode(partNode, patch.upgradeSection.partRules, "Part#" + partName);
+    var partId = GetPartId(partNode, loadContext);
+    var partContext = "Part=" + partId[0] + "#id=" + partId[1];
+    ApplyPatchToNode(partNode, patch.upgradeSection.partRules, partContext,
+                     isPartCraftContext: loadContext == LoadContext.Craft);
     if (patch.upgradeSection.partRules.action == ConfigNodePatch.PatchAction.Fix) {
-      foreach (var moduleRules in patch.upgradeSection.moduleRules) {
+      for (var i = 0; i < patch.upgradeSection.moduleRules.Count; ++i) {
+        var moduleRules = patch.upgradeSection.moduleRules[i];
+        var moduleContext = partContext + "#Module=" + moduleRules.name + "#Rule=" + i;
         ConfigNode targetModuleNode;
-        var context = "Part#" + partName + "#" + moduleRules.name;
         if (moduleRules.action == ConfigNodePatch.PatchAction.Add) {
-          DebugEx.Warning("[UpgradePipeline][{0}] Action: ADD NODE", context);
+          DebugEx.Warning("[UpgradePipeline][{0}] Action: ADD NODE", moduleContext);
           targetModuleNode = partNode.AddNode("MODULE");
           targetModuleNode.SetValue("name", moduleRules.name, "*** added by comaptibility patch",
                                     createIfNotFound: true);
@@ -150,7 +151,7 @@ public static class PartNodePatcher {
           Preconditions.NotNull(
               targetModuleNode, message: "Cannot find module for UPGRADE", context: patch);
         }
-        ApplyPatchToNode(targetModuleNode, moduleRules, context);
+        ApplyPatchToNode(targetModuleNode, moduleRules, moduleContext);
       }
     }
     if (patch.verboseLogging) {
@@ -180,8 +181,13 @@ public static class PartNodePatcher {
   /// <param name="target">The target node.</param>
   /// <param name="rules">The patching rules to apply.</param>
   /// <param name="context">The logging context.</param>
+  /// <param name="isPartCraftContext">
+  /// Tells if the current context is part node and the context is editor. In this context the part
+  /// name is defined differently.
+  /// </param>
   static void ApplyPatchToNode(
-      ConfigNode target, ConfigNodePatch.UpgradeSection.Rules rules, string context) {
+      ConfigNode target, ConfigNodePatch.UpgradeSection.Rules rules, string context,
+      bool isPartCraftContext = false) {
     if (rules.action == ConfigNodePatch.PatchAction.Drop) {
       DebugEx.Warning("[UpgradePipeline][{0}] Action: DROP NODE", context);
       target.ClearData();
@@ -208,10 +214,16 @@ public static class PartNodePatcher {
           }
         } else if (actionPrefix == "%") {
           Preconditions.MinElements(rulePair, 2, message: "Need add/edit value", context: context);
-          rulePair[1] = rulePair[1].Trim();
+          var fieldValue = rulePair[1].Trim();
+          if (fieldName == "name" && isPartCraftContext) {
+            // In CRAFT mode the part name is handled differently.
+            var partId = GetPartId(target, LoadContext.Craft);
+            fieldName = "part";
+            fieldValue = fieldValue + "_" + partId[1];
+          }
           DebugEx.Warning(
-              "[UpgradePipeline][{0}] Action: SET {1}={2}", context, fieldName, rulePair[1]);
-          target.SetValue(fieldName, rulePair[1].Trim(), createIfNotFound: true);
+              "[UpgradePipeline][{0}] Action: SET {1}={2}", context, fieldName, fieldValue);
+          target.SetValue(fieldName, fieldValue, createIfNotFound: true);
         } else {
           Preconditions.MinElements(rulePair, 2, message: "Need add value", context: context);
           rulePair[1] = rulePair[1].Trim();
@@ -254,6 +266,31 @@ public static class PartNodePatcher {
       }
     }
     return moduleNode;
+  }
+
+  /// <summary>Extracts part name and ID from the node.</summary>
+  /// <param name="node">The part's config node.</param>
+  /// <param name="loadContext">The loading context that tells how to extract the values.</param>
+  /// <returns>
+  /// The array of two values, where first value is the name, and the second value is ID.
+  /// </returns>
+  static string[] GetPartId(ConfigNode node, LoadContext loadContext) {
+    string partName;
+    string partId;
+    if (loadContext == LoadContext.SFS) {
+      partName = node.GetValue("name");
+      partId = node.GetValue("cid");
+      Preconditions.NotNullOrEmpty(partName, message: "part name", context: node);
+      Preconditions.NotNullOrEmpty(partId, message: "part cid", context: node);
+    } else {
+      var carftPartName = node.GetValue("part");
+      Preconditions.NotNullOrEmpty(carftPartName, message: "craftPartName", context: node);
+      var pair = carftPartName.Split(new[] {'_'}, 2);
+      Preconditions.HasSize(pair, 2, message: "craftPartName pair", context: node);
+      partName = pair[0];
+      partId = pair[1];
+    }
+    return new[] {partName, partId};
   }
 }
   
