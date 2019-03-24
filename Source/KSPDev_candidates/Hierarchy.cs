@@ -26,8 +26,8 @@ public static class Hierarchy2 {
   public static void SafeDestory(GameObject obj) {
     obj.transform.parent = null;
     obj.name = "$disposed";
-    UnityEngine.Object.Destroy(obj);
     obj.SetActive(false);
+    UnityEngine.Object.Destroy(obj);
   }
 }
 
