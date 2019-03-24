@@ -68,9 +68,10 @@ public static class PartNodePatcher {
   /// <param name="partNode">The part node to test against.</param>
   /// <param name="patch">The patch to test.</param>
   /// <param name="loadContext">The conext in whcih the part is being patched.</param>
+  /// <param name="quietMode">Tells if anything should be reported to the logs.</param>
   /// <returns><c>true</c> if the TEST rules of the patch have matched.</returns>
-  public static bool TestPatch(
-      ConfigNode partNode, ConfigNodePatch patch, LoadContext loadContext) {
+  public static bool TestPatch(ConfigNode partNode, ConfigNodePatch patch, LoadContext loadContext,
+                               bool quietMode = false) {
     ArgumentGuard.NotNull(patch, "patch", context: patch);
     ArgumentGuard.NotNull(partNode, "partNode", context: patch);
     ArgumentGuard.OneOf(loadContext, "loadContext", new[] {LoadContext.SFS, LoadContext.Craft},
@@ -78,22 +79,40 @@ public static class PartNodePatcher {
 
     // Check if the part definition matches.
     var partName = GetPartNameFromUpgradeNode(partNode, loadContext);
-    Preconditions.NotNullOrEmpty(partName, message: "TEST/PART/name", context: patch);
-    if (patch.testSection.partTests.name != partName
-        || !CheckPatchValues(patch.testSection.partTests, partNode)) {
+    Preconditions.NotNullOrEmpty(partName, message: "part config node", context: partNode);
+    var patchName = patch.testSection.partTests.GetValue("name");
+    Preconditions.NotNullOrEmpty(patchName, message: "TEST/PART/name", context: patch);
+    if (patchName != partName) {
+      return false;  // Not for this part.
+    }
+    if (!CheckPatchValues(patch.testSection.partTests, partNode)) {
+      if (patch.verboseLogging && !quietMode) {
+        DebugEx.Warning(
+            "PART test rules haven't matched: patch={0}\nTest node:\n{1}\nPartNode:\n{2}",
+            patch, patch.testSection.partTests, partNode);
+      }
       return false;
     }
     
     // Check if the part modules definition matches. This one is tricky.
     foreach (var moduleTests in patch.testSection.moduleTests) {
-      ConfigNode targetModuleNode;
-      try {
-        targetModuleNode = LookupModule(partNode, moduleTests.name, "TEST", patch);
-      } catch (InvalidOperationException ex) {
-        DebugEx.Error(ex.Message);
+      var modulePattern = moduleTests.GetValue("name");
+      Preconditions.NotNullOrEmpty(modulePattern, context: moduleTests);
+      var targetModuleNode = LookupModule(partNode, modulePattern);
+      if (targetModuleNode == null) {
+        if (patch.verboseLogging && !quietMode) {
+          DebugEx.Warning(
+              "MODULE cannot be found: patch={0}, moduleName={1}\nPartNode:\n{2}",
+              patch, modulePattern, partNode);
+        }
         return false;
       }
       if (!CheckPatchValues(moduleTests, targetModuleNode)) {
+        if (patch.verboseLogging && !quietMode) {
+          DebugEx.Warning(
+              "MODULE test rules haven't matched: patch={0}\nTest node:\n{1}\nModeleNode:\n{2}",
+              patch, moduleTests, targetModuleNode);
+        }
         return false;
       }
     }
@@ -115,6 +134,7 @@ public static class PartNodePatcher {
     Preconditions.OneOf(patch.upgradeSection.partRules.action,
                         new[] {ConfigNodePatch.PatchAction.Drop, ConfigNodePatch.PatchAction.Fix},
                         context: patch);
+    var oldPartNode = partNode.CreateCopy();
     ApplyPatchToNode(partNode, patch.upgradeSection.partRules, "Part#" + partName);
     if (patch.upgradeSection.partRules.action == ConfigNodePatch.PatchAction.Fix) {
       foreach (var moduleRules in patch.upgradeSection.moduleRules) {
@@ -126,10 +146,16 @@ public static class PartNodePatcher {
           targetModuleNode.SetValue("name", moduleRules.name, "*** added by comaptibility patch",
                                     createIfNotFound: true);
         } else {
-          targetModuleNode = LookupModule(partNode, moduleRules.name, "UPGRADE", patch);
+          targetModuleNode = LookupModule(partNode, moduleRules.name);
+          Preconditions.NotNull(
+              targetModuleNode, message: "Cannot find module for UPGRADE", context: patch);
         }
         ApplyPatchToNode(targetModuleNode, moduleRules, context);
       }
+    }
+    if (patch.verboseLogging) {
+      DebugEx.Warning("Part node has been patched:\nOriginal node:\n{0}\nNew node:\n{1}",
+                      oldPartNode, partNode);
     }
   }
 
@@ -163,6 +189,7 @@ public static class PartNodePatcher {
     } else {
       foreach (var fieldRule in rules.fieldRules) {
         var rulePair = fieldRule.Split(new[] {'='}, 2);
+        rulePair[0] = rulePair[0].Trim();
         Preconditions.NotNullOrEmpty(
             rulePair[0], message: "Field name must not be empty", context: context);
         var actionPrefix = rulePair[0].Substring(0, 1);
@@ -181,11 +208,13 @@ public static class PartNodePatcher {
           }
         } else if (actionPrefix == "%") {
           Preconditions.MinElements(rulePair, 2, message: "Need add/edit value", context: context);
+          rulePair[1] = rulePair[1].Trim();
           DebugEx.Warning(
               "[UpgradePipeline][{0}] Action: SET {1}={2}", context, fieldName, rulePair[1]);
-          target.SetValue(fieldName, rulePair[1], createIfNotFound: true);
+          target.SetValue(fieldName, rulePair[1].Trim(), createIfNotFound: true);
         } else {
           Preconditions.MinElements(rulePair, 2, message: "Need add value", context: context);
+          rulePair[1] = rulePair[1].Trim();
           DebugEx.Warning(
               "[UpgradePipeline][{0}] Action: ADD {1}={2}", context, fieldName, rulePair[1]);
           target.AddValue(fieldName, rulePair[1]);
@@ -197,49 +226,31 @@ public static class PartNodePatcher {
   /// <summary>Helper method to find a patch module by the name pattern.</summary>
   /// <param name="partNode">The part config node to search the node in.</param>
   /// <param name="namePattern">The lookup module name pattern.</param>
-  /// <param name="patchSection">
-  /// The name of the patch section for which module is being looked up. E.g. "UPGRADE".
-  /// </param>
-  /// <param name="patchContext">The patch for which the lookup is done.</param>
-  /// <returns>The config node of the found part module. It's never <c>null</c>.</returns>
-  /// <exception cref="InvalidOperationException">If the module cannot be found.</exception>
+  /// <returns>The config node of the found part module or <c>null</c>.</returns>
   /// <seealso cref="ConfigNodePatch"/>
-  static ConfigNode LookupModule(
-      ConfigNode partNode, string namePattern, string patchSection, object patchContext) {
-    Preconditions.NotNullOrEmpty(namePattern, patchSection + "/MODULE/name", context: patchContext);
-    var namePair = namePattern.Split(',');
-    ConfigNode moduleNode;
-    if (namePair.Length == 1) {
+  static ConfigNode LookupModule(ConfigNode partNode, string namePattern) {
+    var namePair = namePattern.Split(new[] {','}, 2);
+    var moduleName = namePair[0];
+    var moduleSuffix = namePair.Length == 1 ? "" : namePair[1];
+    ConfigNode moduleNode = null;
+    if (moduleSuffix == "") {
       moduleNode = partNode.GetNodes("MODULE")
-          .FirstOrDefault(x => x.GetValue("name") == namePair[0]);
-      Preconditions.ConfValueExists(
-          moduleNode, patchSection + "/MODULE/" + namePair[0], context: partNode);
-    } else {
-      // Fetch a module at the index. 
-      var suffix = namePair[1];
-      Preconditions.NotNullOrEmpty(
-          suffix, message: "Bad name suffix in: " + namePair[1], context: patchContext);
-      if (suffix[0] == '+') {
-        // Relative index for the repeated modules.
-        var skipNodes = int.Parse(suffix.Substring(1));
-        var nodes = partNode.GetNodes("MODULE")
-            .Where(x => x.GetValue("name") == namePair[0])
-            .ToArray();
-        Preconditions.MinElements(
-            nodes, skipNodes + 1, message: patchSection + "/MODULE/" + namePair[0], context: partNode);
+          .FirstOrDefault(x => x.GetValue("name") == moduleName);
+    } else if (moduleSuffix[0] == '+') {
+      // Relative index for the repeated modules.
+      var skipNodes = int.Parse(moduleSuffix.Substring(1));
+      var nodes = partNode.GetNodes("MODULE")
+          .Where(x => x.GetValue("name") == moduleName)
+          .ToArray();
+      if (nodes.Length > skipNodes) {
         moduleNode = nodes[skipNodes];
-      } else {
-        // Absolute index.
-        var nodeIndex = int.Parse(suffix);
-        var nodes = partNode.GetNodes("MODULE");
-        Preconditions.MinElements(nodes, nodeIndex + 1,
-                                  message: patchSection + "/MODULE", context: partNode);
+      }
+    } else {
+      // Absolute index.
+      var nodeIndex = int.Parse(moduleSuffix);
+      var nodes = partNode.GetNodes("MODULE");
+      if (nodes.Length > nodeIndex && nodes[nodeIndex].GetValue("name") != moduleName) {
         moduleNode = nodes[nodeIndex];
-        if (moduleNode.GetValue("name") != namePair[0]) {
-          var message = string.Format(
-              "Module at index {0} is not {1}:\n{2}", nodeIndex, namePair[0], moduleNode);
-          throw new InvalidOperationException(Preconditions.MakeContextError(partNode, message));
-        }
       }
     }
     return moduleNode;
