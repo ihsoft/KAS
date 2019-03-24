@@ -28,11 +28,7 @@ public class KASJointRigid : AbstractJoint {
   /// </summary>
   /// <remarks>The created joint (if any) is populated to the hosting part.</remarks>
   void MaybeCreateStockJoint() {
-    if (linkTarget.part.parent == linkSource.part && linkTarget.part.attachJoint == null) {
-      HostedDebugLog.Fine(
-          this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
-      linkTarget.part.CreateAttachJoint(AttachModes.STACK);
-    } if (linkSource.part.parent == linkTarget.part && linkTarget.part.attachJoint) {
+    if (linkTarget.part.attachJoint == null) {
       HostedDebugLog.Fine(
           this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
       linkTarget.part.CreateAttachJoint(AttachModes.STACK);
