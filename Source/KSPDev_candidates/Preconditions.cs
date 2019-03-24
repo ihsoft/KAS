@@ -21,10 +21,11 @@ public static class Preconditions {
   /// <param name="arg">The value to check.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="NullReferenceException">If the argument is <c>null</c>.</exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void NotNull(object arg, string message = null, object context = null) {
     if (arg == null) {
-      throw new NullReferenceException(MakeContextError(context, message));
+      message = message ?? "Value is NULL";
+      throw new InvalidOperationException(MakeContextError(context, message));
     }
   }
 
@@ -32,8 +33,7 @@ public static class Preconditions {
   /// <param name="arg">The value to check.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="NullReferenceException">If the value is <c>null</c>.</exception>
-  /// <exception cref="InvalidOperationException">If the value is an empty string.</exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void NotNullOrEmpty(string arg, string message = null, object context = null) {
     NotNull(arg, message: message, context: context);
     if (arg == "") {
@@ -46,8 +46,7 @@ public static class Preconditions {
   /// <param name="arg">The value to check.</param>
   /// <param name="path">The path to the value or node.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="NullReferenceException">If the value is <c>null</c>.</exception>
-  /// <exception cref="InvalidOperationException">If the value is an empty string.</exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void ConfValueExists(object arg, string path, object context = null) {
     if (context is ConfigNode) {
       var node = context as ConfigNode;
@@ -68,7 +67,7 @@ public static class Preconditions {
   /// <param name="minSize">The minimum collection size.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="InvalidOperationException">If the collection has less elements.</exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void MinElements(
       IList arg, int minSize, string message = null, object context = null) {
     NotNull(arg, message: "Collection instance must not be null", context: context);
@@ -84,9 +83,7 @@ public static class Preconditions {
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
   /// <param name="values">The acceptable values of the enum.</param>
-  /// <exception cref="InvalidOperationException">
-  /// If the value is not one of the specified.
-  /// </exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void OneOf<T>(T arg, T[] values, string message = null, object context = null) {
     if (!values.Contains(arg)) {
       throw new InvalidOperationException(
@@ -100,9 +97,7 @@ public static class Preconditions {
   /// <param name="size">The expected collection size.</param>
   /// <param name="message">An optional message to present in the error.</param>
   /// <param name="context">The optional "owner" object.</param>
-  /// <exception cref="InvalidOperationException">
-  /// If the value has different number of elements.
-  /// </exception>
+  /// <exception cref="InvalidOperationException">If condition fails.</exception>
   public static void HasSize(IList arg, int size, string message = null, object context = null) {
     if (arg.Count != size) {
       throw new InvalidOperationException(
