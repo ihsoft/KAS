@@ -40,6 +40,11 @@ public class ConfigNodePatch {
   [PersistentField("name")]
   public string name = "";
 
+  /// <summary>Tells if all patch processing job must be logged.</summary>
+  /// <remarks>Use it to debug your patch. The logs may get noisy and large though.</remarks>
+  [PersistentField("verboseLogging")]
+  public bool verboseLogging;
+
   /// <summary>Name of the mod's assembly which owns the part being patched.</summary>
   /// <remarks>
   /// This mod must be installed into the game. Othewrise, the patch will be ignored. If the patch
