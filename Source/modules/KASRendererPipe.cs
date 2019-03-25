@@ -268,7 +268,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <summary>Pipe's mesh.</summary>
   /// <value><c>null</c> if the renderer is not started.</value>
   /// <seealso cref="CreateLinkPipe"/>
-  protected Transform pipeTransform { get; private set; }
+  protected Transform pipeTransform;
 
   /// <summary>Pipe's mesh renderer. Used to speedup the updates.</summary>
   /// <value>
@@ -281,7 +281,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <seealso cref="CreateLinkPipe"/>
   /// <seealso cref="UpdateLink"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
-  protected Renderer pipeMeshRenderer { get; private set; }
+  protected Renderer pipeMeshRenderer;
 
   /// <summary>Pipe ending node at the source.</summary>
   /// <value>The source node container.</value>

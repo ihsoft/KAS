@@ -16,12 +16,18 @@ namespace KAS {
 /// Module for the felxible pipes that bend at a curve, close to the real physical behavior.
 /// </summary>
 /// <remarks>
-/// The form of the pipe is calculated using the Cubic Bezier Curves. This renderer is very CPU
+/// The form of the pipe is calculated using the Cubic Bezier curves. This renderer is CPU
 /// intensive, since the Bezier re-calculation can potentially happen in every frame. Not
 /// recommended for the low-end GPUs, as the final pipe has an order of magnitude more triangles
 /// than a regular "straight" pipe.
+/// <para>
+/// This renderer behaves <i>bad</i> if the angle at the source or target is greater than 90
+/// degrees. Do <i>not</i> use it with the unconstrained joints (like cables).
+/// </para>
 /// </remarks>
-public class KASRendererBezierPipe : AbstractPipeRenderer {
+/// <seealso cref="KASJointTwoEndsSphere"/>
+/// <seealso cref="KASJointRigid"/>
+public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   #region Part's config fields
   /// <summary>Empiric value that defines how strong the pipe resists bending.</summary>
@@ -81,7 +87,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Reskin texture")]
-  protected bool reskinTexture;
+  public bool reskinTexture;
 
   /// <summary>Number of texture samples on the perimeter.</summary>
   /// <remarks>
@@ -95,17 +101,14 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   public int pipeTextureWraps = 2;
   #endregion
 
-  #region Inheritable fields and properties
-  /// <summary>Skinned mesh renderer that controls the pipe mesh.</summary>
-  protected SkinnedMeshRenderer pipeSkinnedMeshRenderer { get; private set; }
+  #region Local fields and properties
+  /// <summary>Skinned renderer for the pipe.</summary>
+  /// <value>The skinned renderer or <c>null</c> if none exists.</value>
+  SkinnedMeshRenderer pipeSkinnedMeshRenderer {
+    get { return pipeMeshRenderer as SkinnedMeshRenderer; }
+  }
 
-  /// <summary>Root object of the dynamic pipe mesh(-es).</summary>
-  /// <value>The root transform.</value>
-  /// <seealso cref="CreatePipeMesh"/>
-  /// <seealso cref="DestroyPipeMesh"/>
-  protected Transform pipeTransform { get; private set; }
-
-  /// <summary>The <c>t</c> parameter value of the Bezier Curve per mesh bone.</summary>
+  /// <summary>The <c>t</c> parameter of the Bezier Curve. Per mesh bone.</summary>
   /// <remarks>
   /// <para>
   /// This array tells at what point to place the bones. Keep in mind, that the first bone is always
@@ -120,42 +123,25 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <seealso cref="MakeBoneSamples"/>
   /// <seealso cref="pipeMeshSections"/>
-  protected float[] boneOffsets;
+  float[] boneOffsets;
   #endregion
 
-  #region AbstractPipeRenderer overrides
+  #region KASRendererPipe overrides
   /// <inheritdoc/>
-  public override void UpdateLink() {
+  protected override void SetupPipe(Transform obj, Vector3 fromPos, Vector3 toPos) {
+    // Purposely not calling the base since it would try to align a stright pipe. 
     AlignToCurve();
   }
 
   /// <inheritdoc/>
-  public override Transform GetMeshByName(string meshName) {
-    // TODO(ihsoft): Return the objects.
-    throw new NotImplementedException();
-  }
-
-  /// <inheritdoc/>
-  protected override void LoadPartModel() {
-    // Nothing to do.
-  }
-
-  /// <inheritdoc/>
-  protected override Vector3[] GetPipePath(Transform start, Transform end) {
-    //FIXME: get all sections
-    return new[] {start.position, end.position};
-  }
-
-  /// <inheritdoc/>
-  /// FIXME: colliders!
-  protected override void CreatePipeMesh() {
+  protected override void CreateLinkPipe() {
+    // Relacing the base that creates a stright pipe.
     DestroyPipeMesh();
     MakeBoneSamples();
     pipeTransform = new GameObject(ModelBasename + "-pipe").transform;
     pipeTransform.parent = sourceTransform;
 
     // Make the boned cylinder vertices. To properly wrap the texture we need an extra vertex.
-    //FIXME: vectrex groups = sections + 1
     int VertexCount = (pipeShapeSmoothness + 1) * pipeMeshSections;
     var vertices = new Vector3[VertexCount];
     var normals = new Vector3[VertexCount];
@@ -175,12 +161,10 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
         if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
           uv[vertexIdx] = new Vector2(
               (float)(pipeShapeSmoothness - i) / pipeShapeSmoothness * pipeTextureWraps,
-              //(float)(pipeMeshSections - 1 - j) / (pipeMeshSections - 1));
               0.0f);
         } else {
           uv[vertexIdx] = new Vector2(
               (float)i / pipeShapeSmoothness * pipeTextureWraps,
-              //(float)j / (pipeMeshSections - 1));
               0.0f);
         }
         boneWeights[vertexIdx].boneIndex0 = j;
@@ -214,13 +198,11 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
       bones[j] = new GameObject("bone" + j).transform;
       bones[j].parent = pipeTransform;
       bones[j].localRotation = Quaternion.identity;
-      //FIXME: use the path offset
-      //bones[j].localPosition = Vector3.forward * 0.1f * j;
       bones[j].localPosition = Vector3.forward * boneOffsets[j];
       bindPoses[j] = bones[j].worldToLocalMatrix * pipeTransform.localToWorldMatrix;
     }
 
-    pipeSkinnedMeshRenderer = pipeTransform.gameObject.AddComponent<SkinnedMeshRenderer>();
+    pipeMeshRenderer = pipeTransform.gameObject.AddComponent<SkinnedMeshRenderer>();
     pipeSkinnedMeshRenderer.sharedMaterial = pipeMaterial;
 
     var mesh = new Mesh();
@@ -254,55 +236,6 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     shaderNameOverride = shaderNameOverride;
     isPhysicalCollider = isPhysicalCollider;
   }
-
-  /// <inheritdoc/>
-  protected override void DestroyPipeMesh() {
-    if (pipeTransform != null) {
-      UnityEngine.Object.Destroy(pipeTransform.gameObject);
-      pipeTransform = null;
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void UpdateMaterialOverrides() {
-    if (pipeTransform != null) {
-      Meshes.UpdateMaterials(pipeTransform.gameObject,
-                             newColor: colorOverride ?? materialColor,
-                             newShaderName: shaderNameOverride ?? shaderName);
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void UpdateColliderOverrides() {
-    if (pipeTransform != null) {
-      Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void SetCollisionIgnores(Part otherPart, bool ignore) {
-    if (pipeTransform != null) {
-      Colliders.SetCollisionIgnores(pipeTransform, otherPart.transform, ignore);
-    }
-  }
-  #endregion
-
-  #region Inheritable methods
-  /// <summary>Creates the Bezier Curve arguments (the <c>t</c> parameter).</summary>
-  /// <remarks>
-  /// This method is <i>the key</i> to the curve smoothness. Override it if you have a better idea
-  /// on how the Bezier Curve should be drawn for the given points.
-  /// </remarks>
-  /// <seealso cref="boneOffsets"/>
-  /// <seealso cref="AbstractPipeRenderer.sourceTransform"/>
-  /// <seealso cref="AbstractPipeRenderer.targetTransform"/>
-  protected virtual void MakeBoneSamples() {
-    var k = pipeMeshSections - 1;  // FIXME: make extra vertices instead fo decreasing sections
-    boneOffsets = new float[pipeMeshSections];
-    for (var n = 0; n < pipeMeshSections; n++) {
-      boneOffsets[n] = (float)n / k;
-    }
-  }
   #endregion
 
   #region Local utlilty methods
@@ -316,11 +249,10 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
   /// </remarks>
   /// <seealso href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve"/>
   void AlignToCurve() {
-    //FIXME: scale p1&p2 if distance is not enough. consider direction! 
-    var p0 = sourceTransform.position;
-    var p1 = p0 + sourceTransform.forward * pipeBendResistance;
-    var p3 = targetTransform.position;
-    var p2 = p3 + targetTransform.forward * pipeBendResistance;
+    var p0 = sourceJointNode.pipeAttach.position;
+    var p1 = p0 + sourceJointNode.pipeAttach.forward * pipeBendResistance;
+    var p3 = targetJointNode.pipeAttach.position;
+    var p2 = p3 + targetJointNode.pipeAttach.forward * pipeBendResistance;
     var p0vector = p1 - p0;
     var p1vector = p2 - p1;
     var p2vector = p3 - p2;
@@ -343,7 +275,7 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
       // Use UP vector from the previous node to reduce artefacts when the pipe is bend at a sharp
       // angle.
       section.transform.rotation = Quaternion.LookRotation(
-          elementDir, i == 0 ? sourceTransform.up : bones[i - 1].up);
+          elementDir, i == 0 ? sourceJointNode.pipeAttach.up : bones[i - 1].up);
 
       // Have the texture rescale setting adjusted.
       RescaleTextureToLength();
@@ -358,7 +290,6 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     // Find out the real length of the pipe.
     var bones = pipeSkinnedMeshRenderer.bones;
     var linkLength = 0.0f;
-    //FIXME: calculate the length in align action.
     for (var i = 1; i < bones.Length; i++) {
       linkLength += (bones[i].position - bones[i - 1].position).magnitude;
     }
@@ -373,7 +304,6 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
     // Re-skin the deformed sections.
     if (reskinTexture || forceReskin) {
       var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
-      //FIXME: optimize - use length intervals?
       var currentLength = 0.0f;
       for (var i = 1; i < bones.Length; i++) {
         currentLength += (bones[i].position - bones[i - 1].position).magnitude;
@@ -387,6 +317,16 @@ public class KASRendererBezierPipe : AbstractPipeRenderer {
         }
       }
       pipeSkinnedMeshRenderer.sharedMesh.uv = uv;
+    }
+  }
+
+  /// <summary>Creates the Bezier Curve arguments (the <c>t</c> parameter).</summary>
+  /// <seealso cref="boneOffsets"/>
+  void MakeBoneSamples() {
+    var k = pipeMeshSections - 1;
+    boneOffsets = new float[pipeMeshSections];
+    for (var n = 0; n < pipeMeshSections; n++) {
+      boneOffsets[n] = (float)n / k;
     }
   }
   #endregion
