@@ -70,7 +70,6 @@ public static class PartNodePatcher {
     ArgumentGuard.OneOf(loadContext, "loadContext", new[] {LoadContext.SFS, LoadContext.Craft},
                         context: patch);
     if (partNode.name == "$DELETED") {
-      DebugEx.Error("Detected a deleted part. The editor will not be happy!");
       return false;  // The node has been dropped via the patch.
     }
 
@@ -81,6 +80,9 @@ public static class PartNodePatcher {
     Preconditions.NotNullOrEmpty(patchName, message: "TEST/PART/name", context: patch);
     if (patchName != partName) {
       return false;  // Not for this part.
+    }
+    if (patch.verboseLogging && !quietMode) {
+      DebugEx.Warning("Testing conditions: patch={0}, part={1}", patch, partName);
     }
     if (!CheckPatchValues(patch.testSection.partTests, partNode)) {
       if (patch.verboseLogging && !quietMode) {
@@ -114,6 +116,9 @@ public static class PartNodePatcher {
       }
     }
     
+    if (patch.verboseLogging && !quietMode) {
+      DebugEx.Warning("Patch matched the part: patch={0}, part={1}", patch, partName);
+    }
     return true;
   }
 

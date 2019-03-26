@@ -61,8 +61,9 @@ sealed class PatchFilesProcessor : UpgradeScript {
         node.SetValue("$$failed", true, createIfNotFound: true);
       }
       // Ensure that the patch worked and won't trigger another patching round.
-      if (PartNodePatcher.TestPatch(node, patch, loadContext)) {
+      if (PartNodePatcher.TestPatch(node, patch, loadContext, quietMode: true)) {
         badPatches.Add(patch);
+        node.SetValue("$$failed", true, createIfNotFound: true);
       }
     }
     foreach (var badPatch in badPatches) {
