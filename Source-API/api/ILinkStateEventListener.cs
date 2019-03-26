@@ -2,6 +2,8 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
+
 namespace KASAPIv1 {
 
 /// <summary>Part module interface that defines the events for a link state changes.</summary>
@@ -30,6 +32,7 @@ public interface ILinkStateEventListener {
   /// <param name="ownerPeer">The peer which goes into the (un)blocked state.</param>
   /// <param name="isBlocked">Tells if the peer got blocked or unblocked.</param>
   /// <seealso cref="LinkState.NodeIsBlocked"/>
+  [Obsolete("It's not fired anymore. React on the state change instead.")]
   void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked);
 }
 
