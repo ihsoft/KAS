@@ -69,8 +69,9 @@ public static class PartNodePatcher {
     ArgumentGuard.NotNull(partNode, "partNode", context: patch);
     ArgumentGuard.OneOf(loadContext, "loadContext", new[] {LoadContext.SFS, LoadContext.Craft},
                         context: patch);
-    if (partNode.name == "$DELETED") {
-      return false;  // The node has been dropped via the patch.
+    if (partNode.name == "$DELETED"
+        || patch.loadContext != LoadContext.Any && patch.loadContext != loadContext) {
+      return false;  // This node doesn't need patching.
     }
 
     // Check if the part definition matches.

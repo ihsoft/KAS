@@ -8,6 +8,7 @@ using KSPDev.Types;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.ConfigUtils;
+using SaveUpgradePipeline;
 
 namespace KSPDev.ConfigUtils {
 
@@ -39,6 +40,10 @@ public class ConfigNodePatch {
   /// <summary>Name of the patch. It must be unique in the game's scope.</summary>
   [PersistentField("name")]
   public string name = "";
+
+  /// <summary>Context in which this patch should be applied.</summary>
+  [PersistentField("loadContext")]
+  public LoadContext loadContext = LoadContext.Any;
 
   /// <summary>Tells if all patch processing job must be logged.</summary>
   /// <remarks>Use it to debug your patch. The logs may get noisy and large though.</remarks>
