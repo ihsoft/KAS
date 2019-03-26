@@ -25,11 +25,15 @@ Almost any type allows remotely docking the vessels. Once docked, the vessels be
 
 # Languages supported
 
-![Русский](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Russian-small-flag.png) Русский
+![Русский](https://github.com/ihsoft/KAS/raw/master/WikiImages/Russian-small-flag.png) Русский
 
-![Italiano](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Italian-small-flag.png) Italiano
+![Italiano](https://github.com/ihsoft/KAS/raw/master/WikiImages/Italian-small-flag.png) Italiano
 
-![Español](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Spanish-small-flag.png) Español
+![Español](https://github.com/ihsoft/KAS/raw/master/WikiImages/Spanish-small-flag.png) Español
+
+![Português](https://github.com/ihsoft/KAS/raw/master/WikiImages/Brazil-small-flag.png) Português
+
+![Français](https://github.com/ihsoft/KAS/raw/master/WikiImages/French-small-flag.png) Français
 
 # Support
 
