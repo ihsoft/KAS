@@ -1,5 +1,6 @@
 # 1.2 (pre-release):
 * [Enhancement] Add French localziation.
+* [Enhancement] Add Portuguese localziation.
 * [Enhancement #260] Add a setting to control the couple state on link.
 * [Change] Major update to the basic renderer module to increase UX experience.
 * [Fix #252] NRE when entering the vessel from EVA.
