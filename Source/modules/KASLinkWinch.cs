@@ -248,7 +248,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>
-  /// A context menu item that sets the cable length ot the maximum, and unlocks the connector if it
+  /// A context menu item that sets the cable length to the maximum, and unlocks the connector if it
   /// was locked.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -256,7 +256,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   [LocalizableItem(
       tag = "#kasLOC_08011",
       defaultTemplate = "Release cable",
-      description = "A context menu item that sets the cable length ot the maximum, and unlocks"
+      description = "A context menu item that sets the cable length to the maximum, and unlocks"
       + " the connector if it was locked.")]
   public virtual void ReleaseCableEvent() {
     ReleaseCable();
