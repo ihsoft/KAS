@@ -305,8 +305,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     if (reskinTexture || forceReskin) {
       var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
       var currentLength = 0.0f;
-      for (var i = 1; i < bones.Length; i++) {
-        currentLength += (bones[i].position - bones[i - 1].position).magnitude;
+      for (var i = 0; i < bones.Length - 1; i++) {
         for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
           var vertexIdx = i * (pipeShapeSmoothness + 1) + j;
           if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
@@ -314,6 +313,16 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
           } else {
             uv[vertexIdx] = new Vector2(uv[vertexIdx].x, currentLength / linkLength);
           }
+        }
+        currentLength += (bones[i].position - bones[i + 1].position).magnitude;
+      }
+      // The very last UV must always be either 0 or 1, so don't trust the float logic.
+      for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
+        var vertexIdx = (bones.Length - 1) * (pipeShapeSmoothness + 1) + j;
+        if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
+          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 0.0f);
+        } else {
+          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 1.0f);
         }
       }
       pipeSkinnedMeshRenderer.sharedMesh.uv = uv;
