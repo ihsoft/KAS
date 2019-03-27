@@ -136,7 +136,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
     /// stop.
     /// </summary>
     /// <remarks>
-    /// If this setting is <c>true</c> and tjhere is a parking position defined, then on renderer
+    /// If this setting is <c>true</c> and there is a parking position defined, then on renderer
     /// stop all the procedural models (sphere and arm) will be removed. Changing this behavior
     /// makes sense when the procedural models are parts of the connector rather than simple helpers
     /// for the pipe mesh.
