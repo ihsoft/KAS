@@ -40,7 +40,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08015.
+// Next localization ID: #kasLOC_08019.
 public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
@@ -275,6 +275,53 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     StretchCable();
+  }
+
+  /// <summary>Action that starts the cable extending.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08015",
+      defaultTemplate = "Extend cable",
+      description = "Name of the action that starts the cable extending.")]
+  public virtual void ExtendCableAction(KSPActionParam unused) {
+    SetMotor(float.PositiveInfinity);
+  }
+
+  /// <summary>Action that starts the cable retracting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08016",
+      defaultTemplate = "Retract cable",
+      description = "Name of the action that starts the cable retracting.")]
+  public virtual void RetractCableAction(KSPActionParam unused) {
+    SetMotor(float.NegativeInfinity);
+  }
+
+  /// <summary>Action that stops any motor activity.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08017",
+      defaultTemplate = "Stop motor",
+      description = "Name of the action that stops the motor.")]
+  public virtual void StopMotorAction(KSPActionParam unused) {
+    SetMotor(0);
+  }
+
+  /// <summary>
+  /// Action that sets the cable length to the maximum, and unlocks the connector if it was locked.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08018",
+      defaultTemplate = "Release cable",
+      description = "name of the action that sets the cable length to the maximum, and unlocks"
+      + " the connector if it was locked.")]
+  public virtual void ReleaseCableAction(KSPActionParam unused) {
+    ReleaseCableEvent();
   }
   #endregion
 

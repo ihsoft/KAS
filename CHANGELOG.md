@@ -3,6 +3,7 @@
 * [Enhancement] Add Portuguese localziation.
 * [Enhancement #260] Add a setting to control the couple state on link.
 * [Change] Major update to the basic renderer module to increase UX experience.
+* [Fix #236] Support action groups in winches.
 * [Fix #252] NRE when entering the vessel from EVA.
 
 # 1.1 (October 29th, 2018):
