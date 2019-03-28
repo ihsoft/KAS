@@ -3,9 +3,6 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KSPDev.DebugUtils;
-using KSPDev.LogUtils;
-using KSPDev.ModelUtils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -215,13 +212,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
     pipeSkinnedMeshRenderer.bones = bones;
     pipeSkinnedMeshRenderer.sharedMesh = mesh;
-    //FIXME: mesh disappears due to the boundary miss. How to fix:
-    // - update when Offscreen
-    // - recalulcate the boundaries
-    // - skinnedMotionVectors
-    // - split the big mesh into smaller parts
-    // - mesh.MarkDynamic();
-    pipeSkinnedMeshRenderer.updateWhenOffscreen = true;  // FIXME: ineffective!
+    pipeSkinnedMeshRenderer.updateWhenOffscreen = true;
 
     // Initial pipe setup.
     AlignToCurve();
