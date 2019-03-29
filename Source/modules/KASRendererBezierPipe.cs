@@ -220,6 +220,9 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       RescaleMeshSectionTextures(forceReskin: true);
     }
     mesh.UploadMeshData(!reskinTexture);
+    if (pipeColliderIsPhysical) {
+      CreateColliders();
+    }
 
     // Have the overrides applied if any.
     colorOverride = colorOverride;
@@ -326,6 +329,23 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     boneOffsets = new float[pipeMeshSections];
     for (var n = 0; n < pipeMeshSections; n++) {
       boneOffsets[n] = (float)n / k;
+    }
+  }
+
+  /// <summary>Creates capsule colliders per each section between the bones.</summary>
+  void CreateColliders() {
+    var bones = pipeSkinnedMeshRenderer.bones;
+    // TODO(ihsoft): Check the first and the last bone for the half-sphere collision. 
+    for (var i = 0; i < bones.Length - 1; ++i) {
+      var bone = bones[i];
+      var otherBone = bones[i + 1];
+      var capsule = bone.transform.gameObject.AddComponent<CapsuleCollider>();
+      capsule.direction = 2; // Z-axis
+      var boneDistance = (bone.position - otherBone.position).magnitude;
+      capsule.center = new Vector3(0, 0, boneDistance / 2);
+      // The capsules from the adjustent bones should "connect" at the half-sphere center.
+      capsule.height = boneDistance + pipeDiameter;
+      capsule.radius = pipeDiameter / 2;
     }
   }
   #endregion
