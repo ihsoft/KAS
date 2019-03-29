@@ -65,29 +65,6 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   [Debug.KASDebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
 
-  /// <summary>
-  /// Tells if the pipe texture needs to be aligned to the pipe's bend configuration.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// When the connected objects move or change their orientation, the curve, that connects them,
-  /// bends at different places at a variable angle. It results in non-linear changes to the
-  /// section lengths. If this setting is set to <c>true</c>, then the renderer will re-align the
-  /// texture to keep every section texture ratio proportional to the others.
-  /// </para>
-  /// <para>
-  /// This is an expensive operation which can be avoided if the pipe texture is monotonic. If the
-  /// texture has a well distinguished pattern (e.g. a text), then this option must be enabled.
-  /// </para>
-  /// <para>Note, that depending on the quality settings, the setting can be <i>ignored</i>.</para>
-  /// </remarks>
-  /// <seealso cref="AbstractPipeRenderer.pipeTexturePath"/>
-  /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  [Debug.KASDebugAdjustable("Reskin texture")]
-  public bool reskinTexture;
-
   /// <summary>Number of texture samples on the perimeter.</summary>
   /// <remarks>
   /// Defines how many "sides" there will be on the pipe. Most usable when the texture has some
@@ -218,10 +195,8 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
     // Initial pipe setup.
     AlignToCurve(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
-    if (!reskinTexture) {
-      RescaleMeshSectionTextures(forceReskin: true);
-    }
-    mesh.UploadMeshData(!reskinTexture);
+    RescaleMeshSectionTextures();
+    mesh.UploadMeshData(false);
     if (pipeColliderIsPhysical) {
       CreateColliders();
     }
@@ -281,7 +256,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <remarks>
   /// It makes sure the texture is properly distrubited thru all the pipe mesh sections.
   /// </remarks>
-  void RescaleMeshSectionTextures(bool forceReskin = false) {
+  void RescaleMeshSectionTextures() {
     // Find out the real length of the pipe.
     var bones = pipeSkinnedMeshRenderer.bones;
     var linkLength = 0.0f;
@@ -290,31 +265,29 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     }
     RescalePipeTexture(pipeTransform, linkLength, renderer: pipeMeshRenderer);
     // Re-skin the deformed sections.
-    if (reskinTexture || forceReskin) {
-      var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
-      var currentLength = 0.0f;
-      for (var i = 0; i < bones.Length - 1; i++) {
-        for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
-          var vertexIdx = i * (pipeShapeSmoothness + 1) + j;
-          if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-            uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 1.0f - currentLength / linkLength);
-          } else {
-            uv[vertexIdx] = new Vector2(uv[vertexIdx].x, currentLength / linkLength);
-          }
-        }
-        currentLength += (bones[i].position - bones[i + 1].position).magnitude;
-      }
-      // The very last UV must always be either 0 or 1, so don't trust the float logic.
+    var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
+    var currentLength = 0.0f;
+    for (var i = 0; i < bones.Length - 1; i++) {
       for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
-        var vertexIdx = (bones.Length - 1) * (pipeShapeSmoothness + 1) + j;
+        var vertexIdx = i * (pipeShapeSmoothness + 1) + j;
         if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 0.0f);
+          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 1.0f - currentLength / linkLength);
         } else {
-          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 1.0f);
+          uv[vertexIdx] = new Vector2(uv[vertexIdx].x, currentLength / linkLength);
         }
       }
-      pipeSkinnedMeshRenderer.sharedMesh.uv = uv;
+      currentLength += (bones[i].position - bones[i + 1].position).magnitude;
     }
+    // The very last UV must always be either 0 or 1, so don't trust the float logic.
+    for (var j = 0; j < pipeShapeSmoothness + 1; j++) {
+      var vertexIdx = (bones.Length - 1) * (pipeShapeSmoothness + 1) + j;
+      if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
+        uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 0.0f);
+      } else {
+        uv[vertexIdx] = new Vector2(uv[vertexIdx].x, 1.0f);
+      }
+    }
+    pipeSkinnedMeshRenderer.sharedMesh.uv = uv;
   }
 
   /// <summary>Creates the Bezier Curve arguments (the <c>t</c> parameter).</summary>
