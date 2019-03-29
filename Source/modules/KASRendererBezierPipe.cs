@@ -217,9 +217,8 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     // Initial pipe setup.
     AlignToCurve();
     if (!reskinTexture) {
-      RescaleTextureToLength(forceReskin: true);
+      RescaleMeshSectionTextures(forceReskin: true);
     }
-
     mesh.UploadMeshData(!reskinTexture);
 
     // Have the overrides applied if any.
@@ -267,17 +266,17 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       // angle.
       section.transform.rotation = Quaternion.LookRotation(
           elementDir, i == 0 ? sourceJointNode.pipeAttach.up : bones[i - 1].up);
-
-      // Have the texture rescale setting adjusted.
-      RescaleTextureToLength();
     }
+
+    // Have the texture rescale setting adjusted.
+    RescaleMeshSectionTextures();
   }
 
   /// <summary>Adjusts the texture on the pipe object to fit the rescale mode.</summary>
   /// <remarks>
   /// It makes sure the texture is properly distrubited thru all the pipe mesh sections.
   /// </remarks>
-  void RescaleTextureToLength(bool forceReskin = false) {
+  void RescaleMeshSectionTextures(bool forceReskin = false) {
     // Find out the real length of the pipe.
     var bones = pipeSkinnedMeshRenderer.bones;
     var linkLength = 0.0f;
