@@ -138,8 +138,8 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Defines if pipe's collider should interact with the physics objects.</summary>
   /// <remarks>
-  /// If this setting is <c>false</c> the link mesh still may have a collider, but it will not
-  /// trigger physical effects.
+  /// If this setting is <c>false</c> the link mesh won't have colliders. It affects how player can
+  /// select the part in the scene.
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -179,7 +179,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       UpdateColliderOverrides();
     }
   }
-  bool _isPhysicalCollider;
+  bool _isPhysicalCollider = true;  // It's a "forced OFF" setting.
 
   /// <inheritdoc/>
   public bool isStarted {
