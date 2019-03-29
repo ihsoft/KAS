@@ -449,7 +449,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
         sphere.name = sphereName;
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-      RescalePipeTexture(sphere, sphere.localScale.z, extraScale: config.sphereDiameter * 2.0f);
+      RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
       Hierarchy2.SafeDestory(sphere);
     }
@@ -504,7 +504,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
       arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-      RescalePipeTexture(arm.transform, arm.localScale.z, extraScale: config.sphereOffset);
+      RescalePipeTexture(arm.transform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
       Hierarchy2.SafeDestory(arm);
     }
@@ -533,8 +533,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
       extraScale /=
           (sourceJointNode.pipeAttach.position - targetJointNode.pipeAttach.position).magnitude;
     }
-    RescalePipeTexture(pipeTransform, pipeTransform.localScale.z,
-                       renderer: pipeMeshRenderer, extraScale: extraScale);
+    RescalePipeTexture(
+        pipeTransform, pipeTransform.localScale.z * extraScale, renderer: pipeMeshRenderer);
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
@@ -578,12 +578,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// The optional renderer that owns the material. If not provided, then it will be obtained via
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
-  /// <param name="extraScale">The multiplier to add to the base scale. For any reason.</param>
   /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
   /// <seealso cref="AbstractPipeRenderer.pipeTextureRescaleMode"/>
-  protected void RescalePipeTexture(
-      Transform obj, float length, Renderer renderer = null, float extraScale = 1.0f) {
-    var newScale = length * pipeTextureSamplesPerMeter / baseScale * extraScale;
+  protected void RescalePipeTexture(Transform obj, float length, Renderer renderer = null) {
+    var newScale = length * pipeTextureSamplesPerMeter / baseScale;
     var material = (renderer ?? obj.GetComponent<Renderer>()).material;
     material.mainTextureScale = new Vector2(material.mainTextureScale.x, newScale);
     SetBumpMap(material, propName => {
