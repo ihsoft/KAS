@@ -368,7 +368,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override Vector3[] GetPipePath(Transform start, Transform end) {
-    if (isPhysicalCollider && isStarted) {
+    if (pipeColliderIsPhysical && isStarted) {
       return new[] {
           sourceJointNode.partAttach.position, sourceJointNode.pipeAttach.position,
           targetJointNode.pipeAttach.position, targetJointNode.partAttach.position
@@ -393,12 +393,12 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <inheritdoc/>
   protected override void UpdateColliderOverrides() {
     if (pipeTransform != null) {
-      Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: pipeColliderIsPhysical);
+      Colliders.UpdateColliders(pipeTransform.gameObject, isEnabled: isPhysicalCollider);
     }
     Colliders.UpdateColliders(
-        sourceJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+        sourceJointNode.rootModel.gameObject, isEnabled: isPhysicalCollider);
     Colliders.UpdateColliders(
-        targetJointNode.rootModel.gameObject, isEnabled: pipeColliderIsPhysical);
+        targetJointNode.rootModel.gameObject, isEnabled: isPhysicalCollider);
   }
 
   /// <inheritdoc/>
