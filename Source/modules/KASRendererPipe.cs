@@ -337,7 +337,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <inheritdoc/>
   public override void UpdateLink() {
     if (isStarted) {//FIXME coroutine
-      SetupPipe(sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+      SetupPipe(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
     }
   }
 
@@ -527,7 +527,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
-    SetupPipe(sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+    SetupPipe(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
     var extraScale = 1.0f;
     if (pipeTextureRescaleMode == PipeTextureRescaleMode.Stretch) {
       extraScale /=
@@ -538,20 +538,20 @@ public class KASRendererPipe : AbstractPipeRenderer {
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
-  /// <param name="fromPos">Position of the link source.</param>
-  /// <param name="toPos">Position of the link target.</param>
+  /// <param name="fromObj">The object to draw pipe from.</param>
+  /// <param name="toObj">The object to draw pipe to.</param>
   /// <seealso cref="pipeTransform"/>
-  protected virtual void SetupPipe(Vector3 fromPos, Vector3 toPos) {
-    pipeTransform.position = (fromPos + toPos) / 2;
+  protected virtual void SetupPipe(Transform fromObj, Transform toObj) {
+    pipeTransform.position = (fromObj.position + toObj.position) / 2;
     if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-      pipeTransform.LookAt(fromPos);
+      pipeTransform.LookAt(fromObj);
     } else {
-      pipeTransform.LookAt(toPos);
+      pipeTransform.LookAt(toObj);
     }
     pipeTransform.localScale = new Vector3(
         pipeTransform.localScale.x,
         pipeTransform.localScale.y,
-        Vector3.Distance(fromPos, toPos) / baseScale);
+        Vector3.Distance(fromObj.position, toObj.position) / baseScale);
     if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
       RescalePipeTexture(pipeTransform, pipeTransform.localScale.z, renderer: pipeMeshRenderer);
     }

@@ -7,6 +7,8 @@ using System;
 using System.Linq;
 using UnityEngine;
 
+using KSPDev.LogUtils;
+
 namespace KAS {
 
 /// <summary>
@@ -125,9 +127,9 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   #region KASRendererPipe overrides
   /// <inheritdoc/>
-  protected override void SetupPipe(Vector3 fromPos, Vector3 toPos) {
+  protected override void SetupPipe(Transform fromObj, Transform toObj) {
     // Purposely not calling the base since it would try to align a stright pipe. 
-    AlignToCurve();
+    AlignToCurve(fromObj, toObj);
   }
 
   /// <inheritdoc/>
@@ -215,7 +217,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     pipeSkinnedMeshRenderer.updateWhenOffscreen = true;
 
     // Initial pipe setup.
-    AlignToCurve();
+    AlignToCurve(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
     if (!reskinTexture) {
       RescaleMeshSectionTextures(forceReskin: true);
     }
@@ -241,11 +243,11 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// (cubic curves), so it can be programmed plain simple.   
   /// </remarks>
   /// <seealso href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve"/>
-  void AlignToCurve() {
-    var p0 = sourceJointNode.pipeAttach.position;
-    var p1 = p0 + sourceJointNode.pipeAttach.forward * pipeBendResistance;
-    var p3 = targetJointNode.pipeAttach.position;
-    var p2 = p3 + targetJointNode.pipeAttach.forward * pipeBendResistance;
+  void AlignToCurve(Transform fromObj, Transform toObj) {
+    var p0 = fromObj.position;
+    var p1 = p0 + fromObj.forward * pipeBendResistance;
+    var p3 = toObj.position;
+    var p2 = p3 + toObj.forward * pipeBendResistance;
     var p0vector = p1 - p0;
     var p1vector = p2 - p1;
     var p2vector = p3 - p2;
@@ -268,7 +270,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       // Use UP vector from the previous node to reduce artefacts when the pipe is bend at a sharp
       // angle.
       section.transform.rotation = Quaternion.LookRotation(
-          elementDir, i == 0 ? sourceJointNode.pipeAttach.up : bones[i - 1].up);
+          elementDir, i == 0 ? fromObj.up : bones[i - 1].up);
     }
 
     // Have the texture rescale setting adjusted.
