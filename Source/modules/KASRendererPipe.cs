@@ -336,13 +336,8 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   public override void UpdateLink() {
-    if (isStarted) {
-      SetupPipe(
-          pipeTransform, sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
-      if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
-        RescaleTextureToLength(
-            pipeTransform, pipeTextureSamplesPerMeter, renderer: pipeMeshRenderer);
-      }
+    if (isStarted) {//FIXME coroutine
+      SetupPipe(sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
     }
   }
 
@@ -454,9 +449,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
         sphere.name = sphereName;
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-      RescaleTextureToLength(sphere,
-                             samplesPerMeter: pipeTextureSamplesPerMeter,
-                             extraScale: config.sphereDiameter * 2.0f);
+      RescalePipeTexture(sphere, sphere.localScale.z, extraScale: config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
       Hierarchy2.SafeDestory(sphere);
     }
@@ -511,9 +504,7 @@ public class KASRendererPipe : AbstractPipeRenderer {
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
       arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-      RescaleTextureToLength(
-          arm.transform, samplesPerMeter: pipeTextureSamplesPerMeter,
-          extraScale: config.sphereOffset);
+      RescalePipeTexture(arm.transform, arm.localScale.z, extraScale: config.sphereOffset);
     } else if (arm != null) {
       Hierarchy2.SafeDestory(arm);
     }
@@ -536,52 +527,63 @@ public class KASRendererPipe : AbstractPipeRenderer {
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
-    SetupPipe(pipeTransform.transform,
-              sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
+    SetupPipe(sourceJointNode.pipeAttach.position, targetJointNode.pipeAttach.position);
     var extraScale = 1.0f;
     if (pipeTextureRescaleMode == PipeTextureRescaleMode.Stretch) {
       extraScale /=
           (sourceJointNode.pipeAttach.position - targetJointNode.pipeAttach.position).magnitude;
     }
-    RescaleTextureToLength(pipeTransform, pipeTextureSamplesPerMeter,
-                           renderer: pipeMeshRenderer, extraScale: extraScale);
+    RescalePipeTexture(pipeTransform, pipeTransform.localScale.z,
+                       renderer: pipeMeshRenderer, extraScale: extraScale);
   }
 
   /// <summary>Ensures that the pipe's mesh connects the specified positions.</summary>
-  /// <param name="obj">Pipe's object.</param>
   /// <param name="fromPos">Position of the link source.</param>
   /// <param name="toPos">Position of the link target.</param>
-  protected virtual void SetupPipe(Transform obj, Vector3 fromPos, Vector3 toPos) {
-    obj.position = (fromPos + toPos) / 2;
+  /// <seealso cref="pipeTransform"/>
+  protected virtual void SetupPipe(Vector3 fromPos, Vector3 toPos) {
+    pipeTransform.position = (fromPos + toPos) / 2;
     if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-      obj.LookAt(fromPos);
+      pipeTransform.LookAt(fromPos);
     } else {
-      obj.LookAt(toPos);
+      pipeTransform.LookAt(toPos);
     }
-    obj.localScale = new Vector3(
-        obj.localScale.x, obj.localScale.y, Vector3.Distance(fromPos, toPos) / baseScale);
+    pipeTransform.localScale = new Vector3(
+        pipeTransform.localScale.x,
+        pipeTransform.localScale.y,
+        Vector3.Distance(fromPos, toPos) / baseScale);
+    if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
+      RescalePipeTexture(pipeTransform, pipeTransform.localScale.z, renderer: pipeMeshRenderer);
+    }
   }
-  #endregion
 
-  #region Utility methods
-  /// <summary>Adjusts texture on the object to fit rescale mode.</summary>
-  /// <remarks>Primitive mesh is expected to be of base size 1m.</remarks>
-  /// <param name="obj">Object to adjust texture for.</param>
-  /// <param name="samplesPerMeter">
-  /// Number fo texture samples per a meter of the linear size.
-  /// </param>
+  /// <summary>Adjusts texture on the object to fit the part's rescale mode.</summary>
+  /// <remarks>
+  /// The mesh UV coordinates are expected to be distributed over its full length from <c>0.0</c> to
+  /// <c>1.0</c>. Such configuration ensures that texture covers the entire mesh, and
+  /// stretches/shrinks as the mesh changes its length. However, in the tiling modes, the texture
+  /// must be distributed over the mesh lengh so that it's not changing its ratio. This method
+  /// checks the renderer stretching mode and adjusts the texture scale.
+  /// <para>
+  /// This method is intentionally not virtual, since it's a utility method. Any part specific logic
+  /// must be implemented outside of this method.
+  /// </para>
+  /// <para>
+  /// This method ensures that the bump/specular map textures, if any, are properly scaled as well.
+  /// </para>
+  /// </remarks>
+  /// <param name="obj">The mesh object to adjust texture for.</param>
+  /// <param name="length">The length to adjust the texture to.</param>
   /// <param name="renderer">
-  /// Optional renderer that owns the material. If not provided then renderer will be obtained via
+  /// The optional renderer that owns the material. If not provided, then it will be obtained via
   /// a <c>GetComponent()</c> call which is rather expensive.
   /// </param>
-  /// <param name="extraScale">
-  /// The multiplier to add to the base scale. Normally, the method uses a scale from the object and
-  /// the part, but if the mesh itself was scaled, then an extra scale may be needed to properly
-  /// adjust the texture.
-  /// </param>
-  protected void RescaleTextureToLength(
-      Transform obj, float samplesPerMeter, Renderer renderer = null, float extraScale = 1.0f) {
-    var newScale = obj.localScale.z * samplesPerMeter / baseScale * extraScale;
+  /// <param name="extraScale">The multiplier to add to the base scale. For any reason.</param>
+  /// <seealso cref="AbstractPipeRenderer.pipeTextureSamplesPerMeter"/>
+  /// <seealso cref="AbstractPipeRenderer.pipeTextureRescaleMode"/>
+  protected void RescalePipeTexture(
+      Transform obj, float length, Renderer renderer = null, float extraScale = 1.0f) {
+    var newScale = length * pipeTextureSamplesPerMeter / baseScale * extraScale;
     var mr = renderer ?? obj.GetComponent<Renderer>();
     mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
     if (mr.material.HasProperty(BumpMapProp)) {

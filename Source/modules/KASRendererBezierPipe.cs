@@ -125,7 +125,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   #region KASRendererPipe overrides
   /// <inheritdoc/>
-  protected override void SetupPipe(Transform obj, Vector3 fromPos, Vector3 toPos) {
+  protected override void SetupPipe(Vector3 fromPos, Vector3 toPos) {
     // Purposely not calling the base since it would try to align a stright pipe. 
     AlignToCurve();
   }
@@ -283,17 +283,10 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     // Find out the real length of the pipe.
     var bones = pipeSkinnedMeshRenderer.bones;
     var linkLength = 0.0f;
-    for (var i = 1; i < bones.Length; i++) {
-      linkLength += (bones[i].position - bones[i - 1].position).magnitude;
+    for (var i = 0; i < bones.Length - 1; i++) {
+      linkLength += (bones[i].position - bones[i + 1].position).magnitude;
     }
-    var newScale = linkLength * pipeTextureSamplesPerMeter;
-    pipeSkinnedMeshRenderer.material.mainTextureScale =
-        new Vector2(pipeSkinnedMeshRenderer.material.mainTextureScale.x, newScale);
-    if (pipeSkinnedMeshRenderer.material.HasProperty(BumpMapProp)) {
-      var nrmScale = pipeSkinnedMeshRenderer.material.GetTextureScale(BumpMapProp);
-      pipeSkinnedMeshRenderer.material.SetTextureScale(
-          BumpMapProp, new Vector2(nrmScale.x, newScale));
-    }
+    RescalePipeTexture(pipeTransform, linkLength, renderer: pipeMeshRenderer);
     // Re-skin the deformed sections.
     if (reskinTexture || forceReskin) {
       var uv = pipeSkinnedMeshRenderer.sharedMesh.uv;
