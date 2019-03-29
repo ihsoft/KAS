@@ -108,6 +108,8 @@ public abstract class AbstractProceduralModel : PartModule,
   /// <summary>Tells if the normals map should be used as bump specular map.</summary>
   /// <remarks>The texture must be made in appropriate way to be compatible!</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <seealso cref="BumpMapProp"/>
+  /// <seealso cref="BumpSpecMapProp"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Use NRM texture as bump specular")]
   public bool isBumpSpecMap;
@@ -283,6 +285,25 @@ public abstract class AbstractProceduralModel : PartModule,
     return !string.IsNullOrEmpty(textureFileName)
         ? GetTexture(textureFileName, asNormalMap: true, notFoundFillColor: Color.black)
         : null;
+  }
+
+  /// <summary>Adjusts the bump/specular map in material.</summary>
+  /// <remarks>
+  /// The material is expected to be created via this module. It's safe to call this method even if
+  /// the material doesn't have any bump map texture.
+  /// </remarks>
+  /// <param name="material">The material to update.</param>
+  /// <param name="an">
+  /// The callback to apply on the texture if it's found. The only argument of the callback is the
+  /// texture property name.
+  /// </param>
+  /// <seealso cref="CreateMaterial"/>
+  /// <seealso cref="isBumpSpecMap"/>
+  protected void SetBumpMap(Material material, Action<string> an) {
+    var propName = isBumpSpecMap ? BumpSpecMapProp : BumpMapProp;
+    if (material.HasProperty(propName)) {
+      an(propName);
+    }
   }
   #endregion
 }

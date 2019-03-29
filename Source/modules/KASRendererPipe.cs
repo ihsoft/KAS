@@ -584,12 +584,12 @@ public class KASRendererPipe : AbstractPipeRenderer {
   protected void RescalePipeTexture(
       Transform obj, float length, Renderer renderer = null, float extraScale = 1.0f) {
     var newScale = length * pipeTextureSamplesPerMeter / baseScale * extraScale;
-    var mr = renderer ?? obj.GetComponent<Renderer>();
-    mr.material.mainTextureScale = new Vector2(mr.material.mainTextureScale.x, newScale);
-    if (mr.material.HasProperty(BumpMapProp)) {
-      var nrmScale = mr.material.GetTextureScale(BumpMapProp);
-      mr.material.SetTextureScale(BumpMapProp, new Vector2(nrmScale.x, newScale));
-    }
+    var material = (renderer ?? obj.GetComponent<Renderer>()).material;
+    material.mainTextureScale = new Vector2(material.mainTextureScale.x, newScale);
+    SetBumpMap(material, propName => {
+      var nrmScale = material.GetTextureScale(propName);
+      material.SetTextureScale(propName, new Vector2(nrmScale.x, newScale));
+    });
   }
   #endregion
 }
