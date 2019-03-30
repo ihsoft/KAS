@@ -337,11 +337,24 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public string[] CheckColliderHits(Transform source, Transform target) {
-    var hitParts = new HashSet<Part>();
-    var ignoreRoots = new HashSet<Transform>() {source.root, target.root};
+    // HACK: Start the renderer before getting the pipes. 
+    var oldStartState = isStarted;
+    var oldPhyscalState = isPhysicalCollider;
+    if (!isStarted) {
+      isPhysicalCollider = false;
+      StartRenderer(source, target);
+    } else if (sourceTransform != source || targetTransform != target) {
+      HostedDebugLog.Error(this, "Cannot verify hits on a started renderer");
+    }
     var points = GetPipePath(source, target);
+    if (!oldStartState) {
+      StopRenderer();
+      isPhysicalCollider = oldPhyscalState;
+    }
+
+    var hitParts = new HashSet<Part>();
     for (var i = 0; i < points.Length - 1; i++) {
-      CheckHitsForCapsule(points[i + 1], points[i], pipeDiameter, hitParts, ignoreRoots);
+      CheckHitsForCapsule(points[i + 1], points[i], pipeDiameter, target, hitParts);
     }
     var hitMessages = new List<string>();
     foreach (var hitPart in hitParts) {
@@ -394,17 +407,20 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <seealso cref="StopRenderer"/>
   protected abstract void DestroyPipeMesh();
 
-  /// <summary>Gives an approximate path for the collision check.</summary>
+  /// <summary>Gives an approximate path to verify pipe collisions.</summary>
   /// <remarks>
+  /// This method is only called on the started renderer.
   /// <para>
-  /// If there is a real path, then there can be any number of points, but not less than two. If no
-  /// check is needed, then return an empty array.
-  /// </para>
-  /// <para>If there is a parth returned, then it's used to move a spehere collider along it to
-  /// determine if the pipe mesh collides to anything.
+  /// The path is used to move a sphere collider to determine if the pipe mesh collides with
+  /// anything. So pay attention to the endpoints, since the sphere will go beyond the end points by
+  /// the pipe's radius distance. In most cases it's not an issue since the renderer meshes are not
+  /// supposed to collide with both the source and the target vessels. However, surface can be hit
+  /// if the target part is too close to it don't give enough offset.
   /// </para>
   /// </remarks>
-  /// <returns>The control points or empty array.</returns>
+  /// <returns>
+  /// An empty array if no checks should be done, or a list of control points (minimum length is 2).
+  /// </returns>
   protected abstract Vector3[] GetPipePath(Transform start, Transform end);
 
   /// <summary>Updates the pipe material(s) to the current module's state.</summary>
@@ -435,48 +451,32 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Local utility methods
-  /// <summary>Checks if a capsule collider between the points hit's parts.</summary>
+  /// <summary>Checks if a capsule collider between the points hit's anything.</summary>
+  /// <remarks>Hits with own vessel models or models of the other vessel are ignored.</remarks>
   /// <param name="startPos">The starting point of the link.</param>
   /// <param name="endPos">The ending point of the link.</param>
   /// <param name="diameter">The diameter of the capsule.</param>
+  /// <param name="target">The target object. It will be used to obtain the target vessel.</param>
   /// <param name="hits">The hash to store the hit parts.</param>
-  /// <param name="ignoreRoots">
-  /// The list of the root transforms for which the collisions should be ignored. To ignore a hit
-  /// with a particular part, simple provide it's transform root here.  
-  /// </param>
   void CheckHitsForCapsule(Vector3 startPos, Vector3 endPos, float diameter,
-                           HashSet<Part> hits, HashSet<Transform> ignoreRoots) {
+                           Transform target, HashSet<Part> hits) {
+    var tgtPart = target.root.GetComponent<Part>();
+    var otherVessel = tgtPart != null ? tgtPart.vessel : null;
     var linkVector = endPos - startPos;
     var linkLength = linkVector.magnitude;
     Collider[] colliders;
-    if (linkLength >= diameter) {
-      // The spheres at the ends of the capsule can hit undesired parts, so reduce the capsule size
-      // so that the sphere edges are located at the start/end positions. This way some useful hits
-      // may get missed, but it's the price.
-      var linkDirection = linkVector.normalized;
-      colliders = Physics.OverlapCapsule(
-          startPos + linkDirection * diameter / 2.0f,
-          endPos - linkDirection * diameter / 2.0f,
-          diameter / 2.0f,
-          (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
-          QueryTriggerInteraction.Ignore);
-    } else {
-      // EDGE CASE. There is no reliable way to check the hits when the distance is less than the
-      // pipe's diameter due to the minimum possible capsule shape is a sphere. As a fallback, check
-      // a sphere, placed between the points.
-      colliders = Physics.OverlapSphere(
-          startPos + linkVector / 2.0f, linkLength / 2.0f,
-          (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
-          QueryTriggerInteraction.Ignore);
-    }
+    colliders = Physics.OverlapCapsule(
+        startPos, endPos, diameter / 2.0f,
+        (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
+        QueryTriggerInteraction.Ignore);
     foreach (var collider in colliders) {
-      if (!ignoreRoots.Contains(collider.transform.root)) {
-        var hitPart = collider.transform.root.GetComponent<Part>();
-        if (hitPart != null) {
+      var hitPart = collider.transform.root.GetComponent<Part>();
+      if (hitPart != null) {
+        if (hitPart.vessel != vessel && hitPart.vessel != otherVessel) {
           hits.Add(hitPart);
-        } else {
-          hits.Add(null);
         }
+      } else {
+        hits.Add(null);  // Surface hit.
       }
     }
   }
