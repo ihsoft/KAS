@@ -209,13 +209,10 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   /// <inheritdoc/>
   protected override Vector3[] GetPipePath(Transform start, Transform end) {
-    if (pipeColliderIsPhysical) {
-      AlignToCurve(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
-      return pipeSkinnedMeshRenderer.bones
-          .Select(x => x.position)
-          .ToArray();
-    }
-    return new Vector3[0];
+    AlignToCurve(sourceJointNode.pipeAttach, targetJointNode.pipeAttach);
+    return pipeSkinnedMeshRenderer.bones
+        .Select(x => x.position)
+        .ToArray();
   }
   #endregion
 

@@ -363,13 +363,10 @@ public class KASRendererPipe : AbstractPipeRenderer {
 
   /// <inheritdoc/>
   protected override Vector3[] GetPipePath(Transform start, Transform end) {
-    if (pipeColliderIsPhysical && isStarted) {
-      return new[] {
-          sourceJointNode.partAttach.position, sourceJointNode.pipeAttach.position,
-          targetJointNode.pipeAttach.position, targetJointNode.partAttach.position
-      };
-    }
-    return new Vector3[0];
+    return new[] {
+        sourceJointNode.partAttach.position, sourceJointNode.pipeAttach.position,
+        targetJointNode.pipeAttach.position, targetJointNode.partAttach.position
+    };
   }
 
   /// <inheritdoc/>

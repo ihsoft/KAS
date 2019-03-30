@@ -337,6 +337,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public string[] CheckColliderHits(Transform source, Transform target) {
+    if (!pipeColliderIsPhysical) {
+      return new string[0];  // No need to check, the meshes will never collide.
+    }
     // HACK: Start the renderer before getting the pipes. 
     var oldStartState = isStarted;
     var oldPhyscalState = isPhysicalCollider;
@@ -409,13 +412,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Gives an approximate path to verify pipe collisions.</summary>
   /// <remarks>
-  /// This method is only called on the started renderer.
+  /// This method is only called on the started renderer, and only if the pipe mode is physical.
+  /// In non-physical mode any pipe is safe, so no check is done.
   /// <para>
   /// The path is used to move a sphere collider to determine if the pipe mesh collides with
   /// anything. So pay attention to the endpoints, since the sphere will go beyond the end points by
   /// the pipe's radius distance. In most cases it's not an issue since the renderer meshes are not
   /// supposed to collide with both the source and the target vessels. However, surface can be hit
-  /// if the target part is too close to it don't give enough offset.
+  /// if the target part is too close to it and doesn't give enough offset.
   /// </para>
   /// </remarks>
   /// <returns>
