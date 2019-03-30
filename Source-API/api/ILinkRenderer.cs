@@ -34,11 +34,12 @@ public interface ILinkRenderer {
   // TODO(ihsoft): Deprecate it.
   string shaderNameOverride { get; set; }
 
-  /// <summary>Tells if the link interacts with the rigid bodies.</summary>
+  /// <summary>Tells if the link colliders should be active.</summary>
   /// <value>The current state of the collider(s).</value>
   /// <remarks>
-  /// Setting this property to <c>false</c> turns the link colliders into triggers. I.e. the link
-  /// won't have a physical impact but the collision events will be sent to the parent game object.
+  /// Setting this property to <c>false</c> disables the link colliders, if there were any. Setting
+  /// this oroperty to <c>true</c> doesn't make the link physlcal, it only enables the colliders
+  /// that were already on the link.
   /// </remarks>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">
   /// Unity3D: Collider</seealso>
