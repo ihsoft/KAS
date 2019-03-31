@@ -6,7 +6,6 @@ using KASAPIv1;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
-using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
@@ -33,8 +32,6 @@ namespace KAS {
 public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
-    // KPSDev sugar interfaces.    
-    IsDestroyable,
     // KSPDev interfaces
     IHasDebugAdjustables {
   #region Localizable GUI strings
@@ -256,13 +253,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
           this, "Restart renderer: src={0}, tgt={1}", dbgOldSource, dbgOldTarget);
       StartRenderer(dbgOldSource, dbgOldTarget);
     }
-  }
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    StopRenderer();
   }
   #endregion
 

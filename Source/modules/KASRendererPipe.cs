@@ -3,6 +3,7 @@
 // License: Public Domain
 
 using KSPDev.ConfigUtils;
+using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.Types;
@@ -62,7 +63,9 @@ namespace KAS {
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-public class KASRendererPipe : AbstractPipeRenderer {
+public class KASRendererPipe : AbstractPipeRenderer,
+    // KPSDev sugar interfaces.    
+    IsDestroyable {
 
   #region Public config types
   /// <summary>Helper structure to hold the joint model setup.</summary>
@@ -292,6 +295,16 @@ public class KASRendererPipe : AbstractPipeRenderer {
   /// <value>The target node container.</value>
   /// <seealso cref="UpdateJointNode"/>
   protected ModelPipeEndNode targetJointNode { get; private set; }
+  #endregion
+
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
+  public virtual void OnDestroy() {
+    if (isStarted) {
+      // Bring back the target meshes to have them destroyed with the part.
+      targetJointNode.AlignToTransform(null);
+    }
+  }
   #endregion
 
   #region AbstractPipeRenderer abstract methods
