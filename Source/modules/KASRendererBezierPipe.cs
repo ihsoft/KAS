@@ -100,6 +100,14 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <seealso cref="MakeBoneSamples"/>
   /// <seealso cref="pipeMeshSections"/>
   float[] boneOffsets;
+
+  /// <summary>Colliders, assigned to the bones.</summary>
+  /// <remarks>
+  /// These are capsule colliders that need to be adjusted each time the curve has changed. This
+  /// member is <c>null</c> for the non-physical renderers, of if the renderer is not started yet. 
+  /// </remarks>
+  /// <seealso cref="UpdateColliders"/>
+  CapsuleCollider[] colliders;
   #endregion
 
   #region KASRendererPipe overrides
@@ -199,12 +207,19 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     mesh.UploadMeshData(false);
     if (pipeColliderIsPhysical) {
       CreateColliders();
+      UpdateColliders();
     }
 
     // Have the overrides applied if any.
     colorOverride = colorOverride;
     shaderNameOverride = shaderNameOverride;
     isPhysicalCollider = isPhysicalCollider;
+  }
+
+  /// <inheritdoc/>
+  protected override void DestroyPipeMesh() {
+    base.DestroyPipeMesh();
+    colliders = null;
   }
 
   /// <inheritdoc/>
@@ -258,6 +273,10 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
     // Have the texture rescale setting adjusted.
     RescaleMeshSectionTextures();
+
+    if (colliders != null) {
+      UpdateColliders();
+    }
   }
 
   /// <summary>Adjusts the texture on the pipe object to fit the rescale mode.</summary>
@@ -311,17 +330,26 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <summary>Creates capsule colliders per each section between the bones.</summary>
   void CreateColliders() {
     var bones = pipeSkinnedMeshRenderer.bones;
-    // TODO(ihsoft): Check the first and the last bone for the half-sphere collision. 
+    // TODO(ihsoft): Capsules will hit extra things at the ends of the pipe. Find a way to fix it.
+    colliders = new CapsuleCollider[bones.Length - 1];
     for (var i = 0; i < bones.Length - 1; ++i) {
-      var bone = bones[i];
-      var otherBone = bones[i + 1];
-      var capsule = bone.transform.gameObject.AddComponent<CapsuleCollider>();
+      var capsule = bones[i].transform.gameObject.AddComponent<CapsuleCollider>();
       capsule.direction = 2; // Z-axis
-      var boneDistance = (bone.position - otherBone.position).magnitude;
+      capsule.radius = pipeDiameter / 2;
+      capsule.height = pipeDiameter;
+      colliders[i] = capsule;
+    }
+  }
+
+  /// <summary>Updates the pipe colliders to match the curve.</summary>
+  void UpdateColliders() {
+    var bones = pipeSkinnedMeshRenderer.bones;
+    for (var i = 0; i < bones.Length - 1; ++i) {
+      var capsule = colliders[i];
+      var boneDistance = (bones[i].position - bones[i + 1].position).magnitude;
       capsule.center = new Vector3(0, 0, boneDistance / 2);
       // The capsules from the adjustent bones should "connect" at the half-sphere center.
       capsule.height = boneDistance + pipeDiameter;
-      capsule.radius = pipeDiameter / 2;
     }
   }
   #endregion
