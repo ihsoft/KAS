@@ -41,12 +41,6 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   [KSPField]
   [Debug.KASDebugAdjustable("Strut damper ratio")]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
-
-  /// <summary>Tells if joined parts can move relative to each other.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  [Debug.KASDebugAdjustable("Is unlocked (needs save game reload)")]
-  public bool isUnlockedJoint;
   #endregion
 
   #region Inheritable properties
@@ -165,7 +159,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   #region IJointLockState implemenation
   /// <inheritdoc/>
   public bool IsJointUnlocked() {
-    return isUnlockedJoint;
+    return true;
   }
   #endregion
 
@@ -185,7 +179,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   /// happens.
   /// </summary>
   void OnProtoPartSnapshotSave(GameEvents.FromToAction<ProtoPartSnapshot, ConfigNode> action) {
-    if (isUnlockedJoint && isLinked && action.to != null && action.from.partRef == part) {
+    if (isLinked && action.to != null && action.from.partRef == part) {
       var node = action.to;
       node.SetValue("position", part.orgPos);
       node.SetValue("rotation", part.orgRot);
