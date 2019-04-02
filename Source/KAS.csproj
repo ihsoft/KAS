@@ -55,8 +55,8 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.1.1">
-      <HintPath>..\Binaries\KSPDev_Utils.1.1.dll</HintPath>
+    <Reference Include="KSPDev_Utils.1.2">
+      <HintPath>..\Binaries\KSPDev_Utils.1.2.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
@@ -94,13 +94,6 @@
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
-    <Compile Include="KSPDev_candidates\ArgumentGuard.cs" />
-    <Compile Include="KSPDev_candidates\ConfigNodePatch.cs" />
-    <Compile Include="KSPDev_candidates\Hierarchy.cs" />
-    <Compile Include="KSPDev_candidates\PartNodePatcher.cs" />
-    <Compile Include="KSPDev_candidates\PersistentCustomFieldAttribute.cs" />
-    <Compile Include="KSPDev_candidates\Preconditions.cs" />
-    <Compile Include="KSPDev_candidates\VersionTypeProto.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />

@@ -1,16 +1,18 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.1.1</name>
+        <name>KSPDev_Utils.1.2</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
-             <summary>A base class for a proto of a collection of values.</summary>
-             <remarks>Collection of collections is not supported. Though, descendands may use own
+             <summary>Base class for a type proto handler that can deal with collections.</summary>
+             <remarks>
+             Collection of collections is not supported. However, descendands may use own
              (de)serialization approach to handle nested collections.
-             <para>All descendants of this class must implement a constructor which accepts a single
-             argument: the type of the collection. Constructor can throw <see cref="T:System.ArgumentException"/>
-             if passed type is unacceptable.</para>
+             <para>
+             All descendants of this class must implement a constructor which accepts a single argument: the
+             type of the collection. Constructor can throw <see cref="T:System.ArgumentException"/> if passed type is
+             unacceptable.</para>
              </remarks>
              <example>As a good example of overriding of this class see
              <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. Though, it tries to be universal and, hence, works
@@ -216,6 +218,193 @@
             group will be considered. Must not be <c>null</c>.
             </param>
         </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigNodePatch">
+            <summary>Class that describes how to modify a part's config node.</summary>
+            <remarks>
+            IMPORTANT! Every patch must be designed so that if it matched to a part and was applied to, it
+            won't match to the same patched part again. If this condition doesn't stand, then the engine
+            will disable the patch.
+            </remarks>
+            <seealso cref="M:KSPDev.ConfigUtils.PartNodePatcher.TestPatch(ConfigNode,KSPDev.ConfigUtils.ConfigNodePatch,SaveUpgradePipeline.LoadContext,System.Boolean)"/>
+            <seealso cref="M:KSPDev.ConfigUtils.PartNodePatcher.PatchNode(ConfigNode,KSPDev.ConfigUtils.ConfigNodePatch,SaveUpgradePipeline.LoadContext)"/>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.sourceConfigUrl">
+            <summary>Config URL path from which the pacth was created (if any).</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.name">
+            <summary>Name of the patch. It must be unique in the game's scope.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.loadContext">
+            <summary>Context in which this patch should be applied.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.verboseLogging">
+            <summary>Tells if all patch processing job must be logged.</summary>
+            <remarks>Use it to debug your patch. The logs may get noisy and large though.</remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.modName">
+            <summary>Name of the mod's assembly which owns the part being patched.</summary>
+            <remarks>
+            This mod must be installed into the game. Othewrise, the patch will be ignored. If the patch
+            needs to run regardless to the mod installed (e.g. when deleting the parts), simply leave this
+            value empty.
+            <para>
+            The patches with empty mod name are always handled first, assuming they are designed to drop
+            the incompatible parts. Don't make "fix" patches with empty mod name since their order of
+            applying will be random.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.patchCreationTimestamp">
+            <summary>Unix Epoch timesmap of when the patch was created.</summary>
+            <remarks>
+            It doesn't need to be precise. The main goal of this timestamp is to order patches on the same
+            part. The patches created earlier will be applied first. This timestamp can also be used to
+            determine when it makes sense to drop it from the distribution, e.g. if it's too old and not
+            relevant anymore.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.testSection">
+            <summary>Section that defines rules for the part to qualify for patching.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.upgradeSection">
+            <summary>Section that defines how to change the part if it qualifies for patching.</summary>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.MakeFromConfigNode(ConfigNode)">
+            <summary>Makes a patch form the config node.</summary>
+            <remarks>Some sanity checks are done when loading, so this method can throw.</remarks>
+            <param name="node">The node to read patch from.</param>
+            <returns>
+            The patch node. It's never <c>null</c>, but if some fields cannot be read, they will remain
+            uninitialized.
+            </returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.MakeFromConfig(UrlDir.UrlConfig)">
+            <summary>Makes a patch form the config.</summary>
+            <remarks>Some sanity checks are done when loading, so this method can throw.</remarks>
+            <param name="config">The config to make the pacth from.</param>
+            <returns>
+            The patch node. It's never <c>null</c>, but if some fields cannot be read, they will remain
+            uninitialized.
+            </returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.MakeFromNodeInternal(ConfigNode,System.Object,System.String)">
+            <summary>Makes pacth from a config node.</summary>
+            <remarks>
+            The critical settings will be checked for the sane values. If a bad value found, then the
+            menthod will throw.
+            </remarks>
+            <param name="node">The node to create from.</param>
+            <param name="context">
+            The context of node loading. It can be any object, e.g. <c>UrlDir.UrlConfig</c> or
+            <c>ConfigNode</c>. It's only used for logging errors to give a context for debugging.
+            </param>
+            <param name="url">The URL to the node in the game's DB.</param>
+            <returns>The patch. It's never <c>null.</c></returns>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction">
+            <summary>Action to perform on the part or module.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction.Add">
+            <summary>Add new module.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction.Fix">
+            <summary>Change fields in the part or modules.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction.Drop">
+            <summary>Drop the part or module altogether.</summary>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigNodePatch.TestSection">
+            <summary>
+            Config class that specifies how to check if the part qualifies for patching.
+            </summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.TestSection.partTests">
+            <summary>Part's persited fields to check.</summary>
+            <remarks>
+            The check is done "one-to-one". In order fro the part to qualify, all its fields must match
+            exactly to the provided values.
+            </remarks>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.TestSection.moduleTests">
+            <summary>Part modules persisted fields to check.</summary>
+            <remarks>
+            The module is found by name, set via field "name". If no index suffix is set, then the first
+            matched module is tested regardless to how many other modules with the same name exist. The
+            following index suffixes can be set to control the module
+            lookup:
+            <list type="bullet">
+            <item>
+            "<c>,&lt;number&gt;</c>" - requires that the named module must be found at the specific
+            index within the part's persistent state. Index starts from <c>0</c>.
+            </item>
+            <item>
+            "<c>,+&lt;number&gt;</c>" - skips the specified number of modules with the same name. Use
+            it when multiple modules with the same name are saved.
+            </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection">
+            <summary>Config class that specifies how pacth the qualifying part.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.partRules">
+            <summary>Patching rules for the part config.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.moduleRules">
+            <summary>Patching rules for the module configs.</summary>
+            <remarks>
+            The modules are patched in order. I.e. first module pacth in the upgrade section will be
+            applied to the first module in the part's save state. When the module needs to be skipped
+            from the patch, simply don't provide any rules.
+            <para>
+            If the part's action is <see cref="F:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction.Drop"/>, then the module rules are
+            ignored.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules">
+            <summary>Config class that defines patching rules.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules.name">
+            <summary>Module name to apply changes to. It can have a lookup suffix.</summary>
+            <seealso cref="F:KSPDev.ConfigUtils.ConfigNodePatch.TestSection.moduleTests"/>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules.action">
+            <summary>Tells what to do with the matched node.</summary>
+        </member>
+        <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules.fieldRules">
+            <summary>
+            Defines the rules to apply to the node's fields if the <see cref="F:KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules.action"/> is
+            <see cref="F:KSPDev.ConfigUtils.ConfigNodePatch.PatchAction.Fix"/>.
+            </summary>
+            <remarks>
+            The value is comma separated pairs of "<c>name=value</c>". The "name" designates the field
+            name within the persisted module state, and "value" specifies a new value. Field name can
+            have a special prefix symbol that defines a special case or how the new value should be
+            applied:
+            <list type="bullet">
+            <item>
+            <i>No prefix.</i> Tells to add a new value. The existing value(s) in the persisted state
+            will not be affected. This can be used to add multiple values to a key.
+            </item>
+            <item>
+            "<c>-</c>". Tells to erase the value(s) or node(s) at the key. There are no checks done
+            to verify if there is something to delete.
+            </item>
+            <item>
+            "<c>%</c>". Tells to assign a new value to an existing filed or create a new value if none
+            exists.
+            </item>
+            </list>
+            <para>
+            The rules are applied in the order they are listed in the patch. It's important to
+            consider it when applying multiple rules to the same key.       
+            </para>
+            </remarks>
+        </member>
         <member name="T:KSPDev.ConfigUtils.IPersistentField">
              <summary>Interface for the simple types that need custom (de)serialization logic.</summary>
              <remarks>
@@ -273,6 +462,76 @@
             <param name="value">String value to restore from.</param>
             <remarks>It's OK to throw exceptions if the value cannot be parsed.</remarks>
         </member>
+        <member name="T:KSPDev.ConfigUtils.PartNodePatcher">
+            <summary>A set of methods to deal with the part config compatibility.</summary>
+            <remarks>
+            These methods help patching the saved game in order to fix the incompatible changes to the
+            parts.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.GetPartNameFromUpgradeNode(ConfigNode,SaveUpgradePipeline.LoadContext)">
+            <summary>Extracts the part name from the game state.</summary>
+            <param name="node">The part's config node to extract the value from.</param>
+            <param name="loadContext">The current loading context.</param>
+            <returns>The part's name.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.GetPatches(System.String)">
+            <summary>Returns patch nodes for the tag.</summary>
+            <remarks>
+            This call can be very expensive. It's strongly encouraged to implement a lazy access approach
+            and cache the retunred values.
+            </remarks>
+            <param name="modName">
+            The mod to find the nodes for. If it's <c>null</c> or empty, then all the nodes will be
+            returned.
+            </param>
+            <returns>The patch nodes for the mod.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.TestPatch(ConfigNode,KSPDev.ConfigUtils.ConfigNodePatch,SaveUpgradePipeline.LoadContext,System.Boolean)">
+            <summary>Tests if the patch can be applied to the part node.</summary>
+            <param name="partNode">The part node to test against.</param>
+            <param name="patch">The patch to test.</param>
+            <param name="loadContext">The conext in whcih the part is being patched.</param>
+            <param name="quietMode">Tells if anything should be reported to the logs.</param>
+            <returns><c>true</c> if the TEST rules of the patch have matched.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.PatchNode(ConfigNode,KSPDev.ConfigUtils.ConfigNodePatch,SaveUpgradePipeline.LoadContext)">
+            <summary>Applies the patch to the part node.</summary>
+            <param name="partNode">The part node to patch.</param>
+            <param name="patch">The patch to apply.</param>
+            <param name="loadContext">The conext in whcih the part is being patched.</param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.CheckPatchValues(ConfigNode,ConfigNode)">
+            <summary>Checks if all pattern fields are set in the target.</summary>
+            <param name="pattern">The pattern node.</param>
+            <param name="target">The target node.</param>
+            <returns><c>true</c> if patch test rules match the target.</returns>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.ApplyPatchToNode(ConfigNode,KSPDev.ConfigUtils.ConfigNodePatch.UpgradeSection.Rules,System.String,System.Boolean)">
+            <summary>Applies patch rules on the target.</summary>
+            <param name="target">The target node.</param>
+            <param name="rules">The patching rules to apply.</param>
+            <param name="context">The logging context.</param>
+            <param name="isPartCraftContext">
+            Tells if the current context is part node and the context is editor. In this context the part
+            name is defined differently.
+            </param>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.LookupModule(ConfigNode,System.String)">
+            <summary>Helper method to find a patch module by the name pattern.</summary>
+            <param name="partNode">The part config node to search the node in.</param>
+            <param name="namePattern">The lookup module name pattern.</param>
+            <returns>The config node of the found part module or <c>null</c>.</returns>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigNodePatch"/>
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PartNodePatcher.GetPartId(ConfigNode,SaveUpgradePipeline.LoadContext)">
+            <summary>Extracts part name and ID from the node.</summary>
+            <param name="node">The part's config node.</param>
+            <param name="loadContext">The loading context that tells how to extract the values.</param>
+            <returns>
+            The array of two values, where first value is the name, and the second value is ID.
+            </returns>
+        </member>
         <member name="T:KSPDev.ConfigUtils.PartNodeUtils">
             <summary>Various methods to deal with the config nodes of the parts.</summary>
         </member>
@@ -307,6 +566,48 @@
             </param>
             <returns>The array of found module nodes.</returns>
             <typeparam name="T">The type of the module to get node for.</typeparam>
+        </member>
+        <member name="T:KSPDev.ConfigUtils.PersistentCustomFieldAttribute">
+            <summary>Attribute for the persistent fields that can use custom type protos.</summary>
+            <example>
+            <para>
+            To provide own type proto for (de)serializing the field: 
+            </para>
+            <code><![CDATA[
+            class CustomType {
+              [PersistentCustomField("my/custom/type", typeProto: typeof(MyTypeProto))]
+              public MyType field1;
+            }
+            ]]></code>
+            <para>
+            If your custom type filed is a collection, you need to provide a collection proto handler. It
+            can be one of the existing protos (e.g. <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/> or a custom
+            one. Keep in mind that the collection fields <i>must</i> be initialized, or else they won't be
+            handled.
+            </para>
+            <code><![CDATA[
+            class CustomTypes {
+              [PersistentCustomField("my/custom/type", collectionProto: typeof(GenericCollectionTypeProto))]
+              public List<string> field1 = new List<string>();
+            }
+            ]]></code>
+            </example>
+            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+            <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
+            <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
+        </member>
+        <member name="M:KSPDev.ConfigUtils.PersistentCustomFieldAttribute.#ctor(System.String,System.Type,System.Type)">
+            <summary>Creates attribute for persistent field with custom type protos.</summary>
+            <param name="cfgPath">The path to the fields's value in the config.</param>
+            <param name="typeProto">
+            The custom ordinary type proto. If not set, then <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/> is
+            used.
+            </param>
+            <param name="collectionProto">
+            The custom collection type proto. Only set if the attribute is used to annotate a collection.
+            </param>
+            <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.GetValueByPath(ConfigNode,System.String)"/>
+            <seealso cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute">
             <summary>
@@ -462,10 +763,7 @@
         </member>
         <member name="T:KSPDev.ConfigUtils.GenericCollectionTypeProto">
             <summary>A proto handler for a simple generic collection.</summary>
-            <remarks>
-            Generic must have exactly one arguent, implement method <c>Add</c> for adding new items, and
-            implement <see cref="T:System.Collections.IEnumerable"/>.
-            </remarks>
+            <remarks>Generic must have exactly one argument.</remarks>
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.GenericCollectionTypeProto.#ctor(System.Type)">
@@ -586,7 +884,7 @@
             <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldsDatabaseAttribute"/>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)">
-            <summary>Reads custom type fileds from the part's config.</summary>
+            <summary>Reads custom type fields from the part's config.</summary>
             <remarks>
             <para>
             The consumer code must call this method from the <c>OnLoad</c> method to capture the
@@ -931,7 +1229,7 @@
         <member name="F:KSPDev.ConfigUtils.PersistentField.cfgPath">
             <summary>Parsed configuration paths.</summary>
         </member>
-        <member name="M:KSPDev.ConfigUtils.PersistentField.#ctor(System.Reflection.FieldInfo,KSPDev.ConfigUtils.PersistentFieldAttribute)">
+        <member name="M:KSPDev.ConfigUtils.PersistentField.#ctor(System.Reflection.FieldInfo,KSPDev.ConfigUtils.BasePersistentFieldAttribute)">
             <param name="fieldInfo">An annotated field metadata.</param>
             <param name="fieldAttr">An annotation of the field.</param>
         </member>
@@ -986,176 +1284,158 @@
             </param>
         </member>
         <member name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
-            <summary>A simple attribute for the fields that need (de)serialization.</summary>
-            <remarks>
-            <para>
-            The readonly fields cannot be restored from a persistent state. However, they can be written
-            out.
-            </para>
-            <para>
-            By default the ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
-            and the collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
-            be changed in the annotation by assigning properties
-            <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.ordinaryTypeProto"/> and/or
-            <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto"/>.
-            </para>
-            </remarks>
-            <example>
-            Below is a simple usage of the attribute.
-            <code><![CDATA[
-            class ClassWithPersistentFields {
-              [PersistentField("my/listField", isCollection = true)]
-              private List<string> sampleList = new List<string>();
+             <summary>A simple attribute for the fields that need (de)serialization.</summary>
+             <remarks>
+             <para>
+             The readonly fields cannot be restored from a persistent state. However, they can be written
+             out.
+             </para>
+             <para>
+             By default the ordinal values are handled via <see cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
+             and the collection fields via <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>. These proto handlers can
+             be changed in the annotation by assigning properties
+             <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.ordinaryTypeProto"/> and/or
+             <see cref="P:KSPDev.ConfigUtils.BasePersistentFieldAttribute.collectionTypeProto"/>.
+             </para>
+             </remarks>
+             <example>
+             Below is a simple usage of the attribute.
+             <code><![CDATA[
+             class ClassWithPersistentFields {
+               [PersistentField("my/listField", isCollection = true)]
+               private List<string> sampleList = new List<string>();
+             
+               internal struct ComplexType {
+                 [PersistentField("val1", group = "nevermind")]
+                 public bool boolVal;
+                 [PersistentField("val2")]
+                 public Color colorVal;
+               }
+             
+               [PersistentField("my/setField", isCollection = true, group = "abc")]
+               private HashSet<ComplexType> sampleSet = new HashSet<ComplexType>();
+             
+               void SaveConfigs() {
+                 // Save a default group of fields: only field "sampleList" qualifies.
+                 ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
+                 /* The following structure in the file will be created:
+                  * {
+                  *   my
+                  *   {
+                  *     listField: string1
+                  *     listField: string2
+                  *   }
+                  * }
+                  */
+             
+                 // Save a specific group of fields: only field "sampleSet" belongs to group "abc".
+                 sampleSet.Add(new ComplexType() { boolVal = true, colorVal = Color.black });
+                 sampleSet.Add(new ComplexType() { boolVal = false, colorVal = Color.white });
+                 ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this, group: "abc");
+                 /* The following structure in the file will be created:
+                  * {
+                  *     setField
+                  *     {
+                  *       val1: True
+                  *       val2: 0,0,0,1
+                  *     }
+                  *     setField
+                  *     {
+                  *       val1: false
+                  *       val2: 1,1,1,1
+                  *     }
+                  *   }
+                  * }
+                  */
+               }
+             }
+             ]]></code>
+             <para>
+             Note that the group is ignored in the nested types. I.e. in <c>ComplexType</c> in this case.
+             However, if <c>ComplexType</c> was an immediate target of the <c>WriteFieldsIntoFile</c> call
+             then the group would be considered.
+             </para>
+             <para>
+             Visibility of the annotated field is also important. The persistent field attributes are only
+             visible in the child class if they were public or protected in the parent. The private field
+             annotations are not inherited and need to be handled at the level of the declaring class.
+             </para>
+             <code><![CDATA[
+             class Parent {
+               [PersistentField("parent_private")]
+               private int field1 = 1;
+             
+               [PersistentField("parent_protected")]
+               protected int field2 = 2;
+             
+               [PersistentField("parent_public")]
+               public int field3 = 3;
+             }
+             
+             class Child : Parent {
+               [PersistentField("child_private")]
+               private int field1 = 10;
+             
+               void SaveConfig() {
+                 // Save all fields in the inherited type. 
+                 ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
+                 /* The following structure in the file will be created:
+                  * {
+                  *     parent_protected: 2
+                  *     parent_public: 3
+                  *     child_private: 10
+                  * }
+                  */
+             
+                 // Save all fields in the base type. 
+                 ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: (Parent) this);
+                 /* The following structure in the file will be created:
+                  * {
+                  *     parent_private: 1
+                  *     parent_protected: 2
+                  *     parent_public: 3
+                  * }
+                  */
+               }
+             }
+             ]]></code>
+             <para>
+             The code above implies that in common case the unsealed class should put the private fields in a
+             group other than default to avoid settings collision.
+             </para>
+             <para>
+             Instead of creating nested classes with attributed fields, you can makea class that implements
+             KSP interface <see cref="T:IConfigNode"/>. In this case the Save/load methid will be invoked when
+             (de)serializing the field.
+             </para>
+             <code><![CDATA[
+             public class NodeCustomType : IConfigNode {
+               public virtual void Save(ConfigNode node) {
+               }
+               public virtual void Load(ConfigNode node) {
+               }
             
-              internal struct ComplexType {
-                [PersistentField("val1", group = "nevermind")]
-                public bool boolVal;
-                [PersistentField("val2")]
-                public Color colorVal;
-              }
-            
-              [PersistentField("my/setField", isCollection = true, group = "abc")]
-              private HashSet<ComplexType> sampleSet = new HashSet<ComplexType>();
-            
-              void SaveConfigs() {
-                // Save a default group of fields: only field "sampleList" qualifies.
-                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
-                /* The following structure in the file will be created:
-                 * {
-                 *   my
-                 *   {
-                 *     listField: string1
-                 *     listField: string2
-                 *   }
-                 * }
-                 */
-            
-                // Save a specific group of fields: only field "sampleSet" belongs to group "abc".
-                sampleSet.Add(new ComplexType() { boolVal = true, colorVal = Color.black });
-                sampleSet.Add(new ComplexType() { boolVal = false, colorVal = Color.white });
-                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this, group: "abc");
-                /* The following structure in the file will be created:
-                 * {
-                 *     setField
-                 *     {
-                 *       val1: True
-                 *       val2: 0,0,0,1
-                 *     }
-                 *     setField
-                 *     {
-                 *       val1: false
-                 *       val2: 1,1,1,1
-                 *     }
-                 *   }
-                 * }
-                 */
-              }
-            }
-            ]]></code>
-            <para>
-            Note that the group is ignored in the nested types. I.e. in <c>ComplexType</c> in this case.
-            However, if <c>ComplexType</c> was an immediate target of the <c>WriteFieldsIntoFile</c> call
-            then the group would be considered.
-            </para>
-            <para>
-            Visibility of the annotated field is also important. The persistent field attributes are only
-            visible in the child class if they were public or protected in the parent. The private field
-            annotations are not inherited and need to be handled at the level of the declaring class.
-            </para>
-            <code><![CDATA[
-            class Parent {
-              [PersistentField("parent_private")]
-              private int field1 = 1;
-            
-              [PersistentField("parent_protected")]
-              protected int field2 = 2;
-            
-              [PersistentField("parent_public")]
-              public int field3 = 3;
-            }
-            
-            class Child : Parent {
-              [PersistentField("child_private")]
-              private int field1 = 10;
-            
-              void SaveConfig() {
-                // Save all fields in the inherited type. 
-                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: this);
-                /* The following structure in the file will be created:
-                 * {
-                 *     parent_protected: 2
-                 *     parent_public: 3
-                 *     child_private: 10
-                 * }
-                 */
-            
-                // Save all fields in the base type. 
-                ConfigAccessor.WriteFieldsIntoFile("settings.cfg", instance: (Parent) this);
-                /* The following structure in the file will be created:
-                 * {
-                 *     parent_private: 1
-                 *     parent_protected: 2
-                 *     parent_public: 3
-                 * }
-                 */
-              }
-            }
-            ]]></code>
-            <para>
-            The code above implies that in a common case unsealed class should put the private fields in a
-            group other than default to avoid settings collision.
-            </para>
-            <para>
-            When the type of the field is different from a primitive C# type or a common Unity 4 type you
-            may need to provide a custom value handler to deal with (de)serializing. E.g. for an ordinary
-            type it may look like this:
-            </para>
-            <code><![CDATA[
-            class CustomType {
-              [PersistentField("my/custom/type", ordinaryTypeProto = typeof(MyTypeProto))]
-              private MyType field1;
-            }
-            ]]></code>
-            <para>
-            Or your custom class can implement a KSP interface <see cref="T:IConfigNode"/>, and it will be
-            invoked during the field saving and restoring.
-            </para>
-            <code><![CDATA[
-            class NodeCustomType : IConfigNode {
-              public virtual void Save(ConfigNode node) {
-              }
-              public virtual void Load(ConfigNode node) {
-              }
-            }
-            ]]></code>
-            <para>
-            In case of your type is really simple, and you can serialize it into a plain string, you may
-            choose to implement <see cref="T:KSPDev.ConfigUtils.IPersistentField"/> instead. It works in a similar way but the
-            source/target of the persistense is a string instead of a config node.
-            </para>
-            <para>
-            If your custom type is a collection that cannot be handled by the standard proto you can provide
-            your own collection proto handler. Note that if you do then the annotated field will be treated
-            as a collection. In fact, when you set <c>isCollection = true</c> what actually happens is just
-            assigning <see cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/> as a collection proto handler.
-            </para>
-            <code><![CDATA[
-            class CustomTypes {
-              [PersistentField("my/custom/type", collectionTypeProto = typeof(MyCollectionProto))]
-              private MyCollection field1;
-            }
-            ]]></code>
-            For more examples on custom proto handlers see <see cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/> and
-            <see cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>.
-            </example>
-            <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
-            <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
-            <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
-            <seealso cref="T:KSPDev.ConfigUtils.IPersistentField"/>
-            <seealso href="https://kerbalspaceprogram.com/api/interface_i_config_node.html">KSP: IConfigNode</seealso>
+               [PersistentField("custom_class")]
+               public NodeCustomType field1;
+             }
+             ]]></code>
+             <para>
+             In case of your type is really simple, and you can serialize it into a plain string, you may
+             choose to implement <see cref="T:KSPDev.ConfigUtils.IPersistentField"/> instead. It works in a similar way but the
+             source/target of the persistense is a string instead of a config node.
+             </para>
+             </example>
+             <seealso cref="T:KSPDev.ConfigUtils.ConfigAccessor"/>
+             <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
+             <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
+             <seealso cref="T:KSPDev.ConfigUtils.IPersistentField"/>
+             <seealso href="https://kerbalspaceprogram.com/api/interface_i_config_node.html">KSP: IConfigNode</seealso>
         </member>
         <member name="M:KSPDev.ConfigUtils.PersistentFieldAttribute.#ctor(System.String)">
+            <summary>Creates attribute for a persistent field of standard KSP types.</summary>
             <inheritdoc/>
+            <seealso cref="T:KSPDev.ConfigUtils.StandardOrdinaryTypesProto"/>
+            <seealso cref="T:KSPDev.ConfigUtils.GenericCollectionTypeProto"/>
         </member>
         <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection">
             <summary>Specifies if the annotated field is a collection of values.</summary>
@@ -1611,6 +1891,11 @@
             <example>
             <code source="Examples/Extensions/PosAndRotExtensions-Examples.cs" region="ToWorld"/>
             </example>
+        </member>
+        <member name="M:KSPDev.Extensions.PosAndRotExtensions.SetPosAndRot(UnityEngine.Transform,KSPDev.Types.PosAndRot)">
+            <summary>Sets position and rotation in one call./// </summary>
+            <param name="node">The node to update.</param>
+            <param name="posAndRot">The position and rotation in wolrd space.</param>
         </member>
         <member name="T:KSPDev.Extensions.RectExtensions">
             <summary>Helper extensions to handel Unity rectangles.</summary>
@@ -5172,16 +5457,16 @@
         </member>
         <member name="M:KSPDev.ModelUtils.AlignTransforms.SnapAlign(UnityEngine.Transform,UnityEngine.Transform,UnityEngine.Transform)">
             <summary>
-            Aligns the source node so that it's located at the target, and the source and target are
+            Aligns the source object so that it's located at the target, and the source and target are
             "looking" at the each other.
             </summary>
             <remarks>
             The object's "look" direction is a <see cref="P:UnityEngine.Transform.forward"/> direction. The resulted
             <see cref="P:UnityEngine.Transform.up"/> direction of the source will be the opposite to the target.
             </remarks>
-            <param name="source">The node to align.</param>
+            <param name="source">The object to align.</param>
             <param name="sourceChild">The child node of the source to use as the align point.</param>
-            <param name="target">The target node to align with.</param>
+            <param name="target">The target object to align with.</param>
             <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
         </member>
         <member name="M:KSPDev.ModelUtils.AlignTransforms.SnapAlignVessel(Vessel,UnityEngine.Transform,UnityEngine.Transform)">
@@ -5196,7 +5481,7 @@
             </remarks>
             <param name="vessel">The vessel to align.</param>
             <param name="vesselNode">The node at the vessel to align the target against.</param>
-            <param name="targetNode">The node at the target to allign the vessel against.</param>
+            <param name="targetNode">The node at the target to align the vessel against.</param>
             <seealso cref="M:KSPDev.ModelUtils.AlignTransforms.PlaceVessel(Vessel,UnityEngine.Vector3,UnityEngine.Quaternion,Vessel)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.AlignTransforms.SnapAlignNodes(AttachNode,AttachNode)">
@@ -5206,7 +5491,7 @@
             attach node, and the nodes are "looking" at each other. 
             </remarks>
             <param name="srcAttachNode">The node of the source vessel.</param>
-            <param name="tgtAttachNode">The node of the traget vessel.</param>
+            <param name="tgtAttachNode">The node of the target vessel.</param>
         </member>
         <member name="M:KSPDev.ModelUtils.AlignTransforms.PlaceVessel(Vessel,UnityEngine.Vector3,UnityEngine.Quaternion,Vessel)">
             <summary>Places the vessel at the new position and resets the momentum on it.</summary>
@@ -5293,8 +5578,8 @@
         <member name="M:KSPDev.ModelUtils.Colliders.SetCollisionIgnores(UnityEngine.Transform,UnityEngine.Transform,System.Boolean)">
             <summary>Disables/enables all the colliders between the objects.</summary>
             <remarks>
-            All colliders in all the children of the both objects are explicitly set to not collide with
-            each other. The ignore state is reset to <c>false</c> on every scene load.
+            All colliders in all the children of the both objects are explicitly adjusted. The ignore
+            state is reset to <c>false</c> on every scene load.
             </remarks>
             <param name="obj1">Source object.</param>
             <param name="obj2">Target object.</param>
@@ -5411,13 +5696,17 @@
             <param name="target">The target string to check.</param>
             <returns><c>true</c> if pattern matches the target.</returns>
         </member>
-        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformInChildren(UnityEngine.Transform,System.String)">
+        <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformInChildren(UnityEngine.Transform,System.String,UnityEngine.Transform)">
             <summary>Finds a transform by name down the hierarchy.</summary>
             <remarks>
             Implements breadth-first search approach to minimize depth of the found transform.
             </remarks>
             <param name="parent">The transfrom to start from.</param>
             <param name="name">The name of the transfrom.</param>
+            <param name="defValue">
+            An object to return if the name is not found. This situation will be treated as a danger, and
+            a warning log record will be made.
+            </param>
             <returns>A transform or <c>null</c> if nothing is found.</returns>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPath(UnityEngine.Transform,System.String,UnityEngine.Transform)">
@@ -5587,6 +5876,19 @@
             </remarks>
             <param name="unescapedName">The raw name with any symbols.</param>
             <returns>A name where all the special symbols are properly escaped.</returns>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Transform)">
+            <summary>Destroys the object in a way which is safe for physical callback methods.</summary>
+            <remarks>
+            The Unity <c>UnityEngine.Object.Destroy</c> method only marks object for deletion, but before
+            the next fixed frame cycle completed, the object still can be found in the hierarchy. And it
+            may trigger physics before the final cleanup. This method ensures that none of these
+            side-effects happen and it <i>doesn't</i> use physics incompatible <c>DestroyImmediate</c>
+            method.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.GameObject)">
+            <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Transform)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPathInternal(UnityEngine.Transform,System.String[],System.Int32,System.Int32@,UnityEngine.Transform@)">
             <summary>Searches thru the nodes, implementing the BFS algorithm.</summary>
@@ -5958,6 +6260,72 @@
             trigger collisions in the scene, so use carefully.
             </param>
         </member>
+        <member name="T:KSPDev.ProcessingUtils.ArgumentGuard">
+            <summary>Set of tools to check the API method arguments.</summary>
+            <remarks>
+            The public API method <i>can</i> be called with an appropriate arguments. It's always a good
+            idea to fail earlier with a clear message rather than trying to use the wrong value and crash.
+            Always check the arguments for the accepted values. The only good reason to break this rule is
+            providing a high frequency API method.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.NotNull(System.Object,System.String,System.String,System.Object)">
+            <summary>Throws if argument is null.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentNullException">If the argument is <c>null</c>.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.NotNullOrEmpty(System.String,System.String,System.String,System.Object)">
+            <summary>Throws if string is null or empty.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentNullException">If the argument is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException">If the argument is an empty string.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.InRange``1(``0,System.String,``0,``0,System.String,System.Object)">
+            <summary>Throws if ordinary value is out of bounds.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="minValue">The minumum allowed value.</param>
+            <param name="maxValue">The maximum allowed value.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If the argument is an empty string.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.OneOf``1(``0,System.String,``0[],System.String,System.Object)">
+            <summary>Throws if enum value is not in the expected set.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="values">The acceptable values of the enum.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            If the argument is not one of the specified.
+            </exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.HasSize(System.Collections.IList,System.String,System.Int32,System.String,System.Object)">
+            <summary>Throws if collection has not the expected number of elements.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="size">The expected collection size.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            If the value has different number of elements.
+            </exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.HasElements(System.Collections.IList,System.String,System.String,System.Object)">
+            <summary>Throws if collection is empty.</summary>
+            <param name="arg">The argument value to check.</param>
+            <param name="argName">The argument name.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">If the argument is an empty string.</exception>
+        </member>
         <member name="T:KSPDev.ProcessingUtils.AsyncCall">
             <summary>Set of tools to execute a delayed code.</summary>
             <remarks>
@@ -6105,6 +6473,77 @@
             ]]></code>
             </example>
             <seealso cref="M:KSPDev.ProcessingUtils.AsyncCall.WaitForPhysics(UnityEngine.MonoBehaviour,System.Int32,System.Func{System.Boolean},System.Action,System.Action,System.Action{System.Int32})"/>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.Preconditions">
+            <summary>Set of tools to check various preconditions during the code execution.</summary>
+            <remarks>
+            This class offers single line checkers for the case when a critical "go"/"no go" decision needs
+            to be made. Instead of flooding your code with <c>if/throw</c> conditions, simply call a
+            precondition check. If the condition met, then execution continues. Otherwise, an exception with
+            a clear message is thrown.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.NotNull(System.Object,System.String,System.Object)">
+            <summary>Throws if value is null.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.NotNullOrEmpty(System.String,System.String,System.Object)">
+            <summary>Throws if string is null or empty.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.ConfValueExists(System.Object,System.String,System.Object)">
+            <summary>Throws if value form a config node is null or empty string.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="path">The path to the value or node.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.MinElements(System.Collections.IList,System.Int32,System.String,System.Object)">
+            <summary>Throws if collection has less elements than required.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="minSize">The minimum collection size.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.OneOf``1(``0,``0[],System.String,System.Object)">
+            <summary>Throws if enum value is not in the expected set.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <param name="values">The acceptable values of the enum.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.HasSize(System.Collections.IList,System.Int32,System.String,System.Object)">
+            <summary>Throws if collection has not the expected number of elements.</summary>
+            <param name="arg">The value to check.</param>
+            <param name="size">The expected collection size.</param>
+            <param name="message">An optional message to present in the error.</param>
+            <param name="context">The optional "owner" object.</param>
+            <exception cref="T:System.InvalidOperationException">If condition fails.</exception>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.MakeContextError(System.Object,System.String)">
+            <summary>Makes error text with respect to the context.</summary>
+            <param name="context">
+            The context or <c>null</c>. Context can be any string (keep it short) or an object.
+            </param>
+            <param name="message">The message to present.</param>
+            <returns>The complete error string.</returns>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.Preconditions.MakeContextError(System.Object,System.String,System.Object[])">
+            <summary>Makes error text with respect to the context.</summary>
+            <param name="context">
+            The context or <c>null</c>. Context can be any string (keep it short) or an object.
+            </param>
+            <param name="message">The message to present.</param>
+            <param name="args">The arguments to format the message.</param>
+            <returns>The complete error string.</returns>
         </member>
         <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1">
             <summary>

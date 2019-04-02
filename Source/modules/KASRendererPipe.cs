@@ -461,7 +461,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
-      Hierarchy2.SafeDestory(sphere);
+      Hierarchy.SafeDestory(sphere);
     }
 
     // Parking position, if defined.
@@ -473,7 +473,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
     } else if (parkAttach != null) {
-      Hierarchy2.SafeDestory(parkAttach);
+      Hierarchy.SafeDestory(parkAttach);
     }
 
     // Place prefab between the part and the pipe if specified.
@@ -516,7 +516,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
       RescalePipeTexture(arm.transform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
-      Hierarchy2.SafeDestory(arm);
+      Hierarchy.SafeDestory(arm);
     }
 
     // Adjust to the new target.
