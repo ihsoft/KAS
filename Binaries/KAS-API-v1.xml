@@ -247,7 +247,7 @@
         <member name="T:KASAPIv1.ILinkCableJoint">
             <summary>
             Interface for a physical cable link. Such links keep the dsitance between the object below the
-            maximum but don't restict any other movements of the objects relative to each other.
+            maximum, but don't restict any other movements of the objects relative to each other.
             </summary>
             <remarks>
             <para>
@@ -360,7 +360,8 @@
             <remarks>
             Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled thru
             this specific joint module. It only means that the parts, linked via this joint, are
-            guaranteed to be coupled, but the actual docking can be done by other joint or part.
+            guaranteed to belong to the same vessel, but the coupling can actually be done thru the other
+            parts.
             </remarks>
             <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
             <seealso cref="M:KASAPIv1.ILinkJoint.SetCoupleOnLinkMode(System.Boolean)"/>
@@ -532,8 +533,9 @@
         <member name="M:KASAPIv1.ILinkRenderer.UpdateLink">
             <summary>Called when a link representation update is required.</summary>
             <remarks>
-            The performance cost of this method is rated as moderate. The callers should consider
-            optimization techniques to avoid calling this method on the every frame update.
+            It's called on every frame update if the link is started. The performance cost of this method
+            is rated as moderate. The callers should consider optimization techniques to avoid calling
+            this method on the every frame update.
             <para>
             A specific renderer implementation may introduce own optimization algorithm when the call
             becomes too heavy and slow.
@@ -543,8 +545,8 @@
         <member name="M:KASAPIv1.ILinkRenderer.CheckColliderHits(UnityEngine.Transform,UnityEngine.Transform)">
             <summary>Verifies that there are no obstacles beween the points.</summary>
             <remarks>The renderer is not required to be started for this method to call.</remarks>
-            <param name="source">Source node.</param>
-            <param name="target">Target node.</param>
+            <param name="source">The source node.</param>
+            <param name="target">The target node.</param>
             <returns>
             An empty array if no hits were detected, or a list of user friendly errors otherwise.
             </returns>
@@ -566,11 +568,12 @@
             </value>
         </member>
         <member name="P:KASAPIv1.ILinkRenderer.isPhysicalCollider">
-            <summary>Tells if the link interacts with the rigid bodies.</summary>
+            <summary>Tells if the link colliders should be active.</summary>
             <value>The current state of the collider(s).</value>
             <remarks>
-            Setting this property to <c>false</c> turns the link colliders into triggers. I.e. the link
-            won't have a physical impact but the collision events will be sent to the parent game object.
+            Setting this property to <c>false</c> disables the link colliders, if there were any. Setting
+            this oroperty to <c>true</c> doesn't make the link physlcal, it only enables the colliders
+            that were already on the link.
             </remarks>
             <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">
             Unity3D: Collider</seealso>
@@ -1166,7 +1169,8 @@
             the final attempt.</remarks>
         </member>
         <member name="F:KASAPIv1.LinkState.RejectingLinks">
-            <summary>Module doesn't accept link and will reject any request.</summary>
+            <summary>Module cannot link and will reject any request.</summary>
+            <remarks>Link sources go into this state when one of them starts linking.</remarks>
         </member>
         <member name="F:KASAPIv1.LinkState.NodeIsBlocked">
             <summary>
