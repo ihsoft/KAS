@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KAS-API-v1</name>
+        <name>KAS-API-v2</name>
     </assembly>
     <members>
         <member name="T:KASAPIv1.GUILinkMode">
@@ -184,9 +184,9 @@
             <value>The flight ID of the part or <c>0</c>.</value>
             <remarks>This value must be available during the vessel loading.</remarks>
         </member>
-        <member name="P:KASAPIv1.ILinkPeer.linkModuleIndex">
-            <summary>The persisted index of the module on the part of the other peer.</summary>
-            <value>The module index or <c>-1</c>.</value>
+        <member name="P:KASAPIv1.ILinkPeer.linkNodeName">
+            <summary>The persisted name of the attach node of the other peer.</summary>
+            <value>The name or <c>null</c> if not linked.</value>
             <remarks>This value must be available during the vessel loading.</remarks>
         </member>
         <member name="P:KASAPIv1.ILinkPeer.nodeTransform">
@@ -551,6 +551,16 @@
             An empty array if no hits were detected, or a list of user friendly errors otherwise.
             </returns>
         </member>
+        <member name="M:KASAPIv1.ILinkRenderer.GetMeshByName(System.String)">
+            <summary>Returns a mesh, created by the renderer.</summary>
+            <remarks>
+            It depends on the implementation which meshes a specific renderer creates. The caller must be
+            aware of which renderer it uses and don't request unknown meshes.
+            </remarks>
+            <param name="meshName">The name of the mesh. It's not required to be the object name!</param>
+            <returns>The object or <c>null</c> if the named mesh is not created.</returns>
+            <exception cref="T:System.ArgumentException">If the mesh cannot be retrieved.</exception>
+        </member>
         <member name="P:KASAPIv1.ILinkRenderer.cfgRendererName">
             <summary>
             Unique name of the randerer that is used by the other modules to find this renderer.
@@ -600,19 +610,6 @@
             <value>The target game object's transform.</value>
             <remarks>The value is undefined if the renderer is not started.</remarks>
             <seealso cref="M:KASAPIv1.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)"/>
-        </member>
-        <member name="P:KASAPIv1.ILinkRenderer.stretchRatio">
-            <summary>
-            Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
-            </summary>
-            <value>The stretch/shrink ratio.</value>
-            <remarks>
-            A value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
-            <para>
-            This ratio only affects the visual representation. For the renderers that don't care about
-            stretching it's ok to always return <c>1.0</c> from the getter and ignore calls to the setter.
-            </para>
-            </remarks>
         </member>
         <member name="T:KASAPIv1.ILinkSource">
             <summary>A generic source of a KAS link between two parts.</summary>
