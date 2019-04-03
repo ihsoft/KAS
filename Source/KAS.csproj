@@ -79,7 +79,6 @@
     <Folder Include="controllers" />
     <Folder Include="modules" />
     <Folder Include="KSPDev_candidates" />
-    <Folder Include="KASAPI_candidates" />
     <Folder Include="debug" />
     <Folder Include="compatibility" />
     <Folder Include="Properties" />
