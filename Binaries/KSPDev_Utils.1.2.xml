@@ -288,7 +288,8 @@
             </returns>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.ToString">
-            <inheritdoc/>
+            <summary>Returns friendly identificator of the patch.</summary>
+            <returns>The patch descriptor.</returns>
         </member>
         <member name="M:KSPDev.ConfigUtils.ConfigNodePatch.MakeFromNodeInternal(ConfigNode,System.Object,System.String)">
             <summary>Makes pacth from a config node.</summary>
@@ -5886,6 +5887,7 @@
             side-effects happen and it <i>doesn't</i> use physics incompatible <c>DestroyImmediate</c>
             method.
             </remarks>
+            <param name="obj">The object to destroy.</param>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.GameObject)">
             <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Transform)"/>
@@ -6288,6 +6290,7 @@
         </member>
         <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.InRange``1(``0,System.String,``0,``0,System.String,System.Object)">
             <summary>Throws if ordinary value is out of bounds.</summary>
+            <typeparam name="T">Type of value to check.</typeparam>
             <param name="arg">The argument value to check.</param>
             <param name="argName">The argument name.</param>
             <param name="minValue">The minumum allowed value.</param>
@@ -6298,6 +6301,7 @@
         </member>
         <member name="M:KSPDev.ProcessingUtils.ArgumentGuard.OneOf``1(``0,System.String,``0[],System.String,System.Object)">
             <summary>Throws if enum value is not in the expected set.</summary>
+            <typeparam name="T">Type of value to check.</typeparam>
             <param name="arg">The argument value to check.</param>
             <param name="argName">The argument name.</param>
             <param name="values">The acceptable values of the enum.</param>
@@ -6514,6 +6518,7 @@
         </member>
         <member name="M:KSPDev.ProcessingUtils.Preconditions.OneOf``1(``0,``0[],System.String,System.Object)">
             <summary>Throws if enum value is not in the expected set.</summary>
+            <typeparam name="T">Type of value to check.</typeparam>
             <param name="arg">The value to check.</param>
             <param name="message">An optional message to present in the error.</param>
             <param name="context">The optional "owner" object.</param>
