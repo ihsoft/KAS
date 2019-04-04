@@ -264,6 +264,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
+      HostedDebugLog.Fine(this, "Schedule coupling check from DECOUPLE action...");
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
@@ -368,6 +369,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void OnPartUnpack() {
     // The check may want to establish a link, but this will only succeed if the physics has
     // started.
+    HostedDebugLog.Fine(this, "Schedule coupling check from UNPACK...");
     AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
   }
 
@@ -588,6 +590,8 @@ public abstract class AbstractLinkPeer : PartModule,
       node = action.to.FindPartThroughNodes(action.from);
     }
     if (node != null && node.id == attachNodeName) {
+      HostedDebugLog.Fine(this, "Schedule coupling check on coupling event: from={0}, to={1}",
+                          action.from, action.to);
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
