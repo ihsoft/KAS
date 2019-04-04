@@ -65,28 +65,6 @@ public class KASJointCableBase : AbstractJoint,
   [KSPField]
   [Debug.KASDebugAdjustable("Cable spring damper")]
   public float cableSpringDamper = 1f;
-
-  /// <summary>
-  /// Tells if the stock joint must be kept in case of the parts have coupled at the
-  /// <i>deployed cable length</i> set to zero.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Since the the stock joint is rigid, it's always destroyed by this module. However, in some
-  /// cases the parts coupled at zero distance (docked) need to stay fixed. Set this setting to
-  /// <c>true</c> to allow this behavior. Note, that the <i>deployed cable</i> length can differ
-  /// from the real distance between the objects. If the former is significantly less than the
-  /// latter, then the physical effects can trigger on dock.
-  /// </para>
-  /// <para>The cable joint is created even when the stock joint is present.</para>
-  /// </remarks>
-  /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-  /// <seealso cref="realCableLength"/>
-  /// <seealso cref="deployedCableLength"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  [Debug.KASDebugAdjustable("Dock at zero distance")]
-  public bool allowDockingAtZeroDistance;
   #endregion
 
   #region IJointLockState implemenation
@@ -158,11 +136,10 @@ public class KASJointCableBase : AbstractJoint,
     }
     CreateDistanceJoint(
         linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
-    if (partJoint != null
-        && (!allowDockingAtZeroDistance || deployedCableLength > 0.001f)) {
+    if (partJoint != null && !coupleOnLinkMode) {
       HostedDebugLog.Fine(
-          this, "Dropping the stock joint: to={0}, dockAtZeroDistance={1}, distance={2}",
-          partJoint.Child, allowDockingAtZeroDistance, deployedCableLength);
+          this, "Dropping the stock joint: to={0}, coupleOnLinkMode={1}, distance={2}",
+          partJoint.Child, coupleOnLinkMode, deployedCableLength);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
     }
