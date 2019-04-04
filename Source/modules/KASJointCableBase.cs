@@ -159,7 +159,7 @@ public class KASJointCableBase : AbstractJoint,
     CreateDistanceJoint(
         linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     if (partJoint != null
-        && (!allowDockingAtZeroDistance || deployedCableLength < 0.001f)) {
+        && (!allowDockingAtZeroDistance || deployedCableLength > 0.001f)) {
       HostedDebugLog.Fine(
           this, "Dropping the stock joint: to={0}, dockAtZeroDistance={1}, distance={2}",
           partJoint.Child, allowDockingAtZeroDistance, deployedCableLength);

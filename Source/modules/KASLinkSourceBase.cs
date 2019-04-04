@@ -527,8 +527,11 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
       return false;
     }
-    if (coupleMode != CoupleMode.SetViaGUI) {
-      linkJoint.SetCoupleOnLinkMode(coupleMode == CoupleMode.AlwaysCoupled);
+    if (coupleMode == CoupleMode.AlwaysCoupled
+        || part.parent == target.part || target.part.parent == part) {
+      linkJoint.SetCoupleOnLinkMode(true);
+    } else if (coupleMode == CoupleMode.NeverCouple) {
+      linkJoint.SetCoupleOnLinkMode(false);
     }
     LogicalLink(target);
     PhysicalLink();
