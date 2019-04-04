@@ -2,7 +2,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>A generic target of a KAS link between two parts.</summary>
 /// <remarks>

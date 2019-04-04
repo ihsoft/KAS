@@ -7,7 +7,7 @@ using UnityEngine;
 
 // Name of the namespace denotes the API version. If new version is released the old one remains
 // which let's legacy mods to work properly.
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Various tools to deal with KSP part joints.</summary>
 public interface IJointUtils {

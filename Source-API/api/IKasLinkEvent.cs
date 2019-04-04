@@ -2,7 +2,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>A holder for simple source-to-target event.</summary>
 public interface IKasLinkEvent {

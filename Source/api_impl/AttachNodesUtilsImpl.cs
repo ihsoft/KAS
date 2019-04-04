@@ -11,8 +11,8 @@ using UnityEngine;
 
 namespace KASImpl {
 
-/// <summary>Implements KASAPIv1.IAttachNodesUtils.</summary>
-class AttachNodesUtilsImpl : KASAPIv1.IAttachNodesUtils {
+/// <summary>Implements KASAPIv2.IAttachNodesUtils.</summary>
+class AttachNodesUtilsImpl : KASAPIv2.IAttachNodesUtils {
   /// <inheritdoc/>
   public AttachNode CreateNode(Part part, string nodeName, Transform nodeTransform) {
     ArgumentGuard.NotNull(part, "part");

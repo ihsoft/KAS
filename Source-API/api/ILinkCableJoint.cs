@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>
 /// Interface for a physical cable link. Such links keep the dsitance between the object below the

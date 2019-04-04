@@ -2,7 +2,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Defines currect state of the link.</summary>
 /// <remarks>Each implementation defines own state tranistion model. E.g.

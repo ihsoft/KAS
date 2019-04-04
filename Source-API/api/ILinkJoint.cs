@@ -2,7 +2,7 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Base interface for a KAS joint.</summary>
 /// <remarks>

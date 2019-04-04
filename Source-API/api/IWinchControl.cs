@@ -2,7 +2,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Interface that allows operating the winch parts.</summary>
 public interface IWinchControl : ILinkSource {

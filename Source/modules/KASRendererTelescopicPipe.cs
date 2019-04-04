@@ -3,7 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;

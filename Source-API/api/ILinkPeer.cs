@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Base interface for an end of the link.</summary>
 /// <remarks>

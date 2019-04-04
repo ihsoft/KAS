@@ -2,7 +2,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>A generic interface to deal with the vessels info.</summary>
 public interface ILinkVesselInfo {

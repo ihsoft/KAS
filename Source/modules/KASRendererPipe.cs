@@ -57,8 +57,8 @@ namespace KAS {
 /// <item><c>StdPersistentGroups.PartPersistant</c></item>
 /// </list>
 /// </remarks>
-/// <seealso cref="KASAPIv1.ILinkSource"/>
-/// <seealso cref="KASAPIv1.ILinkRenderer"/>
+/// <seealso cref="KASAPIv2.ILinkSource"/>
+/// <seealso cref="KASAPIv2.ILinkRenderer"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>

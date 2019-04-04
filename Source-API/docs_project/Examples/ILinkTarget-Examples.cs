@@ -2,7 +2,7 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using System;
 using System.Linq;
 using UnityEngine;

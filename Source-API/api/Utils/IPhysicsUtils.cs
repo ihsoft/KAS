@@ -6,7 +6,7 @@
 using UnityEngine;
 
 // Name of the namespace denotes the API version.
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Various tools to deal with the gme's physics.</summary>
 public interface IPhysicsUtils {

@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Interface that notifies listeners about joints breaking.</summary>
 /// <remarks>

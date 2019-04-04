@@ -3,7 +3,7 @@
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.LogUtils;
 using System.Linq;
 

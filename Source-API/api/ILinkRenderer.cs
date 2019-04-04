@@ -5,7 +5,7 @@
 using System;
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>
 /// Interface for a module that takes care of rendering a link and, optionally, manages its

@@ -14,7 +14,7 @@
 // work may be required to migrate.
 
 // Name of the namespace denotes the API version.
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>KAS API, version 1.</summary>
 public static class KASAPI {

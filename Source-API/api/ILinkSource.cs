@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
 /// <remarks>

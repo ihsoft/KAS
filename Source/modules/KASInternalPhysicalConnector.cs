@@ -3,7 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;

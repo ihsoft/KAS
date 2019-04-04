@@ -4,7 +4,7 @@
 
 using System;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Part module interface that defines the events for a link state changes.</summary>
 /// <remarks>
