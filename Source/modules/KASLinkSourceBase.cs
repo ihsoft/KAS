@@ -528,7 +528,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       return false;
     }
     if (coupleMode == CoupleMode.AlwaysCoupled
-        || part.parent == target.part || target.part.parent == part) {
+        || coupleNode != null && coupleNode.attachedPart != null) {
       linkJoint.SetCoupleOnLinkMode(true);
     } else if (coupleMode == CoupleMode.NeverCouple) {
       linkJoint.SetCoupleOnLinkMode(false);
