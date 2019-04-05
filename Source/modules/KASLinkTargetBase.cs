@@ -83,13 +83,13 @@ public class KASLinkTargetBase :
         this, "Target state changed: node={0}, state {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.AcceptingLinks, LinkState.NodeIsBlocked});
+        new[] {LinkState.AcceptingLinks, LinkState.NodeIsBlocked, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
-        new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
+        new[] {LinkState.Available, LinkState.Linked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linked,
         new[] {LinkState.Available});
