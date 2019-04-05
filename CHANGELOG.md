@@ -1,4 +1,5 @@
 # 1.2 (pre-release):
+* [Change] ATTENTION! The lagacy parts are _not_ provided in this verison!!! Read [Wiki](https://github.com/ihsoft/KAS/wiki/Legacy-parts-destiny) for more details.
 * [Enhancement] Add French localziation.
 * [Enhancement] Add Portuguese localziation.
 * [Enhancement #260] Add a setting to control the couple state on link.
