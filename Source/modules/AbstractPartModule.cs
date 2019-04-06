@@ -31,7 +31,7 @@ public abstract class AbstractPartModule : PartModule,
     // KSPDev interfaces
     IsLocalizableModule, IHasDebugAdjustables,
     // KSPDev syntax sugar interfaces.
-    IPartModule {
+    IPartModule, IsDestroyable {
 
   #region IHasDebugAdjustables implementation
   /// <inheritdoc/>
@@ -91,6 +91,12 @@ public abstract class AbstractPartModule : PartModule,
   public override void OnSave(ConfigNode node) {
     base.OnSave(node);
     ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
+  }
+  #endregion
+
+  #region IsDestroyable implementation
+  /// <inheritdoc/>
+  public virtual void OnDestroy() {
   }
   #endregion
 

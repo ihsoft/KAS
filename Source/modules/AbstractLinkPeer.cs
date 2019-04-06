@@ -25,7 +25,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     // KAS interfaces.
     ILinkPeer, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IKSPActivateOnDecouple, IsDestroyable {
+    IKSPActivateOnDecouple {
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
@@ -248,6 +248,13 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    ShutdownStateMachine();
+    GameEvents.onPartCouple.Remove(OnPartCoupleEvent);
+  }
+
+  /// <inheritdoc/>
   public override void OnStartFinished(PartModule.StartState state) {
     base.OnStartFinished(state);
     // Prevent the third-party logic on the auto node. See OnLoad.
@@ -313,14 +320,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       parsedAttachNode.owner = part;
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
-  }
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    ShutdownStateMachine();
-    GameEvents.onPartCouple.Remove(OnPartCoupleEvent);
   }
   #endregion
 

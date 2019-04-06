@@ -297,22 +297,21 @@ public class KASRendererPipe : AbstractPipeRenderer,
   protected ModelPipeEndNode targetJointNode { get; private set; }
   #endregion
 
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    if (isStarted) {
-      // Bring back the target meshes to have them destroyed with the part.
-      targetJointNode.AlignToTransform(null);
-    }
-  }
-  #endregion
-
   #region AbstractPipeRenderer abstract methods
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
     sourceJointNode = new ModelPipeEndNode(SourceNodeName, sourceJointConfig);
     targetJointNode = new ModelPipeEndNode(TargetNodeName, targetJointConfig);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDestroy() {
+    base.OnDestroy();
+    if (isStarted) {
+      // Bring back the target meshes to have them destroyed with the part.
+      targetJointNode.AlignToTransform(null);
+    }
   }
 
   /// <inheritdoc/>

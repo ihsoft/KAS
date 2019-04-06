@@ -39,7 +39,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     // KAS interfaces.
     ILinkJoint,
     // KSPDev syntax sugar interfaces.
-    IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -463,11 +463,10 @@ public abstract class AbstractJoint : AbstractPartModule,
     base.OnAwake();
     GameEvents.onVesselRename.Add(OnVesselRename);
   }
-  #endregion
 
-  #region IsDestroyable implementation
   /// <inheritdoc/>
-  public virtual void OnDestroy() {
+  public override void OnDestroy() {
+    base.OnDestroy();
     GameEvents.onVesselRename.Remove(OnVesselRename);
   }
   #endregion
