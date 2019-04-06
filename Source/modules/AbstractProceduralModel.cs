@@ -17,26 +17,12 @@ namespace KAS {
 
 /// <summary>Base class for the parts that dynamically create their model on the game load.</summary>
 /// <remarks>
-/// <para>
 /// This class offers a common functionality for creating meshes in the part's model and loading
 /// them when needed.
-/// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-public abstract class AbstractProceduralModel : PartModule,
-    // KSPDev parents.
-    IsLocalizableModule,
-    // KSPDev syntax sugar interfaces.
-    IPartModule {
+public abstract class AbstractProceduralModel : AbstractPartModule {
 
+  #region Public constant strings
   /// <summary>Standard KSP part shader name.</summary>
   public const string KspPartShaderName = "KSP/Bumped Specular";
 
@@ -52,6 +38,7 @@ public abstract class AbstractProceduralModel : PartModule,
 
   /// <summary>Name of the material shininess in the renderer.</summary>
   public const string ShininessProp = "_Shininess";
+  #endregion
 
   #region Inhertable utility methods
   /// <summary>Returns a cached part's model root transform.</summary>
@@ -133,54 +120,6 @@ public abstract class AbstractProceduralModel : PartModule,
   /// <summary>The shader to sue if no suitable shaders were found.</summary>
   /// <see cref="GetShader"/>
   const string FallbackShaderName = "Standard";
-  #endregion
-
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
-  }
-  #endregion
-
-  #region PartModule overrides
-  /// <inheritdoc/>
-  public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
-    base.OnAwake();
-    LocalizeModule();
-  }
-
-  /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
-    if (HighLogic.LoadedSceneIsEditor) {
-      LoadPartModel();  // Editor doesn't call load OnLoad()
-    }
-    base.OnStart(state);
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
-    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-    base.OnLoad(node);
-    LoadPartModel();
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-  }
-  #endregion
-
-  #region Abstract methods
-  /// <summary>Loads part's model.</summary>
-  /// <remarks>
-  /// Called when the part's models need to be created/updated. This method must be
-  /// idempotent. I.e. multiple calls to it should not create extra meshes or objects.
-  /// </remarks>
-  /// <seealso cref="partModelTransform"/>
-  protected abstract void LoadPartModel();
   #endregion
 
   #region Inherited methods

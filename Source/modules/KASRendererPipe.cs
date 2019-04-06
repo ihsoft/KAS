@@ -316,7 +316,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
 
   /// <inheritdoc/>
-  protected override void LoadPartModel() {
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
     UpdateJointNode(sourceJointNode, sourceTransform);
     UpdateJointNode(targetJointNode, targetTransform);
   }

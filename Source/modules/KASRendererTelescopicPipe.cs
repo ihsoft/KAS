@@ -439,11 +439,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public void OnBeforeDebugAdjustablesUpdate() {
-  }
-
-  /// <inheritdoc/>
-  public void OnDebugAdjustablesUpdated() {
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
     CreatePipeMeshes(recreate: true);
   }
   #endregion
@@ -479,7 +476,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  protected override void LoadPartModel() {
+  protected override void InitModuleSettings() {
     CreatePipeMeshes(recreate: false);
 
     // Source pivot.

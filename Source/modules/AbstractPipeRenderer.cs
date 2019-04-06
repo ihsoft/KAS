@@ -17,23 +17,10 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>Base class for the renderers that represent the links as a "pipe".</summary>
-/// <remarks>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
-/// </remarks>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_07002.
 public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
-    ILinkRenderer,
-    // KSPDev interfaces
-    IHasDebugAdjustables {
+    ILinkRenderer {
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
@@ -222,7 +209,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected Part targetPart { get; private set; }
   #endregion
 
-  #region IHasDebugAdjustables implementation
+  #region IHasDebugAdjustables overrides
   Transform dbgOldSource;
   Transform dbgOldTarget;
 
@@ -238,16 +225,17 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public virtual void OnBeforeDebugAdjustablesUpdate() {
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
     dbgOldSource = sourceTransform;
     dbgOldTarget = targetTransform;
     StopRenderer();
   }
 
   /// <inheritdoc/>
-  public virtual void OnDebugAdjustablesUpdated() {
+  public override void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
-    LoadPartModel();
+    base.OnDebugAdjustablesUpdated();
     if (dbgOldSource != null && dbgOldTarget != null) {
       HostedDebugLog.Warning(
           this, "Restart renderer: src={0}, tgt={1}", dbgOldSource, dbgOldTarget);
