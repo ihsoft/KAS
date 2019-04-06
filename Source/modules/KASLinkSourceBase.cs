@@ -22,22 +22,6 @@ namespace KAS {
 /// <remarks>
 /// This module deals with main logic of linking two parts together. The other party of the
 /// link must be aware of the linking porcess. The targets must implement <see cref="ILinkTarget"/>.
-/// <para>
-/// External callers must access methods and properties declared in base classes or interfaces
-/// only. Members and methods that are not part of these declarations are not intended for the
-/// public use <b>regardless</b> to their visibility level.
-/// </para>
-/// <para>
-/// Decendand classes may use any members and methods but good practice is restricting the usage to
-/// the interfaces and virtuals only.
-/// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
 /// <seealso href="https://kerbalspaceprogram.com/api/interface_i_module_info.html">KSP: IModuleInfo
 /// </seealso>
@@ -47,7 +31,6 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_02008.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
@@ -55,9 +38,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
     // KAS interfaces.
-    ILinkSource, IHasDebugAdjustables,
+    ILinkSource,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
+    IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -747,7 +730,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
     linkRenderer = linkRenderer ?? oldLinkRenderer;
-    CheckSettingsConsistency();
   }
   #endregion
 }

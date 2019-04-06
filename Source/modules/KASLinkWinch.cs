@@ -45,7 +45,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPhysicalObject {
+    IsPhysicalObject {
 
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -404,8 +404,11 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <inheritdoc/>
   protected override void InitModuleSettings() {
     base.InitModuleSettings();
+    Destroy(sndMotor);
     sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    Destroy(sndMotorStart);
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    Destroy(sndMotorStop);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
   }
 

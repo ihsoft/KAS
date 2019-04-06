@@ -4,9 +4,6 @@
 // License: Public Domain
 
 using KASAPIv2;
-using KSPDev.ConfigUtils;
-using KSPDev.DebugUtils;
-using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
@@ -18,30 +15,17 @@ namespace KAS {
 
 /// <summary>Base class that handles the basic functionality of the link's end.</summary>
 /// <remarks>
-/// <para>
 /// This module doesn't define how the link is created, but it does the heavy lifting to keep it,
 /// once it's established. The descendants are resposible for determining what peers can link with
 /// each other.
-/// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-public abstract class AbstractLinkPeer : PartModule,
+public abstract class AbstractLinkPeer : AbstractPartModule,
     // KSP interfaces.
     IActivateOnDecouple,
     // KAS interfaces.
-    ILinkPeer, ILinkStateEventListener, IHasDebugAdjustables,
-    // KSPDev interfaces
-    IsLocalizableModule,
+    ILinkPeer, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IKSPActivateOnDecouple, IsDestroyable {
+    IKSPActivateOnDecouple, IsDestroyable {
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
@@ -244,22 +228,6 @@ public abstract class AbstractLinkPeer : PartModule,
   protected bool isAutoAttachNode { get; private set; }
   #endregion
 
-  #region IHasDebugAdjustables implementation
-  /// <inheritdoc/>
-  public virtual void OnBeforeDebugAdjustablesUpdate() {
-  }
-
-  /// <inheritdoc/>
-  public virtual void OnDebugAdjustablesUpdated() {
-    InitModuleSettings();
-  }
-  #endregion
-
-  #region Local fields
-  /// <summary>Tells if <see cref="InitModuleSettings"/> was called on the part.</summary>
-  bool moduleSettingsLoaded;
-  #endregion
-
   #region IActivateOnDecouple implementation
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
@@ -270,52 +238,13 @@ public abstract class AbstractLinkPeer : PartModule,
   }
   #endregion
 
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
-  }
-  #endregion
-
-  #region PartModule overrides
+  #region AbstractPartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
-
-    LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
     GameEvents.onPartCouple.Add(OnPartCoupleEvent);
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
-    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-    base.OnLoad(node);
-    if (!moduleSettingsLoaded) {
-      moduleSettingsLoaded = true;
-      InitModuleSettings();
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnStart(StartState state) {
-    base.OnStart(state);
-    if (!moduleSettingsLoaded) {
-      moduleSettingsLoaded = true;
-      if (!HighLogic.LoadedSceneIsEditor) {
-        HostedDebugLog.Warning(this, "Late load of module settings. Save file incosistency?");
-      }
-      InitModuleSettings();
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
   }
 
   /// <inheritdoc/>
@@ -353,6 +282,37 @@ public abstract class AbstractLinkPeer : PartModule,
       }
     }
     SetLinkState(persistedLinkState);
+  }
+
+  /// <inheritdoc/>
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
+    CheckSettingsConsistency();
+    if (isAutoAttachNode && parsedAttachNode != null) {
+      KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
+    }
+    parsedAttachNode = part.FindAttachNode(attachNodeName);
+    isAutoAttachNode = parsedAttachNode == null;
+    if (isAutoAttachNode) {
+      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
+          part, attachNodeDef, attachNodeName);
+      if (parsedAttachNode != null) {
+        HostedDebugLog.Fine(
+            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
+        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+          // Only pre-add the node in the scenes that assume restoring a vessel state.
+          // We'll drop it in the OnStartFinished if not used.
+          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
+        }
+      } else {
+        HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
+      }
+    }
+    if (parsedAttachNode != null) {
+      // HACK: Handle a KIS issue which causes the nodes to be owned by the prefab part.
+      parsedAttachNode.owner = part;
+      nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
+    }
   }
   #endregion
 
@@ -438,90 +398,6 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <seealso cref="otherPeer"/>
   protected virtual void RestoreOtherPeer() {
     SetOtherPeer(KASAPI.LinkUtils.FindLinkPeer(this));
-  }
-
-  /// <summary>Verifies that all part's settings are consistent.</summary>
-  /// <remarks>
-  /// If there are contradicting settings detected, they must be fixed so that the part could behave
-  /// consistently. A warning must be logged to point out what was fixed and to what value.
-  /// <para>
-  /// Implementations may call this method multiple times at different stages. At the very least it
-  /// get called on the module load, but this must <i>not</i> be assumed the only use-case.
-  /// </para>
-  /// </remarks>
-  /// <seealso cref="InitModuleSettings"/>
-  protected virtual void CheckSettingsConsistency() {
-  }
-
-  /// <summary>Shows a UI messages with regard to the currently active vessel.</summary>
-  /// <remarks>
-  /// The UI messages from the active vessel are shown at the highest priority to bring attention
-  /// of the player. The messages from the inactive vessels are shown only as a status, that is not
-  /// intended to distract the player from the current vessel operations.
-  /// </remarks>
-  /// <param name="msg">The message to show.</param>
-  /// <param name="isError">
-  /// Tells if the messages is an error condition report. Such messages will be highlighed with the
-  /// color.
-  /// </param>
-  protected void ShowStatusMessage(string msg, bool isError = false) {
-    if (FlightGlobals.ActiveVessel != vessel) {
-      msg = string.Format("[{0}]: {1}", vessel.vesselName, msg);
-    }
-    if (isError) {
-      msg = ScreenMessaging.SetColorToRichText(msg, ScreenMessaging.ErrorColor);
-    }
-    var duration = isError
-        ? ScreenMessaging.DefaultErrorTimeout
-        : ScreenMessaging.DefaultMessageTimeout;
-    var location = FlightGlobals.ActiveVessel == vessel
-        ? ScreenMessageStyle.UPPER_CENTER
-        : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
-    ScreenMessages.PostScreenMessage(msg, duration, location);
-  }
-
-  /// <summary>Initializes the module state according to the settings.</summary>
-  /// <remarks>
-  /// This method is normally called from <c>OnLoad</c> method, when all the part components are
-  /// created, but some of them may be not initialized yet. Under some circumstances it can be
-  /// called from the <c>OnStart</c> method (e.g. in the editor or when loading an inconsistent save
-  /// file).
-  /// <para>
-  /// This method is a good place for the module to become aware of the other part modules, but it's
-  /// not the right place to deal with the other module settings.
-  /// </para>
-  /// <para>
-  /// This method can be called multiple times in the part's life time, so keep this method
-  /// ideponent. Repetative calls to this method should not break the part's logic.
-  /// </para>
-  /// </remarks>
-  protected virtual void InitModuleSettings() {
-    CheckSettingsConsistency();
-    if (isAutoAttachNode && parsedAttachNode != null) {
-      KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
-    }
-    parsedAttachNode = part.FindAttachNode(attachNodeName);
-    isAutoAttachNode = parsedAttachNode == null;
-    if (isAutoAttachNode) {
-      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
-          part, attachNodeDef, attachNodeName);
-      if (parsedAttachNode != null) {
-        HostedDebugLog.Fine(
-            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
-        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
-          // Only pre-add the node in the scenes that assume restoring a vessel state.
-          // We'll drop it in the OnStartFinished if not used.
-          KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
-        }
-      } else {
-        HostedDebugLog.Error(this, "Cannot create auto node from: {0}", attachNodeDef);
-      }
-    }
-    if (parsedAttachNode != null) {
-      // HACK: Handle a KIS issue which causes the nodes to be owned by the prefab part.
-      parsedAttachNode.owner = part;
-      nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
-    }
   }
 
   /// <summary>Sets the link state.</summary>

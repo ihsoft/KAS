@@ -32,7 +32,7 @@ public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
     // KAS interfaces.
-    ILinkTarget, IHasDebugAdjustables,
+    ILinkTarget,
     // Syntax sugar parents.
     IsPartDeathListener, IKSPDevModuleInfo {
 
