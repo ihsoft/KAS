@@ -27,7 +27,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
     // KAS interfaces.
     IKasJointEventsListener,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsDestroyable, IKSPDevJointLockState {
+    IsDestroyable, IKSPDevJointLockState {
 
   #region Part's config fields
   /// <summary>Spring force of the prismatic joint that limits the distance.</summary>

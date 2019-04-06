@@ -5,7 +5,6 @@
 
 using KASAPIv2;
 using KSPDev.ConfigUtils;
-using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
@@ -30,28 +29,17 @@ namespace KAS {
 /// which establishes the PhysX joints. In the unusual cases an overriding of
 /// <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
 /// <seealso cref="SetupPhysXJoints"/>
 /// <seealso cref="CleanupPhysXJoints"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_00011.
-public abstract class AbstractJoint : PartModule,
+public abstract class AbstractJoint : AbstractPartModule,
     // KSP interfaces.
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
     ILinkJoint,
-    // KSPDev parents.
-    IsLocalizableModule, IHasDebugAdjustables,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -387,13 +375,15 @@ public abstract class AbstractJoint : PartModule,
   ILinkTarget dbgLinkTarget;
   
   /// <inheritdoc/>
-  public virtual void OnBeforeDebugAdjustablesUpdate() {
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
     dbgLinkSource = linkSource;
     dbgLinkTarget = linkTarget;
   }
   
   /// <inheritdoc/>
-  public virtual void OnDebugAdjustablesUpdated() {
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
     if (isLinked) {
       var checks = CheckConstraints(linkSource, linkTarget);
       if (checks.Length == 0) {
@@ -467,26 +457,11 @@ public abstract class AbstractJoint : PartModule,
   }
   #endregion
 
-  #region PartModule overrides
+  #region AbstractPartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
     GameEvents.onVesselRename.Add(OnVesselRename);
-    LocalizeModule();
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
-    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-    base.OnLoad(node);
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
   }
   #endregion
 
@@ -599,13 +574,6 @@ public abstract class AbstractJoint : PartModule,
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
     return true;
-  }
-  #endregion
-
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
@@ -993,12 +961,12 @@ public abstract class AbstractJoint : PartModule,
 
   /// <summary>
   /// Goes thru the parts on the source and target vessels, and tries to restore the coupling
-  /// between the parts.
+  /// between the vessels.
   /// </summary>
   /// <remarks>
   /// Any linking module on the source or the target vessel, which is linked and in the docking
-  /// mode, will be attempted to use to restore the vessels coupling. This work will be done at the
-  /// end of frame to let the other logic to cleanup.
+  /// mode, will be attempted to restore the vessels coupling. This work will be done at the end of
+  /// frame to let the other logic to cleanup.
   /// </remarks>
   /// <param name="tgtPart">
   /// The former target part that was holding the coupling with this part.
