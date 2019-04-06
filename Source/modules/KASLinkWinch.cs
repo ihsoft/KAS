@@ -375,20 +375,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   #region KASLikSourcePhysical overrides
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-
-    if (resHandler.inputResources.Count == 0) {
-      var moduleResource = new ModuleResource();
-      moduleResource.name = StockResourceNames.ElectricCharge;
-      moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
-      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
-      moduleResource.rate = (double) motorPowerDrain;
-      resHandler.inputResources.Add(moduleResource);
-    }
-  }
-
-  /// <inheritdoc/>
   public override string GetModuleTitle() {
     return ModuleTitleInfo;
   }
@@ -410,6 +396,17 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
     Destroy(sndMotorStop);
     sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+
+    var moduleResource = resHandler.inputResources
+        .FirstOrDefault(x => x.name == StockResourceNames.ElectricCharge);
+    if (moduleResource == null) {
+      moduleResource = new ModuleResource();
+      moduleResource.name = StockResourceNames.ElectricCharge;
+      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
+      resHandler.inputResources.Add(moduleResource);
+    }
+    moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
+    moduleResource.rate = (double) motorPowerDrain;
   }
 
   /// <inheritdoc/>
