@@ -99,6 +99,7 @@
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />
+    <Compile Include="modules\AbstractPartModule.cs" />
     <Compile Include="modules\KASInternalPhysicalConnector.cs" />
     <Compile Include="modules\KASJointCableBase.cs" />
     <Compile Include="modules\KASJointRigid.cs" />
