@@ -312,7 +312,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <inheritdoc/>
   protected override void InitModuleSettings() {
     base.InitModuleSettings();
-    CheckSettingsConsistency();
     if (isAutoAttachNode && parsedAttachNode != null) {
       KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
     }
