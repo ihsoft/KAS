@@ -100,6 +100,9 @@ public class KASJointCableBase : AbstractJoint,
       return 0;
     }
   }
+
+  /// <inheritdoc/>
+  public bool isLockedWhenCoupled { get; private set; }
   #endregion
 
   #region Inheritable properties
@@ -134,14 +137,29 @@ public class KASJointCableBase : AbstractJoint,
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistanceJoint(
-        linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
-    if (partJoint != null && !coupleOnLinkMode) {
+    var needStockJoint = isCoupled && isLockedWhenCoupled;
+    if (needStockJoint && partJoint == null) {
+      if (linkTarget.part.parent == linkSource.part) {
+        HostedDebugLog.Fine(this, "Create a stock joint: from={0}, to={1}", linkTarget, linkSource);
+        linkTarget.part.CreateAttachJoint(AttachModes.STACK);
+      } else if (linkSource.part.parent == linkTarget.part) {
+        HostedDebugLog.Fine(this, "Create a stock joint: from={0}, to={1}", linkSource, linkTarget);
+        linkSource.part.CreateAttachJoint(AttachModes.STACK);
+      } else {
+        HostedDebugLog.Error(
+            this, "Cannot create stock joint: {0} <=> {1}", linkSource, linkTarget);
+        needStockJoint = false;
+      }
+    } else if (!needStockJoint && partJoint != null) {
       HostedDebugLog.Fine(
-          this, "Dropping the stock joint: to={0}, coupleOnLinkMode={1}, distance={2}",
-          partJoint.Child, coupleOnLinkMode, deployedCableLength);
+          this, "Drop stock joint: to={0}, isLockedWhenDocked={1}, isCoupled={2}",
+          partJoint.Child, isLockedWhenCoupled, isCoupled);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
+    }
+    if (!needStockJoint) {
+      CreateDistanceJoint(
+          linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     }
   }
 
@@ -194,6 +212,21 @@ public class KASJointCableBase : AbstractJoint,
     ArgumentGuard.InRange(length, "length", 0, cfgMaxCableLength, context: this);
     SetOrigianlLength(length);
     cableJoint.linearLimit = new SoftJointLimit() { limit = length };
+  }
+
+  /// <inheritdoc/>
+  public void SetLockedOnCouple(bool mode) {
+    if (isLinked) {
+      if (isLockedWhenCoupled != mode) {
+        isLockedWhenCoupled = mode;
+        HostedDebugLog.Fine(this, "Change locked on coupled part: {0}", isLockedWhenCoupled);
+        CleanupPhysXJoints();
+        SetupPhysXJoints();
+      }
+    } else {
+      isLockedWhenCoupled = mode;
+      HostedDebugLog.Fine(this, "Set locked on couple mode in a non-linked module: {0}", mode);
+    }
   }
   #endregion
 

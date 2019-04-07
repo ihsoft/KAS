@@ -561,6 +561,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         ConnectorState.Docked,
         enterHandler: oldState => {
           SaveConnectorModelPosAndRot();
+          cableJoint.SetLockedOnCouple(true);
 
           // Align the docking part to the nodes if it's a separate vessel.
           if (oldState.HasValue && linkTarget.part.vessel != vessel) {
@@ -570,6 +571,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           }
         },
         leaveHandler: newState => {
+          cableJoint.SetLockedOnCouple(false);
           SaveConnectorModelPosAndRot(saveNonPhysical: newState == ConnectorState.Deployed);
           linkJoint.SetCoupleOnLinkMode(false);
         },
