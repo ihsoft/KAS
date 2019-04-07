@@ -255,6 +255,24 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    
+    // Adjust state of a newly added module.
+    if (persistedLinkState == LinkState.Available) {
+      var linkedModule = part.Modules.OfType<ILinkPeer>()
+          .FirstOrDefault(x =>
+              x.isLinked && (x.cfgAttachNodeName == attachNodeName
+                             || cfgDependentNodeNames.Contains(x.cfgAttachNodeName)));
+      if (linkedModule != null) {
+        persistedLinkState = LinkState.Locked;
+        HostedDebugLog.Warning(this, "Lock new module due to state of: {0} => {1}",
+                               linkedModule, linkedModule.linkState);
+      }
+    }
+  }
+
+  /// <inheritdoc/>
   public override void OnStartFinished(PartModule.StartState state) {
     base.OnStartFinished(state);
     // Prevent the third-party logic on the auto node. See OnLoad.
