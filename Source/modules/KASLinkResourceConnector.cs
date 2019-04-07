@@ -458,17 +458,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselWasModified.Add(OnVesselUpdated);
-    GameEvents.onVesselDestroy.Add(OnVesselUpdated);
-    GameEvents.onVesselCreate.Add(OnVesselUpdated);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselWasModified.Remove(OnVesselUpdated);
-    GameEvents.onVesselDestroy.Remove(OnVesselUpdated);
-    GameEvents.onVesselCreate.Remove(OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselWasModified, OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselDestroy, OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselCreate, OnVesselUpdated);
   }
 
   /// <inheritdoc/>

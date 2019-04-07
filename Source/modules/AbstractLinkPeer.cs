@@ -244,14 +244,13 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     base.OnAwake();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
-    GameEvents.onPartCouple.Add(OnPartCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
   }
 
   /// <inheritdoc/>
   public override void OnDestroy() {
     base.OnDestroy();
     ShutdownStateMachine();
-    GameEvents.onPartCouple.Remove(OnPartCoupleEvent);
   }
 
   /// <inheritdoc/>

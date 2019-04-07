@@ -199,17 +199,10 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     pickupConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
     if (HighLogic.LoadedSceneIsFlight) {
-      GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
-      GameEvents.onPartActionUIDismiss.Add(OnPartGUIStop);
+      RegisterGameEventListener(GameEvents.onPartActionUICreate, OnPartGUIStart);
+      RegisterGameEventListener(GameEvents.onPartActionUIDismiss, OnPartGUIStop);
     }
     UpdateContextMenu();
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
-    GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
   }
 
   /// <inheritdoc/>

@@ -70,13 +70,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onProtoPartSnapshotSave.Add(OnProtoPartSnapshotSave);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onProtoPartSnapshotSave.Remove(OnProtoPartSnapshotSave);
+    RegisterGameEventListener(GameEvents.onProtoPartSnapshotSave, OnProtoPartSnapshotSave);
   }
 
   /// <inheritdoc/>

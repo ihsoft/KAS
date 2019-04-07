@@ -461,13 +461,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselRename.Add(OnVesselRename);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselRename.Remove(OnVesselRename);
+    RegisterGameEventListener(GameEvents.onVesselRename, OnVesselRename);
   }
   #endregion
 

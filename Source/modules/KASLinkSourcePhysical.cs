@@ -426,13 +426,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     GrabConnectorEventInject.guiActiveUncommand = true;
     GrabConnectorEventInject.guiActiveUnfocused = true;
 
-    GameEvents.onVesselChange.Add(OnVesselChange);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselChange.Remove(OnVesselChange);
+    RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
 
   /// <inheritdoc/>

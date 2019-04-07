@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using System;
+using System.Collections.Generic;
 
 namespace KAS {
 
@@ -47,6 +48,10 @@ public abstract class AbstractPartModule : PartModule,
   #region Local fields
   /// <summary>Tells if <see cref="InitModuleSettings"/> was called on the part.</summary>
   bool moduleSettingsLoaded;
+
+  /// <summary>List of events to call to cleanup registered game event listeners.</summary>
+  /// <remarks>They are called from the destroy method.</remarks>
+  readonly List<Action> unregisterListenerActions = new List<Action>();
   #endregion
 
   #region IsLocalizableModule implementation
@@ -97,6 +102,7 @@ public abstract class AbstractPartModule : PartModule,
   #region IsDestroyable implementation
   /// <inheritdoc/>
   public virtual void OnDestroy() {
+    unregisterListenerActions.ForEach(x => x.Invoke());
   }
   #endregion
 
@@ -158,6 +164,15 @@ public abstract class AbstractPartModule : PartModule,
   /// </remarks>
   protected virtual void InitModuleSettings() {
     CheckSettingsConsistency();
+  }
+
+  /// <summary>Registers a game event listenr and cleans it up on module destruction.</summary>
+  /// <param name="eventData">The game event to register for.</param>
+  /// <param name="listener">The event listener.</param>
+  protected void RegisterGameEventListener<T>(
+      EventData<T> eventData, EventData<T>.OnEvent listener) {
+    eventData.Add(listener);
+    unregisterListenerActions.Add(() => eventData.Remove(listener));
   }
   #endregion
 }

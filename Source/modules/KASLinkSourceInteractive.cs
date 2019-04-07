@@ -140,13 +140,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselChange.Add(OnVesselChange);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselChange.Remove(OnVesselChange);
+    RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
 
   /// <inheritdoc/>
