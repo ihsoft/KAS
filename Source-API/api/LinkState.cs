@@ -17,7 +17,7 @@ public enum LinkState {
   Available,
   /// <summary>
   /// Module is unavailable for the link because of another module on the same node has already
-  /// established one.
+  /// established a link.
   /// </summary>
   Locked,
   /// <summary>

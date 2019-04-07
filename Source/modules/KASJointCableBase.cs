@@ -244,11 +244,11 @@ public class KASJointCableBase : AbstractJoint,
     cableJoint = joint;
   }
 
-  /// <summary>Fixes inconsistend values inherited from v1.1.</summary>
+  /// <summary>Fixes inconsistent values inherited from v1.1.</summary>
   /// <remarks>
   /// Ensures that the unlinked joints have the persistent length set to -1 (use actual distance on
-  /// link). The former implementation didn't follow the API method contract, and saved cable length
-  /// even though the link was not established.
+  /// link). The former implementation didn't follow the API method contract, and was saving the
+  /// cable length even though the link was not established.
   /// </remarks>
   IEnumerator FixLegacyV_1_1() {
     // FIXME: Drop this method after 06/01/2019.
