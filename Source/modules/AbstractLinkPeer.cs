@@ -460,7 +460,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
         ? info.source as ILinkPeer
         : info.target as ILinkPeer;
     if (!ReferenceEquals(peer, this)
-        && peer.cfgLinkType == cfgLinkType 
         && (peer.cfgAttachNodeName == attachNodeName
             || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
       SetIsLocked(isLinked);
