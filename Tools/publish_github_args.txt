@@ -4,4 +4,4 @@
 --changelog=../CHANGELOG.md
 --as_draft
 --title=KAS v{tag}
---archive=../KAS_v1.1.zip
+--archive=../KAS_v1.2.zip
