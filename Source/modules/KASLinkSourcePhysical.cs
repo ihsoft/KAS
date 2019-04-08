@@ -29,16 +29,13 @@ namespace KAS {
 /// to the unmanned vessels, but they must be fully controllable.
 /// </para>
 /// <para>
+/// This module doesn't tolerate an incompatible target at its connector node. If there is one
+/// detected, it gets automatically disconnected.
+/// </para>
+/// <para>
 /// For the proper work, the renderer must provide mesh
 /// <see cref="KASRendererPipe.TargetNodeMesh"/>.
 /// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
