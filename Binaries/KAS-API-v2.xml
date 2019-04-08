@@ -444,6 +444,16 @@
             <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
             <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength"/>
         </member>
+        <member name="M:KASAPIv2.ILinkCableJoint.SetLockedOnCouple(System.Boolean)">
+            <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
+            <remarks>
+            If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
+            affect the joint. If the part were coupled at the momemnt, then the joint is recreated
+            according to the new setting.
+            </remarks>
+            <param name="mode">The new mode.</param>
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.isLockedWhenCoupled"/>
+        </member>
         <member name="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength">
             <summary>Maximum allowed distance between the parts to establish a link.</summary>
             <value>Distance in meters. It's constant and doesn't depend on the joint state.</value>
@@ -484,6 +494,17 @@
             The distance in meters. Always positive, if the PhysX joint is created. Zero, otherwise.
             </value>
             <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
+        </member>
+        <member name="P:KASAPIv2.ILinkCableJoint.isLockedWhenCoupled">
+            <summary>Tells if the joint turns rigid when the parts are coupled.</summary>
+            <remarks>
+            This mode only has effect when the parts are coupled. Basically, when the locked mode is
+            <c>true</c>, the stock joint between the parts is preserved. When the mode is <c>false</c>,
+            the stiock joint is destroyed and repalced by a PhysX distant joint.
+            </remarks>
+            <value><c>true</c> if the joint is rigid.</value>
+            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
+            <seealso cref="M:KASAPIv2.ILinkCableJoint.SetLockedOnCouple(System.Boolean)"/>
         </member>
         <member name="T:KASAPIv2.ILinkRenderer">
             <summary>
@@ -1149,7 +1170,8 @@
         </member>
         <member name="F:KASAPIv2.LinkState.Locked">
             <summary>
-            Module is unavailable for the link because of another module on the part has established one. 
+            Module is unavailable for the link because of another module on the same node has already
+            established a link.
             </summary>
         </member>
         <member name="F:KASAPIv2.LinkState.Linking">
