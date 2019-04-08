@@ -338,19 +338,28 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       }
       return;
     }
-    if (linkState == LinkState.Available && parsedAttachNode.attachedPart != null) {
-      var target = parsedAttachNode.attachedPart.Modules
+    if (linkState == LinkState.Available && coupleNode != null && coupleNode.attachedPart != null) {
+      var target = coupleNode.attachedPart.Modules
           .OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t, reportToLog: false));
+          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available
+                               && t.coupleNode != null && t.coupleNode.attachedPart == part
+                               && CheckCanLinkTo(t, reportToLog: true));
       if (target != null) {
         HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
         LinkToTarget(LinkActorType.API, target);
       }
       if (!isLinked) {
-        HostedDebugLog.Warning(this, "Cannot link to the preattached part via {0}",
-                               KASAPI.AttachNodesUtils.NodeId(parsedAttachNode.FindOpposingNode()));
-        SetLinkState(LinkState.NodeIsBlocked);
+        // Let the other part a chance to couple, and block if it didn't succeed.
+        HostedDebugLog.Fine(this, "Cannot link, wait for the other part: target={0}",
+                            coupleNode.attachedPart);
+        AsyncCall.CallOnEndOfFrame(this, () => {
+          if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
+            HostedDebugLog.Warning(this, "Cannot link to the preattached part: from={0}, to={1}",
+                                   KASAPI.AttachNodesUtils.NodeId(coupleNode),
+                                   KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
+            SetLinkState(LinkState.NodeIsBlocked);
+          }
+        });
       }
     } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
       SetLinkState(LinkState.Available);

@@ -672,6 +672,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     });
     if (GrabConnectorEventInject != null) {
       GrabConnectorEventInject.active = linkTarget != null
+          && connectorState == ConnectorState.Plugged
           && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
     }
   }
