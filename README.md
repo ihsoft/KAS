@@ -35,6 +35,8 @@ Almost any type allows remotely docking the vessels. Once docked, the vessels be
 
 ![Français](https://github.com/ihsoft/KAS/raw/master/WikiImages/French-small-flag.png) Français
 
+![Español](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Spanish-small-flag.png) Español
+
 # Support
 
 You can support this and the other of my mods on [Patreon](https://www.patreon.com/ihsoft). This is where I post my ideas, prototypes and the features development progress.
@@ -44,8 +46,8 @@ You can support this and the other of my mods on [Patreon](https://www.patreon.c
 If you want doing EVA comfortably, you really should consider adding these mods as well:
 
 * [Kerbal Inventory System (KIS)](https://forum.kerbalspaceprogram.com/index.php?/topic/149848-14-kerbal-inventory-system-kis-v114/). Now you can build and upgrade vessels in EVA!
-* [Easy Vessel Switch (EVS)](https://forum.kerbalspaceprogram.com/index.php?/topic/141180-15-easy-vessel-switch-evs-v19/). No more guessing how to switch to "that vessel" - simply point and click!
-* [Surface Mounted Lights](https://forum.kerbalspaceprogram.com/index.php?/topic/139724-15-surface-mounted-lights-v19/). Too dark for EVA on the other side of the moon? Problem solved with these ambient lights!
+* [Easy Vessel Switch (EVS)](https://github.com/ihsoft/EasyVesselSwitch). No more guessing how to switch to "that vessel" - simply point and click!
+* [Surface Mounted Lights](https://github.com/ihsoft/SurfaceLights). Too dark for EVA on the other side of the moon? Problem solved with these ambient lights!
 
 # How to install
 
@@ -72,7 +74,7 @@ Ask questions and propose suggestions on
 
 # Development
 
-To start your local building envirtonment read [BUILD.md](https://github.com/ihsoft/KAS/blob/master/BUILD.md).
+To start your local building environment read [BUILD.md](https://github.com/ihsoft/KAS/blob/master/BUILD.md).
 
 If you're going to make a pull request, please, read [the code rules](https://github.com/ihsoft/KAS/blob/master/Source/README.md) first.
 Changes that don't follow the rules will be **rejected**.
