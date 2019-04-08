@@ -155,6 +155,14 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - link broke")]
   public string sndPathBroke = "";
+
+  /// <summary>
+  /// Tells if an incompatible target at the connector's node should be immediately decoupled.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Decouple incompatible targets")]
+  public bool decoupleIncompatibleTargets;
   #endregion
 
   #region Persistent fields
@@ -505,6 +513,20 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
           PartModuleUtils.DropEvent(module, GrabConnectorEventInject);
         });
+    linkStateMachine.AddStateHandlers(
+        LinkState.NodeIsBlocked,
+        enterHandler: oldState => {
+          if (decoupleIncompatibleTargets
+              && coupleNode != null && coupleNode.attachedPart != null) {
+            HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
+                                   coupleNode.FindOpposingNode().attachedPart);
+            UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
+            ShowStatusMessage(
+                CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
+            KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+          }
+        },
+        callOnShutdown: false);
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
     // state handlers reset the state back to the default.
@@ -631,20 +653,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   protected override void PhysicalUnlink() {
     SetCableLength(cableJoint.realCableLength);
     base.PhysicalUnlink();
-  }
-
-  /// <inheritdoc/>
-  protected override void CheckCoupleNode() {
-    base.CheckCoupleNode();
-    if (linkState == LinkState.NodeIsBlocked
-        && coupleNode != null && coupleNode.attachedPart != null) {
-      HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
-                             coupleNode.FindOpposingNode().attachedPart);
-      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
-      ShowStatusMessage(
-          CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
-      KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
-    }
   }
 
   /// <inheritdoc/>
