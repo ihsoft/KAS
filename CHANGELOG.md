@@ -6,11 +6,9 @@
 * [Change] Major update to the basic renderer module to increase UX experience.
 * [Fix #236] Support action groups in winches.
 * [Fix #252] NRE when entering the vessel from EVA.
-Add a setting to control the couple state on link #260
-KAS link throws when loading save file #255
-KAS link throws when loading save file #255
-Connectors break on entering the physics bubble. #258
-
+* [Fix #255] KAS link throws when loading save file.
+* [Fix #258] Connectors break on entering the physics bubble.
+* [Fix #260] Add a setting to control the couple state on link.
 
 # 1.1 (October 29th, 2018):
 * [Enhancement] Add ES-ES localization.
