@@ -442,17 +442,22 @@ public class KASLinkWinch : KASLinkSourcePhysical,
         cableJoint != null ? cableJoint.deployedCableLength : 0);
 
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
       e.guiName = motorTargetSpeed > float.Epsilon
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
       e.guiName = motorTargetSpeed < -float.Epsilon
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, InstantStretchEvent, e => {
-      e.active = !isConnectorLocked;
+      e.active = !isConnectorLocked && linkState != LinkState.NodeIsBlocked;
+    });
+    PartModuleUtils.SetupEvent(this, ReleaseCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
     });
   }
   #endregion

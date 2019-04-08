@@ -653,10 +653,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
     PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
-      e.active &= !isConnectorLocked;
+      e.active &= !isConnectorLocked && linkState != LinkState.NodeIsBlocked;
     });
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
-      e.active = connectorState == ConnectorState.Locked;
+      e.active = connectorState == ConnectorState.Locked && linkState != LinkState.NodeIsBlocked;
       if (GrabConnectorEventInject != null) {
         GrabConnectorEventInject.guiName = e.guiName;
       }
