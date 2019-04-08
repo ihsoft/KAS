@@ -460,7 +460,12 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     if (!ReferenceEquals(peer, this)
         && (peer.cfgAttachNodeName == attachNodeName
             || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
-      SetIsLocked(isLinked);
+      // Only act when it's about (un)locking. Don't affect the state in all other cases.
+      if (isLinked && linkState != LinkState.NodeIsBlocked) {
+        SetIsLocked(true);
+      } else if (!isLinked && linkState == LinkState.Locked) {
+        SetIsLocked(false);
+      }
     }
   }
 
