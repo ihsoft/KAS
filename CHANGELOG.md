@@ -1,3 +1,15 @@
+# 1.2 (Apr 8th, 2019):
+* [Change] ATTENTION! The lagacy parts are _not_ provided in this verison!!! Read [Wiki](https://github.com/ihsoft/KAS/wiki/Legacy-parts-destiny) for more details.
+* [Enhancement] Add French localziation.
+* [Enhancement] Add Portuguese localziation.
+* [Enhancement #260] Add a setting to control the couple state on link.
+* [Change] Major update to the basic renderer module to increase UX experience.
+* [Fix #236] Support action groups in winches.
+* [Fix #252] NRE when entering the vessel from EVA.
+* [Fix #255] KAS link throws when loading save file.
+* [Fix #258] Connectors break on entering the physics bubble.
+* [Fix #260] Add a setting to control the couple state on link.
+
 # 1.1 (October 29th, 2018):
 * [Enhancement] Add ES-ES localization.
 * [Fix #249] Pylons are not get equipped when carried.

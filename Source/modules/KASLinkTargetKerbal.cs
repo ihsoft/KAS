@@ -2,13 +2,17 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
+using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
+using KSPDev.Types;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -54,20 +58,23 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Connectors highlight color")]
   public Color closestConnectorHighlightColor = Color.cyan;
-
-  /// <summary>
-  /// Name of the skinned mesh in the kerbal modle to bind the attach the node to.
-  /// </summary>
-  /// <remarks>If empty string, then the attach node will not follow the bones.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string equipMeshName = "";
 
   /// <summary>Name of the bone within the skinned mesh to bind the attach the node to.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Equip bone name")]
   public string equipBoneName = "";
+
+  /// <summary>
+  /// Position and rotation at the bone to move the <see cref="AbstractLinkPeer.nodeTransform"/> to.
+  /// </summary>
+  /// <remarks>The node transform will be dynamically adjusted to the bone movements.</remarks>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [PersistentField("equipPosAndRot", group = StdPersistentGroups.PartConfigLoadGroup)]
+  [Debug.KASDebugAdjustable("Equip pos&rot")]
+  PosAndRot equipPosAndRot = new PosAndRot();
   #endregion
 
   #region Local fields and properties
@@ -128,12 +135,6 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// adjusts the position on every frame to follow the bone.
   /// </remarks>
   Transform attachBoneTransform;
-
-  /// <summary>Local position of the attach node relative to the kerbal's model bone.</summary>
-  Vector3 boneAttachNodePosition;
-
-  /// <summary>Local orientation of the attach node relative to the kerbal's model bone.</summary>
-  Quaternion boneAttachNodeRotation;
 
   /// <summary>Helper container for the injected items.</summary>
   class InjectedEvent {
@@ -197,6 +198,10 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_CENTER);
     pickupConnectorMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.LOWER_CENTER);
+    if (HighLogic.LoadedSceneIsFlight) {
+      RegisterGameEventListener(GameEvents.onPartActionUICreate, OnPartGUIStart);
+      RegisterGameEventListener(GameEvents.onPartActionUIDismiss, OnPartGUIStop);
+    }
     UpdateContextMenu();
   }
 
@@ -207,43 +212,23 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     Load(new ConfigNode());
 
     base.OnStart(state);
-
-    if (equipMeshName != "") {
-      attachBoneTransform = Hierarchy.FindTransformByPath(part.transform, equipBoneName);
-      if (attachBoneTransform != null) {
-        boneAttachNodePosition = attachBoneTransform.InverseTransformPoint(nodeTransform.position);
-        boneAttachNodeRotation =
-            Quaternion.Inverse(attachBoneTransform.rotation) * nodeTransform.rotation;
-      } else {
-        HostedDebugLog.Error(this, "Cannot find bone for: mesh name={0}, bone name={1}",
-                             equipMeshName, equipBoneName);
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  public override void OnUpdate() {
-    base.OnUpdate();
-    if (attachBoneTransform != null && isLinked) {
-      nodeTransform.rotation = attachBoneTransform.rotation * boneAttachNodeRotation;
-      nodeTransform.position = attachBoneTransform.TransformPoint(boneAttachNodePosition);
-    }
   }
 
   /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     if (HighLogic.LoadedSceneIsFlight) {
-      linkStateMachine.onBeforeTransition += (start, end) => {
-        if (!start.HasValue) {
-          GameEvents.onPartActionUICreate.Add(OnPartGUIStart);
-          GameEvents.onPartActionUIDismiss.Add(OnPartGUIStop);
-        }
-        if (!end.HasValue) {
-          GameEvents.onPartActionUICreate.Remove(OnPartGUIStart);
-          GameEvents.onPartActionUIDismiss.Remove(OnPartGUIStop);
-        }
-      };
+      linkStateMachine.AddStateHandlers(
+          LinkState.Linked, enterHandler: oldState => StartCoroutine(FollowTheBone()));
+    }
+  }
+
+  /// <inheritdoc/>
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
+    attachBoneTransform = Hierarchy.FindTransformByPath(part.transform, equipBoneName);
+    if (attachBoneTransform == null) {
+      HostedDebugLog.Error(this, "Cannot find bone for: {0}", equipBoneName);
     }
   }
   #endregion
@@ -312,7 +297,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   }
   #endregion
 
-  #region Local utility methods
+  #region MonoBehaviour method implementations
   /// <summary>Collects a connector in the pickup range.</summary>
   /// <remarks>It's a <c>MonoBehavior</c> callback.</remarks>
   /// <param name="other">The collider that triggered the pickup collider check.</param>
@@ -336,7 +321,9 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       }
     }
   }
+  #endregion
 
+  #region Local utility methods
   /// <summary>Updates the GUI items when a part's context menu is opened.</summary>
   /// <remarks>
   /// <para>
@@ -436,6 +423,15 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     ev.guiActiveUnfocused = true;
     ev.guiName = guiName;
     return ev;
+  }
+
+  /// <summary>Aligns the node transform to the bone while the link is active.</summary>
+  IEnumerator FollowTheBone() {
+    while (attachBoneTransform != null && isLinked) {
+      nodeTransform.rotation = attachBoneTransform.rotation * equipPosAndRot.rot;
+      nodeTransform.position = attachBoneTransform.TransformPoint(equipPosAndRot.pos);
+      yield return null;
+    }
   }
   #endregion
 }

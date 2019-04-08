@@ -6,7 +6,7 @@
 using UnityEngine;
 
 // Name of the namespace denotes the API version.
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Various methods to deal with part's attach nodes.</summary>
 public interface IAttachNodesUtils {

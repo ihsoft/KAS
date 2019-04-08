@@ -3,11 +3,13 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
-using KASAPIv1;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -23,9 +25,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_01003.
-public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
-    // KSPDev interfaces.
-    IHasContextMenu {
+public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -57,26 +57,31 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   /// <summary>Audio sample to play when the parts are attached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - plug")]
   public string sndPathPlug = "";
 
   /// <summary>Audio sample to play when the parts are detached by the player.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - unplug")]
   public string sndPathUnplug = "";
 
   /// <summary>Audio sample to play when the link is broken by the physics events.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - broke")]
   public string sndPathBroke = "";
 
   /// <summary>Name of the menu item to start linking mode.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Start link menu text")]
   public string startLinkMenu = "";
 
   /// <summary>Name of the menu item to break currently established link.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Break link menu text")]
   public string breakLinkMenu = "";
   #endregion
 
@@ -131,17 +136,11 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
   bool canAutoSaveState;
   #endregion
 
-  #region PartModule overrides
+  #region KASLinkSourceBase overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselChange.Add(OnVesselChange);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselChange.Remove(OnVesselChange);
+    RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
 
   /// <inheritdoc/>
@@ -186,9 +185,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
                                  e.active = linkState == LinkState.Linked;
                                });
   }
-  #endregion
 
-  #region KASModuleLinkSourceBase overrides
   /// <inheritdoc/>
   public override bool StartLinking(GUILinkMode mode, LinkActorType actor) {
     // Don't allow EVA linking mode.
@@ -258,7 +255,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase,
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
         if (targetCandidate != null) {
-          var linkStatusErrors = new string[]{ }
+          var linkStatusErrors = new List<string>()
               .Concat(CheckBasicLinkConditions(targetCandidate, checkStates: true))
               .Concat(linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform))
               .Concat(linkJoint.CheckConstraints(this, targetCandidate))

@@ -1,9 +1,10 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+using System;
+
+namespace KASAPIv2 {
 
 /// <summary>Part module interface that defines the events for a link state changes.</summary>
 /// <remarks>
@@ -31,6 +32,7 @@ public interface ILinkStateEventListener {
   /// <param name="ownerPeer">The peer which goes into the (un)blocked state.</param>
   /// <param name="isBlocked">Tells if the peer got blocked or unblocked.</param>
   /// <seealso cref="LinkState.NodeIsBlocked"/>
+  [Obsolete("It's not fired anymore. React on the state change instead.")]
   void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked);
 }
 

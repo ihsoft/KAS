@@ -3,12 +3,11 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
-using KSPDev.ConfigUtils;
-using KSPDev.GUIUtils;
+using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -16,35 +15,23 @@ namespace KAS {
 
 /// <summary>Base class that handles the basic functionality of the link's end.</summary>
 /// <remarks>
-/// <para>
 /// This module doesn't define how the link is created, but it does the heavy lifting to keep it,
 /// once it's established. The descendants are resposible for determining what peers can link with
 /// each other.
-/// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
-public abstract class AbstractLinkPeer : PartModule,
+public abstract class AbstractLinkPeer : AbstractPartModule,
     // KSP interfaces.
     IActivateOnDecouple,
     // KAS interfaces.
     ILinkPeer, ILinkStateEventListener,
-    // KSPDev parents.
-    IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IKSPActivateOnDecouple, IsDestroyable {
+    IKSPActivateOnDecouple {
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Link type")]
   public string linkType = "";
 
   /// <summary>The localized string to display for the link type.</summary>
@@ -65,6 +52,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="coupleNode"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Attach node definition")]
   public string attachNodeDef = "";
 
   /// <summary>Name of the attach node for the link and coupling operations.</summary>
@@ -75,6 +63,7 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Attach node name")]
   public string attachNodeName = "";
 
   /// <summary>
@@ -91,11 +80,13 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Dependent nodes")]
   public string dependentNodes = "";
 
-  /// <summary>Specifies if this peer can couple into the vessel's hirerachy.</summary>
+  /// <summary>Specifies if this peer can couple (dock) into the vessel's hirerachy.</summary>
   /// <seealso cref="coupleNode"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Allow coupling")]
   public bool allowCoupling;
   #endregion
 
@@ -108,18 +99,19 @@ public abstract class AbstractLinkPeer : PartModule,
   public LinkState persistedLinkState = LinkState.Available;
 
   /// <summary>The other peer's part flight ID in the last save action.</summary>
-  /// <remarks>Normally, the base class handles it.</remarks>
+  /// <remarks>It's <c>0</c> if the peer is not linked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkPartId;
 
-  /// <summary>The other peer's module index in the last save action.</summary>
-  /// <remarks>Normally, the base class handles it.</remarks>
+  /// <summary>The other peer's module attach node name.</summary>
+  /// <remarks>It's <c>null</c> if the peer is not linked.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
+  /// <seealso cref="linkNodeName"/>
   [KSPField(isPersistant = true)]
-  public int persistedLinkModuleIndex = -1;
+  public string persistedLinkNodeName = "";
   #endregion
 
   #region ILinkPeer properties implementation
@@ -146,29 +138,14 @@ public abstract class AbstractLinkPeer : PartModule,
     get {
       return linkStateMachine.currentState ?? persistedLinkState;
     }
-    protected set {
-      linkStateMachine.currentState = value;
-    }
   }
 
   /// <inheritdoc/>
-  /// <remarks>
-  /// The descendants must eitehr use this property when linking with the other peer, or fully mimic
-  /// the behavior.
-  /// </remarks>
   /// <seealso cref="persistedLinkPartId"/>
   /// <seealso cref="OnPeerChange"/>
+  /// <seealso cref="SetOtherPeer"/>
   public virtual ILinkPeer otherPeer {
     get { return _otherPeer; }
-    protected set {
-      var oldPeer = _otherPeer;
-      _otherPeer = value;
-      persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
-      persistedLinkModuleIndex = _otherPeer != null
-          ? _otherPeer.part.Modules.IndexOf(_otherPeer as PartModule)
-          : -1;
-      OnPeerChange(oldPeer);
-    }
   }
   ILinkPeer _otherPeer;
 
@@ -178,8 +155,8 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
-  public int linkModuleIndex {
-    get { return persistedLinkModuleIndex; }
+  public string linkNodeName {
+    get { return persistedLinkNodeName; }
   }
 
   /// <inheritdoc/>
@@ -201,34 +178,15 @@ public abstract class AbstractLinkPeer : PartModule,
   }
 
   /// <inheritdoc/>
+  /// <seealso cref="SetIsLocked"/>
   public bool isLocked {
     get { return linkState == LinkState.Locked; }
-    protected set {
-      // Don't trigger state change events when the value hasn't changed.
-      if (value != isLocked) {
-        linkState = value ? LinkState.Locked : LinkState.Available;
-      }
-    }
   }
 
   /// <inheritdoc/>
-  /// <remarks>
-  /// The descendants <i>must</i> to change the blocked status via this property. Otherwise, the
-  /// notifications won't fire. The event will also not fire if the new value doesn't differ from
-  /// the old one.
-  /// </remarks>
+  /// <seealso cref="SetLinkState"/>
   public bool isNodeBlocked {
     get { return linkState == LinkState.NodeIsBlocked; }
-    protected set {
-      // Don't trigger the change event when the value hasn't changed.
-      if (value != isNodeBlocked) {
-        linkState = value ? LinkState.NodeIsBlocked : LinkState.Available;
-        part.Modules.OfType<ILinkStateEventListener>()
-            .Where(l => !ReferenceEquals(l, this))
-            .ToList()
-            .ForEach(m => m.OnKASNodeBlockedState(this, value));
-      }
-    }
   }
   #endregion
 
@@ -274,36 +232,88 @@ public abstract class AbstractLinkPeer : PartModule,
   /// <inheritdoc/>
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
+      HostedDebugLog.Fine(this, "Schedule coupling check from DECOUPLE action...");
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
   #endregion
 
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
-  }
-  #endregion
-
-  #region PartModule overrides
+  #region AbstractPartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
-
-    LocalizeModule();
     linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     SetupStateMachine();
-    GameEvents.onPartCouple.Add(OnPartCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
   }
 
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
-    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-    base.OnLoad(node);
+  public override void OnDestroy() {
+    base.OnDestroy();
+    ShutdownStateMachine();
+  }
 
+  /// <inheritdoc/>
+  public override void OnStart(PartModule.StartState state) {
+    base.OnStart(state);
+    
+    // Adjust state of a newly added module.
+    if (persistedLinkState == LinkState.Available) {
+      var linkedModule = part.Modules.OfType<ILinkPeer>()
+          .FirstOrDefault(x =>
+              x.isLinked && (x.cfgAttachNodeName == attachNodeName
+                             || cfgDependentNodeNames.Contains(x.cfgAttachNodeName)));
+      if (linkedModule != null) {
+        persistedLinkState = LinkState.Locked;
+        HostedDebugLog.Warning(this, "Lock new module due to state of: {0} => {1}",
+                               linkedModule, linkedModule.linkState);
+      }
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnStartFinished(PartModule.StartState state) {
+    base.OnStartFinished(state);
+    // Prevent the third-party logic on the auto node. See OnLoad.
+    if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
+        && isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
+      KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
+    }
+    if (persistedLinkState == LinkState.Linked) {
+      RestoreOtherPeer();
+      if (otherPeer == null) {
+        HostedDebugLog.Error(this, "Cannot restore the link's peer");
+        persistedLinkState = LinkState.Available;
+        if (coupleNode != null && coupleNode.attachedPart != null) {
+          // Decouple the coupled part if the link cannot be restored. It'll allow the player to
+          // restore the game status without hacking the save files.
+          AsyncCall.CallOnEndOfFrame(
+              this, () => {
+                if (coupleNode.attachedPart != null) {  // The part may get decoupled already.
+                  KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+                }
+              });
+        }
+        // This may break a lot of logic, built on top of the KAS basic modules. However, it will
+        // allow the main logic to work. Given it's a fallback, it's OK.
+        part.Modules.OfType<AbstractLinkPeer>()
+            .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
+                                       || p.cfgDependentNodeNames.Contains(attachNodeName)))
+            .ToList()
+            .ForEach(m => SetIsLocked(false));
+      } else {
+        HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
+      }
+    }
+    SetLinkState(persistedLinkState);
+  }
+
+  /// <inheritdoc/>
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
+    if (isAutoAttachNode && parsedAttachNode != null) {
+      KASAPI.AttachNodesUtils.DropNode(part, parsedAttachNode);
+    }
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
     if (isAutoAttachNode) {
@@ -327,57 +337,6 @@ public abstract class AbstractLinkPeer : PartModule,
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
   }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-  }
-
-  /// <inheritdoc/>
-  public override void OnStartFinished(PartModule.StartState state) {
-    base.OnStartFinished(state);
-    // Prevent the third-party logic on the auto node. See OnLoad.
-    if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
-        && isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
-      KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
-    }
-    if (persistedLinkState == LinkState.Linked) {
-      RestoreOtherPeer();
-      if (otherPeer == null) {
-        HostedDebugLog.Error(this, "Cannot restore the link's peer");
-        persistedLinkState = LinkState.Available;
-        if (coupleNode != null && coupleNode.attachedPart != null) {
-          // Decouple the coupled part if the link cannor be restored. It'll allow the player to
-          // restore the game status without hacking the save files.
-          AsyncCall.CallOnEndOfFrame(
-              this, () => {
-                if (coupleNode.attachedPart != null) {  // The part may get decoupled already.
-                  KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
-                }
-              });
-        }
-        // This may break a lot of logic, built on top of the KAS basic modules. However, it will
-        // allow the main logic to work. Given it's a fallback, it's OK.
-        part.Modules.OfType<AbstractLinkPeer>()
-            .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
-                                       || p.cfgDependentNodeNames.Contains(attachNodeName)))
-            .ToList()
-            .ForEach(m => m.isLocked = false);
-      } else {
-        HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
-      }
-    }
-    linkState = persistedLinkState;
-  }
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    ShutdownStateMachine();
-    GameEvents.onPartCouple.Remove(OnPartCoupleEvent);
-  }
   #endregion
 
   #region IsPackable implementation
@@ -385,6 +344,7 @@ public abstract class AbstractLinkPeer : PartModule,
   public virtual void OnPartUnpack() {
     // The check may want to establish a link, but this will only succeed if the physics has
     // started.
+    HostedDebugLog.Fine(this, "Schedule coupling check from UNPACK...");
     AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
   }
 
@@ -393,13 +353,17 @@ public abstract class AbstractLinkPeer : PartModule,
   }
   #endregion
 
-  #region Inheritable methods
+  #region New inheritable methods
   /// <summary>Fires when the couple node needs to be checked for a possible state change.</summary>
   /// <remarks>
   /// This method is called asynchronously at the end of frame. The triggering of this call doesn't
   /// mean the node state has changed. It only means that it could have changed, and something has
   /// either coupled with or decoupled from the node. The code is responsible to verify it and act
   /// accordignly.
+  /// <para>
+  /// This callback is called regardless to the <see cref="allowCoupling"/> settings. If the peer,
+  /// being checked, cannot afford coupling, it must break the link.
+  /// </para>
   /// </remarks>
   protected virtual void CheckCoupleNode() {
     if (isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
@@ -448,34 +412,42 @@ public abstract class AbstractLinkPeer : PartModule,
   /// </remarks>
   /// <seealso cref="otherPeer"/>
   protected virtual void RestoreOtherPeer() {
-    otherPeer = KASAPI.LinkUtils.FindLinkPeer(this);
+    SetOtherPeer(KASAPI.LinkUtils.FindLinkPeer(this));
   }
 
-  /// <summary>Shows a UI messages with regard to the currently active vessel.</summary>
-  /// <remarks>
-  /// The UI messages from the active vessel are show n at the highest priority to bring attention
-  /// of the player. The messages from the inactive vessels are show only as a status, that is not
-  /// intended to distract the player from the current vessel operations.
-  /// </remarks>
-  /// <param name="msg">The message to show.</param>
-  /// <param name="isError">
-  /// Tells if the messages is an error condition report. Such messages will be highlighed with the
-  /// color.
+  /// <summary>Sets the link state.</summary>
+  /// <param name="state">The new state.</param>
+  /// <seealso cref="linkStateMachine"/>
+  protected virtual void SetLinkState(LinkState state) {
+    linkStateMachine.currentState = state;
+  }
+
+  /// <summary>Sets the opposite point of the link.</summary>
+  /// <param name="peer">
+  /// The other endpoint. It's <c>null</c> when the endpoint must be reset.
   /// </param>
-  protected void ShowStatusMessage(string msg, bool isError = false) {
-    if (FlightGlobals.ActiveVessel != vessel) {
-      msg = string.Format("[{0}]: {1}", vessel.vesselName, msg);
+  /// <seealso cref="otherPeer"/>
+  protected virtual void SetOtherPeer(ILinkPeer peer) {
+    var oldPeer = _otherPeer;
+    _otherPeer = peer;
+    if (_otherPeer != null) {
+      persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
+      persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
+    } else {
+      persistedLinkPartId = 0;
+      persistedLinkNodeName = "";
     }
-    if (isError) {
-      msg = ScreenMessaging.SetColorToRichText(msg, ScreenMessaging.ErrorColor);
+    OnPeerChange(oldPeer);
+  }
+
+  /// <summary>Sets the locked state of the peer.</summary>
+  /// <param name="state">The new state.</param>
+  /// <seealso cref="isLocked"/>
+  protected virtual void SetIsLocked(bool state) {
+    // Don't trigger state change events when the value hasn't changed.
+    if (state != isLocked) {
+      SetLinkState(state ? LinkState.Locked : LinkState.Available);
     }
-    var duration = isError
-        ? ScreenMessaging.DefaultErrorTimeout
-        : ScreenMessaging.DefaultMessageTimeout;
-    var location = FlightGlobals.ActiveVessel == vessel
-        ? ScreenMessageStyle.UPPER_CENTER
-        : (isError ? ScreenMessageStyle.UPPER_RIGHT : ScreenMessageStyle.UPPER_LEFT);
-    ScreenMessages.PostScreenMessage(msg, duration, location);
   }
   #endregion
 
@@ -487,24 +459,24 @@ public abstract class AbstractLinkPeer : PartModule,
         : info.target as ILinkPeer;
     if (!ReferenceEquals(peer, this)
         && (peer.cfgAttachNodeName == attachNodeName
-            || !cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
-      isLocked = isLinked;
+            || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
+      // Only act when it's about (un)locking. Don't affect the state in all other cases.
+      if (isLinked && linkState != LinkState.NodeIsBlocked) {
+        SetIsLocked(true);
+      } else if (!isLinked && linkState == LinkState.Locked) {
+        SetIsLocked(false);
+      }
     }
   }
 
   /// <inheritdoc/>
-  public virtual void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-    if (ownerPeer.cfgAttachNodeName == attachNodeName
-        || cfgDependentNodeNames.Contains(ownerPeer.cfgAttachNodeName)) {
-      // This is a notification handler, so don't use the isNodeBlocked property to not trigger
-      // more notifications.
-      //FIXME: fix the comment when migrated to the setter methods.
-      linkState = isBlocked ? LinkState.NodeIsBlocked : LinkState.Available;
-    }
+  public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
+    throw new NotImplementedException();  // Obsolete.
   }
   #endregion
 
   #region Local utility methods
+  /// <summary>Triggers coupled node check.</summary>
   void OnPartCoupleEvent(GameEvents.FromToAction<Part, Part> action) {
     AttachNode node = null;
     if (action.from == part) {
@@ -513,6 +485,8 @@ public abstract class AbstractLinkPeer : PartModule,
       node = action.to.FindPartThroughNodes(action.from);
     }
     if (node != null && node.id == attachNodeName) {
+      HostedDebugLog.Fine(this, "Schedule coupling check on coupling event: from={0}, to={1}",
+                          action.from, action.to);
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }

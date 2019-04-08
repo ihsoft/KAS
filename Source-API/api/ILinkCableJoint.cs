@@ -1,11 +1,10 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>
 /// Interface for a physical cable link. Such links keep the dsitance between the object below the
@@ -72,6 +71,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="deployedCableLength"/>
   float realCableLength { get; }
 
+  /// <summary>Tells if the joint turns rigid when the parts are coupled.</summary>
+  /// <remarks>
+  /// This mode only has effect when the parts are coupled. Basically, when the locked mode is
+  /// <c>true</c>, the stock joint between the parts is preserved. When the mode is <c>false</c>,
+  /// the stiock joint is destroyed and repalced by a PhysX distant joint.
+  /// </remarks>
+  /// <value><c>true</c> if the joint is rigid.</value>
+  /// <seealso cref="ILinkJoint.coupleOnLinkMode"/>
+  /// <seealso cref="SetLockedOnCouple"/>
+  bool isLockedWhenCoupled { get; }
+
   /// <summary>
   /// Attaches the specified object to the source and starts the environmental forces on it.  
   /// </summary>
@@ -137,6 +147,16 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="deployedCableLength"/>
   /// <seealso cref="realCableLength"/>
   void SetCableLength(float length);
+
+  /// <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
+  /// <remarks>
+  /// If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
+  /// affect the joint. If the part were coupled at the momemnt, then the joint is recreated
+  /// according to the new setting.
+  /// </remarks>
+  /// <param name="mode">The new mode.</param>
+  /// <seealso cref="isLockedWhenCoupled"/>
+  void SetLockedOnCouple(bool mode);
 }
 
 }  // namespace

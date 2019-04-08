@@ -3,13 +3,15 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
-using KASAPIv1.GUIUtils;
+using KASAPIv2;
+using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using KSPDev.ConfigUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,7 +27,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,
     // KSPDev interfaces.
-    IHasContextMenu {
+    IHasContextMenu, IHasDebugAdjustables {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -57,11 +59,22 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
+  /// <summary>Name of the renderer for this procedural part.</summary>
+  /// <remarks>
+  /// This setting is used to let link source know primary renderer for the linked state.
+  /// </remarks>
+  /// <seealso cref="ILinkSource"/>
+  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  public string rendererName = "";
+
   /// <summary>
-  /// Model for a joint lever at the soucre part. Two such models are used to form a complete joint.
+  /// Model for a joint lever at the source part. Two such models are used to form a complete joint.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("SOURCE lever model")]
   public string sourceJointModel = "KAS/Models/Joint/model";
 
   /// <summary>
@@ -69,12 +82,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("TARGET lever model")]
   public string targetJointModel = "KAS/Models/Joint/model";
-
-  /// <summary>Number of pistons in the link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public int pistonsCount = 3;
 
   /// <summary>Model for the pistons.</summary>
   /// <remarks>
@@ -83,7 +92,14 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("PISTON model")]
   public string pistonModel = "KAS/Models/Piston/model";
+
+  /// <summary>Number of pistons in the link.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Number of pistons")]
+  public int pistonsCount = 3;
 
   /// <summary>Scale of the piston comparing to the prefab.</summary>
   /// <remarks>
@@ -95,6 +111,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Piston model scale")]
   public Vector3 pistonModelScale = Vector3.one;
 
   /// <summary>
@@ -108,8 +125,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-
+  [Debug.KASDebugAdjustable("Randomize pistons rotation")]
   public bool pistonModelRandomRotation = true;
+
   /// <summary>Amount to decrease the scale of an inner pistons diameter.</summary>
   /// <remarks>
   /// To keep models consistent every nested piston must be slightly less in diameter than the
@@ -126,6 +144,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Piston diameter scale delta")]
   public float pistonDiameterScaleDelta = 0.1f;
 
   /// <summary>Minimum allowed overlap of the pistons in the extended state in meters.</summary>
@@ -142,17 +161,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Piston min shift")]
   public float pistonMinShift = 0.02f;
-
-  /// <summary>Name of the renderer for this procedural part.</summary>
-  /// <remarks>
-  /// This setting is used to let link source know primary renderer for the linked state.
-  /// </remarks>
-  /// <seealso cref="ILinkSource"/>
-  /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public string rendererName = "";
 
   /// <summary>
   /// Container for the menu item description which tells how to park the unlinked strut.
@@ -230,16 +240,6 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     }
   }
   string _shaderNameOverride;
-
-  /// <inheritdoc/>
-  public float stretchRatio {
-    get { return 1.0f; }
-    set {
-      HostedDebugLog.Warning(
-          this, "Stretch ratio of the telescopic link is fixed and cannnot be changed to {0}",
-          value);
-    }
-  }
 
   /// <inheritdoc/>
   public bool isPhysicalCollider {
@@ -426,6 +426,25 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
   #endregion
 
+  #region IHasDebugAdjustables implementation
+  /// <summary>Dumps basic constraints of the renderer.</summary>
+  [Debug.KASDebugAdjustable("Dump render link contstrains")]
+  public void DbgEventDumpLinkSettings() {
+    HostedDebugLog.Warning(this,
+        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
+        + " pistonLength={3}, outerPistonDiameter={4}",
+        minLinkLength, maxLinkLength,
+        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
+        pistonLength, outerPistonDiameter);
+  }
+
+  /// <inheritdoc/>
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
+    CreatePipeMeshes(recreate: true);
+  }
+  #endregion
+
   #region AbstractProceduralModel overrides
   /// <inheritdoc/>
   public override void OnAwake() {
@@ -457,31 +476,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  protected override void CreatePartModel() {
-    CreateLeverModels();
-    CreatePistonModels();
-    UpdateValuesFromModel();
-    // Log basic part values to help part's designers.
-    HostedDebugLog.Info(this,
-        "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
-        + " pistonLength={3}, outerPistonDiameter={4}",
-        minLinkLength, maxLinkLength,
-        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
-        pistonLength, outerPistonDiameter);
+  protected override void InitModuleSettings() {
+    CreatePipeMeshes(recreate: false);
 
-    // Init parked state. It must go after all the models are created.
-    if (parkedOrientations.Count > 0) {
-      persistedParkedOrientation = parkedOrientations[0].direction;
-    }
-    if (Mathf.Approximately(persistedParkedLength, 0)) {
-      persistedParkedLength = minLinkLength;
-    }
-
-    UpdateLinkLengthAndOrientation();
-  }
-
-  /// <inheritdoc/>
-  protected override void LoadPartModel() {
     // Source pivot.
     srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
@@ -554,6 +551,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       }
     }
     return hitMessages.ToArray();
+  }
+
+  /// <inheritdoc/>
+  public Transform GetMeshByName(string meshName) {
+    // TODO(ihsoft): Return latches and pipes, and attach rigid bodies to them.
+    throw new NotImplementedException();
   }
   #endregion
 
@@ -817,6 +820,39 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // Don't use the stock translation methods since the handle length is already scaled. We don't
     // want the scale to be counted twice.
     return refTransform.position + refTransform.rotation * new Vector3(0, 0, tgtJointHandleLength);
+  }
+
+  /// <summary>Creates the telescopic pipe meshes.</summary>
+  /// <remarks>
+  /// If there were meshes created alreadym they will be destroyed. So this method can be called to
+  /// refresh the part settings.
+  /// </remarks>
+  void CreatePipeMeshes(bool recreate) {
+    var pipeRoot = Hierarchy.FindTransformByPath(
+        partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
+    if (pipeRoot != null && !recreate) {
+      return;
+    }
+    if (pipeRoot != null) {
+      HostedDebugLog.Warning(this, "Re-creating pipe meshes...");
+      UnityEngine.Object.DestroyImmediate(pipeRoot.gameObject);
+    }
+    
+    CreateLeverModels();
+    CreatePistonModels();
+    UpdateValuesFromModel();
+
+    // Init parked state. It must go after all the models are created.
+    if (parkedOrientations.Count > 0 && !isLinked) {
+      persistedParkedOrientation = parkedOrientations[0].direction;
+    }
+    if (persistedParkedLength < minLinkLength) {
+      persistedParkedLength = minLinkLength;
+    } else if (persistedParkedLength > maxLinkLength) {
+      persistedParkedLength = maxLinkLength;
+    }
+
+    UpdateLinkLengthAndOrientation();
   }
   #endregion
 }

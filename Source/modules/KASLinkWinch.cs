@@ -3,8 +3,9 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.MathUtils;
@@ -39,12 +40,13 @@ namespace KAS {
 /// </list>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08015.
+// Next localization ID: #kasLOC_08019.
 public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPhysicalObject {
+    IsPhysicalObject {
+
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoEnergyMsg = new Message(
@@ -131,6 +133,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Connector lock distance error")]
   public float connectorLockMaxErrorDist = 0.05f;
 
   /// <summary>
@@ -145,11 +148,13 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Connector lock direction error")]
   public float connectorLockMaxErrorDir = 1;
 
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Motor max speed")]
   public float motorMaxSpeed = 2;
 
   /// <summary>
@@ -158,27 +163,32 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <remarks>It must not be <c>0</c>, since in this case the motor will never start.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Motor acceleration")]
   public float motorAcceleration = 0.4f;
 
   /// <summary>Amount of the electricity to consume each second of the motor activity.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Motor power drain")]
   public double motorPowerDrain = 0.5f;
 
   /// <summary>URL of the sound for the working winch motor.</summary>
   /// <remarks>This sound will be looped while the motor is active.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - motor running")]
   public string sndPathMotor = "";
 
   /// <summary>URL of the sound for the starting winch motor.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - motor started")]
   public string sndPathMotorStart = "";
 
   /// <summary>URL of the sound for the stopping winch motor.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - motor stopped")]
   public string sndPathMotorStop = "";
   #endregion
 
@@ -238,7 +248,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>
-  /// A context menu item that sets the cable length ot the maximum, and unlocks the connector if it
+  /// A context menu item that sets the cable length to the maximum, and unlocks the connector if it
   /// was locked.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -246,7 +256,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   [LocalizableItem(
       tag = "#kasLOC_08011",
       defaultTemplate = "Release cable",
-      description = "A context menu item that sets the cable length ot the maximum, and unlocks"
+      description = "A context menu item that sets the cable length to the maximum, and unlocks"
       + " the connector if it was locked.")]
   public virtual void ReleaseCableEvent() {
     ReleaseCable();
@@ -265,6 +275,53 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     StretchCable();
+  }
+
+  /// <summary>Action that starts the cable extending.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08015",
+      defaultTemplate = "Extend cable",
+      description = "Name of the action that starts the cable extending.")]
+  public virtual void ExtendCableAction(KSPActionParam unused) {
+    SetMotor(float.PositiveInfinity);
+  }
+
+  /// <summary>Action that starts the cable retracting.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08016",
+      defaultTemplate = "Retract cable",
+      description = "Name of the action that starts the cable retracting.")]
+  public virtual void RetractCableAction(KSPActionParam unused) {
+    SetMotor(float.NegativeInfinity);
+  }
+
+  /// <summary>Action that stops any motor activity.</summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08017",
+      defaultTemplate = "Stop motor",
+      description = "Name of the action that stops the motor.")]
+  public virtual void StopMotorAction(KSPActionParam unused) {
+    SetMotor(0);
+  }
+
+  /// <summary>
+  /// Action that sets the cable length to the maximum, and unlocks the connector if it was locked.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  [KSPAction(null)]
+  [LocalizableItem(
+      tag = "#kasLOC_08018",
+      defaultTemplate = "Release cable",
+      description = "name of the action that sets the cable length to the maximum, and unlocks"
+      + " the connector if it was locked.")]
+  public virtual void ReleaseCableAction(KSPActionParam unused) {
+    ReleaseCableEvent();
   }
   #endregion
 
@@ -318,24 +375,6 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   #region KASLikSourcePhysical overrides
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-
-    if (resHandler.inputResources.Count == 0) {
-      var moduleResource = new ModuleResource();
-      moduleResource.name = StockResourceNames.ElectricCharge;
-      moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
-      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
-      moduleResource.rate = (double) motorPowerDrain;
-      resHandler.inputResources.Add(moduleResource);
-    }
-
-    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
-    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
-    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
-  }
-
-  /// <inheritdoc/>
   public override string GetModuleTitle() {
     return ModuleTitleInfo;
   }
@@ -346,6 +385,39 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     sb.AppendLine(MotorSpeedInfo.Format(motorMaxSpeed));
     sb.AppendLine(resHandler.PrintModuleResources());
     return sb.ToString();
+  }
+
+  /// <inheritdoc/>
+  protected override void InitModuleSettings() {
+    base.InitModuleSettings();
+    Destroy(sndMotor);
+    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    Destroy(sndMotorStart);
+    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    Destroy(sndMotorStop);
+    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+
+    var moduleResource = resHandler.inputResources
+        .FirstOrDefault(x => x.name == StockResourceNames.ElectricCharge);
+    if (moduleResource == null) {
+      moduleResource = new ModuleResource();
+      moduleResource.name = StockResourceNames.ElectricCharge;
+      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
+      resHandler.inputResources.Add(moduleResource);
+    }
+    moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
+    moduleResource.rate = (double) motorPowerDrain;
+  }
+
+  /// <inheritdoc/>
+  protected override void CheckSettingsConsistency() {
+    if (coupleMode != CoupleMode.NeverCouple) {
+      coupleMode = CoupleMode.NeverCouple;
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: coupleMode => {0}, due to only this mode is supported",
+          coupleMode);
+    }
+    base.CheckSettingsConsistency();
   }
   #endregion
 
@@ -370,14 +442,22 @@ public class KASLinkWinch : KASLinkSourcePhysical,
         cableJoint != null ? cableJoint.deployedCableLength : 0);
 
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
       e.guiName = motorTargetSpeed > float.Epsilon
           ? StopExtendingMenuTxt
           : ExtendCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
       e.guiName = motorTargetSpeed < -float.Epsilon
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
+    });
+    PartModuleUtils.SetupEvent(this, InstantStretchEvent, e => {
+      e.active = !isConnectorLocked && linkState != LinkState.NodeIsBlocked;
+    });
+    PartModuleUtils.SetupEvent(this, ReleaseCableEvent, e => {
+      e.active = linkState != LinkState.NodeIsBlocked;
     });
   }
   #endregion
@@ -459,8 +539,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     var powerDemand = motorPowerDrain * TimeWarp.fixedDeltaTime;
     var gotEnergy = part.RequestResource(StockResourceNames.ElectricCharge, powerDemand);
     if (Mathd.AreSame(gotEnergy, powerDemand)) {
-      SetCableLength(
-          cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
+      SetCableLength(cableJoint.deployedCableLength + motorCurrentSpeed * TimeWarp.fixedDeltaTime);
       if (motorCurrentSpeed > 0
           && cableJoint.deployedCableLength >= cableJoint.cfgMaxCableLength) {
         KillMotor();
@@ -508,7 +587,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       return true;
     }
     // Check if the alignment error is small enough to not awake Krakken on dock.
-    var fwdAngleErr = 180 - Vector3.Angle(connectorCableAnchor.forward, nodeTransform.forward);
+    var fwdAngleErr =
+        180 - Vector3.Angle(GetConnectorModelPipeAnchor().forward, nodeTransform.forward);
     if (fwdAngleErr > connectorLockMaxErrorDir) {
       if (logCheckResult) {
         HostedDebugLog.Info(

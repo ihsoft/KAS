@@ -3,12 +3,13 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
+using System;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace KAS {
 public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
-    // KAS parents.
+    // KAS interfaces.
     ILinkTarget,
     // Syntax sugar parents.
     IsPartDeathListener, IKSPDevModuleInfo {
@@ -54,7 +55,7 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   public virtual ILinkSource linkSource {
     get { return otherPeer as ILinkSource; }
-    set { otherPeer = value; }
+    set { SetOtherPeer(value); }
   }
   #endregion
 
@@ -64,11 +65,13 @@ public class KASLinkTargetBase :
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Highlight parts")]
   public bool highlightCompatibleTargets = true;
 
   /// <summary>Defines highlight color for the compatible targets.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Highlight color")]
   public Color highlightColor = Color.cyan;
   #endregion
 
@@ -77,38 +80,31 @@ public class KASLinkTargetBase :
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => HostedDebugLog.Fine(
-        this, "Target state changed at {0}: {1} => {2}", attachNodeName, start, end);
+        this, "Target state changed: node={0}, state {1} => {2}", attachNodeName, start, end);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks, LinkState.NodeIsBlocked});
+        new[] {LinkState.AcceptingLinks, LinkState.NodeIsBlocked, LinkState.Locked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.NodeIsBlocked,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
-        new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
+        new[] {LinkState.Available, LinkState.Linked});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Linked,
         new[] {LinkState.Available});
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
         new[] {LinkState.Available});
-    linkStateMachine.SetTransitionConstraint(
-        LinkState.RejectingLinks,
-        new[] {LinkState.Available, LinkState.Locked});
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,
-        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStartLinking.Add(OnStartLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStartLinking.Remove(OnStartLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
-        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
-    linkStateMachine.AddStateHandlers(
-        LinkState.RejectingLinks,
-        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopConnecting),
-        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopConnecting));
+        enterHandler: x => KASAPI.KasEvents.OnStopLinking.Add(OnStopLinkingKASEvent),
+        leaveHandler: x => KASAPI.KasEvents.OnStopLinking.Remove(OnStopLinkingKASEvent));
     linkStateMachine.AddStateHandlers(
         LinkState.AcceptingLinks,
         enterHandler: x => SetEligiblePartHighlighting(true),
@@ -119,7 +115,7 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   protected override void OnPeerChange(ILinkPeer oldPeer) {
     base.OnPeerChange(oldPeer);
-    linkState = linkSource != null ? LinkState.Linked : LinkState.Available;
+    SetLinkState(linkSource != null ? LinkState.Linked : LinkState.Available);
 
     // Trigger events on the part.
     var oldSource = oldPeer as ILinkSource;
@@ -143,11 +139,49 @@ public class KASLinkTargetBase :
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available
           && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
-        isNodeBlocked = true;
+        SetLinkState(LinkState.NodeIsBlocked);
       } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        isNodeBlocked = false;
+        SetLinkState(LinkState.Available);
       }
     });
+  }
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  ILinkSource dbgOldSource;
+  float cableLength;
+
+  /// <inheritdoc/>
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
+    if (linkState != LinkState.Linked && linkState != LinkState.Available) {
+      throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
+    }
+    dbgOldSource = linkSource;
+    if (isLinked) {
+      var cableJoint = linkSource.linkJoint as ILinkCableJoint;
+      if (cableJoint != null) {
+        cableLength = cableJoint.deployedCableLength;
+      }
+      linkSource.BreakCurrentLink(LinkActorType.Player);
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
+    AsyncCall.CallOnEndOfFrame(
+        this,
+        () => {
+          InitModuleSettings();
+          if (dbgOldSource != null && dbgOldSource.LinkToTarget(LinkActorType.Player, this)) {
+            var cableJoint = linkSource.linkJoint as ILinkCableJoint;
+            if (cableJoint != null) {
+              cableJoint.SetCableLength(cableLength);
+            }
+          }
+        },
+        skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
   }
   #endregion
 
@@ -194,20 +228,28 @@ public class KASLinkTargetBase :
   /// </summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
-  protected virtual void OnStartConnecting(ILinkSource source) {
-    linkState = CheckCanLinkWith(source) ? LinkState.AcceptingLinks : LinkState.RejectingLinks;
+  protected virtual void OnStartLinkingKASEvent(ILinkSource source) {
+    if (CheckCanLinkWith(source)) {
+      SetLinkState(LinkState.AcceptingLinks);
+    }
   }
 
   /// <summary>Cancels  the linking mode on this module.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="connectionSource"></param>
-  protected virtual void OnStopConnecting(ILinkSource connectionSource) {
-    linkState = LinkState.Available;
+  protected virtual void OnStopLinkingKASEvent(ILinkSource connectionSource) {
+    if (!isLocked) {
+      SetLinkState(LinkState.Available);
+    }
   }
   #endregion
 
   #region New inheritable methods
   /// <summary>Verifies that part can link with the source.</summary>
+  /// <remarks>
+  /// It only checks if the source is <i>eligibile</i> to link with this target, not the actual
+  /// conditions. The source is responsible to verify all the conditions before finiliszing the link.
+  /// </remarks>
   /// <param name="source">Source to check against.</param>
   /// <returns>
   /// <c>true</c> if link is <i>technically</i> possible. It's not guaranteed that the link will

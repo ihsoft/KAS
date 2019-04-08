@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace KASImpl {
 
-class JointUtilsImpl : KASAPIv1.IJointUtils {
+class JointUtilsImpl : KASAPIv2.IJointUtils {
   /// <inheritdoc/>
   public string DumpJoint(ConfigurableJoint joint) {
     if (joint == null) {

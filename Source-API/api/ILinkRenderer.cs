@@ -1,11 +1,11 @@
 ﻿// Kerbal Attachment System API
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// API design and implemenation: igor.zavoychinskiy@gmail.com
+// Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
 using UnityEngine;
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>
 /// Interface for a module that takes care of rendering a link and, optionally, manages its
@@ -34,11 +34,12 @@ public interface ILinkRenderer {
   // TODO(ihsoft): Deprecate it.
   string shaderNameOverride { get; set; }
 
-  /// <summary>Tells if the link interacts with the rigid bodies.</summary>
+  /// <summary>Tells if the link colliders should be active.</summary>
   /// <value>The current state of the collider(s).</value>
   /// <remarks>
-  /// Setting this property to <c>false</c> turns the link colliders into triggers. I.e. the link
-  /// won't have a physical impact but the collision events will be sent to the parent game object.
+  /// Setting this property to <c>false</c> disables the link colliders, if there were any. Setting
+  /// this oroperty to <c>true</c> doesn't make the link physlcal, it only enables the colliders
+  /// that were already on the link.
   /// </remarks>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">
   /// Unity3D: Collider</seealso>
@@ -70,19 +71,6 @@ public interface ILinkRenderer {
   /// <remarks>The value is undefined if the renderer is not started.</remarks>
   /// <seealso cref="StartRenderer"/>
   Transform targetTransform { get; }
-
-  /// <summary>
-  /// Defines how significantly the link has stretched or shrinked comparing to it's "normal" state.
-  /// </summary>
-  /// <value>The stretch/shrink ratio.</value>
-  /// <remarks>
-  /// A value below <c>1.0</c> means the link has shrinked. Otherwise, it's stretched. 
-  /// <para>
-  /// This ratio only affects the visual representation. For the renderers that don't care about
-  /// stretching it's ok to always return <c>1.0</c> from the getter and ignore calls to the setter.
-  /// </para>
-  /// </remarks>
-  float stretchRatio { get; set; }
 
   /// <summary>Starts rendering a link between the objects.</summary>
   /// <remarks>
@@ -121,8 +109,9 @@ public interface ILinkRenderer {
 
   /// <summary>Called when a link representation update is required.</summary>
   /// <remarks>
-  /// The performance cost of this method is rated as moderate. The callers should consider
-  /// optimization techniques to avoid calling this method on the every frame update.
+  /// It's called on every frame update if the link is started. The performance cost of this method
+  /// is rated as moderate. The callers should consider optimization techniques to avoid calling
+  /// this method on the every frame update.
   /// <para>
   /// A specific renderer implementation may introduce own optimization algorithm when the call
   /// becomes too heavy and slow.
@@ -132,13 +121,23 @@ public interface ILinkRenderer {
 
   /// <summary>Verifies that there are no obstacles beween the points.</summary>
   /// <remarks>The renderer is not required to be started for this method to call.</remarks>
-  /// <param name="source">Source node.</param>
-  /// <param name="target">Target node.</param>
+  /// <param name="source">The source node.</param>
+  /// <param name="target">The target node.</param>
   /// <returns>
   /// An empty array if no hits were detected, or a list of user friendly errors otherwise.
   /// </returns>
   // TODO(ihsoft): Deprecate it in favor of the hollo model callback.
   string[] CheckColliderHits(Transform source, Transform target);
+
+  /// <summary>Returns a mesh, created by the renderer.</summary>
+  /// <remarks>
+  /// It depends on the implementation which meshes a specific renderer creates. The caller must be
+  /// aware of which renderer it uses and don't request unknown meshes.
+  /// </remarks>
+  /// <param name="meshName">The name of the mesh. It's not required to be the object name!</param>
+  /// <returns>The object or <c>null</c> if the named mesh is not created.</returns>
+  /// <exception cref="ArgumentException">If the mesh cannot be retrieved.</exception>
+  Transform GetMeshByName(string meshName);
 }
 
 }  // namespace

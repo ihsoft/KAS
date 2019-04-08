@@ -1,9 +1,8 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>Defines currect state of the link.</summary>
 /// <remarks>Each implementation defines own state tranistion model. E.g.
@@ -17,7 +16,8 @@ public enum LinkState {
   /// <summary>Module is avalable for the links.</summary>
   Available,
   /// <summary>
-  /// Module is unavailable for the link because of another module on the part has established one. 
+  /// Module is unavailable for the link because of another module on the same node has already
+  /// established a link.
   /// </summary>
   Locked,
   /// <summary>
@@ -30,7 +30,8 @@ public enum LinkState {
   /// <remarks>It means all the reasonable conditions are met. Though, the link still can fail on
   /// the final attempt.</remarks>
   AcceptingLinks,
-  /// <summary>Module doesn't accept link and will reject any request.</summary>
+  /// <summary>Module cannot link and will reject any request.</summary>
+  /// <remarks>Link sources go into this state when one of them starts linking.</remarks>
   RejectingLinks,
   /// <summary>
   /// The attach node, allocated to the module, is occupied by another part, which doesn't support

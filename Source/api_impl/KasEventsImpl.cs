@@ -3,7 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 
 namespace KASImpl {
 
@@ -13,19 +13,23 @@ namespace KASImpl {
 public class KasEventsImpl : IKasEvents {
   /// <inheritdoc/>
   public EventData<ILinkSource> OnStartLinking { get { return _onStartLinking; } }
-  EventData<ILinkSource> _onStartLinking = new EventData<ILinkSource>("KASOnStartLinking");
+  readonly EventData<ILinkSource> _onStartLinking =
+      new EventData<ILinkSource>("KASOnStartLinking");
 
   /// <inheritdoc/>
   public EventData<ILinkSource> OnStopLinking { get { return _onStopLinking; } }
-  EventData<ILinkSource> _onStopLinking = new EventData<ILinkSource>("KASOnStopLinking");
+  readonly EventData<ILinkSource> _onStopLinking =
+      new EventData<ILinkSource>("KASOnStopLinking");
 
   /// <inheritdoc/>
   public EventData<IKasLinkEvent> OnLinkCreated { get { return _onLinkCreated; } }
-  EventData<IKasLinkEvent> _onLinkCreated = new EventData<IKasLinkEvent>("KASOnLinkCreated");
+  readonly EventData<IKasLinkEvent> _onLinkCreated =
+      new EventData<IKasLinkEvent>("KASOnLinkCreated");
 
   /// <inheritdoc/>
   public EventData<IKasLinkEvent> OnLinkBroken { get { return _onLinkBroken; } }
-  EventData<IKasLinkEvent> _onLinkBroken = new EventData<IKasLinkEvent>("KASOnLinkBroken");
+  readonly EventData<IKasLinkEvent> _onLinkBroken =
+      new EventData<IKasLinkEvent>("KASOnLinkBroken");
 }
 
 }  // namespace

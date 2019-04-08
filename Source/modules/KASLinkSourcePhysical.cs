@@ -1,23 +1,21 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
-using KASAPIv1.GUIUtils;
+using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.Extensions;
 using KSPDev.GUIUtils;
-using KSPDev.KSPInterfaces;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using KSPDev.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Highlighting;
 
 namespace KAS {
 
@@ -31,16 +29,13 @@ namespace KAS {
 /// to the unmanned vessels, but they must be fully controllable.
 /// </para>
 /// <para>
-/// The module is a <see cref="ILinkSource">link source</see>. And the target must be a compatible
-/// <see cref="ILinkTarget">link target</see>.
+/// This module doesn't tolerate an incompatible target at its connector node. If there is one
+/// detected, it gets automatically disconnected.
 /// </para>
 /// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
+/// For the proper work, the renderer must provide mesh
+/// <see cref="KASRendererPipe.TargetNodeMesh"/>.
 /// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
@@ -48,6 +43,7 @@ namespace KAS {
 /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13011.
 public class KASLinkSourcePhysical : KASLinkSourceBase {
+
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
@@ -104,16 +100,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Part's config fields
-  /// <summary>Object that represents the connector's model.</summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked globally, starting from the part's model root.
-  /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorModel = "";
-
   /// <summary>Mass of the connector of the winch.</summary>
   /// <remarks>
   /// It's substracted from the part's mass on deploy, and added back on the lock. For this reason
@@ -122,107 +108,58 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
-
-  /// <summary>
-  /// Name of the object that is used to align the cable connector against the target part.
-  /// </summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked starting from the connector's model.
-  /// </remarks>
-  /// <seealso cref="connectorModel"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorPartAttachAt = "";
-
-  /// <summary>Position and rotation of the connector-to-part attach point.</summary>
-  /// <remarks>
-  /// <para>
-  /// The values must be given in the coordinates local to the connector. This value will only be
-  /// used if there is no object named <see cref="connectorPartAttachAt"/> in the connector's object
-  /// hierarchy.
-  /// </para>
-  /// <para>The value is a serialized format of <see cref="PosAndRot"/>.</para>
-  /// </remarks>
-  /// <seealso cref="connectorPartAttachAt"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
-  [KSPField]
-  public string connectorPartAttachAtPosAndRot = "";
-
-  /// <summary>
-  /// Name of the object that is used to align the cable mesh to the cable connector.
-  /// </summary>
-  /// <remarks>
-  /// The value is a <see cref="Hierarchy.FindTransformByPath(Transform,string,Transform)"/> search
-  /// path. The path is looked starting from the connector model.
-  /// </remarks>
-  /// <seealso cref="connectorModel"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
-  [KSPField]
-  public string connectorCableAttachAt = "";
-
-  /// <summary>Position and rotation of the cable-to-connector attach point.</summary>
-  /// <remarks>
-  /// The values must be given in the coordinates local to the connector. This value will only be
-  /// used if there is no object named <see cref="connectorCableAttachAt"/> in the connector's
-  /// object hierarchy.
-  /// </remarks>
-  /// <seealso cref="connectorCableAttachAt"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
-  [KSPField]
-  public string connectorCableAttachAtPosAndRot;
-
-  /// <summary>Offset from the link node for the physical connector to park.</summary>
-  /// <remarks>
-  /// When the connector is "locked" to the owner part, it will be placed here, aligned at the
-  /// connector's cable anchor.
-  /// </remarks>
-  /// <seealso cref="ILinkPeer.nodeTransform"/>
-  /// <seealso cref="connectorCableAttachAt"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
-  [KSPField]
-  public Vector3 connectorParkPositionOffset = Vector3.zero;
 
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
   /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Connector interact distance")]
   public float connectorInteractDistance = 0.3f;
 
   /// <summary>URL of the sound for the event of returning the connector to the winch.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - lock connector")]
   public string sndPathLockConnector = "";
 
   /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - dock connector")]
   public string sndPathDockConnector = "";
 
   /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - grab connector")]
   public string sndPathGrabConnector = "";
 
   /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - plug connector")]
   public string sndPathPlugConnector = "";
   
   /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - unplug connector")]
   public string sndPathUnplugConnector = "";
 
   /// <summary>URL of the sound for the event of cable emergency detachment (link broken).</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Sound - link broke")]
   public string sndPathBroke = "";
+
+  /// <summary>
+  /// Tells if an incompatible target at the connector's node should be immediately decoupled.
+  /// </summary>
+  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Decouple incompatible targets")]
+  public bool decoupleIncompatibleTargets;
   #endregion
 
   #region Persistent fields
@@ -232,9 +169,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public bool persistedIsConnectorLocked = true;
 
   /// <summary>Position and rotation of the deployed connector.</summary>
+  /// <remarks>It's relative to the source part.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
-  protected PosAndRot persistedConnectorPosAndRot;
+  public PosAndRot persistedConnectorPosAndRot;
   #endregion
 
   #region The context menu fields
@@ -382,15 +320,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     }
   }
 
-  /// <summary>Anchor transform at the connector to attach the cable.</summary>
-  protected Transform connectorCableAnchor { get; private set; }
-
-  /// <summary>Anchor transform at the connector to attach with the part.</summary>
-  protected Transform connectorPartAnchor { get; private set; }
-
-  /// <summary>Anchor transform at the owning part to attach the cable.</summary>
-  protected Transform partCableAnchor { get; private set; }
-
   /// <summary>State of the connector head.</summary>
   /// <value>The connector state.</value>
   /// <seealso cref="SetConnectorState"/>
@@ -407,31 +336,42 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     }
   }
 
-  /// <summary>Winch connector model transformation object.</summary>
-  /// <remarks>
-  /// Depending on the current state this model can be a child to the part's model or a standalone
-  /// object.
-  /// </remarks>
-  /// <value>The root transformation of the connector object.</value>
-  /// <seealso cref="ConnectorState"/>
-  protected Transform connectorModelObj { get; private set; }
-
   /// <summary>Physical joint module that control the cable.</summary>
   /// <remarks>
   /// Note, that the module will <i>not</i> notice any changes done to the joint. Always call
   /// <see cref="UpdateContextMenu"/> on this module after the update to the joint settings.
   /// </remarks>
-  /// <value>The module instance.</value>
+  /// <value>The module instance. It's never <c>null</c>.</value>
   /// <seealso cref="SetCableLength"/>
-  protected ILinkCableJoint cableJoint { get { return linkJoint as ILinkCableJoint; } }
+  protected ILinkCableJoint cableJoint {
+    get {
+      var res = linkJoint as ILinkCableJoint;
+      if (linkJoint != null && res == null) {
+        throw new InvalidOperationException(
+            "Joint is not cable: " + DebugEx.ObjectToString(linkJoint));
+      }
+      return res;
+    }
+  }
 
   /// <summary>State machine that defines and controls the connector state.</summary>
   /// <remarks>
   /// It's not safe to change the connector state on a part with no physics! If the state needs to
   /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
   /// </remarks>
+  /// <value>The state machine instance. It's never <c>null</c>.</value>
   /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<ConnectorState> connectorStateMachine { get; private set; }
+
+  /// <summary>The physical object of the connector.</summary>
+  /// <remarks>
+  /// Only exists in state state <see cref="ConnectorState.Deployed"/>. In this mode the renderer
+  /// pipe target model is attached to this object and aligned at the pipe/part anchors. This is
+  /// <i>not</i> the actual model of the connector!
+  /// </remarks>
+  /// <value>The object or <c>null</c> if the connector is not physical.</value>
+  /// <seealso cref="connectorState"/>
+  protected Transform connectorObj { get; private set; }
   #endregion
 
   #region Local fields & properties
@@ -440,7 +380,43 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   BaseEvent GrabConnectorEventInject;
   #endregion
 
-  #region KASLikSourceBase overrides
+  #region IHasDebugAdjustables implementation
+  PosAndRot dbgOldConnectorPosAndRot;
+  ConnectorState dbgOldConnectorState;
+  float dbgOldCableLength;
+
+  /// <inheritdoc/>
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    dbgOldConnectorState = connectorState;
+    if (connectorState == ConnectorState.Deployed) {
+      dbgOldCableLength = currentCableLength;
+      SaveConnectorModelPosAndRot();
+      dbgOldConnectorPosAndRot = persistedConnectorPosAndRot;
+      SetConnectorState(ConnectorState.Locked);
+    }
+    base.OnBeforeDebugAdjustablesUpdate();
+  }
+
+  /// <inheritdoc/>
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
+    AsyncCall.CallOnEndOfFrame(
+        this,
+        () => {
+          if (dbgOldConnectorState == ConnectorState.Deployed) {
+            HostedDebugLog.Warning(
+                this, "Restoring connector: state={0}, at={1}, length={2}",
+                dbgOldConnectorState, dbgOldConnectorPosAndRot, dbgOldCableLength);
+            persistedConnectorPosAndRot = dbgOldConnectorPosAndRot;
+            SetConnectorState(dbgOldConnectorState);
+            SetCableLength(dbgOldCableLength);
+          }
+        },
+        skipFrames: 1);  // To match the base class delay.
+  }
+  #endregion
+
+  #region KASLinkSourceBase overrides
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
@@ -455,54 +431,37 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     GrabConnectorEventInject.guiActiveUncommand = true;
     GrabConnectorEventInject.guiActiveUnfocused = true;
 
-    GameEvents.onVesselChange.Add(OnVesselChange);
+    RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
 
   /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselChange.Remove(OnVesselChange);
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    // The locked connector with a part attached is get docked. So we require docking mode here.
-    // TODO(ihsoft): Allow non-docking mode.
+  protected override void CheckSettingsConsistency() {
     if (!allowCoupling) {
-      HostedDebugLog.Error(this, "The coupling must be allowed for this part to work. Overriding"
-                           + " allowCoupling settings to true.");
-      allowCoupling = true;  // A bad approach, but better than not having the attach node.
+      // Connector docking mode is required!
+      // TODO(ihsoft): Allow non-docking mode.
+      allowCoupling = true;
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: allowCoupling => {0}, due to it's required by physical"
+          + " source", allowCoupling);
     }
-    base.OnLoad(node);
+    base.CheckSettingsConsistency();
     if (connectorMass > part.mass) {
-      HostedDebugLog.Error(this,
-          "Connector mass is greater than the part's mass: {0} > {1}", connectorMass, part.mass);
       connectorMass = 0.1f * part.mass;  // A fail safe value. 
+      HostedDebugLog.Warning(
+          this, "Inconsistent setting fixed: connectorMass => {0}, due to partMass={1}",
+          connectorMass, part.mass);
     }
-    LoadOrCreateConnectorModel();
-    if (!persistedIsConnectorLocked) {
-      // In case of the connector is not locked to either the winch or the target part, adjust its
-      // model position and rotation. The rest of the state will be restored in the state machine. 
-      if (persistedConnectorPosAndRot != null) {
-        var world = gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
-        connectorModelObj.position = world.pos;
-        connectorModelObj.rotation = world.rot;
-      }
+    if (linkJoint != null && cableJoint == null) {
+      HostedDebugLog.Error(
+          this, "Cannot fix inconsistent setting: jointName={0} is not cable joint", jointName);
     }
   }
 
   /// <inheritdoc/>
   public override void OnSave(ConfigNode node) {
-    // Persist the connector data only if its position is not fixed to the winch model.
-    // It must be the peristsent state since the state machine can be in a different state at this
-    // moment (e.g. during the vessel backup).
-    if (!persistedIsConnectorLocked && !isLinked) {
-      persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
-          new PosAndRot(connectorModelObj.position, connectorModelObj.rotation.eulerAngles));
-    } else {
-      // In linked or locked state the connector is fixed to either source or target part. 
-      persistedConnectorPosAndRot = null;
-    }
+    if (connectorObj != null) {
+      SaveConnectorModelPosAndRot();  // Update to the actual position.
+    } 
     base.OnSave(node);
   }
 
@@ -510,8 +469,17 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public override void OnPartUnpack() {
     base.OnPartUnpack();
     // The physics has started. It's safe to restore the connector (it can be physical).
-    if (!connectorStateMachine.currentState.HasValue) {
-      SetConnectorState(connectorState);  // The connectorState property handles the defaults.
+    SetConnectorState(connectorState);
+  }
+
+  /// <inheritdoc/>
+  protected override void RestoreOtherPeer() {
+    base.RestoreOtherPeer();
+    if (otherPeer == null) {
+      persistedIsConnectorLocked = true;
+      if (linkJoint != null) {
+        linkJoint.DropJoint();  // Cleanup the joints state.
+      }
     }
   }
 
@@ -519,6 +487,10 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public override void OnPartDie() {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
+    if (connectorObj != null) {
+      // Don't relay on the connector state machine, it will try to destory immediately.
+      KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
+    }
     SetConnectorState(ConnectorState.Locked);
   }
 
@@ -538,6 +510,20 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
           PartModuleUtils.DropEvent(module, GrabConnectorEventInject);
         });
+    linkStateMachine.AddStateHandlers(
+        LinkState.NodeIsBlocked,
+        enterHandler: oldState => {
+          if (decoupleIncompatibleTargets
+              && coupleNode != null && coupleNode.attachedPart != null) {
+            HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
+                                   coupleNode.FindOpposingNode().attachedPart);
+            UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
+            ShowStatusMessage(
+                CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
+            KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+          }
+        },
+        callOnShutdown: false);
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
     // state handlers reset the state back to the default.
@@ -582,23 +568,19 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Locked,
         enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;
-          PartModel.UpdateHighlighters(part);
-          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
-              .ForEach(r => r.SetPropertyBlock(part.mpb));
-          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, partCableAnchor);
-          SetCableLength(0);
+          SaveConnectorModelPosAndRot();
           if (oldState.HasValue) {  // Skip when restoring state.
             UISoundPlayer.instance.Play(sndPathLockConnector);
           }
         },
+        leaveHandler: newState =>
+            SaveConnectorModelPosAndRot(saveNonPhysical: newState == ConnectorState.Deployed),
         callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Docked,
         enterHandler: oldState => {
-          connectorModelObj.parent = nodeTransform;
-          AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, partCableAnchor);
-          SetCableLength(0);
+          SaveConnectorModelPosAndRot();
+          cableJoint.SetLockedOnCouple(true);
 
           // Align the docking part to the nodes if it's a separate vessel.
           if (oldState.HasValue && linkTarget.part.vessel != vessel) {
@@ -607,50 +589,22 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
             UISoundPlayer.instance.Play(sndPathDockConnector);
           }
         },
-        leaveHandler: newState => linkJoint.SetCoupleOnLinkMode(false),
-        callOnShutdown: false);
-    connectorStateMachine.AddStateHandlers(
-        ConnectorState.Deployed,
-        enterHandler: oldState => {
-          TurnConnectorPhysics(true);
-          connectorModelObj.parent = connectorModelObj;
-          PartModel.UpdateHighlighters(part);
-          linkRenderer.StartRenderer(partCableAnchor, connectorCableAnchor);
-        },
         leaveHandler: newState => {
-          TurnConnectorPhysics(false);
-          linkRenderer.StopRenderer();
+          cableJoint.SetLockedOnCouple(false);
+          SaveConnectorModelPosAndRot(saveNonPhysical: newState == ConnectorState.Deployed);
+          linkJoint.SetCoupleOnLinkMode(false);
         },
         callOnShutdown: false);
     connectorStateMachine.AddStateHandlers(
         ConnectorState.Plugged,
-        enterHandler: oldState => {
-          // Destroy the previous highlighter if any, since it would interfere with the new owner.
-          DestroyImmediate(connectorModelObj.GetComponent<Highlighter>());
-          connectorModelObj.parent = linkTarget.nodeTransform;
-          PartModel.UpdateHighlighters(part);
-          PartModel.UpdateHighlighters(linkTarget.part);
-          connectorModelObj.GetComponentsInChildren<Renderer>().ToList()
-              .ForEach(r => r.SetPropertyBlock(linkTarget.part.mpb));
-          AlignTransforms.SnapAlign(
-              connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
-          linkRenderer.StartRenderer(partCableAnchor, connectorCableAnchor);
-        },
-        leaveHandler: newState => {
-          var oldParent = connectorModelObj.GetComponentInParent<Part>();
-          var oldHigh = oldParent.HighlightActive;
-          if (oldHigh) {
-            // Disable the part highlight to restore the connector's renderer materials.
-            oldParent.SetHighlight(false, false);
-          }
-          connectorModelObj.parent = nodeTransform;  // Back to the model.
-          PartModel.UpdateHighlighters(part);
-          PartModel.UpdateHighlighters(oldParent);
-          if (oldHigh) {
-            oldParent.SetHighlight(true, false);
-          }
-          linkRenderer.StopRenderer();
-        },
+        enterHandler: oldState => SaveConnectorModelPosAndRot(),
+        leaveHandler: newState =>
+            SaveConnectorModelPosAndRot(saveNonPhysical: newState == ConnectorState.Deployed),
+        callOnShutdown: false);
+    connectorStateMachine.AddStateHandlers(
+        ConnectorState.Deployed,
+        enterHandler: oldState => StartPhysicsOnConnector(),
+        leaveHandler: newState => StopPhysicsOnConnector(),
         callOnShutdown: false);
   }
 
@@ -662,9 +616,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   /// <inheritdoc/>
   protected override void LogicalLink(ILinkTarget target) {
+    StopPhysicsOnConnector();
     base.LogicalLink(target);
     if (target.part == parsedAttachNode.attachedPart && part == target.coupleNode.attachedPart) {
       // The target part is externally attached.
+      linkJoint.SetCoupleOnLinkMode(true);
       SetConnectorState(ConnectorState.Docked);
     } else {
       SetConnectorState(ConnectorState.Plugged);
@@ -674,53 +630,26 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
             : sndPathPlugConnector);
       }
     }
-    linkRenderer.StartRenderer(partCableAnchor, connectorCableAnchor);
   }
 
   /// <inheritdoc/>
   protected override void LogicalUnlink(LinkActorType actorType) {
-    base.LogicalUnlink(actorType);
-    SetConnectorState(isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed);
+    SaveConnectorModelPosAndRot(saveNonPhysical: true);
     if (actorType == LinkActorType.Physics) {
       UISoundPlayer.instance.Play(sndPathBroke);
       ShowStatusMessage(CableLinkBrokenMsg, isError: true);
-    } else if (actorType == LinkActorType.Player) {
-      if (connectorState == ConnectorState.Deployed) {
-        UISoundPlayer.instance.Play(sndPathUnplugConnector);
-      }
+    }
+    base.LogicalUnlink(actorType);
+    SetConnectorState(isConnectorLocked ? ConnectorState.Locked : ConnectorState.Deployed);
+    if (actorType == LinkActorType.Player && connectorState == ConnectorState.Deployed) {
+      UISoundPlayer.instance.Play(sndPathUnplugConnector);
     }
   }
 
   /// <inheritdoc/>
-  protected override void PhysicaUnlink() {
+  protected override void PhysicalUnlink() {
     SetCableLength(cableJoint.realCableLength);
-    base.PhysicaUnlink();
-  }
-
-  /// <inheritdoc/>
-  protected override void RestoreOtherPeer() {
-    base.RestoreOtherPeer();
-    if (linkTarget != null) {
-      // Do it before physics kicked-in to have the cable distance calculated correctly.
-      AlignTransforms.SnapAlign(
-          connectorModelObj, connectorPartAnchor, linkTarget.nodeTransform);
-      // Only do it for the visual improvements of the vessel loading. The connector state machine
-      // will handle it right, but it only happens when the physics is started.
-      linkRenderer.StartRenderer(partCableAnchor, connectorCableAnchor);
-    }
-  }
-
-  /// <inheritdoc/>
-  protected override void CheckCoupleNode() {
-    base.CheckCoupleNode();
-    if (linkState == LinkState.NodeIsBlocked && coupleNode.attachedPart != null) {
-      HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
-                             coupleNode.FindOpposingNode().attachedPart);
-      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
-      ShowStatusMessage(
-          CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
-      KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
-    }
+    base.PhysicalUnlink();
   }
 
   /// <inheritdoc/>
@@ -729,11 +658,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
     connectorStateMenuInfo = ConnectorStatesMsgLookup.Lookup(connectorState);
     PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
-      e.active &= !isConnectorLocked;
+      e.active &= !isConnectorLocked && linkState != LinkState.NodeIsBlocked;
     });
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
-      e.active = connectorState == ConnectorState.Locked;
-      GrabConnectorEventInject.guiName = e.guiName;
+      e.active = connectorState == ConnectorState.Locked && linkState != LinkState.NodeIsBlocked;
+      if (GrabConnectorEventInject != null) {
+        GrabConnectorEventInject.guiName = e.guiName;
+      }
     });
     PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
       e.active = IsActiveEvaHoldingConnector();
@@ -744,8 +675,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     PartModuleUtils.SetupEvent(this, InstantLockConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Deployed;
     });
-    GrabConnectorEventInject.active = linkTarget != null
-        && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
+    if (GrabConnectorEventInject != null) {
+      GrabConnectorEventInject.active = linkTarget != null
+          && connectorState == ConnectorState.Plugged
+          && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
+    }
   }
   #endregion
 
@@ -767,10 +701,46 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </summary>
   /// <returns><c>true</c> if the connector on the kerbal.</returns>
   protected bool IsActiveEvaHoldingConnector() {
-    return FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
+    return FlightGlobals.fetch != null  // To prevent NRE on the game shutdown. 
+        && FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
         && FlightGlobals.ActiveVessel.isEVA
+        && isLinked
         && linkTarget != null && linkTarget.part != null
         && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
+  }
+
+  /// <summary>Returns connector's model.</summary>
+  /// <returns>The model object. It's never <c>null</c>.</returns>
+  /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
+  protected Transform GetConnectorModel() {
+    return linkRenderer.GetMeshByName(KASRendererPipe.TargetNodeMesh);
+  }
+
+  /// <summary>Returns connector's anchor, at wich it attaches to the pipe.</summary>
+  /// <returns>The anchor object. It's never <c>null</c>.</returns>
+  /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
+  protected Transform GetConnectorModelPipeAnchor() {
+    return FindModelOrThrow(GetConnectorModel(), KASRendererPipe.PipeJointTransformName);
+  }
+
+  /// <summary>Returns connector's anchor, at which it attaches to the target part.</summary>
+  /// <returns>The anchor object. It's never <c>null</c>.</returns>
+  /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
+  protected Transform GetConnectorModelPartAnchor() {
+    return FindModelOrThrow(GetConnectorModel(), KASRendererPipe.PartJointTransformName);
+  }
+
+  /// <summary>Finds model by path or logs&amp;throws.</summary>
+  /// <remarks>Just a convinience method to avoid unclear NREs.</remarks>
+  /// <returns>The model. It's never <c>null</c>.</returns>
+  /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
+  protected Transform FindModelOrThrow(Transform root, string path) {
+    var res = Hierarchy.FindTransformByPath(root, path);
+    if (res == null) {
+      HostedDebugLog.Error(this, "Cannot find model: path={0}, parent={1}", path, root);
+      throw new ArgumentException("Model not found: " + path);
+    }
+    return res;
   }
 
   /// <summary>Sets the deployed cable length.</summary>
@@ -786,13 +756,17 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </para>
   /// </remarks>
   /// <param name="length">
-  /// The new length. Set it to <c>PositiveInfinity</c> to extend the cable at the maximum length.
-  /// Omit the parameter to macth the length to the current distance to the connector (stretch the
-  /// cable).
+  /// This argument is basically the same as the length, passed to
+  /// <see cref="ILinkCableJoint.SetCableLength"/>. However, if the value is not infinite, it's
+  /// brought to the range [0; maxLinkLength].
   /// </param>
   /// <seealso cref="connectorState"/>
+  /// <seealso cref="ILinkCableJoint"/>
   protected virtual void SetCableLength(float length) {
     if (cableJoint != null) {
+      if (!float.IsInfinity(length)) {
+        length = Mathf.Min(Mathf.Max(length, 0f), cableJoint.cfgMaxCableLength);
+      }
       cableJoint.SetCableLength(length);
     }
     UpdateContextMenu();
@@ -800,106 +774,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Local utility methods
-  /// <summary>
-  /// Makes the winch connector an idependent physcal onbject or returns it into a part's model as
-  /// a physicsless object.
-  /// </summary>
-  /// <remarks>
-  /// Note, that physics objects on the connector don't die in this method call. They will be
-  /// cleaned up at the frame end. The caller must consider it when dealing with the connector.
-  /// </remarks>
-  /// <param name="state">The physical state of the connector: <c>true</c> means "physical".</param>
-  void TurnConnectorPhysics(bool state) {
-    if (state && cableJoint.headRb == null) {
-      HostedDebugLog.Info(this, "Make the cable connector physical");
-      var connector = KASInternalPhysicalConnector.Promote(
-          this, connectorModelObj.gameObject, connectorInteractDistance);
-      cableJoint.StartPhysicalHead(this, connectorCableAnchor);
-      connector.connectorRb.mass = connectorMass;
-      part.mass -= connectorMass;
-      part.rb.mass -= connectorMass;
-    } else if (!state && cableJoint.headRb != null) {
-      HostedDebugLog.Info(this, "Make the cable connector non-physical");
-      cableJoint.StopPhysicalHead();
-      KASInternalPhysicalConnector.Demote(connectorModelObj.gameObject);
-      part.mass += connectorMass;
-      part.rb.mass += connectorMass;
-    }
-  }
-
-  /// <summary>Intializes the connector model object and its anchors.</summary>
-  /// <remarks>
-  /// <para>
-  /// If the connector model is not found then a stub object will be created. There will be no visual
-  /// representation but the overall functionality of the winch should keep working.
-  /// </para>
-  /// <para>
-  /// If the connector doesn't have the anchors then the missed ones will be created basing on the
-  /// provided position/rotation. If the config file doesn't provide anything then the anchors will
-  /// have a zero position and a random rotation.
-  /// </para>
-  /// </remarks>
-  void LoadOrCreateConnectorModel() {
-    var ConnectorModelName = "ConnectorModel" + part.Modules.IndexOf(this);
-    var ConnectorParkAnchorName = "ConnectorParkAnchor" + part.Modules.IndexOf(this);
-    const string CableAnchorName = "CableAnchor";
-    const string PartAnchorName = "PartAnchor";
-    
-    if (!PartLoader.Instance.IsReady()) {
-      // Make the missing models and set the proper hierarchy.
-      connectorModelObj = Hierarchy.FindPartModelByPath(part, connectorModel);
-      connectorCableAnchor = connectorCableAttachAt != ""
-          ? Hierarchy.FindPartModelByPath(part, connectorCableAttachAt) : null;
-      connectorPartAnchor = connectorPartAttachAt != ""
-          ? Hierarchy.FindPartModelByPath(part, connectorPartAttachAt) : null;
-
-      if (connectorModelObj == null) {
-        HostedDebugLog.Error(this, "Cannot find a connector model: {0}", connectorModel);
-        // Fallback to not have the whole code to crash.
-        connectorModelObj = new GameObject().transform;
-      }
-      connectorModelObj.name = ConnectorModelName;
-      connectorModelObj.parent = nodeTransform;
-      
-
-      if (connectorCableAnchor == null) {
-        if (connectorCableAttachAt != "") {
-          HostedDebugLog.Error(
-              this, "Cannot find cable anchor transform: {0}", connectorCableAttachAt);
-        }
-        connectorCableAnchor = new GameObject().transform;
-        var posAndRot = PosAndRot.FromString(connectorCableAttachAtPosAndRot);
-        Hierarchy.MoveToParent(connectorCableAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
-      }
-      connectorCableAnchor.name = CableAnchorName;
-      connectorCableAnchor.parent = connectorModelObj;
-
-      if (connectorPartAnchor == null) {
-        if (connectorPartAttachAt != "") {
-          HostedDebugLog.Error(
-              this, "Cannot find part anchor transform: {0}", connectorPartAttachAt);
-        }
-        connectorPartAnchor = new GameObject().transform;
-        var posAndRot = PosAndRot.FromString(connectorPartAttachAtPosAndRot);
-        Hierarchy.MoveToParent(connectorPartAnchor, connectorModelObj,
-                               newPosition: posAndRot.pos, newRotation: posAndRot.rot);
-      }
-      connectorPartAnchor.name = PartAnchorName;
-      connectorPartAnchor.parent = connectorModelObj;
-
-      partCableAnchor = new GameObject(ConnectorParkAnchorName).transform;
-      Hierarchy.MoveToParent(
-          partCableAnchor, nodeTransform, newPosition: connectorParkPositionOffset);
-    } else {
-      connectorModelObj = nodeTransform.Find(ConnectorModelName);
-      connectorCableAnchor = connectorModelObj.Find(CableAnchorName);
-      connectorPartAnchor = connectorModelObj.Find(PartAnchorName);
-      partCableAnchor = nodeTransform.Find(ConnectorParkAnchorName);
-    }
-    AlignTransforms.SnapAlign(connectorModelObj, connectorCableAnchor, partCableAnchor);
-  }
-
   /// <summary>Helper method to execute context menu updates on vessel switch.</summary>
   /// <param name="v">The new active vessel.</param>
   void OnVesselChange(Vessel v) {
@@ -923,6 +797,79 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
     }
+  }
+
+  /// <summary>Saves the connector relative position and rotation.</summary>
+  /// <remarks>If there is no physical connector started, then erases any saved state.</remarks>
+  /// <param name="saveNonPhysical">
+  /// Tells to update state to the connector model position if the physical connector is not
+  /// started. However, the state will be saved only if there was no previous state.
+  /// </param>
+  void SaveConnectorModelPosAndRot(bool saveNonPhysical = false) {
+    if (!saveNonPhysical && connectorObj == null) {
+      persistedConnectorPosAndRot = null;
+      return;
+    }
+    if (saveNonPhysical && connectorObj == null && persistedConnectorPosAndRot != null) {
+      // For non physical connector only update connector if not yet updated. To allow restoring
+      // a deployed connector at an arbitrary location.
+      return;
+    }
+    var connector = connectorObj ?? GetConnectorModel();
+    persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
+        new PosAndRot(connector.position, connector.rotation.eulerAngles));
+  }
+
+  /// <summary>Converts a physicsless connector model into a physical object.</summary>
+  void StartPhysicsOnConnector() {
+    HostedDebugLog.Info(this, "Make the cable connector physical");
+    var connectorPosAndRot =
+        gameObject.transform.TransformPosAndRot(persistedConnectorPosAndRot);
+    var connectorModel = GetConnectorModel();
+    var pipeAttach = GetConnectorModelPipeAnchor();
+    var partAttach = GetConnectorModelPartAnchor();
+    
+    // Make a physical object and attach renderer to it. This will make connector following physics.
+    // Adjust pipe and part transforms the same way as in the connector.
+    connectorObj = new GameObject(
+        "physicalConnectorObj" + part.launchID + "-" + linkRendererName).transform;
+    connectorObj.SetPositionAndRotation(connectorModel.position, connectorModel.rotation);
+    var physPartAttach = new GameObject(partAttach.name + "-reverseAnchor").transform;
+    physPartAttach.SetPositionAndRotation(
+        partAttach.position, Quaternion.LookRotation(-partAttach.forward, -partAttach.up));
+    physPartAttach.parent = connectorObj;
+    var physPipeAttachObj = new GameObject(pipeAttach.name + "-Anchor").transform;
+    physPipeAttachObj.parent = connectorObj;
+    physPipeAttachObj.SetPositionAndRotation(pipeAttach.position, pipeAttach.rotation);
+    connectorObj.SetPositionAndRotation(connectorPosAndRot.pos, connectorPosAndRot.rot);
+
+    var connector = KASInternalPhysicalConnector.Promote(
+        this, connectorObj.gameObject, connectorInteractDistance);
+    connector.connectorRb.mass = connectorMass;
+    part.mass -= connectorMass;
+    part.rb.mass -= connectorMass;
+
+    linkRenderer.StartRenderer(nodeTransform, physPartAttach);
+    Colliders.UpdateColliders(connectorModel.gameObject, isEnabled: true);
+    cableJoint.StartPhysicalHead(this, physPipeAttachObj);
+    SaveConnectorModelPosAndRot();
+  }
+
+  /// <summary>Converts a physical connector back into the physicsless model.</summary>
+  /// <remarks>It's a cleanup method that must always succeed.</remarks>
+  void StopPhysicsOnConnector() {
+    if (connectorObj == null || !linkRenderer.isStarted) {
+      return;  // Nothing to do.
+    }
+    HostedDebugLog.Info(this, "Make the cable connector non-physical");
+    linkRenderer.StopRenderer();
+    cableJoint.StopPhysicalHead();
+    KASInternalPhysicalConnector.Demote(connectorObj.gameObject, false);
+    Destroy(connectorObj.gameObject);
+    connectorObj = null;
+    part.mass += connectorMass;
+    part.rb.mass += connectorMass;
+    SaveConnectorModelPosAndRot();
   }
   #endregion
 }

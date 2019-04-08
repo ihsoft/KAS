@@ -3,9 +3,9 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1.GUIUtils;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using KSPDev.MathUtils;
 using KSPDev.ModelUtils;
@@ -43,8 +43,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + " (if any).");
 
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  static readonly Message<PercentTypeTwoDigits, string> compoundResourceName =
-      new Message<PercentTypeTwoDigits, string>(
+  static readonly Message<PercentFixedType, string> compoundResourceName =
+      new Message<PercentFixedType, string>(
           "#kasLOC_12002",
           defaultTemplate: "<<1>> <<2>>",
           description: "The string to present for a fuel mixture component."
@@ -158,6 +158,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Transfer speed")]
   public float maxTransferSpeed = 20.0f;
 
   /// <summary>
@@ -165,7 +166,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
-  public float autolSpeedTransferDuration = 4.0f;
+  [Debug.KASDebugAdjustable("Auto speed duration threshold")]
+  public float autoSpeedTransferDuration = 4.0f;
 
   /// <summary>
   /// Pattern to find the model which will be rotating around X-axis when the hose is
@@ -176,11 +178,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public string rotatingWinchCylinderModel = "";
 
   /// <summary>
-  /// The total length of the cilinder on the outer radius. It's used to calculate the ratio of how
-  /// significantly the cylinder need to rotate when 1m of hose is extended/retarted.
+  /// The total length of the cylinder on the outer radius. It's used to calculate the ratio of how
+  /// significantly the cylinder need to rotate when 1m of hose is extended/retracted.
   /// </summary>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Rotating winch model perimeter")]
   public float cylinderPerimeterLength = 1.0f;
 
   /// <summary>
@@ -209,7 +212,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <item>Not allowed for pumping (e.g. "solid fuel").</item>
   /// </list>
   /// <para>
-  /// To override the rule above, the override can be used. Lis the names of the resources with a
+  /// To override the rule above, the override can be used. List the names of the resources with a
   /// prefix to tell how to handle the resource: prefix "+" means the resource must be allowed to
   /// move no matter what; prefix "-" means the resource(s) must not be allowed to move.
   /// </para>
@@ -219,7 +222,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
   /// </para>
   /// </remarks>
-  /// <seealso cref="resourceOverride"/>
+  /// <seealso cref="allowedResource"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
@@ -455,17 +458,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    GameEvents.onVesselWasModified.Add(OnVesselUpdated);
-    GameEvents.onVesselDestroy.Add(OnVesselUpdated);
-    GameEvents.onVesselCreate.Add(OnVesselUpdated);
-  }
-
-  /// <inheritdoc/>
-  public override void OnDestroy() {
-    base.OnDestroy();
-    GameEvents.onVesselWasModified.Remove(OnVesselUpdated);
-    GameEvents.onVesselDestroy.Remove(OnVesselUpdated);
-    GameEvents.onVesselCreate.Remove(OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselWasModified, OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselDestroy, OnVesselUpdated);
+    RegisterGameEventListener(GameEvents.onVesselCreate, OnVesselUpdated);
   }
 
   /// <inheritdoc/>
@@ -493,7 +488,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     resourceRows.ToList().ForEach(x => x.UpdateStaticStrings());
 
     autoScaleToggleCnt = new GUIContent(
-        AutoScaleToggleTxt, AutoScaleToggleHint.Format(autolSpeedTransferDuration));
+        AutoScaleToggleTxt, AutoScaleToggleHint.Format(autoSpeedTransferDuration));
     leftToRigthToggleCnt = new GUIContent("<<", LeftToRigthToggleHint);
     leftToRigthButtonCnt = new GUIContent("<", LeftToRigthButtonHint);
     rightToLeftToggleCnt = new GUIContent(">>", RightToLeftToggleHint);
@@ -509,13 +504,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.UpdateContextMenu();
 
     PartModuleUtils.SetupEvent(this, OpenGUIEvent, e => {
-      e.active = linkTarget != null && !linkTarget.part.vessel.isEVA;
+      e.active = linkTarget != null && linkTarget.part != null && !linkTarget.part.vessel.isEVA;
     });
   }
 
   /// <inheritdoc/>
-  protected override void PhysicaLink() {
-    base.PhysicaLink();
+  protected override void PhysicalLink() {
+    base.PhysicalLink();
     SetCableLength(float.PositiveInfinity);
   }
   #endregion
@@ -666,7 +661,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
     }
 
-    transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autolSpeedTransferDuration);
+    transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autoSpeedTransferDuration);
   }
   
   /// <summary>Does actual resource transfer on the selected option.</summary>

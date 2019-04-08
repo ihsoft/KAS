@@ -1,7 +1,7 @@
 --project=223900
 --token=<<secret>>
 --changelog=../CHANGELOG.md
---github=ihsoft/KIS
+--github=ihsoft/KAS
 --versions=latest_all_builds
 --title=KAS {tag}
---archive=../KAS_v1.1.zip
+--archive=../KAS_v1.2.zip

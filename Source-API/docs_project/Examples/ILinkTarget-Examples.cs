@@ -2,7 +2,7 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -18,7 +18,7 @@ public class ILinkTargetExample  {
     var linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
     linkStateMachine.SetTransitionConstraint(
         LinkState.Available,
-        new[] {LinkState.AcceptingLinks, LinkState.RejectingLinks});
+        new[] {LinkState.AcceptingLinks});
     linkStateMachine.SetTransitionConstraint(
         LinkState.AcceptingLinks,
         new[] {LinkState.Available, LinkState.Linked, LinkState.Locked});
@@ -28,9 +28,6 @@ public class ILinkTargetExample  {
     linkStateMachine.SetTransitionConstraint(
         LinkState.Locked,
         new[] {LinkState.Available});
-    linkStateMachine.SetTransitionConstraint(
-        LinkState.RejectingLinks,
-        new[] {LinkState.Available, LinkState.Locked});
 
     linkStateMachine.AddStateHandlers(
         LinkState.Available,

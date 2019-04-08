@@ -1,6 +1,6 @@
 --project=1987
 --login=<<secret>>
 --changelog=../CHANGELOG.md
---github=ihsoft/KIS
+--github=ihsoft/KAS
 --ksp_version=latest
---archive=../KAS_v1.1.zip
+--archive=../KAS_v1.2.zip

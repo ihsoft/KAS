@@ -58,6 +58,23 @@
   <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPEvent']/*"/>
 </KspEvent>
 
+<KspAction>
+  <summary-prefix><i>KSP action.</i></summary-prefix>
+  <remarks>
+  <para>
+  The methods that are attributed as KSP actions will be availabe in the editor's custom actions
+  section. Such methods must always be declared as <i>public</i> to let the KSP core correctly
+  handling them. In case of the module class is not sealed, it highly encouraged to define the
+  methods as <i>virtual</i>.
+  </para>
+  <para>
+  Avoid accessing the actions from the other classes. Instead, the owner class should provide an
+  interface. 
+  </para>
+  </remarks>
+  <include file="KSPAPI_HelpIndex.xml" path="//item[@name='T:KSPAction']/*"/>
+</KspAction>
+
 <PersistentField>
   <summary-prefix><i>Persistent field.</i></summary-prefix>
   <remarks>

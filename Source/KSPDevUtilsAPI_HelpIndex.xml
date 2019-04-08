@@ -4,63 +4,68 @@
 
 <!--************ TYPES ************-->
 <item name="T:KSPDev.ConfigUtils.ConfigAccessor">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_ConfigAccessor.htm">KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_ConfigAccessor.htm">KSPDev Utils: ConfigUtils.ConfigAccessor</seealso>
 </item>
 <item name="T:KSPDev.ConfigUtils.PersistentFieldAttribute">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_PersistentFieldAttribute.htm">KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_PersistentFieldAttribute.htm">KSPDev Utils: ConfigUtils.PersistentFieldAttribute</seealso>
 </item>
 <item name="T:KSPDev.ConfigUtils.StdPersistentGroups">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ConfigUtils_StdPersistentGroups.htm">KSPDev Utils: ConfigUtils.StdPersistentGroups</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_StdPersistentGroups.htm">KSPDev Utils: ConfigUtils.StdPersistentGroups</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.AngleType">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_AngleType.htm">KSPDev Utils: GUIUtils.AngleType</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_AngleType.htm">KSPDev Utils: GUIUtils.AngleType</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.DistanceType">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_DistanceType.htm">KSPDev Utils: GUIUtils.DistanceType</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_DistanceType.htm">KSPDev Utils: GUIUtils.DistanceType</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.PercentType">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_PercentType.htm">KSPDev Utils: GUIUtils.EnumType&lt;T&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_PercentType.htm">KSPDev Utils: GUIUtils.EnumType&lt;T&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.ForceType">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_ForceType.htm">KSPDev Utils: GUIUtils.ForceType</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_ForceType.htm">KSPDev Utils: GUIUtils.ForceType</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.MassType">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_MassType.htm">KSPDev Utils: GUIUtils.MassType</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_TypeFormatters_MassType.htm">KSPDev Utils: GUIUtils.MassType</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message.htm">KSPDev Utils: GUIUtils.Message</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message.htm">KSPDev Utils: GUIUtils.Message</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message_1">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_1.htm">KSPDev Utils: GUIUtils.Message&lt;T1&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message_1.htm">KSPDev Utils: GUIUtils.Message&lt;T1&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message_2">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_2.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message_2.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message_3">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_3.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message_3.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message_4">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_4.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message_4.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4&gt;</seealso>
 </item>
 <item name="T:KSPDev.GUIUtils.Message_5">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_GUIUtils_Message_5.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4, T5&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_Message_5.htm">KSPDev Utils: GUIUtils.Message&lt;T1, T2, T3, T4, T5&gt;</seealso>
 </item>
 <item name="T:KSPDev.KSPInterfaces.IPartModule">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_KSPInterfaces_IPartModule.htm">KSPDev Utils: KSPInterfaces.IPartModule</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_KSPInterfaces_IPartModule.htm">KSPDev Utils: KSPInterfaces.IPartModule</seealso>
 </item>
 <item name="T:KSPDev.ProcessingUtils.SimpleStateMachine_1">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_ProcessingUtils_SimpleStateMachine_1.htm">KSPDev Utils: ProcessingUtils.SimpleStateMachine&lt;T1&gt;</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_ProcessingUtils_SimpleStateMachine_1.htm">KSPDev Utils: ProcessingUtils.SimpleStateMachine&lt;T1&gt;</seealso>
 </item>
 <item name="T:KSPDev.Types.PosAndRot">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/T_KSPDev_Types_PosAndRot.htm">KSPDev Utils: Types.PosAndRot</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_Types_PosAndRot.htm">KSPDev Utils: Types.PosAndRot</seealso>
 </item>
 
 <!--************ MEMBERS ************-->
 <item name="M:KSPDev.AlignTransforms.SnapAlign">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_AlignTransforms_SnapAlign.htm">KSPDev Utils: AlignTransforms.SnapAlign</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/M_KSPDev_ModelUtils_AlignTransforms_SnapAlign.htm">KSPDev Utils: AlignTransforms.SnapAlign</seealso>
 </item>
 <item name="M:KSPDev.Hierarchy.FindTransformByPath">
-  <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">KSPDev Utils: Hierarchy.FindTransformByPath</seealso>
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/M_KSPDev_ModelUtils_Hierarchy_FindTransformByPath.htm">KSPDev Utils: Hierarchy.FindTransformByPath</seealso>
+</item>
+
+<!--************ INTERFACES ************-->
+<item name="T:KSPDev.GUIUtils.IsLocalizableModule">
+  <seealso href="https://ihsoft.github.io/KSPDev_Utils/v1.2/html/T_KSPDev_GUIUtils_IsLocalizableModule.htm">KSPDev Utils: GUIUtils.IsLocalizableModule</seealso>
 </item>
 
 <!--************ PROPERTIES ************-->

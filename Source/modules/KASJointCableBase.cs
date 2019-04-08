@@ -3,11 +3,14 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using System.Collections.Generic;
+using KSPDev.ProcessingUtils;
+using System;
+using System.Collections;
 using System.Text;
 using UnityEngine;
 
@@ -53,34 +56,15 @@ public class KASJointCableBase : AbstractJoint,
   /// </remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Cable spring force")]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
   /// <remarks>The force is measured in kilonewtons.</remarks>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Cable spring damper")]
   public float cableSpringDamper = 1f;
-
-  /// <summary>
-  /// Tells if the stock joint must be kept in case of the parts have coupled at the
-  /// <i>deployed cable length</i> set to zero.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Since the the stock joint is rigid, it's always destroyed by this module. However, in some
-  /// cases the parts coupled at zero distance (docked) need to stay fixed. Set this setting to
-  /// <c>true</c> to allow this behavior. Note, that the <i>deployed cable</i> length can differ
-  /// from the real distance between the objects. If the former is significantly less than the
-  /// latter, then the physical effects can trigger on dock.
-  /// </para>
-  /// <para>The cable joint is created even when the stock joint is present.</para>
-  /// </remarks>
-  /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-  /// <seealso cref="realCableLength"/>
-  /// <seealso cref="deployedCableLength"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [KSPField]
-  public bool allowDockingAtZeroDistance;
   #endregion
 
   #region IJointLockState implemenation
@@ -116,6 +100,9 @@ public class KASJointCableBase : AbstractJoint,
       return 0;
     }
   }
+
+  /// <inheritdoc/>
+  public bool isLockedWhenCoupled { get; private set; }
   #endregion
 
   #region Inheritable properties
@@ -139,18 +126,40 @@ public class KASJointCableBase : AbstractJoint,
 
   #region AbstractJoint overrides
   /// <inheritdoc/>
+  public override void OnLoad(ConfigNode node) {
+    base.OnLoad(node);
+    StartCoroutine(FixLegacyV_1_1());
+  }
+
+  /// <inheritdoc/>
   protected override void SetupPhysXJoints() {
     if (isHeadStarted) {
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
       StopPhysicalHead();
     }
-    CreateDistanceJoint(
-        linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
-    if (partJoint != null
-        && (!allowDockingAtZeroDistance || !Mathf.Approximately(deployedCableLength, 0))) {
-      HostedDebugLog.Fine(this, "Dropping the stock joint to: {0}", partJoint.Child);
+    var needStockJoint = isCoupled && isLockedWhenCoupled;
+    if (needStockJoint && partJoint == null) {
+      if (linkTarget.part.parent == linkSource.part) {
+        HostedDebugLog.Fine(this, "Create a stock joint: from={0}, to={1}", linkTarget, linkSource);
+        linkTarget.part.CreateAttachJoint(AttachModes.STACK);
+      } else if (linkSource.part.parent == linkTarget.part) {
+        HostedDebugLog.Fine(this, "Create a stock joint: from={0}, to={1}", linkSource, linkTarget);
+        linkSource.part.CreateAttachJoint(AttachModes.STACK);
+      } else {
+        HostedDebugLog.Error(
+            this, "Cannot create stock joint: {0} <=> {1}", linkSource, linkTarget);
+        needStockJoint = false;
+      }
+    } else if (!needStockJoint && partJoint != null) {
+      HostedDebugLog.Fine(
+          this, "Drop stock joint: to={0}, isLockedWhenDocked={1}, isCoupled={2}",
+          partJoint.Child, isLockedWhenCoupled, isCoupled);
       partJoint.DestroyJoint();
       partJoint.Child.attachJoint = null;
+    }
+    if (!needStockJoint) {
+      CreateDistanceJoint(
+          linkSource, linkTarget.part.Rigidbody, GetTargetPhysicalAnchor(linkSource, linkTarget));
     }
   }
 
@@ -164,11 +173,10 @@ public class KASJointCableBase : AbstractJoint,
   #region ILinkCableJoint implementation
   /// <inheritdoc/>
   public virtual void StartPhysicalHead(ILinkSource source, Transform headObjAnchor) {
-    //FIXME: add the physical head module here.
     headRb = headObjAnchor.GetComponentInParent<Rigidbody>();
     if (isHeadStarted || isLinked || headRb == null) {
       HostedDebugLog.Error(this,
-          "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1}, hasRb=[2}",
+          "Bad link state for the physical head start: isLinked={0}, isHeadStarted={1}, hasRb={2}",
           isLinked, isHeadStarted, headRb != null);
       return;
     }
@@ -177,6 +185,7 @@ public class KASJointCableBase : AbstractJoint,
 
     // Attach the head to the source.
     CreateDistanceJoint(source, headRb, headObjAnchor.position);
+    SetOrigianlLength(deployedCableLength);
   }
 
   /// <inheritdoc/>
@@ -191,16 +200,32 @@ public class KASJointCableBase : AbstractJoint,
 
   /// <inheritdoc/>
   public virtual void SetCableLength(float length) {
+    if (cableJoint == null) {
+      SetOrigianlLength(null);  // Just in case.
+      return;
+    }
     if (float.IsPositiveInfinity(length)) {
       length = cfgMaxCableLength;
     } else if (float.IsNegativeInfinity(length)) {
       length = Mathf.Min(realCableLength, deployedCableLength);
-    } else {
-      length = Mathf.Max(length, 0);
     }
+    ArgumentGuard.InRange(length, "length", 0, cfgMaxCableLength, context: this);
     SetOrigianlLength(length);
-    if (cableJoint != null) {
-      cableJoint.linearLimit = new SoftJointLimit() { limit = length };
+    cableJoint.linearLimit = new SoftJointLimit() { limit = length };
+  }
+
+  /// <inheritdoc/>
+  public void SetLockedOnCouple(bool mode) {
+    if (isLinked) {
+      if (isLockedWhenCoupled != mode) {
+        isLockedWhenCoupled = mode;
+        HostedDebugLog.Fine(this, "Change locked on coupled part: {0}", isLockedWhenCoupled);
+        CleanupPhysXJoints();
+        SetupPhysXJoints();
+      }
+    } else {
+      isLockedWhenCoupled = mode;
+      HostedDebugLog.Fine(this, "Set locked on couple mode in a non-linked module: {0}", mode);
     }
   }
   #endregion
@@ -228,10 +253,16 @@ public class KASJointCableBase : AbstractJoint,
   /// <param name="tgtRb">The rigidbody of the physical object.</param>
   /// <param name="tgtAnchor">The anchor at the physical object in world coordinates.</param>
   void CreateDistanceJoint(ILinkSource source, Rigidbody tgtRb, Vector3 tgtAnchor) {
-    var distanceLimit =
-        originalLength ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
+    var distanceLimit = originalLength
+        ?? Vector3.Distance(GetSourcePhysicalAnchor(source), tgtAnchor);
     var joint = source.part.gameObject.AddComponent<ConfigurableJoint>();
     KASAPI.JointUtils.ResetJoint(joint);
+    if (distanceLimit < 0.001f) {
+      // Reset the distance if it's below the KSP distance resolution.
+      HostedDebugLog.Fine(this, "Reset joint to zero: distance={0}", distanceLimit);
+      distanceLimit = 0;
+    }
+
     KASAPI.JointUtils.SetupDistanceJoint(
         joint,
         springForce: cableSpringForce, springDamper: cableSpringDamper,
@@ -244,6 +275,24 @@ public class KASJointCableBase : AbstractJoint,
     SetBreakForces(joint);
     SetCustomJoints(new[] {joint});
     cableJoint = joint;
+  }
+
+  /// <summary>Fixes inconsistent values inherited from v1.1.</summary>
+  /// <remarks>
+  /// Ensures that the unlinked joints have the persistent length set to -1 (use actual distance on
+  /// link). The former implementation didn't follow the API method contract, and was saving the
+  /// cable length even though the link was not established.
+  /// </remarks>
+  IEnumerator FixLegacyV_1_1() {
+    // FIXME: Drop this method after 06/01/2019.
+    // The persistent link is expected to get restored within 3 frames updates.
+    yield return null;
+    yield return null;
+    yield return null;
+    if (Mathf.Abs(persistedLinkLength) < float.Epsilon) {
+      HostedDebugLog.Warning(this, "LEGACY v1.1: Erase unlinked cable length.");
+      SetOrigianlLength(null);
+    }
   }
   #endregion
 }

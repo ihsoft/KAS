@@ -3,7 +3,7 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;
@@ -23,6 +23,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
+/// <seealso cref="Demote"/>
 sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
@@ -48,10 +49,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     // Create the interaction collider if requested.
     if (interactionDistance > 0) {
       // This mesh is placed on a special layer which is not rendered in the game. It's only
-      // used to detect the special zones triggers (like ladders, hatches, etc.).
-      var interactionTriggerObj = Meshes.CreateSphere(
-          2 * interactionDistance, null, obj.transform, Colliders.PrimitiveCollider.Shape);
+      // used to detect the special zones triggers, so keep it simple.
+      var interactionTriggerObj = Meshes.CreatePrimitive(
+          PrimitiveType.Quad, Vector3.one, null, obj.transform);
+      //interactionTriggerObj.SetActive(true);
       interactionTriggerObj.name = InteractionAreaCollider;
+      var collider = interactionTriggerObj.AddComponent<SphereCollider>();
+      collider.isTrigger = true;
+      collider.radius = interactionDistance;
       interactionTriggerObj.layer = (int) KspLayer.TriggerCollider;
       interactionTriggerObj.gameObject.GetComponent<Collider>().isTrigger = true;
       connectorModule.interactionTriggerObj = interactionTriggerObj;
@@ -62,14 +67,17 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
 
   /// <summary>Removes the physical behavior from the connector object.</summary>
   /// <param name="obj">The connector object to remove the behavior from.</param>
-  /// <returns></returns>
-  public static bool Demote(GameObject obj) {
+  /// <param name="cleanupMode">
+  /// Tells the owner part is being cleaned up and the object don't need to die immediately.
+  /// </param>
+  /// <returns><c>false</c> if the connector was not physical.</returns>
+  public static bool Demote(GameObject obj, bool cleanupMode) {
     var connectorModule = obj.GetComponent<KASInternalPhysicalConnector>();
     if (connectorModule == null) {
       return false;
     }
     // Don't wait for the module destruction and cleanup immediately.
-    connectorModule.CleanupModule();
+    connectorModule.CleanupModule(destroyImmediate: !cleanupMode);
     Destroy(connectorModule);
     return true;
   }
@@ -145,7 +153,7 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   void OnDestroy() {
-    CleanupModule();
+    CleanupModule(destroyImmediate: false);
     GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
     GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
   }
@@ -160,7 +168,11 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Local utility methods
   /// <summary>Destroys all the module's physical objects.</summary>
   /// <remarks>It doesn't (and must not) do it immediately.</remarks>
-  void CleanupModule() {
+  /// <param name="destroyImmediate">
+  /// Tells if all the object on the connector have to be dropped immediately. Never request it in
+  /// the cleanup methods like <c>OnDestroy</c>.
+  /// </param>
+  void CleanupModule(bool destroyImmediate = true) {
     SetHighlighting(null);
     if (ownerModule != null) {
       // Bring the model back to the part or to the new host.
@@ -169,10 +181,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
       PartModel.UpdateHighlighters(oldParent);
       PartModel.UpdateHighlighters(ownerModule.part);
     }
-    Destroy(interactionTriggerObj);
+    if (destroyImmediate) {
+      DestroyImmediate(connectorRb);
+      DestroyImmediate(interactionTriggerObj);
+    } else {
+      Destroy(connectorRb);
+      Destroy(interactionTriggerObj);
+    }
     interactionTriggerObj = null;
-    // Drop the RB immediately to not allow it affecting the connector state in the following frame.
-    DestroyImmediate(connectorRb);
     connectorRb = null;
     ownerModule = null;
   }

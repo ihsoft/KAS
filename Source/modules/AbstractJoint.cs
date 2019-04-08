@@ -3,9 +3,10 @@
 // Module author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using KASAPIv1;
+using KASAPIv2;
 using KSPDev.ConfigUtils;
 using KSPDev.GUIUtils;
+using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
@@ -28,28 +29,17 @@ namespace KAS {
 /// which establishes the PhysX joints. In the unusual cases an overriding of
 /// <seealso cref="CleanupPhysXJoints"/> may be needed.
 /// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
-/// <list type="bullet">
-/// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
-/// <item><c>StdPersistentGroups.PartPersistant</c></item>
-/// </list>
 /// </remarks>
 /// <seealso cref="SetupPhysXJoints"/>
 /// <seealso cref="CleanupPhysXJoints"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_00011.
-public abstract class AbstractJoint : PartModule,
+public abstract class AbstractJoint : AbstractPartModule,
     // KSP interfaces.
     IModuleInfo, IActivateOnDecouple,
     // KAS interfaces.
     ILinkJoint,
-    // KSPDev parents.
-    IsLocalizableModule,
     // KSPDev syntax sugar interfaces.
-    IPartModule, IsPackable, IsDestroyable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
+    IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
@@ -181,6 +171,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Break force")]
   public float linkBreakForce;
 
   /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
@@ -190,6 +181,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="SetBreakForces"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Break torque")]
   public float linkBreakTorque;
 
   /// <summary>
@@ -199,6 +191,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Source angle limit")]
   public int sourceLinkAngleLimit;
 
   /// <summary>
@@ -208,6 +201,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Target angle limit")]
   public int targetLinkAngleLimit;
 
   /// <summary>Minimum allowed distance between parts to establish a link.</summary>
@@ -217,6 +211,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("MIN link length")]
   public float minLinkLength;
 
   /// <summary>Maximum allowed distance between parts to establish a link.</summary>
@@ -226,6 +221,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("MAX link length")]
   public float maxLinkLength;
 
   /// <summary>
@@ -235,6 +231,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Anchor at source")]
   public Vector3 anchorAtSource = Vector3.zero;
 
   /// <summary>
@@ -244,6 +241,7 @@ public abstract class AbstractJoint : PartModule,
   /// <seealso cref="CheckConstraints"/>
   /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
+  [Debug.KASDebugAdjustable("Anchor at target")]
   public Vector3 anchorAtTarget = Vector3.zero;
   #endregion
 
@@ -261,12 +259,12 @@ public abstract class AbstractJoint : PartModule,
   /// <summary>Vessel info of the source part.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedSrcVesselInfo", group = StdPersistentGroups.PartPersistant)]
-  protected DockedVesselInfo persistedSrcVesselInfo;
+  public DockedVesselInfo persistedSrcVesselInfo;
 
   /// <summary>Vessel info of the target part.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
-  protected DockedVesselInfo persistedTgtVesselInfo;
+  public DockedVesselInfo persistedTgtVesselInfo;
 
   /// <summary>Length at the moment of creating the joint.</summary>
   /// <remarks>
@@ -360,7 +358,7 @@ public abstract class AbstractJoint : PartModule,
   readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
 
   /// <summary>The objects that were used by the custom joints.</summary>
-  /// <remarks>These object will be destoyed on the joints clean up.</remarks>
+  /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
   protected List<Object> customExtraObjects { get { return _customObjects; } }
@@ -370,6 +368,42 @@ public abstract class AbstractJoint : PartModule,
   #region Local members
   /// <summary>Set when the coupled parts are decoupled by a self-triggered event.</summary>
   protected bool selfDecoupledAction { get; private set; }
+  #endregion
+
+  #region IHasDebugAdjustables implementation
+  ILinkSource dbgLinkSource;
+  ILinkTarget dbgLinkTarget;
+  
+  /// <inheritdoc/>
+  public override void OnBeforeDebugAdjustablesUpdate() {
+    base.OnBeforeDebugAdjustablesUpdate();
+    dbgLinkSource = linkSource;
+    dbgLinkTarget = linkTarget;
+  }
+  
+  /// <inheritdoc/>
+  public override void OnDebugAdjustablesUpdated() {
+    base.OnDebugAdjustablesUpdated();
+    if (isLinked) {
+      var checks = CheckConstraints(linkSource, linkTarget);
+      if (checks.Length == 0) {
+        // Given all checks are green, we can simply recreate the joint to update it.
+        HostedDebugLog.Warning(
+            this, "New settings fit the current link. Refreshing the joint...");
+        DropJoint();
+        CreateJoint(dbgLinkSource, dbgLinkTarget);
+      } else {
+        // STOP! The joint, once broken, won't re-establish with the new settings.
+        HostedDebugLog.Warning(this, "New settings DON'T fit the current link:\n{0}"
+                               + "\n\nNot refershing the joint, re-link manually to update.",
+                               DbgFormatter.C2S(checks, separator: "\n"));
+      }
+    } else {
+      // No joint, not update. However, it makes sense to note it.
+      HostedDebugLog.Warning(
+          this, "No link esatblished, only update the module settings");
+    }
+  }
   #endregion
 
   #region IActivateOnDecouple implementation
@@ -391,7 +425,7 @@ public abstract class AbstractJoint : PartModule,
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
     Quaternion relRot = Quaternion.identity;
-    if (part.parent != linkTarget.part) {
+    if (isLinked && part.parent != linkTarget.part) {
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
@@ -403,10 +437,12 @@ public abstract class AbstractJoint : PartModule,
       relRot = parentPartRot.Inverse() * thisPartRot;
     }
     
-    // The break event is sent for *any* joint on the game object that got broken. However, it may
-    // not be our link's joint. To figure it out, wait till the engine has cleared the object. 
+    // The break event is sent for *any* joint on the game object that got broken. Even though it
+    // may be KAS joint broken, the owner part will decouple from the vessel due to the KSP core
+    // doesn't validate which joint has actually broke.
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
           HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
           part.transform.position =
@@ -421,33 +457,11 @@ public abstract class AbstractJoint : PartModule,
   }
   #endregion
 
-  #region PartModule overrides
+  #region AbstractPartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
-    ConfigAccessor.CopyPartConfigFromPrefab(this);
     base.OnAwake();
-    GameEvents.onVesselRename.Add(OnVesselRename);
-    LocalizeModule();
-  }
-
-  /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    ConfigAccessor.ReadPartConfig(this, cfgNode: node);
-    ConfigAccessor.ReadFieldsFromNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-    base.OnLoad(node);
-  }
-
-  /// <inheritdoc/>
-  public override void OnSave(ConfigNode node) {
-    base.OnSave(node);
-    ConfigAccessor.WriteFieldsIntoNode(node, GetType(), this, StdPersistentGroups.PartPersistant);
-  }
-  #endregion
-
-  #region IsDestroyable implementation
-  /// <inheritdoc/>
-  public virtual void OnDestroy() {
-    GameEvents.onVesselRename.Remove(OnVesselRename);
+    RegisterGameEventListener(GameEvents.onVesselRename, OnVesselRename);
   }
   #endregion
 
@@ -539,11 +553,13 @@ public abstract class AbstractJoint : PartModule,
     }
     if (isCoupleOnLink && linkSource.part.vessel != linkTarget.part.vessel) {
       // Couple the parts, and drop the other link(s).
+      HostedDebugLog.Info(this, "Change coupling mode: ATTACHED => COUPLED");
       DetachParts();
       coupleOnLinkMode = isCoupleOnLink;
       CoupleParts();
     } else if (!isCoupleOnLink && isCoupled) {
       // Decouple the parts, and make the non-coupling link(s).
+      HostedDebugLog.Info(this, "Change coupling mode: COUPLED => ATTACHED");
       DecoupleParts();
       coupleOnLinkMode = isCoupleOnLink;
       AttachParts();
@@ -551,13 +567,6 @@ public abstract class AbstractJoint : PartModule,
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
     }
     return true;
-  }
-  #endregion
-
-  #region IsLocalizableModule implementation
-  /// <inheritdoc/>
-  public virtual void LocalizeModule() {
-    LocalizationLoader.LoadItemsInModule(this);
   }
   #endregion
 
@@ -867,13 +876,12 @@ public abstract class AbstractJoint : PartModule,
     SetCustomJoints(null);
   }
 
-  /// <summary>Checks if the peers are coupled via their attach nodes.</summary>
-  /// <param name="source">The peer the link.</param>
-  /// <param name="target">The peer the link.</param>
+  /// <summary>Checks if the peer parts are coupled in the vessel hierarchy.</summary>
+  /// <param name="source">The first peer of the link.</param>
+  /// <param name="target">The other peer of the link.</param>
   /// <returns><c>true</c> if the peers are coupled.</returns>
   static bool CheckCoupled(ILinkPeer source, ILinkPeer target) {
-    return source.coupleNode != null && source.coupleNode.attachedPart == target.part
-        && target.coupleNode != null && target.coupleNode.attachedPart == source.part;
+    return source.part.parent == target.part || target.part.parent == source.part;
   }
 
   /// <summary>Reacts on the vessel name change and updates the vessel infos.</summary>
@@ -946,12 +954,12 @@ public abstract class AbstractJoint : PartModule,
 
   /// <summary>
   /// Goes thru the parts on the source and target vessels, and tries to restore the coupling
-  /// between the parts.
+  /// between the vessels.
   /// </summary>
   /// <remarks>
   /// Any linking module on the source or the target vessel, which is linked and in the docking
-  /// mode, will be attempted to use to restore the vessels coupling. This work will be done at the
-  /// end of frame to let the other logic to cleanup.
+  /// mode, will be attempted to restore the vessels coupling. This work will be done at the end of
+  /// frame to let the other logic to cleanup.
   /// </remarks>
   /// <param name="tgtPart">
   /// The former target part that was holding the coupling with this part.

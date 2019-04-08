@@ -55,11 +55,11 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KAS-API-v1">
-      <HintPath>..\Binaries\KAS-API-v1.dll</HintPath>
+    <Reference Include="KAS-API-v2">
+      <HintPath>..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.37">
-      <HintPath>..\Binaries\KSPDev_Utils.0.37.dll</HintPath>
+    <Reference Include="KSPDev_Utils.1.2">
+      <HintPath>..\Binaries\KSPDev_Utils.1.2.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>Q:\KSP_x64_Data\Managed\System.dll</HintPath>
@@ -76,7 +76,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="api_impl" />
+    <Folder Include="controllers" />
     <Folder Include="modules" />
+    <Folder Include="KSPDev_candidates" />
+    <Folder Include="debug" />
+    <Folder Include="compatibility" />
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
@@ -88,8 +92,14 @@
     <Compile Include="api_impl\KasLinkEventImpl.cs" />
     <Compile Include="api_impl\LinkUtilsImpl.cs" />
     <Compile Include="api_impl\PhysicsUtilsImpl.cs" />
+    <Compile Include="compatibility\PatchFilesProcessor.cs" />
+    <Compile Include="controllers\ControllerPartEditorTool.cs" />
+    <Compile Include="controllers\ControllerWinchRemote.cs" />
+    <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
+    <Compile Include="modules\AbstractPipeRenderer.cs" />
+    <Compile Include="modules\AbstractPartModule.cs" />
     <Compile Include="modules\KASInternalPhysicalConnector.cs" />
     <Compile Include="modules\KASJointCableBase.cs" />
     <Compile Include="modules\KASJointRigid.cs" />
@@ -101,14 +111,12 @@
     <Compile Include="modules\KASLinkTargetKerbal.cs" />
     <Compile Include="modules\KASLinkSourceBase.cs" />
     <Compile Include="modules\KASLinkTargetBase.cs" />
-    <Compile Include="modules\KASRendererPipeWithHead.cs" />
+    <Compile Include="modules\KASRendererBezierPipe.cs" />
     <Compile Include="modules\KASRendererTelescopicPipe.cs" />
     <Compile Include="modules\KASJointTowBar.cs" />
     <Compile Include="modules\KASRendererPipe.cs" />
     <Compile Include="modules\KASJointTwoEndsSphere.cs" />
     <Compile Include="modules\KASLinkWinch.cs" />
-    <Compile Include="modules\KSPDev_candidates.cs" />
-    <Compile Include="modules\ControllerWinchRemote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -124,7 +132,7 @@
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
 IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KSPDev_Utils*.dll" "Q:\GameData\KAS\Plugins\" /Y
-IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KAS-API-v1.*" "Q:\GameData\KAS\Plugins\" /Y
+IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KAS-API-v2.*" "Q:\GameData\KAS\Plugins\" /Y
 "$(ProjectDir)..\Tools\msxsl.exe" -t "KAS.xml" "SpecialDocTagsExpand.xslt" -o KAS.xml
 
 </PostBuildEvent>

@@ -1,5 +1,4 @@
 ﻿// Kerbal Attachment System API
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
 // API design and implemenation: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 //
@@ -15,7 +14,7 @@
 // work may be required to migrate.
 
 // Name of the namespace denotes the API version.
-namespace KASAPIv1 {
+namespace KASAPIv2 {
 
 /// <summary>KAS API, version 1.</summary>
 public static class KASAPI {
