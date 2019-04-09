@@ -35,8 +35,6 @@ Almost any type allows remotely docking the vessels. Once docked, the vessels be
 
 ![Français](https://github.com/ihsoft/KAS/raw/master/WikiImages/French-small-flag.png) Français
 
-![Español](https://github.com/ihsoft/KAS/raw/WikiContent/WikiImages/Spanish-small-flag.png) Español
-
 # Support
 
 You can support this and the other of my mods on [Patreon](https://www.patreon.com/ihsoft). This is where I post my ideas, prototypes and the features development progress.
