@@ -1,3 +1,5 @@
+# 1.3 (pre-release):
+
 # 1.2 (Apr 8th, 2019):
 * [Change] ATTENTION! The lagacy parts are _not_ provided in this verison!!! Read [Wiki](https://github.com/ihsoft/KAS/wiki/Legacy-parts-destiny) for more details.
 * [Enhancement] Add French localziation.
