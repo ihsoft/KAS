@@ -178,7 +178,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
-  /// <seealso cref="SetIsLocked"/>
+  /// <seealso cref="linkState"/>
   public bool isLocked {
     get { return linkState == LinkState.Locked; }
   }
@@ -300,7 +300,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
             .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
                                        || p.cfgDependentNodeNames.Contains(attachNodeName)))
             .ToList()
-            .ForEach(m => SetIsLocked(false));
+            .ForEach(m => SetLinkState(LinkState.Available));
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }
@@ -439,16 +439,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     }
     OnPeerChange(oldPeer);
   }
-
-  /// <summary>Sets the locked state of the peer.</summary>
-  /// <param name="state">The new state.</param>
-  /// <seealso cref="isLocked"/>
-  protected virtual void SetIsLocked(bool state) {
-    // Don't trigger state change events when the value hasn't changed.
-    if (state != isLocked) {
-      SetLinkState(state ? LinkState.Locked : LinkState.Available);
-    }
-  }
   #endregion
 
   #region ILinkStateEventListener implementation
@@ -462,9 +452,9 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
             || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
       // Only act when it's about (un)locking. Don't affect the state in all other cases.
       if (isLinked && linkState != LinkState.NodeIsBlocked) {
-        SetIsLocked(true);
+        SetLinkState(LinkState.Locked);
       } else if (!isLinked && linkState == LinkState.Locked) {
-        SetIsLocked(false);
+        SetLinkState(LinkState.Available);
       }
     }
   }
