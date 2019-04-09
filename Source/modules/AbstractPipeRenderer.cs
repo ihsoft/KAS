@@ -285,9 +285,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       }
     }
 
-    GameEvents.onPartCoupleComplete.Add(OnPartCoupleCompleteEvent);
-    GameEvents.onPartDeCouple.Add(OnPartDeCoupleEvent);
-    GameEvents.onPartDeCoupleComplete.Add(OnPartDeCoupleCompleteEvent);
+    RegisterGameEventListener(GameEvents.onPartCoupleComplete, OnPartCoupleCompleteEvent);
+    RegisterGameEventListener(GameEvents.onPartDeCouple, OnPartDeCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
 
     linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
   }
