@@ -11,6 +11,7 @@
   - Python 2.7 or greater.
   - Owner or collaborator permissions in [Github repository](https://github.com/ihsoft/KAS).
   - Owner or maintainer permissions on [Curseforge project](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas).
+  - Owner or maintainer permissions on [Spacedock](https://spacedock.info/mod/1987/Kerbal%20Attachment%20System%20%28KAS%29).
 - For development do one of the following things:
   - Install an open source [SharpDevelop](https://en.wikipedia.org/wiki/SharpDevelop). It will pickup existing project settings just fine but at the same time can add some new changes. Please, don't submit them into the trunk until they are really needed to build the project.
   - Get a free copy of [Visual Studio Express](https://www.visualstudio.com/en-US/products/visual-studio-express-vs). It should work but was not tested.
@@ -26,29 +27,22 @@ Version number consists of three numbers - X.Y.Z:
 - Run `Tools\make_binary.cmd` having folder `Tools` as current.
 - Given there were no compile errors the new DLL file can be found in `.\KAS\Plugins\Source\bin\Release\`.
 
-_Note_: If you don't want building yourself you can use the DLL from the repository. It is updated by the maintainer each time a new version is released.
-
 ### Releasing
 - Review file `Tools\make_binary.cmd` and ensure the path to `MSBuild` is right.
-- Review file `Tools\make_release.py` and ensure `ZIP_BINARY` points to a ZIP compatible command line executable.
 - Verify that file `KAS\Plugins\Source\Properties\AssemblyInfo.cs` has correct version number. This will be the release number!
-- Check if file `KAS\Plugins\Source\CHANGES.txt` has any "alpha" changes since the last release:
-  - Only consider changes of types: Fix, Feature, Enhancement, and Change. Anything else is internal stuff which is not interesting to the outer world.
-  - Copy the changes into `changelog.md` and add the release date.
-  - Go thru issues having #XX in the title, and update each releveant [Github issue](https://github.com/ihsoft/KAS/issues) with the version where it was addressed. Usually it means closing of the issue but there can be exceptions.
-  - Drop all changes from `CHANGES.txt`.
-- Run `Tools\make_release.py -p` having folder `Tools` as current.
-- Given there were no compile errors the new release will live in `Releases` folder.
-- Update [Github repository](https://github.com/ihsoft/KAS) with the files updated during the release.
-- Create a new release in the [Github repository releases](https://github.com/ihsoft/KAS/releases). Use changes from `changelog.md` as a release description. Do **not** add ZIP into the release. Primary source for the release binaries is [Curseforge](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files).
-- Upload new package to [Curseforge](http://kerbal.curseforge.com/projects/kerbal-attachment-system-kas/files). Once verified the package will become available for downloading.
-- Add new version entry in [KSP-CKAN](https://github.com/KSP-CKAN/CKAN-meta/tree/master/KAS) (you may need to fork first) and request a pull request. CKAN has an automated system to push new versions which may conflict with the manual update so, keep an eye on the meta for a couple of days.
- - Use "download" link from Curseforge as the file source.
-
-_Note_: You can run `make_release.py` without parameter `-p`. In this case release folder structure will be created in folder `Release` but no archive will be prepared.
-
-_Note_: As a safety measure `make_release.py` checks if the package being built is already existing, and if it does then release process aborts. When you need to override an existing package either delete it manually or pass flag `-o` to the release script.
-
-## iOS & Linux users
-
-...please add your suggestions for the building phase. The release phase should work as is.
+- Check if file `KAS\Plugins\CHANGES.txt` has relevant information and the current version/date is properly set. This information will be used as description by the publishing scripts.
+- Open command-line console with folder `Tools` set as current.
+- Run command `KspReleaseBuilder.py -Jp`:
+  - If it reports any errors, check them!
+  - If no errors reported, there will be an archive created: `KAS_vX.Y.zip`.
+- Update release configs for every target:
+  - See files `publish_*_args.txt`.
+  - Ensure that authentication information is set correctly. It depends on the target.
+  - Fix the release archive name. For now it's not handled automatically.
+- Commit the changes made so far into the `next` branch and create a release pull request.
+  - ATTENTION! Make sure you're not comitting the authentication information from the publishing configs!
+- When ready to release, merge the PR created above.
+- Run the publishing scripts. The order and timing are important!
+  1. Run `publish_github.cmd`. It'll create draft reelase on GitHub. Go there, review, and submit it.
+  2. Run `publish_curseforge.cmd`. Wait for at elast 3 hours before proceeding to the step #3. CurseForge is a source for the `CKAN` repository, it's best to wait till it's indexing job picks up the new version. Doing it overnight is an obvious choice. Use [this link](http://status.ksp-ckan.space/) to verify if the new version is picked up by `CKAN`.
+  3. Run `publish_spacedock.cmd`. This will ping all the subscribers immedeately.

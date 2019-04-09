@@ -18,14 +18,12 @@
       "/Textures",
       "/settings.cfg"
     ],
-    "LEGACY": [
-      "-Source"
-    ],
     "Plugins" : [
       "{COMPILED_BINARY}",
       "bin/Release/{PACKAGE_NAME}.xml",
       "{MINIAVC_VERSION_FILE}",
-      "/Binaries/*"
+      "/Binaries/*",
+      "-KSP-AVC.version"
     ]
   }
 }
