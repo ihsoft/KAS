@@ -33,7 +33,7 @@ sealed class PatchFilesProcessor : UpgradeScript {
     List<ConfigNodePatch> patches;
     var hasMatches = false;
     if (partPatches.TryGetValue(partName, out patches)) {
-      for (var i = patches.Count -1; i >= 0; --i) {
+      for (var i = patches.Count - 1; i >= 0; --i) {
         var patch = patches[i];
         try {
           hasMatches |= PartNodePatcher.TestPatch(node, patch, loadContext);
