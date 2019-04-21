@@ -1,5 +1,7 @@
 # 1.3 (pre-release):
+* [Change] KSP 1.7 compatibility.
 * [Fix #263] Missing files trying to compile locally.
+* [Fix #264] It's seems that KAS v1.2 do not support KSP v1.7.
 
 # 1.2 (Apr 8th, 2019):
 * [Change] ATTENTION! The lagacy parts are _not_ provided in this verison!!! Read [Wiki](https://github.com/ihsoft/KAS/wiki/Legacy-parts-destiny) for more details.

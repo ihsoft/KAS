@@ -48,7 +48,7 @@ sealed class PatchFilesProcessor : UpgradeScript {
   }
 
   /// <inheritdoc/>
-  public override void OnUpgrade(ConfigNode node, LoadContext loadContext) {
+  public override void OnUpgrade(ConfigNode node, LoadContext loadContext, ConfigNode parentNode) {
     var partName = PartNodePatcher.GetPartNameFromUpgradeNode(node, loadContext);
     DebugEx.Warning("Patch saved game state for part: {0}", partName);
     var badPatches = new List<ConfigNodePatch>();
