@@ -1,4 +1,4 @@
-# 1.3 (pre-release):
+# 1.3 (April 21st, 2019):
 * [Change] KSP 1.7 compatibility.
 * [Fix #263] Missing files trying to compile locally.
 * [Fix #264] It's seems that KAS v1.2 do not support KSP v1.7.
