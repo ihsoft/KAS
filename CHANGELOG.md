@@ -1,4 +1,5 @@
 # 1.3 (pre-release):
+* [Fix #263] Missing files trying to compile locally.
 
 # 1.2 (Apr 8th, 2019):
 * [Change] ATTENTION! The lagacy parts are _not_ provided in this verison!!! Read [Wiki](https://github.com/ihsoft/KAS/wiki/Legacy-parts-destiny) for more details.
