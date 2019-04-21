@@ -10,6 +10,7 @@ using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace KAS {
 public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer {
+
   #region Localizable GUI strings
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
@@ -209,6 +211,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected Part targetPart { get; private set; }
   #endregion
 
+  #region Local fields and properties
+  /// <summary>Coroutine that updates the pipe meshes.</summary>
+  /// <remarks>
+  /// The only thing it does is calling <see cref="UpdateLink"/> on every frame update.
+  /// </remarks>
+  Coroutine linkUpdateCoroutine;
+  #endregion
+
   #region IHasDebugAdjustables overrides
   Transform dbgOldSource;
   Transform dbgOldTarget;
@@ -275,13 +285,22 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       }
     }
 
-    GameEvents.onPartCoupleComplete.Add(OnPartCoupleCompleteEvent);
-    GameEvents.onPartDeCouple.Add(OnPartDeCoupleEvent);
-    GameEvents.onPartDeCoupleComplete.Add(OnPartDeCoupleCompleteEvent);
+    RegisterGameEventListener(GameEvents.onPartCoupleComplete, OnPartCoupleCompleteEvent);
+    RegisterGameEventListener(GameEvents.onPartDeCouple, OnPartDeCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
+
+    linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
+    // Stop meshes updates.
+    if (linkUpdateCoroutine != null) {
+      HostedDebugLog.Fine(this, "Stopping renderer updates...");
+      StopCoroutine(linkUpdateCoroutine);
+      linkUpdateCoroutine = null;
+    }
+
     // Sync the renderers settinsg to the source part to handle the highlights.
     if (isStarted) {
       sourceTransform.GetComponentsInChildren<Renderer>().ToList()
@@ -348,16 +367,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public abstract Transform GetMeshByName(string meshName);
-  #endregion
-
-  #region AbstractProceduralModel overrides
-  /// <inheritdoc/>
-  public override void OnUpdate() {
-    base.OnUpdate();
-    if (isStarted) {
-      UpdateLink();
-    }
-  }
   #endregion
 
   #region Inheritable methods
@@ -521,6 +530,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
           .ForEach(p => SetCollisionIgnores(p, false));
     }
     formerTargetVessel = null;
+  }
+
+  /// <summary>Calls renderer updates as long as the renderer is started.</summary>
+  /// <seealso cref="linkUpdateCoroutine"/>
+  /// <seealso cref="StartRenderer"/>
+  IEnumerator UpdateLinkCoroutine() {
+    HostedDebugLog.Fine(this, "Staring renderer updates...");
+    while (isStarted) {
+      UpdateLink();
+      yield return null;
+    }
+    // The coroitine is expected to be terminated explicitly! 
+    HostedDebugLog.Warning(this, "Terminate coroutine on renderer stop!");
   }
   #endregion
 }
