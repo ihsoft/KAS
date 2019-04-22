@@ -1,3 +1,5 @@
+# 1.4 (pre-release - change AssemblyInfo.cs!):
+
 # 1.3 (April 21st, 2019):
 * [Change] KSP 1.7 compatibility.
 * [Fix #263] Missing files trying to compile locally.
