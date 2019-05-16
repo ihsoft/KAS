@@ -1,4 +1,5 @@
 # 1.4 (pre-release - change AssemblyInfo.cs!):
+* [Change] Update ES-ES localization.
 
 # 1.3 (April 21st, 2019):
 * [Change] KSP 1.7 compatibility.
