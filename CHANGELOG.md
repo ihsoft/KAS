@@ -1,5 +1,6 @@
 # 1.4 (pre-release - change AssemblyInfo.cs!):
 * [Change] Update ES-ES localization.
+* [Enhancement] Use icon of better resolution in the editor to avoid bluring.
 
 # 1.3 (April 21st, 2019):
 * [Change] KSP 1.7 compatibility.
