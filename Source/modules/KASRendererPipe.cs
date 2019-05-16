@@ -157,7 +157,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Mesh name for the node that attaches to the target part.</summary>
   public const string TargetNodeMesh = "targetNodeModel";
 
-  /// <summary>Mesh name for the pipe between teh nodes.</summary>
+  /// <summary>Mesh name for the pipe between the nodes.</summary>
   public const string PipeMesh = "pipeModel";
   #endregion
 
