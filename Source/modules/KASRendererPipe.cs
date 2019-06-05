@@ -457,6 +457,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
         sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
                                      colliderType: Colliders.PrimitiveCollider.Shape).transform;
         sphere.name = sphereName;
+        sphere.rotation = Quaternion.LookRotation(node.partAttach.up, node.partAttach.forward);
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
