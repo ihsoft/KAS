@@ -4,4 +4,4 @@
 --github=ihsoft/KAS
 --versions=latest_all_builds
 --title=KAS {tag}
---archive=../KAS_v1.3.zip
+--archive=../KAS_v1.4.zip

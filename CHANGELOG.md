@@ -1,4 +1,4 @@
-# 1.4 (pre-release - change AssemblyInfo.cs!):
+# 1.4 (June 7th, 2019):
 * [Change] Update ES-ES localization.
 * [Enhancement] Use icon of better resolution in the editor to avoid bluring.
 * [Fix #271] KSP 1.7.1 breaks grabbing connectors from winch type parts.
