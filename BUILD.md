@@ -44,5 +44,5 @@ Version number consists of three numbers - X.Y.Z:
 - When ready to release, merge the PR created above.
 - Run the publishing scripts. The order and timing are important!
   1. Run `publish_github.cmd`. It'll create draft reelase on GitHub. Go there, review, and submit it.
-  2. Run `publish_curseforge.cmd`. Wait for at elast 3 hours before proceeding to the step #3. CurseForge is a source for the `CKAN` repository, it's best to wait till it's indexing job picks up the new version. Doing it overnight is an obvious choice. Use [this link](http://status.ksp-ckan.space/) to verify if the new version is picked up by `CKAN`.
+  2. Run `publish_curseforge.cmd`. Wait for at least 3 hours before proceeding to the step #3. CurseForge is a source for the `CKAN` repository, it's best to wait till it's indexing job picks up the new version. Doing it overnight is an obvious choice. Use [this link](http://status.ksp-ckan.space/) to verify if the new version is picked up by `CKAN`.
   3. Run `publish_spacedock.cmd`. This will ping all the subscribers immedeately.
