@@ -15,7 +15,7 @@ public interface IKasLinkEvent {
   ILinkTarget target { get; }
 
   /// <summary>Actor who changed the links tate.</summary>
-  /// <value>The actor type that initated teh action.</value>
+  /// <value>The actor type that initated the action.</value>
   LinkActorType actor { get; }
 }
 

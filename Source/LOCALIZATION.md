@@ -13,7 +13,7 @@ For example, tag `#kasLOC_12345` defines a string `345` (three hundred forty fiv
 
 _Every_ KAS module **must** explicitly reserve a module number here. The descendent modules must
 not use the same namespace as the parent. No modules are allowed to define own values for the tags within the
-`#kasLOC_00000` - `#kasLOC_99999` namespace unless they are registered in this file.
+`#kasLOC_00000` - `#kasLOC_98999` namespace unless they are registered in this file.
 
 | Module name                    | Module | Namespace start | Namespace end |
 | ------------------------------ | ------ | --------------- | ------------- |
@@ -31,3 +31,51 @@ not use the same namespace as the parent. No modules are allowed to define own v
 | KASLinkResourceConnector       | 12     | #kasLOC_12000   | #kasLOC_12999 |
 | KASLinkSourcePhysical          | 13     | #kasLOC_13000   | #kasLOC_13999 |
 | _Next available value_         | 14     | #kasLOC_?????   | #kasLOC_????? |
+
+# Special namespace
+
+Localization space `#99` are reserved for the special strings, used for the global titles and descriptions. Such
+strings are used globally between different `KAS` modules and even the third party mods! For better tracking,
+all the ranges are listed below.
+
+## Link type descriptions
+
+These strinsg are used to produce a human readable and localized string in the editor. It's highly encoraged for
+the third-paty mods to use the predefined sizes/strings instead of inventing own types. It makes the parts across
+the mods more compatible.
+
+
+__Note__. Keep the descriptions short! Their primary susage is editor's info panel. It has limited width.
+
+For the link types the reserved range is: `#kasLOC_99000` - `#kasLOC_99049`:
+
+* _Rigid_ links (struts)
+  * _SMALL_ type: `SmStrut`
+    * Pipe diameter: `40cm`.
+    * English description: `#kasLOC_99000` = `Pipe-40`
+  * _MEDIUM_ type: `MdStrut`
+    * Pipe diameter: `100cm`.
+    * English description: `#kasLOC_99003` = `Pipe-100`
+  * _LARGE_ type: `LgStrut`
+    * Pipe diameter: `150cm`.
+    * English description: `#kasLOC_99006` = `Pipe-150`
+* _Cable_ links
+  * _SMALL_ type: `SmCable`
+    * Pipe diameter: `10mm`.
+    * English description: `#kasLOC_99001` = `Cable-10`
+  * _MEDIUM_ type: `MdCable`
+    * Pipe diameter: `35mm`.
+    * English description: `#kasLOC_99004` = `Cable-35`
+  * _LARGE_ type: `LgCable`
+    * Pipe diameter: `60mm`.
+    * English description: `#kasLOC_99007` = `Cable-60`
+* _Hose_ links
+  * _SMALL_ type: `SmHose`
+    * Pipe diameter: `30cm`.
+    * English description: `#kasLOC_99002` = `Hose-30`
+  * _MEDIUM_ type: `MdHose`
+    * Pipe diameter: `70cm`.
+    * English description: `#kasLOC_99005` = `Hose-70`
+  * _LARGE_ type: `LgHose`
+    * Pipe diameter: `100cm`.
+    * English description: `#kasLOC_99008` = `Hose-100`

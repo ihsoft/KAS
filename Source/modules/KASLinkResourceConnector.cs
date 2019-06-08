@@ -639,7 +639,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region Local utility methods
   /// <summary>
-  /// If the auto-scale options is chosen, finds the scale at which the whole amount of teh resource
+  /// If the auto-scale options is chosen, finds the scale at which the whole amount of the resource
   /// will be transferred in a definite duration.
   /// </summary>
   void MaybeAutoScaleSpeed() {
