@@ -31,6 +31,8 @@ Almost any type allows remotely docking the vessels. Once docked, the vessels be
 
 ![Español](https://github.com/ihsoft/KAS/raw/master/WikiImages/Spanish-small-flag.png) Español
 
+![简体中文](https://github.com/ihsoft/KAS/raw/master/WikiImages/Chineese-small-flag.png) 简体中文
+
 ![Português](https://github.com/ihsoft/KAS/raw/master/WikiImages/Brazil-small-flag.png) Português
 
 ![Français](https://github.com/ihsoft/KAS/raw/master/WikiImages/French-small-flag.png) Français

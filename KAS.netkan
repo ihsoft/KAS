@@ -8,6 +8,10 @@
         "repository": "https://github.com/ihsoft/KAS",
         "bugtracker": "https://github.com/ihsoft/KAS/issues"
     },
+    "depends"      : [
+        { "name": "CommunityCategoryKit" },
+        { "name": "ModuleManager" }
+    ],
     "recommends"      : [
         { "name": "KIS" },
         { "name": "EasyVesselSwitch" }
@@ -15,6 +19,5 @@
     "license"         : "public-domain",
     "author"          : [ "IgorZ" ],
     "$vref"           : "#/ckan/ksp-avc",
-    "$kref"           : "#/ckan/curse/223900",
-    "x_netkan_version_edit" : "^v(?<version>.+)$"
+    "$kref"           : "#/ckan/spacedock/1987"
 }

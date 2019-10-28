@@ -1,3 +1,8 @@
+# 1.5 (pre-release):
+* [Change] `KSP 1.8` compatibility. __WARNING__: the mod won't work with version lower than `KSP 1.8`!
+* [Enhancement] Add Chinese localization.
+* [Fix #279] Can't surface attach the hw-80 winch.
+
 # 1.4 (June 7th, 2019):
 * [Change] Update ES-ES localization.
 * [Enhancement] Use icon of better resolution in the editor to avoid bluring.

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.1.2</name>
+        <name>KSPDev_Utils.2.0</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -255,7 +255,7 @@
             </remarks>
         </member>
         <member name="F:KSPDev.ConfigUtils.ConfigNodePatch.patchCreationTimestamp">
-            <summary>Unix Epoch timesmap of when the patch was created.</summary>
+            <summary>Unix Epoch timestamp of when the patch was created.</summary>
             <remarks>
             It doesn't need to be precise. The main goal of this timestamp is to order patches on the same
             part. The patches created earlier will be applied first. This timestamp can also be used to
@@ -1567,6 +1567,7 @@
         <member name="T:KSPDev.DebugUtils.DebugGui">
             <summary>Helper class to deal with the debug GUI functionality.</summary>
             <seealso cref="T:KSPDev.DebugUtils.DebugAdjustableAttribute"/>
+            <seealso cref="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String,Part)"/>
         </member>
         <member name="M:KSPDev.DebugUtils.DebugGui.DumpHierarchy(UnityEngine.Transform,UnityEngine.Transform)">
             <summary>Dumps the objects hierarchy to the logs.</summary>
@@ -1607,6 +1608,11 @@
         </member>
         <member name="M:KSPDev.DebugUtils.DebugGui.MakePartDebugDialog(System.String,System.Nullable{System.Single},System.Nullable{System.Single},System.String,Part)">
             <summary>Creates a debug dialog for the parts.</summary>
+            <remarks>
+            Implement a code that would react on user interactions and invoke this method to show a debug
+            dialog. The dialog can be bound to a specific part, in which case it only showns for that
+            part, or the dialog may allow interactively selecting a part from the scene. 
+            </remarks>
             <param name="title">The titile of the dialog.</param>
             <param name="dialogWidth">
             The width of the dialog. If omitted, then the code will decide.
@@ -1618,7 +1624,9 @@
             The group of the controls to present. If empty, then all the controls are shown.
             </param>
             <param name="bindToPart">
-            The fixed part to attach the dialog to. The dialog won't allow changing the part.
+            The part to attach the dialog to. If set, then the dialog won't allow changing the part via
+            GUI. Otherwise, there will be controls in the dialog that allow selection a part from the
+            scene.
             </param>
             <returns>The created dialog.</returns>
             <seealso cref="M:KSPDev.DebugUtils.DebugGui.DestroyPartDebugDialog(KSPDev.DebugUtils.PartDebugAdjustmentDialog)"/>
@@ -2811,7 +2819,7 @@
             </para>
             <para>
             The original KSP attributes don't need to specify <c>guiName</c> field since it will be
-            overwritten anyways. However, it's a good idea to give a default value just in case.
+            overwritten anyway. However, it's a good idea to give a default value just in case.
             </para>
             <para>
             This method can be called at any time during the module's life. However, the
@@ -3023,6 +3031,13 @@
         <member name="F:KSPDev.GUIUtils.HintOverlay.hintWindowStyle">
             <summary>Precalculated style for the hint overlay window.</summary>
         </member>
+        <member name="F:KSPDev.GUIUtils.HintOverlay.backgroundTexture">
+            <summary>Texture to use as the hint background.</summary>
+            <remarks>
+            It's important to keep a reference to it in a C# realm. Since otherwise it will be GC'ed by
+            Unity that doesn't recognize references from the GUIStyle objects. As of Unity 2019.2.2.  
+            </remarks>
+        </member>
         <member name="M:KSPDev.GUIUtils.HintOverlay.#ctor(System.Int32,System.Int32,UnityEngine.Color,UnityEngine.Color)">
             <summary>Constructs an overaly.</summary>
             <param name="fontSize">Size of the text font in the hint.</param>
@@ -3040,7 +3055,10 @@
         </member>
         <member name="M:KSPDev.GUIUtils.HintOverlay.ShowAtPosition(System.Single,System.Single)">
             <summary>Shows hint at the absolute screen position.</summary>
-            <remarks>If hint content goes out of the screen it's clipped.</remarks>
+            <remarks>
+            If hint content goes out of the screen it's clipped.
+            <para>This method must be called from the <c>OnGUI()</c> method.</para>
+            </remarks>
             <param name="x">X position is screen coordinates.</param>
             <param name="y">Y position is screen coordinates.</param>
         </member>
@@ -3464,7 +3482,8 @@
         <member name="T:KSPDev.GUIUtils.TypeFormatters.CompactNumberType">
             <summary>
             Message formatting class for a numeric value. For the values below <c>1000</c> the resulted
-            message is formatted so that it takes no more than 4 digits.
+            message is formatted so that it takes approximately 4 digits. Too small values will be padded
+            with zeros after the dot.
             </summary>
             <remarks>
             <para>
@@ -3761,10 +3780,15 @@
             <summary>Localized message formatting class for a Unity keyboard event.</summary>
             <remarks>
             Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            Even though the name assumes it's only relevant to <i>keyboard</i>, it is not! A mouse or
+            joystick action can also be a part of a "keyboard event", e.g. <c>Ctrl + LMB</c>.
             </remarks>
             <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/><seealso cref="T:KSPDev.GUIUtils.MessageLookup`1"/>
             <seealso cref="T:KSPDev.GUIUtils.TypeFormatters.AngleType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.CompactNumberType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.CostType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ForceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.KeyboardEventType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.MassType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PercentFixedType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PercentType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PressureType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ResourceShortType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ResourceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.VelocityType"/>
             <example><code source="Examples/GUIUtils/TypeFormatters/KeyboardEventType-Examples.cs" region="KeyboardEventTypeDemo1"/></example>
+        </member>
+        <member name="F:KSPDev.GUIUtils.TypeFormatters.KeyboardEventType.specialKeys">
+            <summary>Name overrides for special keys.</summary>
         </member>
         <member name="F:KSPDev.GUIUtils.TypeFormatters.KeyboardEventType.value">
             <summary>A wrapped event value.</summary>
@@ -4273,6 +4297,58 @@
             <returns>A string representing the value.</returns>
             <seealso cref="M:KSPDev.GUIUtils.TypeFormatters.ResourceType.Format(System.Int32)"/>
         </member>
+        <member name="T:KSPDev.GUIUtils.TypeFormatters.SmallNumberType">
+            <summary>
+            Message formatting class for a numeric value. For the values below <c>1000</c> the resulted
+            message is formatted so that it takes 4 digits or less.
+            </summary>
+            <remarks>
+            <para>
+            Use it as a generic parameter when creating a <see cref="T:KSPDev.GUIUtils.LocalizableMessage"/> descendants.
+            </para>
+            </remarks>
+            <seealso cref="T:KSPDev.GUIUtils.Message`1"/><seealso cref="T:KSPDev.GUIUtils.Message`2"/><seealso cref="T:KSPDev.GUIUtils.Message`3"/><seealso cref="T:KSPDev.GUIUtils.Message`4"/><seealso cref="T:KSPDev.GUIUtils.Message`5"/><seealso cref="T:KSPDev.GUIUtils.MessageLookup`1"/>
+            <seealso cref="T:KSPDev.GUIUtils.TypeFormatters.AngleType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.CompactNumberType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.CostType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.DistanceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ForceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.KeyboardEventType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.MassType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PercentFixedType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PercentType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.PressureType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ResourceShortType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.ResourceType"/><seealso cref="T:KSPDev.GUIUtils.TypeFormatters.VelocityType"/>
+            <seealso cref="T:KSPDev.GUIUtils.TypeFormatters.CompactNumberType"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.value">
+            <summary>A wrapped numeric value.</summary>
+            <remarks>This is the original non-rounded and unscaled value.</remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.#ctor(System.Double)">
+            <summary>Constructs an object from a numeric value.</summary>
+            <param name="value">The numeric value in the base units.</param>
+            <seealso cref="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.Format(System.Double,System.String)"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.op_Implicit(System.Double)~KSPDev.GUIUtils.TypeFormatters.SmallNumberType">
+            <summary>Converts a numeric value into a type object.</summary>
+            <param name="value">The numeric value to convert.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.op_Implicit(KSPDev.GUIUtils.TypeFormatters.SmallNumberType)~System.Double">
+            <summary>Converts a type object into a numeric value.</summary>
+            <param name="obj">The object type to convert.</param>
+            <returns>A numeric value.</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.Format(System.Double,System.String)">
+            <summary>Formats the value into a human friendly string.</summary>
+            <remarks>
+            When the value is below <c>1000</c>, the method tries to present the result in as smal digits
+            as possible. If the value is greater, then the whole integer part is shown and the fractionap
+            part is hidden.
+            </remarks>
+            <param name="value">The unscaled numeric value to format.</param>
+            <param name="format">
+            The specific float number format to use. If the format is not specified, then it's choosen
+            basing on the value.
+            </param>
+            <returns>A formatted and localized string</returns>
+        </member>
+        <member name="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.ToString">
+            <summary>Returns a string formatted as a human friendly distance specification.</summary>
+            <returns>A string representing the value.</returns>
+            <seealso cref="M:KSPDev.GUIUtils.TypeFormatters.SmallNumberType.Format(System.Double,System.String)"/>
+        </member>
         <member name="T:KSPDev.GUIUtils.TypeFormatters.VelocityType">
             <summary>
             Localized message formatting class for a numeric value that represents a <i>velocity</i>. The
@@ -4466,6 +4542,72 @@
             <param name="modifiers">A combination of key modifiers to verify.</param>
             <returns><c>true</c> when exactly the requested combination is pressed.</returns>
             <seealso cref="T:KSPDev.InputUtils.KeyModifiers"/>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.CheckLeftSymmetricalModifiers(UnityEngine.Event)">
+            <summary>
+            Verifies if the left-side "symmetrical" keyboard modifiers, defined in the event, are
+            currently in effect (pressed and hold). The <i>exact</i> match is required.
+            </summary>
+            <remarks>
+            The "symmetrical modifiers" are modifier keys that are represented on the both sides of a
+            standard 101-key keyboard and, thus, have "left" and "right" keys. 
+            These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
+            </remarks>
+            <param name="ev"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.CheckRightSymmetricalModifiers(UnityEngine.Event)">
+            <summary>
+            Verifies if the right-side "symmetrical" keyboard modifiers, defined in the event, are
+            currently in effect (pressed and hold). The <i>exact</i> match is required.
+            </summary>
+            <remarks>
+            The "symmetrical modifiers" are modifier keys that are represented on the both sides of a
+            standard 101-key keyboard and, thus, have "left" and "right" keys. 
+            These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
+            </remarks>
+            <param name="ev"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.CheckAnySymmetricalModifiers(UnityEngine.Event)">
+            <summary>
+            Verifies if any of the "symmetrical" keyboard modifiers, defined in the event, are
+            currently in effect (pressed and hold). The <i>exact</i> match is required.
+            </summary>
+            <remarks>
+            The "symmetrical modifiers" are modifier keys that are represented on the both sides of a
+            standard 101-key keyboard and, thus, have "left" and "right" keys. 
+            These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
+            </remarks>
+            <param name="ev"></param>
+            <returns></returns>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.GetInputButtonFromEvent(UnityEngine.Event)">
+            <summary>Extracts mouse button from a keyboard event definition.</summary>
+            <remarks>
+            Only three basic buttons are supported: <c>Left</c>, <c>Right</c>, and <c>Middle</c>. 
+            </remarks>
+            <param name="ev">The event to extract the button from.</param>
+            <returns>
+            The button or <c>null</c> if event doesn't have any recognizable mouse button.
+            </returns>
+        </member>
+        <member name="M:KSPDev.InputUtils.EventChecker.CheckClickEvent(UnityEngine.Event,System.Nullable{UnityEngine.EventSystems.PointerEventData.InputButton})">
+            <summary>Checks if the mouse click event has happen during the frame.</summary>
+            <remarks>
+            This check treats "left" and "right" modifiers equally. And it doesn't consider any of the
+            state modifiers (CAPS, NUM, SCROLL, etc.).
+            </remarks>
+            <param name="ev">The event to match for.</param>
+            <param name="button">
+            The mouse button that was clicked. If this parameter is omitted, then only the event modifiers
+            are checked. It can be used to check the "pre-condition".
+            </param>
+            <returns>
+            <c>true</c> if the requested combination has matched the current frame state.
+            </returns>
+            <seealso cref="M:KSPDev.InputUtils.EventChecker.GetInputButtonFromEvent(UnityEngine.Event)"/>
+            <seealso cref="M:KSPDev.InputUtils.EventChecker.CheckAnySymmetricalModifiers(UnityEngine.Event)"/>
         </member>
         <member name="T:KSPDev.InputUtils.KeyboardInputSwitch">
              <summary>
@@ -5887,9 +6029,12 @@
             side-effects happen and it <i>doesn't</i> use physics incompatible <c>DestroyImmediate</c>
             method.
             </remarks>
-            <param name="obj">The object to destroy.</param>
+            <param name="obj">The object to destroy. Can be <c>null</c>.</param>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.GameObject)">
+            <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Transform)"/>
+        </member>
+        <member name="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Component)">
             <inheritdoc cref="M:KSPDev.ModelUtils.Hierarchy.SafeDestory(UnityEngine.Transform)"/>
         </member>
         <member name="M:KSPDev.ModelUtils.Hierarchy.FindTransformByPathInternal(UnityEngine.Transform,System.String[],System.Int32,System.Int32@,UnityEngine.Transform@)">
@@ -6082,6 +6227,105 @@
             Scale for the vertex positions. If not specified then the scale is not affected.
             </param>
         </member>
+        <member name="T:KSPDev.PartUtils.AbstractPartModule">
+            <summary>Base class for the KSP modules.</summary>
+            <remarks>
+            This module implements common logic to deal with part's configuration, persistence and
+            localization.
+            <para>
+            The descendants of this module can use the custom persistent fields of groups:
+            </para>
+            <list type="bullet">
+            <item><see cref="F:KSPDev.ConfigUtils.StdPersistentGroups.PartConfigLoadGroup"/></item>
+            <item><see cref="F:KSPDev.ConfigUtils.StdPersistentGroups.PartPersistant"/></item>
+            </list>
+            </remarks>
+            <seealso cref="T:KSPDev.ConfigUtils.PersistentFieldAttribute"/>
+            <seealso cref="T:KSPDev.ConfigUtils.StdPersistentGroups"/>
+            <seealso cref="T:KSPDev.GUIUtils.IsLocalizableModule"/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnBeforeDebugAdjustablesUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnDebugAdjustablesUpdated">
+            <inheritdoc/>
+        </member>
+        <member name="F:KSPDev.PartUtils.AbstractPartModule.moduleSettingsLoaded">
+            <summary>Tells if <see cref="M:KSPDev.PartUtils.AbstractPartModule.InitModuleSettings"/> was called on the part.</summary>
+        </member>
+        <member name="F:KSPDev.PartUtils.AbstractPartModule.unregisterListenerActions">
+            <summary>List of events to call to cleanup registered game event listeners.</summary>
+            <remarks>They are called from the destroy method.</remarks>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.LocalizeModule">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnAwake">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnLoad(ConfigNode)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnStart(PartModule.StartState)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnSave(ConfigNode)">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.OnDestroy">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.CheckSettingsConsistency">
+            <summary>Verifies that all part's settings are consistent.</summary>
+            <remarks>
+            If there are contradicting settings detected, they must be fixed so that the part could behave
+            consistently. A warning must be logged to point out what was fixed and to what value.
+            <para>
+            Implementations may call this method multiple times at different stages. At the very least
+            it's called on the module load, but this must <i>not</i> be assumed the only use-case.
+            </para>
+            </remarks>
+            <seealso cref="M:KSPDev.PartUtils.AbstractPartModule.InitModuleSettings"/>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.ShowStatusMessage(System.String,System.Boolean)">
+            <summary>Shows a UI messages with regard to the currently active vessel.</summary>
+            <remarks>
+            The UI messages from the active vessel are shown at the highest priority to bring attention
+            of the player. The messages from the inactive vessels are shown only as a status, that is not
+            intended to distract the player from the current vessel operations.
+            </remarks>
+            <param name="msg">The message to show.</param>
+            <param name="isError">
+            Tells if the messages is an error condition report. Such messages will be highlighed.
+            </param>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.InitModuleSettings">
+            <summary>Initializes the module state according to the settings.</summary>
+            <remarks>
+            This method is normally called from <c>OnLoad</c> method, when all the part components are
+            created, but some of them may be not initialized yet. Under some circumstances it can be
+            called from the <c>OnStart</c> method (e.g. in the editor or when loading an inconsistent save
+            file).
+            <para>
+            This method is a good place for the module to become aware of the other part modules, but it's
+            not the right place to deal with the other module settings.
+            </para>
+            <para>
+            This method can be called multiple times in the part's life time, so keep this method
+            ideponent. Repetative calls to this method should not break the part's logic.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:KSPDev.PartUtils.AbstractPartModule.RegisterGameEventListener``1(EventData{``0},EventData{``0}.OnEvent)">
+            <summary>Registers a game event listener and cleans it up on module destruction.</summary>
+            <remarks>
+            Instead of overriding both <c>OnAwake</c> and <c>OnDestroy</c> methods to register/unregister
+            KSP event listeners, do register via this method. The unregistration will be done
+            automatically when the component dies.
+            </remarks>
+            <param name="eventData">The game event to register for.</param>
+            <param name="listener">The event listener.</param>
+        </member>
         <member name="T:KSPDev.PartUtils.PartModel">
             <summary>Helper methods to deal with the part models.</summary>
         </member>
@@ -6227,7 +6471,7 @@
             <summary>Gets the part's variant.</summary>
             <param name="avPart">The part proto to get the variant for.</param>
             <param name="partNode">The part's persistent state.</param>
-            <returns>The part's variant.</returns>
+            <returns>The part's variant or <c>null</c> if none defined.</returns>
         </member>
         <member name="M:KSPDev.PartUtils.VariantsUtils.GetCurrentPartVariant(Part)">
             <summary>Gets the part variant.</summary>
@@ -6261,6 +6505,93 @@
             Tells if any connected parts at the attach nodes need to be repositioned accordingly. This may
             trigger collisions in the scene, so use carefully.
             </param>
+        </member>
+        <member name="T:KSPDev.PrefabUtils.PrefabLoader">
+            <summary>Utility class to load Unity assets and bundles into the game in runtime.</summary>
+            <remarks>
+            This module works best in conjunction with the <c>UnityDev</c> library. The dynamic assets can
+            be loaded via this utility, and <c>UnityDev</c> can be used to retrieve the assets.
+            </remarks>
+            <seealso href="https://github.com/ihsoft/UnityDev"/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.PrefabLoader.LoadAsset``1(System.String,System.String,System.Boolean)">
+            <summary>Loads an asset from the specified bundle.</summary>
+            <remarks>
+            The loaded bundles are cached, so multiple calls for the same bundle won't impact performance
+            or cause errors.
+            </remarks>
+            <typeparam name="T">
+            The type of component to retrieve from the prefab object. If it's <c>GameObject</c>, then the
+            prefab itself is returned.
+            </typeparam>
+            <param name="bundlePath">The full path to the bundle.</param>
+            <param name="prefabName">
+            The prefab name. It can be a <c>GameObject</c> name, or it can be a full Unity path to the
+            object, which lets avoiding name collisions.
+            </param>
+            <param name="initPrefab">
+            If <c>true</c>, then method <c>InitPrefab</c> will be attempted to invoke on
+            <i>all the components</i> of the loaded prefab. The method can be instance or static, but it
+            must be <i>public</i>. If the method is absent, it's not an error. Use this ability if Unity
+            prefabs need some setup before being exposed to the game.
+            </param>
+            <returns>
+            The component of type <typeparamref name="T"/>. Can be <c>null</c> if the prefab cannot be
+            found or the bundle cannot be loaded.
+            </returns>
+            <seealso cref="M:KSPDev.PrefabUtils.PrefabLoader.GetOrLoadBundle(System.String)"/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.PrefabLoader.LoadAllAssets(System.String)">
+            <summary>Loads and initializes all the assets from the bundle file.</summary>
+            <remarks>
+            This method extracts all prefabs from teh asset file and makes them availabe to the game. It
+            also looks for method <c>InitPrefab()</c> thru all the components of at the root prefab object,
+            and invokes it if found. This method can be implemented by the components to bring the prefab
+            into a "default" state.
+            <para>
+            Every asset bundle is loaded exactly one time and cached. Repetative calls for the same bundle
+            will be NO-OP.  
+            </para>
+            </remarks>
+            <returns><c>true</c> if bundle has been successfully loaded or found in cache.</returns>
+            <param name="bundlePath">The full path to the bundle.</param>
+            <seealso cref="M:KSPDev.PrefabUtils.PrefabLoader.GetOrLoadBundle(System.String)"/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.PrefabLoader.GetOrLoadBundle(System.String)">
+            <summary>Returns a bundle either from the cache or loads it.</summary>
+            <param name="bundlePath">The full path to the bundle.</param>
+            <returns>The asset bundle or <c>null</c> if cannot be loaded.</returns>
+            <seealso cref="M:KSPDev.PrefabUtils.PrefabLoader.LoadAsset``1(System.String,System.String,System.Boolean)"/>
+            <seealso cref="M:KSPDev.PrefabUtils.PrefabLoader.GetCachedBundle(System.String)"/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.PrefabLoader.GetCachedBundle(System.String)">
+            <summary>Lookups the bundle in the cache.</summary>
+            <remarks>Only bundles loaded thru KSPDev are considered.</remarks>
+            <param name="bundlePath">The full path to the bundle.</param>
+            <returns>The asset bundle or <c>null</c> if none found in the cache.</returns>
+            <seealso cref="M:KSPDev.PrefabUtils.PrefabLoader.GetOrLoadBundle(System.String)"/>
+        </member>
+        <member name="T:KSPDev.PrefabUtils.UIScalableWindowController">
+            <summary>Base script that reacts to the game UI scale changes.</summary>
+            <remarks>
+            This component needs to be added to a game object to have effect. The primary targets of this
+            component are the dynamic prefabs. On scale change, the GUI object will be repositioned
+            according to its anchors. A message <c>ControlUpdated</c> will be broadcasted to the components
+            on the parent object to let them updating as needed. 
+            </remarks>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.UIScalableWindowController.Awake">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.UIScalableWindowController.OnDestroy">
+            <inheritdoc/>
+        </member>
+        <member name="M:KSPDev.PrefabUtils.UIScalableWindowController.OnGameSettingsApplied">
+            <summary>Callback that is called when game settings, like UI scale, are changed.</summary>
+        </member>
+        <member name="P:KSPDev.PrefabUtils.UIScalableWindowController.previousUiScale">
+            <summary>Previously known scale onf UI.</summary>
+            <seealso cref="M:KSPDev.PrefabUtils.UIScalableWindowController.OnGameSettingsApplied"/>
         </member>
         <member name="T:KSPDev.ProcessingUtils.ArgumentGuard">
             <summary>Set of tools to check the API method arguments.</summary>
@@ -6549,6 +6880,32 @@
             <param name="message">The message to present.</param>
             <param name="args">The arguments to format the message.</param>
             <returns>The complete error string.</returns>
+        </member>
+        <member name="T:KSPDev.ProcessingUtils.SafeCallbacks">
+            <summary>Set of tools to invoke callbacks so that the main flow is not affected.</summary>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SafeCallbacks.Action(System.Action)">
+            <summary>Executes an action, intercepting any exceptions that it rises.</summary>
+            <remarks>
+            The exceptions that the callback may rise are logged as errors, but the flow is not get
+            interrupted. Such behavior may be handy when calling cleanup methods or notifying multiple
+            recepients where the failure is not an option.
+            </remarks>
+            <param name="fn">The action to exectue.</param>
+        </member>
+        <member name="M:KSPDev.ProcessingUtils.SafeCallbacks.Func``1(System.Func{``0},``0)">
+            <summary>Executes a function, intercepting any exceptions that it rises.</summary>
+            <remarks>
+            The exceptions that the callback may rise are logged as errors, but the flow is not get
+            interrupted. Such behavior may be handy when calling cleanup methods or notifying multiple
+            recepients where the failure is not an option.
+            </remarks>
+            <param name="fn">The function to call.</param>
+            <param name="failValue">
+            The value that will be returned in case of the function has failed.
+            </param>
+            <returns>The function return value or <paramref name="failValue"/> if it failed.</returns>
+            <typeparam name="T">The return type.</typeparam>
         </member>
         <member name="T:KSPDev.ProcessingUtils.SimpleStateMachine`1">
             <summary>

@@ -27,3 +27,8 @@ are _much more_ features (read the API docs!):
 * Well documented KSP interfaces.
 * Methods to deal with procedural models in the game.
 * Different helpers for common processing tasks like state machine or delaying a method call.
+* Advanced logging system which supports game's setting `verbose logging`.
+* Handy classes to deal with the localized content, including commonly used value types (mass, distance, velocity, etc.) and resources.
+* Support of dynamically loaded prefabs (see [UnityDev](https://github.com/ihsoft/UnityDev) as well).
+* Convience methods to deal with the Unity input.
+* Fast an easy way of making debug GUI for your modules: simply annotate the fields that you want adjusting in the game and you are done.

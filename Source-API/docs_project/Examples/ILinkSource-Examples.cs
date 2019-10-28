@@ -209,6 +209,7 @@ public abstract class ILinkSourceExample_SampleImplementation : MonoBehaviour, I
   public abstract AttachNode coupleNode { get; }
   public abstract AttachNode attachNode { get; }
   public abstract bool isNodeBlocked { get; }
+  public abstract string linkNodeName { get; }
 }
 
 #region ILinkSourceExample_BreakFromPhysyicalMethod

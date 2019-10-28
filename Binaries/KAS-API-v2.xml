@@ -114,7 +114,7 @@
         </member>
         <member name="P:KASAPIv2.IKasLinkEvent.actor">
             <summary>Actor who changed the links tate.</summary>
-            <value>The actor type that initated teh action.</value>
+            <value>The actor type that initated the action.</value>
         </member>
         <member name="T:KASAPIv2.ILinkPeer">
             <summary>Base interface for an end of the link.</summary>
