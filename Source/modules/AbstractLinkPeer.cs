@@ -6,6 +6,7 @@
 using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using System;
 using System.Linq;

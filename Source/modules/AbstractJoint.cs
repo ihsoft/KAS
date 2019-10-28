@@ -9,6 +9,7 @@ using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
+using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using System.Collections.Generic;
 using System.Linq;
