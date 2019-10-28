@@ -1,3 +1,5 @@
+# 1.5 (pre-release):
+
 # 1.4 (June 7th, 2019):
 * [Change] Update ES-ES localization.
 * [Enhancement] Use icon of better resolution in the editor to avoid bluring.
