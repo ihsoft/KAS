@@ -5,9 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using KSPDev.ConfigUtils;
-using KSPDev.GUIUtils;
-using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
