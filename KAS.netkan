@@ -8,6 +8,10 @@
         "repository": "https://github.com/ihsoft/KAS",
         "bugtracker": "https://github.com/ihsoft/KAS/issues"
     },
+    "depends"      : [
+        { "name": "CommunityCategoryKit" },
+        { "name": "ModuleManager" }
+    ],
     "recommends"      : [
         { "name": "KIS" },
         { "name": "EasyVesselSwitch" }
