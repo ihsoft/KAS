@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.2.0</name>
+        <name>KSPDev_Utils.2.2</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -2465,7 +2465,7 @@
             <param name="key">The key to find a message for.</param>
             <returns>
             The relevant message if the <paramref name="key"/> is found. Otherwise, either the
-            <see cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/> or a string represenation of the key. It's never <c>null</c>. 
+            <see cref="F:KSPDev.GUIUtils.MessageLookup`1.defaultMessage"/> or a string representation of the key. It's never <c>null</c>. 
             </returns>
             <example><code source="Examples/GUIUtils/MessageLookup-Examples.cs" region="MessageLookupDemo_WithDefault"/></example>
             <example><code source="Examples/GUIUtils/MessageLookup-Examples.cs" region="MessageLookupDemo_WithStockDefault"/></example>
@@ -2645,7 +2645,7 @@
             </para>
             <para>
             The template of the messages supports special tags that may give a hint to the caller code on
-            how the messages should be rendered. Those tags must be palced at the beginning of the template.
+            how the messages should be rendered. Those tags must be placed at the beginning of the template.
             For the available tags see <see cref="T:KSPDev.GUIUtils.LocalizableMessage.GuiTags"/>.
             </para>
             </remarks>
@@ -2676,7 +2676,7 @@
             </remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.tag">
-            <summary>Tag to use when resolving the string via the Localizer.</summary>
+            <summary>Tag to use when resolving the string via the localizer.</summary>
             <remarks>
             It can be <c>null</c> to indicate that the localization is not needed. In this case the
             <see cref="F:KSPDev.GUIUtils.LocalizableMessage.defaultTemplate"/> will be used as text.
@@ -2688,7 +2688,7 @@
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.guiTags">
             <summary>GUI specific settings that suggest how to show the message.</summary>
             <remarks>
-            Due to the lazzy update nature of the localized messages, these settings are <i>not</i>
+            Due to the lazy update nature of the localized messages, these settings are <i>not</i>
             loaded until the message is used at least once. The caller code may ensure the values are
             updated by calling to <see cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/>, or by simply getting the
             <see cref="P:KSPDev.GUIUtils.LocalizableMessage.localizedTemplate"/> value.
@@ -2711,7 +2711,7 @@
             <summary>Constructs a localizable message.</summary>
             <param name="tag">
             The tag to use when getting the localized version of the template. If <c>null</c> then the
-            message will alaways use <paramref name="defaultTemplate"/> as text.
+            message will always use <paramref name="defaultTemplate"/> as text.
             </param>
             <param name="defaultTemplate">
             <para>
@@ -2730,7 +2730,7 @@
             specifying the circumstances of when this string is displayed. The context <i>does</i> matter!
             </param>
             <param name="example">
-            An example of how the template can be used and what is the output in the langauge of the
+            An example of how the template can be used and what is the output in the language of the
             <paramref name="defaultTemplate"/>. Provide it to illustrate the non-obvious cases. 
             </param>
             <seealso href="http://lingoona.com/cgi-bin/grammar#l=en&amp;oh=1">Lingoona Grammar help</seealso>
@@ -2751,13 +2751,13 @@
             </para>
             <para>
             When current language is changed the cached version needs to be reloaded. Call
-            the <see cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/> method to force it. However, as of KSP 1.3.0 the langauge
+            the <see cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/> method to force it. However, as of KSP 1.3.0 the language
             cannot be changed while the game is running.
             </para>
             </remarks>
             <value>
             A Lingoona Grammar template in the
-            <see cref="P:KSP.Localization.Localizer.CurrentLanguage">current languge</see>.
+            <see cref="P:KSP.Localization.Localizer.CurrentLanguage">current language</see>.
             </value>
             <seealso cref="M:KSPDev.GUIUtils.LocalizableMessage.LoadLocalization"/>
             <item name="T:KSP.Localization.Localizer">
@@ -2765,27 +2765,29 @@
 </item>
         </member>
         <member name="T:KSPDev.GUIUtils.LocalizableMessage.GuiTags">
-            <summary>Various values that give hints on how the messages should be presented in GUI.</summary>
+            <summary>
+            Various values that give hints on how the messages should be presented in GUI.
+            </summary>
             <remarks>
-            It's up to the caller to handle theses settings. They improve the appearence, but are not
+            It's up to the caller to handle theses settings. They improve the appearance, but are not
             required for the proper content presentation.
             </remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.minWidth">
             <summary>Minimum width of the area in GUI.</summary>
-            <remarks>Defined via tag: &lt;gui:min:width,heigth&gt;</remarks>
+            <remarks>Defined via tag: &lt;gui:min:width,height&gt;</remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.minHeight">
             <summary>Minimum height of the area in GUI.</summary>
-            <remarks>Defined via tag: &lt;gui:min:width,heigth&gt;</remarks>
+            <remarks>Defined via tag: &lt;gui:min:width,height&gt;</remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.maxWidth">
             <summary>Maximum width of the area in GUI.</summary>
-            <remarks>Defined via tag: &lt;gui:max:width,heigth&gt;</remarks>
+            <remarks>Defined via tag: &lt;gui:max:width,height&gt;</remarks>
         </member>
         <member name="F:KSPDev.GUIUtils.LocalizableMessage.GuiTags.maxHeight">
             <summary>Maximum height of the area in GUI.</summary>
-            <remarks>Defined via tag: &lt;gui:max:width,heigth&gt;</remarks>
+            <remarks>Defined via tag: &lt;gui:max:width,height&gt;</remarks>
         </member>
         <member name="T:KSPDev.GUIUtils.LocalizationLoader">
             <summary>A utility class to localize the annotated members</summary>
@@ -4553,8 +4555,8 @@
             standard 101-key keyboard and, thus, have "left" and "right" keys. 
             These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
             </remarks>
-            <param name="ev"></param>
-            <returns></returns>
+            <param name="ev">The event to get modifiers from.</param>
+            <returns><c>true</c> if the the current hold modifier(s) match the event.</returns>
         </member>
         <member name="M:KSPDev.InputUtils.EventChecker.CheckRightSymmetricalModifiers(UnityEngine.Event)">
             <summary>
@@ -4566,8 +4568,8 @@
             standard 101-key keyboard and, thus, have "left" and "right" keys. 
             These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
             </remarks>
-            <param name="ev"></param>
-            <returns></returns>
+            <param name="ev">The event to get modifiers from.</param>
+            <returns><c>true</c> if the the current hold modifier(s) match the event.</returns>
         </member>
         <member name="M:KSPDev.InputUtils.EventChecker.CheckAnySymmetricalModifiers(UnityEngine.Event)">
             <summary>
@@ -4579,8 +4581,8 @@
             standard 101-key keyboard and, thus, have "left" and "right" keys. 
             These are: <c>ALT</c>, <c>CTRL</c>, <c>SHIFT</c>, and <c>COMMAND</c>.
             </remarks>
-            <param name="ev"></param>
-            <returns></returns>
+            <param name="ev">The event to get modifiers from.</param>
+            <returns><c>true</c> if the the current hold modifier(s) match the event.</returns>
         </member>
         <member name="M:KSPDev.InputUtils.EventChecker.GetInputButtonFromEvent(UnityEngine.Event)">
             <summary>Extracts mouse button from a keyboard event definition.</summary>
@@ -4592,7 +4594,7 @@
             The button or <c>null</c> if event doesn't have any recognizable mouse button.
             </returns>
         </member>
-        <member name="M:KSPDev.InputUtils.EventChecker.CheckClickEvent(UnityEngine.Event,System.Nullable{UnityEngine.EventSystems.PointerEventData.InputButton})">
+        <member name="M:KSPDev.InputUtils.EventChecker.CheckClickEvent(UnityEngine.Event,System.Nullable{UnityEngine.EventSystems.PointerEventData.InputButton},System.Boolean)">
             <summary>Checks if the mouse click event has happen during the frame.</summary>
             <remarks>
             This check treats "left" and "right" modifiers equally. And it doesn't consider any of the
@@ -4600,14 +4602,23 @@
             </remarks>
             <param name="ev">The event to match for.</param>
             <param name="button">
-            The mouse button that was clicked. If this parameter is omitted, then only the event modifiers
-            are checked. It can be used to check the "pre-condition".
+            The mouse button from the Unity <c>EventSystem</c> which is known to be pressed in this frame.
+            The <c>EventSystem</c> logic is not in sync with <c>MonoBehaviour.Update</c>, so the event
+            system handlers should provide the pressed <c>button</c> explicitly. The callers from the
+            <c>Update</c> method don't need to do so since the right action button can be extracted from
+            <paramref name="ev"/>.
+            </param>
+            <param name="onlyCheckModifiers">
+            Tells if only the modifiers in the event need to be checked. This is how a "precondition" can
+            be verified when the GUI is interactive and depends on the pressed keys.
             </param>
             <returns>
             <c>true</c> if the requested combination has matched the current frame state.
             </returns>
-            <seealso cref="M:KSPDev.InputUtils.EventChecker.GetInputButtonFromEvent(UnityEngine.Event)"/>
             <seealso cref="M:KSPDev.InputUtils.EventChecker.CheckAnySymmetricalModifiers(UnityEngine.Event)"/>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Input.GetKeyDown.html">
+            Input.GetKeyDown
+            </seealso>
         </member>
         <member name="T:KSPDev.InputUtils.KeyboardInputSwitch">
              <summary>
@@ -5053,7 +5064,7 @@
              </item>
              <item>
              <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnLoad(ConfigNode)"/></term>
-             <description>Is <b>not called</b> for the new parts since they are clonned. When a saved vessel
+             <description>Is <b>not called</b> for the new parts since they are cloned. When a saved vessel
              is loaded in the editor every part on the vessel gets this method called with the values from
              the save file. The annotated fields are populated from the file <i>before</i> this method gets
              control, so it's safe to use them.
@@ -5061,7 +5072,7 @@
              </item>
              <item>
              <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnInitialize"/></term>
-             <description>Hard to say what it means for the edtior, but important difference from the flight
+             <description>Hard to say what it means for the editor, but important difference from the flight
              scenes is that this method is called before <see cref="M:KSPDev.KSPInterfaces.IPartModule.OnStart(PartModule.StartState)"/>.
              </description>
              </item>
@@ -5073,7 +5084,7 @@
              </item>
              </list>
             
-             <para>In the <i>fligth scenes</i> the callbacks are executed in the following order:</para>
+             <para>In the <i>flight scenes</i> the callbacks are executed in the following order:</para>
              <list type="table">
              <item>
              <term><see cref="M:KSPDev.KSPInterfaces.IPartModule.OnAwake"/></term>
@@ -6325,6 +6336,7 @@
             </remarks>
             <param name="eventData">The game event to register for.</param>
             <param name="listener">The event listener.</param>
+            <typeparam name="T">The type of <c>EventData</c> of the related event.</typeparam>
         </member>
         <member name="T:KSPDev.PartUtils.PartModel">
             <summary>Helper methods to deal with the part models.</summary>
@@ -6581,7 +6593,7 @@
             </remarks>
         </member>
         <member name="M:KSPDev.PrefabUtils.UIScalableWindowController.Awake">
-            <inheritdoc/>
+            <summary>Activates the component.</summary>
         </member>
         <member name="M:KSPDev.PrefabUtils.UIScalableWindowController.OnDestroy">
             <inheritdoc/>
@@ -6592,6 +6604,7 @@
         <member name="P:KSPDev.PrefabUtils.UIScalableWindowController.previousUiScale">
             <summary>Previously known scale onf UI.</summary>
             <seealso cref="M:KSPDev.PrefabUtils.UIScalableWindowController.OnGameSettingsApplied"/>
+            <value>The UI scale value that was in effect before the change.</value>
         </member>
         <member name="T:KSPDev.ProcessingUtils.ArgumentGuard">
             <summary>Set of tools to check the API method arguments.</summary>
