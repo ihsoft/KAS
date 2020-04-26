@@ -295,7 +295,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <remarks>Left Name + Left Amount + Right Amount + Right Name</remarks>
   readonly GUILayoutStringTable guiResourcesTable = new GUILayoutStringTable(4);
 
-  /// <summary>Defintion of all the resources for the both linked vessels.</summary>
+  /// <summary>Definition of all the resources for the both linked vessels.</summary>
   ResourceTransferOption[] resourceRows = new ResourceTransferOption[0];
 
   /// <summary>Index of the vessels resources.</summary>
@@ -320,7 +320,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </summary>
   bool resourceListNeedsUpdate;
 
-  /// <summary>Last time the resoucres counts were updated in GUI.</summary>
+  /// <summary>Last time the resources counts were updated in GUI.</summary>
   float lastResourcesGUIUpdate;
 
   /// <summary>The timeout to update the resoucres countes in GUI in seconds.</summary>
