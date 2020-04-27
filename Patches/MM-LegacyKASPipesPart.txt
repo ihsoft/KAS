@@ -1,0 +1,74 @@
+// This patch simulates the legacy KAS v0.9 pipes. Such pipes are physically
+// impossible and so they are not a part of the official KAS distribution.
+// However, that legacy behavior could be simulated on top of the new KAS
+// modules. And that's what this patch does.
+//
+// To activate the patch, change the extension to .cfg and restart the game.
+// If you choose to activate this patch, it's recommended to move it into a top
+// level folder in GameData. This way you won't need to enable this patch after
+// each version update.
+
+@PART[KAS.JS1]:NEEDS[KAS]
+{
+	MODULE
+	{
+		name = KASLinkSourceInteractive
+
+		// AbstractLinkPeer
+		linkType = MdStrut
+		linkTypeDisplayName = #kasLOC_99003 // #kasLOC_99003 = Pipe-100
+		attachNodeName = top
+		allowCoupling = true
+
+		// KASLinkSourceBase
+		coupleMode = AlwaysCoupled
+		jointName = fixedJoint
+		linkRendererName = legacyPipe
+		sndPathDock = KAS/Sounds/strutBuild
+		sndPathUndock = KAS/Sounds/strutRemove
+
+		// KASLinkSourceInteractive
+		sndPathBroke = KAS/Sounds/broke
+		startLinkMenu = #KAS_TJ1_Part_LinkStart // #KAS_TJ1_Part_LinkStart = Attach to a vessel
+		breakLinkMenu = #KAS_TJ1_Part_LinkBreak // #KAS_TJ1_Part_LinkBreak = Disconnect vessels
+	}
+	MODULE
+	{
+		name = KASRendererPipe
+
+		// KASRendererPipe
+		rendererName = legacyPipe
+		pipeTextureRescaleMode = TileFromSource
+		pipeDiameter = 0.1
+		pipeTexturePath = KAS/Textures/corrugated_steel
+		pipeNormalsTexturePath =
+		pipeTextureSamplesPerMeter = 4
+
+		sourceJoint
+		{
+			sphereOffset = 0.1
+			sphereDiameter = 0.1
+			armDiameter = 0.1
+		}
+		targetJoint
+		{
+			sphereOffset = 0.1
+			sphereDiameter = 0.1
+			armDiameter = 0.1
+		}
+	}
+	MODULE
+	{
+		name = KASJointRigid
+
+		// AbstractJoint
+		jointName = fixedJoint
+		minLinkLength = 0
+		maxLinkLength = 20
+		linkBreakForce = 600
+		sourceLinkAngleLimit = 100
+		targetLinkAngleLimit = 100
+		anchorAtSource = 0, 0, 0.1
+		anchorAtTarget = 0, 0, 0.1
+	}
+}

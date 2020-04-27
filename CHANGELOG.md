@@ -1,4 +1,10 @@
-# 1.5 (pre-release):
+# 1.6 (April 26th, 2020):
+* [Fix #289] RTS-1 docking mode is not reset on decoupling.
+* [Change] Stop complaining about KSP minor version change.
+* [Enhancement] Add two new localization strings for the custom corridors: `Corridor-1000` and `Corridor-1500`.
+* [Enhancement] Add an optional patch `MM-LegacyKASPipesPart.txt` to simulate the old `KAS` pipes. Use at your own risk!
+
+# 1.5 (October 27th, 2019):
 * [Change] `KSP 1.8` compatibility. __WARNING__: the mod won't work with version lower than `KSP 1.8`!
 * [Enhancement] Add Chinese localization.
 * [Fix #279] Can't surface attach the hw-80 winch.

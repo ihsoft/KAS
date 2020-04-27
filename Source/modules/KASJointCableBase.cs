@@ -126,12 +126,6 @@ public class KASJointCableBase : AbstractJoint,
 
   #region AbstractJoint overrides
   /// <inheritdoc/>
-  public override void OnLoad(ConfigNode node) {
-    base.OnLoad(node);
-    StartCoroutine(FixLegacyV_1_1());
-  }
-
-  /// <inheritdoc/>
   protected override void SetupPhysXJoints() {
     if (isHeadStarted) {
       HostedDebugLog.Warning(this, "A physical head is running. Stop it before the link!");
@@ -275,24 +269,6 @@ public class KASJointCableBase : AbstractJoint,
     SetBreakForces(joint);
     SetCustomJoints(new[] {joint});
     cableJoint = joint;
-  }
-
-  /// <summary>Fixes inconsistent values inherited from v1.1.</summary>
-  /// <remarks>
-  /// Ensures that the unlinked joints have the persistent length set to -1 (use actual distance on
-  /// link). The former implementation didn't follow the API method contract, and was saving the
-  /// cable length even though the link was not established.
-  /// </remarks>
-  IEnumerator FixLegacyV_1_1() {
-    // FIXME: Drop this method after 06/01/2019.
-    // The persistent link is expected to get restored within 3 frames updates.
-    yield return null;
-    yield return null;
-    yield return null;
-    if (Mathf.Abs(persistedLinkLength) < float.Epsilon) {
-      HostedDebugLog.Warning(this, "LEGACY v1.1: Erase unlinked cable length.");
-      SetOrigianlLength(null);
-    }
   }
   #endregion
 }

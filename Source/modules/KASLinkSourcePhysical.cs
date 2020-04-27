@@ -781,7 +781,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     MonoUtilities.RefreshContextWindows(part);
   }
 
-  /// <summary>Moves a linked connected from another target to the active EVA.</summary>
+  /// <summary>Moves a linked connector from another target to the active EVA.</summary>
   void ClaimLinkedConnector() {
     if (FlightGlobals.ActiveVessel.isEVA && isLinked) {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
