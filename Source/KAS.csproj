@@ -55,7 +55,7 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>Q:\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KAS-API-v2">
+    <Reference Include="KAS-API-v2, Version=2.0.7239.35367, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
     <Reference Include="KSPDev_Utils.2.2, Version=2.2.7417.673, Culture=neutral, PublicKeyToken=null">
