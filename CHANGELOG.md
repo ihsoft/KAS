@@ -1,5 +1,6 @@
 # 1.6 (pre-release):
 * [Change] Stop complaining about KSP minor version change.
+* [Enhancement] Add two new localization strings for the custom corridors: `Corridor-1000` and `Corridor-1500`.
 
 # 1.5 (October 27th, 2019):
 * [Change] `KSP 1.8` compatibility. __WARNING__: the mod won't work with version lower than `KSP 1.8`!
