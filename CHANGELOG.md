@@ -1,4 +1,5 @@
 # 1.6 (pre-release):
+* [Fix #289] RTS-1 docking mode is not reset on decoupling.
 * [Change] Stop complaining about KSP minor version change.
 * [Enhancement] Add two new localization strings for the custom corridors: `Corridor-1000` and `Corridor-1500`.
 

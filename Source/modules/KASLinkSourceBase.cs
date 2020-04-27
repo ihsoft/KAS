@@ -227,10 +227,37 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region AbstractLinkPeer overrides
+  /// <summary>Reacts on a part de-coupling and adjusts the docking mode.</summary>
+  /// <remarks>
+  /// If active mode was "DOCKING", and the coupling hasn't restored, then reset the mode since it
+  /// erroneous now. 
+  /// </remarks>
+  /// <param name="originator">The part that has decoupled.</param>
+  void OnPartDeCoupleCompleteEvent(Part originator) {
+    if (!isLinked || !linkJoint.coupleOnLinkMode) {
+      return;  // Not interested.
+    }
+    // Wait for one frame to allow joint logic to restore the coupling, and then check.
+    AsyncCall.CallOnEndOfFrame(
+        this,
+        () => {
+          if (isLinked && vessel != originator.vessel) {
+            HostedDebugLog.Fine(
+                this,
+                "Coupling has not been restored, resetting the docking mode: {0} <=> {1}",
+                part, originator);
+            linkJoint.SetCoupleOnLinkMode(false);
+            UpdateContextMenu();
+          }
+        },
+        skipFrames: 1);
+  }
+
   /// <inheritdoc/>
   public override void OnStart(PartModule.StartState state) {
     base.OnStart(state);
     InitStartState();
+    RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
   }
 
   /// <inheritdoc/>
