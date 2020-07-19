@@ -241,7 +241,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
-          if (isLinked && vessel != originator.vessel) {
+          if (isLinked && vessel == originator.vessel) {
             HostedDebugLog.Fine(
                 this,
                 "Coupling has not been restored, resetting the docking mode: {0} <=> {1}",
