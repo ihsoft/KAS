@@ -1,3 +1,5 @@
+# 1.7 (pre-release):
+
 # 1.6 (April 26th, 2020):
 * [Fix #289] RTS-1 docking mode is not reset on decoupling.
 * [Change] Stop complaining about KSP minor version change.
