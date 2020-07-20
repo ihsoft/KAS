@@ -187,7 +187,7 @@ public class KASJointCableBase : AbstractJoint,
     headRb = null;
     headSource = null;
     headPhysicalAnchor = null;
-    DestroyImmediate(cableJoint);
+    Destroy(cableJoint);
     cableJoint = null;
     SetOrigianlLength(null);
   }
