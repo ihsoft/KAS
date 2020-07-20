@@ -454,8 +454,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var sphere = node.pipeAttach.Find(sphereName);
     if (config.sphereDiameter > float.Epsilon && makeProceduralModels) {
       if (sphere == null) {
-        sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
-                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        sphere = Meshes2.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
+                                      colliderType: Colliders.PrimitiveCollider.Shape).transform;
         sphere.name = sphereName;
         sphere.rotation = Quaternion.LookRotation(node.partAttach.up, node.partAttach.forward);
       }
@@ -507,9 +507,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon
         && makeProceduralModels) {
       if (arm == null) {
-        arm = Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
-                                    node.pipeAttach,
-                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        arm = Meshes2.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                     node.pipeAttach,
+                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
         arm.name = armName;
       }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
@@ -534,7 +534,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var colliderType = pipeColliderIsPhysical
         ? Colliders.PrimitiveCollider.Shape
         : Colliders.PrimitiveCollider.None;
-    pipeTransform = Meshes.CreateCylinder(
+    pipeTransform = Meshes2.CreateCylinder(
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
