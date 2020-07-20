@@ -229,23 +229,25 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region AbstractLinkPeer overrides
   /// <summary>Reacts on a part de-coupling and adjusts the docking mode.</summary>
   /// <remarks>
-  /// If active mode was "DOCKING", and the coupling hasn't restored, then reset the mode since it
-  /// erroneous now. 
+  /// This is a cleanup method that verifies that all links in the DOCKED mode remained coupled
+  /// after decoupling of the part. If it's not the case, the DOCKED mode is reset to ATTACHED. In
+  /// the normal case the joint module takes care of restoring the affected couplings, and this
+  /// method becomes NO-OP.  
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleCompleteEvent(Part originator) {
-    if (!isLinked || !linkJoint.coupleOnLinkMode) {
+    if (!isLinked || !linkJoint.coupleOnLinkMode || linkTarget.part.vessel == vessel) {
       return;  // Not interested.
     }
     // Wait for one frame to allow joint logic to restore the coupling, and then check.
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
-          if (isLinked && vessel != originator.vessel) {
+          if (isLinked && linkJoint.coupleOnLinkMode && linkTarget.part.vessel != vessel) {
             HostedDebugLog.Fine(
                 this,
                 "Coupling has not been restored, resetting the docking mode: {0} <=> {1}",
-                part, originator);
+                part, linkTarget.part);
             linkJoint.SetCoupleOnLinkMode(false);
             UpdateContextMenu();
           }
