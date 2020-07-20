@@ -50,8 +50,8 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     if (interactionDistance > 0) {
       // This mesh is placed on a special layer which is not rendered in the game. It's only
       // used to detect the special zones triggers, so keep it simple.
-          PrimitiveType.Quad, Vector3.one, null, obj.transform);
       var interactionTriggerObj = Meshes2.CreatePrimitive(
+          PrimitiveType.Cube, Vector3.one, null, obj.transform);
       interactionTriggerObj.name = InteractionAreaCollider;
       var collider = interactionTriggerObj.AddComponent<SphereCollider>();
       collider.isTrigger = true;
