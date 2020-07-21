@@ -405,7 +405,7 @@ public abstract class AbstractJoint : AbstractPartModule,
         && linkSource.coupleNode != null && linkSource.coupleNode.id == nodeName) {
       // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
-      MaybeBreakLink(linkSource, linkTarget);
+      MaybeBreakLink(linkSource);
     }
   }
   #endregion
@@ -421,10 +421,11 @@ public abstract class AbstractJoint : AbstractPartModule,
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
+      var rootRotation = root.rotation;
       var thisPartPos = root.TransformPoint(part.orgPos);
-      var thisPartRot = root.rotation * part.orgRot;
+      var thisPartRot = rootRotation * part.orgRot;
       var parentPartPos = root.TransformPoint(parentPart.orgPos);
-      var parentPartRot = root.rotation * parentPart.orgRot;
+      var parentPartRot = rootRotation * parentPart.orgRot;
       relPos = parentPartRot.Inverse() * (thisPartPos - parentPartPos);
       relRot = parentPartRot.Inverse() * thisPartRot;
     }
@@ -437,9 +438,11 @@ public abstract class AbstractJoint : AbstractPartModule,
         // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
           HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
-          part.transform.position =
-              parentPart.transform.position + parentPart.transform.rotation * relPos;
-          part.transform.rotation = parentPart.transform.rotation * relRot;
+          var parentPartTransform = parentPart.transform;
+          var parentPartRotation = parentPartTransform.rotation;
+          var partTransform = part.transform;
+          partTransform.position = parentPartTransform.position + parentPartRotation * relPos;
+          partTransform.rotation = parentPartRotation * relRot;
           part.Couple(parentPart);
         }
         HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
@@ -713,7 +716,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// If there are other custom joints existing, they will be cleaned up. This method triggers
   /// <see cref="CleanupPhysXJoints"/>, so keep it in mind when setting up the custom joints.
   /// </remarks>
-  /// <param name="joints">
+  /// <param name="newJoints">
   /// The new joints. If <c>null</c>, then the old joints will be cleaned up and no new joints will
   /// be added.
   /// </param>
@@ -723,11 +726,11 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </param>
   /// <seealso cref="customExtraObjects"/>
   /// <seealso cref="customJoints"/>
-  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints,
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> newJoints,
                                  IEnumerable<Object> extraObjects = null) {
     CleanupPhysXJoints();
-    if (joints != null) {
-      customJoints.AddRange(joints);
+    if (newJoints != null) {
+      customJoints.AddRange(newJoints);
     }
     if (extraObjects != null) {
       customExtraObjects.AddRange(extraObjects);
@@ -900,9 +903,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
   /// event handler.
   /// </remarks>
-  /// <param name="source">The link source at the moemnt of cleanup.</param>
-  /// <param name="target">The link target at the moment of cleanup.</param>
-  void MaybeBreakLink(ILinkSource source, ILinkTarget target) {
+  /// <param name="source">The link source at the moment of cleanup.</param>
+  void MaybeBreakLink(ILinkSource source) {
     // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
     // they will be null'ed on the link destruction.
     AsyncCall.CallOnEndOfFrame(this, () => {
