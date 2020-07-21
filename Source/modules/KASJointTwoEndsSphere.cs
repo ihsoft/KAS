@@ -143,8 +143,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
     collisionJoint.zMotion = ConfigurableJointMotion.Free;
     collisionJoint.connectedBody = linkTarget.part.rb;
 
-    SetCustomJoints(new[] {srcJoint, trgJoint, collisionJoint},
-                    extraObjects: new[] {middleObj});
+    SetCustomJoints(new[] {srcJoint, trgJoint, collisionJoint}, extraObjects: new[] {middleObj});
   }
   #endregion
 
