@@ -216,7 +216,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    linkStateMachine = new SimpleStateMachine<LinkState>(true /* strict */);
+    linkStateMachine = new SimpleStateMachine<LinkState>();
     SetupStateMachine();
     RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
   }
@@ -228,7 +228,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
+  public override void OnStart(StartState state) {
     base.OnStart(state);
     
     // Adjust state of a newly added module.
@@ -246,7 +246,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
-  public override void OnStartFinished(PartModule.StartState state) {
+  public override void OnStartFinished(StartState state) {
     base.OnStartFinished(state);
     // Prevent the third-party logic on the auto node. See OnLoad.
     if ((HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
@@ -417,7 +417,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   #region ILinkStateEventListener implementation
   /// <inheritdoc/>
-  public virtual void OnKASLinkedState(IKasLinkEvent info, bool isLinked) {
+  public virtual void OnKASLinkedState(IKasLinkEvent info, bool isLinkedState) {
     var peer = info.source.part == part
         ? info.source
         : info.target as ILinkPeer;
@@ -425,9 +425,9 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
         && (peer.cfgAttachNodeName == attachNodeName
             || cfgDependentNodeNames.Contains(peer.cfgAttachNodeName))) {
       // Only act when it's about (un)locking. Don't affect the state in all other cases.
-      if (isLinked && linkState != LinkState.NodeIsBlocked) {
+      if (isLinkedState && linkState != LinkState.NodeIsBlocked) {
         SetLinkState(LinkState.Locked);
-      } else if (!isLinked && linkState == LinkState.Locked) {
+      } else if (!isLinkedState && linkState == LinkState.Locked) {
         SetLinkState(LinkState.Available);
       }
     }
