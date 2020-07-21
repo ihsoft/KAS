@@ -34,7 +34,10 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   public const string BumpSpecMapProp = "_BumpSpecMap";
 
   /// <summary>Name of the material shininess in the renderer.</summary>
-  public const string ShininessProp = "_Shininess";
+  public const string ShininessPropName = "_Shininess";
+
+  /// <summary>Shininess property index in the renderer.</summary>
+  public static readonly int ShininessProp = Shader.PropertyToID(ShininessPropName);
   #endregion
 
   #region Inhertable utility methods
