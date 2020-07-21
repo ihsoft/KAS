@@ -1,5 +1,4 @@
 ﻿// Kerbal Attachment System
-// https://forum.kerbalspaceprogram.com/index.php?/topic/142594-15-kerbal-attachment-system-kas-v11
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
