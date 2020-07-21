@@ -26,12 +26,12 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>Name of bump map property in the renderer.</summary>
   /// <remarks>Only bump shaders support it.</remarks>
   /// <seealso cref="KspPartShaderName"/>
-  public const string BumpMapProp = "_BumpMap";
+  public const string BumpMapPropName = "_BumpMap";
 
   /// <summary>Name of bump map with specular property in the renderer.</summary>
   /// <remarks>Only bump specular shaders support it.</remarks>
   /// <seealso cref="KspPartShaderName"/>
-  public const string BumpSpecMapProp = "_BumpSpecMap";
+  public const string BumpSpecMapPropName = "_BumpSpecMap";
 
   /// <summary>Name of the material shininess in the renderer.</summary>
   public const string ShininessPropName = "_Shininess";
@@ -95,8 +95,8 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>Tells if the normals map should be used as bump specular map.</summary>
   /// <remarks>The texture must be made in appropriate way to be compatible!</remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <seealso cref="BumpMapProp"/>
-  /// <seealso cref="BumpSpecMapProp"/>
+  /// <seealso cref="BumpMapPropName"/>
+  /// <seealso cref="BumpSpecMapPropName"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Use NRM texture as bump specular")]
   public bool isBumpSpecMap;
@@ -146,7 +146,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
     material.color = overrideColor ?? materialColor;
     if (mainTexNrm != null) {
       material.EnableKeyword("_NORMALMAP");
-      material.SetTexture(isBumpSpecMap ? BumpSpecMapProp : BumpMapProp, mainTexNrm);
+      material.SetTexture(isBumpSpecMap ? BumpSpecMapPropName : BumpMapPropName, mainTexNrm);
     }
     if (materialShininess >= 0) {
       material.SetFloat(ShininessProp, materialShininess);
@@ -239,7 +239,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <seealso cref="CreateMaterial"/>
   /// <seealso cref="isBumpSpecMap"/>
   protected void SetBumpMap(Material material, Action<string> an) {
-    var propName = isBumpSpecMap ? BumpSpecMapProp : BumpMapProp;
+    var propName = isBumpSpecMap ? BumpSpecMapPropName : BumpMapPropName;
     if (material.HasProperty(propName)) {
       an(propName);
     }
