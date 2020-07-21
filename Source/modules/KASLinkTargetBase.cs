@@ -4,7 +4,6 @@
 
 using KASAPIv2;
 using KSPDev.GUIUtils;
-using KSPDev.DebugUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
@@ -265,17 +264,6 @@ public class KASLinkTargetBase :
   #endregion
 
   #region Local untility methods
-  /// <summary>Finds a compatible source linked to the EVA kerbal.</summary>
-  /// <returns>The source or <c>null</c> if nothing found.</returns>
-  ILinkTarget FindEvaTargetWithConnector() {
-    if (!HighLogic.LoadedSceneIsFlight || !FlightGlobals.ActiveVessel.isEVA) {
-      return null;
-    }
-    return FlightGlobals.ActiveVessel
-        .FindPartModulesImplementing<ILinkTarget>()
-        .FirstOrDefault(t => t.isLinked && t.cfgLinkType == cfgLinkType);
-  }
-
   /// <summary>Sets the highlighter state on the part.</summary>
   /// <remarks>
   /// Does nothing if the <see cref="highlightCompatibleTargets"/> settings is set to <c>false</c>.

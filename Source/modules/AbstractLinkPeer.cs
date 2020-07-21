@@ -431,7 +431,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     var oldPeer = _otherPeer;
     _otherPeer = peer;
     if (_otherPeer != null) {
-      persistedLinkPartId = _otherPeer != null ? _otherPeer.part.flightID : 0;
+      persistedLinkPartId = (uint) _otherPeer?.part.flightID;
       persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
     } else {
       persistedLinkPartId = 0;
@@ -445,7 +445,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <inheritdoc/>
   public virtual void OnKASLinkedState(IKasLinkEvent info, bool isLinked) {
     var peer = info.source.part == part
-        ? info.source as ILinkPeer
+        ? info.source
         : info.target as ILinkPeer;
     if (!ReferenceEquals(peer, this)
         && (peer.cfgAttachNodeName == attachNodeName

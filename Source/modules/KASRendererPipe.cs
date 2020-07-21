@@ -79,21 +79,21 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
     [Debug.KASDebugAdjustable("Sphere offset")]
-    public float sphereOffset;
+    public float sphereOffset = 0;
 
     /// <summary>Diameter of the sphere to place at the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
     [Debug.KASDebugAdjustable("Sphere diameter")]
-    public float sphereDiameter;
+    public float sphereDiameter = 0;
 
     /// <summary>Diameter of the pipe that connects the attach node and the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
     /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
     [Debug.KASDebugAdjustable("Arm diameter")]
-    public float armDiameter;
+    public float armDiameter = 0;
 
     /// <summary>Path to the prefab model that represents the joint.</summary>
     /// <remarks>

@@ -9,7 +9,6 @@ using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -453,8 +452,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
                            Transform target, HashSet<Part> hits) {
     var tgtPart = target.root.GetComponent<Part>();
     var otherVessel = tgtPart != null ? tgtPart.vessel : null;
-    var linkVector = endPos - startPos;
-    var linkLength = linkVector.magnitude;
     Collider[] colliders;
     colliders = Physics.OverlapCapsule(
         startPos, endPos, diameter / 2.0f,

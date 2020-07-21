@@ -3,7 +3,6 @@
 // License: Public Domain
 
 using KASAPIv2;
-using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -371,7 +370,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           .OfType<ILinkTarget>()
           .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available
                                && t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t, reportToLog: true));
+                               && CheckCanLinkTo(t));
       if (target != null) {
         HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
         LinkToTarget(LinkActorType.API, target);

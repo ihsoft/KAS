@@ -238,8 +238,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public virtual void ReturnConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
       BreakCurrentLink(LinkActorType.Player);
       SetConnectorState(ConnectorState.Locked);
       HostedDebugLog.Info(

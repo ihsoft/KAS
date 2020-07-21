@@ -20,7 +20,7 @@ class PhysicsUtilsImpl : IPhysicsUtils {
       var pseudoReDragMult = 1; //FIXME: find out what it is
       var d = 0.0005 * pseudoReDragMult * vessel.atmDensity * rbAirDragMult
           * (rb.velocity + Krakensbane.GetFrameVelocity()).sqrMagnitude
-          * (double)PhysicsGlobals.DragMultiplier;
+          * PhysicsGlobals.DragMultiplier;
       if (!double.IsNaN(d) && !double.IsInfinity(d)) {
         var atmDragForce = -(rb.velocity + Krakensbane.GetFrameVelocity()).normalized * d;
         if (PhysicsGlobals.DragUsesAcceleration) {

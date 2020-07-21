@@ -164,7 +164,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
+  public override void OnStart(StartState state) {
     base.OnStart(state);
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.

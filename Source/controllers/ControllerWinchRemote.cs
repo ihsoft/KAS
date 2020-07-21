@@ -8,7 +8,6 @@ using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.LogUtils;
 using System.Collections.Generic;
-using System;
 using System.Linq;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace KAS {
 /// </remarks>
 // Next localization ID: #kasLOC_11028.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
-[PersistentFieldsDatabase("KAS/settings/KASConfig", "")]
+[PersistentFieldsDatabase("KAS/settings/KASConfig")]
 sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>

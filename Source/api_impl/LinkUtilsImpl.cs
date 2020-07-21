@@ -71,7 +71,6 @@ class LinkUtilsImpl : ILinkUtils {
     var srcVessel = srcPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
     var tgtPart = targetNode.owner;
-    var tgtVessel = tgtPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(tgtPart, targetNode);
 
     sourceNode.attachedPart = tgtPart;

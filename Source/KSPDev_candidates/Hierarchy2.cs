@@ -28,7 +28,7 @@ public static class Hierarchy2 {
       obj.transform.SetParent(null, worldPositionStays: false);
       obj.name = "$disposed";
       obj.SetActive(false);
-      UnityEngine.Object.Destroy(obj);
+      Object.Destroy(obj);
     }
   }
 

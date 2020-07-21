@@ -10,7 +10,6 @@ using KSPDev.MathUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,7 +19,7 @@ namespace KAS {
 /// <summary>Module which trasnfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12017
-[PersistentFieldsDatabase("KAS/settings/KASConfig", "")]
+[PersistentFieldsDatabase("KAS/settings/KASConfig")]
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {

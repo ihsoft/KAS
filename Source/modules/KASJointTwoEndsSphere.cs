@@ -5,7 +5,6 @@
 using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using System;
 using UnityEngine;
 
 namespace KAS {

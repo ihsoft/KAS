@@ -54,7 +54,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Extended length of the unlinked strut.</summary>
   /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
-  public float persistedParkedLength = 0;  // If 0 then minimum link length will be used.
+  public float persistedParkedLength;  // If 0 then minimum link length will be used.
   #endregion
 
   #region Part's config fields

@@ -5,11 +5,8 @@
 using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
-using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
-using System;
-using System.Collections;
 using System.Text;
 using UnityEngine;
 
@@ -24,11 +21,9 @@ namespace KAS {
 //  Next localization ID: #kasLOC_09002.
 public class KASJointCableBase : AbstractJoint,
     // KSP interfaces.
-    IModuleInfo, IJointLockState,
+    IJointLockState,
     // KAS interfaces.
-    ILinkCableJoint,
-    // KSPDev syntax sugar interfaces.
-    IKSPDevModuleInfo {
+    ILinkCableJoint {
 
   #region Localizable GUI strings.
   /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -117,10 +112,6 @@ public class KASJointCableBase : AbstractJoint,
   /// <value>The source, or <c>null</c> if the head is not started.</value>
   /// <seealso cref="ILinkSource"/>
   protected ILinkSource headSource { get; private set; }
-
-  /// <summary>Head's transform at which the cable is attached.</summary>
-  /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
-  protected Transform headPhysicalAnchor { get; private set; }
   #endregion
 
   #region AbstractJoint overrides
@@ -174,7 +165,6 @@ public class KASJointCableBase : AbstractJoint,
       return;
     }
     headSource = source;
-    headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
     CreateDistanceJoint(source, headRb, headObjAnchor.position);
@@ -185,7 +175,6 @@ public class KASJointCableBase : AbstractJoint,
   public virtual void StopPhysicalHead() {
     headRb = null;
     headSource = null;
-    headPhysicalAnchor = null;
     Destroy(cableJoint);
     cableJoint = null;
     SetOrigianlLength(null);

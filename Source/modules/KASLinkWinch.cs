@@ -405,7 +405,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       resHandler.inputResources.Add(moduleResource);
     }
     moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
-    moduleResource.rate = (double) motorPowerDrain;
+    moduleResource.rate = motorPowerDrain;
   }
 
   /// <inheritdoc/>

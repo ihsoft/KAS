@@ -2,11 +2,8 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
 using System.Linq;
 using UnityEngine;
-
-using KSPDev.LogUtils;
 
 namespace KAS {
 
