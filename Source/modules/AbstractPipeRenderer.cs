@@ -222,7 +222,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Logs all the part's model objects.</summary>
   [Debug.KASDebugAdjustable("Dump part's model hierarchy")]
-  public void ShowHirerachyDbgAction() {
+  public void ShowHierarchyDbgAction() {
     HostedDebugLog.Warning(this, "Part's model hierarchy:");
     DebugGui.DumpHierarchy(partModelTransform, partModelTransform);
     if (targetTransform != null) {
