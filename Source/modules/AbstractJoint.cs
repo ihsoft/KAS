@@ -155,7 +155,7 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   #region ILinkJoint CFG properties
   /// <inheritdoc/>
-  public string cfgJointName { get { return jointName; } }
+  public string cfgJointName => jointName;
   #endregion
 
   #region Part's config fields
@@ -302,19 +302,13 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
   /// about the particular length in the current state, and it's up to the implementation.
   /// </value>
-  protected float? originalLength {
-    get { return persistedLinkLength < 0 ? (float?) null : persistedLinkLength; }
-  }
+  protected float? originalLength => persistedLinkLength < 0 ? (float?) null : persistedLinkLength;
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
   /// <c>true</c> if either the source part is coupled to the target, or the vise versa.
   /// </value>
-  protected bool isCoupled {
-    get {
-      return isLinked && CheckCoupled(linkSource, linkTarget);
-    }
-  }
+  protected bool isCoupled => isLinked && CheckCoupled(linkSource, linkTarget);
 
   /// <summary>Returns the PartJoint which manages this connection.</summary>
   /// <value>The joint or <c>null</c> if the link is not established or not coupled.</value>
@@ -354,15 +348,13 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="partJoint"/>
   /// <seealso cref="CleanupPhysXJoints"/>
-  protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
-  readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
+  protected List<ConfigurableJoint> customJoints { get; } = new List<ConfigurableJoint>();
 
   /// <summary>The objects that were used by the custom joints.</summary>
   /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
-  protected List<Object> customExtraObjects { get { return _customObjects; } }
-  readonly List<Object> _customObjects = new List<Object>();
+  protected List<Object> customExtraObjects { get; } = new List<Object>();
   #endregion
 
   #region Local members

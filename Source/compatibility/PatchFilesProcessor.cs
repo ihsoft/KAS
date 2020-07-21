@@ -73,33 +73,18 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
   }
 
   /// <inheritdoc/>
-  public override string Name {
-    get {
-      return "KAS parts patcher v1.0";
-    }
-  }
+  public override string Name => "KAS parts patcher v1.0";
 
   /// <inheritdoc/>
-  public override string Description {
-    get {
-      return "Applies a KAS compatibility scripts on the parts";
-    }
-  }
+  public override string Description => "Applies a KAS compatibility scripts on the parts";
 
   /// <inheritdoc/>
-  public override Version EarliestCompatibleVersion {
-    get {
-      return new Version(0, 21, 0);
-    }
-  }
+  public override Version EarliestCompatibleVersion => new Version(0, 21, 0);
 
   /// <inheritdoc/>
-  public override Version TargetVersion {
-    get {
-      // Always needs to run.
-      return new Version(Versioning.version_major, Versioning.version_minor, Versioning.Revision);
-    }
-  }
+  // Always needs to run.
+  public override Version TargetVersion => new Version(
+      Versioning.version_major, Versioning.version_minor, Versioning.Revision);
   #endregion
 
   #region UpgradeScript oevrrides

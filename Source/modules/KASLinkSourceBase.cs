@@ -99,9 +99,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
-  public ILinkTarget linkTarget {
-    get { return otherPeer as ILinkTarget; }
-  }
+  public ILinkTarget linkTarget => otherPeer as ILinkTarget;
 
   /// <inheritdoc/>
   /// <seealso cref="jointName"/>

@@ -134,7 +134,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region ILinkRenderer properties
   /// <inheritdoc/>
-  public string cfgRendererName { get { return rendererName; } }
+  public string cfgRendererName => rendererName;
 
   /// <inheritdoc/>
   public virtual Color? colorOverride {
@@ -167,9 +167,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   bool _isPhysicalCollider = true;  // It's a "forced OFF" setting.
 
   /// <inheritdoc/>
-  public bool isStarted {
-    get { return sourceTransform != null && targetTransform != null; }
-  }
+  public bool isStarted => sourceTransform != null && targetTransform != null;
 
   /// <inheritdoc/>
   public Transform sourceTransform { get; private set; }

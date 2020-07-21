@@ -298,25 +298,21 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </value>
   /// <seealso cref="SetCableLength"/>
   /// <seealso cref="cableJoint"/>
-  protected float currentCableLength { get { return cableJoint.deployedCableLength; } }
+  protected float currentCableLength => cableJoint.deployedCableLength;
 
   /// <summary>
   /// Maximum allowed distance between the owner part and the connector to establish a link.
   /// </summary>
   /// <value>Distance in meters. It's constant and doesn't depend on the joint state.</value>
   /// <seealso cref="currentCableLength"/>
-  protected float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
+  protected float cfgMaxCableLength => cableJoint.cfgMaxCableLength;
 
   /// <summary>
   /// Tells if the connector is physicsless, and its model is a child of the owning part.
   /// </summary>
   /// <value>The status of the connector model.</value>
-  protected bool isConnectorLocked {
-    get {
-      return connectorState == ConnectorState.Locked
-          || connectorState == ConnectorState.Docked;
-    }
-  }
+  protected bool isConnectorLocked => connectorState == ConnectorState.Locked
+      || connectorState == ConnectorState.Docked;
 
   /// <summary>State of the connector head.</summary>
   /// <value>The connector state.</value>

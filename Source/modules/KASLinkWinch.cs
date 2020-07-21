@@ -326,7 +326,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   #region IWinchControl properties
   /// <inheritdoc/>
-  public float cfgMotorMaxSpeed { get { return motorMaxSpeed; } }
+  public float cfgMotorMaxSpeed => motorMaxSpeed;
 
   /// <inheritdoc/>
   public float motorTargetSpeed { get; private set; }
@@ -349,13 +349,13 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   float _motorCurrentSpeed;
 
   /// <inheritdoc/>
-  public new bool isConnectorLocked { get { return base.isConnectorLocked; } }
+  public new bool isConnectorLocked => base.isConnectorLocked;
 
   /// <inheritdoc/>
-  public new float currentCableLength { get { return base.currentCableLength; } }
+  public new float currentCableLength => base.currentCableLength;
 
   /// <inheritdoc/>
-  public new float cfgMaxCableLength { get { return base.cfgMaxCableLength; } }
+  public new float cfgMaxCableLength => base.cfgMaxCableLength;
   #endregion
 
   #region Local fields & properties

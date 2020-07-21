@@ -214,7 +214,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region ILinkRenderer properties
   /// <inheritdoc/>
-  public string cfgRendererName { get { return rendererName; } }
+  public string cfgRendererName => rendererName;
 
   /// <inheritdoc/>
   public Color? colorOverride {
@@ -370,12 +370,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Prefab for the piston models.</summary>
   /// <value>A model reference from the part's model. It's not a copy!</value>
-  GameObject pistonPrefab {
-    get {
-      return GameDatabase.Instance.GetModelPrefab(pistonModel).transform
-          .Find(PistonModelName).gameObject;
-    }
-  }
+  GameObject pistonPrefab => GameDatabase.Instance.GetModelPrefab(pistonModel).transform
+      .Find(PistonModelName).gameObject;
 
   /// <summary>The scale of the strut models.</summary>
   /// <remarks>
@@ -415,9 +411,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Tells if the source on the part is linked.</summary>
   /// <value>The current state of the link.</value>
-  bool isLinked {
-    get { return sourceTransform != null && targetTransform != null; }
-  }
+  bool isLinked => sourceTransform != null && targetTransform != null;
   #endregion
 
   #region Local fields & properties

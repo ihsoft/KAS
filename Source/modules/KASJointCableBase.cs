@@ -70,7 +70,7 @@ public class KASJointCableBase : AbstractJoint,
 
   #region ILinkCableJoint CFG properties
   /// <inheritdoc/>
-  public float cfgMaxCableLength { get { return maxLinkLength; } }
+  public float cfgMaxCableLength => maxLinkLength;
   #endregion
 
   #region ILinkCableJoint properties
@@ -78,9 +78,7 @@ public class KASJointCableBase : AbstractJoint,
   public Rigidbody headRb { get; private set; }
 
   /// <inheritdoc/>
-  public float deployedCableLength {
-    get { return cableJoint != null ? cableJoint.linearLimit.limit : 0; }
-  }
+  public float deployedCableLength => cableJoint != null ? cableJoint.linearLimit.limit : 0;
 
   /// <inheritdoc/>
   public float realCableLength {
@@ -102,7 +100,7 @@ public class KASJointCableBase : AbstractJoint,
   #region Inheritable properties
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
-  protected bool isHeadStarted { get { return headSource != null; } }
+  protected bool isHeadStarted => headSource != null;
 
   /// <summary>Physical joint object that connects source to the target.</summary>
   /// <value>The PhysX joint that connects the parts.</value>

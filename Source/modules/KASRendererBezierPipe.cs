@@ -76,9 +76,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   #region Local fields and properties
   /// <summary>Skinned renderer for the pipe.</summary>
   /// <value>The skinned renderer or <c>null</c> if none exists.</value>
-  SkinnedMeshRenderer pipeSkinnedMeshRenderer {
-    get { return pipeMeshRenderer as SkinnedMeshRenderer; }
-  }
+  SkinnedMeshRenderer pipeSkinnedMeshRenderer => pipeMeshRenderer as SkinnedMeshRenderer;
 
   /// <summary>The <c>t</c> parameter of the Bezier Curve. Per mesh bone.</summary>
   /// <remarks>

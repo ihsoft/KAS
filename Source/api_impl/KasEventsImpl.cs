@@ -11,24 +11,20 @@ namespace KASImpl {
 /// impact performance at the moment of actual event triggering.</remarks>
 public class KasEventsImpl : IKasEvents {
   /// <inheritdoc/>
-  public EventData<ILinkSource> OnStartLinking { get { return _onStartLinking; } }
-  readonly EventData<ILinkSource> _onStartLinking =
-      new EventData<ILinkSource>("KASOnStartLinking");
+  public EventData<ILinkSource> OnStartLinking { get; } =
+    new EventData<ILinkSource>("KASOnStartLinking");
 
   /// <inheritdoc/>
-  public EventData<ILinkSource> OnStopLinking { get { return _onStopLinking; } }
-  readonly EventData<ILinkSource> _onStopLinking =
-      new EventData<ILinkSource>("KASOnStopLinking");
+  public EventData<ILinkSource> OnStopLinking { get; } =
+    new EventData<ILinkSource>("KASOnStopLinking");
 
   /// <inheritdoc/>
-  public EventData<IKasLinkEvent> OnLinkCreated { get { return _onLinkCreated; } }
-  readonly EventData<IKasLinkEvent> _onLinkCreated =
-      new EventData<IKasLinkEvent>("KASOnLinkCreated");
+  public EventData<IKasLinkEvent> OnLinkCreated { get; } =
+    new EventData<IKasLinkEvent>("KASOnLinkCreated");
 
   /// <inheritdoc/>
-  public EventData<IKasLinkEvent> OnLinkBroken { get { return _onLinkBroken; } }
-  readonly EventData<IKasLinkEvent> _onLinkBroken =
-      new EventData<IKasLinkEvent>("KASOnLinkBroken");
+  public EventData<IKasLinkEvent> OnLinkBroken { get; } =
+    new EventData<IKasLinkEvent>("KASOnLinkBroken");
 }
 
 }  // namespace

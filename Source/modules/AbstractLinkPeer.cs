@@ -116,78 +116,52 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   #region ILinkPeer properties implementation
   /// <inheritdoc/>
-  public string cfgLinkType { get { return linkType; } }
+  public string cfgLinkType => linkType;
 
   /// <inheritdoc/>
-  public string cfgAttachNodeName { get { return attachNodeName; } }
+  public string cfgAttachNodeName => attachNodeName;
 
   /// <inheritdoc/>
-  public string[] cfgDependentNodeNames {
-    get {
-      if (_dependentNodeNames == null) {
-        _dependentNodeNames = dependentNodes.Split(new[] {','});
-      }
-      return _dependentNodeNames;
-    }
-  }
+  public string[] cfgDependentNodeNames =>
+      _dependentNodeNames ?? (_dependentNodeNames = dependentNodes.Split(','));
   string[] _dependentNodeNames;
 
   /// <inheritdoc/>
   /// <seealso cref="persistedLinkState"/>
-  public LinkState linkState {
-    get {
-      return linkStateMachine.currentState ?? persistedLinkState;
-    }
-  }
+  public LinkState linkState => linkStateMachine.currentState ?? persistedLinkState;
 
   /// <inheritdoc/>
   /// <seealso cref="persistedLinkPartId"/>
   /// <seealso cref="OnPeerChange"/>
   /// <seealso cref="SetOtherPeer"/>
-  public virtual ILinkPeer otherPeer {
-    get { return _otherPeer; }
-  }
+  public virtual ILinkPeer otherPeer => _otherPeer;
   ILinkPeer _otherPeer;
 
   /// <inheritdoc/>
-  public uint linkPartId {
-    get { return persistedLinkPartId; }
-  }
+  public uint linkPartId => persistedLinkPartId;
 
   /// <inheritdoc/>
-  public string linkNodeName {
-    get { return persistedLinkNodeName; }
-  }
+  public string linkNodeName => persistedLinkNodeName;
 
   /// <inheritdoc/>
   public Transform nodeTransform { get; private set; }
 
   /// <inheritdoc/>
-  public AttachNode coupleNode {
-    get { return allowCoupling ? parsedAttachNode : null; }
-  }
+  public AttachNode coupleNode => allowCoupling ? parsedAttachNode : null;
 
   /// <inheritdoc/>
-  public AttachNode attachNode {
-    get { return parsedAttachNode; }
-  }
+  public AttachNode attachNode => parsedAttachNode;
 
   /// <inheritdoc/>
-  public bool isLinked {
-    get { return linkState == LinkState.Linked; }
-  }
+  public bool isLinked => linkState == LinkState.Linked;
 
   /// <inheritdoc/>
   /// <seealso cref="linkState"/>
-  public bool isLocked {
-    get { return linkState == LinkState.Locked; }
-  }
+  public bool isLocked => linkState == LinkState.Locked;
 
   /// <inheritdoc/>
   /// <seealso cref="SetLinkState"/>
-  public bool isNodeBlocked {
-    get { return linkState == LinkState.NodeIsBlocked; }
-  }
+  public bool isNodeBlocked => linkState == LinkState.NodeIsBlocked;
   #endregion
 
   #region Inheritable fields & properties
