@@ -78,20 +78,20 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
 
   #region Part's config fields
   /// <summary>Shader to use for meshes by default.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Shader name")]
   public string shaderName = KspPartShaderName;
 
   /// <summary>Main material color to use for meshes by default.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Material color")]
   public Color materialColor = Color.white;
 
   /// <summary>Tells if the normals map should be used as bump specular map.</summary>
   /// <remarks>The texture must be made in appropriate way to be compatible!</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="BumpMapProp"/>
   /// <seealso cref="BumpSpecMapProp"/>
   [KSPField]
@@ -104,7 +104,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// value <c>-1.0</c> means "don't set anything". Whatever is the default value of the shader, it
   /// will be used.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Material shininess")]
   public float materialShininess = -1f;

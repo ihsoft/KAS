@@ -61,8 +61,8 @@ namespace KAS {
 /// <seealso cref="KASAPIv2.ILinkRenderer"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 public class KASRendererPipe : AbstractPipeRenderer,
     // KPSDev sugar interfaces.    
     IsDestroyable {
@@ -76,21 +76,21 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// It can be negative to shift the "joint" point in the opposite direction. If prefab model is 
     /// defined, then the offset is counted relative to <see cref="modelPipeAttachAt"/>.
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
     [Debug.KASDebugAdjustable("Sphere offset")]
     public float sphereOffset = 0;
 
     /// <summary>Diameter of the sphere to place at the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
     [Debug.KASDebugAdjustable("Sphere diameter")]
     public float sphereDiameter = 0;
 
     /// <summary>Diameter of the pipe that connects the attach node and the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
     [Debug.KASDebugAdjustable("Arm diameter")]
     public float armDiameter = 0;
@@ -102,21 +102,21 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// the same model is needed for the other purposes, add a copy via a <c>MODEL</c> tag in the
     /// part's config.
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
     public string modelPath = "";
 
     /// <summary>Position and rotation at which the model will attach to the target part.</summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPartAttachAt")]
     [Debug.KASDebugAdjustable("Prefab PART attach pos&rot")]
     public PosAndRot modelPartAttachAt = new PosAndRot();
 
     /// <summary>Position and rotation at which the node's model will attach to the pipe.</summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPipeAttachAt")]
     [Debug.KASDebugAdjustable("Prefab PIPE attach pos&rot")]
     public PosAndRot modelPipeAttachAt = new PosAndRot();
@@ -128,8 +128,8 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <para>It's the location at the <i>source</i> part.</para>
     /// <para>If it's <c>null</c>, then the model will be simply hidden on the renderer stop.</para>
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("parkAttachAt")]
     [Debug.KASDebugAdjustable("Park location pos&rot")]
     public PosAndRot parkAttachAt;
@@ -255,13 +255,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Configuration of the source joint model.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Source joint config")]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Target joint config")]
   public JointConfig targetJointConfig = new JointConfig();
@@ -283,7 +283,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// </remarks>
   /// <seealso cref="CreateLinkPipe"/>
   /// <seealso cref="UpdateLink"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
   protected Renderer pipeMeshRenderer;
 
   /// <summary>Pipe ending node at the source.</summary>

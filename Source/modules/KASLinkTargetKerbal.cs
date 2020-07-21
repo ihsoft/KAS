@@ -26,7 +26,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     // KSPDev sugar interafces.
     IHasGUI {
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<KeyboardEventType> DropConnectorHintMsg= new Message<KeyboardEventType>(
       "#kasLOC_100001",
       defaultTemplate: "To drop the connector press: [<<1>>]",
@@ -34,7 +34,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       + "cable connector.\nArgument <<1>> is the current key binding of type KeyboardEventType.",
       example: "To drop the connector press: [Ctrl+Y]");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<KeyboardEventType> PickupConnectorHintMsg= new Message<KeyboardEventType>(
       "#kasLOC_100002",
       defaultTemplate: "[<<1>>]: Pickup connector",
@@ -43,7 +43,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       + "KeyboardEventType.",
       example: "[Y]: Pickup connector");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message attachConnectorMenu = new Message(
       "#kasLOC_10003",
       defaultTemplate: "Attach connector",
@@ -56,13 +56,13 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <remarks>
   /// If set to <i>black</i> <c>(0, 0, 0)</c>, then the closests connector will not be highlighted.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connectors highlight color")]
   public Color closestConnectorHighlightColor = Color.cyan;
 
   /// <summary>Name of the bone within the skinned mesh to bind the attach the node to.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Equip bone name")]
   public string equipBoneName = "";
@@ -71,7 +71,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// Position and rotation at the bone to move the <see cref="AbstractLinkPeer.nodeTransform"/> to.
   /// </summary>
   /// <remarks>The node transform will be dynamically adjusted to the bone movements.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("equipPosAndRot", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Equip pos&rot")]
   PosAndRot equipPosAndRot = new PosAndRot();

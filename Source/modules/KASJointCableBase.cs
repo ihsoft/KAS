@@ -26,17 +26,17 @@ public class KASJointCableBase : AbstractJoint,
     ILinkCableJoint {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
   readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
       "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
       description: "Info string in the editor for the cable spring force setting."
       + "\nArgument <<1>> is the force of type ForceType.",
       example: "Spring force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitle = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_09001",
       defaultTemplate: "KAS Cable",
       description: "Title of the module to present in the editor details window.");
@@ -48,14 +48,14 @@ public class KASJointCableBase : AbstractJoint,
   /// It's a force per meter of the strected distance to keep the objects distance below the maximum
   /// distance. The force is measured in kilonewtons.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="..//SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Cable spring force")]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
   /// <remarks>The force is measured in kilonewtons.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Cable spring damper")]
   public float cableSpringDamper = 1f;

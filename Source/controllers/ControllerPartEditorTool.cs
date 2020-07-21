@@ -20,7 +20,7 @@ sealed class ControllerPartEditorTool : MonoBehaviour,
 
   #region Configuration settings
   /// <summary>Keyboard key to trigger the GUI.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("Debug/partAlignToolKey")]
   public string openGUIKey = "";
   #endregion

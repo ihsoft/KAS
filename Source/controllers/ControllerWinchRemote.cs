@@ -24,7 +24,7 @@ namespace KAS {
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
 sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(
       "#kasLOC_11000",
       defaultTemplate: "Winch Remote Control (<<1>>)",
@@ -32,142 +32,142 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       + " sequence that brings the GUI up."
       + "\nArgument <<1>> is the keyboard even of type KeyboardEventType.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ReleaseBtn = new Message(
       "#kasLOC_11001",
       defaultTemplate: "Release",
       description: "The caption of the button that triggers cable release.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ReleaseBtnHint = new Message(
       "#kasLOC_11002",
       defaultTemplate: "Release the connector and set cable length to the maximum",
       description: "The GUI hint to explain the effect of the release button.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StretchBtn = new Message(
       "#kasLOC_11003",
       defaultTemplate: "Stretch",
       description: "The caption of the button that stretches teeh cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StretchBtnHint = new Message(
       "#kasLOC_11004",
       defaultTemplate: "Set the cable length to the actual distance",
       description: "The GUI hint to explain the effect of the stretch button.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DetachBtn = new Message(
       "#kasLOC_11005",
       defaultTemplate: "Detach",
       description: "The caption of the button that deatches the cable from the target.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DetachBtnHint = new Message(
       "#kasLOC_11006",
       defaultTemplate: "Detach the cable from the target part",
       description: "The GUI hint to explain the effect of the detach button.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CloseBtn = new Message(
       "#kasLOC_11007",
       defaultTemplate: "Close",
       description: "The caption of the button that closes the GUI dialog.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CloseBtnHint = new Message(
       "#kasLOC_11008",
       defaultTemplate: "Close GUI",
       description: "The GUI hint to explain the effect of the close button.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message HightlightWinchBtn = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_11009",
       defaultTemplate: "H",
       description: "The caption for the toggle control (button style) which tells if the winch"
       + " should be highlighted in the scene. It's better keep the text as short as possible.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message HightlightWinchBtnHint = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_11010",
       defaultTemplate: "Highlight the winch in the scene",
       description: "The GUI hint to explain the effect of toggling the control.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeOfflineTxt = new Message(
       "#kasLOC_11011",
       defaultTemplate: "<gui:min:150,0><color=red>Offline</color>",
       description: "The text for the winch status in which it cannot be remotely operated for any"
       + " reason.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeOfflineTxtHint = new Message(
       "#kasLOC_11012",
       defaultTemplate: "Cannot contact the winch. Is the vessel controllable?",
       description: "The GUI hint to explain the OFFLINE state.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeBlockedTxt = new Message(
       "#kasLOC_11013",
       defaultTemplate: "<gui:min:150,0><color=red>Blocked</color>",
       description: "The text for the winch status that tells that the main winch attach node is"
       + " occupied by an incompatible (non-KAS) part.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeBlockedTxtHint = new Message(
       "#kasLOC_11014",
       defaultTemplate: "Winch attach node is blocked by another part",
       description: "The GUI hint to explain the BLOCKED state.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeRetractedTxt = new Message(
       "#kasLOC_11015",
       defaultTemplate: "<gui:min:150,0><color=#00ff00>Retracted</color>",
       description: "The text for the winch status that tells that the cable connector is locked to"
       + " the winch, and the cable length is zero.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeRetractedTxtHint = new Message(
       "#kasLOC_11016",
       defaultTemplate: "The connector is locked into the winch",
       description: "The GUI hint to explain the RETRACTED state.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StartRetractingCableBtnHint = new Message(
       "#kasLOC_11017",
       defaultTemplate: "Start retracting the cable",
       description: "The GUI hint of the button that triggers retracting of the cable. The cable"
       + " will be retracting until the motor status is changed or the connector get locked.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StartExtendingCableBtnHint = new Message(
       "#kasLOC_11018",
       defaultTemplate: "Start extending the cable",
       description: "The GUI hint of the button that triggers deploying of the cable. The cable will"
       + " be deploying until the motor status is changed.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message RetractCableBtnHint = new Message(
       "#kasLOC_11019",
       defaultTemplate: "Retract the cable",
       description: "The GUI hint of the button that retracts the cable. The cable will be"
       + " retracting as long as the button is pressed.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ExtendCableBtnHint = new Message(
       "#kasLOC_11020",
       defaultTemplate: "Extend the cable",
       description: "The GUI hint of the button that extends the cable. The cable will be"
       + " extending as long as the button is pressed.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message MotorSpeedSettingsTxtHint = new Message(
       "#kasLOC_11021",
       defaultTemplate: "Motor speed setting",
       description: "The GUI hint to show for the control that changes the motor speed. It's the"
       + " maximum speed which the motor can reach when retracting or extending the cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CableLengthTxtHint = new Message(
       "#kasLOC_11022",
       defaultTemplate: "The deployed/real length of the cable",
@@ -175,7 +175,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       + " length and the real distance between the winch and the target (connector or part). The"
       + " values are presented as a pair, separated by symbol '/'.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message MotorSpeedStatusTxtHint = new Message(
       "#kasLOC_11023",
       defaultTemplate: "Current motor speed / Motor speed setting",
@@ -183,14 +183,14 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       + " speed and the maximum possible motor speed. The values are presented as a pair, separated"
       + " by symbol '/'.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoContentTxt = new Message(
       "#kasLOC_11024",
       defaultTemplate: "No winches found in the scene!",
       description: "The string to present when the dialog is opened, but no KAS winches found in"
       + " the scene.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   static readonly Message<DistanceType, DistanceType> RelaxedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11025",
@@ -200,7 +200,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
           + "\nArgument <<1>> is the real cable length of type DistanceType.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   static readonly Message<DistanceType, DistanceType> StrainedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11026",
@@ -210,7 +210,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
           + "\nArgument <<2>> is the real cable length of type DistanceType.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   static readonly Message<VelocityType, VelocityType> MotorSpeedTxt =
       new Message<VelocityType, VelocityType>(
           "#kasLOC_11027",
@@ -222,7 +222,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   #region Configuration settings
   /// <summary>Keyboard key to trigger the GUI.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("Winch/remoteControlKey")]
   public string openGUIKey = "&P";  // Alt+P
   #endregion

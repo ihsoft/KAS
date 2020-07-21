@@ -47,35 +47,35 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     IsPhysicalObject {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NoEnergyMsg = new Message(
       "#kasLOC_08000",
       defaultTemplate: "No energy!",
       description: "Error message to present when the electricity charge has exhausted.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LockConnectorNotAlignedMsg = new Message(
       "#kasLOC_08001",
       defaultTemplate: "Cannot lock the connector: not aligned",
       description: "Error message to present when an improperly aligned cable connector has"
       + " attempted to lock with the winch.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorLockedMsg = new Message(
       "#kasLOC_08002",
       defaultTemplate: "Connector locked!",
       description: "Info message to present when a cable connector has successfully locked to the"
       + " winch.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorDockedMsg = new Message(
       "#kasLOC_08003",
       defaultTemplate: "Connector docked to the winch",
       description: "Info message to present when a cable connector has successfully docked to the"
       + " winch.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   static readonly Message<DistanceType> MaxLengthReachedMsg = new Message<DistanceType>(
       "#kasLOC_08004",
       defaultTemplate: "Maximum cable length reached: <<1>>",
@@ -83,38 +83,38 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       + "\nArgument <<1>> is the current cable length of type DistanceType.",
       example: "Maximum cable length reached: 1.23 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StopExtendingMenuTxt = new Message(
       "#kasLOC_08005",
       defaultTemplate: "Stop extending",
       description: "Name of the context menu item that stops the cable extending.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ExtendCableMenuTxt = new Message(
       "#kasLOC_08006",
       defaultTemplate: "Extend cable",
       description: "Name of the context menu item that starts the cable extending.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StopRetractingMenuTxt = new Message(
       "#kasLOC_08007",
       defaultTemplate: "Stop retracting",
       description: "Name of the context menu item that stops the cable retracting.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message RetractCableMenuTxt = new Message(
       "#kasLOC_08008",
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitleInfo = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_08013",
       defaultTemplate: "KAS Winch",
       description: "Title of the module to present in the editor details window.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message<VelocityType> MotorSpeedInfo = new Message<VelocityType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_08014",
       defaultTemplate: "Max motor speed: <<1>>",
       description: "Info string that tells how fast the winch can extend or retract the cable."
@@ -130,7 +130,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// increase the force at which the connector hits the winch on locking. A too small value of the
   /// allowed error will make the locking harder, up to not being able to lock at all.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connector lock distance error")]
   public float connectorLockMaxErrorDist = 0.05f;
@@ -144,14 +144,14 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <c>forward</c> and <c>up</c> vectors of the connector can differ from the winch's attach node
   /// direction.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connector lock direction error")]
   public float connectorLockMaxErrorDir = 1;
 
   /// <summary>Maximum target speed of the motor. Meters per second.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Motor max speed")]
   public float motorMaxSpeed = 2;
@@ -160,32 +160,32 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// Acceleration to apply to reach the target motor speed. Meters per second squared.
   /// </summary>
   /// <remarks>It must not be <c>0</c>, since in this case the motor will never start.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Motor acceleration")]
   public float motorAcceleration = 0.4f;
 
   /// <summary>Amount of the electricity to consume each second of the motor activity.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Motor power drain")]
   public double motorPowerDrain = 0.5f;
 
   /// <summary>URL of the sound for the working winch motor.</summary>
   /// <remarks>This sound will be looped while the motor is active.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - motor running")]
   public string sndPathMotor = "";
 
   /// <summary>URL of the sound for the starting winch motor.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - motor started")]
   public string sndPathMotorStart = "";
 
   /// <summary>URL of the sound for the stopping winch motor.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - motor stopped")]
   public string sndPathMotorStop = "";
@@ -194,7 +194,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region The context menu fields
   /// <summary>A context menu item that presents the deployed cable length.</summary>
   /// <seealso cref="KASJointCableBase.deployedCableLength"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_08009",
@@ -209,7 +209,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
 
   /// <summary>A context menu item that opens the winches GUI.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true, guiActiveUncommand = true)]
   [LocalizableItem(
       tag = "#kasLOC_08010",
@@ -226,7 +226,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// be extended for any reason.
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleExtendCableEvent() {
@@ -239,7 +239,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// the connector. It does nothing is the cable cannot be retracted for any reason.
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleRetractCableEvent() {
@@ -250,7 +250,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// A context menu item that sets the cable length to the maximum, and unlocks the connector if it
   /// was locked.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08011",
@@ -265,7 +265,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <summary>
   /// A context menu event that sets the cable length to the current distance to the connector.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_08012",
@@ -277,7 +277,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>Action that starts the cable extending.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspAction/*"/>
   [KSPAction(null)]
   [LocalizableItem(
       tag = "#kasLOC_08015",
@@ -288,7 +288,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>Action that starts the cable retracting.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspAction/*"/>
   [KSPAction(null)]
   [LocalizableItem(
       tag = "#kasLOC_08016",
@@ -299,7 +299,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>Action that stops any motor activity.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspAction/*"/>
   [KSPAction(null)]
   [LocalizableItem(
       tag = "#kasLOC_08017",
@@ -312,7 +312,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <summary>
   /// Action that sets the cable length to the maximum, and unlocks the connector if it was locked.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspAction/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspAction/*"/>
   [KSPAction(null)]
   [LocalizableItem(
       tag = "#kasLOC_08018",

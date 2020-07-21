@@ -23,7 +23,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     ILinkRenderer {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_07000",
       defaultTemplate: "Link collides with: <<1>>",
@@ -31,7 +31,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       + "\nArgument <<1>> is the part that would collide with the proposed link.",
       example: "Link collides with: Mk2 Cockpit");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   public static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_07001",
       defaultTemplate: "Link collides with the surface",
@@ -74,12 +74,12 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
 
   /// <summary>Diameter of the pipe in meters.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe diameter")]
   public float pipeDiameter = 0.7f;
@@ -87,14 +87,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Main texture to use for the pipe.</summary>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe texture")]
   public string pipeTexturePath = "";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe texture NRM")]
   public string pipeNormalsTexturePath = "";
@@ -108,7 +108,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture samples per meter")]
   public float pipeTextureSamplesPerMeter = 1.0f;
@@ -116,7 +116,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Defines how the texture should cover the pipe.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
@@ -126,7 +126,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// If this setting is <c>false</c> the link mesh won't have colliders. It affects how player can
   /// select the part in the scene.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Physical collider")]
   public bool pipeColliderIsPhysical;

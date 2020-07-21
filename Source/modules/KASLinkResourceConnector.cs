@@ -25,14 +25,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     IHasGUI {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WindowTitleTxt = new Message(
       "#kasLOC_12000",
       defaultTemplate: "Resource Transfer",
       description: "The title of the resource transfer dialog.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> resourceName = new Message<string>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
       "#kasLOC_12001",
       defaultTemplate: "<<1>>",
       description: "The resource in the transfer options table. Its main purpose is dealing"
@@ -40,8 +40,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + "\nArgument <<1>> is the full localized resource name with the Lingoona modifiers"
       + " (if any).");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   static readonly Message<PercentFixedType, string> compoundResourceName =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
       new Message<PercentFixedType, string>(
           "#kasLOC_12002",
           defaultTemplate: "<<1>> <<2>>",
@@ -52,8 +52,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           + "modifiers (if any).",
           example: "45 % Ox");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
   static readonly Message<CompactNumberType, CompactNumberType> resourceAmounts =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
       new Message<CompactNumberType, CompactNumberType>(
           "#kasLOC_12003",
           defaultTemplate: "<gui:min:100,0><<1>> / <<2>>",
@@ -64,20 +64,20 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           + "\nArgument <<1>> is the maximum amount (capacity) of type CompactNumberType.",
           example: "2.56 / 1,234");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<CompactNumberType> TransferSpeedTxt = new Message<CompactNumberType>(
       "#kasLOC_12004",
       defaultTemplate: "Current transfer speed: <<1>> units per second",
       description: "The information string that tells what is the selected or calculated tarnsfer"
       + " speed is.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CloseDialogBtn = new Message(
       "#kasLOC_12005",
       defaultTemplate: "Close dialog",
       description: "The caption on the button that closes the trsnafer dialog.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> OwnerVesselTxt = new Message<string>(
       "#kasLOC_12006",
       defaultTemplate: "Owner (left): <<1>>",
@@ -85,7 +85,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + " are displayed on the left side of the dialog."
       + "\nArgument <<1>> is the name of the owner vessel.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> ConnectedVesselTxt = new Message<string>(
       "#kasLOC_12007",
       defaultTemplate: "Connected (right): <<1>>",
@@ -93,50 +93,50 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + " Its stats are displayed on the right side of the dialog."
       + "\nArgument <<1>> is the name of the connected vessel.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> MixtureHint = new Message<string>(
       "#kasLOC_12008",
       defaultTemplate: "A mixture of components: <<1>>",
       description: "The hint to explain the mixture of the fuel components to transfer."
       + "\nArgument <<1>> is the comma-separated list of the component names.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message AutoScaleToggleTxt = new Message(
       "#kasLOC_12009",
       defaultTemplate: "Auto scale transfer speed",
       description: "The caption for the control that enables the mode, which automatically deducts"
       + " the speed of the reasource transfer.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<CompactNumberType> AutoScaleToggleHint = new Message<CompactNumberType>(
       "#kasLOC_12010",
       defaultTemplate: "The speed will be set so that the transfer is complete in <<1>> seconds",
       description: "The GUI hint that explains what will happen if the auto-speed options is"
       + " chosen.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LeftToRigthToggleHint = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_12011",
       defaultTemplate: "Trigger transfer from the connected vessel to the owner",
       description: "The hint text to explain the button action that starts transferring the"
       + " resource from the connected vessel to the owner of the resource transfer part.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LeftToRigthButtonHint = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_12012",
       defaultTemplate: "Transfer from the connected vessel to the owner",
       description: "The hint text to explain the button action that does transferring the"
       + " resource from the connected vessel to the owner of the resource transfer part. When the"
       + " button is released, the transfer stops.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message RightToLeftToggleHint = new Message(
       "#kasLOC_12013",
       defaultTemplate: "Trigger transfer from the owner vessel to the connected vessel",
       description: "The hint text to explain the button action that starts transferring the"
       + " resource from the owner of the resources transfer part to the connected vessel.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message RightToLeftButtonHint = new Message(
       "#kasLOC_12014",
       defaultTemplate: "Transfer from the owner vessel to the connected vessel",
@@ -144,7 +144,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + " resource from the owner of the resource transfer part to the connected vessel. When the"
       + " button is released, the transfer stops.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message NotAvailableInDockedMode = new Message(
       "#kasLOC_12016",
       defaultTemplate: "Not available in the docked mode",
@@ -154,7 +154,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region Part's config fields
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Transfer speed")]
   public float maxTransferSpeed = 20.0f;
@@ -162,7 +162,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>
   /// The duration of the complete transfer when the speed is selected automatically.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Auto speed duration threshold")]
   public float autoSpeedTransferDuration = 4.0f;
@@ -171,7 +171,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// Pattern to find the model which will be rotating around X-axis when the hose is
   /// extended/retracted.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rotatingWinchCylinderModel = "";
 
@@ -179,7 +179,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// The total length of the cylinder on the outer radius. It's used to calculate the ratio of how
   /// significantly the cylinder need to rotate when 1m of hose is extended/retracted.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Rotating winch model perimeter")]
   public float cylinderPerimeterLength = 1.0f;
@@ -191,7 +191,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <remarks>
   /// <see cref="resourceOverride"/> is ignored when the allowed resources list is set.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("allowedResource", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
   public List<string> allowedResource = new List<string>();
@@ -221,7 +221,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </para>
   /// </remarks>
   /// <seealso cref="allowedResource"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
   public List<string> resourceOverride = new List<string>();
@@ -257,7 +257,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region Context menu events/actions
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_12015",

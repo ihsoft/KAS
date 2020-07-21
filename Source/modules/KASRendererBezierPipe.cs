@@ -31,7 +31,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// greater than <c>0.0</c>. No maximum limit, but keep it reasonable. Rule of thumb is to keep
   /// it equal to or greater than the pipe's diameter.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="AbstractPipeRenderer.pipeDiameter"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe bend resistance")]
@@ -44,7 +44,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe mesh sections")]
   public int pipeMeshSections = 21;
@@ -56,7 +56,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
@@ -67,7 +67,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// distinguishable patterns, like text. For the monotonic textures using of just one sample is
   /// good enough.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture wraps")]
   public int pipeTextureWraps = 2;

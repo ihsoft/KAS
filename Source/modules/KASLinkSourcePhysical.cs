@@ -40,33 +40,33 @@ namespace KAS {
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkCableJoint"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13011.
 public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Locked = new Message(
       "#kasLOC_13000",
       defaultTemplate: "Locked",
       description: "A string in the context menu that tells that the connector is rigidly attached"
       + " to the part and is not movable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Deployed = new Message(
       "#kasLOC_13001",
       defaultTemplate: "Deployed",
       description: "A string in the context menu that tells that the connector is deployed and"
       + " attached to the part via a cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Plugged = new Message(
       "#kasLOC_13002",
       defaultTemplate: "Plugged in",
       description: "A string in the context menu that tells that the connector is plugged in"
       + " a socked or is being carried by a kerbal, and attached to the part via a cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ConnectorStateMsg_Docked = new Message(
       "#kasLOC_13003",
       defaultTemplate: "Docked",
@@ -83,14 +83,14 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           {ConnectorState.Docked, ConnectorStateMsg_Docked},
       });
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CableLinkBrokenMsg = new Message(
       "#kasLOC_13004",
       defaultTemplate: "The link between the connector and the part has broke",
       description: "A message to display when a link between the part and the connector has broke"
       + " due to the unexpected external forces or actions.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
       "#kasLOC_13005",
       defaultTemplate: "Cannot link with: <<1>>",
@@ -106,7 +106,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// it must not be greater then the total part's mass. Also, try to avoid making the connector
   /// heavier than the part iteself - the Unity physics may start behaving awkward. 
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
@@ -118,37 +118,37 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public float connectorInteractDistance = 0.3f;
 
   /// <summary>URL of the sound for the event of returning the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - lock connector")]
   public string sndPathLockConnector = "";
 
   /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - dock connector")]
   public string sndPathDockConnector = "";
 
   /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - grab connector")]
   public string sndPathGrabConnector = "";
 
   /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - plug connector")]
   public string sndPathPlugConnector = "";
   
   /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - unplug connector")]
   public string sndPathUnplugConnector = "";
 
   /// <summary>URL of the sound for the event of cable emergency detachment (link broken).</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - link broke")]
   public string sndPathBroke = "";
@@ -156,7 +156,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>
   /// Tells if an incompatible target at the connector's node should be immediately decoupled.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Decouple incompatible targets")]
   public bool decoupleIncompatibleTargets;
@@ -164,13 +164,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   #region Persistent fields
   /// <summary>Connector state in the last save action.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool persistedIsConnectorLocked = true;
 
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <remarks>It's relative to the source part.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
   public PosAndRot persistedConnectorPosAndRot;
   #endregion
@@ -178,7 +178,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region The context menu fields
   /// <summary>Status field to display the current connector status in the context menu.</summary>
   /// <see cref="connectorState"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_13006",
@@ -191,7 +191,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Context menu events/actions
   /// <summary>Context menu to instantly lock the deployed connector.</summary>
   /// <remarks>It's a hack, but sometimes it's the only way to recover the connector.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true, advancedTweakable = true)]
   [LocalizableItem(
       tag = "#kasLOC_13010",
@@ -208,7 +208,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
   /// <remarks>The active vessel must be a kerbal.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13007",
@@ -228,7 +228,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
   /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13008",
@@ -246,7 +246,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <summary>Context menu item to break the currently established link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13009",

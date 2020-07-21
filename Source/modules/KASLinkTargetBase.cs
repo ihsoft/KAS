@@ -35,14 +35,14 @@ public class KASLinkTargetBase :
     IsPartDeathListener, IKSPDevModuleInfo {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> AcceptsLinkTypeInfo = new Message<string>(
       "#kasLOC_03000",
       defaultTemplate: "Accepts link type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message ModuleTitleInfo = new Message(
       "#kasLOC_03001",
       defaultTemplate: "KAS Joint Target",
@@ -61,13 +61,13 @@ public class KASLinkTargetBase :
   /// <summary>
   /// Tells if compatible targets should highlight themselves when linking mode started.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Highlight parts")]
   public bool highlightCompatibleTargets = true;
 
   /// <summary>Defines highlight color for the compatible targets.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Highlight color")]
   public Color highlightColor = Color.cyan;

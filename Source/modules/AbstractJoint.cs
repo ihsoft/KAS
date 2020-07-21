@@ -42,9 +42,9 @@ public abstract class AbstractJoint : AbstractPartModule,
     IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   readonly static Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00000",
           defaultTemplate: "Link is too short: <<1>> < <<2>>",
@@ -54,9 +54,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too short: 1.22 m < 2.33 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00001",
           defaultTemplate: "Link is too long: <<1>> > <<2>>",
@@ -66,9 +66,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too long: 2.33 m > 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
   readonly static Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
       new Message<AngleType, AngleType>(
           "#kasLOC_00002",
           defaultTemplate: "Source angle limit reached: <<1>> > <<2>>",
@@ -78,9 +78,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type AngleType.",
           example: "Source angle limit reached: 3° > 2.5°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
   readonly static Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
       new Message<AngleType, AngleType>(
           "#kasLOC_00003",
           defaultTemplate: "Target angle limit reached: <<1>> > <<2>>",
@@ -90,27 +90,27 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type AngleType.",
           example: "Target angle limit reached: 3° > 2.5°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
   readonly static Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
       "#kasLOC_00004",
       defaultTemplate: "Link break force: <<1>>",
       description: "Info string in the editor for the link break force setting. The argument is of"
       + " type ForceType.",
       example: "Link break force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
   readonly static Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
       "#kasLOC_00005",
       defaultTemplate: "Link torque force: <<1>>",
       description: "Info string in the editor for the link break torque setting. The argument is of"
       + " type ForceType.",
       example: "Link torque force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   readonly static Message<DistanceType> MinimumLinkLengthInfo =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
       new Message<DistanceType>(
           "#kasLOC_00006",
           defaultTemplate: "Minimum link length: <<1>>",
@@ -118,9 +118,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<1>> is the part's config setting of type DistanceType.",
           example: "Minimum link length: 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
   readonly static Message<DistanceType> MaximumLinkLengthInfo =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
       new Message<DistanceType>(
           "#kasLOC_00007",
           defaultTemplate: "Maximum link length: <<1>>",
@@ -128,26 +128,26 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<1>> is the part's config setting of type DistanceType.",
           example: "Maximum link length: 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
   readonly static Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
       "#kasLOC_00008",
       defaultTemplate: "Source angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the source."
       + "\nArgument <<1>> is the part's config setting of type AngleType.",
       example: "Source angle limit: 1.2°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
   readonly static Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
       "#kasLOC_00009",
       defaultTemplate: "Target angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the target."
       + "\nArgument <<1>> is the part's config setting of type AngleType.",
       example: "Target angle limit: 1.2°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitle = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_00010",
       defaultTemplate: "KAS Joint",
       description: "Title of the module to present in the editor details window.");
@@ -160,7 +160,7 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   #region Part's config fields
   /// <summary>See <see cref="cfgJointName"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string jointName = "";
 
@@ -169,7 +169,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength infinite.
   /// </remarks>
   /// <seealso cref="SetBreakForces"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Break force")]
   public float linkBreakForce;
@@ -179,7 +179,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength is infinite.
   /// </value>
   /// <seealso cref="SetBreakForces"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Break torque")]
   public float linkBreakTorque;
@@ -189,7 +189,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Source angle limit")]
   public int sourceLinkAngleLimit;
@@ -199,7 +199,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Target angle limit")]
   public int targetLinkAngleLimit;
@@ -209,7 +209,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("MIN link length")]
   public float minLinkLength;
@@ -219,7 +219,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("MAX link length")]
   public float maxLinkLength;
@@ -229,7 +229,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <seealso cref="ILinkPeer.nodeTransform"/>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Anchor at source")]
   public Vector3 anchorAtSource = Vector3.zero;
@@ -239,7 +239,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <seealso cref="ILinkPeer.nodeTransform"/>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Anchor at target")]
   public Vector3 anchorAtTarget = Vector3.zero;
@@ -251,18 +251,18 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// different vessels.
   /// </summary>
   /// <seealso cref="coupleOnLinkMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool coupleWhenLinked;
 
   /// <summary>Vessel info of the source part.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedSrcVesselInfo", group = StdPersistentGroups.PartPersistant)]
   public DockedVesselInfo persistedSrcVesselInfo;
 
   /// <summary>Vessel info of the target part.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
   public DockedVesselInfo persistedTgtVesselInfo;
 
@@ -271,7 +271,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// This value is used to restore the link state, but only if it's greater than zero. If it's
   /// less, then the implementation should decide which length to set when the joint is created.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float persistedLinkLength = -1.0f;
   #endregion

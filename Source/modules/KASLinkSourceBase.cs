@@ -41,46 +41,46 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message IncompatibleTargetLinkTypeMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_02000",
       defaultTemplate: "Incompatible target link type",
       description: "Message to display when the target link type doesn't match the source type.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_02001",
       defaultTemplate: "Source is not available for a link",
       description: "Message to display when a source is refusing to start the link.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message TargetDoesntAcceptLinksMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_02002",
       defaultTemplate: "Target doesn't accept links",
       description: "Message to display when the target is refusing to accept the link.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   readonly static Message<string> CannotRestoreLinkMsg = new Message<string>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
       "#kasLOC_02003",
       defaultTemplate: "Cannot restore link for: <<1>>",
       description: "Message to display when a linked source and target cannot be matched on load."
       + "\nArgument <<1>> is a name of the SOURCE part.",
       example: "Cannot restore link for: KAS.TJ1");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
   readonly static Message<string> LinksWithSocketTypeInfo = new Message<string>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
       "#kasLOC_02004",
       defaultTemplate: "Links with socket type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
   readonly static Message ModuleTitleInfo = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
       "#kasLOC_02005",
       defaultTemplate: "KAS Joint Source",
       description: "Title of the module to present in the editor details window.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DockedModeMenuTxt = new Message(
       "#kasLOC_02006",
       defaultTemplate: "Link mode: DOCKED",
@@ -88,7 +88,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       + " linked parts into two different vessels if they are coupled thru this link. At the same"
       + " time, the name of the event gives a currently selected state.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message UndockedModeMenuTxt = new Message(
       "#kasLOC_02007",
       defaultTemplate: "Link mode: UNDOCKED",
@@ -145,25 +145,25 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
   /// <seealso cref="linkRenderer"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Renderer name")]
   public string linkRendererName = "";
 
   /// <summary>Name of the joint to use with this source.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Joint name")]
   public string jointName = "";
 
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - part dock")]
   public string sndPathDock = "";
 
   /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - part undock")]
   public string sndPathUndock = "";
@@ -174,7 +174,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// support coupling. If they don't, then the coupling will be made without using the attach
   /// nodes. An error will be logged, and the further behavior of the assembly is undetermined.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Coupling mode")]
   public CoupleMode coupleMode = CoupleMode.NeverCouple;
@@ -209,7 +209,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleVesselsDockModeEvent() {

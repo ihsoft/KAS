@@ -29,7 +29,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     IHasContextMenu, IHasDebugAdjustables {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_04000",
       defaultTemplate: "Link collides with: <<1>>",
@@ -37,7 +37,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       + "\nArgument <<1>> is the part that would collide with the proposed link.",
       example: "Link collides with: Mk2 Cockpit");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_04001",
       defaultTemplate: "Link collides with the surface",
@@ -47,12 +47,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region Persistent fields
   /// <summary>Orientation of the unlinked strut.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public Vector3 persistedParkedOrientation = Vector3.forward;
 
   /// <summary>Extended length of the unlinked strut.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float persistedParkedLength;  // If 0 then minimum link length will be used.
   #endregion
@@ -64,14 +64,14 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </remarks>
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
 
   /// <summary>
   /// Model for a joint lever at the source part. Two such models are used to form a complete joint.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("SOURCE lever model")]
   public string sourceJointModel = "KAS/Models/Joint/model";
@@ -79,7 +79,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>
   /// Model for a joint lever at the target part. Two such models are used to form a complete joint.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("TARGET lever model")]
   public string targetJointModel = "KAS/Models/Joint/model";
@@ -89,13 +89,13 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// The piston model will be scaled to the part's model scale. When it's not desirable, use
   /// <see cref="pistonModelScale"/> to compensate the scale change.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("PISTON model")]
   public string pistonModel = "KAS/Models/Piston/model";
 
   /// <summary>Number of pistons in the link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Number of pistons")]
   public int pistonsCount = 3;
@@ -108,7 +108,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <i>NOTE:</i> as of now X and Y scales must be equal. Otherwise pipe model will get broken.
   /// </para>
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Piston model scale")]
   public Vector3 pistonModelScale = Vector3.one;
@@ -122,7 +122,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// affects the length. Note that if X and Y are not equal you may want to disable
   /// <see cref="pistonModelRandomRotation"/>.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Randomize pistons rotation")]
   public bool pistonModelRandomRotation = true;
@@ -141,7 +141,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </list>
   /// </para>  
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Piston diameter scale delta")]
   public float pistonDiameterScaleDelta = 0.1f;
@@ -158,7 +158,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <c>2.0</c>, then the actual shift will be <c>0.04m</c>.
   /// </para>
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Piston min shift")]
   public float pistonMinShift = 0.02f;
@@ -177,7 +177,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <summary>List of the available menu items for the unlinked pipe oriaentation.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("parkedOrientation", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
   public List<Orientation> parkedOrientations = new List<Orientation>();

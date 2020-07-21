@@ -29,7 +29,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Link type")]
   public string linkType = "";
@@ -37,7 +37,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <summary>The localized string to display for the link type.</summary>
   /// <remarks>If mising or empty, then the types is show "as-is".</remarks>
   /// <seealso cref="cfgLinkType"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string linkTypeDisplayName = "";
 
@@ -49,7 +49,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// This node will not be available in the editor or in the flight for the third-party mods
   /// (like KIS).
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="coupleNode"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Attach node definition")]
@@ -60,7 +60,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// If an attach node with this name is existing on the part, then it will be used. Otherwise, it
   /// will be assumed that the node needs to be created/removed automatically as needed.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Attach node name")]
@@ -77,7 +77,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// possible to define a group of peer modules which only allow linking of a single module at the
   /// time.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="attachNodeDef"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Dependent nodes")]
@@ -93,21 +93,21 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   #region Persistent fields
   /// <summary>The link state in the last save action.</summary>
   /// <remarks>Normally, the base class handles it.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="linkState"/>
   [KSPField(isPersistant = true)]
   public LinkState persistedLinkState = LinkState.Available;
 
   /// <summary>The other peer's part flight ID in the last save action.</summary>
   /// <remarks>It's <c>0</c> if the peer is not linked.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
   [KSPField(isPersistant = true)]
   public uint persistedLinkPartId;
 
   /// <summary>The other peer's module attach node name.</summary>
   /// <remarks>It's <c>null</c> if the peer is not linked.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   /// <seealso cref="otherPeer"/>
   /// <seealso cref="linkNodeName"/>
   [KSPField(isPersistant = true)]

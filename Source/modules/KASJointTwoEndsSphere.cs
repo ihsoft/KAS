@@ -29,13 +29,13 @@ public class KASJointTwoEndsSphere : AbstractJoint,
 
   #region Part's config fields
   /// <summary>Spring force of the prismatic joint that limits the distance.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Strut spring force")]
   public float strutSpringForce = Mathf.Infinity;
 
   /// <summary>Damper force of the spring that limits the distance.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Strut damper ratio")]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
