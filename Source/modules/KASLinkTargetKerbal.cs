@@ -169,15 +169,10 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
       HostedDebugLog.Info(this, "Try picking up a physical connector of: {0}...", closestSource);
       if (closestSource.LinkToTarget(LinkActorType.Player, this)) {
         var cableJoint = closestSource.linkJoint as ILinkCableJoint;
-        if (cableJoint != null) {
-          // By default, the cable joints set the length limit to the actual distance. 
-          cableJoint.SetCableLength(float.PositiveInfinity);
-        }
-        var updatableMenu = closestSource as IHasContextMenu;
-        if (updatableMenu != null) {
-          // Let the module know that we've changed the values.
-          updatableMenu.UpdateContextMenu();
-        }
+        cableJoint?.SetCableLength(float.PositiveInfinity);
+        // Let the module know that we've changed the values.
+        var updateableMenu = closestSource as IHasContextMenu;
+        updateableMenu?.UpdateContextMenu();
       } else {
         UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
       }
