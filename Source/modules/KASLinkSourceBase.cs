@@ -41,41 +41,41 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
-  readonly static Message IncompatibleTargetLinkTypeMsg = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message IncompatibleTargetLinkTypeMsg = new Message(
       "#kasLOC_02000",
       defaultTemplate: "Incompatible target link type",
       description: "Message to display when the target link type doesn't match the source type.");
 
-  readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SourceIsNotAvailableForLinkMsg = new Message(
       "#kasLOC_02001",
       defaultTemplate: "Source is not available for a link",
       description: "Message to display when a source is refusing to start the link.");
 
-  readonly static Message TargetDoesntAcceptLinksMsg = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message TargetDoesntAcceptLinksMsg = new Message(
       "#kasLOC_02002",
       defaultTemplate: "Target doesn't accept links",
       description: "Message to display when the target is refusing to accept the link.");
 
-  readonly static Message<string> CannotRestoreLinkMsg = new Message<string>(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<string> CannotRestoreLinkMsg = new Message<string>(
       "#kasLOC_02003",
       defaultTemplate: "Cannot restore link for: <<1>>",
       description: "Message to display when a linked source and target cannot be matched on load."
       + "\nArgument <<1>> is a name of the SOURCE part.",
       example: "Cannot restore link for: KAS.TJ1");
 
-  readonly static Message<string> LinksWithSocketTypeInfo = new Message<string>(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<string> LinksWithSocketTypeInfo = new Message<string>(
       "#kasLOC_02004",
       defaultTemplate: "Links with socket type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
-  readonly static Message ModuleTitleInfo = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitleInfo = new Message(
       "#kasLOC_02005",
       defaultTemplate: "KAS Joint Source",
       description: "Title of the module to present in the editor details window.");

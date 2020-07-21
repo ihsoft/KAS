@@ -107,14 +107,14 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       defaultTemplate: "Retract cable",
       description: "Name of the context menu item that starts the cable retracting.");
 
-  readonly static Message ModuleTitleInfo = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitleInfo = new Message(
       "#kasLOC_08013",
       defaultTemplate: "KAS Winch",
       description: "Title of the module to present in the editor details window.");
 
-  readonly static Message<VelocityType> MotorSpeedInfo = new Message<VelocityType>(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message<VelocityType> MotorSpeedInfo = new Message<VelocityType>(
       "#kasLOC_08014",
       defaultTemplate: "Max motor speed: <<1>>",
       description: "Info string that tells how fast the winch can extend or retract the cable."

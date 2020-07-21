@@ -26,17 +26,17 @@ public class KASJointCableBase : AbstractJoint,
     ILinkCableJoint {
 
   #region Localizable GUI strings.
-  readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  static readonly Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
       "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
       description: "Info string in the editor for the cable spring force setting."
       + "\nArgument <<1>> is the force of type ForceType.",
       example: "Spring force: 1.2 kN");
 
-  readonly static Message ModuleTitle = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitle = new Message(
       "#kasLOC_09001",
       defaultTemplate: "KAS Cable",
       description: "Title of the module to present in the editor details window.");
