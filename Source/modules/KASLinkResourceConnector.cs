@@ -114,15 +114,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       description: "The GUI hint that explains what will happen if the auto-speed options is"
       + " chosen.");
 
-  static readonly Message LeftToRigthToggleHint = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LeftToRightToggleHint = new Message(
       "#kasLOC_12011",
       defaultTemplate: "Trigger transfer from the connected vessel to the owner",
       description: "The hint text to explain the button action that starts transferring the"
       + " resource from the connected vessel to the owner of the resource transfer part.");
 
-  static readonly Message LeftToRigthButtonHint = new Message(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LeftToRightButtonHint = new Message(
       "#kasLOC_12012",
       defaultTemplate: "Transfer from the connected vessel to the owner",
       description: "The hint text to explain the button action that does transferring the"

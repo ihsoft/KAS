@@ -42,9 +42,9 @@ public abstract class AbstractJoint : AbstractPartModule,
     IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  static readonly Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00000",
           defaultTemplate: "Link is too short: <<1>> < <<2>>",
@@ -54,9 +54,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too short: 1.22 m < 2.33 m");
 
-  static readonly Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00001",
           defaultTemplate: "Link is too long: <<1>> > <<2>>",
@@ -66,9 +66,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too long: 2.33 m > 1.22 m");
 
-  static readonly Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00002",
           defaultTemplate: "Source angle limit reached: <<1>> > <<2>>",
@@ -78,9 +78,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type AngleType.",
           example: "Source angle limit reached: 3° > 2.5°");
 
-  static readonly Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00003",
           defaultTemplate: "Target angle limit reached: <<1>> > <<2>>",
@@ -118,9 +118,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<1>> is the part's config setting of type DistanceType.",
           example: "Minimum link length: 1.22 m");
 
-  static readonly Message<DistanceType> MaximumLinkLengthInfo =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType> MaximumLinkLengthInfo =
       new Message<DistanceType>(
           "#kasLOC_00007",
           defaultTemplate: "Maximum link length: <<1>>",
