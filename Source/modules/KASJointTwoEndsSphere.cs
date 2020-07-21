@@ -57,7 +57,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   /// <summary>Object that connects two sphere joints together.</summary>
   /// <remarks>
   /// Both the <see cref="srcJoint"/> and the <see cref="trgJoint"/> are bound to this object's
-  /// rigidbody. To minimize the physical effect of this artifical RB, its mass is set to the bare
+  /// rigidbody. To minimize the physical effect of this artificial RB, its mass is set to the bare
   /// minimum, which is <c>0.001t</c>.
   /// </remarks>
   /// <value>The game object.</value>

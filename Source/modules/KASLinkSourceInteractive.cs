@@ -112,7 +112,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   /// <summary>The lock name that restricts anything but the camera positioning.</summary>
   const string TotalControlLock = "KASInteractiveJointUberLock";
 
-  /// <summary>Shader that reders the pipe during linking.</summary>
+  /// <summary>Shader that renders the pipe during linking.</summary>
   const string InteractiveShaderName = "Transparent/Diffuse";  
 
   /// <summary>The compatible target under the mouse cursor.</summary>

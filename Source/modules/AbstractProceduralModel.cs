@@ -41,7 +41,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>Returns a cached part's model root transform.</summary>
   /// <value>The part's root model.</value>
   /// <remarks>
-  /// Attach all your meshes to this transform (eitehr directly or via parents). Otherwise, the new
+  /// Attach all your meshes to this transform (either directly or via parents). Otherwise, the new
   /// meshes will be ignored by the part's model!
   /// </remarks>
   protected Transform partModelTransform {
@@ -57,7 +57,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>The scale of the part models.</summary>
   /// <remarks>
   /// The scale of the part must be "even", i.e. all the components in the scale vector must be
-  /// equal. If they are not, then the renderer's behavior may be inconsistent.
+  /// equal. If they are not, then the renderer behavior may be inconsistent.
   /// </remarks>
   /// <value>The scale to be applied to all the components.</value>
   protected float baseScale {
@@ -73,7 +73,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
       return _baseScale;
     }
   }
-  float _baseScale = -1;  // Negative means unintialized.
+  float _baseScale = -1;  // Negative means uninitialized.
   #endregion
 
   #region Part's config fields
@@ -175,20 +175,20 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
     return shader;
   }
 
-  /// <summary>Gets the texture from either a KSP gamebase or the internal cache.</summary>
+  /// <summary>Gets the texture from either a KSP game base or the internal cache.</summary>
   /// <remarks>
   /// It's OK to call this method in the performance demanding code since once the texture is
   /// successfully returned it's cached internally. The subsequent calls won't issue expensive game
   /// database requests.
   /// </remarks>
   /// <param name="textureFileName">
-  /// Filename of the texture file. The path is realtive to <c>GameData</c> folder. The name must
+  /// Filename of the texture file. The path is relative to <c>GameData</c> folder. The name must
   /// not have the file extension.
   /// </param>
   /// <param name="asNormalMap">If <c>true</c> then the texture will be loaded as a bumpmap.</param>
   /// <param name="notFoundFillColor">
   /// The color of the simulated texture in case of the asset was not found in the game database. By
-  /// defaut a red colored texture will be created.
+  /// default a red colored texture will be created.
   /// </param>
   /// <returns>
   /// The texture. Note that it's a shared object. Don't execute actions on it which you don't want

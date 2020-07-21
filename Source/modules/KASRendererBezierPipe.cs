@@ -8,7 +8,7 @@ using UnityEngine;
 namespace KAS {
 
 /// <summary>
-/// Module for the felxible pipes that bend at a curve, close to the real physical behavior.
+/// Module for the flexible pipes that bend at a curve, close to the real physical behavior.
 /// </summary>
 /// <remarks>
 /// The form of the pipe is calculated using the Cubic Bezier curves. This renderer is CPU
@@ -40,7 +40,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <summary>Recommended number of the adjustable sections in the pipe mesh.</summary>
   /// <remarks>
   /// The bigger values will give better visual quality but impact the performance. This value is
-  /// used only as a <i>recommendation</i> for the setting. The implemenation is not required to
+  /// used only as a <i>recommendation</i> for the setting. The implementation is not required to
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
@@ -52,7 +52,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <summary>Number of the segments in the pipe perimeter shape.</summary>
   /// <remarks>
   /// The bigger values will give better visual quality but impact the performance. This value is
-  /// used only as a <i>recommendation</i> for the setting. The implemenation is not required to
+  /// used only as a <i>recommendation</i> for the setting. The implementation is not required to
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
@@ -109,7 +109,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   #region KASRendererPipe overrides
   /// <inheritdoc/>
   protected override void SetupPipe(Transform fromObj, Transform toObj) {
-    // Purposely not calling the base since it would try to align a stright pipe. 
+    // Purposely not calling the base since it would try to align a straight pipe.
     AlignToCurve(fromObj, toObj);
   }
 
@@ -233,7 +233,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// end attach nodes.
   /// </summary>
   /// <remarks>
-  /// This is a simplified implementation of the Bezier Curve algorythm. We only need 3 points
+  /// This is a simplified implementation of the Bezier Curve algorithm. We only need 3 points
   /// (cubic curves), so it can be programmed plain simple.   
   /// </remarks>
   /// <seealso href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve"/>
@@ -261,7 +261,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       var elementPos = p02pos + elementVector * t;
 
       section.transform.position = elementPos;
-      // Use UP vector from the previous node to reduce artefacts when the pipe is bend at a sharp
+      // Use UP vector from the previous node to reduce artifacts when the pipe is bend at a sharp
       // angle.
       section.transform.rotation = Quaternion.LookRotation(
           elementDir, i == 0 ? fromObj.up : bones[i - 1].up);
@@ -277,7 +277,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   /// <summary>Adjusts the texture on the pipe object to fit the rescale mode.</summary>
   /// <remarks>
-  /// It makes sure the texture is properly distrubited thru all the pipe mesh sections.
+  /// It makes sure the texture is properly distributed thru all the pipe mesh sections.
   /// </remarks>
   void RescaleMeshSectionTextures() {
     // Find out the real length of the pipe.
@@ -344,7 +344,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       var capsule = colliders[i];
       var boneDistance = (bones[i].position - bones[i + 1].position).magnitude;
       capsule.center = new Vector3(0, 0, boneDistance / 2);
-      // The capsules from the adjustent bones should "connect" at the half-sphere center.
+      // The capsules from the adjacent bones should "connect" at the half-sphere center.
       capsule.height = boneDistance + pipeDiameter;
     }
   }

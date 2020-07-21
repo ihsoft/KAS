@@ -16,7 +16,7 @@ namespace KAS {
 /// mod. The module must only be created thru the factory method.
 /// </para>
 /// <para>
-/// The promoted object becomes independent from the creator. When the module is destoyed, its
+/// The promoted object becomes independent from the creator. When the module is destroyed, its
 /// rigidbody gets destroyed as well, and the model returns back to the owner part. The position has
 /// to be adjusted by the caller.
 /// </para>
@@ -100,14 +100,14 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #endregion
 
   #region Public methods
-  /// <summary>Highglights the conenctor model or removes the highlighting.</summary>
+  /// <summary>Highlights the connector model or removes the highlighting.</summary>
   /// <remarks>
   /// <para>
   /// When color is set to <c>null</c>, the behavior is "cleanup", i.e. it's OK to call this method
   /// multiple times and in any object state.
   /// </para>
   /// <para>
-  /// In order for the highglighting to work, the object must have a highlighter component (a KSP
+  /// In order for the highlighting to work, the object must have a highlighter component (a KSP
   /// specific component). If one doesn't exist on the object, then it's created.
   /// </para>
   /// </remarks>
@@ -191,7 +191,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   /// <summary>
-  /// Makes the connector object physical and ensures it's not atatched to any parent model.
+  /// Makes the connector object physical and ensures it's not attached to any parent model.
   /// </summary>
   /// <param name="vessel">The vessel which went physical.</param>
   void OnVesselGoOffRails(Vessel vessel) {
@@ -202,7 +202,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   /// <summary>
-  /// Freezes the physics on the connector and ensures the model is atatched to the owner.
+  /// Freezes the physics on the connector and ensures the model is attached to the owner.
   /// </summary>
   /// <param name="vessel">The vessel which went kinematic.</param>
   void OnVesselGoOnRails(Vessel vessel) {

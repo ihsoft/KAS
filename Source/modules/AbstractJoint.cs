@@ -174,7 +174,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   [Debug.KASDebugAdjustable("Break force")]
   public float linkBreakForce;
 
-  /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
+  /// <summary>Breaking torque for the strut connecting the two parts.</summary>
   /// <value>
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength is infinite.
   /// </value>
@@ -395,13 +395,13 @@ public abstract class AbstractJoint : AbstractPartModule,
       } else {
         // STOP! The joint, once broken, won't re-establish with the new settings.
         HostedDebugLog.Warning(this, "New settings DON'T fit the current link:\n{0}"
-                               + "\n\nNot refershing the joint, re-link manually to update.",
+                               + "\n\nNot refreshing the joint, re-link manually to update.",
                                DbgFormatter.C2S(checks, separator: "\n"));
       }
     } else {
       // No joint, not update. However, it makes sense to note it.
       HostedDebugLog.Warning(
-          this, "No link esatblished, only update the module settings");
+          this, "No link established, only update the module settings");
     }
   }
   #endregion
@@ -934,7 +934,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <remarks>
   /// The source and target parts need to be separated, but the logical link still need to exist.
   /// On restore the vessel info will be cleared on the module. Alas, when the link is broken
-  /// extrenally, the root vessel part cannot be properly restored.
+  /// externally, the root vessel part cannot be properly restored.
   /// </remarks>
   void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
     AsyncCall.CallOnEndOfFrame(this, () => {

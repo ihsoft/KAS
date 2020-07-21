@@ -16,7 +16,7 @@ namespace KAS {
 /// <summary>Base class that handles the basic functionality of the link's end.</summary>
 /// <remarks>
 /// This module doesn't define how the link is created, but it does the heavy lifting to keep it,
-/// once it's established. The descendants are resposible for determining what peers can link with
+/// once it's established. The descendants are responsible for determining what peers can link with
 /// each other.
 /// </remarks>
 public abstract class AbstractLinkPeer : AbstractPartModule,
@@ -35,7 +35,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   public string linkType = "";
 
   /// <summary>The localized string to display for the link type.</summary>
-  /// <remarks>If mising or empty, then the types is show "as-is".</remarks>
+  /// <remarks>If missing or empty, then the types is show "as-is".</remarks>
   /// <seealso cref="cfgLinkType"/>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -83,7 +83,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   [Debug.KASDebugAdjustable("Dependent nodes")]
   public string dependentNodes = "";
 
-  /// <summary>Specifies if this peer can couple (dock) into the vessel's hirerachy.</summary>
+  /// <summary>Specifies if this peer can couple (dock) into the vessel's hierarchy.</summary>
   /// <seealso cref="coupleNode"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Allow coupling")]
@@ -192,7 +192,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   #region Inheritable fields & properties
   /// <summary>
-  /// State machine that controls the source state tranistions and defines the reaction on these
+  /// State machine that controls the source state transitions and defines the reaction on these
   /// changes.
   /// </summary>
   /// <remarks>
@@ -359,7 +359,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// This method is called asynchronously at the end of frame. The triggering of this call doesn't
   /// mean the node state has changed. It only means that it could have changed, and something has
   /// either coupled with or decoupled from the node. The code is responsible to verify it and act
-  /// accordignly.
+  /// accordingly.
   /// <para>
   /// This callback is called regardless to the <see cref="allowCoupling"/> settings. If the peer,
   /// being checked, cannot afford coupling, it must break the link.
@@ -407,8 +407,8 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   /// <summary>Finds the other peer of the link.</summary>
   /// <remarks>
-  /// The decendants may override this method to react on the link loading. If the link must not be
-  /// restorted, just reset <see cref="otherPeer"/> to <c>null</c>.
+  /// The descendants may override this method to react on the link loading. If the link must not be
+  /// restored, just reset <see cref="otherPeer"/> to <c>null</c>.
   /// </remarks>
   /// <seealso cref="otherPeer"/>
   protected virtual void RestoreOtherPeer() {

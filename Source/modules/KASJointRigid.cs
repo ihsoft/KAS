@@ -34,7 +34,7 @@ public class KASJointRigid : AbstractJoint {
     }
   }
 
-  /// <summary>Creates a stock-alike joint between the unrealted parts.</summary>
+  /// <summary>Creates a stock-alike joint between the unrelated parts.</summary>
   /// <remarks>The physical joints will be controlled by the module.</remarks>
   void CreateCustomJoint() {
     HostedDebugLog.Fine(

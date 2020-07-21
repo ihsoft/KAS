@@ -25,8 +25,8 @@ namespace KAS {
 /// In this concept there is a "connector", a physical object that is connected to the source part
 /// via a cable. An EVA kerbal can pick it up and carry to the target part. Then, the connector
 /// can be plugged into the compatible socked, and this will make the link. The EVA kerbal can also
-/// unplug the plugged connectors, breaking the link. The connector unplug function is also availabe
-/// to the unmanned vessels, but they must be fully controllable.
+/// unplug the plugged connectors, breaking the link. The connector unplug function is also
+/// available to the unmanned vessels, but they must be fully controllable.
 /// </para>
 /// <para>
 /// This module doesn't tolerate an incompatible target at its connector node. If there is one
@@ -102,9 +102,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Part's config fields
   /// <summary>Mass of the connector of the winch.</summary>
   /// <remarks>
-  /// It's substracted from the part's mass on deploy, and added back on the lock. For this reason
+  /// It's subtracted from the part's mass on deploy, and added back on the lock. For this reason
   /// it must not be greater then the total part's mass. Also, try to avoid making the connector
-  /// heavier than the part iteself - the Unity physics may start behaving awkward. 
+  /// heavier than the part itself - the Unity physics may start behaving awkward.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -270,7 +270,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
     /// <summary>
     /// The connector is non-physical and is merged to the owner part's model. There is a part
-    /// attached to it, which is meregd (docked) to the parent vessel.
+    /// attached to it, which is merged (docked) to the parent vessel.
     /// </summary>
     /// <remarks>This state can only exist if the link source is linked to a target.</remarks>
     Docked,
@@ -486,7 +486,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
     if (connectorObj != null) {
-      // Don't relay on the connector state machine, it will try to destory immediately.
+      // Don't relay on the connector state machine, it will try to destroy immediately.
       KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
     }
     SetConnectorState(ConnectorState.Locked);
@@ -684,7 +684,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Inheritable utility methods
   /// <summary>Changes the connector state</summary>
   /// <remarks>
-  /// It's a convinience method. The caller can change the state of the connector state machine
+  /// It's a convenience method. The caller can change the state of the connector state machine
   /// instead.
   /// </remarks>
   /// <param name="newState">The new state.</param>
@@ -714,7 +714,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     return linkRenderer.GetMeshByName(KASRendererPipe.TargetNodeMesh);
   }
 
-  /// <summary>Returns connector's anchor, at wich it attaches to the pipe.</summary>
+  /// <summary>Returns connector's anchor, at which it attaches to the pipe.</summary>
   /// <returns>The anchor object. It's never <c>null</c>.</returns>
   /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
   protected Transform GetConnectorModelPipeAnchor() {
@@ -729,7 +729,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <summary>Finds model by path or logs&amp;throws.</summary>
-  /// <remarks>Just a convinience method to avoid unclear NREs.</remarks>
+  /// <remarks>Just a convenience method to avoid unclear NREs.</remarks>
   /// <returns>The model. It's never <c>null</c>.</returns>
   /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
   protected Transform FindModelOrThrow(Transform root, string path) {

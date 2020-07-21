@@ -68,7 +68,7 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
     }
     foreach (var badPatch in badPatches) {
       applyPatches.Remove(badPatch);
-      DebugEx.Error("Patch has't fixed the part, disabling it: {0}", badPatch);
+      DebugEx.Error("Patch hasn't fixed the part, disabling it: {0}", badPatch);
     }
   }
 

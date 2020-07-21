@@ -222,7 +222,7 @@ public class KASLinkTargetBase :
 
   #region KASEvents listeners
   /// <summary>
-  /// Fires when this module can link, and there is a source that has actived the linking mode.
+  /// Fires when this module can link, and there is a source that has activated the linking mode.
   /// </summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
@@ -245,8 +245,8 @@ public class KASLinkTargetBase :
   #region New inheritable methods
   /// <summary>Verifies that part can link with the source.</summary>
   /// <remarks>
-  /// It only checks if the source is <i>eligibile</i> to link with this target, not the actual
-  /// conditions. The source is responsible to verify all the conditions before finiliszing the link.
+  /// It only checks if the source is <i>eligible</i> to link with this target, not the actual
+  /// conditions. The source is responsible to verify all the conditions before finalizing the link.
   /// </remarks>
   /// <param name="source">Source to check against.</param>
   /// <returns>

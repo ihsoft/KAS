@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace KAS {
 
-/// <summary>Module which trasnfer resources between two linked vessels.</summary>
+/// <summary>Module which transfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12017
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
@@ -68,14 +68,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly Message<CompactNumberType> TransferSpeedTxt = new Message<CompactNumberType>(
       "#kasLOC_12004",
       defaultTemplate: "Current transfer speed: <<1>> units per second",
-      description: "The information string that tells what is the selected or calculated tarnsfer"
+      description: "The information string that tells what is the selected or calculated transfer"
       + " speed is.");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CloseDialogBtn = new Message(
       "#kasLOC_12005",
       defaultTemplate: "Close dialog",
-      description: "The caption on the button that closes the trsnafer dialog.");
+      description: "The caption on the button that closes the transfer dialog.");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<string> OwnerVesselTxt = new Message<string>(
@@ -105,7 +105,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       "#kasLOC_12009",
       defaultTemplate: "Auto scale transfer speed",
       description: "The caption for the control that enables the mode, which automatically deducts"
-      + " the speed of the reasource transfer.");
+      + " the speed of the resource transfer.");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<CompactNumberType> AutoScaleToggleHint = new Message<CompactNumberType>(
@@ -216,7 +216,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </para>
   /// <para>
   /// The simplest example is <c>ElectricCharge</c> resource, which is not material (no volume).
-  /// To allow it on the part, add a positive override: <c>+ElectricCharge</c>. Similary, to
+  /// To allow it on the part, add a positive override: <c>+ElectricCharge</c>. Similarly, to
   /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
   /// </para>
   /// </remarks>
@@ -242,7 +242,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Container for the fuel mixture.</summary>
   public class FuelMixture {
-    /// <summary>The mixuture components.</summary>
+    /// <summary>The mixture components.</summary>
     [PersistentField("component", isCollection = true)]
     public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
   }
@@ -321,7 +321,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Last time the resources counts were updated in GUI.</summary>
   float lastResourcesGUIUpdate;
 
-  /// <summary>The timeout to update the resoucres countes in GUI in seconds.</summary>
+  /// <summary>The timeout to update the resources counters in GUI in seconds.</summary>
   /// <remarks>It's a performance affecting settings.</remarks>
   const float TRANSFER_STATE_UPDATE_PERIOD = 0.1f;
   #endregion

@@ -23,7 +23,7 @@ namespace KAS {
 public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
-    // KSPDev sugar interafces.
+    // KSPDev sugar interfaces.
     IHasGUI {
   #region Localizable GUI strings.
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -54,7 +54,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   #region Part's config fields
   /// <summary>Color to use to highlight the closest connector that can be picked up.</summary>
   /// <remarks>
-  /// If set to <i>black</i> <c>(0, 0, 0)</c>, then the closests connector will not be highlighted.
+  /// If set to <i>black</i> <c>(0, 0, 0)</c>, then the closest connector will not be highlighted.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -107,7 +107,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <remarks>It's set from the part's config.</remarks>
   static Event dropConnectorKeyEvent;
 
-  /// <summary>Keyboard event to react to pucik up a dropped connector.</summary>
+  /// <summary>Keyboard event to react to pick up a dropped connector.</summary>
   /// <remarks>It's set from the part's config.</remarks>
   static Event pickupConnectorKeyEvent;
 
@@ -128,7 +128,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <summary>Connector that is currently highlighted as the pickup candidate.</summary>
   KASInternalPhysicalConnector focusedPickupConnector;
 
-  /// <summary>Transform object of the bone which the atatch node needs to follow.</summary>
+  /// <summary>Transform object of the bone which the attach node needs to follow.</summary>
   /// <remarks>
   /// Kerbal's model is tricky, and many objects live at the unusual layers. To not get affected by
   /// this logic, the attach node is not connected to the bone as a child. Instead, a runtime code
@@ -410,7 +410,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   /// <summary>Helper method to create a part's context menu.</summary>
   /// <param name="peer">The peer module to create an action for.</param>
   /// <param name="guiName">The GUI name of the menu item.</param>
-  /// <param name="action">The action to exectue when the menu item is triggered.</param>
+  /// <param name="action">The action to execute when the menu item is triggered.</param>
   /// <returns>The new event. It's not automatically injected into the part.</returns>
   BaseEvent MakeEvent(ILinkPeer peer, Message guiName, Action<ILinkPeer> action) {
     var ev = new BaseEvent(

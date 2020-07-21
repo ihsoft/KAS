@@ -143,10 +143,10 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
 
   /// <summary>
-  /// The maximum angle between the port normal and the link vector to consdier the locking process
+  /// The maximum angle between the port normal and the link vector to consider the locking process
   /// is done.
   /// </summary>
-  /// <remarks>Once the angle decreases down to this value, the towbar will lock down.</remarks>
+  /// <remarks>Once the angle decreases down to this value, the tow bar will lock down.</remarks>
   [KSPField]
   [Debug.KASDebugAdjustable("Lock angle threshold")]
   public float lockAngleThreshold = 3f;
@@ -225,7 +225,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
 
   #region Internal properties
   /// <summary>Current locking mode.</summary>
-  /// <remarks>It's declared public only to make the KSP peristense working.</remarks>
+  /// <remarks>It's declared public only to make the KSP persistence working.</remarks>
   public enum LockMode {
     /// <summary>Not requested.</summary>
     Disabled,
@@ -250,7 +250,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   }
 
   /// <summary>
-  /// Minumal angle between port normal and the link vector to continue apply steering commands.
+  /// Minimal angle between port normal and the link vector to continue apply steering commands.
   /// </summary>
   /// <remarks>The angles below this value don't affect the towed vessel.</remarks>
   const float ZeroSteeringAngle = 0.05f;
@@ -348,8 +348,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (persistedLockingMode == LockMode.Locking) {
       var yaw = GetTargetYawAngle();
       var absYaw = Mathf.Abs(yaw);
-      // Reaching zero is too hard to achieve, so wait for a minimum ange and simply lock.
-      // It will trigger sime jitter and momentum, though.
+      // Reaching zero is too hard to achieve, so wait for a minimum angle and simply lock.
+      // It will trigger some jitter and momentum, though.
       if (absYaw < lockAngleThreshold) {
         SetLockingMode(LockMode.Locked);
       } else {

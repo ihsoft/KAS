@@ -18,7 +18,7 @@ namespace KAS {
 /// <para>
 /// At each end of the pipe a model can be drawn to make the connection look nicer, it's
 /// configured separately for the pipe source and target. If nothing is configured, then the pipe
-/// (which is a cylinder mesh) simply toches the attach nodes of the parts. If the pipe diameter
+/// (which is a cylinder mesh) simply touches the attach nodes of the parts. If the pipe diameter
 /// is big, then it may look bad since the edges of the cylinder won't mix nicely with the part
 /// meshes.
 /// </para>
@@ -41,7 +41,7 @@ namespace KAS {
 /// Finally, a complete prefab model can be inserted! This model will be inserted between the part
 /// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the
 /// model, two extra parameters are needed: <c>modelPartAttachAt</c>, which defines how the model
-/// attches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
+/// attaches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
 /// model. If sphere or offsets were set, they will be counter relative to <c>modelPipeAttachAt</c>. 
 /// </para>
 /// <para>
@@ -217,7 +217,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
     /// <summary>Object that becomes parent when the model is parked.</summary>
     /// <remarks>
-    /// This obejct must never be <c>null</c>. Set it to the part's model when unsure what to
+    /// This object must never be <c>null</c>. Set it to the part's model when unsure what to
     /// provide.
     /// </remarks>
     public Transform parkRootObject;
@@ -232,7 +232,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
     /// <summary>Updates the node's state to the target transform.</summary>
     /// <param name="target">
-    /// The transfrom to align the node to. If <c>null</c>, then the model will be "parked".
+    /// The transform to align the node to. If <c>null</c>, then the model will be "parked".
     /// </param>
     /// <seealso cref="parkAttach"/>
     public void AlignToTransform(Transform target) {
@@ -420,7 +420,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <param name="node">The node to setup.</param>
   /// <param name="alignTo">
-  /// The object to align the conenctor to. If it's <c>null</c>, then the model will be parked.
+  /// The object to align the connector to. If it's <c>null</c>, then the model will be parked.
   /// </param>
   protected virtual void UpdateJointNode(ModelPipeEndNode node, Transform alignTo) {
     var config = node.config;
@@ -573,7 +573,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// The mesh UV coordinates are expected to be distributed over its full length from <c>0.0</c> to
   /// <c>1.0</c>. Such configuration ensures that texture covers the entire mesh, and
   /// stretches/shrinks as the mesh changes its length. However, in the tiling modes, the texture
-  /// must be distributed over the mesh lengh so that it's not changing its ratio. This method
+  /// must be distributed over the mesh length so that it's not changing its ratio. This method
   /// checks the renderer stretching mode and adjusts the texture scale.
   /// <para>
   /// This method is intentionally not virtual, since it's a utility method. Any part specific logic

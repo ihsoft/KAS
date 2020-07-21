@@ -17,7 +17,7 @@ public class KASDebugAdjustableAttribute : DebugAdjustableAttribute {
   public const string DebugGroup = "KAS";
 
   /// <summary>Creates an attribute that marks a KAS tweakable member.</summary>
-  /// <param name="caption">The user freindly string to present in GUI.</param>
+  /// <param name="caption">The user friendly string to present in GUI.</param>
   public KASDebugAdjustableAttribute(string caption) : base(caption, DebugGroup) {
   }
 }

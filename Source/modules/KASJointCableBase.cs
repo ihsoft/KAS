@@ -45,7 +45,7 @@ public class KASJointCableBase : AbstractJoint,
   #region Part's config fields
   /// <summary>Spring force of the cable which connects the two parts.</summary>
   /// <remarks>
-  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
+  /// It's a force per meter of the stretched distance to keep the objects distance below the maximum
   /// distance. The force is measured in kilonewtons.
   /// </remarks>
   /// <include file="..//SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>

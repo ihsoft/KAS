@@ -48,7 +48,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message StretchBtn = new Message(
       "#kasLOC_11003",
       defaultTemplate: "Stretch",
-      description: "The caption of the button that stretches teeh cable.");
+      description: "The caption of the button that stretches the cable.");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message StretchBtnHint = new Message(
@@ -60,7 +60,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message DetachBtn = new Message(
       "#kasLOC_11005",
       defaultTemplate: "Detach",
-      description: "The caption of the button that deatches the cable from the target.");
+      description: "The caption of the button that detaches the cable from the target.");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DetachBtnHint = new Message(
@@ -179,7 +179,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message MotorSpeedStatusTxtHint = new Message(
       "#kasLOC_11023",
       defaultTemplate: "Current motor speed / Motor speed setting",
-      description: "The GUI hint to show for the area which displays two values: the current motro"
+      description: "The GUI hint to show for the area which displays two values: the current motor"
       + " speed and the maximum possible motor speed. The values are presented as a pair, separated"
       + " by symbol '/'.");
 
@@ -421,7 +421,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               actionsList: guiActions);
         }
         
-        // Cable lenght/status column.
+        // Cable length/status column.
         if (!winch.part.vessel.IsControllable) {
           guiWinchTable.AddTextColumn(
               winchModeOfflineCnt, guiNoWrapCenteredStyle, minWidth: winchCableStatusMinWidth);
@@ -597,7 +597,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   }
 
   /// <summary>
-  /// Forces an update of the list of the cached wiches. It's an expensive operation.
+  /// Forces an update of the list of the cached winches. It's an expensive operation.
   /// </summary>
   void OnVesselUpdated(Vessel v) {
     modulesNeedUpdate = true;

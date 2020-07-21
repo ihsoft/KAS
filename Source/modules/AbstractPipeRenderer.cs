@@ -202,9 +202,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   }
   Material _pipeMaterial;
 
-  /// <summary>Part that owns the target tarnsform.</summary>
+  /// <summary>Part that owns the target transform.</summary>
   /// <remarks>
-  /// It can be <c>null</c> if the traget is not a part or the renderer is not started.
+  /// It can be <c>null</c> if the target is not a part or the renderer is not started.
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
   protected Part targetPart { get; private set; }
@@ -300,7 +300,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       linkUpdateCoroutine = null;
     }
 
-    // Sync the renderers settinsg to the source part to handle the highlights.
+    // Sync the renderers settings to the source part to handle the highlights.
     if (isStarted) {
       sourceTransform.GetComponentsInChildren<Renderer>().ToList()
           .ForEach(r => r.SetPropertyBlock(part.mpb));
@@ -380,7 +380,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <para>
   /// All the meshes are expected to belong to either <see cref="sourceTransform"/> or
   /// <see cref="targetTransform"/>. If it's not the case, then the creator must handle collision
-  /// ignores and highligher modules. Same applies to the meshes created outside of this method,
+  /// ignores and highlighter modules. Same applies to the meshes created outside of this method,
   /// even when they belong to the proper source or target transform. 
   /// </para>
   /// </remarks>
@@ -414,7 +414,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected abstract Vector3[] GetPipePath(Transform start, Transform end);
 
   /// <summary>Updates the pipe material(s) to the current module's state.</summary>
-  /// <remarks>It is called when the meterial mutable settings are changed.</remarks>
+  /// <remarks>It is called when the material mutable settings are changed.</remarks>
   /// <seealso cref="colorOverride"/>
   /// <seealso cref="shaderNameOverride"/>
   protected abstract void UpdateMaterialOverrides();
@@ -441,7 +441,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Local utility methods
-  /// <summary>Checks if a capsule collider between the points hit's anything.</summary>
+  /// <summary>Checks if a capsule collider between the points hits anything.</summary>
   /// <remarks>Hits with own vessel models or models of the other vessel are ignored.</remarks>
   /// <param name="startPos">The starting point of the link.</param>
   /// <param name="endPos">The ending point of the link.</param>
@@ -503,7 +503,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <remarks>
   /// This information will be used down the stream to detect if the collisions should be adjusted.
   /// </remarks>
-  /// <param name="originator">The part that has dcoupled.</param>
+  /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleEvent(Part originator) {
     if (targetPart != null && targetPart.vessel != vessel
         && originator.vessel == targetPart.vessel) {
@@ -513,7 +513,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <summary>Reacts on a part de-coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
-  /// When a part is leaving the target vessel, the collsions between this part and the pipe meshes
+  /// When a part is leaving the target vessel, the collisions between this part and the pipe meshes
   /// must be restored.
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
@@ -538,7 +538,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       UpdateLink();
       yield return null;
     }
-    // The coroitine is expected to be terminated explicitly! 
+    // The coroutine is expected to be terminated explicitly!
     HostedDebugLog.Warning(this, "Terminate coroutine on renderer stop!");
   }
   #endregion

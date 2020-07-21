@@ -115,7 +115,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>
   /// Allows random rotation of pistons relative to each other around Z (length) axis. If piston's
-  /// model has a complex texture this setting may be used to make telescopic pipe less repeatative.
+  /// model has a complex texture this setting may be used to make telescopic pipe less repetitive.
   /// </summary>
   /// <remarks>
   /// Piston's model from prefab will be scaled by this value. X&amp;Y axes affect diameter, Z
@@ -176,7 +176,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     public string title = "";
   }
 
-  /// <summary>List of the available menu items for the unlinked pipe oriaentation.</summary>
+  /// <summary>List of the available menu items for the unlinked pipe orientation.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("parkedOrientation", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
@@ -277,7 +277,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #endregion
 
   #region Model name constants
-  /// <summary>A transform that is a root for the whole pipe modelset.</summary>
+  /// <summary>A transform that is a root for the whole pipe model set.</summary>
   /// <remarks>It doesn't have to match part's attach node transform.</remarks>
   const string AttachNodeObjName = "plugNode";
 
@@ -401,7 +401,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>The root node for the telescopic strut.</summary>
   /// <remarks>
   /// All the components are built relative to this node. It's also used to determine the part's
-  /// model scale, whic is important for rednering the proper meshes.
+  /// model scale, which is important for rendering the proper meshes.
   /// </remarks>
   Transform plugNodeTransform {
     get {
@@ -427,7 +427,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region IHasDebugAdjustables implementation
   /// <summary>Dumps basic constraints of the renderer.</summary>
-  [Debug.KASDebugAdjustable("Dump render link contstrains")]
+  [Debug.KASDebugAdjustable("Dump render link constraints")]
   public void DbgEventDumpLinkSettings() {
     HostedDebugLog.Warning(this,
         "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
@@ -696,11 +696,11 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <summary>
-  /// Creates a new model from the existing one. Resets all local settinsg to default. 
+  /// Creates a new model from the existing one. Resets all local settings to default.
   /// </summary>
   /// <remarks>
   /// Same model in this part is copied several times, and they are organized into a hierarchy. So
-  /// if there were any scale or rotation adjustments they will accumulate thru the hirerachy
+  /// if there were any scale or rotation adjustments they will accumulate thru the hierarchy
   /// breaking the whole model. That's why all local transformations must be default.
   /// </remarks>
   /// <param name="model">Model to copy.</param>
@@ -804,7 +804,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <summary>Returns the world position of the source link "pivot".</summary>
-  /// <param name="refTransform">The transfrom to count the position relative to.</param>
+  /// <param name="refTransform">The transform to count the position relative to.</param>
   /// <returns>The position in world coordinates.</returns>
   Vector3 GetLinkVectorSourcePos(Transform refTransform) {
     // Don't use the stock translation methods since the handle length is already scaled. We don't
@@ -813,7 +813,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <summary>Returns the world position of the target link "pivot".</summary>
-  /// <param name="refTransform">The transfrom to count the position relative to.</param>
+  /// <param name="refTransform">The transform to count the position relative to.</param>
   /// <returns>The position in world coordinates.</returns>
   Vector3 GetLinkVectorTargetPos(Transform refTransform) {
     // Don't use the stock translation methods since the handle length is already scaled. We don't
@@ -823,7 +823,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <summary>Creates the telescopic pipe meshes.</summary>
   /// <remarks>
-  /// If there were meshes created alreadym they will be destroyed. So this method can be called to
+  /// If there were meshes created already, they will be destroyed. So this method can be called to
   /// refresh the part settings.
   /// </remarks>
   void CreatePipeMeshes(bool recreate) {

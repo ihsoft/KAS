@@ -234,7 +234,7 @@ class JointUtilsImpl : KASAPIv2.IJointUtils {
   }
 
   static string Dump(SoftJointLimit limit) {
-    return string.Format("SoftJointLimit(limit={0}, boinciness={1}, contactDistance={2})",
+    return string.Format("SoftJointLimit(limit={0}, bounciness={1}, contactDistance={2})",
                          limit.limit, limit.bounciness, limit.contactDistance);
   }
 

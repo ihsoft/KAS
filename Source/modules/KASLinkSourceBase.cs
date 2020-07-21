@@ -84,7 +84,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   static readonly Message DockedModeMenuTxt = new Message(
       "#kasLOC_02006",
       defaultTemplate: "Link mode: DOCKED",
-      description: "The name of the part's context menu event that triggers a separtation of the"
+      description: "The name of the part's context menu event that triggers a separation of the"
       + " linked parts into two different vessels if they are coupled thru this link. At the same"
       + " time, the name of the event gives a currently selected state.");
 
@@ -266,7 +266,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (isLinked && linkTarget.part.vessel != vessel) {
       // When the target is at the different vessel, there is no automatic collision ignore set.
       AsyncCall.CallOnFixedUpdate(this, () => {
-        // Copied from KervalEVA.OnVesselGoOffRails() method.
+        // Copied from KerbalEVA.OnVesselGoOffRails() method.
         // There must be a delay for at least 3 fixed frames.
         if (isLinked) {  // Link may get broken during the physics easyment.
           CollisionManager.IgnoreCollidersOnVessel(
@@ -372,7 +372,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
                                && t.coupleNode != null && t.coupleNode.attachedPart == part
                                && CheckCanLinkTo(t));
       if (target != null) {
-        HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
+        HostedDebugLog.Fine(this, "Linking with the pre-attached part: {0}", target);
         LinkToTarget(LinkActorType.API, target);
       }
       if (!isLinked) {
@@ -381,7 +381,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
                             coupleNode.attachedPart);
         AsyncCall.CallOnEndOfFrame(this, () => {
           if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
-            HostedDebugLog.Warning(this, "Cannot link to the preattached part: from={0}, to={1}",
+            HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
                                    KASAPI.AttachNodesUtils.NodeId(coupleNode),
                                    KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
             SetLinkState(LinkState.NodeIsBlocked);
@@ -642,12 +642,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <summary>
-  /// Logically unlinks the source and the current target, and stops the renderer.
+  /// Logically un-links the source and the current target, and stops the renderer.
   /// </summary>
   /// <remarks>It's always called <i>after</i> the physical link updates.</remarks>
-  /// <param name="actorType">The actor which has intiated the unlinking.</param>
+  /// <param name="actorType">The actor which has initiated the un-linking.</param>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
-    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
+    HostedDebugLog.Info(this, "Un-linking from target: {0}, actor={1}", linkTarget, actorType);
     linkActor = actorType;
     var linkInfo = new KasLinkEventImpl(this, linkTarget, actorType);
     linkRenderer.StopRenderer();

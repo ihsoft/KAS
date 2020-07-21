@@ -140,7 +140,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// degrees.
   /// </summary>
   /// <remarks>
-  /// This value is always positive, and it determines how significantly the deriction of
+  /// This value is always positive, and it determines how significantly the direction of the
   /// <c>forward</c> and <c>up</c> vectors of the connector can differ from the winch's attach node
   /// direction.
   /// </remarks>
@@ -556,7 +556,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>
-  /// Checks if the cable connector can be locked without triggering significant physical froces. 
+  /// Checks if the cable connector can be locked without triggering significant physical forces.
   /// </summary>
   /// <param name="logCheckResult">
   /// If <c>true</c> then the result of the check will be logged.
@@ -571,7 +571,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
         || cableJoint.realCableLength > connectorLockMaxErrorDist) {  // Not close enough.
       if (logCheckResult) {
         HostedDebugLog.Info(this, "Connector cannot lock, the preconditions failed:"
-                            + " maxLengh={0}, realLength={1}, isLinked={2}",
+                            + " maxLength={0}, realLength={1}, isLinked={2}",
                             cableJoint.deployedCableLength,
                             cableJoint.realCableLength,
                             isLinked);
@@ -585,7 +585,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       }
       return true;
     }
-    // Check if the alignment error is small enough to not awake Krakken on dock.
+    // Check if the alignment error is small enough to not awake Kraken on dock.
     var fwdAngleErr =
         180 - Vector3.Angle(GetConnectorModelPipeAnchor().forward, nodeTransform.forward);
     if (fwdAngleErr > connectorLockMaxErrorDir) {
