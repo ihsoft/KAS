@@ -22,7 +22,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_11028.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
-sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
+internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(

@@ -14,7 +14,7 @@ namespace KAS.Debug {
 /// </summary>
 [KSPAddon(KSPAddon.Startup.FlightAndEditor, false /*once*/)]
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
-sealed class ControllerPartEditorTool : MonoBehaviour,
+internal sealed class ControllerPartEditorTool : MonoBehaviour,
     // KSPDev interfaces
     IHasGUI {
 

@@ -23,7 +23,7 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="Promote"/>
 /// <seealso cref="Demote"/>
-sealed class KASInternalPhysicalConnector : MonoBehaviour {
+internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>

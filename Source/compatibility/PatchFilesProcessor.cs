@@ -14,7 +14,7 @@ namespace SaveUpgradePipeline.KAS {
 [UpgradeModule(LoadContext.SFS | LoadContext.Craft,
                sfsNodeUrl = "GAME/FLIGHTSTATE/VESSEL/PART",
                craftNodeUrl = "PART")]
-sealed class PatchFilesProcessor : UpgradeScript {
+internal sealed class PatchFilesProcessor : UpgradeScript {
 
   /// <summary>Patches per part name.</summary>
   /// <remarks>The patches are ordered by timestamp.</remarks>
