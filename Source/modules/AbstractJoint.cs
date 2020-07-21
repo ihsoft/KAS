@@ -480,7 +480,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     linkSource = source;
     linkTarget = target;
     if (!originalLength.HasValue) {
-      SetOrigianlLength(Vector3.Distance(
+      SetOriginalLength(Vector3.Distance(
           GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target)));
     }
     isLinked = true;
@@ -506,7 +506,7 @@ public abstract class AbstractJoint : AbstractPartModule,
       }
     }
     SetCustomJoints(null);
-    SetOrigianlLength(null);
+    SetOriginalLength(null);
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -634,8 +634,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// length to set on the joint creation.
   /// </param>
   /// <seealso cref="originalLength"/>
-  protected void SetOrigianlLength(float? newLength) {
-    persistedLinkLength = newLength.HasValue ? newLength.Value : -1;
+  protected void SetOriginalLength(float? newLength) {
+    persistedLinkLength = newLength ?? -1;
   }
 
   /// <summary>Creates the actual PhysX joints between the rigid objects.</summary>

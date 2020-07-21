@@ -166,7 +166,7 @@ public class KASJointCableBase : AbstractJoint,
 
     // Attach the head to the source.
     CreateDistanceJoint(source, headRb, headObjAnchor.position);
-    SetOrigianlLength(deployedCableLength);
+    SetOriginalLength(deployedCableLength);
   }
 
   /// <inheritdoc/>
@@ -175,13 +175,13 @@ public class KASJointCableBase : AbstractJoint,
     headSource = null;
     Destroy(cableJoint);
     cableJoint = null;
-    SetOrigianlLength(null);
+    SetOriginalLength(null);
   }
 
   /// <inheritdoc/>
   public virtual void SetCableLength(float length) {
     if (cableJoint == null) {
-      SetOrigianlLength(null);  // Just in case.
+      SetOriginalLength(null);  // Just in case.
       return;
     }
     if (float.IsPositiveInfinity(length)) {
@@ -190,7 +190,7 @@ public class KASJointCableBase : AbstractJoint,
       length = Mathf.Min(realCableLength, deployedCableLength);
     }
     ArgumentGuard.InRange(length, "length", 0, cfgMaxCableLength, context: this);
-    SetOrigianlLength(length);
+    SetOriginalLength(length);
     cableJoint.linearLimit = new SoftJointLimit() { limit = length };
   }
 
