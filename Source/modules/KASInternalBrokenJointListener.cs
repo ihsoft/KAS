@@ -7,6 +7,7 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>
@@ -26,6 +27,7 @@ namespace KAS {
 /// overcome this limitation, an extra game object and this component can be used:
 /// <code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/>
 /// </example>
+// ReSharper disable once InconsistentNaming
 internal sealed class KASInternalBrokenJointListener : MonoBehaviour,
     // KSP syntax sugar interfaces.
     IJointEventsListener {

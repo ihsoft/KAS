@@ -5,6 +5,7 @@
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>
@@ -22,6 +23,7 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="KASJointTwoEndsSphere"/>
 /// <seealso cref="KASJointRigid"/>
+// ReSharper disable once InconsistentNaming
 public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   #region Part's config fields

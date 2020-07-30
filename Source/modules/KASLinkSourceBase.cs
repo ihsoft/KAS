@@ -14,6 +14,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base link source module. Does all the job on making two parts linked.</summary>
@@ -32,6 +34,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_02008.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
+// ReSharper disable once InconsistentNaming
 public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
@@ -685,6 +688,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <returns>
   /// An empty array if the link can be created, or a list of user friendly errors otherwise.
   /// </returns>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
     var errors = new List<string>();
     if (checkStates) {

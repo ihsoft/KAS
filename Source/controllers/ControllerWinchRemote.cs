@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Unity module that simulates remote control for the winches in the scene.</summary>
@@ -230,6 +231,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Internal helper types
   /// <summary>Storage for the cached winch state.</summary>
   class WinchState {
+    // ReSharper disable once InconsistentNaming
     public string vesselGUID;
     public string vesselName;
     public IWinchControl winchModule;

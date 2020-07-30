@@ -11,6 +11,8 @@ using System;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base class that handles the basic functionality of the link's end.</summary>

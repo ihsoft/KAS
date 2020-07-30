@@ -4,6 +4,7 @@
 
 using KASAPIv2;
 
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 /// <summary>Defines global events that are triggered by KAS.</summary>

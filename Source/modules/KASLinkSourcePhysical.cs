@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that allows connecting the parts via an EVA kerbal.</summary>
@@ -42,6 +43,7 @@ namespace KAS {
 /// <seealso cref="ILinkCableJoint"/>
 /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13011.
+// ReSharper disable once InconsistentNaming
 public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   #region Localizable GUI strings.
@@ -365,6 +367,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </remarks>
   /// <value>The object or <c>null</c> if the connector is not physical.</value>
   /// <seealso cref="connectorState"/>
+  // ReSharper disable once MemberCanBePrivate.Global
   protected Transform connectorObj { get; private set; }
   #endregion
 
@@ -756,6 +759,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </param>
   /// <seealso cref="connectorState"/>
   /// <seealso cref="ILinkCableJoint"/>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void SetCableLength(float length) {
     if (cableJoint != null) {
       if (!float.IsInfinity(length)) {

@@ -2,6 +2,8 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+// ReSharper disable once CheckNamespace
+// ReSharper disable once IdentifierTypo
 namespace KASAPIv2 {
 
 /// <summary>A holder for simple source-to-target event.</summary>

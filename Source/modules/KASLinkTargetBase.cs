@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base link target module. Only controls target link state.</summary>
@@ -26,6 +28,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_03002.
+// ReSharper disable once InconsistentNaming
 public class KASLinkTargetBase :
     // KSP parents.
     AbstractLinkPeer, IModuleInfo,
@@ -226,6 +229,7 @@ public class KASLinkTargetBase :
   /// </summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="source"></param>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void OnStartLinkingKASEvent(ILinkSource source) {
     if (CheckCanLinkWith(source)) {
       SetLinkState(LinkState.AcceptingLinks);
@@ -235,6 +239,7 @@ public class KASLinkTargetBase :
   /// <summary>Cancels  the linking mode on this module.</summary>
   /// <remarks>KAS events listener.</remarks>
   /// <param name="connectionSource"></param>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void OnStopLinkingKASEvent(ILinkSource connectionSource) {
     if (!isLocked) {
       SetLinkState(LinkState.Available);
@@ -253,6 +258,7 @@ public class KASLinkTargetBase :
   /// <c>true</c> if link is <i>technically</i> possible. It's not guaranteed that the link will
   /// succeed.
   /// </returns>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual bool CheckCanLinkWith(ILinkSource source) {
     // Cannot attach to itself or incompatible link type.
     if (part != source.part && cfgLinkType == source.cfgLinkType) {

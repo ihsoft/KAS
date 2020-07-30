@@ -7,6 +7,7 @@ using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module for handling physics on a flexible link connector.</summary>
@@ -23,6 +24,7 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="Promote"/>
 /// <seealso cref="Demote"/>
+// ReSharper disable once InconsistentNaming
 internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
@@ -68,6 +70,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// Tells the owner part is being cleaned up and the object don't need to die immediately.
   /// </param>
   /// <returns><c>false</c> if the connector was not physical.</returns>
+  // ReSharper disable once UnusedMethodReturnValue.Global
   public static bool Demote(GameObject obj, bool cleanupMode) {
     var connectorModule = obj.GetComponent<KASInternalPhysicalConnector>();
     if (connectorModule == null) {

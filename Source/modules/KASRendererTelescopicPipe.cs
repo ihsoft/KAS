@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable RedundantExtendsListEntry
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>
@@ -22,6 +24,7 @@ namespace KAS {
 /// the part that can link to another part.
 /// </summary>
 // Next localization ID: #kasLOC_04004.
+// ReSharper disable once InconsistentNaming
 public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     // KAS interfaces.
     ILinkRenderer,

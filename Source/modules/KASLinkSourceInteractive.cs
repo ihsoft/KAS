@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that allows connecting the parts by a mouse via GUI.</summary>
@@ -24,6 +25,7 @@ namespace KAS {
 /// </para>
 /// </remarks>
 // Next localization ID: #kasLOC_01003.
+// ReSharper disable once InconsistentNaming
 public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
 
   #region Localizable GUI strings

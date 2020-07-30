@@ -10,6 +10,9 @@ using KSPDev.Types;
 using System;
 using UnityEngine;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable ConvertToConstant.Global
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that draws a pipe between two nodes.</summary>
@@ -63,8 +66,10 @@ namespace KAS {
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
 /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
 /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+// ReSharper disable once InconsistentNaming
 public class KASRendererPipe : AbstractPipeRenderer,
     // KPSDev sugar interfaces.    
+    // ReSharper disable once RedundantExtendsListEntry
     IsDestroyable {
 
   #region Public config types
@@ -422,6 +427,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <param name="alignTo">
   /// The object to align the connector to. If it's <c>null</c>, then the model will be parked.
   /// </param>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void UpdateJointNode(ModelPipeEndNode node, Transform alignTo) {
     var config = node.config;
     var makeProceduralModels = alignTo != null || !config.parkPrefabOnly;

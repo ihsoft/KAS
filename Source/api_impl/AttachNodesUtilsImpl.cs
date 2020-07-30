@@ -8,6 +8,8 @@ using KSPDev.ProcessingUtils;
 using System;
 using UnityEngine;
 
+// ReSharper disable UseStringInterpolation
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 /// <summary>Implements KASAPIv2.IAttachNodesUtils.</summary>

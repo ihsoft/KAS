@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module for a simple winch with a deployable connector and a motor.</summary>
@@ -40,6 +41,8 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
 // Next localization ID: #kasLOC_08019.
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class KASLinkWinch : KASLinkSourcePhysical,
     // KAS interfaces.
     IWinchControl,
@@ -609,6 +612,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// If <c>true</c> then the failed attempt will be logged to GUI.
   /// </param>
   /// <returns><c>true</c> if the connector was successfully locked.</returns>
+  // ReSharper disable once UnusedMethodReturnValue.Local
   bool TryLockingConnector(bool reportIfCannot = true) {
     if (isLinked && linkTarget.part.vessel.isEVA) {
       return false;  // Silently don't allow docking with a kerbal.

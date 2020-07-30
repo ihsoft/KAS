@@ -16,10 +16,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module for the kerbal vessel that allows carrying the cable heads.</summary>
 // Next localization ID: #kasLOC_10004.
+// ReSharper disable once InconsistentNaming
 public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     // KAS interfaces.
     IHasContextMenu,
@@ -75,6 +77,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
   [PersistentField("equipPosAndRot", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Equip pos&rot")]
   PosAndRot equipPosAndRot = new PosAndRot();
+  // ReSharper disable once FieldCanBeMadeReadOnly.Local
   #endregion
 
   #region Local fields and properties

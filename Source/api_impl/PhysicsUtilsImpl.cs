@@ -5,6 +5,7 @@
 using KASAPIv2;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 class PhysicsUtilsImpl : IPhysicsUtils {

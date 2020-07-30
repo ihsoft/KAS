@@ -6,9 +6,13 @@ using KSPDev.FSUtils;
 using KSPDev.LogUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
+// ReSharper disable once IdentifierTypo
 namespace KASAPIv2 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once IdentifierTypo
 internal sealed class KASAPILauncher : MonoBehaviour {
   void Awake() {
     if (!KASAPI.isLoaded) {

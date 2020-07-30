@@ -4,10 +4,12 @@
 
 using KSPDev.LogUtils;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that controls a stock-alike physical joint on a KAS part.</summary>
 /// <remarks>This module handles all the stock attach node settings.</remarks>
+// ReSharper disable once InconsistentNaming
 public class KASJointRigid : AbstractJoint {
 
   #region AbstractLinkJoint overrides

@@ -5,6 +5,9 @@
 using KASAPIv2;
 using KSPDev.ConfigUtils;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable ConvertToConstant.Local
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 /// <summary>Container for the various global settings of the mod.</summary>

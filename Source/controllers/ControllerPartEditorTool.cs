@@ -7,6 +7,7 @@ using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS.Debug {
 
 /// <summary>

@@ -15,6 +15,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that implements basic logic for a physical joint on a KAS part.</summary>
@@ -354,6 +356,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
+  // ReSharper disable once MemberCanBePrivate.Global
   protected List<Object> customExtraObjects { get; } = new List<Object>();
   #endregion
 

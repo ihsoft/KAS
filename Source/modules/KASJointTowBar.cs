@@ -10,6 +10,7 @@ using KSPDev.PartUtils;
 using System.Collections.Generic;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Flexible link joint designed specifically for towing vessels.</summary>
@@ -23,6 +24,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 // Next localization ID: #kasLOC_05020.
+// ReSharper disable once InconsistentNaming
 public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
     IsPhysicalObject,

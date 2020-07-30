@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace SaveUpgradePipeline.KAS {
 
 /// <summary>Class that fixes incompatible KAS part in the saved games.</summary>
 [UpgradeModule(LoadContext.SFS | LoadContext.Craft,
                sfsNodeUrl = "GAME/FLIGHTSTATE/VESSEL/PART",
                craftNodeUrl = "PART")]
+// ReSharper disable once UnusedType.Global
 internal sealed class PatchFilesProcessor : UpgradeScript {
 
   /// <summary>Patches per part name.</summary>

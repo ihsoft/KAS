@@ -10,6 +10,7 @@ using KSPDev.ProcessingUtils;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that controls a physical cable joint on a KAS part.</summary>
@@ -19,6 +20,8 @@ namespace KAS {
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
 //  Next localization ID: #kasLOC_09002.
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
+// ReSharper disable once InconsistentNaming
 public class KASJointCableBase : AbstractJoint,
     // KSP interfaces.
     IJointLockState,

@@ -7,6 +7,8 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that offers a highly configurable setup of two PhysX joints.</summary>
@@ -19,12 +21,14 @@ namespace KAS {
 /// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
+// ReSharper disable once InconsistentNaming
 public class KASJointTwoEndsSphere : AbstractJoint,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.
     IKasJointEventsListener,
     // KSPDev syntax sugar interfaces.
+    // ReSharper disable once RedundantExtendsListEntry
     IsDestroyable, IKSPDevJointLockState {
 
   #region Part's config fields

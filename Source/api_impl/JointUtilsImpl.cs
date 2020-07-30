@@ -6,6 +6,8 @@ using KSPDev.LogUtils;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable UseStringInterpolation
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 class JointUtilsImpl : KASAPIv2.IJointUtils {

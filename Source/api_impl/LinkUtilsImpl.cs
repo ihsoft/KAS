@@ -6,6 +6,7 @@ using KASAPIv2;
 using KSPDev.LogUtils;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 class LinkUtilsImpl : ILinkUtils {

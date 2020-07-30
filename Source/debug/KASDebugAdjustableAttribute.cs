@@ -11,6 +11,7 @@ namespace KAS.Debug {
 /// Annotate fields, properties and methods with this attribute to have them revealed in the KAS
 /// part adjustment tool, a KAS built-in ability to tweak the parts in flight.
 /// </remarks>
+// ReSharper disable once InconsistentNaming
 public class KASDebugAdjustableAttribute : DebugAdjustableAttribute {
 
   /// <summary>Debug controls group fro the KAS modules.</summary>

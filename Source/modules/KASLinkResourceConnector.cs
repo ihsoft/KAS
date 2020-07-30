@@ -14,12 +14,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module which transfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
 // Next localization ID: #kasLOC_12017
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
+// ReSharper disable once InconsistentNaming
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // KAS interfaces.
     IHasGUI {
@@ -227,9 +229,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   public List<string> resourceOverride = new List<string>();
 
   /// <summary>Container for the fuel mixutre component.</summary>
+  // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixtureComponent {
     /// <summary>Name of the resource.</summary>
     [PersistentField("name")]
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    // ReSharper disable once ConvertToConstant.Global
     public string name = "";
 
     /// <summary>
@@ -237,13 +242,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     /// <c>1.0</c> to get the percentage.
     /// </summary>
     [PersistentField("ratio")]
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    // ReSharper disable once ConvertToConstant.Global
     public double ratio;
   }
 
   /// <summary>Container for the fuel mixture.</summary>
+  // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixture {
     /// <summary>The mixture components.</summary>
     [PersistentField("component", isCollection = true)]
+    // ReSharper disable once CollectionNeverUpdated.Global
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
   }
 

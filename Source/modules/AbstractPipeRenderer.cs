@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base class for the renderers that represent the links as a "pipe".</summary>
@@ -205,6 +206,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// It can be <c>null</c> if the target is not a part or the renderer is not started.
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
+  // ReSharper disable once MemberCanBePrivate.Global
   protected Part targetPart { get; private set; }
   #endregion
 

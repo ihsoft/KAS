@@ -3,6 +3,7 @@
 // This software is distributed under Public domain license.
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KSPDev.ModelUtils {
 
 /// <summary>Various tools to deal with game object hierarchy.</summary>

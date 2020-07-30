@@ -10,6 +10,8 @@ using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base class for the parts that dynamically create their model on the game load.</summary>
