@@ -219,8 +219,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       defaultTemplate = "Open winches GUI",
       description = "A context menu item that opens the remote control GUI to operate the winches"
       + " in the scene.")]
-  public virtual void OpenGUIEvent() {
-    ControllerWinchRemote.ToggleGUI(true);
+  public virtual void OpenGuiEvent() {
+    ControllerWinchRemote.ToggleGui(true);
   }
 
   /// <summary>A context menu item that starts/stops extending the cable.</summary>
@@ -339,12 +339,12 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     get { return _motorCurrentSpeed; }
     private set {
       if (Mathf.Abs(value) < float.Epsilon && Mathf.Abs(_motorCurrentSpeed) > float.Epsilon) {
-        sndMotorStop.Play();
-        sndMotor.Stop();
+        _sndMotorStop.Play();
+        _sndMotor.Stop();
       }
       if (Mathf.Abs(value) > float.Epsilon && Mathf.Abs(_motorCurrentSpeed) < float.Epsilon) {
-        sndMotorStart.Play();
-        sndMotor.Play();
+        _sndMotorStart.Play();
+        _sndMotor.Play();
       }
       _motorCurrentSpeed = value;
     }
@@ -364,15 +364,15 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region Local fields & properties
   /// <summary>Sound to play when the motor is active.</summary>
   /// <seealso cref="motorCurrentSpeed"/>
-  AudioSource sndMotor;
+  AudioSource _sndMotor;
 
   /// <summary>Sounds to play when the motor starts.</summary>
   /// <seealso cref="motorCurrentSpeed"/>
-  AudioSource sndMotorStart;
+  AudioSource _sndMotorStart;
 
   /// <summary>Sounds to play when the motor stops.</summary>
   /// <seealso cref="motorCurrentSpeed"/>
-  AudioSource sndMotorStop;
+  AudioSource _sndMotorStop;
   #endregion
 
   #region KASLikSourcePhysical overrides
@@ -392,19 +392,20 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <inheritdoc/>
   protected override void InitModuleSettings() {
     base.InitModuleSettings();
-    Destroy(sndMotor);
-    sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
-    Destroy(sndMotorStart);
-    sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
-    Destroy(sndMotorStop);
-    sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
+    Destroy(_sndMotor);
+    _sndMotor = SpatialSounds.Create3dSound(part.gameObject, sndPathMotor, loop: true);
+    Destroy(_sndMotorStart);
+    _sndMotorStart = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStart);
+    Destroy(_sndMotorStop);
+    _sndMotorStop = SpatialSounds.Create3dSound(part.gameObject, sndPathMotorStop);
 
     var moduleResource = resHandler.inputResources
         .FirstOrDefault(x => x.name == StockResourceNames.ElectricCharge);
     if (moduleResource == null) {
-      moduleResource = new ModuleResource();
-      moduleResource.name = StockResourceNames.ElectricCharge;
-      moduleResource.id = StockResourceNames.ElectricCharge.GetHashCode();
+      moduleResource = new ModuleResource {
+          name = StockResourceNames.ElectricCharge,
+          id = StockResourceNames.ElectricCharge.GetHashCode()
+      };
       resHandler.inputResources.Add(moduleResource);
     }
     moduleResource.title = KSPUtil.PrintModuleName(StockResourceNames.ElectricCharge);
@@ -440,8 +441,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void UpdateContextMenu() {
     base.UpdateContextMenu();
-    deployedCableLengthMenuInfo = DistanceType.Format(
-        cableJoint != null ? cableJoint.deployedCableLength : 0);
+    deployedCableLengthMenuInfo = DistanceType.Format(cableJoint?.deployedCableLength ?? 0);
 
     PartModuleUtils.SetupEvent(this, ToggleExtendCableEvent, e => {
       e.active = linkState != LinkState.NodeIsBlocked;

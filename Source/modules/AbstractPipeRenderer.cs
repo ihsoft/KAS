@@ -184,9 +184,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// The name is guaranteed to be unique in the part's hierarchy, so it can always be looked up
   /// once the object is created.
   /// </remarks>
-  protected string ModelBasename {
-    get { return "$rendererRoot-" + rendererName; }
-  }
+  protected string modelBasename => "$rendererRoot-" + rendererName;
 
   /// <summary>Material to use for the pipe elements.</summary>
   /// <remarks>It doesn't consider shader or color overrides.</remarks>
@@ -215,12 +213,12 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <remarks>
   /// The only thing it does is calling <see cref="UpdateLink"/> on every frame update.
   /// </remarks>
-  Coroutine linkUpdateCoroutine;
+  Coroutine _linkUpdateCoroutine;
   #endregion
 
   #region IHasDebugAdjustables overrides
-  Transform dbgOldSource;
-  Transform dbgOldTarget;
+  Transform _dbgOldSource;
+  Transform _dbgOldTarget;
 
   /// <summary>Logs all the part's model objects.</summary>
   [Debug.KASDebugAdjustable("Dump part's model hierarchy")]
@@ -236,8 +234,8 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
     base.OnBeforeDebugAdjustablesUpdate();
-    dbgOldSource = sourceTransform;
-    dbgOldTarget = targetTransform;
+    _dbgOldSource = sourceTransform;
+    _dbgOldTarget = targetTransform;
     StopRenderer();
   }
 
@@ -245,10 +243,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   public override void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
     base.OnDebugAdjustablesUpdated();
-    if (dbgOldSource != null && dbgOldTarget != null) {
+    if (_dbgOldSource != null && _dbgOldTarget != null) {
       HostedDebugLog.Warning(
-          this, "Restart renderer: src={0}, tgt={1}", dbgOldSource, dbgOldTarget);
-      StartRenderer(dbgOldSource, dbgOldTarget);
+          this, "Restart renderer: src={0}, tgt={1}", _dbgOldSource, _dbgOldTarget);
+      StartRenderer(_dbgOldSource, _dbgOldTarget);
     }
   }
   #endregion
@@ -288,16 +286,16 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     RegisterGameEventListener(GameEvents.onPartDeCouple, OnPartDeCoupleEvent);
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
 
-    linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
+    _linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
     // Stop meshes updates.
-    if (linkUpdateCoroutine != null) {
+    if (_linkUpdateCoroutine != null) {
       HostedDebugLog.Fine(this, "Stopping renderer updates...");
-      StopCoroutine(linkUpdateCoroutine);
-      linkUpdateCoroutine = null;
+      StopCoroutine(_linkUpdateCoroutine);
+      _linkUpdateCoroutine = null;
     }
 
     // Sync the renderers settings to the source part to handle the highlights.
@@ -338,7 +336,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
     // HACK: Start the renderer before getting the pipes. 
     var oldStartState = isStarted;
-    var oldPhyscalState = isPhysicalCollider;
+    var oldPhysicalState = isPhysicalCollider;
     if (!isStarted) {
       isPhysicalCollider = false;
       StartRenderer(source, target);
@@ -348,7 +346,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     var points = GetPipePath(source, target);
     if (!oldStartState) {
       StopRenderer();
-      isPhysicalCollider = oldPhyscalState;
+      isPhysicalCollider = oldPhysicalState;
     }
 
     var hitParts = new HashSet<Part>();
@@ -452,8 +450,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
                            Transform target, HashSet<Part> hits) {
     var tgtPart = target.root.GetComponent<Part>();
     var otherVessel = tgtPart != null ? tgtPart.vessel : null;
-    Collider[] colliders;
-    colliders = Physics.OverlapCapsule(
+    var colliders = Physics.OverlapCapsule(
         startPos, endPos, diameter / 2.0f,
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
@@ -475,7 +472,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// Intermediate field to save the vessel between starting and ending of the part decoupling
   /// event.
   /// </summary>
-  Vessel formerTargetVessel;
+  Vessel _formerTargetVessel;
 
   /// <summary>Reacts on a part coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
@@ -507,7 +504,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   void OnPartDeCoupleEvent(Part originator) {
     if (targetPart != null && targetPart.vessel != vessel
         && originator.vessel == targetPart.vessel) {
-      formerTargetVessel = originator.vessel;
+      _formerTargetVessel = originator.vessel;
     }
   }
 
@@ -518,19 +515,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleCompleteEvent(Part originator) {
-    if (formerTargetVessel != null && originator.vessel != formerTargetVessel) {
-      // It's either the traget part has decoupled from its vessel, or the owner vessel has
+    if (_formerTargetVessel != null && originator.vessel != _formerTargetVessel) {
+      // It's either the target part has decoupled from its vessel, or the owner vessel has
       // abandoned the target part.
-      var leavingVessel = originator == targetPart ? formerTargetVessel : originator.vessel;
+      var leavingVessel = originator == targetPart ? _formerTargetVessel : originator.vessel;
       HostedDebugLog.Fine(this, "Restore collision ignores on: {0}", leavingVessel);
       leavingVessel.parts
           .ForEach(p => SetCollisionIgnores(p, false));
     }
-    formerTargetVessel = null;
+    _formerTargetVessel = null;
   }
 
   /// <summary>Calls renderer updates as long as the renderer is started.</summary>
-  /// <seealso cref="linkUpdateCoroutine"/>
+  /// <seealso cref="_linkUpdateCoroutine"/>
   /// <seealso cref="StartRenderer"/>
   IEnumerator UpdateLinkCoroutine() {
     HostedDebugLog.Fine(this, "Staring renderer updates...");

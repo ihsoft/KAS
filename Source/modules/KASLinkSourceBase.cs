@@ -122,7 +122,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     /// target parts must be enabled for coupling in order to be able to dock. IF any of the peers
     /// doesn't allow it, there will be no context menu option.
     /// </remarks>
-    SetViaGUI,
+    SetViaGui,
 
     /// <summary>The link is always established in docked mode.</summary>
     /// <remarks>
@@ -255,7 +255,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
+  public override void OnStart(StartState state) {
     base.OnStart(state);
     InitStartState();
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
@@ -427,8 +427,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkTarget dbgOldTarget;
-  float dbgOldCableLength;
+  ILinkTarget _dbgOldTarget;
+  float _dbgOldCableLength;
 
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
@@ -436,12 +436,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (linkState != LinkState.Linked && linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
-    dbgOldTarget = linkTarget;
-    dbgOldCableLength = -1;
+    _dbgOldTarget = linkTarget;
+    _dbgOldCableLength = -1;
     if (isLinked) {
       var cableJoint = linkJoint as ILinkCableJoint;
       if (cableJoint != null) {
-        dbgOldCableLength = cableJoint.deployedCableLength;
+        _dbgOldCableLength = cableJoint.deployedCableLength;
       }
       BreakCurrentLink(LinkActorType.Player);
     }
@@ -457,13 +457,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           InitModuleSettings();
           InitStartState();
           UpdateContextMenu();
-          if (dbgOldTarget != null) {
-            HostedDebugLog.Warning(this, "Relinking to target: {0}", dbgOldTarget);
-            LinkToTarget(LinkActorType.Player, dbgOldTarget);
+          if (_dbgOldTarget != null) {
+            HostedDebugLog.Warning(this, "Relinking to target: {0}", _dbgOldTarget);
+            LinkToTarget(LinkActorType.Player, _dbgOldTarget);
             var cableJoint = linkJoint as ILinkCableJoint;
             if (cableJoint != null) {
-              HostedDebugLog.Warning(this, "Restoring cable length: {0}", dbgOldCableLength);
-              cableJoint.SetCableLength(dbgOldCableLength);
+              HostedDebugLog.Warning(this, "Restoring cable length: {0}", _dbgOldCableLength);
+              cableJoint.SetCableLength(_dbgOldCableLength);
             }
           }
         },
@@ -544,7 +544,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
-    if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
+    if (!CheckCanLinkTo(target, reportToGui: linkActor == LinkActorType.Player)) {
       return false;
     }
     if (coupleMode == CoupleMode.AlwaysCoupled
@@ -582,19 +582,19 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public virtual bool CheckCanLinkTo(ILinkTarget target,
                                      bool checkStates = true,
-                                     bool reportToGUI = false, bool reportToLog = true) {
+                                     bool reportToGui = false, bool reportToLog = true) {
     var errors = new List<string>()
         .Concat(CheckBasicLinkConditions(target, checkStates))
         .Concat(linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform))
         .Concat(linkJoint.CheckConstraints(this, target))
         .ToArray();
     if (errors.Length > 0) {
-      if (reportToGUI || reportToLog) {
+      if (reportToGui || reportToLog) {
         HostedDebugLog.Warning(
             this, "Cannot link a part of type={0} with: part={1}, type={2}, errors={3}",
             cfgLinkType, target.part, target.cfgLinkType, DbgFormatter.C2S(errors));
       }
-      if (reportToGUI) {
+      if (reportToGui) {
         ShowStatusMessage(DbgFormatter.C2S(errors, separator: "\n"), isError: true);
       }
     }
@@ -608,7 +608,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
       if (linkJoint != null) {
         e.guiName = linkJoint.coupleOnLinkMode ? DockedModeMenuTxt : UndockedModeMenuTxt;
-        if (coupleMode == CoupleMode.SetViaGUI) {
+        if (coupleMode == CoupleMode.SetViaGui) {
           e.active = coupleNode != null && (linkTarget == null || linkTarget.coupleNode != null);
         } else if (isLinked) {
           // Just in case show GUI if the link is established, and its couple mode contradicts the

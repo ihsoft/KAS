@@ -189,7 +189,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   // FIXME: check colliders.
   #region Context menu events/actions
   /// <summary>Event handler. Extends unlinked strut at maximum length.</summary>
-  /// <seealso cref="maxLinkLength"/>
+  /// <seealso cref="_maxLinkLength"/>
   [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
   [LocalizableItem(
       tag = "#kasLOC_04002",
@@ -197,12 +197,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       description = "A context menu item that expands a non-linked telescopic pipe to its maximum"
       + " length.")]
   public void ExtendAtMaxMenuAction() {
-    persistedParkedLength = maxLinkLength;
+    persistedParkedLength = _maxLinkLength;
     UpdateLinkLengthAndOrientation();
   }
 
   /// <summary>Event handler. Retracts unlinked strut to the minimum length.</summary>
-  /// <seealso cref="minLinkLength"/>
+  /// <seealso cref="_minLinkLength"/>
   [KSPEvent(guiActiveUnfocused = true, guiActiveEditor = true, active = false)]
   [LocalizableItem(
       tag = "#kasLOC_04003",
@@ -210,7 +210,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       description = "A context menu item that shrinks a non-linked telescopic pipe to its minimum"
       + " length.")]
   public void RetractToMinMenuAction() {
-    persistedParkedLength = minLinkLength;
+    persistedParkedLength = _minLinkLength;
     UpdateLinkLengthAndOrientation();
   }
   #endregion
@@ -224,7 +224,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     get { return _colorOverride; }
     set {
       _colorOverride = value;
-      Meshes.UpdateMaterials(srcPartJoint.gameObject, newColor: _colorOverride ?? materialColor);
+      Meshes.UpdateMaterials(_srcPartJoint.gameObject, newColor: _colorOverride ?? materialColor);
     }
   }
   Color? _colorOverride;
@@ -238,7 +238,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       // Only update shader on the source joint object since all other objects (pistons and target
       // joint) are children and will be updated hierarchically.
       Meshes.UpdateMaterials(
-          srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
+          _srcPartJoint.gameObject, newShaderName: _shaderNameOverride ?? shaderName);
     }
   }
   string _shaderNameOverride;
@@ -248,15 +248,13 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     get { return _isPhysicalCollider; }
     set {
       _isPhysicalCollider = value;
-      Colliders.UpdateColliders(srcPartJoint.gameObject, isEnabled: value);
+      Colliders.UpdateColliders(_srcPartJoint.gameObject, isEnabled: value);
     }
   }
   bool _isPhysicalCollider;
 
   /// <inheritdoc/>
-  public bool isStarted {
-    get { return sourceTransform != null && targetTransform != null; }
-  }
+  public bool isStarted => sourceTransform != null && targetTransform != null;
 
   /// <inheritdoc/>
   public Transform sourceTransform {
@@ -314,62 +312,62 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region Model transforms & properties
   /// <summary>Model that represents a joint at the source part.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  Transform srcPartJoint;
+  Transform _srcPartJoint;
 
   /// <summary>Pivot axis object on the source joint.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  Transform srcPartJointPivot;
+  Transform _srcPartJointPivot;
 
   /// <summary>Model at the pipe's start that connects to the source joint pivot.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
   /// <remarks>It's orientation is reversed. I.e .it "looks" at the source joint pivot.</remarks>
-  Transform srcStrutJoint;
+  Transform _srcStrutJoint;
 
   /// <summary>Model at the pipe's end that connects to the target joint pivot.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  Transform tgtStrutJoint;
+  Transform _tgtStrutJoint;
 
   /// <summary>Pivot axis object at the pipe's end.</summary>
   /// <value>An object in the part's model. It's never <c>null</c>.</value>
-  Transform tgtStrutJointPivot;
+  Transform _tgtStrutJointPivot;
 
   /// <summary>Pistons that form the strut pipe.</summary>
   /// <value>A list of meshes.</value>
-  GameObject[] pistons;
+  GameObject[] _pistons;
 
   /// <summary>
   /// Distance of the source part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  float srcJointHandleLength;
+  float _srcJointHandleLength;
 
   /// <summary>
   /// Distance of the target part joint pivot from it's base. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  float tgtJointHandleLength;
+  float _tgtJointHandleLength;
 
   /// <summary>
   /// The minimum length to which the telescopic pipe can shrink. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  float minLinkLength;
+  float _minLinkLength;
 
   /// <summary>
   /// The maximum length to which the telescopic pipe can expand. It's calculated from the model.
   /// </summary>
   /// <value>The distance in meters.</value>
-  float maxLinkLength;
+  float _maxLinkLength;
 
   /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
   /// <value>The diameter in metters.</value>
   /// <remarks>It's primarily used to cast a collider.</remarks>
   /// <seealso cref="CheckColliderHits"/>
-  float outerPistonDiameter;
+  float _outerPistonDiameter;
 
   /// <summary>Length of a single piston. It's calculated from the model.</summary>
   /// <value>The distance in meters.</value>
-  float pistonLength;
+  float _pistonLength;
 
   /// <summary>Prefab for the piston models.</summary>
   /// <value>A model reference from the part's model. It's not a copy!</value>
@@ -419,7 +417,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   #region Local fields & properties
   /// <summary>Instances of the events, that were created for orientation menu items.</summary>
-  readonly List<BaseEvent> injectedOrientationEvents = new List<BaseEvent>();
+  readonly List<BaseEvent> _injectedOrientationEvents = new List<BaseEvent>();
   #endregion
 
   #region IHasDebugAdjustables implementation
@@ -429,9 +427,9 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     HostedDebugLog.Warning(this,
         "Procedural model: minLinkLength={0}, maxLinkLength={1}, attachNodePosition.Y={2},"
         + " pistonLength={3}, outerPistonDiameter={4}",
-        minLinkLength, maxLinkLength,
-        Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName).position.y,
-        pistonLength, outerPistonDiameter);
+        _minLinkLength, _maxLinkLength,
+        Hierarchy.FindTransformInChildren(_srcStrutJoint, PivotAxleTransformName).position.y,
+        _pistonLength, _outerPistonDiameter);
   }
 
   /// <inheritdoc/>
@@ -455,7 +453,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
+  public override void OnStart(StartState state) {
     base.OnStart(state);
 
     InjectOrientationMenuItems();
@@ -476,24 +474,24 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     CreatePipeMeshes(recreate: false);
 
     // Source pivot.
-    srcPartJoint = Hierarchy.FindTransformByPath(
+    _srcPartJoint = Hierarchy.FindTransformByPath(
         partModelTransform, AttachNodeObjName + "/" + SrcPartJointObjName);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
+    _srcPartJointPivot = Hierarchy.FindTransformInChildren(_srcPartJoint, PivotAxleTransformName);
 
     // Source strut joint.
-    srcStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, SrcStrutJointObjName);
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
-    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
+    _srcStrutJoint = Hierarchy.FindTransformInChildren(_srcPartJointPivot, SrcStrutJointObjName);
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(_srcStrutJoint, PivotAxleTransformName);
+    _srcJointHandleLength = Vector3.Distance(_srcStrutJoint.position, srcStrutPivot.position);
 
     // Target strut joint.
-    tgtStrutJoint = Hierarchy.FindTransformInChildren(srcPartJointPivot, TgtStrutJointObjName);
-    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
-    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
+    _tgtStrutJoint = Hierarchy.FindTransformInChildren(_srcPartJointPivot, TgtStrutJointObjName);
+    _tgtStrutJointPivot = Hierarchy.FindTransformInChildren(_tgtStrutJoint, PivotAxleTransformName);
+    _tgtJointHandleLength = Vector3.Distance(_tgtStrutJoint.position, _tgtStrutJointPivot.position);
 
     // Pistons.
-    pistons = new GameObject[pistonsCount];
+    _pistons = new GameObject[pistonsCount];
     for (var i = 0; i < pistonsCount; ++i) {
-      pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
+      _pistons[i] = Hierarchy.FindTransformInChildren(partModelTransform, "piston" + i).gameObject;
     }
 
     UpdateValuesFromModel();
@@ -503,8 +501,8 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void LocalizeModule() {
     base.LocalizeModule();
-    for (var i = 0; i < parkedOrientations.Count && i < injectedOrientationEvents.Count; i++) {
-      injectedOrientationEvents[i].guiName = parkedOrientations[i].title;
+    for (var i = 0; i < parkedOrientations.Count && i < _injectedOrientationEvents.Count; i++) {
+      _injectedOrientationEvents[i].guiName = parkedOrientations[i].title;
     }
   }
   #endregion
@@ -535,7 +533,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     var sourcePos = GetLinkVectorSourcePos(source);
     var linkVector = GetLinkVectorTargetPos(target) - sourcePos;
     var hits = Physics.SphereCastAll(
-        sourcePos, outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
+        sourcePos, _outerPistonDiameter / 2, linkVector, GetClampedLinkLength(linkVector),
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
     foreach (var hit in hits) {
@@ -559,7 +557,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #region IHasContextMenu implemenation
   /// <inheritdoc/>
   public void UpdateContextMenu() {
-    injectedOrientationEvents.ForEach(e => e.active = !isLinked);
+    _injectedOrientationEvents.ForEach(e => e.active = !isLinked);
     PartModuleUtils.SetupEvent(this, ExtendAtMaxMenuAction, x => x.active = !isLinked);
     PartModuleUtils.SetupEvent(this, RetractToMinMenuAction, x => x.active = !isLinked);
   }
@@ -569,13 +567,13 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Adjusts link models to the changed target position.</summary>
   void UpdateLinkLengthAndOrientation() {
     if (!isStarted) {
-      // Simply align everyting along Z axis, and rotate source pivot according to the settings.
-      srcPartJoint.localRotation = Quaternion.identity;
-      srcPartJointPivot.localRotation = Quaternion.LookRotation(persistedParkedOrientation);
-      tgtStrutJoint.localPosition =
-          GetUnscaledStrutVector(new Vector3(0, 0, persistedParkedLength - tgtJointHandleLength));
-      tgtStrutJoint.localRotation = Quaternion.identity;
-      tgtStrutJointPivot.localRotation = Quaternion.identity;
+      // Simply align everything along Z axis, and rotate source pivot according to the settings.
+      _srcPartJoint.localRotation = Quaternion.identity;
+      _srcPartJointPivot.localRotation = Quaternion.LookRotation(persistedParkedOrientation);
+      _tgtStrutJoint.localPosition =
+          GetUnscaledStrutVector(new Vector3(0, 0, persistedParkedLength - _tgtJointHandleLength));
+      _tgtStrutJoint.localRotation = Quaternion.identity;
+      _tgtStrutJointPivot.localRotation = Quaternion.identity;
     } else {
       var linkVector =
           GetLinkVectorTargetPos(targetTransform) - GetLinkVectorSourcePos(sourceTransform);
@@ -585,35 +583,35 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
       // connected with a common pivot axle which is parallel to their X axis.
       // 1. Rotate srcPartJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the link vector.
-      srcPartJoint.rotation = Quaternion.LookRotation(srcPartJoint.forward, -linkVector);
+      _srcPartJoint.rotation = Quaternion.LookRotation(_srcPartJoint.forward, -linkVector);
       // 2. Rotate srcPivot around X axis (pivot axle) so what its forward vector points to the
       //    target part attach node.
-      srcPartJointPivot.localRotation =
-          Quaternion.Euler(Vector3.Angle(linkVector, srcPartJoint.forward), 0, 0);
+      _srcPartJointPivot.localRotation =
+          Quaternion.Euler(Vector3.Angle(linkVector, _srcPartJoint.forward), 0, 0);
       // 3. Shift tgtStrutJoint along Z axis so what it touches the vector end position with the
       //    tgtPivot pivot axle.
-      tgtStrutJoint.localPosition = GetUnscaledStrutVector(
-          new Vector3(0, 0, GetClampedLinkLength(linkVector) - tgtJointHandleLength));
+      _tgtStrutJoint.localPosition = GetUnscaledStrutVector(
+          new Vector3(0, 0, GetClampedLinkLength(linkVector) - _tgtJointHandleLength));
       // 4. Rotate tgtStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
-      tgtStrutJoint.rotation =
-          Quaternion.LookRotation(tgtStrutJoint.forward, targetTransform.forward);
+      _tgtStrutJoint.rotation =
+          Quaternion.LookRotation(_tgtStrutJoint.forward, targetTransform.forward);
       // 5. Rotate tgtPivot around X axis (pivot axle) so that its forward vector points along
       //    target attach node direction.
-      tgtStrutJointPivot.localRotation =
-          Quaternion.Euler(Vector3.Angle(tgtStrutJoint.forward, -targetTransform.forward), 0, 0);
+      _tgtStrutJointPivot.localRotation =
+          Quaternion.Euler(Vector3.Angle(_tgtStrutJoint.forward, -targetTransform.forward), 0, 0);
     }
 
-    // Distribute pistons between the first and the last while keepin the direction.
-    if (pistons.Length > 2) {
-      var offset = pistons[0].transform.localPosition.z;
-      var scalablePistons = pistons.Length - 1;
+    // Distribute pistons between the first and the last while keeping the direction.
+    if (_pistons.Length > 2) {
+      var offset = _pistons[0].transform.localPosition.z;
+      var scalablePistons = _pistons.Length - 1;
       var step = GetUnscaledStrutVector(
-          pistons.Last().transform.position - pistons[0].transform.position).magnitude
+          _pistons.Last().transform.position - _pistons[0].transform.position).magnitude
           / scalablePistons;
       for (var i = 1; i < scalablePistons; ++i) {
-        offset -= step;  // Pistons are distributed to -Z direction of the pviot.
-        pistons[i].transform.localPosition = new Vector3(0, 0, offset);
+        offset -= step;  // Pistons are distributed to -Z direction of the pivot.
+        _pistons[i].transform.localPosition = new Vector3(0, 0, offset);
       }
     }
   }
@@ -623,34 +621,35 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   void InjectOrientationMenuItems() {
     foreach (var orientation in parkedOrientations) {
       var eventInject = new BaseEvent(
-          Events,
-          "autoEventOrientation" + part.Modules.IndexOf(this),
-          () => {
-            persistedParkedOrientation = orientation.direction;
-            UpdateLinkLengthAndOrientation();
-          },
-          new KSPEvent());
-      eventInject.guiName = orientation.title;
-      eventInject.guiActive = false;
-      eventInject.guiActiveEditor = true;
-      eventInject.guiActiveUnfocused = true;
+            Events,
+            "autoEventOrientation" + part.Modules.IndexOf(this),
+            () => {
+              persistedParkedOrientation = orientation.direction;
+              UpdateLinkLengthAndOrientation();
+            },
+            new KSPEvent()) {
+          guiName = orientation.title,
+          guiActive = false,
+          guiActiveEditor = true,
+          guiActiveUnfocused = true
+      };
       PartModuleUtils.AddEvent(this, eventInject);
-      injectedOrientationEvents.Add(eventInject);
+      _injectedOrientationEvents.Add(eventInject);
     }
   }
 
   /// <summary>Returns link length. Adjusts it to min/max length.</summary>
   /// <param name="linkVector">Link vector.</param>
   /// <returns>Clamped link length</returns>
-  /// <seealso cref="minLinkLength"/>
-  /// <seealso cref="maxLinkLength"/>
+  /// <seealso cref="_minLinkLength"/>
+  /// <seealso cref="_maxLinkLength"/>
   float GetClampedLinkLength(Vector3 linkVector) {
     var linkLength = linkVector.magnitude;
-    if (linkLength < minLinkLength) {
-      return minLinkLength;
+    if (linkLength < _minLinkLength) {
+      return _minLinkLength;
     }
-    if (linkLength > maxLinkLength) {
-      return maxLinkLength;
+    if (linkLength > _maxLinkLength) {
+      return _maxLinkLength;
     }
     return linkLength;
   }
@@ -680,16 +679,16 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   void UpdateValuesFromModel() {
     var pistonSize = GetScaledStrutVector(
         Vector3.Scale(pistonPrefab.GetComponent<Renderer>().bounds.size, pistonModelScale));
-    pistonLength = pistonSize.y;
-    outerPistonDiameter = Mathf.Max(pistonSize.x, pistonSize.z);
-    minLinkLength =
-        srcJointHandleLength
-        + pistonLength + (pistonsCount - 1) * pistonMinShift * strutScale
-        + tgtJointHandleLength;
-    maxLinkLength =
-        srcJointHandleLength      
-        + pistonsCount * (pistonLength - pistonMinShift * strutScale)
-        + tgtJointHandleLength;
+    _pistonLength = pistonSize.y;
+    _outerPistonDiameter = Mathf.Max(pistonSize.x, pistonSize.z);
+    _minLinkLength =
+        _srcJointHandleLength
+        + _pistonLength + (pistonsCount - 1) * pistonMinShift * strutScale
+        + _tgtJointHandleLength;
+    _maxLinkLength =
+        _srcJointHandleLength
+        + pistonsCount * (_pistonLength - pistonMinShift * strutScale)
+        + _tgtJointHandleLength;
   }
 
   /// <summary>
@@ -720,8 +719,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     jointModel.name = JointModelName;
 
     var jointModelPivot = jointPrefab.transform.Find(PivotAxleTransformName);
-    jointModelPivot = Instantiate(jointModelPivot);
-    jointModelPivot.parent = jointModel.transform;
+    jointModelPivot = Instantiate(jointModelPivot, jointModel.transform, true);
     jointModelPivot.name = PivotAxleTransformName;
 
     return jointModel;
@@ -733,31 +731,31 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     var srcJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(sourceJointModel));
 
     // Source part joint model.
-    srcPartJoint = CloneModel(srcJointModel, SrcPartJointObjName).transform;
-    Hierarchy.MoveToParent(srcPartJoint, plugNodeTransform);
-    srcPartJointPivot = Hierarchy.FindTransformInChildren(srcPartJoint, PivotAxleTransformName);
+    _srcPartJoint = CloneModel(srcJointModel, SrcPartJointObjName).transform;
+    Hierarchy.MoveToParent(_srcPartJoint, plugNodeTransform);
+    _srcPartJointPivot = Hierarchy.FindTransformInChildren(_srcPartJoint, PivotAxleTransformName);
 
     // Source strut joint model.
-    srcStrutJoint = CloneModel(srcJointModel, SrcStrutJointObjName).transform;
-    var srcStrutPivot = Hierarchy.FindTransformInChildren(srcStrutJoint, PivotAxleTransformName);
-    srcJointHandleLength = Vector3.Distance(srcStrutJoint.position, srcStrutPivot.position);
-    Hierarchy.MoveToParent(srcStrutJoint, srcPartJointPivot,
-                           newPosition: new Vector3(0, 0, srcJointHandleLength),
+    _srcStrutJoint = CloneModel(srcJointModel, SrcStrutJointObjName).transform;
+    var srcStrutPivot = Hierarchy.FindTransformInChildren(_srcStrutJoint, PivotAxleTransformName);
+    _srcJointHandleLength = Vector3.Distance(_srcStrutJoint.position, srcStrutPivot.position);
+    Hierarchy.MoveToParent(_srcStrutJoint, _srcPartJointPivot,
+                           newPosition: new Vector3(0, 0, _srcJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     var tgtJointModel = MakeJointModel(GameDatabase.Instance.GetModelPrefab(targetJointModel));
 
     // Target strut joint model.
-    tgtStrutJoint = CloneModel(tgtJointModel, TgtStrutJointObjName).transform;
-    tgtStrutJointPivot = Hierarchy.FindTransformInChildren(tgtStrutJoint, PivotAxleTransformName);
-    tgtJointHandleLength = Vector3.Distance(tgtStrutJoint.position, tgtStrutJointPivot.position);
-    Hierarchy.MoveToParent(tgtStrutJoint, srcPartJointPivot);
+    _tgtStrutJoint = CloneModel(tgtJointModel, TgtStrutJointObjName).transform;
+    _tgtStrutJointPivot = Hierarchy.FindTransformInChildren(_tgtStrutJoint, PivotAxleTransformName);
+    _tgtJointHandleLength = Vector3.Distance(_tgtStrutJoint.position, _tgtStrutJointPivot.position);
+    Hierarchy.MoveToParent(_tgtStrutJoint, _srcPartJointPivot);
 
     // Target part joint model.
     var tgtPartJoint = CloneModel(tgtJointModel, TgtPartJointObjName).transform;
-    var tgtPartJointPivot = Hierarchy.FindTransformInChildren(tgtPartJoint, PivotAxleTransformName);
-    Hierarchy.MoveToParent(tgtPartJoint, tgtStrutJointPivot,
-                           newPosition: new Vector3(0, 0, tgtJointHandleLength),
+    Hierarchy.FindTransformInChildren(tgtPartJoint, PivotAxleTransformName);
+    Hierarchy.MoveToParent(tgtPartJoint, _tgtStrutJointPivot,
+                           newPosition: new Vector3(0, 0, _tgtJointHandleLength),
                            newRotation: Quaternion.LookRotation(Vector3.back));
 
     // Joint template models are not needed anymore.
@@ -768,12 +766,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <summary>Creates piston models from a prefab in a separate model file.</summary>
   void CreatePistonModels() {
     UpdateValuesFromModel();
-    pistons = new GameObject[pistonsCount];
+    _pistons = new GameObject[pistonsCount];
     var pistonDiameterScale = 1f;
     var random = new System.Random(0xbeef);  // Just some seed value to make values consistent.
     var randomRotation = Quaternion.identity;
     for (var i = 0; i < pistonsCount; ++i) {
-      var piston = UnityEngine.Object.Instantiate(pistonPrefab, srcStrutJoint) as GameObject;
+      var piston = Instantiate(pistonPrefab, _srcStrutJoint);
       piston.name = "piston" + i;
       if (pistonModelRandomRotation) {
         // Add a bit of randomness to the pipe model textures. Keep rotation diff above 30 degrees.
@@ -788,15 +786,15 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
           pistonModelScale.z * pistonDiameterScale,  // Model's Z is game's Y.
           pistonModelScale.y);
       pistonDiameterScale -= pistonDiameterScaleDelta;
-      pistons[i] = piston;
+      _pistons[i] = piston;
     }
     // First piston rigidly attached at the bottom of the source joint model.
-    pistons[0].transform.localPosition =
-        GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2));
+    _pistons[0].transform.localPosition =
+        GetUnscaledStrutVector(new Vector3(0, 0, -_pistonLength / 2));
     // Last piston rigidly attached at the bottom of the target joint model.
-    randomRotation = Quaternion.Euler(0, 0, pistons.Last().transform.localRotation.eulerAngles.z);
-    Hierarchy.MoveToParent(pistons.Last().transform, tgtStrutJoint,
-                           newPosition: GetUnscaledStrutVector(new Vector3(0, 0, -pistonLength / 2)),
+    randomRotation = Quaternion.Euler(0, 0, _pistons.Last().transform.localRotation.eulerAngles.z);
+    Hierarchy.MoveToParent(_pistons.Last().transform, _tgtStrutJoint,
+                           newPosition: GetUnscaledStrutVector(new Vector3(0, 0, -_pistonLength / 2)),
                            newRotation: randomRotation * Quaternion.LookRotation(Vector3.forward));
   }
 
@@ -806,7 +804,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   Vector3 GetLinkVectorSourcePos(Transform refTransform) {
     // Don't use the stock translation methods since the handle length is already scaled. We don't
     // want the scale to be counted twice.
-    return refTransform.position + refTransform.rotation * new Vector3(0, 0, srcJointHandleLength);
+    return refTransform.position + refTransform.rotation * new Vector3(0, 0, _srcJointHandleLength);
   }
 
   /// <summary>Returns the world position of the target link "pivot".</summary>
@@ -815,7 +813,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   Vector3 GetLinkVectorTargetPos(Transform refTransform) {
     // Don't use the stock translation methods since the handle length is already scaled. We don't
     // want the scale to be counted twice.
-    return refTransform.position + refTransform.rotation * new Vector3(0, 0, tgtJointHandleLength);
+    return refTransform.position + refTransform.rotation * new Vector3(0, 0, _tgtJointHandleLength);
   }
 
   /// <summary>Creates the telescopic pipe meshes.</summary>
@@ -842,10 +840,10 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
     if (parkedOrientations.Count > 0 && !isLinked) {
       persistedParkedOrientation = parkedOrientations[0].direction;
     }
-    if (persistedParkedLength < minLinkLength) {
-      persistedParkedLength = minLinkLength;
-    } else if (persistedParkedLength > maxLinkLength) {
-      persistedParkedLength = maxLinkLength;
+    if (persistedParkedLength < _minLinkLength) {
+      persistedParkedLength = _minLinkLength;
+    } else if (persistedParkedLength > _maxLinkLength) {
+      persistedParkedLength = _maxLinkLength;
     }
 
     UpdateLinkLengthAndOrientation();

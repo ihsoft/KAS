@@ -366,14 +366,14 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkSource dbgLinkSource;
-  ILinkTarget dbgLinkTarget;
+  ILinkSource _dbgLinkSource;
+  ILinkTarget _dbgLinkTarget;
   
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
     base.OnBeforeDebugAdjustablesUpdate();
-    dbgLinkSource = linkSource;
-    dbgLinkTarget = linkTarget;
+    _dbgLinkSource = linkSource;
+    _dbgLinkTarget = linkTarget;
   }
   
   /// <inheritdoc/>
@@ -386,7 +386,7 @@ public abstract class AbstractJoint : AbstractPartModule,
         HostedDebugLog.Warning(
             this, "New settings fit the current link. Refreshing the joint...");
         DropJoint();
-        CreateJoint(dbgLinkSource, dbgLinkTarget);
+        CreateJoint(_dbgLinkSource, _dbgLinkTarget);
       } else {
         // STOP! The joint, once broken, won't re-establish with the new settings.
         HostedDebugLog.Warning(this, "New settings DON'T fit the current link:\n{0}"
@@ -920,10 +920,11 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
   /// <param name="v">The vessel to capture the info for.</param>
   static DockedVesselInfo GetVesselInfo(Vessel v) {
-    var vesselInfo = new DockedVesselInfo();
-    vesselInfo.name = v.vesselName;
-    vesselInfo.vesselType = v.vesselType;
-    vesselInfo.rootPartUId = v.rootPart.flightID;
+    var vesselInfo = new DockedVesselInfo {
+        name = v.vesselName,
+        vesselType = v.vesselType,
+        rootPartUId = v.rootPart.flightID
+    };
     return vesselInfo;
   }
 
@@ -964,13 +965,18 @@ public abstract class AbstractJoint : AbstractPartModule,
   void DelegateCouplingRole(Part tgtPart) {
     AsyncCall.CallOnEndOfFrame(this, () => {
       var candidates = new List<ILinkJoint>()
-          .Concat(vessel.parts
-              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-              .Where(j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
+          .Concat(
+              vessel.parts
+                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                  .Where(
+                      j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
                           && j.linkTarget.part.vessel == tgtPart.vessel))
-          .Concat(tgtPart.vessel.parts
-              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-              .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel));
+          .Concat(
+              tgtPart.vessel.parts
+                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                  .Where(
+                      j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel))
+          .ToList();
       foreach (var joint in candidates) {
         HostedDebugLog.Fine(this, "Trying to couple via: {0}", joint);
         if (joint.SetCoupleOnLinkMode(true)) {

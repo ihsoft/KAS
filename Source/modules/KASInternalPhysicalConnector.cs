@@ -58,7 +58,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
       collider.isTrigger = true;
       collider.radius = interactionDistance;
       interactionTriggerObj.layer = (int) KspLayer.TriggerCollider;
-      connectorModule.interactionTriggerObj = interactionTriggerObj;
+      connectorModule._interactionTriggerObj = interactionTriggerObj;
     }
 
     return connectorModule;
@@ -119,12 +119,15 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// be removed.
   /// </param>
   public void SetHighlighting(Color? color) {
-    if (!color.HasValue && connectorRb != null) {
+    if (connectorRb == null) {
+      return;
+    }
+    if (!color.HasValue) {
       var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>();
       if (headHighlighter != null) {
         headHighlighter.ConstantOff();
       }
-    } else if (connectorRb != null) {
+    } else {
       var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>()
           ?? connectorRb.gameObject.AddComponent<Highlighting.Highlighter>();
       headHighlighter.ReinitMaterials();
@@ -133,16 +136,17 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
   #endregion
 
-  GameObject interactionTriggerObj;
+  GameObject _interactionTriggerObj;
 
   #region MonoBehaviour messages
   void Awake() {
     connectorRb = GetComponent<Rigidbody>();
     // Update the highlighters. For this we need changing the hierarchy.
-    var oldParent = connectorRb.gameObject.transform.parent;
-    connectorRb.gameObject.transform.parent = null;
+    var connectorObj = connectorRb.gameObject;
+    var oldParent = connectorObj.transform.parent;
+    connectorObj.transform.parent = null;
     PartModel.UpdateHighlighters(oldParent);
-    PartModel.UpdateHighlighters(connectorRb.gameObject.transform);
+    PartModel.UpdateHighlighters(connectorObj.transform);
     if (connectorRb.isKinematic) {
       // The kinematic RB must be parented, or else it's considered static.
       connectorRb.transform.parent = ownerModule.gameObject.transform;
@@ -183,12 +187,12 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
     }
     if (destroyImmediate) {
       DestroyImmediate(connectorRb);
-      DestroyImmediate(interactionTriggerObj);
+      DestroyImmediate(_interactionTriggerObj);
     } else {
       Destroy(connectorRb);
-      Destroy(interactionTriggerObj);
+      Destroy(_interactionTriggerObj);
     }
-    interactionTriggerObj = null;
+    _interactionTriggerObj = null;
     connectorRb = null;
     ownerModule = null;
   }

@@ -118,23 +118,23 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   const string InteractiveShaderName = "Transparent/Diffuse";  
 
   /// <summary>The compatible target under the mouse cursor.</summary>
-  ILinkTarget targetCandidate;
+  ILinkTarget _targetCandidate;
 
   /// <summary>Tells if the connection with the candidate will be successful.</summary>
-  bool targetCandidateIsGood;
+  bool _targetCandidateIsGood;
 
   /// <summary>
   /// The last known hovered part. Used to trigger the detection of the target candidate.
   /// </summary>
-  Part lastHoveredPart;
+  Part _lastHoveredPart;
 
   /// <summary>The message, displayed during the interactive linking.</summary>
-  ScreenMessage statusScreenMessage;
+  ScreenMessage _statusScreenMessage;
 
   /// <summary>
   /// A variable to store the auto save state before starting the interactive mode.
   /// </summary>
-  bool canAutoSaveState;
+  bool _canAutoSaveState;
   #endregion
 
   #region KASLinkSourceBase overrides
@@ -156,8 +156,8 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
       }
       // Handle link action (mouse click).
       if (Input.GetKeyDown(KeyCode.Mouse0)) {
-        if (targetCandidateIsGood ) {
-          AsyncCall.CallOnEndOfFrame(this, () => LinkToTarget(targetCandidate));
+        if (_targetCandidateIsGood ) {
+          AsyncCall.CallOnEndOfFrame(this, () => LinkToTarget(_targetCandidate));
         } else {
           UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
         }
@@ -170,7 +170,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
     base.OnStart(state);
     // Infinity duration doesn't mean the message will be shown forever. It must be refreshed in the
     // Update method.
-    statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
+    _statusScreenMessage = new ScreenMessage("", Mathf.Infinity, ScreenMessageStyle.UPPER_CENTER);
     UpdateContextMenu();
   }
 
@@ -205,7 +205,7 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
         enterHandler: x => {
           InputLockManager.SetControlLock(
               ControlTypes.All & ~ControlTypes.CAMERACONTROLS, TotalControlLock);
-          canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
+          _canAutoSaveState = HighLogic.CurrentGame.Parameters.Flight.CanAutoSave;
           HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = false;
           linkRenderer.shaderNameOverride = InteractiveShaderName;
           linkRenderer.colorOverride = BadLinkColor;
@@ -216,10 +216,10 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
           linkRenderer.shaderNameOverride = null;
           linkRenderer.colorOverride = null;
           linkRenderer.isPhysicalCollider = true;
-          ScreenMessages.RemoveMessage(statusScreenMessage);
+          ScreenMessages.RemoveMessage(_statusScreenMessage);
           InputLockManager.RemoveControlLock(TotalControlLock);
-          HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = canAutoSaveState;
-          lastHoveredPart = null;
+          HighLogic.CurrentGame.Parameters.Flight.CanAutoSave = _canAutoSaveState;
+          _lastHoveredPart = null;
         });
     linkStateMachine.AddStateHandlers(
         LinkState.Linked,
@@ -246,35 +246,35 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
   /// <summary>Displays linking status in real time.</summary>
   void UpdateLinkingState() {
     // Catch the hovered part, a possible target on it, and the link feasibility.
-    if (Mouse.HoveredPart != lastHoveredPart) {
-      lastHoveredPart = Mouse.HoveredPart;
-      targetCandidateIsGood = false;
-      if (lastHoveredPart == null ) {
-        targetCandidate = null;
+    if (Mouse.HoveredPart != _lastHoveredPart) {
+      _lastHoveredPart = Mouse.HoveredPart;
+      _targetCandidateIsGood = false;
+      if (_lastHoveredPart == null ) {
+        _targetCandidate = null;
       } else {
-        targetCandidate = lastHoveredPart.Modules.OfType<ILinkTarget>()
+        _targetCandidate = _lastHoveredPart.Modules.OfType<ILinkTarget>()
             .FirstOrDefault(x => x.cfgLinkType == cfgLinkType
                             && x.linkState == LinkState.AcceptingLinks);
-        if (targetCandidate != null) {
+        if (_targetCandidate != null) {
           var linkStatusErrors = new List<string>()
-              .Concat(CheckBasicLinkConditions(targetCandidate, checkStates: true))
-              .Concat(linkRenderer.CheckColliderHits(nodeTransform, targetCandidate.nodeTransform))
-              .Concat(linkJoint.CheckConstraints(this, targetCandidate))
+              .Concat(CheckBasicLinkConditions(_targetCandidate, checkStates: true))
+              .Concat(linkRenderer.CheckColliderHits(nodeTransform, _targetCandidate.nodeTransform))
+              .Concat(linkJoint.CheckConstraints(this, _targetCandidate))
               .ToArray();
           if (linkStatusErrors.Length == 0) {
-            targetCandidateIsGood = true;
-            statusScreenMessage.message = CanBeConnectedMsg.Format(
-                Vector3.Distance(nodeTransform.position, targetCandidate.nodeTransform.position));
+            _targetCandidateIsGood = true;
+            _statusScreenMessage.message = CanBeConnectedMsg.Format(
+                Vector3.Distance(nodeTransform.position, _targetCandidate.nodeTransform.position));
           } else {
-            statusScreenMessage.message = ScreenMessaging.SetColorToRichText(
+            _statusScreenMessage.message = ScreenMessaging.SetColorToRichText(
                 String.Join("\n", linkStatusErrors), ScreenMessaging.ErrorColor);
           }
         }
       }
       // Show the possible link or indicate the error.
-      if (targetCandidate != null) {
-        linkRenderer.colorOverride = targetCandidateIsGood ? GoodLinkColor : BadLinkColor;
-        linkRenderer.StartRenderer(nodeTransform, targetCandidate.nodeTransform);
+      if (_targetCandidate != null) {
+        linkRenderer.colorOverride = _targetCandidateIsGood ? GoodLinkColor : BadLinkColor;
+        linkRenderer.StartRenderer(nodeTransform, _targetCandidate.nodeTransform);
       } else {
         linkRenderer.colorOverride = BadLinkColor;
         linkRenderer.StopRenderer();
@@ -282,10 +282,10 @@ public sealed class KASLinkSourceInteractive : KASLinkSourceBase {
     }
 
     // Update linking messages (it needs to be refreshed to not go out by timeout).
-    if (targetCandidate == null) {
-      statusScreenMessage.message = LinkingInProgressMsg;
+    if (_targetCandidate == null) {
+      _statusScreenMessage.message = LinkingInProgressMsg;
     }
-    ScreenMessages.PostScreenMessage(statusScreenMessage);
+    ScreenMessages.PostScreenMessage(_statusScreenMessage);
   }
 
   /// <summary>Helper method to execute context menu updates on vessel switch.</summary>

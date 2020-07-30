@@ -33,8 +33,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate: "Resource Transfer",
       description: "The title of the resource transfer dialog.");
 
-  static readonly Message<string> resourceName = new Message<string>(
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<string> ResourceName = new Message<string>(
       "#kasLOC_12001",
       defaultTemplate: "<<1>>",
       description: "The resource in the transfer options table. Its main purpose is dealing"
@@ -42,8 +42,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       + "\nArgument <<1>> is the full localized resource name with the Lingoona modifiers"
       + " (if any).");
 
-  static readonly Message<PercentFixedType, string> compoundResourceName =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  static readonly Message<PercentFixedType, string> CompoundResourceName =
       new Message<PercentFixedType, string>(
           "#kasLOC_12002",
           defaultTemplate: "<<1>> <<2>>",
@@ -54,8 +54,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           + "modifiers (if any).",
           example: "45 % Ox");
 
-  static readonly Message<CompactNumberType, CompactNumberType> resourceAmounts =
   /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  static readonly Message<CompactNumberType, CompactNumberType> ResourceAmounts =
       new Message<CompactNumberType, CompactNumberType>(
           "#kasLOC_12003",
           defaultTemplate: "<gui:min:100,0><<1>> / <<2>>",
@@ -273,11 +273,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       tag = "#kasLOC_12015",
       defaultTemplate = "Open GUI",
       description = "The context menu event that opens the resources transfer GUI.")]
-  public void OpenGUIEvent() {
-    if (isLinked && !isGUIOpen) {
-      isGUIOpen = true;
+  public void OpenGuiEvent() {
+    if (isLinked && !_isGuiOpen) {
+      _isGuiOpen = true;
       SetPendingTransferOption(null);
-      resourceListNeedsUpdate = true;
+      _resourceListNeedsUpdate = true;
       MaybeUpdateResourceOptionList();
     }
   }
@@ -285,75 +285,75 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region Local fields & properties
   /// <summary>Actual screen position of the console window.</summary>
-  Rect windowRect = new Rect(100, 100, 1, 1);
+  Rect _windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
-  Rect titleBarRect = new Rect(0, 0, 10000, 20);
+  readonly Rect _titleBarRect = new Rect(0, 0, 10000, 20);
 
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
-  readonly GuiActionsList guiActions = new GuiActionsList();
+  readonly GuiActionsList _guiActions = new GuiActionsList();
 
   /// <summary>Style to draw a control of the minimum size.</summary>
   static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
 
   /// <summary>Tells if GUI is open.</summary>
-  bool isGUIOpen;
+  bool _isGuiOpen;
 
   /// <summary>GUI table to align resource names and quantities.</summary>
   /// <remarks>Left Name + Left Amount + Right Amount + Right Name</remarks>
-  readonly GUILayoutStringTable guiResourcesTable = new GUILayoutStringTable(4);
+  readonly GUILayoutStringTable _guiResourcesTable = new GUILayoutStringTable(4);
 
   /// <summary>Definition of all the resources for the both linked vessels.</summary>
-  ResourceTransferOption[] resourceRows = new ResourceTransferOption[0];
+  ResourceTransferOption[] _resourceRows = new ResourceTransferOption[0];
 
   /// <summary>Index of the vessels resources.</summary>
-  Dictionary<int, ResourceTransferOption> resourceRowsHash =
+  Dictionary<int, ResourceTransferOption> _resourceRowsHash =
       new Dictionary<int, ResourceTransferOption>();
 
   /// <summary>The currently behaving resource transfer.</summary>
-  ResourceTransferOption pendingOption;
+  ResourceTransferOption _pendingOption;
 
-  /// <summary>The current resource transafer speed.</summary>
-  float transferSpeed = 1.0f;
+  /// <summary>The current resource transfer speed.</summary>
+  float _transferSpeed = 1.0f;
 
   /// <summary>Tells if the transfer speed can be managed by the code.</summary>
-  bool autoScaleSpeed;
+  bool _autoScaleSpeed;
 
   /// <summary>Model of the cylinder to rotate when the hose is extended/retracted.</summary>
   /// <remarks>Can be <c>null</c>.</remarks>
-  Transform rotaingCylinder;
+  Transform _rotatingCylinder;
 
   /// <summary>
   /// Tells if the resources options need to be refreshed from the attached vessels.
   /// </summary>
-  bool resourceListNeedsUpdate;
+  bool _resourceListNeedsUpdate;
 
   /// <summary>Last time the resources counts were updated in GUI.</summary>
-  float lastResourcesGUIUpdate;
+  float _lastResourcesGuiUpdate;
 
   /// <summary>The timeout to update the resources counters in GUI in seconds.</summary>
   /// <remarks>It's a performance affecting settings.</remarks>
-  const float TRANSFER_STATE_UPDATE_PERIOD = 0.1f;
+  const float TransferStateUpdatePeriod = 0.1f;
   #endregion
 
   #region Cached values
-  Part currentFromPart;
-  double[] currentFromPartCapacities;
-  double[] currentFromPartAmounts;
-  Part currentToPart;
-  double[] currentToPartCapacities;
-  double[] currentToPartAmounts;
+  Part _currentFromPart;
+  double[] _currentFromPartCapacities;
+  double[] _currentFromPartAmounts;
+  Part _currentToPart;
+  double[] _currentToPartCapacities;
+  double[] _currentToPartAmounts;
   #endregion
 
   #region GUI styles & contents
-  GUIStyle guiNoWrapCenteredStyle;
-  GUIStyle guiResourceStyle;
-  GUIStyle guiTransferBtnStyle;
-  GUIContent autoScaleToggleCnt;
-  GUIContent leftToRigthToggleCnt;
-  GUIContent leftToRigthButtonCnt;
-  GUIContent rightToLeftToggleCnt;
-  GUIContent rightToLeftButtonCnt;
+  GUIStyle _guiNoWrapCenteredStyle;
+  GUIStyle _guiResourceStyle;
+  GUIStyle _guiTransferBtnStyle;
+  GUIContent _autoScaleToggleCnt;
+  GUIContent _leftToRightToggleCnt;
+  GUIContent _leftToRightButtonCnt;
+  GUIContent _rightToLeftToggleCnt;
+  GUIContent _rightToLeftButtonCnt;
   #endregion
 
   #region Local types
@@ -373,7 +373,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public bool canMoveLeftToRight;
     public double previousUpdate;
     
-    readonly int hashCode;
+    readonly int _hashCode;
 
     public bool leftToRightTransferToggle {
       get { return _leftToRightTransferToggle; }
@@ -401,16 +401,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     /// <inheritdoc/>
     public override int GetHashCode() {
-      return hashCode;
+      return _hashCode;
     }
 
     /// <summary>Makes the transfer option.</summary>
-    /// <param name="availabeResources"></param>
+    /// <param name="availableResources"></param>
     /// <param name="resourceRatio"></param>
     public ResourceTransferOption(
-        IEnumerable<int> availabeResources, IEnumerable<double> resourceRatio) {
-      resources = availabeResources.ToArray();
-      hashCode = resources.Aggregate((t, v) => ((t << 3) | (t >> 29)) ^ v);
+        IEnumerable<int> availableResources, IEnumerable<double> resourceRatio) {
+      resources = availableResources.ToArray();
+      _hashCode = resources.Aggregate((t, v) => ((t << 3) | (t >> 29)) ^ v);
       resourceRatios = resourceRatio.ToArray();
       leftAmounts = new double[resources.Length];
       leftCapacities = new double[resources.Length];
@@ -422,13 +422,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     /// <summary>Updates the GUI strings that don't depend on the amounts/capacities.</summary>
     public void UpdateStaticStrings() {
       if (resources.Length == 1) {
-        caption.text = resourceName.Format(
+        caption.text = ResourceName.Format(
             StockResourceNames.GetResourceTitle(resources[0], removeLingoonaTags: false));
       } else {
         var texts = new string[resources.Length];
         var totalAmount = resourceRatios.Sum();
         for (var i = 0; i < resources.Length; i++) {
-          texts[i] = compoundResourceName.Format(
+          texts[i] = CompoundResourceName.Format(
               resourceRatios[i] / totalAmount,
               StockResourceNames.GetResourceAbbreviation(resources[i], removeLingoonaTags: false));
         }
@@ -474,18 +474,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnLoad(ConfigNode node) {
     base.OnLoad(node);
-    rotaingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
+    _rotatingCylinder = Hierarchy.FindPartModelByPath(part, rotatingWinchCylinderModel);
     ConfigAccessor.ReadFieldsInType(GetType(), this);
   }
 
   /// <inheritdoc/>
   public override void OnUpdate() {
     base.OnUpdate();
-    if (rotaingCylinder != null) {
+    if (_rotatingCylinder != null) {
       if (cableJoint.realCableLength > float.Epsilon) {
         var angle = 360.0f
             * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
-        rotaingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
+        _rotatingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
       }
     }
   }
@@ -493,25 +493,25 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void LocalizeModule() {
     base.LocalizeModule();
-    resourceRows.ToList().ForEach(x => x.UpdateStaticStrings());
+    _resourceRows.ToList().ForEach(x => x.UpdateStaticStrings());
 
-    autoScaleToggleCnt = new GUIContent(
+    _autoScaleToggleCnt = new GUIContent(
         AutoScaleToggleTxt, AutoScaleToggleHint.Format(autoSpeedTransferDuration));
-    leftToRigthToggleCnt = new GUIContent("<<", LeftToRigthToggleHint);
-    leftToRigthButtonCnt = new GUIContent("<", LeftToRigthButtonHint);
-    rightToLeftToggleCnt = new GUIContent(">>", RightToLeftToggleHint);
-    rightToLeftButtonCnt = new GUIContent(">", RightToLeftButtonHint);
+    _leftToRightToggleCnt = new GUIContent("<<", LeftToRightToggleHint);
+    _leftToRightButtonCnt = new GUIContent("<", LeftToRightButtonHint);
+    _rightToLeftToggleCnt = new GUIContent(">>", RightToLeftToggleHint);
+    _rightToLeftButtonCnt = new GUIContent(">", RightToLeftButtonHint);
 
     // Force the strings loading since their guiTags are used in GUI.
-    resourceName.LoadLocalization();
-    resourceAmounts.LoadLocalization();
+    ResourceName.LoadLocalization();
+    ResourceAmounts.LoadLocalization();
   }
   
   /// <inheritdoc/>
   public override void UpdateContextMenu() {
     base.UpdateContextMenu();
 
-    PartModuleUtils.SetupEvent(this, OpenGUIEvent, e => {
+    PartModuleUtils.SetupEvent(this, OpenGuiEvent, e => {
       e.active = linkTarget != null && linkTarget.part != null && !linkTarget.part.vessel.isEVA;
     });
   }
@@ -526,13 +526,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    isGUIOpen &= linkTarget != null;
+    _isGuiOpen &= linkTarget != null;
     if (Time.timeScale <= float.Epsilon) {
       return;  // No events and menu in the paused mode.
     }
-    if (isGUIOpen) {
-      windowRect = GUILayout.Window(
-          GetInstanceID(), windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
+    if (_isGuiOpen) {
+      _windowRect = GUILayout.Window(
+          GetInstanceID(), _windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
           GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
     }
   }
@@ -543,7 +543,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
     // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref windowRect, titleBarRect);
+    GuiWindow.DragWindow(ref _windowRect, _titleBarRect);
 
     MakeGuiStyles();
 
@@ -551,16 +551,16 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (vessel == linkTarget.part.vessel) {
       GUILayout.Label(NotAvailableInDockedMode, new GUIStyle(GUI.skin.label) { wordWrap = false });
       if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
-        isGUIOpen = false;
+        _isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
       return;
     }
 
-    if (guiActions.ExecutePendingGuiActions()) {
+    if (_guiActions.ExecutePendingGuiActions()) {
       MaybeUpdateResourceOptionList();
-      guiResourcesTable.UpdateFrame();
-      if (pendingOption != null) {
+      _guiResourcesTable.UpdateFrame();
+      if (_pendingOption != null) {
         if (!DoTransfer()) {
           SetPendingTransferOption(null);  // Cancel all transfers.
         }
@@ -570,52 +570,52 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     
     GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), GUI.skin.box);
     GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), GUI.skin.box);
-    for (var i = resourceRows.Length - 1; i >= 0; i--) {
-      var row = resourceRows[i];
-      guiResourcesTable.StartNewRow();
+    for (var i = _resourceRows.Length - 1; i >= 0; i--) {
+      var row = _resourceRows[i];
+      _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
-        guiResourcesTable.AddTextColumn(
-            row.caption, guiResourceStyle, minWidth: resourceName.guiTags.minWidth);
-        guiResourcesTable.AddTextColumn(
-            row.leftInfo, guiNoWrapCenteredStyle, minWidth: resourceAmounts.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(
+            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(
+            row.leftInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
         using (new GuiEnabledStateScope(row.canMoveRightToLeft)) {
           row.rightToLeftTransferToggle = GUILayoutButtons.Toggle(
-              row.rightToLeftTransferToggle, leftToRigthToggleCnt, guiTransferBtnStyle, null,
-              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
+              row.rightToLeftTransferToggle, _leftToRightToggleCnt, _guiTransferBtnStyle, null,
+              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.rightToLeftTransferPress = GUILayoutButtons.Push(
-              row.rightToLeftTransferPress, leftToRigthButtonCnt, guiTransferBtnStyle, null,
-              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
+              row.rightToLeftTransferPress, _leftToRightButtonCnt, _guiTransferBtnStyle, null,
+              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
         using (new GuiEnabledStateScope(row.canMoveLeftToRight)) {
           row.leftToRightTransferPress = GUILayoutButtons.Push(
-              row.leftToRightTransferPress, rightToLeftButtonCnt, guiTransferBtnStyle, null,
-              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
+              row.leftToRightTransferPress, _rightToLeftButtonCnt, _guiTransferBtnStyle, null,
+              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.leftToRightTransferToggle = GUILayoutButtons.Toggle(
-              row.leftToRightTransferToggle, rightToLeftToggleCnt, guiTransferBtnStyle, null,
-              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, guiActions);
+              row.leftToRightTransferToggle, _rightToLeftToggleCnt, _guiTransferBtnStyle, null,
+              GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
-        guiResourcesTable.AddTextColumn(
-            row.rightInfo, guiNoWrapCenteredStyle, minWidth: resourceAmounts.guiTags.minWidth);
-        guiResourcesTable.AddTextColumn(
-            row.caption, guiResourceStyle, minWidth: resourceName.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(
+            row.rightInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(
+            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
       }
     }
 
     // Resource transfer speed.
-    autoScaleSpeed = GUILayoutButtons.Toggle(
-        autoScaleSpeed, autoScaleToggleCnt, GUI.skin.toggle, null,
-        MaybeAutoScaleSpeed, null, guiActions);
-    using (new GuiEnabledStateScope(!autoScaleSpeed)) {
-      transferSpeed = GUILayout.HorizontalSlider(transferSpeed, 0f, maxTransferSpeed);
-      if (transferSpeed < float.Epsilon && pendingOption != null) {
-        guiActions.Add(() => SetPendingTransferOption(null));  // Cancel all transfers.
+    _autoScaleSpeed = GUILayoutButtons.Toggle(
+        _autoScaleSpeed, _autoScaleToggleCnt, GUI.skin.toggle, null,
+        MaybeAutoScaleSpeed, null, _guiActions);
+    using (new GuiEnabledStateScope(!_autoScaleSpeed)) {
+      _transferSpeed = GUILayout.HorizontalSlider(_transferSpeed, 0f, maxTransferSpeed);
+      if (_transferSpeed < float.Epsilon && _pendingOption != null) {
+        _guiActions.Add(() => SetPendingTransferOption(null));  // Cancel all transfers.
       }
     }
-    GUILayout.Label(TransferSpeedTxt.Format(transferSpeed));
+    GUILayout.Label(TransferSpeedTxt.Format(_transferSpeed));
 
     using (new GUILayout.HorizontalScope()) {
       if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
-        guiActions.Add(() => isGUIOpen = false);
+        _guiActions.Add(() => _isGuiOpen = false);
       }
       GUILayout.Label("");
       GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
@@ -624,8 +624,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Finds the currently active option and makes it active.</summary>
   void GuiActionUpdateTransferItem() {
-    var row = resourceRows.FirstOrDefault(r =>
-        r != pendingOption && (r.leftToRightTransferPress || r.leftToRightTransferToggle
+    var row = _resourceRows.FirstOrDefault(r =>
+        r != _pendingOption && (r.leftToRightTransferPress || r.leftToRightTransferToggle
                                || r.rightToLeftTransferPress || r.rightToLeftTransferToggle));
     SetPendingTransferOption(row);
     MaybeAutoScaleSpeed();
@@ -633,15 +633,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Creates the styles. Only does it once.</summary>
   void MakeGuiStyles() {
-    if (guiNoWrapCenteredStyle == null) {
-      guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box);
-      guiNoWrapCenteredStyle.wordWrap = false;
-      guiNoWrapCenteredStyle.alignment = TextAnchor.MiddleCenter;
-      guiResourceStyle = new GUIStyle(guiNoWrapCenteredStyle);
-      guiTransferBtnStyle = new GUIStyle(GUI.skin.button);
-      guiTransferBtnStyle.alignment = TextAnchor.MiddleCenter;
-      guiTransferBtnStyle.stretchHeight = true;
+    if (_guiNoWrapCenteredStyle != null) {
+      return;
     }
+    _guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box) {
+        wordWrap = false,
+        alignment = TextAnchor.MiddleCenter
+    };
+    _guiResourceStyle = new GUIStyle(_guiNoWrapCenteredStyle);
+    _guiTransferBtnStyle = new GUIStyle(GUI.skin.button) {
+        alignment = TextAnchor.MiddleCenter,
+        stretchHeight = true
+    };
   }
   #endregion
 
@@ -651,32 +654,32 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// will be transferred in a definite duration.
   /// </summary>
   void MaybeAutoScaleSpeed() {
-    if (!autoScaleSpeed || pendingOption == null) {
+    if (!_autoScaleSpeed || _pendingOption == null) {
       return;
     }
     // Determine the maximum unscaled amount to transfer.
     var maxUnscaledAmount = double.PositiveInfinity;
-    for (var i = pendingOption.resources.Length - 1; i >= 0; i--) {
-      var unit = pendingOption.resourceRatios[i];
-      var resource = pendingOption.resources[i];
-      var amount = currentFromPartAmounts[i] / unit;
+    for (var i = _pendingOption.resources.Length - 1; i >= 0; i--) {
+      var unit = _pendingOption.resourceRatios[i];
+      var resource = _pendingOption.resources[i];
+      var amount = _currentFromPartAmounts[i] / unit;
       if (amount < maxUnscaledAmount) {
         maxUnscaledAmount = amount;
       }
-      var capacity = (currentToPartCapacities[i] - currentToPartAmounts[i]) / unit;
+      var capacity = (_currentToPartCapacities[i] - _currentToPartAmounts[i]) / unit;
       if (capacity < maxUnscaledAmount) {
         maxUnscaledAmount = capacity;
       }
     }
 
-    transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autoSpeedTransferDuration);
+    _transferSpeed = Mathf.Min(maxTransferSpeed, (float) maxUnscaledAmount / autoSpeedTransferDuration);
   }
   
   /// <summary>Does actual resource transfer on the selected option.</summary>
   /// <remarks>This method must be performance optimized since it called each frame.</remarks>
   bool DoTransfer() {
-    var updateDelta = Planetarium.GetUniversalTime() - pendingOption.previousUpdate;
-    pendingOption.previousUpdate = Planetarium.GetUniversalTime();
+    var updateDelta = Planetarium.GetUniversalTime() - _pendingOption.previousUpdate;
+    _pendingOption.previousUpdate = Planetarium.GetUniversalTime();
     if (updateDelta < float.Epsilon) {
       return true;  // Cannot do transfer, but the state must not be reset yet.
     }
@@ -684,26 +687,26 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     // Below a tricky logic starts. It's intended to properly work with the mixtures of multiple
     // resources. When moving a mixture, we should know in advance how much amount of each component
     // can be transferred before the capacity/reserve limit hit.
-    var resources = pendingOption.resources;
-    var moveAmounts = new double[pendingOption.resources.Length];
+    var resources = _pendingOption.resources;
+    var moveAmounts = new double[_pendingOption.resources.Length];
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
-      moveAmounts[i] = transferSpeed * pendingOption.resourceRatios[i] * updateDelta;
+      moveAmounts[i] = _transferSpeed * _pendingOption.resourceRatios[i] * updateDelta;
     }
     // Now, check if each component request transfer can be fulfilled.
     var scale = 1.0;
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
-      currentFromPart.GetConnectedResourceTotals(
+      _currentFromPart.GetConnectedResourceTotals(
           resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
-          out currentFromPartAmounts[i], out currentFromPartCapacities[i]);
-      currentToPart.GetConnectedResourceTotals(
+          out _currentFromPartAmounts[i], out _currentFromPartCapacities[i]);
+      _currentToPart.GetConnectedResourceTotals(
           resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
-          out currentToPartAmounts[i], out currentToPartCapacities[i]);
+          out _currentToPartAmounts[i], out _currentToPartCapacities[i]);
       var amount = moveAmounts[i];
-      if (amount > currentFromPartAmounts[i]) {
-        amount = currentFromPartAmounts[i];
+      if (amount > _currentFromPartAmounts[i]) {
+        amount = _currentFromPartAmounts[i];
       }
-      if (amount > currentToPartCapacities[i] - currentToPartAmounts[i]) {
-        amount = currentToPartCapacities[i] - currentToPartAmounts[i];
+      if (amount > _currentToPartCapacities[i] - _currentToPartAmounts[i]) {
+        amount = _currentToPartCapacities[i] - _currentToPartAmounts[i];
       }
       var newScale = amount / moveAmounts[i];
       if (newScale < scale) {
@@ -714,9 +717,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = moveAmounts.Length - 1; i >= 0; i--) {
       var resource = resources[i];
       var amount = scale * moveAmounts[i];
-      var actualAmount = currentFromPart.RequestResource(
+      var actualAmount = _currentFromPart.RequestResource(
           resource, amount, ResourceFlowMode.ALL_VESSEL_BALANCE);
-      currentToPart.RequestResource(
+      _currentToPart.RequestResource(
           resource, -actualAmount, ResourceFlowMode.ALL_VESSEL_BALANCE);
     }
     return Mathd.AreSame(scale, 1.0);
@@ -729,12 +732,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </remarks>
   /// <param name="force">Tells if GUI must be upadted regardless to the timer.</param>
   void UpdateResourcesTransferGui(bool force = false) {
-    if (!force && Time.unscaledTime - lastResourcesGUIUpdate < TRANSFER_STATE_UPDATE_PERIOD) {
+    if (!force && Time.unscaledTime - _lastResourcesGuiUpdate < TransferStateUpdatePeriod) {
       return;
     }
-    lastResourcesGUIUpdate = Time.unscaledTime;
-    for (var i = resourceRows.Length - 1; i >= 0; i--) {
-      UpdateOptionTransferGui(resourceRows[i]);
+    _lastResourcesGuiUpdate = Time.unscaledTime;
+    for (var i = _resourceRows.Length - 1; i >= 0; i--) {
+      UpdateOptionTransferGui(_resourceRows[i]);
     }
   }
 
@@ -779,10 +782,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </summary>
   /// <remarks>This is a very expensive operation.</remarks>
   void MaybeUpdateResourceOptionList() {
-    if (!resourceListNeedsUpdate) {
+    if (!_resourceListNeedsUpdate) {
       return; // Nothing to do.
     }
-    resourceListNeedsUpdate = false;
+    _resourceListNeedsUpdate = false;
     HostedDebugLog.Fine(this, "Refreshing resources...");
 
     // Gather all the resources that *both* vessel have.
@@ -844,45 +847,45 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           mixture.components.Select(x => x.ratio).ToArray()));
     }
 
-    resourceRows = movableResources
-        .Select(resource => resourceRowsHash.ContainsKey(resource.GetHashCode())
-            ? resourceRowsHash[resource.GetHashCode()]
+    _resourceRows = movableResources
+        .Select(resource => _resourceRowsHash.ContainsKey(resource.GetHashCode())
+            ? _resourceRowsHash[resource.GetHashCode()]
             : resource)
         .ToArray();
-    resourceRowsHash = resourceRows.ToDictionary(r => r.GetHashCode());
+    _resourceRowsHash = _resourceRows.ToDictionary(r => r.GetHashCode());
   }
 
   /// <summary>Sets the currently transferring option. Erasing the previous one.</summary>
   /// <param name="newOption">The new option or <c>null</c>.</param>
   void SetPendingTransferOption(ResourceTransferOption newOption) {
-    if (newOption != pendingOption && pendingOption != null) {
-      pendingOption.StopAllTransfers();
+    if (newOption != _pendingOption && _pendingOption != null) {
+      _pendingOption.StopAllTransfers();
     }
-    pendingOption = newOption;
-    if (pendingOption == null && autoScaleSpeed) {
-      transferSpeed = 1.0f;
+    _pendingOption = newOption;
+    if (_pendingOption == null && _autoScaleSpeed) {
+      _transferSpeed = 1.0f;
     }
-    if (pendingOption != null) {
-      if (pendingOption.leftToRightTransferPress || pendingOption.leftToRightTransferToggle) {
-        currentFromPart = part;
-        currentFromPartCapacities = pendingOption.leftCapacities;
-        currentFromPartAmounts = pendingOption.leftAmounts;
-        currentToPart = linkTarget.part;
-        currentToPartCapacities = pendingOption.rightCapacities;
-        currentToPartAmounts = pendingOption.rightAmounts;
+    if (_pendingOption != null) {
+      if (_pendingOption.leftToRightTransferPress || _pendingOption.leftToRightTransferToggle) {
+        _currentFromPart = part;
+        _currentFromPartCapacities = _pendingOption.leftCapacities;
+        _currentFromPartAmounts = _pendingOption.leftAmounts;
+        _currentToPart = linkTarget.part;
+        _currentToPartCapacities = _pendingOption.rightCapacities;
+        _currentToPartAmounts = _pendingOption.rightAmounts;
       } else {
-        currentFromPart = linkTarget.part;
-        currentFromPartCapacities = pendingOption.rightCapacities;
-        currentFromPartAmounts = pendingOption.rightAmounts;
-        currentToPart = part;
-        currentToPartCapacities = pendingOption.leftCapacities;
-        currentToPartAmounts = pendingOption.leftAmounts;
+        _currentFromPart = linkTarget.part;
+        _currentFromPartCapacities = _pendingOption.rightCapacities;
+        _currentFromPartAmounts = _pendingOption.rightAmounts;
+        _currentToPart = part;
+        _currentToPartCapacities = _pendingOption.leftCapacities;
+        _currentToPartAmounts = _pendingOption.leftAmounts;
       }
     } else {
-      currentFromPartCapacities = null;
-      currentFromPartAmounts = null;
-      currentToPartCapacities = null;
-      currentToPartAmounts = null;
+      _currentFromPartCapacities = null;
+      _currentFromPartAmounts = null;
+      _currentToPartCapacities = null;
+      _currentToPartAmounts = null;
     }
     UpdateResourcesTransferGui(force: true);
   }
@@ -891,7 +894,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// Forces an update of the list of the available resources. It's an expensive operation.
   /// </summary>
   void OnVesselUpdated(Vessel v) {
-    resourceListNeedsUpdate = true;
+    _resourceListNeedsUpdate = true;
   }
   #endregion
 }

@@ -89,9 +89,10 @@ internal class AttachNodesUtilsImpl : KASAPIv2.IAttachNodesUtils {
                           message: "Unexpected number of components", context: ownerPart);
     try {
       // The logic is borrowed from PartLoader.ParsePart.
-      var attachNode = new AttachNode();
-      attachNode.owner = ownerPart;
-      attachNode.id = nodeId;
+      var attachNode = new AttachNode {
+          owner = ownerPart,
+          id = nodeId
+      };
       var factor = ownerPart.rescaleFactor;
       attachNode.position = new Vector3(
           float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2])) * factor;

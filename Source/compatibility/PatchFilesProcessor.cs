@@ -20,7 +20,7 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
 
   /// <summary>Patches per part name.</summary>
   /// <remarks>The patches are ordered by timestamp.</remarks>
-  Dictionary<string, List<ConfigNodePatch>> partPatches;
+  Dictionary<string, List<ConfigNodePatch>> _partPatches;
 
   #region implemented abstract members of UpgradeScript
   /// <inheritdoc/>
@@ -34,7 +34,7 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
     }
     List<ConfigNodePatch> patches;
     var hasMatches = false;
-    if (partPatches.TryGetValue(partName, out patches)) {
+    if (_partPatches.TryGetValue(partName, out patches)) {
       for (var i = patches.Count - 1; i >= 0; --i) {
         var patch = patches[i];
         try {
@@ -54,7 +54,7 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
     var partName = PartNodePatcher.GetPartNameFromUpgradeNode(node, loadContext);
     DebugEx.Warning("Patch saved game state for part: {0}", partName);
     var badPatches = new List<ConfigNodePatch>();
-    var applyPatches = partPatches[partName];
+    var applyPatches = _partPatches[partName];
     foreach (var patch in applyPatches) {
       try {
         PartNodePatcher.PatchNode(node, patch, loadContext);
@@ -92,14 +92,14 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
   #region UpgradeScript oevrrides
   /// <inheritdoc/>
   protected override void OnInit() {
-    partPatches = PartNodePatcher.GetPatches("KAS")
+    _partPatches = PartNodePatcher.GetPatches("KAS")
         .GroupBy(x => x.testSection.partTests.GetValue("name"))
         .ToDictionary(
             x => x.Key,
             x => x.OrderBy(n => n.patchCreationTimestamp)
                 .ThenBy(n => n.modName)
                 .ToList());
-    DebugEx.Fine("Loaded {0} part patch nodes", partPatches.Count);
+    DebugEx.Fine("Loaded {0} part patch nodes", _partPatches.Count);
   }
 
   /// <inheritdoc/>

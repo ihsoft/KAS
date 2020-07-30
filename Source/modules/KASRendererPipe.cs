@@ -137,7 +137,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("parkAttachAt")]
     [Debug.KASDebugAdjustable("Park location pos&rot")]
-    public PosAndRot parkAttachAt;
+    public PosAndRot parkAttachAt = new PosAndRot();
 
     /// <summary>
     /// Tells if the only prefab model, but not the procedural models must be parked on renderer
@@ -440,7 +440,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     node.parkRootObject = partModelTransform;
     
     // Create basic setup.
-    var nodeName = ModelBasename + "-pipeNode" + node.name;
+    var nodeName = modelBasename + "-pipeNode" + node.name;
     node.rootModel = partModelTransform.Find(nodeName)
         ?? new GameObject(nodeName).transform;
     node.rootModel.parent = partModelTransform;
@@ -472,10 +472,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
     }
 
     // Parking position, if defined.
-    var parkObjectName = ModelBasename + "-park" + node.name;
+    var parkObjectName = modelBasename + "-park" + node.name;
     var parkAttach = partModelTransform.Find(parkObjectName);
     if (config.parkAttachAt != null) {
-      node.parkAttach = parkAttach ?? new GameObject(parkObjectName).transform;
+      node.parkAttach = parkAttach
+          ? parkAttach
+          : new GameObject(parkObjectName).transform;
       Hierarchy.MoveToParent(node.parkAttach, partModelTransform,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
@@ -519,9 +521,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
         arm.name = armName;
       }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-      arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
-      arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-      RescalePipeTexture(arm.transform, arm.localScale.z * config.sphereOffset);
+      var armTransform = arm.transform; 
+      armTransform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
+      armTransform.localRotation = Quaternion.LookRotation(Vector3.forward);
+      RescalePipeTexture(armTransform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
       Hierarchy2.SafeDestroy(arm);
     }
@@ -559,16 +562,19 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <param name="toObj">The object to draw pipe to.</param>
   /// <seealso cref="pipeTransform"/>
   protected virtual void SetupPipe(Transform fromObj, Transform toObj) {
-    pipeTransform.position = (fromObj.position + toObj.position) / 2;
-    if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-      pipeTransform.LookAt(fromObj);
-    } else {
-      pipeTransform.LookAt(toObj);
-    }
-    pipeTransform.localScale = new Vector3(
-        pipeTransform.localScale.x,
-        pipeTransform.localScale.y,
-        Vector3.Distance(fromObj.position, toObj.position) / baseScale);
+    var fromObjPosition = fromObj.position;
+    var toObjPosition = toObj.position;
+    pipeTransform.position = (fromObjPosition + toObjPosition) / 2;
+    pipeTransform.LookAt(
+        pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget
+            ? fromObj
+            : toObj);
+    var localScale = pipeTransform.localScale;
+    localScale = new Vector3(
+        localScale.x,
+        localScale.y,
+        Vector3.Distance(fromObjPosition, toObjPosition) / baseScale);
+    pipeTransform.localScale = localScale;
     if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
       RescalePipeTexture(pipeTransform, pipeTransform.localScale.z, renderer: pipeMeshRenderer);
     }
@@ -599,7 +605,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <seealso cref="AbstractPipeRenderer.pipeTextureRescaleMode"/>
   protected void RescalePipeTexture(Transform obj, float length, Renderer renderer = null) {
     var newScale = length * pipeTextureSamplesPerMeter / baseScale;
-    var material = (renderer ?? obj.GetComponent<Renderer>()).material;
+    var material = (renderer
+        ? renderer
+        : obj.GetComponent<Renderer>()).material;
     material.mainTextureScale = new Vector2(material.mainTextureScale.x, newScale);
     SetBumpMap(material, propName => {
       var nrmScale = material.GetTextureScale(propName);

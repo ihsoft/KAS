@@ -117,7 +117,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
 
   #region Local fields and properties
   // Internal cache of the textures used by this renderer (and its descendants).
-  readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
+  readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
 
   /// <summary>The shader to sue if no suitable shaders were found.</summary>
   /// <see cref="GetShader"/>
@@ -143,9 +143,10 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
                                             Texture2D mainTexNrm = null,
                                             string overrideShaderName = null,
                                             Color? overrideColor = null) {
-    var material = new Material(GetShader(overrideShaderName: overrideShaderName));
-    material.mainTexture = mainTex;
-    material.color = overrideColor ?? materialColor;
+    var material = new Material(GetShader(overrideShaderName: overrideShaderName)) {
+        mainTexture = mainTex,
+        color = overrideColor ?? materialColor
+    };
     if (mainTexNrm != null) {
       material.EnableKeyword("_NORMALMAP");
       material.SetTexture(isBumpSpecMap ? BumpSpecMapPropName : BumpMapPropName, mainTexNrm);
@@ -204,7 +205,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   protected Texture2D GetTexture(string textureFileName, bool asNormalMap = false,
                                  Color? notFoundFillColor = null) {
     Texture2D texture;
-    if (!textures.TryGetValue(textureFileName, out texture)) {
+    if (!_textures.TryGetValue(textureFileName, out texture)) {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
       if (texture == null) {
         // Use a "red" texture if no file found.
@@ -214,7 +215,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
         texture.Apply();
         texture.Compress(highQuality: false);
       }
-      textures[textureFileName] = texture;
+      _textures[textureFileName] = texture;
     }
     return texture;
   }

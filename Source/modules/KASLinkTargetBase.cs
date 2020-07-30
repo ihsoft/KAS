@@ -141,16 +141,18 @@ public class KASLinkTargetBase :
       if (linkState == LinkState.Available
           && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
         SetLinkState(LinkState.NodeIsBlocked);
-      } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-        SetLinkState(LinkState.Available);
+      } else {
+        if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+          SetLinkState(LinkState.Available);
+        }
       }
     });
   }
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkSource dbgOldSource;
-  float cableLength;
+  ILinkSource _dbgOldSource;
+  float _cableLength;
 
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
@@ -158,11 +160,11 @@ public class KASLinkTargetBase :
     if (linkState != LinkState.Linked && linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
-    dbgOldSource = linkSource;
+    _dbgOldSource = linkSource;
     if (isLinked) {
       var cableJoint = linkSource.linkJoint as ILinkCableJoint;
       if (cableJoint != null) {
-        cableLength = cableJoint.deployedCableLength;
+        _cableLength = cableJoint.deployedCableLength;
       }
       linkSource.BreakCurrentLink(LinkActorType.Player);
     }
@@ -175,11 +177,9 @@ public class KASLinkTargetBase :
         this,
         () => {
           InitModuleSettings();
-          if (dbgOldSource != null && dbgOldSource.LinkToTarget(LinkActorType.Player, this)) {
+          if (_dbgOldSource != null && _dbgOldSource.LinkToTarget(LinkActorType.Player, this)) {
             var cableJoint = linkSource.linkJoint as ILinkCableJoint;
-            if (cableJoint != null) {
-              cableJoint.SetCableLength(cableLength);
-            }
+            cableJoint?.SetCableLength(_cableLength);
           }
         },
         skipFrames: 2);  // The link's logic is asynchronous, give it 2 frames to settle.
