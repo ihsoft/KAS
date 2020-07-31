@@ -1,4 +1,4 @@
-# 1.7 (pre-release):
+# 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.
 * [Change] Some performance improvement for the winch connector handling.
 * [Change] Update EN/RU localizations to version `6`.
