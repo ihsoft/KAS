@@ -8,17 +8,19 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace SaveUpgradePipeline.KAS {
 
 /// <summary>Class that fixes incompatible KAS part in the saved games.</summary>
 [UpgradeModule(LoadContext.SFS | LoadContext.Craft,
                sfsNodeUrl = "GAME/FLIGHTSTATE/VESSEL/PART",
                craftNodeUrl = "PART")]
-sealed class PatchFilesProcessor : UpgradeScript {
+// ReSharper disable once UnusedType.Global
+internal sealed class PatchFilesProcessor : UpgradeScript {
 
   /// <summary>Patches per part name.</summary>
   /// <remarks>The patches are ordered by timestamp.</remarks>
-  Dictionary<string, List<ConfigNodePatch>> partPatches;
+  Dictionary<string, List<ConfigNodePatch>> _partPatches;
 
   #region implemented abstract members of UpgradeScript
   /// <inheritdoc/>
@@ -32,7 +34,7 @@ sealed class PatchFilesProcessor : UpgradeScript {
     }
     List<ConfigNodePatch> patches;
     var hasMatches = false;
-    if (partPatches.TryGetValue(partName, out patches)) {
+    if (_partPatches.TryGetValue(partName, out patches)) {
       for (var i = patches.Count - 1; i >= 0; --i) {
         var patch = patches[i];
         try {
@@ -52,7 +54,7 @@ sealed class PatchFilesProcessor : UpgradeScript {
     var partName = PartNodePatcher.GetPartNameFromUpgradeNode(node, loadContext);
     DebugEx.Warning("Patch saved game state for part: {0}", partName);
     var badPatches = new List<ConfigNodePatch>();
-    var applyPatches = partPatches[partName];
+    var applyPatches = _partPatches[partName];
     foreach (var patch in applyPatches) {
       try {
         PartNodePatcher.PatchNode(node, patch, loadContext);
@@ -68,51 +70,36 @@ sealed class PatchFilesProcessor : UpgradeScript {
     }
     foreach (var badPatch in badPatches) {
       applyPatches.Remove(badPatch);
-      DebugEx.Error("Patch has't fixed the part, disabling it: {0}", badPatch);
+      DebugEx.Error("Patch hasn't fixed the part, disabling it: {0}", badPatch);
     }
   }
 
   /// <inheritdoc/>
-  public override string Name {
-    get {
-      return "KAS parts patcher v1.0";
-    }
-  }
+  public override string Name => "KAS parts patcher v1.0";
 
   /// <inheritdoc/>
-  public override string Description {
-    get {
-      return "Applies a KAS compatibility scripts on the parts";
-    }
-  }
+  public override string Description => "Applies a KAS compatibility scripts on the parts";
 
   /// <inheritdoc/>
-  public override Version EarliestCompatibleVersion {
-    get {
-      return new Version(0, 21, 0);
-    }
-  }
+  public override Version EarliestCompatibleVersion => new Version(0, 21, 0);
 
   /// <inheritdoc/>
-  public override Version TargetVersion {
-    get {
-      // Always needs to run.
-      return new Version(Versioning.version_major, Versioning.version_minor, Versioning.Revision);
-    }
-  }
+  // Always needs to run.
+  public override Version TargetVersion => new Version(
+      Versioning.version_major, Versioning.version_minor, Versioning.Revision);
   #endregion
 
   #region UpgradeScript oevrrides
   /// <inheritdoc/>
   protected override void OnInit() {
-    partPatches = PartNodePatcher.GetPatches("KAS")
+    _partPatches = PartNodePatcher.GetPatches("KAS")
         .GroupBy(x => x.testSection.partTests.GetValue("name"))
         .ToDictionary(
             x => x.Key,
             x => x.OrderBy(n => n.patchCreationTimestamp)
                 .ThenBy(n => n.modName)
                 .ToList());
-    DebugEx.Fine("Loaded {0} part patch nodes", partPatches.Count);
+    DebugEx.Fine("Loaded {0} part patch nodes", _partPatches.Count);
   }
 
   /// <inheritdoc/>

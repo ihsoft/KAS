@@ -1,6 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using System;
@@ -11,6 +10,8 @@ using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
 using UnityEngine;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base class for the parts that dynamically create their model on the game load.</summary>
@@ -27,22 +28,25 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>Name of bump map property in the renderer.</summary>
   /// <remarks>Only bump shaders support it.</remarks>
   /// <seealso cref="KspPartShaderName"/>
-  public const string BumpMapProp = "_BumpMap";
+  public const string BumpMapPropName = "_BumpMap";
 
   /// <summary>Name of bump map with specular property in the renderer.</summary>
   /// <remarks>Only bump specular shaders support it.</remarks>
   /// <seealso cref="KspPartShaderName"/>
-  public const string BumpSpecMapProp = "_BumpSpecMap";
+  public const string BumpSpecMapPropName = "_BumpSpecMap";
 
   /// <summary>Name of the material shininess in the renderer.</summary>
-  public const string ShininessProp = "_Shininess";
+  public const string ShininessPropName = "_Shininess";
+
+  /// <summary>Shininess property index in the renderer.</summary>
+  public static readonly int ShininessProp = Shader.PropertyToID(ShininessPropName);
   #endregion
 
   #region Inhertable utility methods
   /// <summary>Returns a cached part's model root transform.</summary>
   /// <value>The part's root model.</value>
   /// <remarks>
-  /// Attach all your meshes to this transform (eitehr directly or via parents). Otherwise, the new
+  /// Attach all your meshes to this transform (either directly or via parents). Otherwise, the new
   /// meshes will be ignored by the part's model!
   /// </remarks>
   protected Transform partModelTransform {
@@ -58,7 +62,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <summary>The scale of the part models.</summary>
   /// <remarks>
   /// The scale of the part must be "even", i.e. all the components in the scale vector must be
-  /// equal. If they are not, then the renderer's behavior may be inconsistent.
+  /// equal. If they are not, then the renderer behavior may be inconsistent.
   /// </remarks>
   /// <value>The scale to be applied to all the components.</value>
   protected float baseScale {
@@ -74,27 +78,27 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
       return _baseScale;
     }
   }
-  float _baseScale = -1;  // Negative means unintialized.
+  float _baseScale = -1;  // Negative means uninitialized.
   #endregion
 
   #region Part's config fields
   /// <summary>Shader to use for meshes by default.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Shader name")]
   public string shaderName = KspPartShaderName;
 
   /// <summary>Main material color to use for meshes by default.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Material color")]
   public Color materialColor = Color.white;
 
   /// <summary>Tells if the normals map should be used as bump specular map.</summary>
   /// <remarks>The texture must be made in appropriate way to be compatible!</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  /// <seealso cref="BumpMapProp"/>
-  /// <seealso cref="BumpSpecMapProp"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <seealso cref="BumpMapPropName"/>
+  /// <seealso cref="BumpSpecMapPropName"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Use NRM texture as bump specular")]
   public bool isBumpSpecMap;
@@ -105,7 +109,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// value <c>-1.0</c> means "don't set anything". Whatever is the default value of the shader, it
   /// will be used.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Material shininess")]
   public float materialShininess = -1f;
@@ -113,7 +117,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
 
   #region Local fields and properties
   // Internal cache of the textures used by this renderer (and its descendants).
-  readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
+  readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
 
   /// <summary>The shader to sue if no suitable shaders were found.</summary>
   /// <see cref="GetShader"/>
@@ -139,12 +143,13 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
                                             Texture2D mainTexNrm = null,
                                             string overrideShaderName = null,
                                             Color? overrideColor = null) {
-    var material = new Material(GetShader(overrideShaderName: overrideShaderName));
-    material.mainTexture = mainTex;
-    material.color = overrideColor ?? materialColor;
+    var material = new Material(GetShader(overrideShaderName: overrideShaderName)) {
+        mainTexture = mainTex,
+        color = overrideColor ?? materialColor
+    };
     if (mainTexNrm != null) {
       material.EnableKeyword("_NORMALMAP");
-      material.SetTexture(isBumpSpecMap ? BumpSpecMapProp : BumpMapProp, mainTexNrm);
+      material.SetTexture(isBumpSpecMap ? BumpSpecMapPropName : BumpMapPropName, mainTexNrm);
     }
     if (materialShininess >= 0) {
       material.SetFloat(ShininessProp, materialShininess);
@@ -176,20 +181,20 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
     return shader;
   }
 
-  /// <summary>Gets the texture from either a KSP gamebase or the internal cache.</summary>
+  /// <summary>Gets the texture from either a KSP game base or the internal cache.</summary>
   /// <remarks>
   /// It's OK to call this method in the performance demanding code since once the texture is
   /// successfully returned it's cached internally. The subsequent calls won't issue expensive game
   /// database requests.
   /// </remarks>
   /// <param name="textureFileName">
-  /// Filename of the texture file. The path is realtive to <c>GameData</c> folder. The name must
+  /// Filename of the texture file. The path is relative to <c>GameData</c> folder. The name must
   /// not have the file extension.
   /// </param>
   /// <param name="asNormalMap">If <c>true</c> then the texture will be loaded as a bumpmap.</param>
   /// <param name="notFoundFillColor">
   /// The color of the simulated texture in case of the asset was not found in the game database. By
-  /// defaut a red colored texture will be created.
+  /// default a red colored texture will be created.
   /// </param>
   /// <returns>
   /// The texture. Note that it's a shared object. Don't execute actions on it which you don't want
@@ -200,7 +205,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   protected Texture2D GetTexture(string textureFileName, bool asNormalMap = false,
                                  Color? notFoundFillColor = null) {
     Texture2D texture;
-    if (!textures.TryGetValue(textureFileName, out texture)) {
+    if (!_textures.TryGetValue(textureFileName, out texture)) {
       texture = GameDatabase.Instance.GetTexture(textureFileName, asNormalMap);
       if (texture == null) {
         // Use a "red" texture if no file found.
@@ -210,7 +215,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
         texture.Apply();
         texture.Compress(highQuality: false);
       }
-      textures[textureFileName] = texture;
+      _textures[textureFileName] = texture;
     }
     return texture;
   }
@@ -237,7 +242,7 @@ public abstract class AbstractProceduralModel : AbstractPartModule {
   /// <seealso cref="CreateMaterial"/>
   /// <seealso cref="isBumpSpecMap"/>
   protected void SetBumpMap(Material material, Action<string> an) {
-    var propName = isBumpSpecMap ? BumpSpecMapProp : BumpMapProp;
+    var propName = isBumpSpecMap ? BumpSpecMapPropName : BumpMapPropName;
     if (material.HasProperty(propName)) {
       an(propName);
     }

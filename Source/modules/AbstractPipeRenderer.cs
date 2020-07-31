@@ -9,12 +9,12 @@ using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base class for the renderers that represent the links as a "pipe".</summary>
@@ -24,7 +24,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     ILinkRenderer {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_07000",
       defaultTemplate: "Link collides with: <<1>>",
@@ -32,7 +32,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       + "\nArgument <<1>> is the part that would collide with the proposed link.",
       example: "Link collides with: Mk2 Cockpit");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   public static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_07001",
       defaultTemplate: "Link collides with the surface",
@@ -75,12 +75,12 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string rendererName = "";
 
   /// <summary>Diameter of the pipe in meters.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe diameter")]
   public float pipeDiameter = 0.7f;
@@ -88,14 +88,14 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Main texture to use for the pipe.</summary>
   /// <seealso cref="pipeTextureRescaleMode"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe texture")]
   public string pipeTexturePath = "";
 
   /// <summary>Normals for the main texture. If empty string, then no normals used.</summary>
   /// <seealso cref="pipeTexturePath"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe texture NRM")]
   public string pipeNormalsTexturePath = "";
@@ -109,7 +109,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// </remarks>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureRescaleMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture samples per meter")]
   public float pipeTextureSamplesPerMeter = 1.0f;
@@ -117,7 +117,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <summary>Defines how the texture should cover the pipe.</summary>
   /// <seealso cref="pipeTexturePath"/>
   /// <seealso cref="pipeTextureSamplesPerMeter"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture rescale mode")]
   public PipeTextureRescaleMode pipeTextureRescaleMode = PipeTextureRescaleMode.Stretch;
@@ -127,7 +127,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// If this setting is <c>false</c> the link mesh won't have colliders. It affects how player can
   /// select the part in the scene.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Physical collider")]
   public bool pipeColliderIsPhysical;
@@ -135,7 +135,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region ILinkRenderer properties
   /// <inheritdoc/>
-  public string cfgRendererName { get { return rendererName; } }
+  public string cfgRendererName => rendererName;
 
   /// <inheritdoc/>
   public virtual Color? colorOverride {
@@ -168,9 +168,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   bool _isPhysicalCollider = true;  // It's a "forced OFF" setting.
 
   /// <inheritdoc/>
-  public bool isStarted {
-    get { return sourceTransform != null && targetTransform != null; }
-  }
+  public bool isStarted => sourceTransform != null && targetTransform != null;
 
   /// <inheritdoc/>
   public Transform sourceTransform { get; private set; }
@@ -186,9 +184,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// The name is guaranteed to be unique in the part's hierarchy, so it can always be looked up
   /// once the object is created.
   /// </remarks>
-  protected string ModelBasename {
-    get { return "$rendererRoot-" + rendererName; }
-  }
+  protected string modelBasename => "$rendererRoot-" + rendererName;
 
   /// <summary>Material to use for the pipe elements.</summary>
   /// <remarks>It doesn't consider shader or color overrides.</remarks>
@@ -203,11 +199,12 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   }
   Material _pipeMaterial;
 
-  /// <summary>Part that owns the target tarnsform.</summary>
+  /// <summary>Part that owns the target transform.</summary>
   /// <remarks>
-  /// It can be <c>null</c> if the traget is not a part or the renderer is not started.
+  /// It can be <c>null</c> if the target is not a part or the renderer is not started.
   /// </remarks>
   /// <seealso cref="StartRenderer"/>
+  // ReSharper disable once MemberCanBePrivate.Global
   protected Part targetPart { get; private set; }
   #endregion
 
@@ -216,16 +213,16 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <remarks>
   /// The only thing it does is calling <see cref="UpdateLink"/> on every frame update.
   /// </remarks>
-  Coroutine linkUpdateCoroutine;
+  Coroutine _linkUpdateCoroutine;
   #endregion
 
   #region IHasDebugAdjustables overrides
-  Transform dbgOldSource;
-  Transform dbgOldTarget;
+  Transform _dbgOldSource;
+  Transform _dbgOldTarget;
 
   /// <summary>Logs all the part's model objects.</summary>
   [Debug.KASDebugAdjustable("Dump part's model hierarchy")]
-  public void ShowHirerachyDbgAction() {
+  public void ShowHierarchyDbgAction() {
     HostedDebugLog.Warning(this, "Part's model hierarchy:");
     DebugGui.DumpHierarchy(partModelTransform, partModelTransform);
     if (targetTransform != null) {
@@ -237,8 +234,8 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
     base.OnBeforeDebugAdjustablesUpdate();
-    dbgOldSource = sourceTransform;
-    dbgOldTarget = targetTransform;
+    _dbgOldSource = sourceTransform;
+    _dbgOldTarget = targetTransform;
     StopRenderer();
   }
 
@@ -246,10 +243,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   public override void OnDebugAdjustablesUpdated() {
     _pipeMaterial = null;
     base.OnDebugAdjustablesUpdated();
-    if (dbgOldSource != null && dbgOldTarget != null) {
+    if (_dbgOldSource != null && _dbgOldTarget != null) {
       HostedDebugLog.Warning(
-          this, "Restart renderer: src={0}, tgt={1}", dbgOldSource, dbgOldTarget);
-      StartRenderer(dbgOldSource, dbgOldTarget);
+          this, "Restart renderer: src={0}, tgt={1}", _dbgOldSource, _dbgOldTarget);
+      StartRenderer(_dbgOldSource, _dbgOldTarget);
     }
   }
   #endregion
@@ -289,19 +286,19 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     RegisterGameEventListener(GameEvents.onPartDeCouple, OnPartDeCoupleEvent);
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
 
-    linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
+    _linkUpdateCoroutine = StartCoroutine(UpdateLinkCoroutine());
   }
 
   /// <inheritdoc/>
   public virtual void StopRenderer() {
     // Stop meshes updates.
-    if (linkUpdateCoroutine != null) {
+    if (_linkUpdateCoroutine != null) {
       HostedDebugLog.Fine(this, "Stopping renderer updates...");
-      StopCoroutine(linkUpdateCoroutine);
-      linkUpdateCoroutine = null;
+      StopCoroutine(_linkUpdateCoroutine);
+      _linkUpdateCoroutine = null;
     }
 
-    // Sync the renderers settinsg to the source part to handle the highlights.
+    // Sync the renderers settings to the source part to handle the highlights.
     if (isStarted) {
       sourceTransform.GetComponentsInChildren<Renderer>().ToList()
           .ForEach(r => r.SetPropertyBlock(part.mpb));
@@ -339,7 +336,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
     // HACK: Start the renderer before getting the pipes. 
     var oldStartState = isStarted;
-    var oldPhyscalState = isPhysicalCollider;
+    var oldPhysicalState = isPhysicalCollider;
     if (!isStarted) {
       isPhysicalCollider = false;
       StartRenderer(source, target);
@@ -349,7 +346,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     var points = GetPipePath(source, target);
     if (!oldStartState) {
       StopRenderer();
-      isPhysicalCollider = oldPhyscalState;
+      isPhysicalCollider = oldPhysicalState;
     }
 
     var hitParts = new HashSet<Part>();
@@ -381,7 +378,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <para>
   /// All the meshes are expected to belong to either <see cref="sourceTransform"/> or
   /// <see cref="targetTransform"/>. If it's not the case, then the creator must handle collision
-  /// ignores and highligher modules. Same applies to the meshes created outside of this method,
+  /// ignores and highlighter modules. Same applies to the meshes created outside of this method,
   /// even when they belong to the proper source or target transform. 
   /// </para>
   /// </remarks>
@@ -415,7 +412,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   protected abstract Vector3[] GetPipePath(Transform start, Transform end);
 
   /// <summary>Updates the pipe material(s) to the current module's state.</summary>
-  /// <remarks>It is called when the meterial mutable settings are changed.</remarks>
+  /// <remarks>It is called when the material mutable settings are changed.</remarks>
   /// <seealso cref="colorOverride"/>
   /// <seealso cref="shaderNameOverride"/>
   protected abstract void UpdateMaterialOverrides();
@@ -442,7 +439,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #endregion
 
   #region Local utility methods
-  /// <summary>Checks if a capsule collider between the points hit's anything.</summary>
+  /// <summary>Checks if a capsule collider between the points hits anything.</summary>
   /// <remarks>Hits with own vessel models or models of the other vessel are ignored.</remarks>
   /// <param name="startPos">The starting point of the link.</param>
   /// <param name="endPos">The ending point of the link.</param>
@@ -453,10 +450,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
                            Transform target, HashSet<Part> hits) {
     var tgtPart = target.root.GetComponent<Part>();
     var otherVessel = tgtPart != null ? tgtPart.vessel : null;
-    var linkVector = endPos - startPos;
-    var linkLength = linkVector.magnitude;
-    Collider[] colliders;
-    colliders = Physics.OverlapCapsule(
+    var colliders = Physics.OverlapCapsule(
         startPos, endPos, diameter / 2.0f,
         (int)(KspLayerMask.Part | KspLayerMask.SurfaceCollider | KspLayerMask.Kerbal),
         QueryTriggerInteraction.Ignore);
@@ -478,7 +472,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// Intermediate field to save the vessel between starting and ending of the part decoupling
   /// event.
   /// </summary>
-  Vessel formerTargetVessel;
+  Vessel _formerTargetVessel;
 
   /// <summary>Reacts on a part coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
@@ -506,34 +500,34 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   /// <remarks>
   /// This information will be used down the stream to detect if the collisions should be adjusted.
   /// </remarks>
-  /// <param name="originator">The part that has dcoupled.</param>
+  /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleEvent(Part originator) {
     if (targetPart != null && targetPart.vessel != vessel
         && originator.vessel == targetPart.vessel) {
-      formerTargetVessel = originator.vessel;
+      _formerTargetVessel = originator.vessel;
     }
   }
 
   /// <summary>Reacts on a part de-coupling and adjusts its colliders as needed.</summary>
   /// <remarks>
-  /// When a part is leaving the target vessel, the collsions between this part and the pipe meshes
+  /// When a part is leaving the target vessel, the collisions between this part and the pipe meshes
   /// must be restored.
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleCompleteEvent(Part originator) {
-    if (formerTargetVessel != null && originator.vessel != formerTargetVessel) {
-      // It's either the traget part has decoupled from its vessel, or the owner vessel has
+    if (_formerTargetVessel != null && originator.vessel != _formerTargetVessel) {
+      // It's either the target part has decoupled from its vessel, or the owner vessel has
       // abandoned the target part.
-      var leavingVessel = originator == targetPart ? formerTargetVessel : originator.vessel;
+      var leavingVessel = originator == targetPart ? _formerTargetVessel : originator.vessel;
       HostedDebugLog.Fine(this, "Restore collision ignores on: {0}", leavingVessel);
       leavingVessel.parts
           .ForEach(p => SetCollisionIgnores(p, false));
     }
-    formerTargetVessel = null;
+    _formerTargetVessel = null;
   }
 
   /// <summary>Calls renderer updates as long as the renderer is started.</summary>
-  /// <seealso cref="linkUpdateCoroutine"/>
+  /// <seealso cref="_linkUpdateCoroutine"/>
   /// <seealso cref="StartRenderer"/>
   IEnumerator UpdateLinkCoroutine() {
     HostedDebugLog.Fine(this, "Staring renderer updates...");
@@ -541,7 +535,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       UpdateLink();
       yield return null;
     }
-    // The coroitine is expected to be terminated explicitly! 
+    // The coroutine is expected to be terminated explicitly!
     HostedDebugLog.Warning(this, "Terminate coroutine on renderer stop!");
   }
   #endregion

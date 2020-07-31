@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that allows connecting the parts via an EVA kerbal.</summary>
@@ -25,8 +26,8 @@ namespace KAS {
 /// In this concept there is a "connector", a physical object that is connected to the source part
 /// via a cable. An EVA kerbal can pick it up and carry to the target part. Then, the connector
 /// can be plugged into the compatible socked, and this will make the link. The EVA kerbal can also
-/// unplug the plugged connectors, breaking the link. The connector unplug function is also availabe
-/// to the unmanned vessels, but they must be fully controllable.
+/// unplug the plugged connectors, breaking the link. The connector unplug function is also
+/// available to the unmanned vessels, but they must be fully controllable.
 /// </para>
 /// <para>
 /// This module doesn't tolerate an incompatible target at its connector node. If there is one
@@ -40,34 +41,35 @@ namespace KAS {
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkTarget"/>
 /// <seealso cref="ILinkCableJoint"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
 // Next localization ID: #kasLOC_13011.
+// ReSharper disable once InconsistentNaming
 public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Locked = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsgLocked = new Message(
       "#kasLOC_13000",
       defaultTemplate: "Locked",
       description: "A string in the context menu that tells that the connector is rigidly attached"
       + " to the part and is not movable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Deployed = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsgDeployed = new Message(
       "#kasLOC_13001",
       defaultTemplate: "Deployed",
       description: "A string in the context menu that tells that the connector is deployed and"
       + " attached to the part via a cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Plugged = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsgPlugged = new Message(
       "#kasLOC_13002",
       defaultTemplate: "Plugged in",
       description: "A string in the context menu that tells that the connector is plugged in"
       + " a socked or is being carried by a kerbal, and attached to the part via a cable.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message ConnectorStateMsg_Docked = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ConnectorStateMsgDocked = new Message(
       "#kasLOC_13003",
       defaultTemplate: "Docked",
       description: "A string in the context menu that tells that the connector is rigidly"
@@ -77,21 +79,21 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>Translates <see cref="ConnectorState"/> enum into a localized message.</summary>
   static readonly MessageLookup<ConnectorState> ConnectorStatesMsgLookup =
       new MessageLookup<ConnectorState>(new Dictionary<ConnectorState, Message>() {
-          {ConnectorState.Locked, ConnectorStateMsg_Locked},
-          {ConnectorState.Deployed, ConnectorStateMsg_Deployed},
-          {ConnectorState.Plugged, ConnectorStateMsg_Plugged},
-          {ConnectorState.Docked, ConnectorStateMsg_Docked},
+          {ConnectorState.Locked, ConnectorStateMsgLocked},
+          {ConnectorState.Deployed, ConnectorStateMsgDeployed},
+          {ConnectorState.Plugged, ConnectorStateMsgPlugged},
+          {ConnectorState.Docked, ConnectorStateMsgDocked},
       });
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message CableLinkBrokenMsg = new Message(
       "#kasLOC_13004",
       defaultTemplate: "The link between the connector and the part has broke",
       description: "A message to display when a link between the part and the connector has broke"
       + " due to the unexpected external forces or actions.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  static readonly Message<PartType> CannotLinkToPreattached = new Message<PartType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<PartType> CannotLinkToPreAttached = new Message<PartType>(
       "#kasLOC_13005",
       defaultTemplate: "Cannot link with: <<1>>",
       description: "The error message to present when a part is being attached externally to the"
@@ -102,11 +104,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Part's config fields
   /// <summary>Mass of the connector of the winch.</summary>
   /// <remarks>
-  /// It's substracted from the part's mass on deploy, and added back on the lock. For this reason
+  /// It's subtracted from the part's mass on deploy, and added back on the lock. For this reason
   /// it must not be greater then the total part's mass. Also, try to avoid making the connector
-  /// heavier than the part iteself - the Unity physics may start behaving awkward. 
+  /// heavier than the part itself - the Unity physics may start behaving awkward.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
@@ -118,37 +120,37 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public float connectorInteractDistance = 0.3f;
 
   /// <summary>URL of the sound for the event of returning the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - lock connector")]
   public string sndPathLockConnector = "";
 
   /// <summary>URL of the sound for the event of docking the connector to the winch.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - dock connector")]
   public string sndPathDockConnector = "";
 
   /// <summary>URL of the sound for the event of acquiring the connector by an EVA kerbal.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - grab connector")]
   public string sndPathGrabConnector = "";
 
   /// <summary>URL of the sound for the event of plugging the connector into a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - plug connector")]
   public string sndPathPlugConnector = "";
   
   /// <summary>URL of the sound for the event of unplugging the connector from a socket.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - unplug connector")]
   public string sndPathUnplugConnector = "";
 
   /// <summary>URL of the sound for the event of cable emergency detachment (link broken).</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - link broke")]
   public string sndPathBroke = "";
@@ -156,7 +158,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <summary>
   /// Tells if an incompatible target at the connector's node should be immediately decoupled.
   /// </summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Decouple incompatible targets")]
   public bool decoupleIncompatibleTargets;
@@ -164,13 +166,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   #region Persistent fields
   /// <summary>Connector state in the last save action.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool persistedIsConnectorLocked = true;
 
   /// <summary>Position and rotation of the deployed connector.</summary>
   /// <remarks>It's relative to the source part.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("connectorPosAndRot", group = StdPersistentGroups.PartPersistant)]
   public PosAndRot persistedConnectorPosAndRot;
   #endregion
@@ -178,7 +180,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region The context menu fields
   /// <summary>Status field to display the current connector status in the context menu.</summary>
   /// <see cref="connectorState"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_13006",
@@ -191,7 +193,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Context menu events/actions
   /// <summary>Context menu to instantly lock the deployed connector.</summary>
   /// <remarks>It's a hack, but sometimes it's the only way to recover the connector.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true, advancedTweakable = true)]
   [LocalizableItem(
       tag = "#kasLOC_13010",
@@ -208,7 +210,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
   /// <summary>Attaches the connector to the EVA kerbal.</summary>
   /// <remarks>The active vessel must be a kerbal.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13007",
@@ -228,7 +230,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
   /// <summary>Detaches the connector from the kerbal and puts it back to the winch.</summary>
   /// <remarks>The active vessel must be a kerbal holding a connector of this winch.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13008",
@@ -238,8 +240,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   public virtual void ReturnConnectorEvent() {
     if (FlightGlobals.ActiveVessel.isEVA
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
-      var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
-          .FirstOrDefault(t => ReferenceEquals(t.linkSource, this));
       BreakCurrentLink(LinkActorType.Player);
       SetConnectorState(ConnectorState.Locked);
       HostedDebugLog.Info(
@@ -248,7 +248,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <summary>Context menu item to break the currently established link.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
   [LocalizableItem(
       tag = "#kasLOC_13009",
@@ -272,7 +272,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
     /// <summary>
     /// The connector is non-physical and is merged to the owner part's model. There is a part
-    /// attached to it, which is meregd (docked) to the parent vessel.
+    /// attached to it, which is merged (docked) to the parent vessel.
     /// </summary>
     /// <remarks>This state can only exist if the link source is linked to a target.</remarks>
     Docked,
@@ -300,25 +300,21 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </value>
   /// <seealso cref="SetCableLength"/>
   /// <seealso cref="cableJoint"/>
-  protected float currentCableLength { get { return cableJoint.deployedCableLength; } }
+  protected float currentCableLength => cableJoint.deployedCableLength;
 
   /// <summary>
   /// Maximum allowed distance between the owner part and the connector to establish a link.
   /// </summary>
   /// <value>Distance in meters. It's constant and doesn't depend on the joint state.</value>
   /// <seealso cref="currentCableLength"/>
-  protected float cfgMaxCableLength { get { return cableJoint.cfgMaxCableLength; } }
+  protected float cfgMaxCableLength => cableJoint.cfgMaxCableLength;
 
   /// <summary>
   /// Tells if the connector is physicsless, and its model is a child of the owning part.
   /// </summary>
   /// <value>The status of the connector model.</value>
-  protected bool isConnectorLocked {
-    get {
-      return connectorState == ConnectorState.Locked
-          || connectorState == ConnectorState.Docked;
-    }
-  }
+  protected bool isConnectorLocked => connectorState == ConnectorState.Locked
+      || connectorState == ConnectorState.Docked;
 
   /// <summary>State of the connector head.</summary>
   /// <value>The connector state.</value>
@@ -360,7 +356,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
   /// </remarks>
   /// <value>The state machine instance. It's never <c>null</c>.</value>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<ConnectorState> connectorStateMachine { get; private set; }
 
   /// <summary>The physical object of the connector.</summary>
@@ -371,27 +367,28 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </remarks>
   /// <value>The object or <c>null</c> if the connector is not physical.</value>
   /// <seealso cref="connectorState"/>
+  // ReSharper disable once MemberCanBePrivate.Global
   protected Transform connectorObj { get; private set; }
   #endregion
 
   #region Local fields & properties
   /// <summary>Connector grab event to inject into the linked target.</summary>
   /// <see cref="UpdateContextMenu"/>
-  BaseEvent GrabConnectorEventInject;
+  BaseEvent _grabConnectorEventInject;
   #endregion
 
   #region IHasDebugAdjustables implementation
-  PosAndRot dbgOldConnectorPosAndRot;
-  ConnectorState dbgOldConnectorState;
-  float dbgOldCableLength;
+  PosAndRot _dbgOldConnectorPosAndRot;
+  ConnectorState _dbgOldConnectorState;
+  float _dbgOldCableLength;
 
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
-    dbgOldConnectorState = connectorState;
+    _dbgOldConnectorState = connectorState;
     if (connectorState == ConnectorState.Deployed) {
-      dbgOldCableLength = currentCableLength;
+      _dbgOldCableLength = currentCableLength;
       SaveConnectorModelPosAndRot();
-      dbgOldConnectorPosAndRot = persistedConnectorPosAndRot;
+      _dbgOldConnectorPosAndRot = persistedConnectorPosAndRot;
       SetConnectorState(ConnectorState.Locked);
     }
     base.OnBeforeDebugAdjustablesUpdate();
@@ -403,13 +400,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
-          if (dbgOldConnectorState == ConnectorState.Deployed) {
+          if (_dbgOldConnectorState == ConnectorState.Deployed) {
             HostedDebugLog.Warning(
                 this, "Restoring connector: state={0}, at={1}, length={2}",
-                dbgOldConnectorState, dbgOldConnectorPosAndRot, dbgOldCableLength);
-            persistedConnectorPosAndRot = dbgOldConnectorPosAndRot;
-            SetConnectorState(dbgOldConnectorState);
-            SetCableLength(dbgOldCableLength);
+                _dbgOldConnectorState, _dbgOldConnectorPosAndRot, _dbgOldCableLength);
+            persistedConnectorPosAndRot = _dbgOldConnectorPosAndRot;
+            SetConnectorState(_dbgOldConnectorState);
+            SetCableLength(_dbgOldCableLength);
           }
         },
         skipFrames: 1);  // To match the base class delay.
@@ -422,14 +419,15 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.OnAwake();
 
     // The GUI name of this event is copied from GrabConnectorEvent in UpdateContextMenu.
-    GrabConnectorEventInject = new BaseEvent(
+    // ReSharper disable once UseObjectOrCollectionInitializer
+    _grabConnectorEventInject = new BaseEvent(
         Events,
         "autoEventAttach" + part.Modules.IndexOf(this),
         ClaimLinkedConnector,
         new KSPEvent());
-    GrabConnectorEventInject.guiActive = true;
-    GrabConnectorEventInject.guiActiveUncommand = true;
-    GrabConnectorEventInject.guiActiveUnfocused = true;
+    _grabConnectorEventInject.guiActive = true;
+    _grabConnectorEventInject.guiActiveUncommand = true;
+    _grabConnectorEventInject.guiActiveUnfocused = true;
 
     RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
@@ -477,9 +475,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.RestoreOtherPeer();
     if (otherPeer == null) {
       persistedIsConnectorLocked = true;
-      if (linkJoint != null) {
-        linkJoint.DropJoint();  // Cleanup the joints state.
-      }
+      linkJoint?.DropJoint();  // Cleanup the joints state.
     }
   }
 
@@ -488,7 +484,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.OnPartDie();
     // Make sure the connector is locked into the winch to not leave it behind.
     if (connectorObj != null) {
-      // Don't relay on the connector state machine, it will try to destory immediately.
+      // Don't relay on the connector state machine, it will try to destroy immediately.
       KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
     }
     SetConnectorState(ConnectorState.Locked);
@@ -503,12 +499,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         enterHandler: oldState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.InjectEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.AddEvent(module, GrabConnectorEventInject);
+          PartModuleUtils.AddEvent(module, _grabConnectorEventInject);
         },
         leaveHandler: newState => {
           var module = linkTarget as PartModule;
           PartModuleUtils.WithdrawEvent(this, DetachConnectorEvent, module);
-          PartModuleUtils.DropEvent(module, GrabConnectorEventInject);
+          PartModuleUtils.DropEvent(module, _grabConnectorEventInject);
         });
     linkStateMachine.AddStateHandlers(
         LinkState.NodeIsBlocked,
@@ -519,7 +515,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
                                    coupleNode.FindOpposingNode().attachedPart);
             UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
             ShowStatusMessage(
-                CannotLinkToPreattached.Format(coupleNode.attachedPart), isError: true);
+                CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
             KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
           }
         },
@@ -527,7 +523,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
 
     // The default state is "Locked". All the enter state handlers rely on it, and all the exit
     // state handlers reset the state back to the default.
-    connectorStateMachine = new SimpleStateMachine<ConnectorState>(strict: true);
+    connectorStateMachine = new SimpleStateMachine<ConnectorState>();
     connectorStateMachine.onAfterTransition += (start, end) => {
       if (end != null) { // Do nothing on state machine shutdown.
         persistedIsConnectorLocked = isConnectorLocked;
@@ -662,8 +658,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     });
     PartModuleUtils.SetupEvent(this, GrabConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Locked && linkState != LinkState.NodeIsBlocked;
-      if (GrabConnectorEventInject != null) {
-        GrabConnectorEventInject.guiName = e.guiName;
+      if (_grabConnectorEventInject != null) {
+        _grabConnectorEventInject.guiName = e.guiName;
       }
     });
     PartModuleUtils.SetupEvent(this, ReturnConnectorEvent, e => {
@@ -675,8 +671,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     PartModuleUtils.SetupEvent(this, InstantLockConnectorEvent, e => {
       e.active = connectorState == ConnectorState.Deployed;
     });
-    if (GrabConnectorEventInject != null) {
-      GrabConnectorEventInject.active = linkTarget != null
+    if (_grabConnectorEventInject != null) {
+      _grabConnectorEventInject.active = linkTarget != null
           && connectorState == ConnectorState.Plugged
           && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
     }
@@ -686,7 +682,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #region Inheritable utility methods
   /// <summary>Changes the connector state</summary>
   /// <remarks>
-  /// It's a convinience method. The caller can change the state of the connector state machine
+  /// It's a convenience method. The caller can change the state of the connector state machine
   /// instead.
   /// </remarks>
   /// <param name="newState">The new state.</param>
@@ -716,7 +712,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     return linkRenderer.GetMeshByName(KASRendererPipe.TargetNodeMesh);
   }
 
-  /// <summary>Returns connector's anchor, at wich it attaches to the pipe.</summary>
+  /// <summary>Returns connector's anchor, at which it attaches to the pipe.</summary>
   /// <returns>The anchor object. It's never <c>null</c>.</returns>
   /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
   protected Transform GetConnectorModelPipeAnchor() {
@@ -731,7 +727,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <summary>Finds model by path or logs&amp;throws.</summary>
-  /// <remarks>Just a convinience method to avoid unclear NREs.</remarks>
+  /// <remarks>Just a convenience method to avoid unclear NREs.</remarks>
   /// <returns>The model. It's never <c>null</c>.</returns>
   /// <exception cref="ArgumentException">If model cannot be retrieved.</exception>
   protected Transform FindModelOrThrow(Transform root, string path) {
@@ -762,6 +758,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// </param>
   /// <seealso cref="connectorState"/>
   /// <seealso cref="ILinkCableJoint"/>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void SetCableLength(float length) {
     if (cableJoint != null) {
       if (!float.IsInfinity(length)) {
@@ -787,7 +784,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       var kerbalTarget = FlightGlobals.ActiveVessel.rootPart.Modules.OfType<ILinkTarget>()
           .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available);
       if (kerbalTarget != null
-          && CheckCanLinkTo(kerbalTarget, reportToGUI: true, checkStates: false)) {
+          && CheckCanLinkTo(kerbalTarget, reportToGui: true, checkStates: false)) {
         BreakCurrentLink(LinkActorType.API);
         if (LinkToTarget(LinkActorType.Player, kerbalTarget)) {
           SetCableLength(float.PositiveInfinity);
@@ -815,7 +812,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       // a deployed connector at an arbitrary location.
       return;
     }
-    var connector = connectorObj ?? GetConnectorModel();
+    var connector = connectorObj
+        ? connectorObj
+        : GetConnectorModel();
     persistedConnectorPosAndRot = gameObject.transform.InverseTransformPosAndRot(
         new PosAndRot(connector.position, connector.rotation.eulerAngles));
   }
@@ -850,7 +849,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     part.rb.mass -= connectorMass;
 
     linkRenderer.StartRenderer(nodeTransform, physPartAttach);
-    Colliders.UpdateColliders(connectorModel.gameObject, isEnabled: true);
+    Colliders.UpdateColliders(connectorModel.gameObject);
     cableJoint.StartPhysicalHead(this, physPipeAttachObj);
     SaveConnectorModelPosAndRot();
   }

@@ -10,6 +10,9 @@ using KSPDev.Types;
 using System;
 using UnityEngine;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable ConvertToConstant.Global
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that draws a pipe between two nodes.</summary>
@@ -18,7 +21,7 @@ namespace KAS {
 /// <para>
 /// At each end of the pipe a model can be drawn to make the connection look nicer, it's
 /// configured separately for the pipe source and target. If nothing is configured, then the pipe
-/// (which is a cylinder mesh) simply toches the attach nodes of the parts. If the pipe diameter
+/// (which is a cylinder mesh) simply touches the attach nodes of the parts. If the pipe diameter
 /// is big, then it may look bad since the edges of the cylinder won't mix nicely with the part
 /// meshes.
 /// </para>
@@ -41,7 +44,7 @@ namespace KAS {
 /// Finally, a complete prefab model can be inserted! This model will be inserted between the part
 /// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the
 /// model, two extra parameters are needed: <c>modelPartAttachAt</c>, which defines how the model
-/// attches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
+/// attaches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
 /// model. If sphere or offsets were set, they will be counter relative to <c>modelPipeAttachAt</c>. 
 /// </para>
 /// <para>
@@ -61,10 +64,12 @@ namespace KAS {
 /// <seealso cref="KASAPIv2.ILinkRenderer"/>
 /// <seealso cref="JointConfig"/>
 /// <seealso href="http://ihsoft.github.io/KSPDev/Utils/html/M_KSPDev_ConfigUtils_ConfigAccessor_ReadPartConfig.htm"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
-/// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.PersistentFieldAttribute']/*"/>
+/// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ConfigUtils.StdPersistentGroups']/*"/>
+// ReSharper disable once InconsistentNaming
 public class KASRendererPipe : AbstractPipeRenderer,
     // KPSDev sugar interfaces.    
+    // ReSharper disable once RedundantExtendsListEntry
     IsDestroyable {
 
   #region Public config types
@@ -76,24 +81,24 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// It can be negative to shift the "joint" point in the opposite direction. If prefab model is 
     /// defined, then the offset is counted relative to <see cref="modelPipeAttachAt"/>.
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereOffset")]
     [Debug.KASDebugAdjustable("Sphere offset")]
-    public float sphereOffset;
+    public float sphereOffset = 0;
 
     /// <summary>Diameter of the sphere to place at the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("sphereDiameter")]
     [Debug.KASDebugAdjustable("Sphere diameter")]
-    public float sphereDiameter;
+    public float sphereDiameter = 0;
 
     /// <summary>Diameter of the pipe that connects the attach node and the pipe joint.</summary>
     /// <remarks>It must be zero or positive.</remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
     [PersistentField("armDiameter")]
     [Debug.KASDebugAdjustable("Arm diameter")]
-    public float armDiameter;
+    public float armDiameter = 0;
 
     /// <summary>Path to the prefab model that represents the joint.</summary>
     /// <remarks>
@@ -102,21 +107,21 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// the same model is needed for the other purposes, add a copy via a <c>MODEL</c> tag in the
     /// part's config.
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='M:KSPDev.Hierarchy.FindTransformByPath']/*"/>
     [PersistentField("model")]
     public string modelPath = "";
 
     /// <summary>Position and rotation at which the model will attach to the target part.</summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPartAttachAt")]
     [Debug.KASDebugAdjustable("Prefab PART attach pos&rot")]
     public PosAndRot modelPartAttachAt = new PosAndRot();
 
     /// <summary>Position and rotation at which the node's model will attach to the pipe.</summary>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("modelPipeAttachAt")]
     [Debug.KASDebugAdjustable("Prefab PIPE attach pos&rot")]
     public PosAndRot modelPipeAttachAt = new PosAndRot();
@@ -128,11 +133,11 @@ public class KASRendererPipe : AbstractPipeRenderer,
     /// <para>It's the location at the <i>source</i> part.</para>
     /// <para>If it's <c>null</c>, then the model will be simply hidden on the renderer stop.</para>
     /// </remarks>
-    /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
-    /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
+    /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+    /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.Types.PosAndRot']/*"/>
     [PersistentField("parkAttachAt")]
     [Debug.KASDebugAdjustable("Park location pos&rot")]
-    public PosAndRot parkAttachAt;
+    public PosAndRot parkAttachAt = new PosAndRot();
 
     /// <summary>
     /// Tells if the only prefab model, but not the procedural models must be parked on renderer
@@ -217,7 +222,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
     /// <summary>Object that becomes parent when the model is parked.</summary>
     /// <remarks>
-    /// This obejct must never be <c>null</c>. Set it to the part's model when unsure what to
+    /// This object must never be <c>null</c>. Set it to the part's model when unsure what to
     /// provide.
     /// </remarks>
     public Transform parkRootObject;
@@ -232,7 +237,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
     /// <summary>Updates the node's state to the target transform.</summary>
     /// <param name="target">
-    /// The transfrom to align the node to. If <c>null</c>, then the model will be "parked".
+    /// The transform to align the node to. If <c>null</c>, then the model will be "parked".
     /// </param>
     /// <seealso cref="parkAttach"/>
     public void AlignToTransform(Transform target) {
@@ -255,13 +260,13 @@ public class KASRendererPipe : AbstractPipeRenderer,
 
   #region Part's config settings loaded via ConfigAccessor
   /// <summary>Configuration of the source joint model.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("sourceJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Source joint config")]
   public JointConfig sourceJointConfig = new JointConfig();
 
   /// <summary>Configuration of the target joint model.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentField/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentField/*"/>
   [PersistentField("targetJoint", group = StdPersistentGroups.PartConfigLoadGroup)]
   [Debug.KASDebugAdjustable("Target joint config")]
   public JointConfig targetJointConfig = new JointConfig();
@@ -283,7 +288,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// </remarks>
   /// <seealso cref="CreateLinkPipe"/>
   /// <seealso cref="UpdateLink"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Renderer']/*"/>
   protected Renderer pipeMeshRenderer;
 
   /// <summary>Pipe ending node at the source.</summary>
@@ -420,8 +425,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <summary>Builds a model for the joint end basing on the configuration.</summary>
   /// <param name="node">The node to setup.</param>
   /// <param name="alignTo">
-  /// The object to align the conenctor to. If it's <c>null</c>, then the model will be parked.
+  /// The object to align the connector to. If it's <c>null</c>, then the model will be parked.
   /// </param>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual void UpdateJointNode(ModelPipeEndNode node, Transform alignTo) {
     var config = node.config;
     var makeProceduralModels = alignTo != null || !config.parkPrefabOnly;
@@ -434,7 +440,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     node.parkRootObject = partModelTransform;
     
     // Create basic setup.
-    var nodeName = ModelBasename + "-pipeNode" + node.name;
+    var nodeName = modelBasename + "-pipeNode" + node.name;
     node.rootModel = partModelTransform.Find(nodeName)
         ?? new GameObject(nodeName).transform;
     node.rootModel.parent = partModelTransform;
@@ -454,27 +460,29 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var sphere = node.pipeAttach.Find(sphereName);
     if (config.sphereDiameter > float.Epsilon && makeProceduralModels) {
       if (sphere == null) {
-        sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
-                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        sphere = Meshes2.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
+                                      colliderType: Colliders.PrimitiveCollider.Shape).transform;
         sphere.name = sphereName;
         sphere.rotation = Quaternion.LookRotation(node.partAttach.up, node.partAttach.forward);
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
-      Hierarchy.SafeDestory(sphere);
+      Hierarchy2.SafeDestroy(sphere);
     }
 
     // Parking position, if defined.
-    var parkObjectName = ModelBasename + "-park" + node.name;
+    var parkObjectName = modelBasename + "-park" + node.name;
     var parkAttach = partModelTransform.Find(parkObjectName);
     if (config.parkAttachAt != null) {
-      node.parkAttach = parkAttach ?? new GameObject(parkObjectName).transform;
+      node.parkAttach = parkAttach
+          ? parkAttach
+          : new GameObject(parkObjectName).transform;
       Hierarchy.MoveToParent(node.parkAttach, partModelTransform,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
     } else if (parkAttach != null) {
-      Hierarchy.SafeDestory(parkAttach);
+      Hierarchy2.SafeDestroy(parkAttach);
     }
 
     // Place prefab between the part and the pipe if specified.
@@ -507,17 +515,18 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon
         && makeProceduralModels) {
       if (arm == null) {
-        arm = Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
-                                    node.pipeAttach,
-                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        arm = Meshes2.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                     node.pipeAttach,
+                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
         arm.name = armName;
       }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
-      arm.transform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
-      arm.transform.localRotation = Quaternion.LookRotation(Vector3.forward);
-      RescalePipeTexture(arm.transform, arm.localScale.z * config.sphereOffset);
+      var armTransform = arm.transform; 
+      armTransform.localPosition = new Vector3(0, 0, -config.sphereOffset / 2);
+      armTransform.localRotation = Quaternion.LookRotation(Vector3.forward);
+      RescalePipeTexture(armTransform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
-      Hierarchy.SafeDestory(arm);
+      Hierarchy2.SafeDestroy(arm);
     }
 
     // Adjust to the new target.
@@ -534,7 +543,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var colliderType = pipeColliderIsPhysical
         ? Colliders.PrimitiveCollider.Shape
         : Colliders.PrimitiveCollider.None;
-    pipeTransform = Meshes.CreateCylinder(
+    pipeTransform = Meshes2.CreateCylinder(
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
@@ -553,16 +562,19 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <param name="toObj">The object to draw pipe to.</param>
   /// <seealso cref="pipeTransform"/>
   protected virtual void SetupPipe(Transform fromObj, Transform toObj) {
-    pipeTransform.position = (fromObj.position + toObj.position) / 2;
-    if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
-      pipeTransform.LookAt(fromObj);
-    } else {
-      pipeTransform.LookAt(toObj);
-    }
-    pipeTransform.localScale = new Vector3(
-        pipeTransform.localScale.x,
-        pipeTransform.localScale.y,
-        Vector3.Distance(fromObj.position, toObj.position) / baseScale);
+    var fromObjPosition = fromObj.position;
+    var toObjPosition = toObj.position;
+    pipeTransform.position = (fromObjPosition + toObjPosition) / 2;
+    pipeTransform.LookAt(
+        pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget
+            ? fromObj
+            : toObj);
+    var localScale = pipeTransform.localScale;
+    localScale = new Vector3(
+        localScale.x,
+        localScale.y,
+        Vector3.Distance(fromObjPosition, toObjPosition) / baseScale);
+    pipeTransform.localScale = localScale;
     if (pipeTextureRescaleMode != PipeTextureRescaleMode.Stretch) {
       RescalePipeTexture(pipeTransform, pipeTransform.localScale.z, renderer: pipeMeshRenderer);
     }
@@ -573,7 +585,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// The mesh UV coordinates are expected to be distributed over its full length from <c>0.0</c> to
   /// <c>1.0</c>. Such configuration ensures that texture covers the entire mesh, and
   /// stretches/shrinks as the mesh changes its length. However, in the tiling modes, the texture
-  /// must be distributed over the mesh lengh so that it's not changing its ratio. This method
+  /// must be distributed over the mesh length so that it's not changing its ratio. This method
   /// checks the renderer stretching mode and adjusts the texture scale.
   /// <para>
   /// This method is intentionally not virtual, since it's a utility method. Any part specific logic
@@ -593,7 +605,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <seealso cref="AbstractPipeRenderer.pipeTextureRescaleMode"/>
   protected void RescalePipeTexture(Transform obj, float length, Renderer renderer = null) {
     var newScale = length * pipeTextureSamplesPerMeter / baseScale;
-    var material = (renderer ?? obj.GetComponent<Renderer>()).material;
+    var material = (renderer
+        ? renderer
+        : obj.GetComponent<Renderer>()).material;
     material.mainTextureScale = new Vector2(material.mainTextureScale.x, newScale);
     SetBumpMap(material, propName => {
       var nrmScale = material.GetTextureScale(propName);

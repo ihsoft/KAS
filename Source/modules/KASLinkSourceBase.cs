@@ -1,10 +1,8 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
-using KSPDev.DebugUtils;
 using KSPDev.GUIUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -16,6 +14,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Base link source module. Does all the job on making two parts linked.</summary>
@@ -31,9 +31,10 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02008.
+// Next localization ID: #kasLOC_02009.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
+// ReSharper disable once InconsistentNaming
 public class KASLinkSourceBase : AbstractLinkPeer,
     // KSP interfaces.
     IModuleInfo,
@@ -43,67 +44,72 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message IncompatibleTargetLinkTypeMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message IncompatibleTargetLinkTypeMsg = new Message(
       "#kasLOC_02000",
       defaultTemplate: "Incompatible target link type",
       description: "Message to display when the target link type doesn't match the source type.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message SourceIsNotAvailableForLinkMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SourceIsNotAvailableForLinkMsg = new Message(
       "#kasLOC_02001",
       defaultTemplate: "Source is not available for a link",
       description: "Message to display when a source is refusing to start the link.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message TargetDoesntAcceptLinksMsg = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message TargetDoesntAcceptLinksMsg = new Message(
       "#kasLOC_02002",
       defaultTemplate: "Target doesn't accept links",
       description: "Message to display when the target is refusing to accept the link.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  readonly static Message<string> CannotRestoreLinkMsg = new Message<string>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<string> CannotRestoreLinkMsg = new Message<string>(
       "#kasLOC_02003",
       defaultTemplate: "Cannot restore link for: <<1>>",
       description: "Message to display when a linked source and target cannot be matched on load."
       + "\nArgument <<1>> is a name of the SOURCE part.",
       example: "Cannot restore link for: KAS.TJ1");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  readonly static Message<string> LinksWithSocketTypeInfo = new Message<string>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  static readonly Message<string> LinksWithSocketTypeInfo = new Message<string>(
       "#kasLOC_02004",
       defaultTemplate: "Links with socket type: <<1>>",
       description: "Info string in the editor for the link type setting."
       + "\nArgument <<1>> is the type string from the part's config.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message ModuleTitleInfo = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitleInfo = new Message(
       "#kasLOC_02005",
       defaultTemplate: "KAS Joint Source",
       description: "Title of the module to present in the editor details window.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message DockedModeMenuTxt = new Message(
       "#kasLOC_02006",
       defaultTemplate: "Link mode: DOCKED",
-      description: "The name of the part's context menu event that triggers a separtation of the"
+      description: "The name of the part's context menu event that triggers a separation of the"
       + " linked parts into two different vessels if they are coupled thru this link. At the same"
       + " time, the name of the event gives a currently selected state.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message UndockedModeMenuTxt = new Message(
       "#kasLOC_02007",
       defaultTemplate: "Link mode: UNDOCKED",
       description: "The name of the part's context menu event that triggers a merging of the"
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
       + " gives a currently selected state.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message TargetCannotCoupleMsg = new Message(
+      "#kasLOC_02008",
+      defaultTemplate: "Target cannot couple",
+      description: "Message to display when the target is refusing to couple (dock) with the link"
+      + " source.");
   #endregion
 
   #region ILinkSource properties implementation
   /// <inheritdoc/>
-  public ILinkTarget linkTarget {
-    get { return otherPeer as ILinkTarget; }
-  }
+  public ILinkTarget linkTarget => otherPeer as ILinkTarget;
 
   /// <inheritdoc/>
   /// <seealso cref="jointName"/>
@@ -116,6 +122,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region Part's config fields
   /// <summary>Specifies how/if the parts should be coupled on link.</summary>
+  /// <remarks>
+  /// Never change the existing values since they may be used in the part configs.
+  /// </remarks>
   public enum CoupleMode {
     /// <summary>The docking state of the link is determined from the persistent state.</summary>
     /// <remarks>
@@ -123,6 +132,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     /// target parts must be enabled for coupling in order to be able to dock. IF any of the peers
     /// doesn't allow it, there will be no context menu option.
     /// </remarks>
+    // ReSharper disable once InconsistentNaming
     SetViaGUI,
 
     /// <summary>The link is always established in docked mode.</summary>
@@ -147,25 +157,25 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <seealso cref="ILinkRenderer.cfgRendererName"/>
   /// <seealso cref="linkRenderer"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Renderer name")]
   public string linkRendererName = "";
 
   /// <summary>Name of the joint to use with this source.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Joint name")]
   public string jointName = "";
 
   /// <summary>Audio sample to play when the parts are docked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - part dock")]
   public string sndPathDock = "";
 
   /// <summary>Audio sample to play when the parts are undocked by the player.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Sound - part undock")]
   public string sndPathUndock = "";
@@ -176,7 +186,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// support coupling. If they don't, then the coupling will be made without using the attach
   /// nodes. An error will be logged, and the further behavior of the assembly is undetermined.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Coupling mode")]
   public CoupleMode coupleMode = CoupleMode.NeverCouple;
@@ -211,7 +221,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
   // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUncommand = true, guiActiveUnfocused = true)]
   [LocalizableItem(tag = null)]
   public virtual void ToggleVesselsDockModeEvent() {
@@ -229,23 +239,25 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region AbstractLinkPeer overrides
   /// <summary>Reacts on a part de-coupling and adjusts the docking mode.</summary>
   /// <remarks>
-  /// If active mode was "DOCKING", and the coupling hasn't restored, then reset the mode since it
-  /// erroneous now. 
+  /// This is a cleanup method that verifies that all links in the DOCKED mode remained coupled
+  /// after decoupling of the part. If it's not the case, the DOCKED mode is reset to ATTACHED. In
+  /// the normal case the joint module takes care of restoring the affected couplings, and this
+  /// method becomes NO-OP.  
   /// </remarks>
   /// <param name="originator">The part that has decoupled.</param>
   void OnPartDeCoupleCompleteEvent(Part originator) {
-    if (!isLinked || !linkJoint.coupleOnLinkMode) {
+    if (!isLinked || !linkJoint.coupleOnLinkMode || linkTarget.part.vessel == vessel) {
       return;  // Not interested.
     }
     // Wait for one frame to allow joint logic to restore the coupling, and then check.
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
-          if (isLinked && vessel != originator.vessel) {
+          if (isLinked && linkJoint.coupleOnLinkMode && linkTarget.part.vessel != vessel) {
             HostedDebugLog.Fine(
                 this,
                 "Coupling has not been restored, resetting the docking mode: {0} <=> {1}",
-                part, originator);
+                part, linkTarget.part);
             linkJoint.SetCoupleOnLinkMode(false);
             UpdateContextMenu();
           }
@@ -254,7 +266,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <inheritdoc/>
-  public override void OnStart(PartModule.StartState state) {
+  public override void OnStart(StartState state) {
     base.OnStart(state);
     InitStartState();
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
@@ -266,7 +278,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (isLinked && linkTarget.part.vessel != vessel) {
       // When the target is at the different vessel, there is no automatic collision ignore set.
       AsyncCall.CallOnFixedUpdate(this, () => {
-        // Copied from KervalEVA.OnVesselGoOffRails() method.
+        // Copied from KerbalEVA.OnVesselGoOffRails() method.
         // There must be a delay for at least 3 fixed frames.
         if (isLinked) {  // Link may get broken during the physics easyment.
           CollisionManager.IgnoreCollidersOnVessel(
@@ -370,9 +382,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           .OfType<ILinkTarget>()
           .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available
                                && t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t, reportToLog: true));
+                               && CheckCanLinkTo(t));
       if (target != null) {
-        HostedDebugLog.Fine(this, "Linking with the preattached part: {0}", target);
+        HostedDebugLog.Fine(this, "Linking with the pre-attached part: {0}", target);
         LinkToTarget(LinkActorType.API, target);
       }
       if (!isLinked) {
@@ -381,7 +393,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
                             coupleNode.attachedPart);
         AsyncCall.CallOnEndOfFrame(this, () => {
           if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
-            HostedDebugLog.Warning(this, "Cannot link to the preattached part: from={0}, to={1}",
+            HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
                                    KASAPI.AttachNodesUtils.NodeId(coupleNode),
                                    KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
             SetLinkState(LinkState.NodeIsBlocked);
@@ -426,8 +438,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkTarget dbgOldTarget;
-  float dbgOldCableLength;
+  ILinkTarget _dbgOldTarget;
+  float _dbgOldCableLength;
 
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
@@ -435,12 +447,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (linkState != LinkState.Linked && linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
-    dbgOldTarget = linkTarget;
-    dbgOldCableLength = -1;
+    _dbgOldTarget = linkTarget;
+    _dbgOldCableLength = -1;
     if (isLinked) {
       var cableJoint = linkJoint as ILinkCableJoint;
       if (cableJoint != null) {
-        dbgOldCableLength = cableJoint.deployedCableLength;
+        _dbgOldCableLength = cableJoint.deployedCableLength;
       }
       BreakCurrentLink(LinkActorType.Player);
     }
@@ -456,13 +468,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           InitModuleSettings();
           InitStartState();
           UpdateContextMenu();
-          if (dbgOldTarget != null) {
-            HostedDebugLog.Warning(this, "Relinking to target: {0}", dbgOldTarget);
-            LinkToTarget(LinkActorType.Player, dbgOldTarget);
+          if (_dbgOldTarget != null) {
+            HostedDebugLog.Warning(this, "Relinking to target: {0}", _dbgOldTarget);
+            LinkToTarget(LinkActorType.Player, _dbgOldTarget);
             var cableJoint = linkJoint as ILinkCableJoint;
             if (cableJoint != null) {
-              HostedDebugLog.Warning(this, "Restoring cable length: {0}", dbgOldCableLength);
-              cableJoint.SetCableLength(dbgOldCableLength);
+              HostedDebugLog.Warning(this, "Restoring cable length: {0}", _dbgOldCableLength);
+              cableJoint.SetCableLength(_dbgOldCableLength);
             }
           }
         },
@@ -543,7 +555,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot link in state: {0}", linkState);
       return false;
     }
-    if (!CheckCanLinkTo(target, reportToGUI: linkActor == LinkActorType.Player)) {
+    if (!CheckCanLinkTo(target, reportToGui: linkActor == LinkActorType.Player)) {
       return false;
     }
     if (coupleMode == CoupleMode.AlwaysCoupled
@@ -581,19 +593,19 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   public virtual bool CheckCanLinkTo(ILinkTarget target,
                                      bool checkStates = true,
-                                     bool reportToGUI = false, bool reportToLog = true) {
+                                     bool reportToGui = false, bool reportToLog = true) {
     var errors = new List<string>()
         .Concat(CheckBasicLinkConditions(target, checkStates))
         .Concat(linkRenderer.CheckColliderHits(nodeTransform, target.nodeTransform))
         .Concat(linkJoint.CheckConstraints(this, target))
         .ToArray();
     if (errors.Length > 0) {
-      if (reportToGUI || reportToLog) {
+      if (reportToGui || reportToLog) {
         HostedDebugLog.Warning(
             this, "Cannot link a part of type={0} with: part={1}, type={2}, errors={3}",
             cfgLinkType, target.part, target.cfgLinkType, DbgFormatter.C2S(errors));
       }
-      if (reportToGUI) {
+      if (reportToGui) {
         ShowStatusMessage(DbgFormatter.C2S(errors, separator: "\n"), isError: true);
       }
     }
@@ -642,12 +654,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   }
 
   /// <summary>
-  /// Logically unlinks the source and the current target, and stops the renderer.
+  /// Logically un-links the source and the current target, and stops the renderer.
   /// </summary>
   /// <remarks>It's always called <i>after</i> the physical link updates.</remarks>
-  /// <param name="actorType">The actor which has intiated the unlinking.</param>
+  /// <param name="actorType">The actor which has initiated the un-linking.</param>
   protected virtual void LogicalUnlink(LinkActorType actorType) {
-    HostedDebugLog.Info(this, "Unlinking from target: {0}, actor={1}", linkTarget, actorType);
+    HostedDebugLog.Info(this, "Un-linking from target: {0}, actor={1}", linkTarget, actorType);
     linkActor = actorType;
     var linkInfo = new KasLinkEventImpl(this, linkTarget, actorType);
     linkRenderer.StopRenderer();
@@ -687,6 +699,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <returns>
   /// An empty array if the link can be created, or a list of user friendly errors otherwise.
   /// </returns>
+  // ReSharper disable once VirtualMemberNeverOverridden.Global
   protected virtual string[] CheckBasicLinkConditions(ILinkTarget target, bool checkStates) {
     var errors = new List<string>();
     if (checkStates) {
@@ -703,8 +716,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       errors.Add(IncompatibleTargetLinkTypeMsg);
     }
     if (coupleMode == CoupleMode.AlwaysCoupled && target.coupleNode == null) {
-      Message TargetCannotCouple = "Target cannot couple"; //FIXME
-      errors.Add(TargetCannotCouple);
+      errors.Add(TargetCannotCoupleMsg);
     }
     return errors.ToArray();
   }

@@ -1,18 +1,15 @@
 ﻿// Kerbal Attachment System
-// https://forum.kerbalspaceprogram.com/index.php?/topic/142594-15-kerbal-attachment-system-kas-v11
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
-using System;
 using System.Linq;
 using UnityEngine;
 
-using KSPDev.LogUtils;
-
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>
-/// Module for the felxible pipes that bend at a curve, close to the real physical behavior.
+/// Module for the flexible pipes that bend at a curve, close to the real physical behavior.
 /// </summary>
 /// <remarks>
 /// The form of the pipe is calculated using the Cubic Bezier curves. This renderer is CPU
@@ -26,6 +23,7 @@ namespace KAS {
 /// </remarks>
 /// <seealso cref="KASJointTwoEndsSphere"/>
 /// <seealso cref="KASJointRigid"/>
+// ReSharper disable once InconsistentNaming
 public sealed class KASRendererBezierPipe : KASRendererPipe {
 
   #region Part's config fields
@@ -35,7 +33,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// greater than <c>0.0</c>. No maximum limit, but keep it reasonable. Rule of thumb is to keep
   /// it equal to or greater than the pipe's diameter.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <seealso cref="AbstractPipeRenderer.pipeDiameter"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe bend resistance")]
@@ -44,11 +42,11 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <summary>Recommended number of the adjustable sections in the pipe mesh.</summary>
   /// <remarks>
   /// The bigger values will give better visual quality but impact the performance. This value is
-  /// used only as a <i>recommendation</i> for the setting. The implemenation is not required to
+  /// used only as a <i>recommendation</i> for the setting. The implementation is not required to
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe mesh sections")]
   public int pipeMeshSections = 21;
@@ -56,11 +54,11 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <summary>Number of the segments in the pipe perimeter shape.</summary>
   /// <remarks>
   /// The bigger values will give better visual quality but impact the performance. This value is
-  /// used only as a <i>recommendation</i> for the setting. The implemenation is not required to
+  /// used only as a <i>recommendation</i> for the setting. The implementation is not required to
   /// create exactly this many sections. This setting defines the "baseline" of the renderer
   /// performance and visual quality. The actual quality settings can affect this value.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Pipe shape smoothness")]
   public int pipeShapeSmoothness = 16;
@@ -71,7 +69,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// distinguishable patterns, like text. For the monotonic textures using of just one sample is
   /// good enough.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Texture wraps")]
   public int pipeTextureWraps = 2;
@@ -80,9 +78,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   #region Local fields and properties
   /// <summary>Skinned renderer for the pipe.</summary>
   /// <value>The skinned renderer or <c>null</c> if none exists.</value>
-  SkinnedMeshRenderer pipeSkinnedMeshRenderer {
-    get { return pipeMeshRenderer as SkinnedMeshRenderer; }
-  }
+  SkinnedMeshRenderer pipeSkinnedMeshRenderer => pipeMeshRenderer as SkinnedMeshRenderer;
 
   /// <summary>The <c>t</c> parameter of the Bezier Curve. Per mesh bone.</summary>
   /// <remarks>
@@ -99,7 +95,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// </remarks>
   /// <seealso cref="MakeBoneSamples"/>
   /// <seealso cref="pipeMeshSections"/>
-  float[] boneOffsets;
+  float[] _boneOffsets;
 
   /// <summary>Colliders, assigned to the bones.</summary>
   /// <remarks>
@@ -107,30 +103,30 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// member is <c>null</c> for the non-physical renderers, of if the renderer is not started yet. 
   /// </remarks>
   /// <seealso cref="UpdateColliders"/>
-  CapsuleCollider[] colliders;
+  CapsuleCollider[] _colliders;
   #endregion
 
   #region KASRendererPipe overrides
   /// <inheritdoc/>
   protected override void SetupPipe(Transform fromObj, Transform toObj) {
-    // Purposely not calling the base since it would try to align a stright pipe. 
+    // Purposely not calling the base since it would try to align a straight pipe.
     AlignToCurve(fromObj, toObj);
   }
 
   /// <inheritdoc/>
   protected override void CreateLinkPipe() {
-    // Relacing the base that creates a stright pipe.
+    // Replacing the base that creates a straight pipe.
     DestroyPipeMesh();
     MakeBoneSamples();
-    pipeTransform = new GameObject(ModelBasename + "-pipe").transform;
+    pipeTransform = new GameObject(modelBasename + "-pipe").transform;
     pipeTransform.parent = sourceTransform;
 
     // Make the boned cylinder vertices. To properly wrap the texture we need an extra vertex.
-    int VertexCount = (pipeShapeSmoothness + 1) * pipeMeshSections;
-    var vertices = new Vector3[VertexCount];
-    var normals = new Vector3[VertexCount];
-    var uv = new Vector2[VertexCount];
-    var boneWeights = new BoneWeight[VertexCount];
+    var vertexCount = (pipeShapeSmoothness + 1) * pipeMeshSections;
+    var vertices = new Vector3[vertexCount];
+    var normals = new Vector3[vertexCount];
+    var uv = new Vector2[vertexCount];
+    var boneWeights = new BoneWeight[vertexCount];
     var vertexIdx = 0;
     var angleStep = 2.0f * Mathf.PI / pipeShapeSmoothness;
     var radius = pipeDiameter / 2;
@@ -139,7 +135,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
         vertices[vertexIdx] = new Vector3(
             radius * Mathf.Sin(angleStep * i),
             radius * Mathf.Cos(angleStep * i),
-            boneOffsets[j]);
+            _boneOffsets[j]);
         normals[vertexIdx] = new Vector3(
             radius * Mathf.Sin(angleStep * i), radius * Mathf.Cos(angleStep * i), 0);
         if (pipeTextureRescaleMode == PipeTextureRescaleMode.TileFromTarget) {
@@ -182,20 +178,21 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
       bones[j] = new GameObject("bone" + j).transform;
       bones[j].parent = pipeTransform;
       bones[j].localRotation = Quaternion.identity;
-      bones[j].localPosition = Vector3.forward * boneOffsets[j];
+      bones[j].localPosition = Vector3.forward * _boneOffsets[j];
       bindPoses[j] = bones[j].worldToLocalMatrix * pipeTransform.localToWorldMatrix;
     }
 
     pipeMeshRenderer = pipeTransform.gameObject.AddComponent<SkinnedMeshRenderer>();
     pipeSkinnedMeshRenderer.sharedMaterial = pipeMaterial;
 
-    var mesh = new Mesh();
-    mesh.vertices = vertices;
-    mesh.normals = normals;
-    mesh.uv = uv;
-    mesh.triangles = triangles;
-    mesh.boneWeights = boneWeights;
-    mesh.bindposes = bindPoses;
+    var mesh = new Mesh {
+        vertices = vertices,
+        normals = normals,
+        uv = uv,
+        triangles = triangles,
+        boneWeights = boneWeights,
+        bindposes = bindPoses
+    };
 
     pipeSkinnedMeshRenderer.bones = bones;
     pipeSkinnedMeshRenderer.sharedMesh = mesh;
@@ -219,7 +216,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
     base.DestroyPipeMesh();
-    colliders = null;
+    _colliders = null;
   }
 
   /// <inheritdoc/>
@@ -237,7 +234,7 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   /// end attach nodes.
   /// </summary>
   /// <remarks>
-  /// This is a simplified implementation of the Bezier Curve algorythm. We only need 3 points
+  /// This is a simplified implementation of the Bezier Curve algorithm. We only need 3 points
   /// (cubic curves), so it can be programmed plain simple.   
   /// </remarks>
   /// <seealso href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve"/>
@@ -246,26 +243,26 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     var p1 = p0 + fromObj.forward * pipeBendResistance;
     var p3 = toObj.position;
     var p2 = p3 + toObj.forward * pipeBendResistance;
-    var p0vector = p1 - p0;
-    var p1vector = p2 - p1;
-    var p2vector = p3 - p2;
+    var p0Vector = p1 - p0;
+    var p1Vector = p2 - p1;
+    var p2Vector = p3 - p2;
     var bones = pipeSkinnedMeshRenderer.bones;
     for (var i = 0; i < bones.Length; i++) {
       var section = bones[i];
-      var t = boneOffsets[i];
+      var t = _boneOffsets[i];
 
       // Simplified implementation for the cubic curves. 
-      var p01pos = p0 + p0vector * t;
-      var p12pos = p1 + p1vector * t;
-      var p23pos = p2 + p2vector * t;
-      var p02pos = p01pos + (p12pos - p01pos) * t;
-      var p13pos = p12pos + (p23pos - p12pos) * t;
-      var elementVector = p13pos - p02pos;
+      var p01Pos = p0 + p0Vector * t;
+      var p12Pos = p1 + p1Vector * t;
+      var p23Pos = p2 + p2Vector * t;
+      var p02Pos = p01Pos + (p12Pos - p01Pos) * t;
+      var p13Pos = p12Pos + (p23Pos - p12Pos) * t;
+      var elementVector = p13Pos - p02Pos;
       var elementDir = elementVector.normalized;
-      var elementPos = p02pos + elementVector * t;
+      var elementPos = p02Pos + elementVector * t;
 
       section.transform.position = elementPos;
-      // Use UP vector from the previous node to reduce artefacts when the pipe is bend at a sharp
+      // Use UP vector from the previous node to reduce artifacts when the pipe is bend at a sharp
       // angle.
       section.transform.rotation = Quaternion.LookRotation(
           elementDir, i == 0 ? fromObj.up : bones[i - 1].up);
@@ -274,14 +271,14 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
     // Have the texture rescale setting adjusted.
     RescaleMeshSectionTextures();
 
-    if (colliders != null) {
+    if (_colliders != null) {
       UpdateColliders();
     }
   }
 
   /// <summary>Adjusts the texture on the pipe object to fit the rescale mode.</summary>
   /// <remarks>
-  /// It makes sure the texture is properly distrubited thru all the pipe mesh sections.
+  /// It makes sure the texture is properly distributed thru all the pipe mesh sections.
   /// </remarks>
   void RescaleMeshSectionTextures() {
     // Find out the real length of the pipe.
@@ -318,12 +315,12 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   }
 
   /// <summary>Creates the Bezier Curve arguments (the <c>t</c> parameter).</summary>
-  /// <seealso cref="boneOffsets"/>
+  /// <seealso cref="_boneOffsets"/>
   void MakeBoneSamples() {
     var k = pipeMeshSections - 1;
-    boneOffsets = new float[pipeMeshSections];
+    _boneOffsets = new float[pipeMeshSections];
     for (var n = 0; n < pipeMeshSections; n++) {
-      boneOffsets[n] = (float)n / k;
+      _boneOffsets[n] = (float)n / k;
     }
   }
 
@@ -331,13 +328,13 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   void CreateColliders() {
     var bones = pipeSkinnedMeshRenderer.bones;
     // TODO(ihsoft): Capsules will hit extra things at the ends of the pipe. Find a way to fix it.
-    colliders = new CapsuleCollider[bones.Length - 1];
+    _colliders = new CapsuleCollider[bones.Length - 1];
     for (var i = 0; i < bones.Length - 1; ++i) {
       var capsule = bones[i].transform.gameObject.AddComponent<CapsuleCollider>();
       capsule.direction = 2; // Z-axis
       capsule.radius = pipeDiameter / 2;
       capsule.height = pipeDiameter;
-      colliders[i] = capsule;
+      _colliders[i] = capsule;
     }
   }
 
@@ -345,10 +342,10 @@ public sealed class KASRendererBezierPipe : KASRendererPipe {
   void UpdateColliders() {
     var bones = pipeSkinnedMeshRenderer.bones;
     for (var i = 0; i < bones.Length - 1; ++i) {
-      var capsule = colliders[i];
+      var capsule = _colliders[i];
       var boneDistance = (bones[i].position - bones[i + 1].position).magnitude;
       capsule.center = new Vector3(0, 0, boneDistance / 2);
-      // The capsules from the adjustent bones should "connect" at the half-sphere center.
+      // The capsules from the adjacent bones should "connect" at the half-sphere center.
       capsule.height = boneDistance + pipeDiameter;
     }
   }

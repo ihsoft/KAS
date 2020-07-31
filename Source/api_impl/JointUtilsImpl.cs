@@ -1,12 +1,13 @@
 ﻿// Kerbal Attachment System API
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// API design and implemenation: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KSPDev.LogUtils;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable UseStringInterpolation
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 class JointUtilsImpl : KASAPIv2.IJointUtils {
@@ -235,7 +236,7 @@ class JointUtilsImpl : KASAPIv2.IJointUtils {
   }
 
   static string Dump(SoftJointLimit limit) {
-    return string.Format("SoftJointLimit(limit={0}, boinciness={1}, contactDistance={2})",
+    return string.Format("SoftJointLimit(limit={0}, bounciness={1}, contactDistance={2})",
                          limit.limit, limit.bounciness, limit.contactDistance);
   }
 

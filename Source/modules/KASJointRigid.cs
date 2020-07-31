@@ -1,14 +1,15 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KSPDev.LogUtils;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that controls a stock-alike physical joint on a KAS part.</summary>
 /// <remarks>This module handles all the stock attach node settings.</remarks>
+// ReSharper disable once InconsistentNaming
 public class KASJointRigid : AbstractJoint {
 
   #region AbstractLinkJoint overrides
@@ -35,7 +36,7 @@ public class KASJointRigid : AbstractJoint {
     }
   }
 
-  /// <summary>Creates a stock-alike joint between the unrealted parts.</summary>
+  /// <summary>Creates a stock-alike joint between the unrelated parts.</summary>
   /// <remarks>The physical joints will be controlled by the module.</remarks>
   void CreateCustomJoint() {
     HostedDebugLog.Fine(

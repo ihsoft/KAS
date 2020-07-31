@@ -1,6 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
@@ -16,6 +15,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that implements basic logic for a physical joint on a KAS part.</summary>
@@ -43,9 +44,9 @@ public abstract class AbstractJoint : AbstractPartModule,
     IsPackable, IKSPDevModuleInfo, IKSPActivateOnDecouple {
 
   #region Localizable GUI strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  readonly static Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType, DistanceType> MinLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00000",
           defaultTemplate: "Link is too short: <<1>> < <<2>>",
@@ -55,9 +56,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too short: 1.22 m < 2.33 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  readonly static Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType, DistanceType> MaxLengthLimitReachedMsg =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_00001",
           defaultTemplate: "Link is too long: <<1>> > <<2>>",
@@ -67,9 +68,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type DistanceType.",
           example: "Link is too long: 2.33 m > 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  readonly static Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType, AngleType> SourceNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00002",
           defaultTemplate: "Source angle limit reached: <<1>> > <<2>>",
@@ -79,9 +80,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type AngleType.",
           example: "Source angle limit reached: 3° > 2.5°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message2/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  readonly static Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message2/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType, AngleType> TargetNodeAngleLimitReachedMsg =
       new Message<AngleType, AngleType>(
           "#kasLOC_00003",
           defaultTemplate: "Target angle limit reached: <<1>> > <<2>>",
@@ -91,27 +92,27 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<2>> is the part's config setting of type AngleType.",
           example: "Target angle limit reached: 3° > 2.5°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  readonly static Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  static readonly Message<ForceType> LinkLinearStrengthInfo = new Message<ForceType>(
       "#kasLOC_00004",
       defaultTemplate: "Link break force: <<1>>",
       description: "Info string in the editor for the link break force setting. The argument is of"
       + " type ForceType.",
       example: "Link break force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  readonly static Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  static readonly Message<ForceType> LinkBreakStrengthInfo = new Message<ForceType>(
       "#kasLOC_00005",
       defaultTemplate: "Link torque force: <<1>>",
       description: "Info string in the editor for the link break torque setting. The argument is of"
       + " type ForceType.",
       example: "Link torque force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  readonly static Message<DistanceType> MinimumLinkLengthInfo =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType> MinimumLinkLengthInfo =
       new Message<DistanceType>(
           "#kasLOC_00006",
           defaultTemplate: "Minimum link length: <<1>>",
@@ -119,9 +120,9 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<1>> is the part's config setting of type DistanceType.",
           example: "Minimum link length: 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
-  readonly static Message<DistanceType> MaximumLinkLengthInfo =
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.DistanceType']/*"/>
+  static readonly Message<DistanceType> MaximumLinkLengthInfo =
       new Message<DistanceType>(
           "#kasLOC_00007",
           defaultTemplate: "Maximum link length: <<1>>",
@@ -129,26 +130,26 @@ public abstract class AbstractJoint : AbstractPartModule,
           + "\nArgument <<1>> is the part's config setting of type DistanceType.",
           example: "Maximum link length: 1.22 m");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  readonly static Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType> SourceJointFreedomInfo = new Message<AngleType>(
       "#kasLOC_00008",
       defaultTemplate: "Source angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the source."
       + "\nArgument <<1>> is the part's config setting of type AngleType.",
       example: "Source angle limit: 1.2°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
-  readonly static Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.AngleType']/*"/>
+  static readonly Message<AngleType> TargetJointFreedomInfo = new Message<AngleType>(
       "#kasLOC_00009",
       defaultTemplate: "Target angle limit: <<1>>",
       description: "Info string in the editor for the maximum allowed angle at the target."
       + "\nArgument <<1>> is the part's config setting of type AngleType.",
       example: "Target angle limit: 1.2°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message ModuleTitle = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitle = new Message(
       "#kasLOC_00010",
       defaultTemplate: "KAS Joint",
       description: "Title of the module to present in the editor details window.");
@@ -156,12 +157,12 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   #region ILinkJoint CFG properties
   /// <inheritdoc/>
-  public string cfgJointName { get { return jointName; } }
+  public string cfgJointName => jointName;
   #endregion
 
   #region Part's config fields
   /// <summary>See <see cref="cfgJointName"/>.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   public string jointName = "";
 
@@ -170,17 +171,17 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength infinite.
   /// </remarks>
   /// <seealso cref="SetBreakForces"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Break force")]
   public float linkBreakForce;
 
-  /// <summary>Breaking torque for the sttrut connecting the two parts.</summary>
+  /// <summary>Breaking torque for the strut connecting the two parts.</summary>
   /// <value>
   /// Force is in kilonewtons. If <c>0</c>, then the joint strength is infinite.
   /// </value>
   /// <seealso cref="SetBreakForces"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Break torque")]
   public float linkBreakTorque;
@@ -190,7 +191,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Source angle limit")]
   public int sourceLinkAngleLimit;
@@ -200,7 +201,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <remarks>Angle is in degrees. If <c>0</c>, then the angle is not checked.</remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Target angle limit")]
   public int targetLinkAngleLimit;
@@ -210,7 +211,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("MIN link length")]
   public float minLinkLength;
@@ -220,7 +221,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance is in meters. If <c>0</c>, then no limit for the minimum value is applied.
   /// </remarks>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("MAX link length")]
   public float maxLinkLength;
@@ -230,7 +231,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <seealso cref="ILinkPeer.nodeTransform"/>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Anchor at source")]
   public Vector3 anchorAtSource = Vector3.zero;
@@ -240,7 +241,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </summary>
   /// <seealso cref="ILinkPeer.nodeTransform"/>
   /// <seealso cref="CheckConstraints"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Anchor at target")]
   public Vector3 anchorAtTarget = Vector3.zero;
@@ -252,18 +253,18 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// different vessels.
   /// </summary>
   /// <seealso cref="coupleOnLinkMode"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool coupleWhenLinked;
 
   /// <summary>Vessel info of the source part.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedSrcVesselInfo", group = StdPersistentGroups.PartPersistant)]
   public DockedVesselInfo persistedSrcVesselInfo;
 
   /// <summary>Vessel info of the target part.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("persistedTgtVesselInfo", group = StdPersistentGroups.PartPersistant)]
   public DockedVesselInfo persistedTgtVesselInfo;
 
@@ -272,7 +273,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// This value is used to restore the link state, but only if it's greater than zero. If it's
   /// less, then the implementation should decide which length to set when the joint is created.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float persistedLinkLength = -1.0f;
   #endregion
@@ -303,19 +304,13 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
   /// about the particular length in the current state, and it's up to the implementation.
   /// </value>
-  protected float? originalLength {
-    get { return persistedLinkLength < 0 ? (float?) null : persistedLinkLength; }
-  }
+  protected float? originalLength => persistedLinkLength < 0 ? (float?) null : persistedLinkLength;
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
   /// <c>true</c> if either the source part is coupled to the target, or the vise versa.
   /// </value>
-  protected bool isCoupled {
-    get {
-      return isLinked && CheckCoupled(linkSource, linkTarget);
-    }
-  }
+  protected bool isCoupled => isLinked && CheckCoupled(linkSource, linkTarget);
 
   /// <summary>Returns the PartJoint which manages this connection.</summary>
   /// <value>The joint or <c>null</c> if the link is not established or not coupled.</value>
@@ -355,15 +350,14 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="partJoint"/>
   /// <seealso cref="CleanupPhysXJoints"/>
-  protected List<ConfigurableJoint> customJoints { get { return _customJoints; } }
-  readonly List<ConfigurableJoint> _customJoints = new List<ConfigurableJoint>();
+  protected List<ConfigurableJoint> customJoints { get; } = new List<ConfigurableJoint>();
 
   /// <summary>The objects that were used by the custom joints.</summary>
-  /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
+  /// <remarks>These objects will be destroyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
-  protected List<Object> customExtraObjects { get { return _customObjects; } }
-  readonly List<Object> _customObjects = new List<Object>();
+  // ReSharper disable once MemberCanBePrivate.Global
+  protected List<Object> customExtraObjects { get; } = new List<Object>();
   #endregion
 
   #region Local members
@@ -372,14 +366,14 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkSource dbgLinkSource;
-  ILinkTarget dbgLinkTarget;
+  ILinkSource _dbgLinkSource;
+  ILinkTarget _dbgLinkTarget;
   
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
     base.OnBeforeDebugAdjustablesUpdate();
-    dbgLinkSource = linkSource;
-    dbgLinkTarget = linkTarget;
+    _dbgLinkSource = linkSource;
+    _dbgLinkTarget = linkTarget;
   }
   
   /// <inheritdoc/>
@@ -392,17 +386,17 @@ public abstract class AbstractJoint : AbstractPartModule,
         HostedDebugLog.Warning(
             this, "New settings fit the current link. Refreshing the joint...");
         DropJoint();
-        CreateJoint(dbgLinkSource, dbgLinkTarget);
+        CreateJoint(_dbgLinkSource, _dbgLinkTarget);
       } else {
         // STOP! The joint, once broken, won't re-establish with the new settings.
         HostedDebugLog.Warning(this, "New settings DON'T fit the current link:\n{0}"
-                               + "\n\nNot refershing the joint, re-link manually to update.",
+                               + "\n\nNot refreshing the joint, re-link manually to update.",
                                DbgFormatter.C2S(checks, separator: "\n"));
       }
     } else {
       // No joint, not update. However, it makes sense to note it.
       HostedDebugLog.Warning(
-          this, "No link esatblished, only update the module settings");
+          this, "No link established, only update the module settings");
     }
   }
   #endregion
@@ -414,7 +408,7 @@ public abstract class AbstractJoint : AbstractPartModule,
         && linkSource.coupleNode != null && linkSource.coupleNode.id == nodeName) {
       // Do the link cleanup.
       RestorePartialVesselInfo(linkSource, linkTarget, weDecouple);
-      MaybeBreakLink(linkSource, linkTarget);
+      MaybeBreakLink(linkSource);
     }
   }
   #endregion
@@ -430,10 +424,11 @@ public abstract class AbstractJoint : AbstractPartModule,
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
+      var rootRotation = root.rotation;
       var thisPartPos = root.TransformPoint(part.orgPos);
-      var thisPartRot = root.rotation * part.orgRot;
+      var thisPartRot = rootRotation * part.orgRot;
       var parentPartPos = root.TransformPoint(parentPart.orgPos);
-      var parentPartRot = root.rotation * parentPart.orgRot;
+      var parentPartRot = rootRotation * parentPart.orgRot;
       relPos = parentPartRot.Inverse() * (thisPartPos - parentPartPos);
       relRot = parentPartRot.Inverse() * thisPartRot;
     }
@@ -446,9 +441,11 @@ public abstract class AbstractJoint : AbstractPartModule,
         // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
           HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
-          part.transform.position =
-              parentPart.transform.position + parentPart.transform.rotation * relPos;
-          part.transform.rotation = parentPart.transform.rotation * relRot;
+          var parentPartTransform = parentPart.transform;
+          var parentPartRotation = parentPartTransform.rotation;
+          var partTransform = part.transform;
+          partTransform.position = parentPartTransform.position + parentPartRotation * relPos;
+          partTransform.rotation = parentPartRotation * relRot;
           part.Couple(parentPart);
         }
         HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
@@ -486,7 +483,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     linkSource = source;
     linkTarget = target;
     if (!originalLength.HasValue) {
-      SetOrigianlLength(Vector3.Distance(
+      SetOriginalLength(Vector3.Distance(
           GetSourcePhysicalAnchor(source), GetTargetPhysicalAnchor(source, target)));
     }
     isLinked = true;
@@ -512,7 +509,7 @@ public abstract class AbstractJoint : AbstractPartModule,
       }
     }
     SetCustomJoints(null);
-    SetOrigianlLength(null);
+    SetOriginalLength(null);
     linkSource = null;
     linkTarget = null;
     isLinked = false;
@@ -556,13 +553,13 @@ public abstract class AbstractJoint : AbstractPartModule,
       // Couple the parts, and drop the other link(s).
       HostedDebugLog.Info(this, "Change coupling mode: ATTACHED => COUPLED");
       DetachParts();
-      coupleOnLinkMode = isCoupleOnLink;
+      coupleOnLinkMode = true;
       CoupleParts();
     } else if (!isCoupleOnLink && isCoupled) {
       // Decouple the parts, and make the non-coupling link(s).
       HostedDebugLog.Info(this, "Change coupling mode: COUPLED => ATTACHED");
       DecoupleParts();
-      coupleOnLinkMode = isCoupleOnLink;
+      coupleOnLinkMode = false;
       AttachParts();
     } else {
       coupleOnLinkMode = isCoupleOnLink;  // Simply change the mode.
@@ -640,8 +637,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// length to set on the joint creation.
   /// </param>
   /// <seealso cref="originalLength"/>
-  protected void SetOrigianlLength(float? newLength) {
-    persistedLinkLength = newLength.HasValue ? newLength.Value : -1;
+  protected void SetOriginalLength(float? newLength) {
+    persistedLinkLength = newLength ?? -1;
   }
 
   /// <summary>Creates the actual PhysX joints between the rigid objects.</summary>
@@ -722,21 +719,21 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// If there are other custom joints existing, they will be cleaned up. This method triggers
   /// <see cref="CleanupPhysXJoints"/>, so keep it in mind when setting up the custom joints.
   /// </remarks>
-  /// <param name="joints">
+  /// <param name="newJoints">
   /// The new joints. If <c>null</c>, then the old joints will be cleaned up and no new joints will
   /// be added.
   /// </param>
   /// <param name="extraObjects">
-  /// The Unity objects that need to be destoyed <i>after</i> the joints are cleaned up. They can be
-  /// anything.
+  /// The Unity objects that need to be destroyed <i>after</i> the joints are cleaned up. They can
+  /// be anything.
   /// </param>
   /// <seealso cref="customExtraObjects"/>
   /// <seealso cref="customJoints"/>
-  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> joints,
+  protected void SetCustomJoints(IEnumerable<ConfigurableJoint> newJoints,
                                  IEnumerable<Object> extraObjects = null) {
     CleanupPhysXJoints();
-    if (joints != null) {
-      customJoints.AddRange(joints);
+    if (newJoints != null) {
+      customJoints.AddRange(newJoints);
     }
     if (extraObjects != null) {
       customExtraObjects.AddRange(extraObjects);
@@ -906,12 +903,11 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   /// <summary>Cleans up the attach nodes and, optionally, breaks the link.</summary>
   /// <remarks>
-  /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
+  /// The actual changes are delayed till the end of frame. So it's safe to call this method from an
   /// event handler.
   /// </remarks>
-  /// <param name="source">The link source at the moemnt of cleanup.</param>
-  /// <param name="target">The link target at the moment of cleanup.</param>
-  void MaybeBreakLink(ILinkSource source, ILinkTarget target) {
+  /// <param name="source">The link source at the moment of cleanup.</param>
+  void MaybeBreakLink(ILinkSource source) {
     // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
     // they will be null'ed on the link destruction.
     AsyncCall.CallOnEndOfFrame(this, () => {
@@ -924,10 +920,11 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <summary>Updates the vessel info on the part if it has the relevant module.</summary>
   /// <param name="v">The vessel to capture the info for.</param>
   static DockedVesselInfo GetVesselInfo(Vessel v) {
-    var vesselInfo = new DockedVesselInfo();
-    vesselInfo.name = v.vesselName;
-    vesselInfo.vesselType = v.vesselType;
-    vesselInfo.rootPartUId = v.rootPart.flightID;
+    var vesselInfo = new DockedVesselInfo {
+        name = v.vesselName,
+        vesselType = v.vesselType,
+        rootPartUId = v.rootPart.flightID
+    };
     return vesselInfo;
   }
 
@@ -935,7 +932,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <remarks>
   /// The source and target parts need to be separated, but the logical link still need to exist.
   /// On restore the vessel info will be cleared on the module. Alas, when the link is broken
-  /// extrenally, the root vessel part cannot be properly restored.
+  /// externally, the root vessel part cannot be properly restored.
   /// </remarks>
   void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
     AsyncCall.CallOnEndOfFrame(this, () => {
@@ -968,13 +965,18 @@ public abstract class AbstractJoint : AbstractPartModule,
   void DelegateCouplingRole(Part tgtPart) {
     AsyncCall.CallOnEndOfFrame(this, () => {
       var candidates = new List<ILinkJoint>()
-          .Concat(vessel.parts
-              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-              .Where(j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
+          .Concat(
+              vessel.parts
+                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                  .Where(
+                      j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
                           && j.linkTarget.part.vessel == tgtPart.vessel))
-          .Concat(tgtPart.vessel.parts
-              .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-              .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel));
+          .Concat(
+              tgtPart.vessel.parts
+                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                  .Where(
+                      j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel))
+          .ToList();
       foreach (var joint in candidates) {
         HostedDebugLog.Fine(this, "Trying to couple via: {0}", joint);
         if (joint.SetCoupleOnLinkMode(true)) {

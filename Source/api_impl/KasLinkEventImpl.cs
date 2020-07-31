@@ -1,23 +1,21 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+// ReSharper disable once CheckNamespace
+// ReSharper disable once IdentifierTypo
 namespace KASAPIv2 {
 
 /// <summary>A holder for simple source-to-target event.</summary>
 public struct KasLinkEventImpl : IKasLinkEvent {
   /// <inheritdoc/>
-  public ILinkSource source { get { return _source; } }
-  readonly ILinkSource _source;
+  public ILinkSource source { get; }
 
   /// <inheritdoc/>
-  public ILinkTarget target { get { return _target; } }
-  readonly ILinkTarget _target;
+  public ILinkTarget target { get; }
 
   /// <inheritdoc/>
-  public LinkActorType actor { get { return _actor; } }
-  LinkActorType _actor;
+  public LinkActorType actor { get; }
 
   /// <summary>Creates an event info.</summary>
   /// <param name="source">The source that initiated the link.</param>
@@ -25,9 +23,9 @@ public struct KasLinkEventImpl : IKasLinkEvent {
   /// <param name="actorType">The actor that did the change.</param>
   public KasLinkEventImpl(ILinkSource source, ILinkTarget target,
                           LinkActorType actorType = LinkActorType.API) {
-    _source = source;
-    _target = target;
-    _actor = actorType;
+    this.source = source;
+    this.target = target;
+    actor = actorType;
   }
 }
 

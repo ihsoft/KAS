@@ -1,6 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
@@ -11,6 +10,7 @@ using KSPDev.PartUtils;
 using System.Collections.Generic;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Flexible link joint designed specifically for towing vessels.</summary>
@@ -24,6 +24,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 // Next localization ID: #kasLOC_05020.
+// ReSharper disable once InconsistentNaming
 public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     // KSPDev sugar interfaces.
     IsPhysicalObject,
@@ -31,7 +32,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     IHasContextMenu {
 
   #region Localizable strings
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
   static readonly Message<AngleType> LockingStatusMsg = new Message<AngleType>(
       "#kasLOC_05000",
       defaultTemplate: "Tow bar is locking: diff <<1>>",
@@ -40,7 +41,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       + " The <<1>> argument shows the current locking error and is formatted as an angle type.",
       example: "Tow bar is locking: diff 1.5°");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message LockedStatusMsg = new Message(
       "#kasLOC_05001",
       defaultTemplate: "Tow bar is LOCKED!",
@@ -48,36 +49,36 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       + " locking.");
 
   #region SteeringStatus enum values
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringStatusMsg_Disabled = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsgDisabled = new Message(
       "#kasLOC_05002",
       defaultTemplate: "Disabled",
       description: "A string in the context menu that tells that the active steering mode is not"
       + " enabled.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringStatusMsg_Active = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsgActive = new Message(
       "#kasLOC_05003",
       defaultTemplate: "Active",
       description: "A string in the context menu that tells that the active steering mode is ready"
       + " and working.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringStatusMsg_CurrentVesselIsTarget = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsgCurrentVesselIsTarget = new Message(
       "#kasLOC_05004",
       defaultTemplate: "Target is active vessel",
       description: "A string in the context menu that tells that the active steering mode cannot"
       + " work due to the bar's target vessel is currently under player's control.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringStatusMsg_TargetIsNotControllable = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsgTargetIsNotControllable = new Message(
       "#kasLOC_05005",
       defaultTemplate: "Target is uncontrollable",
       description: "A string in the context menu that tells that the active steering mode cannot"
       + " work due to the linked vessel is remotely controlled.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message SteeringStatusMsg_NotLocked = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message SteeringStatusMsgNotLocked = new Message(
       "#kasLOC_05006",
       defaultTemplate: "Not locked",
       description: "A string in the context menu that tells that the active steering mode is"
@@ -87,28 +88,28 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <summary>Translates <see cref="SteeringStatus"/> enum into a localized message.</summary>
   static readonly MessageLookup<SteeringStatus> SteeringStatusMsgLookup =
       new MessageLookup<SteeringStatus>(new Dictionary<SteeringStatus, Message>() {
-          {SteeringStatus.Disabled, SteeringStatusMsg_Disabled},
-          {SteeringStatus.Active, SteeringStatusMsg_Active},
-          {SteeringStatus.CurrentVesselIsTarget, SteeringStatusMsg_CurrentVesselIsTarget},
-          {SteeringStatus.TargetIsNotControllable, SteeringStatusMsg_TargetIsNotControllable},
-          {SteeringStatus.NotLocked, SteeringStatusMsg_NotLocked},
+          {SteeringStatus.Disabled, SteeringStatusMsgDisabled},
+          {SteeringStatus.Active, SteeringStatusMsgActive},
+          {SteeringStatus.CurrentVesselIsTarget, SteeringStatusMsgCurrentVesselIsTarget},
+          {SteeringStatus.TargetIsNotControllable, SteeringStatusMsgTargetIsNotControllable},
+          {SteeringStatus.NotLocked, SteeringStatusMsgNotLocked},
       });
 
   #region LockMode enum values
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LockStatusMsg_Disabled = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsgDisabled = new Message(
       "#kasLOC_05007",
       defaultTemplate: "Disabled",
       description: "A string in the context menu that tells that the bar joints are unlocked.");
   
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LockStatusMsg_Locked = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsgLocked = new Message(
       "#kasLOC_05008",
       defaultTemplate: "Locked",
       description: "A string in the context menu that tells that the bar joints are locked.");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  static readonly Message LockStatusMsg_Locking = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message LockStatusMsgLocking = new Message(
       "#kasLOC_05009",
       defaultTemplate: "Locking",
       description: "A string in the context menu that tells that the bar joints are unlocked but"
@@ -118,13 +119,13 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <summary>Translates <see cref="LockMode"/> enum into a localized message.</summary>
   static readonly MessageLookup<LockMode> LockStatusMsgLookup =
       new MessageLookup<LockMode>(new Dictionary<LockMode, Message>() {
-          {LockMode.Disabled, LockStatusMsg_Disabled},
-          {LockMode.Locked, LockStatusMsg_Locked},
-          {LockMode.Locking, LockStatusMsg_Locking},
+          {LockMode.Disabled, LockStatusMsgDisabled},
+          {LockMode.Locked, LockStatusMsgLocked},
+          {LockMode.Locking, LockStatusMsgLocking},
       });
   
   /// <summary>Status screen message to be displayed during the locking process.</summary>
-  ScreenMessage lockStatusScreenMessage;
+  ScreenMessage _lockStatusScreenMessage;
   #endregion
 
   #region Part's config fields
@@ -138,16 +139,16 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// general, this setting defines the maximum comfort speed of towing: the lower values are good
   /// for the higher speed towing.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Max steering angle")]
   public float maxSteeringAngle = 1.0f;  // We don't want it be zero.
 
   /// <summary>
-  /// The maximum angle between the port normal and the link vector to consdier the locking process
+  /// The maximum angle between the port normal and the link vector to consider the locking process
   /// is done.
   /// </summary>
-  /// <remarks>Once the angle decreases down to this value, the towbar will lock down.</remarks>
+  /// <remarks>Once the angle decreases down to this value, the tow bar will lock down.</remarks>
   [KSPField]
   [Debug.KASDebugAdjustable("Lock angle threshold")]
   public float lockAngleThreshold = 3f;
@@ -159,19 +160,19 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// If the mode is enabled it doesn't mean it's active. There are the conditions that affect when
   /// the mode can actually start affecting the target vessel.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public bool persistedActiveSteeringEnabled;
 
   /// <summary>Current locking mode of the tow bar.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public LockMode persistedLockingMode = LockMode.Disabled;
   #endregion
 
   #region The context menu fields
   /// <summary>Status field to display current lock state.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField]
   [LocalizableItem(
       tag = "#kasLOC_05010",
@@ -180,7 +181,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public string lockStatus = "";
 
   /// <summary>Status field to display current steering status.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField]
   [LocalizableItem(
       tag = "#kasLOC_05011",
@@ -189,7 +190,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public string steeringStatus = "";
 
   /// <summary>Defines responsiveness of the towed vessel to the steering.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(guiFormat = "0.0", isPersistant = true),
    UI_FloatRange(controlEnabled = true, scene = UI_Scene.All,
                  stepIncrement = 0.01f, maxValue = 2f, minValue = 0.1f)]
@@ -201,7 +202,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   public float steeringSensitivity = 1.0f;
 
   /// <summary>Inverts steering angle calculated in active steering mode.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/UIConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   [UI_Toggle(scene = UI_Scene.All)]
   [LocalizableItem(
@@ -226,7 +227,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
 
   #region Internal properties
   /// <summary>Current locking mode.</summary>
-  /// <remarks>It's declared public only to make the KSP peristense working.</remarks>
+  /// <remarks>It's declared public only to make the KSP persistence working.</remarks>
   public enum LockMode {
     /// <summary>Not requested.</summary>
     Disabled,
@@ -251,7 +252,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   }
 
   /// <summary>
-  /// Minumal angle between port normal and the link vector to continue apply steering commands.
+  /// Minimal angle between port normal and the link vector to continue apply steering commands.
   /// </summary>
   /// <remarks>The angles below this value don't affect the towed vessel.</remarks>
   const float ZeroSteeringAngle = 0.05f;
@@ -267,7 +268,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
-    lockStatusScreenMessage = new ScreenMessage(
+    _lockStatusScreenMessage = new ScreenMessage(
         "", ScreenMessaging.DefaultMessageTimeout, ScreenMessageStyle.UPPER_LEFT);
     if (HighLogic.LoadedSceneIsFlight) {
       // Trigger updates with the loaded value.
@@ -335,7 +336,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
       tag = "#kasLOC_05017",
       defaultTemplate = "Disable active steering",
       description = "A context menu event that disables the active steering mode.")]
-  public void DeactiveSteeringAction() {
+  public void DeactivateSteeringAction() {
     SetActiveSteeringState(false);
   }
   #endregion
@@ -349,8 +350,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
     if (persistedLockingMode == LockMode.Locking) {
       var yaw = GetTargetYawAngle();
       var absYaw = Mathf.Abs(yaw);
-      // Reaching zero is too hard to achieve, so wait for a minimum ange and simply lock.
-      // It will trigger sime jitter and momentum, though.
+      // Reaching zero is too hard to achieve, so wait for a minimum angle and simply lock.
+      // It will trigger some jitter and momentum, though.
       if (absYaw < lockAngleThreshold) {
         SetLockingMode(LockMode.Locked);
       } else {
@@ -359,8 +360,8 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
           angularLimit.limit = absYaw;
           trgJoint.angularZLimit = angularLimit;
         }
-        lockStatusScreenMessage.message = LockingStatusMsg.Format(yaw);
-        ScreenMessages.PostScreenMessage(lockStatusScreenMessage);
+        _lockStatusScreenMessage.message = LockingStatusMsg.Format(yaw);
+        ScreenMessages.PostScreenMessage(_lockStatusScreenMessage);
       }
     }
     if (persistedActiveSteeringEnabled) {
@@ -384,7 +385,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
         this, UnlockAction,
         e => e.active = isLinked && persistedLockingMode != LockMode.Disabled);
     PartModuleUtils.SetupEvent(
-        this, DeactiveSteeringAction,
+        this, DeactivateSteeringAction,
         e => e.active = isLinked && persistedActiveSteeringEnabled);
     PartModuleUtils.SetupEvent(
         this, ActiveSteeringAction,
@@ -426,7 +427,7 @@ public sealed class KASJointTowBar : KASJointTwoEndsSphere,
                                    ScreenMessageStyle.UPPER_LEFT);
     }
     if (updateUi && (mode == LockMode.Disabled || mode == LockMode.Locked)) {
-      ScreenMessages.RemoveMessage(lockStatusScreenMessage);
+      ScreenMessages.RemoveMessage(_lockStatusScreenMessage);
     }
     if (mode == LockMode.Disabled) {
       SetActiveSteeringState(false);  // No active steering in unlocked mode.

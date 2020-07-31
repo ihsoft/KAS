@@ -1,16 +1,19 @@
 ﻿// Kerbal Attachment System API
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// API design and implemenation: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KSPDev.FSUtils;
 using KSPDev.LogUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
+// ReSharper disable once IdentifierTypo
 namespace KASAPIv2 {
 
 [KSPAddon(KSPAddon.Startup.Instantly, true /*once*/)]
-sealed class KASAPILauncher : MonoBehaviour {
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once IdentifierTypo
+internal sealed class KASAPILauncher : MonoBehaviour {
   void Awake() {
     if (!KASAPI.isLoaded) {
       KASAPI.JointUtils = new KASImpl.JointUtilsImpl();

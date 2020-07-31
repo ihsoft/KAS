@@ -1,10 +1,10 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
 
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 /// <summary>Defines global events that are triggered by KAS.</summary>
@@ -12,23 +12,19 @@ namespace KASImpl {
 /// impact performance at the moment of actual event triggering.</remarks>
 public class KasEventsImpl : IKasEvents {
   /// <inheritdoc/>
-  public EventData<ILinkSource> OnStartLinking { get { return _onStartLinking; } }
-  readonly EventData<ILinkSource> _onStartLinking =
+  public EventData<ILinkSource> OnStartLinking { get; } =
       new EventData<ILinkSource>("KASOnStartLinking");
 
   /// <inheritdoc/>
-  public EventData<ILinkSource> OnStopLinking { get { return _onStopLinking; } }
-  readonly EventData<ILinkSource> _onStopLinking =
+  public EventData<ILinkSource> OnStopLinking { get; } =
       new EventData<ILinkSource>("KASOnStopLinking");
 
   /// <inheritdoc/>
-  public EventData<IKasLinkEvent> OnLinkCreated { get { return _onLinkCreated; } }
-  readonly EventData<IKasLinkEvent> _onLinkCreated =
+  public EventData<IKasLinkEvent> OnLinkCreated { get; } =
       new EventData<IKasLinkEvent>("KASOnLinkCreated");
 
   /// <inheritdoc/>
-  public EventData<IKasLinkEvent> OnLinkBroken { get { return _onLinkBroken; } }
-  readonly EventData<IKasLinkEvent> _onLinkBroken =
+  public EventData<IKasLinkEvent> OnLinkBroken { get; } =
       new EventData<IKasLinkEvent>("KASOnLinkBroken");
 }
 

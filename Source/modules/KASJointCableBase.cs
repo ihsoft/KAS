@@ -1,19 +1,16 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
-using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ProcessingUtils;
-using System;
-using System.Collections;
 using System.Text;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that controls a physical cable joint on a KAS part.</summary>
@@ -23,26 +20,26 @@ namespace KAS {
 /// by default, i.e. the source and the target can collide.
 /// </remarks>
 //  Next localization ID: #kasLOC_09002.
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
+// ReSharper disable once InconsistentNaming
 public class KASJointCableBase : AbstractJoint,
     // KSP interfaces.
-    IModuleInfo, IJointLockState,
+    IJointLockState,
     // KAS interfaces.
-    ILinkCableJoint,
-    // KSPDev syntax sugar interfaces.
-    IKSPDevModuleInfo {
+    ILinkCableJoint {
 
   #region Localizable GUI strings.
-  /// <include file="SpecialDocTags.xml" path="Tags/Message1/*"/>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
-  readonly static Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.GUIUtils.ForceType']/*"/>
+  static readonly Message<ForceType> CableSpringStrengthInfo = new Message<ForceType>(
       "#kasLOC_09000",
       defaultTemplate: "Spring force: <<1>>",
       description: "Info string in the editor for the cable spring force setting."
       + "\nArgument <<1>> is the force of type ForceType.",
       example: "Spring force: 1.2 kN");
 
-  /// <include file="SpecialDocTags.xml" path="Tags/Message0/*"/>
-  readonly static Message ModuleTitle = new Message(
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message ModuleTitle = new Message(
       "#kasLOC_09001",
       defaultTemplate: "KAS Cable",
       description: "Title of the module to present in the editor details window.");
@@ -51,17 +48,17 @@ public class KASJointCableBase : AbstractJoint,
   #region Part's config fields
   /// <summary>Spring force of the cable which connects the two parts.</summary>
   /// <remarks>
-  /// It's a force per meter of the strected distance to keep the objects distance below the maximum
+  /// It's a force per meter of the stretched distance to keep the objects distance below the maximum
   /// distance. The force is measured in kilonewtons.
   /// </remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="..//SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Cable spring force")]
   public float cableSpringForce;
 
   /// <summary>Damper force to apply to stop the oscillations.</summary>
   /// <remarks>The force is measured in kilonewtons.</remarks>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Cable spring damper")]
   public float cableSpringDamper = 1f;
@@ -76,7 +73,7 @@ public class KASJointCableBase : AbstractJoint,
 
   #region ILinkCableJoint CFG properties
   /// <inheritdoc/>
-  public float cfgMaxCableLength { get { return maxLinkLength; } }
+  public float cfgMaxCableLength => maxLinkLength;
   #endregion
 
   #region ILinkCableJoint properties
@@ -84,9 +81,7 @@ public class KASJointCableBase : AbstractJoint,
   public Rigidbody headRb { get; private set; }
 
   /// <inheritdoc/>
-  public float deployedCableLength {
-    get { return cableJoint != null ? cableJoint.linearLimit.limit : 0; }
-  }
+  public float deployedCableLength => cableJoint != null ? cableJoint.linearLimit.limit : 0;
 
   /// <inheritdoc/>
   public float realCableLength {
@@ -108,7 +103,7 @@ public class KASJointCableBase : AbstractJoint,
   #region Inheritable properties
   /// <summary>Tells if the physical head is started and active.</summary>
   /// <value>The status of the physical head.</value>
-  protected bool isHeadStarted { get { return headSource != null; } }
+  protected bool isHeadStarted => headSource != null;
 
   /// <summary>Physical joint object that connects source to the target.</summary>
   /// <value>The PhysX joint that connects the parts.</value>
@@ -118,10 +113,6 @@ public class KASJointCableBase : AbstractJoint,
   /// <value>The source, or <c>null</c> if the head is not started.</value>
   /// <seealso cref="ILinkSource"/>
   protected ILinkSource headSource { get; private set; }
-
-  /// <summary>Head's transform at which the cable is attached.</summary>
-  /// <value>The anchor of the physical head, or <c>null</c> if the head is not started.</value>
-  protected Transform headPhysicalAnchor { get; private set; }
   #endregion
 
   #region AbstractJoint overrides
@@ -175,27 +166,25 @@ public class KASJointCableBase : AbstractJoint,
       return;
     }
     headSource = source;
-    headPhysicalAnchor = headObjAnchor;
 
     // Attach the head to the source.
     CreateDistanceJoint(source, headRb, headObjAnchor.position);
-    SetOrigianlLength(deployedCableLength);
+    SetOriginalLength(deployedCableLength);
   }
 
   /// <inheritdoc/>
   public virtual void StopPhysicalHead() {
     headRb = null;
     headSource = null;
-    headPhysicalAnchor = null;
-    DestroyImmediate(cableJoint);
+    Destroy(cableJoint);
     cableJoint = null;
-    SetOrigianlLength(null);
+    SetOriginalLength(null);
   }
 
   /// <inheritdoc/>
   public virtual void SetCableLength(float length) {
     if (cableJoint == null) {
-      SetOrigianlLength(null);  // Just in case.
+      SetOriginalLength(null);  // Just in case.
       return;
     }
     if (float.IsPositiveInfinity(length)) {
@@ -204,7 +193,7 @@ public class KASJointCableBase : AbstractJoint,
       length = Mathf.Min(realCableLength, deployedCableLength);
     }
     ArgumentGuard.InRange(length, "length", 0, cfgMaxCableLength, context: this);
-    SetOrigianlLength(length);
+    SetOriginalLength(length);
     cableJoint.linearLimit = new SoftJointLimit() { limit = length };
   }
 

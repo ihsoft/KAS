@@ -23,7 +23,7 @@
       "bin/Release/{PACKAGE_NAME}.xml",
       "{MINIAVC_VERSION_FILE}",
       "/Binaries/*",
-      "-KSP-AVC.version"
+      "-MiniAVC-V2.version"
     ]
   }
 }

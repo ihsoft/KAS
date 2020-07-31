@@ -1,11 +1,13 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
 using KSPDev.ConfigUtils;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable ConvertToConstant.Local
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 /// <summary>Container for the various global settings of the mod.</summary>

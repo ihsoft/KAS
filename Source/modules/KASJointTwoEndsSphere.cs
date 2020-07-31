@@ -1,14 +1,14 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
-using System;
 using UnityEngine;
 
+// ReSharper disable InheritdocInvalidUsage
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module that offers a highly configurable setup of two PhysX joints.</summary>
@@ -21,23 +21,25 @@ namespace KAS {
 /// <seealso cref="ILinkJoint.CreateJoint"/>
 /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#spherical-joint">
 /// PhysX: Spherical joint</seealso>
+// ReSharper disable once InconsistentNaming
 public class KASJointTwoEndsSphere : AbstractJoint,
     // KSP interfaces.
     IJointLockState,
     // KAS interfaces.
     IKasJointEventsListener,
     // KSPDev syntax sugar interfaces.
+    // ReSharper disable once RedundantExtendsListEntry
     IsDestroyable, IKSPDevJointLockState {
 
   #region Part's config fields
   /// <summary>Spring force of the prismatic joint that limits the distance.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Strut spring force")]
   public float strutSpringForce = Mathf.Infinity;
 
   /// <summary>Damper force of the spring that limits the distance.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Strut damper ratio")]
   public float strutSpringDamperRatio = 0.1f;  // 10% of the force.
@@ -59,7 +61,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
   /// <summary>Object that connects two sphere joints together.</summary>
   /// <remarks>
   /// Both the <see cref="srcJoint"/> and the <see cref="trgJoint"/> are bound to this object's
-  /// rigidbody. To minimize the physical effect of this artifical RB, its mass is set to the bare
+  /// rigidbody. To minimize the physical effect of this artificial RB, its mass is set to the bare
   /// minimum, which is <c>0.001t</c>.
   /// </remarks>
   /// <value>The game object.</value>
@@ -145,8 +147,7 @@ public class KASJointTwoEndsSphere : AbstractJoint,
     collisionJoint.zMotion = ConfigurableJointMotion.Free;
     collisionJoint.connectedBody = linkTarget.part.rb;
 
-    SetCustomJoints(new[] {srcJoint, trgJoint, collisionJoint},
-                    extraObjects: new[] {middleObj});
+    SetCustomJoints(new[] {srcJoint, trgJoint, collisionJoint}, extraObjects: new[] {middleObj});
   }
   #endregion
 

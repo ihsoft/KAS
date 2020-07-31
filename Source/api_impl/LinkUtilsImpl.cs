@@ -1,12 +1,12 @@
 ﻿// Kerbal Attachment System API
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// API design and implemenation: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
 using KSPDev.LogUtils;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace KASImpl {
 
 class LinkUtilsImpl : ILinkUtils {
@@ -72,7 +72,6 @@ class LinkUtilsImpl : ILinkUtils {
     var srcVessel = srcPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
     var tgtPart = targetNode.owner;
-    var tgtVessel = tgtPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(tgtPart, targetNode);
 
     sourceNode.attachedPart = tgtPart;

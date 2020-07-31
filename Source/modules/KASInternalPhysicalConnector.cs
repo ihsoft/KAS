@@ -1,6 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
@@ -8,6 +7,7 @@ using KSPDev.ModelUtils;
 using KSPDev.PartUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>Module for handling physics on a flexible link connector.</summary>
@@ -17,14 +17,15 @@ namespace KAS {
 /// mod. The module must only be created thru the factory method.
 /// </para>
 /// <para>
-/// The promoted object becomes independent from the creator. When the module is destoyed, its
+/// The promoted object becomes independent from the creator. When the module is destroyed, its
 /// rigidbody gets destroyed as well, and the model returns back to the owner part. The position has
 /// to be adjusted by the caller.
 /// </para>
 /// </remarks>
 /// <seealso cref="Promote"/>
 /// <seealso cref="Demote"/>
-sealed class KASInternalPhysicalConnector : MonoBehaviour {
+// ReSharper disable once InconsistentNaming
+internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>
@@ -50,16 +51,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     if (interactionDistance > 0) {
       // This mesh is placed on a special layer which is not rendered in the game. It's only
       // used to detect the special zones triggers, so keep it simple.
-      var interactionTriggerObj = Meshes.CreatePrimitive(
-          PrimitiveType.Quad, Vector3.one, null, obj.transform);
-      //interactionTriggerObj.SetActive(true);
+      var interactionTriggerObj = Meshes2.CreatePrimitive(
+          PrimitiveType.Cube, Vector3.one, null, obj.transform);
       interactionTriggerObj.name = InteractionAreaCollider;
       var collider = interactionTriggerObj.AddComponent<SphereCollider>();
       collider.isTrigger = true;
       collider.radius = interactionDistance;
       interactionTriggerObj.layer = (int) KspLayer.TriggerCollider;
-      interactionTriggerObj.gameObject.GetComponent<Collider>().isTrigger = true;
-      connectorModule.interactionTriggerObj = interactionTriggerObj;
+      connectorModule._interactionTriggerObj = interactionTriggerObj;
     }
 
     return connectorModule;
@@ -71,6 +70,7 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// Tells the owner part is being cleaned up and the object don't need to die immediately.
   /// </param>
   /// <returns><c>false</c> if the connector was not physical.</returns>
+  // ReSharper disable once UnusedMethodReturnValue.Global
   public static bool Demote(GameObject obj, bool cleanupMode) {
     var connectorModule = obj.GetComponent<KASInternalPhysicalConnector>();
     if (connectorModule == null) {
@@ -103,14 +103,14 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #endregion
 
   #region Public methods
-  /// <summary>Highglights the conenctor model or removes the highlighting.</summary>
+  /// <summary>Highlights the connector model or removes the highlighting.</summary>
   /// <remarks>
   /// <para>
   /// When color is set to <c>null</c>, the behavior is "cleanup", i.e. it's OK to call this method
   /// multiple times and in any object state.
   /// </para>
   /// <para>
-  /// In order for the highglighting to work, the object must have a highlighter component (a KSP
+  /// In order for the highlighting to work, the object must have a highlighter component (a KSP
   /// specific component). If one doesn't exist on the object, then it's created.
   /// </para>
   /// </remarks>
@@ -119,12 +119,15 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// be removed.
   /// </param>
   public void SetHighlighting(Color? color) {
-    if (!color.HasValue && connectorRb != null) {
+    if (connectorRb == null) {
+      return;
+    }
+    if (!color.HasValue) {
       var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>();
       if (headHighlighter != null) {
         headHighlighter.ConstantOff();
       }
-    } else if (connectorRb != null) {
+    } else {
       var headHighlighter = connectorRb.gameObject.GetComponent<Highlighting.Highlighter>()
           ?? connectorRb.gameObject.AddComponent<Highlighting.Highlighter>();
       headHighlighter.ReinitMaterials();
@@ -133,16 +136,17 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
   #endregion
 
-  GameObject interactionTriggerObj;
+  GameObject _interactionTriggerObj;
 
   #region MonoBehaviour messages
   void Awake() {
     connectorRb = GetComponent<Rigidbody>();
     // Update the highlighters. For this we need changing the hierarchy.
-    var oldParent = connectorRb.gameObject.transform.parent;
-    connectorRb.gameObject.transform.parent = null;
+    var connectorObj = connectorRb.gameObject;
+    var oldParent = connectorObj.transform.parent;
+    connectorObj.transform.parent = null;
     PartModel.UpdateHighlighters(oldParent);
-    PartModel.UpdateHighlighters(connectorRb.gameObject.transform);
+    PartModel.UpdateHighlighters(connectorObj.transform);
     if (connectorRb.isKinematic) {
       // The kinematic RB must be parented, or else it's considered static.
       connectorRb.transform.parent = ownerModule.gameObject.transform;
@@ -183,18 +187,18 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     }
     if (destroyImmediate) {
       DestroyImmediate(connectorRb);
-      DestroyImmediate(interactionTriggerObj);
+      DestroyImmediate(_interactionTriggerObj);
     } else {
       Destroy(connectorRb);
-      Destroy(interactionTriggerObj);
+      Destroy(_interactionTriggerObj);
     }
-    interactionTriggerObj = null;
+    _interactionTriggerObj = null;
     connectorRb = null;
     ownerModule = null;
   }
 
   /// <summary>
-  /// Makes the connector object physical and ensures it's not atatched to any parent model.
+  /// Makes the connector object physical and ensures it's not attached to any parent model.
   /// </summary>
   /// <param name="vessel">The vessel which went physical.</param>
   void OnVesselGoOffRails(Vessel vessel) {
@@ -205,7 +209,7 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   /// <summary>
-  /// Freezes the physics on the connector and ensures the model is atatched to the owner.
+  /// Freezes the physics on the connector and ensures the model is attached to the owner.
   /// </summary>
   /// <param name="vessel">The vessel which went kinematic.</param>
   void OnVesselGoOnRails(Vessel vessel) {

@@ -1,6 +1,5 @@
 ﻿// Kerbal Attachment System
-// Mod idea: KospY (http://forum.kerbalspaceprogram.com/index.php?/profile/33868-kospy/)
-// Module author: igor.zavoychinskiy@gmail.com
+// Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
 using KASAPIv2;
@@ -8,6 +7,7 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace KAS {
 
 /// <summary>
@@ -27,7 +27,8 @@ namespace KAS {
 /// overcome this limitation, an extra game object and this component can be used:
 /// <code source="Examples/BrokenJointListener-Examples.cs" region="BrokenJointListenerExample"/>
 /// </example>
-sealed class KASInternalBrokenJointListener : MonoBehaviour,
+// ReSharper disable once InconsistentNaming
+internal sealed class KASInternalBrokenJointListener : MonoBehaviour,
     // KSP syntax sugar interfaces.
     IJointEventsListener {
 
