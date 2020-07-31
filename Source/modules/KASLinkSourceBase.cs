@@ -31,7 +31,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02008.
+// Next localization ID: #kasLOC_02009.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
 // ReSharper disable once InconsistentNaming
@@ -98,6 +98,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       description: "The name of the part's context menu event that triggers a merging of the"
       + " linked parts if they were not coupled before. At  the same time, the name of the event"
       + " gives a currently selected state.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message TargetCannotCoupleMsg = new Message(
+      "#kasLOC_02008",
+      defaultTemplate: "Target cannot couple",
+      description: "Message to display when the target is refusing to couple (dock) with the link"
+      + " source.");
   #endregion
 
   #region ILinkSource properties implementation
@@ -709,8 +716,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       errors.Add(IncompatibleTargetLinkTypeMsg);
     }
     if (coupleMode == CoupleMode.AlwaysCoupled && target.coupleNode == null) {
-      Message TargetCannotCouple = "Target cannot couple"; //FIXME
-      errors.Add(TargetCannotCouple);
+      errors.Add(TargetCannotCoupleMsg);
     }
     return errors.ToArray();
   }
