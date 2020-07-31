@@ -13,19 +13,19 @@ namespace KASImpl {
 public class KasEventsImpl : IKasEvents {
   /// <inheritdoc/>
   public EventData<ILinkSource> OnStartLinking { get; } =
-    new EventData<ILinkSource>("KASOnStartLinking");
+      new EventData<ILinkSource>("KASOnStartLinking");
 
   /// <inheritdoc/>
   public EventData<ILinkSource> OnStopLinking { get; } =
-    new EventData<ILinkSource>("KASOnStopLinking");
+      new EventData<ILinkSource>("KASOnStopLinking");
 
   /// <inheritdoc/>
   public EventData<IKasLinkEvent> OnLinkCreated { get; } =
-    new EventData<IKasLinkEvent>("KASOnLinkCreated");
+      new EventData<IKasLinkEvent>("KASOnLinkCreated");
 
   /// <inheritdoc/>
   public EventData<IKasLinkEvent> OnLinkBroken { get; } =
-    new EventData<IKasLinkEvent>("KASOnLinkBroken");
+      new EventData<IKasLinkEvent>("KASOnLinkBroken");
 }
 
 }  // namespace
