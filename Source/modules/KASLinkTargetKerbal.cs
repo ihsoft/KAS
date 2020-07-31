@@ -159,7 +159,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
 
   #region Context menu events/actions
   /// <summary>A context menu item that picks up the cable connector in range.</summary>
-  /// <include file="SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true)]
   [LocalizableItem(
       tag = "#kasLOC_10000",

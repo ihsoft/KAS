@@ -190,7 +190,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// </list>
   /// </remarks>
   /// <value>The state machine instance.</value>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@anme='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<LinkState> linkStateMachine { get; private set; }
 
   /// <summary>Attach node loaded from the part's config.</summary>

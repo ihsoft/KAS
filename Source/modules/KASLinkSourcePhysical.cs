@@ -356,7 +356,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// be changed on the part load, consider overriding <see cref="OnPartUnpack"/>.
   /// </remarks>
   /// <value>The state machine instance. It's never <c>null</c>.</value>
-  /// <include file="KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
+  /// <include file="../KSPDevUtilsAPI_HelpIndex.xml" path="//item[@name='T:KSPDev.ProcessingUtils.SimpleStateMachine_1']/*"/>
   protected SimpleStateMachine<ConnectorState> connectorStateMachine { get; private set; }
 
   /// <summary>The physical object of the connector.</summary>
