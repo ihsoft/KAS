@@ -58,8 +58,8 @@
     <Reference Include="KAS-API-v2, Version=2.0.7239.35367, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.2, Version=2.2.7417.673, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Binaries\KSPDev_Utils.2.2.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.4, Version=2.4.7504.27510, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Binaries\KSPDev_Utils.2.4.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.2.2</name>
+        <name>KSPDev_Utils.2.4</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -906,7 +906,7 @@
             <summary>Copies the custom part fields from the prefab into the instance.</summary>
             <remarks>
             The consumer code must call this method from the <c>OnAwake</c> method to ensure the custom
-            fields are properly intialized.
+            fields are properly initialized.
             </remarks>
             <param name="tgtModule">The module to copy the fields into.</param>
             <seealso cref="M:KSPDev.ConfigUtils.ConfigAccessor.ReadPartConfig(PartModule,ConfigNode)"/>
@@ -2808,8 +2808,8 @@
             <summary>Localizes the <see cref="T:PartModule"/> items.</summary>
             <remarks>
             <para>
-            The localizable items must be declared as non-static public members. The following items are
-            supported:
+            The localizable items must be declared as non-static public or protected members. The
+            following items are supported:
             <list type="bullet">
             <item>
             <see cref="T:KSPField"/>. This type may have multiple localization items: for <c>guiName</c>
@@ -4606,7 +4606,7 @@
             The <c>EventSystem</c> logic is not in sync with <c>MonoBehaviour.Update</c>, so the event
             system handlers should provide the pressed <c>button</c> explicitly. The callers from the
             <c>Update</c> method don't need to do so since the right action button can be extracted from
-            <paramref name="ev"/>.
+            <c>Input</c>.
             </param>
             <param name="onlyCheckModifiers">
             Tells if only the modifiers in the event need to be checked. This is how a "precondition" can
