@@ -170,6 +170,7 @@ public sealed class KASLinkTargetKerbal : KASLinkTargetBase,
     if (connector != null) {
       var closestSource = connector.ownerModule as ILinkSource;
       HostedDebugLog.Info(this, "Try picking up a physical connector of: {0}...", closestSource);
+      System.Diagnostics.Debug.Assert(closestSource != null, nameof(closestSource) + " != null");
       if (closestSource.LinkToTarget(LinkActorType.Player, this)) {
         // By default, the cable joints set the length limit to the actual distance. 
         var cableJoint = closestSource.linkJoint as ILinkCableJoint;

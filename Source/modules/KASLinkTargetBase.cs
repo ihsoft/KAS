@@ -137,6 +137,8 @@ public class KASLinkTargetBase :
     base.CheckCoupleNode();
     // The source is responsible to handle the link, which may be done at the end of frame. So put
     // our check at the end of the frame queue to go behind any delayed actions.
+    System.Diagnostics.Debug.Assert(
+        parsedAttachNode != null, nameof(parsedAttachNode) + " != null");
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available
           && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
