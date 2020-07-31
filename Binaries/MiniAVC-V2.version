@@ -1,25 +1,20 @@
 {
-  "NAME": "KSP-AVC Plugin",
-  "URL": "http://ksp.spacetux.net/avc/KSP-AVC",
+  "NAME": "MiniAVC-V2 Plugin",
+  "URL": "http://ksp.spacetux.net/avc/MiniAVC-V2",
   "DOWNLOAD": "https://github.com/linuxgurugamer/KSPAddonVersionChecker/releases",
   "GITHUB": {
     "USERNAME": "linuxgurugamer",
     "REPOSITORY": "KSPAddonVersionChecker"
   },
   "VERSION": {
-    "MAJOR": 1,
-    "MINOR": 3,
+    "MAJOR": 2,
+    "MINOR": 0,
     "PATCH": 0,
-    "BUILD": 3
-  },
-  "KSP_VERSION": {
-    "MAJOR": 1,
-    "MINOR": 5,
-    "PATCH": 1
+    "BUILD": 0
   },
   "KSP_VERSION_MIN": {
     "MAJOR": 1,
-    "MINOR": 5,
-    "PATCH": 1
+    "MINOR": 8,
+    "PATCH": 0
   }
 }

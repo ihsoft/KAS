@@ -1,6 +1,7 @@
 # 1.7 (pre-release):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.
 * [Change] Some performance improvement for the winch connector handling.
+* [Fix #295] Stop using `MiniAVC.dll` in favor of `MiniAVC-V2.dll`.
 * [Fix #297] Decoupling near winch connected in editor causes the winch to break in to two separate vessels.
 
 # 1.6 (April 26th, 2020):
