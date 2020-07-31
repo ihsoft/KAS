@@ -19,6 +19,7 @@ import json
 import logging
 import os.path
 import re
+import ssl
 import urllib2
 
 from utils import FormDataUtil
@@ -38,6 +39,8 @@ API_UPLOAD_URL_TMPL = '/api/projects/{project_id}/upload-file'
 API_GET_VERSIONS = '/api/game/versions'
 # The project details are not available via the stock API. So using CFWidgets.
 API_GET_PROJECT = 'https://api.cfwidget.com/project/{project_id}'
+# The user agent ID to use to make calls to the backend. Cloudflare doesn't accept empty values.
+USER_AGENT = 'KSPDevReleaseScript'
 
 LOGGER = logging.getLogger('ApiClient')
 
@@ -169,18 +172,23 @@ def UploadFile(project_id, filepath, changelog, game_versions,
 
 def _CallAPI(url, data, headers, raise_on_error=True):
   """Invokes the API call."""
+  headers = headers or {}
+  if 'user-agent' not in headers:
+    headers['user-agent'] = USER_AGENT
   resp_obj = { 'error': True, 'reason': 'unknown' }
   try:
-    request = urllib2.Request(url, data, headers=headers or {})
-    response = urllib2.urlopen(request)
+    request = urllib2.Request(url, data, headers=headers)
+    gcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    response = urllib2.urlopen(request, context=gcontext)
     resp_obj = json.loads(response.read())
     headers = response.info().dict
   except urllib2.HTTPError as ex:
     resp_obj = { 'error': True, 'reason': '%d - %s' % (ex.code, ex.reason) }
     try:
       resp_obj = json.loads(ex.read())
-    except:
-      pass  # Not a JSON response
+    except Exception as e:
+      if 'errorMessage' not in resp_obj:
+        resp_obj['errorMessage'] = str(e)
     if ex.code == 401:
       raise AuthorizationRequiredError(resp_obj['errorMessage'])
     if ex.code == 403:
