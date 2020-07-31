@@ -360,7 +360,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   float _maxLinkLength;
 
   /// <summary>Diameter of the outer piston. It's calculated from the model.</summary>
-  /// <value>The diameter in metters.</value>
+  /// <value>The diameter in meters.</value>
   /// <remarks>It's primarily used to cast a collider.</remarks>
   /// <seealso cref="CheckColliderHits"/>
   float _outerPistonDiameter;

@@ -297,7 +297,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   bool _isGuiOpen;
 
   /// <summary>Tells if the list of cached winches needs to be refreshed.</summary>
-  /// <remarks>This value is ched on every frame update, so don't update it too frequently</remarks>
+  /// <remarks>
+  /// This value is checked on every frame update, so don't update it too frequently.
+  /// </remarks>
   bool _modulesNeedUpdate;
 
   /// <summary>GUI table to align winch status fields.</summary>

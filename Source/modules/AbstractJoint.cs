@@ -353,7 +353,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   protected List<ConfigurableJoint> customJoints { get; } = new List<ConfigurableJoint>();
 
   /// <summary>The objects that were used by the custom joints.</summary>
-  /// <remarks>These objects will be destoyed on the joints clean up.</remarks>
+  /// <remarks>These objects will be destroyed on the joints clean up.</remarks>
   /// <seealso cref="SetCustomJoints"/>
   /// <seealso cref="CleanupPhysXJoints"/>
   // ReSharper disable once MemberCanBePrivate.Global
@@ -724,8 +724,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// be added.
   /// </param>
   /// <param name="extraObjects">
-  /// The Unity objects that need to be destoyed <i>after</i> the joints are cleaned up. They can be
-  /// anything.
+  /// The Unity objects that need to be destroyed <i>after</i> the joints are cleaned up. They can
+  /// be anything.
   /// </param>
   /// <seealso cref="customExtraObjects"/>
   /// <seealso cref="customJoints"/>
@@ -903,7 +903,7 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   /// <summary>Cleans up the attach nodes and, optionally, breaks the link.</summary>
   /// <remarks>
-  /// The actual changes are delyed till the end of frame. So it's safe to call this method from an
+  /// The actual changes are delayed till the end of frame. So it's safe to call this method from an
   /// event handler.
   /// </remarks>
   /// <param name="source">The link source at the moment of cleanup.</param>

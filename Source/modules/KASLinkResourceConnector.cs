@@ -228,7 +228,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
   public List<string> resourceOverride = new List<string>();
 
-  /// <summary>Container for the fuel mixutre component.</summary>
+  /// <summary>Container for the fuel mixture component.</summary>
   // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixtureComponent {
     /// <summary>Name of the resource.</summary>
