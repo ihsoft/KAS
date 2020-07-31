@@ -1,4 +1,7 @@
 # 1.7 (pre-release):
+* [Change] Better react on the attached part(s) destruction to properly reset the link state.
+* [Change] Some performance improvement for the winch connector handling.
+* [Fix #297] Decoupling near winch connected in editor causes the winch to break in to two separate vessels.
 
 # 1.6 (April 26th, 2020):
 * [Fix #289] RTS-1 docking mode is not reset on decoupling.
