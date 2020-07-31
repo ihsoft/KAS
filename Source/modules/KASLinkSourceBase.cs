@@ -115,6 +115,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region Part's config fields
   /// <summary>Specifies how/if the parts should be coupled on link.</summary>
+  /// <remarks>
+  /// Never change the existing values since they may be used in the part configs.
+  /// </remarks>
   public enum CoupleMode {
     /// <summary>The docking state of the link is determined from the persistent state.</summary>
     /// <remarks>
@@ -122,7 +125,8 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     /// target parts must be enabled for coupling in order to be able to dock. IF any of the peers
     /// doesn't allow it, there will be no context menu option.
     /// </remarks>
-    SetViaGui,
+    // ReSharper disable once InconsistentNaming
+    SetViaGUI,
 
     /// <summary>The link is always established in docked mode.</summary>
     /// <remarks>
@@ -608,7 +612,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     PartModuleUtils.SetupEvent(this, ToggleVesselsDockModeEvent, e => {
       if (linkJoint != null) {
         e.guiName = linkJoint.coupleOnLinkMode ? DockedModeMenuTxt : UndockedModeMenuTxt;
-        if (coupleMode == CoupleMode.SetViaGui) {
+        if (coupleMode == CoupleMode.SetViaGUI) {
           e.active = coupleNode != null && (linkTarget == null || linkTarget.coupleNode != null);
         } else if (isLinked) {
           // Just in case show GUI if the link is established, and its couple mode contradicts the
