@@ -155,4 +155,10 @@ IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KAS-API-v2.*" "Q:\GameData\KAS\Plu
 
 </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
 </Project>
