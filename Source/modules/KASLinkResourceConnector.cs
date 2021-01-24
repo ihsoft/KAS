@@ -156,6 +156,11 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region Part's config fields
+  // ReSharper disable MemberCanBePrivate.Global
+  // ReSharper disable CollectionNeverUpdated.Global
+  // ReSharper disable ClassNeverInstantiated.Global
+  // ReSharper disable ConvertToConstant.Global
+
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -192,12 +197,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// beyond this list will be ignored.
   /// </summary>
   /// <remarks>
-  /// <see cref="resourceOverride"/> is ignored when the allowed resources list is set.
+  /// <see cref="resourceOverrides"/> is ignored when the allowed resources list is set.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("allowedResource", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public List<string> allowedResource = new List<string>();
+  public readonly List<string> allowedResources = new List<string>();
 
   /// <summary>
   /// The list of the resources that will be forcibly allowed or disallowed for the transfer via
@@ -223,39 +228,32 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
   /// </para>
   /// </remarks>
-  /// <seealso cref="allowedResource"/>
+  /// <seealso cref="allowedResources"/>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public List<string> resourceOverride = new List<string>();
+  public readonly List<string> resourceOverrides = new List<string>();
 
   /// <summary>Container for the fuel mixture component.</summary>
   // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixtureComponent {
     /// <summary>Name of the resource.</summary>
     [PersistentField("name")]
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    // ReSharper disable once ConvertToConstant.Global
-    public string name = "";
+    public readonly string name = "";
 
     /// <summary>
     /// Weight of the component in the mixture. It can be any number, it will be scaled down to
     /// <c>1.0</c> to get the percentage.
     /// </summary>
     [PersistentField("ratio")]
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    // ReSharper disable once ConvertToConstant.Global
-    public double ratio;
+    public readonly double ratio = 0.0;
   }
 
   /// <summary>Container for the fuel mixture.</summary>
-  // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixture {
     /// <summary>The mixture components.</summary>
     [PersistentField("component", isCollection = true)]
-    // ReSharper disable once CollectionNeverUpdated.Global
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
+    public readonly List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
   }
 
   /// <summary>List of the supported fuel mixtures.</summary>
@@ -264,7 +262,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// vessels.
   /// </remarks>
   [PersistentField("RTS/fuelMixture", isCollection = true)]
-  public List<FuelMixture> fuelMixtures = new List<FuelMixture>();
+  public readonly List<FuelMixture> fuelMixtures = new List<FuelMixture>();
+
+  // ReSharper restore MemberCanBePrivate.Global
+  // ReSharper restore CollectionNeverUpdated.Global
+  // ReSharper restore ClassNeverInstantiated.Global
+  // ReSharper restore ConvertToConstant.Global
   #endregion
 
   #region Context menu events/actions
@@ -377,26 +380,26 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     readonly int _hashCode;
 
     public bool leftToRightTransferToggle {
-      get { return _leftToRightTransferToggle; }
-      set { UpdateTransferTriggerFlag(ref _leftToRightTransferToggle, value); }
+      get => _leftToRightTransferToggle;
+      set => UpdateTransferTriggerFlag(ref _leftToRightTransferToggle, value);
     }
     bool _leftToRightTransferToggle;
 
     public bool leftToRightTransferPress {
-      get { return _leftToRightTransferPress; }
-      set { UpdateTransferTriggerFlag(ref _leftToRightTransferPress, value); }
+      get => _leftToRightTransferPress;
+      set => UpdateTransferTriggerFlag(ref _leftToRightTransferPress, value);
     }
     bool _leftToRightTransferPress;
 
     public bool rightToLeftTransferToggle {
-      get { return _rightToLeftTransferToggle; }
-      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferToggle, value); }
+      get => _rightToLeftTransferToggle;
+      set => UpdateTransferTriggerFlag(ref _rightToLeftTransferToggle, value);
     }
     bool _rightToLeftTransferToggle;
 
     public bool rightToLeftTransferPress {
-      get { return _rightToLeftTransferPress; }
-      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferPress, value); }
+      get => _rightToLeftTransferPress;
+      set => UpdateTransferTriggerFlag(ref _rightToLeftTransferPress, value);
     }
     bool _rightToLeftTransferPress;
 
@@ -662,7 +665,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var maxUnscaledAmount = double.PositiveInfinity;
     for (var i = _pendingOption.resources.Length - 1; i >= 0; i--) {
       var unit = _pendingOption.resourceRatios[i];
-      var resource = _pendingOption.resources[i];
       var amount = _currentFromPartAmounts[i] / unit;
       if (amount < maxUnscaledAmount) {
         maxUnscaledAmount = amount;
@@ -728,10 +730,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Updates GUI for all the resources.</summary>
   /// <remarks>
-  /// To not waste too much CPU, this method opdates by timer. However, when an instant update is
+  /// To not waste too much CPU, this method updates by timer. However, when an instant update is
   /// needed, it can be requested via the parameter.
   /// </remarks>
-  /// <param name="force">Tells if GUI must be upadted regardless to the timer.</param>
+  /// <param name="force">Tells if GUI must be updated regardless to the timer.</param>
   void UpdateResourcesTransferGui(bool force = false) {
     if (!force && Time.unscaledTime - _lastResourcesGuiUpdate < TransferStateUpdatePeriod) {
       return;
@@ -804,18 +806,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         .ToList();
 
     // Find the predefined resources that the part can pump between the vessels.
-    var allowedResourceIds = allowedResource
-        .Select(x => StockResourceNames.GetId(x))
+    var allowedResourceIds = allowedResources
+        .Select(StockResourceNames.GetId)
         .ToArray();
 
     if (allowedResourceIds.Length == 0) {
       // If no specific resources set, then allow all the vessel resources that are material and
       // not restricted for pumping. Allow overriding to include/exclude a specific resource. 
-      var overrideEnabled = resourceOverride
+      var overrideEnabled = resourceOverrides
           .Where(x => x.Length > 0 && x[0] == '+')
           .Select(x => StockResourceNames.GetId(x.Substring(1)))
           .ToArray();
-      var overrideDisabled = resourceOverride
+      var overrideDisabled = resourceOverrides
           .Where(x => x.Length > 0 && x[0] == '-')
           .Select(x => StockResourceNames.GetId(x.Substring(1)));
       var nonMovableIds = PartResourceLibrary.Instance.resourceDefinitions
@@ -859,8 +861,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Sets the currently transferring option. Erasing the previous one.</summary>
   /// <param name="newOption">The new option or <c>null</c>.</param>
   void SetPendingTransferOption(ResourceTransferOption newOption) {
-    if (newOption != _pendingOption && _pendingOption != null) {
-      _pendingOption.StopAllTransfers();
+    if (newOption != _pendingOption) {
+      _pendingOption?.StopAllTransfers();
     }
     _pendingOption = newOption;
     if (_pendingOption == null && _autoScaleSpeed) {
