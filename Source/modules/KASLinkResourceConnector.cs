@@ -12,6 +12,7 @@ using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using System.Collections.Generic;
 using System.Linq;
+using KSP.UI;
 using UnityEngine;
 
 // ReSharper disable once CheckNamespace
@@ -527,7 +528,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public void OnGUI() {
     _isGuiOpen &= linkTarget != null;
-    if (Time.timeScale <= float.Epsilon) {
+    if (Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
       return;  // No events and menu in the paused mode.
     }
     if (_isGuiOpen) {

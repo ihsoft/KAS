@@ -1,4 +1,5 @@
 # 1.8 (pre-release):
+* [Fix #302] GUI does not respect hide/show function.
 * [Fix #306] Logs spam from the parts dropped on the ground.
 
 # 1.7 (July 30th, 2020):
