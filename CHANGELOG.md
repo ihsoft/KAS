@@ -1,4 +1,4 @@
-# 1.8 (December 26th, 2020):
+# 1.8 (pre-release):
 
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.
