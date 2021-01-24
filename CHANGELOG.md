@@ -1,4 +1,5 @@
 # 1.8 (pre-release):
+* [Fix #306] Logs spam from the parts dropped on the ground.
 
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.

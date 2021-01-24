@@ -416,7 +416,6 @@ public abstract class AbstractJoint : AbstractPartModule,
   #region IJointEventsListener implementation
   /// <inheritdoc/>
   public virtual void OnJointBreak(float breakForce) {
-    HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
     Quaternion relRot = Quaternion.identity;
@@ -438,6 +437,8 @@ public abstract class AbstractJoint : AbstractPartModule,
     // doesn't validate which joint has actually broke.
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
+        linkSource.BreakCurrentLink(LinkActorType.Physics);
         // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
           HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
@@ -448,8 +449,6 @@ public abstract class AbstractJoint : AbstractPartModule,
           partTransform.rotation = parentPartRotation * relRot;
           part.Couple(parentPart);
         }
-        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
-        linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
     });
   }
