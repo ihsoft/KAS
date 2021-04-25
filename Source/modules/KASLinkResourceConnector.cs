@@ -160,6 +160,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   // ReSharper disable CollectionNeverUpdated.Global
   // ReSharper disable ClassNeverInstantiated.Global
   // ReSharper disable ConvertToConstant.Global
+  // ReSharper disable FieldCanBeMadeReadOnly.Global
 
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
@@ -202,7 +203,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("allowedResource", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public readonly List<string> allowedResources = new List<string>();
+  public List<string> allowedResources = new List<string>();
 
   /// <summary>
   /// The list of the resources that will be forcibly allowed or disallowed for the transfer via
@@ -232,28 +233,28 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public readonly List<string> resourceOverrides = new List<string>();
+  public List<string> resourceOverrides = new List<string>();
 
   /// <summary>Container for the fuel mixture component.</summary>
   // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixtureComponent {
     /// <summary>Name of the resource.</summary>
     [PersistentField("name")]
-    public readonly string name = "";
+    public string name = "";
 
     /// <summary>
     /// Weight of the component in the mixture. It can be any number, it will be scaled down to
     /// <c>1.0</c> to get the percentage.
     /// </summary>
     [PersistentField("ratio")]
-    public readonly double ratio = 0.0;
+    public double ratio = 0.0;
   }
 
   /// <summary>Container for the fuel mixture.</summary>
   public class FuelMixture {
     /// <summary>The mixture components.</summary>
     [PersistentField("component", isCollection = true)]
-    public readonly List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
+    public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
   }
 
   /// <summary>List of the supported fuel mixtures.</summary>
@@ -262,12 +263,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// vessels.
   /// </remarks>
   [PersistentField("RTS/fuelMixture", isCollection = true)]
-  public readonly List<FuelMixture> fuelMixtures = new List<FuelMixture>();
+  public List<FuelMixture> fuelMixtures = new List<FuelMixture>();
 
   // ReSharper restore MemberCanBePrivate.Global
   // ReSharper restore CollectionNeverUpdated.Global
   // ReSharper restore ClassNeverInstantiated.Global
   // ReSharper restore ConvertToConstant.Global
+  // ReSharper restore FieldCanBeMadeReadOnly.Global
   #endregion
 
   #region Context menu events/actions
