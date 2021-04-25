@@ -25,6 +25,9 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
   #region implemented abstract members of UpgradeScript
   /// <inheritdoc/>
   public override TestResult OnTest(ConfigNode node, LoadContext loadContext, ref string nodeName) {
+    if (_partPatches.Count == 0) {
+      return TestResult.Pass;  // No need to patch.
+    }
     if (node.GetValue("$$failed") != null) {
       return TestResult.Failed;
     }
