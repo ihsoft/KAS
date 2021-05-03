@@ -27,7 +27,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     // KAS interfaces.
     ILinkPeer, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IKSPActivateOnDecouple {
+    IsPartDeathListener, IKSPActivateOnDecouple {
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
@@ -214,6 +214,11 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
   #endregion
 
+  #region IsPartDeathListener declaration
+  /// <inheritdoc/>
+  public abstract void OnPartDie();
+  #endregion
+
   #region AbstractPartModule overrides
   /// <inheritdoc/>
   public override void OnAwake() {
@@ -221,6 +226,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     linkStateMachine = new SimpleStateMachine<LinkState>();
     SetupStateMachine();
     RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartDie, OnPartDieEvent);
   }
 
   /// <inheritdoc/>
@@ -454,6 +460,14 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       HostedDebugLog.Fine(this, "Schedule coupling check on coupling event: from={0}, to={1}",
                           action.from, action.to);
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
+    }
+  }
+
+  /// <summary>Reacts on this part death and initiates the death callbacks.</summary>
+  void OnPartDieEvent(Part p) {
+    if (p == part) {
+      HostedDebugLog.Fine(this, "Link peer dies...");
+      OnPartDie();
     }
   }
   #endregion

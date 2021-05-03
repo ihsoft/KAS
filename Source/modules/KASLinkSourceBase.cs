@@ -41,7 +41,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     // KAS interfaces.
     ILinkSource,
     // KSPDev syntax sugar interfaces.
-    IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
+    IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -484,7 +484,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region IsPartDeathListener implementation
   /// <inheritdoc/>
-  public virtual void OnPartDie() {
+  public override void OnPartDie() {
     if (isLinked) {
       HostedDebugLog.Info(this, "Part has died. Drop the link to: {0}", linkTarget);
       BreakCurrentLink(LinkActorType.Physics);

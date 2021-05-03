@@ -1,4 +1,5 @@
 # 1.8 (pre-release):
+* [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets broken in this case.
 * [Fix #302] GUI does not respect hide/show function.
 * [Fix #306] Logs spam from the parts dropped on the ground.
 

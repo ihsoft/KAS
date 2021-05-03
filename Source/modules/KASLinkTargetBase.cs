@@ -35,7 +35,7 @@ public class KASLinkTargetBase :
     // KAS interfaces.
     ILinkTarget,
     // Syntax sugar parents.
-    IsPartDeathListener, IKSPDevModuleInfo {
+    IKSPDevModuleInfo {
 
   #region Localizable GUI strings
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
@@ -190,7 +190,7 @@ public class KASLinkTargetBase :
 
   #region IsPartDeathListener implemenation
   /// <inheritdoc/>
-  public virtual void OnPartDie() {
+  public override void OnPartDie() {
     if (isLinked) {
       HostedDebugLog.Info(this, "Part has died. Drop the link to: {0}", linkSource);
       linkSource.BreakCurrentLink(LinkActorType.Physics);
