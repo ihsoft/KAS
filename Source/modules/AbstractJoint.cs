@@ -934,12 +934,11 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// externally, the root vessel part cannot be properly restored.
   /// </remarks>
   void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
+    var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
+    var childPart = weDecouple ? source.part : target.part;
     AsyncCall.CallOnEndOfFrame(this, () => {
-      var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
-      var childPart = weDecouple ? source.part : target.part;
-      if (childPart.vessel.vesselType != vesselInfo.vesselType
-          || childPart.vessel.vesselName != vesselInfo.name) {
-        HostedDebugLog.Warning(this, "Partially restoring vessel info on {0}: type={1}, name={2}",
+      if (childPart != null && childPart.vessel != null) {
+        HostedDebugLog.Warning(this, "Restoring vessel info on {0}: type={1}, name={2}",
                                childPart, vesselInfo.vesselType, vesselInfo.name);
         childPart.vessel.vesselType = vesselInfo.vesselType;
         childPart.vessel.vesselName = vesselInfo.name;
