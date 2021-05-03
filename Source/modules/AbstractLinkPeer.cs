@@ -232,7 +232,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
-    
+
     // Adjust state of a newly added module.
     if (persistedLinkState == LinkState.Available) {
       var linkedModule = part.Modules.OfType<ILinkPeer>()
@@ -407,7 +407,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     var oldPeer = _otherPeer;
     _otherPeer = peer;
     if (_otherPeer != null) {
-      persistedLinkPartId = (uint) _otherPeer?.part.flightID;
+      persistedLinkPartId = _otherPeer.part.flightID;
       persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
     } else {
       persistedLinkPartId = 0;
