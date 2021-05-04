@@ -7,11 +7,9 @@ using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
-using System;
 using System.Linq;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 
@@ -205,7 +203,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   #endregion
 
   #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPActivateOnDecouple.DecoupleAction" />
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
       HostedDebugLog.Fine(this, "Schedule coupling check from DECOUPLE action...");
@@ -322,7 +320,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   #endregion
 
   #region IsPackable implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IsPackable.OnPartUnpack" />
   public virtual void OnPartUnpack() {
     // The check may want to establish a link, but this will only succeed if the physics has
     // started.
@@ -330,7 +328,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IsPackable.OnPartPack" />
   public virtual void OnPartPack() {
   }
   #endregion
@@ -443,7 +441,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   /// <inheritdoc/>
   public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-    throw new NotImplementedException();  // Obsolete.
+    HostedDebugLog.Error(this, "Method call is unexpected! Doing nothing");  // Obsolete.
   }
   #endregion
 
