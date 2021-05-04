@@ -312,7 +312,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     // Update the target vessel relations (if any).
     if (targetPart != null) {
       PartModel.UpdateHighlighters(targetPart);
-      if (targetPart.vessel != vessel) {
+      if (targetPart.vessel != null && targetPart.vessel != vessel) {
         targetPart.vessel.parts
             .Where(p => p != null)  // It's a cleanup method.
             .ToList()
