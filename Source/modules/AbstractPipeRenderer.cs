@@ -25,7 +25,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
-  public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
+  static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_07000",
       defaultTemplate: "Link collides with: <<1>>",
       description: "Message to display when the link cannot be created due to an obstacle."
@@ -33,7 +33,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       example: "Link collides with: Mk2 Cockpit");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
-  public static readonly Message LinkCollidesWithSurfaceMsg = new Message(
+  static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_07001",
       defaultTemplate: "Link collides with the surface",
       description: "Message to display when the link strut orientation cannot be changed due to it"
@@ -139,7 +139,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual Color? colorOverride {
-    get { return _colorOverride; }
+    get => _colorOverride;
     set {
       _colorOverride = value;
       UpdateMaterialOverrides();
@@ -149,7 +149,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual string shaderNameOverride {
-    get { return _shaderNameOverride; }
+    get => _shaderNameOverride;
     set {
       _shaderNameOverride = value;
       UpdateMaterialOverrides();
@@ -159,7 +159,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
-    get { return _isPhysicalCollider; }
+    get => _isPhysicalCollider;
     set {
       _isPhysicalCollider = value;
       UpdateColliderOverrides();
