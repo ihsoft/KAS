@@ -225,6 +225,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     SetupStateMachine();
     RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
     RegisterGameEventListener(GameEvents.onPartDie, OnPartDieEvent);
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartAttached, OnEVAConstructionModePartAttached);
   }
 
   /// <inheritdoc/>
@@ -286,6 +287,14 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       }
     }
     SetLinkState(persistedLinkState);
+  }
+
+  /// <inheritdoc/>
+  public override void OnPartCreatedFomInventory(ModuleInventoryPart moduleInventoryPart) {
+    base.OnPartCreatedFomInventory(moduleInventoryPart);
+    if (persistedLinkState != LinkState.Available) {
+      ClearLink();
+    }
   }
 
   /// <inheritdoc/>
@@ -467,6 +476,21 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       HostedDebugLog.Fine(this, "Link peer dies...");
       OnPartDie();
     }
+  }
+
+  /// <summary>Reset any linked state on the EVA attached part since it's a clone.</summary>
+  void OnEVAConstructionModePartAttached(Vessel v, Part p) {
+    if (part == p && persistedLinkState != LinkState.Available) {
+      ClearLink();
+    }
+  }
+
+  /// <summary>Resets the linked state on this peer.</summary>
+  void ClearLink() {
+    HostedDebugLog.Fine(this, "Reset connection state for a cloned part: {0}", persistedLinkState);
+    persistedLinkState = LinkState.Available;
+    persistedLinkPartId = 0;
+    persistedLinkNodeName = null;
   }
   #endregion
 }
