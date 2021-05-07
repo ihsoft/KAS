@@ -14,7 +14,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 

@@ -808,8 +808,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       return;
     }
     if (saveNonPhysical && connectorObj == null && persistedConnectorPosAndRot != null) {
-      // For non physical connector only update connector if not yet updated. To allow restoring
-      // a deployed connector at an arbitrary location.
+      // Only save non-physical connector if not yet done.
       return;
     }
     var connector = connectorObj
