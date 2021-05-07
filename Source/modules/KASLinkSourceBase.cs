@@ -105,6 +105,19 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "Target cannot couple",
       description: "Message to display when the target is refusing to couple (dock) with the link"
       + " source.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message EvaActionBrokeLinkMsg = new Message(
+      "##kasLOC_02009",
+      defaultTemplate: "<color=red>Unlinking due to the EVA construction action</color>",
+      description: "Message to display when a linked part becomes a target to EVA construction move or detach"
+      + " operation.");
+  #endregion
+
+  #region Constants and inheratable fields
+  /// <summary>Path to the sound that indicates the link was broken forcibly (for any reason).</summary>
+  /// TODO(IgorZ): Move to the common config.
+  protected const string SoundLinkForceBroken = "KAS/Sounds/broke";
   #endregion
 
   #region ILinkSource properties implementation
@@ -237,6 +250,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region AbstractLinkPeer overrides
+  /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartDetached, OnEVAConstructionModePartDetached);
+  }
+
   /// <summary>Reacts on a part de-coupling and adjusts the docking mode.</summary>
   /// <remarks>
   /// This is a cleanup method that verifies that all links in the DOCKED mode remained coupled
@@ -749,12 +768,23 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <remarks>This event can get called from the physics callbacks.</remarks>
   /// <param name="targetVessel">The vessel that is being destroyed.</param>
   void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
-    if (isLinked && vessel != linkTarget.part.vessel
-        && (targetVessel == vessel || targetVessel == linkTarget.part.vessel)) {
-      HostedDebugLog.Info(
-          this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
-      BreakCurrentLink(LinkActorType.Physics);
+    if (!isLinked || vessel == linkTarget.part.vessel
+        || (targetVessel != vessel && targetVessel != linkTarget.part.vessel)) {
+      return;  // Nothing to do.
     }
+    // Verify if the vessel is being destroyed due to EVA construction mode actions.
+    if (UIPartActionControllerInventory.Instance != null
+        && UIPartActionControllerInventory.Instance.CurrentCargoPart != null) {
+      var evaCargoPart = UIPartActionControllerInventory.Instance.CurrentCargoPart;
+      if (evaCargoPart != null
+          && (part.flightID == evaCargoPart.flightID || linkTarget.part.flightID == evaCargoPart.flightID)) {
+        BreakLinkDueToEvaAction();
+        return;
+      }
+    }
+    HostedDebugLog.Info(
+        this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
+    BreakCurrentLink(LinkActorType.Physics);
   }
 
   /// <summary>Loads the state that should be processed after all the modules are created.</summary>
@@ -778,6 +808,24 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
     linkRenderer = linkRenderer ?? oldLinkRenderer;
+  }
+
+  /// <summary>Breaks the link if nay to avoid physics in EVA construction mode.</summary>
+  void OnEVAConstructionModePartDetached(Vessel v, Part p) {
+    if (!isLinked || (p != part && p != linkTarget.part)) {
+      return;
+    }
+    BreakLinkDueToEvaAction();
+  }
+
+  /// <summary>Breaks the link and notifies player that an EVA construction mode action was the reason.</summary>
+  void BreakLinkDueToEvaAction() {
+    HostedDebugLog.Info(
+        this, "Unlinking from {0} due to the part is being modified in the EVA construction mode", otherPeer);
+    ScreenMessages.PostScreenMessage(
+        EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
+    UISoundPlayer.instance.Play(SoundLinkForceBroken);
+    BreakCurrentLink(LinkActorType.API);
   }
   #endregion
 }
