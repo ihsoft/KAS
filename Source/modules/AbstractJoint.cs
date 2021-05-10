@@ -441,7 +441,7 @@ public abstract class AbstractJoint : AbstractPartModule,
         linkSource.BreakCurrentLink(LinkActorType.Physics);
         // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
-          HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
+          HostedDebugLog.Info(this, "Restore coupling with: {0}", parentPart);
           var parentPartTransform = parentPart.transform;
           var parentPartRotation = parentPartTransform.rotation;
           var partTransform = part.transform;
