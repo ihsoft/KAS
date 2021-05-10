@@ -17,7 +17,7 @@ namespace KASAPIv2 {
 public interface ILinkJoint {
   /// <summary>Identifier of the joint on the part.</summary>
   /// <remarks>It's unique in scope of the part.</remarks>
-  /// <value>An arbitary string that identifies this joint.</value>
+  /// <value>An arbitrary string that identifies this joint.</value>
   string cfgJointName { get; }
 
   /// <summary>Tells the current coupling mode.</summary>

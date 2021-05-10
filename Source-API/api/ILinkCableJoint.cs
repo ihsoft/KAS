@@ -7,8 +7,8 @@ using UnityEngine;
 namespace KASAPIv2 {
 
 /// <summary>
-/// Interface for a physical cable link. Such links keep the dsitance between the object below the
-/// maximum, but don't restict any other movements of the objects relative to each other.
+/// Interface for a physical cable link. Such links keep the distance between the object below the
+/// maximum, but don't restrict any other movements of the objects relative to each other.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -35,8 +35,8 @@ public interface ILinkCableJoint : ILinkJoint {
   float cfgMaxCableLength { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
-  /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
+  /// <value>The rigidbody object, or <c>null</c> if there is no physical head started.</value>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   Rigidbody headRb { get; }
 
   /// <summary>
@@ -75,18 +75,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <remarks>
   /// This mode only has effect when the parts are coupled. Basically, when the locked mode is
   /// <c>true</c>, the stock joint between the parts is preserved. When the mode is <c>false</c>,
-  /// the stiock joint is destroyed and repalced by a PhysX distant joint.
+  /// the stock joint is destroyed and replaced by a PhysX distant joint.
   /// </remarks>
   /// <value><c>true</c> if the joint is rigid.</value>
   /// <seealso cref="ILinkJoint.coupleOnLinkMode"/>
   /// <seealso cref="SetLockedOnCouple"/>
   bool isLockedWhenCoupled { get; }
 
-  /// <summary>
-  /// Attaches the specified object to the source and starts the environmental forces on it.  
-  /// </summary>
+  /// <summary>Attaches the source to the specified physical object (a connector head).</summary>
   /// <remarks>
-  /// The cable maximum length will be set to the actual distance between the source and the head.
+  /// The cable maximum length will be set to the actual distance between the source and the physical object. Note, that
+  /// this method must not be used to create a regular link between the source and target.
   /// </remarks>
   /// <param name="source">The source object that owns the head.</param>
   /// <param name="headObjAnchor">
@@ -97,8 +96,9 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="deployedCableLength"/>
   /// <seealso cref="realCableLength"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
+  /// FIXME: rename
   void StartPhysicalHead(ILinkSource source, Transform headObjAnchor);
 
   /// <summary>Stops handling the physical head.</summary>
@@ -151,7 +151,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
   /// <remarks>
   /// If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
-  /// affect the joint. If the part were coupled at the momemnt, then the joint is recreated
+  /// affect the joint. If the part were coupled at the moment, then the joint is recreated
   /// according to the new setting.
   /// </remarks>
   /// <param name="mode">The new mode.</param>
