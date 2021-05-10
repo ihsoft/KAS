@@ -113,6 +113,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   [Debug.KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
 
+  /// <summary>Center of mass of the connector object.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Connector CoM")]
+  public Vector3 connectorCenterOfMass = Vector3.zero;
+
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
   /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
@@ -397,6 +403,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   public override void OnDebugAdjustablesUpdated() {
     base.OnDebugAdjustablesUpdated();
+    if (connectorObj != null && connectorObj.GetComponent<Rigidbody>() != null) {
+      connectorObj.GetComponent<Rigidbody>().centerOfMass = connectorCenterOfMass;
+    }
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
@@ -844,6 +853,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     var connector = KASInternalPhysicalConnector.Promote(
         this, connectorObj.gameObject, connectorInteractDistance);
     connector.connectorRb.mass = connectorMass;
+    connector.connectorRb.centerOfMass = connectorCenterOfMass;
     part.mass -= connectorMass;
     part.rb.mass -= connectorMass;
 

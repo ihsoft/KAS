@@ -42,8 +42,6 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
     connectorRb.isKinematic = ownerModule.part.packed;
     connectorRb.velocity = ownerModule.part.rb.velocity;
     connectorRb.angularVelocity = ownerModule.part.rb.angularVelocity;
-    connectorRb.ResetInertiaTensor();
-    connectorRb.ResetCenterOfMass();
     var connectorModule = obj.AddComponent<KASInternalPhysicalConnector>();
     connectorModule.ownerModule = ownerModule;
 
