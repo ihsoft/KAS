@@ -858,7 +858,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     part.rb.mass -= connectorMass;
 
     linkRenderer.StartRenderer(nodeTransform, physPartAttach);
-    Colliders.UpdateColliders(connectorModel.gameObject);
+    Colliders.UpdateColliders(connectorModel.gameObject, isEnabled: true);
     cableJoint.StartPhysicalHead(this, physPipeAttachObj);
     SaveConnectorModelPosAndRot();
   }
