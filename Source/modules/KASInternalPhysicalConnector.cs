@@ -14,7 +14,7 @@ namespace KAS {
 /// <remarks>
 /// <para>
 /// This is an <i>internal</i> module. It must not be instantiated or accessed outside of the KAS
-/// mod. The module must only be created thru the factory method.
+/// mod. The module must only be created through the factory method.
 /// </para>
 /// <para>
 /// The promoted object becomes independent from the creator. When the module is destroyed, its
@@ -25,7 +25,7 @@ namespace KAS {
 /// <seealso cref="Promote"/>
 /// <seealso cref="Demote"/>
 // ReSharper disable once InconsistentNaming
-internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
+sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>
