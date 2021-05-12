@@ -738,6 +738,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     return errors.ToArray();
   }
+
+  /// <summary>Breaks the link due to a peer is being acted in the stock construction mode.</summary>
+  /// <remarks>This method must to reset the part to a state which is safe for the stock EVA system operation.</remarks>
+  protected virtual void BreakLinkDueToEvaAction() {
+    HostedDebugLog.Info(
+        this, "Unlinking from {0} due to the part is being modified in the EVA construction mode", otherPeer);
+    ScreenMessages.PostScreenMessage(
+        EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
+    UISoundPlayer.instance.Play(SoundLinkForceBroken);
+    BreakCurrentLink(LinkActorType.API);
+  }
   #endregion
 
   #region KASEvents listeners
@@ -811,20 +822,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Breaks the link if nay to avoid physics in EVA construction mode.</summary>
   void OnEVAConstructionModePartDetached(Vessel v, Part p) {
-    if (!isLinked || (p != part && p != linkTarget.part)) {
-      return;
+    if (isLinked && (p == part || p == linkTarget?.part)) {
+      BreakLinkDueToEvaAction();
     }
-    BreakLinkDueToEvaAction();
-  }
-
-  /// <summary>Breaks the link and notifies player that an EVA construction mode action was the reason.</summary>
-  void BreakLinkDueToEvaAction() {
-    HostedDebugLog.Info(
-        this, "Unlinking from {0} due to the part is being modified in the EVA construction mode", otherPeer);
-    ScreenMessages.PostScreenMessage(
-        EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
-    UISoundPlayer.instance.Play(SoundLinkForceBroken);
-    BreakCurrentLink(LinkActorType.API);
   }
   #endregion
 }
