@@ -419,7 +419,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
     Quaternion relRot = Quaternion.identity;
-    if (isLinked && part.parent != linkTarget.part) {
+    if (isLinked && part.parent != null && part.parent != linkTarget.part) {
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
