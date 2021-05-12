@@ -254,6 +254,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
+    if (source == null || target == null) {
+      HostedDebugLog.Error(this, "Cannot make renderer: source={0}, target={1}", source, target);
+      return;
+    }
     if (isStarted) {
       if (sourceTransform == source && targetTransform == target) {
         return;  // NO-OP
