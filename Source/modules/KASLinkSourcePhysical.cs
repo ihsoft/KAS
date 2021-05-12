@@ -686,6 +686,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
     }
   }
+
+  /// <inheritdoc/>
+  protected override void BreakLinkDueToEvaAction() {
+    base.BreakLinkDueToEvaAction();
+    InstantLockConnectorEvent();
+  }
   #endregion
 
   #region Inheritable utility methods
