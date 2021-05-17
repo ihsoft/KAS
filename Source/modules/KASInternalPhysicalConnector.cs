@@ -161,7 +161,8 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   void FixedUpdate() {
-    if (connectorRb != null && ownerModule != null && !connectorRb.isKinematic) {
+    // Vessel can be NULL for the EVA dragged parts.
+    if (connectorRb != null && ownerModule != null && ownerModule.vessel != null && !connectorRb.isKinematic) {
       KASAPI.PhysicsUtils.ApplyGravity(connectorRb, ownerModule.vessel);
     }
   }

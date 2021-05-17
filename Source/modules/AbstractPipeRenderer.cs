@@ -274,14 +274,18 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     PartModel.UpdateHighlighters(part);
     sourceTransform.GetComponentsInChildren<Renderer>().ToList()
         .ForEach(r => r.SetPropertyBlock(part.mpb));
-    vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+    if (vessel != null) {
+      // Vessel can be NULL for the EVA dragged parts.
+      vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+    }
 
     // Update the target vessel relations (if any).
     if (targetPart != null) {
       PartModel.UpdateHighlighters(targetPart);
       targetTransform.GetComponentsInChildren<Renderer>().ToList()
           .ForEach(r => r.SetPropertyBlock(targetPart.mpb));
-      if (targetPart.vessel != vessel) {
+      if (targetPart.vessel != null && targetPart.vessel != vessel) {
+        // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
       }
     }
@@ -317,6 +321,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     if (targetPart != null) {
       PartModel.UpdateHighlighters(targetPart);
       if (targetPart.vessel != null && targetPart.vessel != vessel) {
+        // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts
             .Where(p => p != null)  // It's a cleanup method.
             .ToList()
