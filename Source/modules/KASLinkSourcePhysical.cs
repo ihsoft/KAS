@@ -695,7 +695,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Inheritable utility methods
-  /// <summary>Changes the connector state</summary>
+  /// <summary>Changes the connector state.</summary>
   /// <remarks>
   /// It's a convenience method. The caller can change the state of the connector state machine
   /// instead.
@@ -707,9 +707,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.currentState = newState;
   }
 
-  /// <summary>
-  /// Tells if the currently active vessel is an EVA kerbal who carries the connector.
-  /// </summary>
+  /// <summary>Tells if the currently active vessel is an EVA kerbal who carries the connector.</summary>
   /// <returns><c>true</c> if the connector on the kerbal.</returns>
   protected bool IsActiveEvaHoldingConnector() {
     return FlightGlobals.fetch != null  // To prevent NRE on the game shutdown. 

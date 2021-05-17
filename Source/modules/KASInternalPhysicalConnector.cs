@@ -35,6 +35,7 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// <param name="ownerModule">The part's module which will control the connector.</param>
   /// <param name="obj">The object to be promoted.</param>
   /// <param name = "interactionDistance"></param>
+  /// <returns>The <c>KASInternalPhysicalConnector</c> module that was created and added to the object.</returns>
   public static KASInternalPhysicalConnector Promote(
       PartModule ownerModule, GameObject obj, float interactionDistance = 0) {
     var connectorRb = obj.GetComponent<Rigidbody>() ?? obj.AddComponent<Rigidbody>();
