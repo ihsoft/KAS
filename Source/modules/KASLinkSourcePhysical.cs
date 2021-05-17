@@ -691,6 +691,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   protected override void BreakLinkDueToEvaAction() {
     base.BreakLinkDueToEvaAction();
     InstantLockConnectorEvent();
+    // On the dragged part all the colliders are already disabled, but the instant lock could have introduced new.
+    HostedDebugLog.Fine(this, "Setting colliders to 'trigger' due to EVA drag action...");
+    Colliders.UpdateColliders(part.gameObject, isPhysical: false);
   }
   #endregion
 
