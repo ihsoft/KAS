@@ -248,8 +248,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
       BreakCurrentLink(LinkActorType.Player);
       SetConnectorState(ConnectorState.Locked);
-      HostedDebugLog.Info(
-          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
+      HostedDebugLog.Info(this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
     }
   }
 
