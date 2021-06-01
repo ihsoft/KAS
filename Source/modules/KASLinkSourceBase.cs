@@ -407,8 +407,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       }
       if (!isLinked) {
         // Let the other part a chance to couple, and block if it didn't succeed.
-        HostedDebugLog.Fine(this, "Cannot link, wait for the other part: target={0}",
-                            coupleNode.attachedPart);
+        HostedDebugLog.Fine(this, "Cannot link, wait for the other part: target={0}", coupleNode.attachedPart);
         AsyncCall.CallOnEndOfFrame(this, () => {
           if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
             HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
