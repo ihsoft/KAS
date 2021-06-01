@@ -370,6 +370,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
     // Unblock node if the blocker is removed.
     if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
       SetLinkState(LinkState.Available);
       return;
     }
@@ -411,7 +412,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       }
       if (!isLinked) {
         // Let the other part a chance to couple, and block if it didn't succeed.
-        HostedDebugLog.Fine(this, "Cannot link, wait for the other part: target={0}", coupleNode.attachedPart);
+        HostedDebugLog.Warning(this, "Cannot link, wait for the other part: target={0}", coupleNode.attachedPart);
         AsyncCall.CallOnEndOfFrame(this, () => {
           if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
             HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
