@@ -367,6 +367,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
+
+    // Unblock node if the blocker is removed.
+    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      SetLinkState(LinkState.Available);
+      return;
+    }
     if (coupleNode == null) {
       // If the part doesn't want to couple, then we should obey.
       if (parsedAttachNode.attachedPart != null) {
@@ -417,8 +423,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
           }
         });
       }
-    } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      SetLinkState(LinkState.Available);
     }
     
     // Restore the link state if not yet done.
