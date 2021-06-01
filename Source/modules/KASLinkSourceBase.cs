@@ -373,16 +373,15 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       SetLinkState(LinkState.Available);
       return;
     }
+
+    // Handle a case when this source doesn't want to couple with the child.
     if (coupleNode == null) {
-      // If the part doesn't want to couple, then we should obey.
       if (parsedAttachNode.attachedPart != null) {
-        HostedDebugLog.Error(
-            this, "Cannot maintain coupling with: {0}", parsedAttachNode.attachedPart);
+        HostedDebugLog.Error(this, "Cannot maintain coupling with: {0}", parsedAttachNode.attachedPart);
         if (linkState == LinkState.Available) {
           AsyncCall.CallOnEndOfFrame(this, () => {
             if (parsedAttachNode.attachedPart) {
-              HostedDebugLog.Info(
-                  this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
+              HostedDebugLog.Info(this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
               parsedAttachNode.attachedPart.decouple();
             }
           });
@@ -392,8 +391,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         } else {
           AsyncCall.CallOnEndOfFrame(this, () => {
             if (parsedAttachNode.attachedPart) {
-              HostedDebugLog.Error(
-                  this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
+              HostedDebugLog.Error(this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
               parsedAttachNode.attachedPart.decouple();
             }
           });
