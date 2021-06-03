@@ -135,18 +135,21 @@ public class KASLinkTargetBase :
   /// <inheritdoc/>
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
-    // The source is responsible to handle the link, which may be done at the end of frame. So put
-    // our check at the end of the frame queue to go behind any delayed actions.
-    System.Diagnostics.Debug.Assert(
-        parsedAttachNode != null, nameof(parsedAttachNode) + " != null");
+
+    // Unblock node if the blocker is removed.
+    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
+      SetLinkState(LinkState.Available);
+      return;
+    }
+
+    // In this frame the other parts has to pickup the coupling. If they didn't, we block.
     AsyncCall.CallOnEndOfFrame(this, () => {
-      if (linkState == LinkState.Available
-          && parsedAttachNode != null && parsedAttachNode.attachedPart != null) {
+      if (linkState == LinkState.Available && coupleNode != null && coupleNode.attachedPart != null) {
+        HostedDebugLog.Fine(this, "Detected a blocking part at the couple node: from={0}, to={1}",
+                               KASAPI.AttachNodesUtils.NodeId(coupleNode),
+                               KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
         SetLinkState(LinkState.NodeIsBlocked);
-      } else {
-        if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-          SetLinkState(LinkState.Available);
-        }
       }
     });
   }
