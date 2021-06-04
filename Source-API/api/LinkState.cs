@@ -21,7 +21,7 @@ public enum LinkState {
   /// </summary>
   Locked,
   /// <summary>
-  /// Module has initated an outgoing link request and expecting for it to be accepted.
+  /// Module has initiated an outgoing link request and expecting for it to be accepted.
   /// </summary>
   Linking,
   /// <summary>Module is linked to another module.</summary>

@@ -182,7 +182,7 @@ public interface ILinkSource : ILinkPeer {
   /// <param name="target">The target to connect with.</param>
   /// <param name="checkStates">
   /// Tells if the source and target states needs to be checked. This check can be disabled when
-  /// checking for a "theoretical" posibility of the link. However, keep in mind that before doing
+  /// checking for a "theoretical" possibility of the link. However, keep in mind that before doing
   /// the actual link, the full check will be performed.
   /// </param>
   /// <param name="reportToGUI">
