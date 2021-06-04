@@ -525,6 +525,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
             ShowStatusMessage(
                 CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
             KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+            FlightGlobals.ActiveVessel.evaController.InterruptWeld(); // In case of it was the stock EVA action.
           }
         },
         callOnShutdown: false);
