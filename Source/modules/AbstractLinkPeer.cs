@@ -359,6 +359,11 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       // Ensure the auto node is removed and is cleared from the attached part if not used.
       KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
     }
+    // Unblock node if the blocker is removed.
+    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
+      SetLinkState(LinkState.Available);
+    }
   }
 
   /// <summary>Sets the peer's state machine.</summary>

@@ -136,13 +136,6 @@ public class KASLinkTargetBase :
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
 
-    // Unblock node if the blocker is removed.
-    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
-      SetLinkState(LinkState.Available);
-      return;
-    }
-
     // In this frame the other parts has to pickup the coupling. If they didn't, we block.
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (linkState == LinkState.Available && coupleNode != null && coupleNode.attachedPart != null) {

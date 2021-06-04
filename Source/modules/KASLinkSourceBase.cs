@@ -368,13 +368,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
 
-    // Unblock node if the blocker is removed.
-    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
-      SetLinkState(LinkState.Available);
-      return;
-    }
-
     // Handle a case when this source doesn't want to couple with the child.
     if (coupleNode == null) {
       if (parsedAttachNode.attachedPart != null) {
