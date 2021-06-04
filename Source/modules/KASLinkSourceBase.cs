@@ -398,28 +398,29 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       }
       return;
     }
-    if (linkState == LinkState.Available && coupleNode != null && coupleNode.attachedPart != null) {
-      var target = coupleNode.attachedPart.Modules
+
+    // Handle the case when a part is attached externally. 
+    if (linkState == LinkState.Available && coupleNode?.attachedPart != null) {
+      // Try all the possible targets on the other part to make the link.
+      var targets = coupleNode.attachedPart.Modules
           .OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available
-                               && t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t));
-      if (target != null) {
-        HostedDebugLog.Fine(this, "Linking with the pre-attached part: {0}", target);
-        LinkToTarget(LinkActorType.API, target);
+          .Where(t => t.coupleNode?.attachedPart == part && CheckCanLinkTo(t, reportToLog: false));
+      foreach (var target in targets) {
+        if (LinkToTarget(LinkActorType.API, target)) {
+          HostedDebugLog.Info(this, "Restored the link with the externally attached part: {0}", target);
+          break;
+        }
+        HostedDebugLog.Warning(this, "The link attempt has been rejected: {0}", target);
       }
-      if (!isLinked) {
-        // Let the other part a chance to couple, and block if it didn't succeed.
-        HostedDebugLog.Warning(this, "Cannot link, wait for the other part: target={0}", coupleNode.attachedPart);
-        AsyncCall.CallOnEndOfFrame(this, () => {
-          if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
-            HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
-                                   KASAPI.AttachNodesUtils.NodeId(coupleNode),
-                                   KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
-            SetLinkState(LinkState.NodeIsBlocked);
-          }
-        });
-      }
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (linkState == LinkState.Available && coupleNode?.attachedPart != null) {
+          HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
+                                 KASAPI.AttachNodesUtils.NodeId(coupleNode),
+                                 KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
+          SetLinkState(LinkState.NodeIsBlocked);
+          UpdateContextMenu();
+        }
+      });
     }
     
     // Restore the link state if not yet done.
