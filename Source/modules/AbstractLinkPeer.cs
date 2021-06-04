@@ -2,6 +2,8 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
+using System.Collections;
 using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
@@ -331,10 +333,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   #region IsPackable implementation
   /// <inheritdoc cref="IsPackable.OnPartUnpack" />
   public virtual void OnPartUnpack() {
-    // The check may want to establish a link, but this will only succeed if the physics has
-    // started.
-    HostedDebugLog.Fine(this, "Schedule coupling check from UNPACK...");
-    AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
+    StartCoroutine(ValidateCoupling(part, "UNPACK"));
   }
 
   /// <inheritdoc cref="IsPackable.OnPartPack" />
@@ -488,6 +487,42 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     if (part == p && persistedLinkState != LinkState.Available) {
       ClearLink();
     }
+    if (p.parent == part) {
+      StartCoroutine(ValidateCoupling(p, "EVA attach"));
+    }
+  }
+
+  /// <summary>Validates coupling state on the parts that may be in a packed state.</summary>
+  /// <summary>
+  /// Use this method when the part in question can be packed. Rhe method will wait till it unpacks, and then will call
+  /// the <see cref="CheckCoupleNode"/> on it.
+  /// </summary>
+  /// <param name="p">The part to wait for the state on.</param>
+  /// <param name="reason">A brief reason of why the method is being called. Only used for logging.</param>
+  /// <returns>Co-routine enumerator.</returns>
+  IEnumerator ValidateCoupling(Part p, string reason) {
+    Func<bool> stateCheckFn = () =>
+        linkState == LinkState.Available && p.State == PartStates.IDLE && (p == part || p.parent == part)
+        && coupleNode?.attachedPart != null;
+    if (!stateCheckFn.Invoke()) {
+      yield break;  // Nothing to do. 
+    }
+    if (p.packed) {
+      HostedDebugLog.Fine(this, "Waiting for the packed part to unpack: part={0}", p);
+      yield return new WaitWhile(() => p.packed && stateCheckFn.Invoke());
+    }
+    if (linkState != LinkState.Available) {
+      HostedDebugLog.Fine(this, "Another module took the ownership on the link");
+      yield break;
+    }
+    if (!stateCheckFn.Invoke()) {
+      HostedDebugLog.Warning(
+          this, "Part has changed while waiting for coupling: state={0}, parent={1}, coupleNode={2}, attachedPart={3}",
+          p.State, p.parent, coupleNode, coupleNode?.attachedPart);
+      yield break;
+    }
+    HostedDebugLog.Info(this, "Trigger coupling check: dependency={0}, reason={1}", p, reason);
+    CheckCoupleNode();
   }
 
   /// <summary>Resets the linked state on this peer.</summary>
