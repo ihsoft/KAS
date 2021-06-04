@@ -491,7 +491,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
         this, "Reset connection state for a cloned part: {0} => {1}", persistedLinkState, LinkState.Available);
     persistedLinkState = LinkState.Available;
     persistedLinkPartId = 0;
-    persistedLinkNodeName = null;
+    persistedLinkNodeName = "";
   }
   #endregion
 }
