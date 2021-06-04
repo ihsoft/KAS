@@ -377,16 +377,21 @@ public class KASLinkSourceBase : AbstractLinkPeer,
             if (parsedAttachNode.attachedPart) {
               HostedDebugLog.Info(this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
               parsedAttachNode.attachedPart.decouple();
+              UpdateContextMenu();
             }
           });
         } else if (linkState == LinkState.Linked && linkTarget != null) {
           HostedDebugLog.Warning(this, "Breaking the link to: {0}", linkTarget);
-          AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.API));
+          AsyncCall.CallOnEndOfFrame(this, () => {
+            BreakCurrentLink(LinkActorType.API);
+            UpdateContextMenu();
+          });
         } else {
           AsyncCall.CallOnEndOfFrame(this, () => {
             if (parsedAttachNode.attachedPart) {
               HostedDebugLog.Error(this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
               parsedAttachNode.attachedPart.decouple();
+              UpdateContextMenu();
             }
           });
         }
@@ -422,7 +427,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       linkJoint.CreateJoint(this, linkTarget);
     }
 
-    UpdateContextMenu();  // To update the dock/undock menu.
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
