@@ -113,7 +113,7 @@ class LinkUtilsImpl : ILinkUtils {
       return null;
     }
 
-    if (vesselInfo != null) {
+    if (partToDecouple.vessel != null && vesselInfo != null) {
       // Simulate the IActivateOnDecouple behaviour since Undock() doesn't do it.
       var srcAttachNode = partToDecouple.FindAttachNodeByPart(partToDecouple.parent);
       if (srcAttachNode != null) {
@@ -134,13 +134,28 @@ class LinkUtilsImpl : ILinkUtils {
       vesselInfo.Save(vesselInfoCfg);
       DebugEx.Fine("Restore vessel info:\n{0}", vesselInfoCfg);
       partToDecouple.Undock(vesselInfo);
+    } else if (partToDecouple.vessel == null) {
+      // During the EVA construction mode the parts can have no vessel.
+      DebugEx.Fine("EVA construction mode detected. Skip decoupling.");
     } else {
       // Do simple decouple event which will screw the decoupled vessel root part.
       DebugEx.Warning("No vessel info found! Just decoupling");
       partToDecouple.decouple();
     }
-    part1.vessel.CycleAllAutoStrut();
-    part2.vessel.CycleAllAutoStrut();
+    if (part1.vessel != null) {
+      part1.vessel.CycleAllAutoStrut();
+      if (vesselInfo1 != null) {
+        part1.vessel.vesselName = vesselInfo1.name;
+        part1.vessel.vesselType = vesselInfo1.vesselType;
+      }
+    }
+    if (part2.vessel != null) {
+      part2.vessel.CycleAllAutoStrut();
+      if (vesselInfo2 != null) {
+        part2.vessel.vesselName = vesselInfo2.name;
+        part2.vessel.vesselType = vesselInfo2.vesselType;
+      }
+    }
     return partToDecouple;
   }
 }
