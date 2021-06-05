@@ -450,7 +450,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
           : ExtendCableMenuTxt;
     });
     PartModuleUtils.SetupEvent(this, ToggleRetractCableEvent, e => {
-      e.active = linkState != LinkState.NodeIsBlocked && connectorState != ConnectorState.Locked;
+      e.active = !isConnectorLocked && linkState != LinkState.NodeIsBlocked && connectorState != ConnectorState.Docked;
       e.guiName = motorTargetSpeed < -float.Epsilon
           ? StopRetractingMenuTxt
           : RetractCableMenuTxt;
