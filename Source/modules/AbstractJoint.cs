@@ -863,7 +863,10 @@ public abstract class AbstractJoint : AbstractPartModule,
     selfDecoupledAction = false;
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
-    DelegateCouplingRole(linkTarget.part);
+    if (vessel != null && linkTarget.part.vessel != null) {
+      // Don't delegate when part decouples via the construction mode. 
+      DelegateCouplingRole(linkTarget.part);
+    }
     SetCustomJoints(null);
   }
 
