@@ -618,7 +618,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         ConnectorState.Deployed,
         enterHandler: oldState => StartPhysicsOnConnector(),
         leaveHandler: newState => StopPhysicsOnConnector(),
-        callOnShutdown: false);
+        callOnShutdown: true);
   }
 
   /// <inheritdoc/>
@@ -693,12 +693,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
           && connectorState == ConnectorState.Plugged
           && FlightGlobals.ActiveVessel != linkTarget.part.vessel;
     }
-  }
-
-  /// <inheritdoc/>
-  protected override void BreakLinkDueToEvaAction() {
-    base.BreakLinkDueToEvaAction();
-    InstantLockConnectorEvent();
   }
   #endregion
 
