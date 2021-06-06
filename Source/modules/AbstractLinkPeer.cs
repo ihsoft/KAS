@@ -518,7 +518,8 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
           p.State, p.parent, coupleNode, coupleNode?.attachedPart);
       yield break;
     }
-    HostedDebugLog.Info(this, "Trigger coupling check: dependency={0}, reason={1}", p, reason);
+    yield return new WaitForEndOfFrame();
+    HostedDebugLog.Fine(this, "Trigger coupling check: dependency={0}, reason={1}", p, reason);
     CheckCoupleNode();
   }
   #endregion
