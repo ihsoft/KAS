@@ -292,14 +292,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
-  public override void OnPartCreatedFomInventory(ModuleInventoryPart moduleInventoryPart) {
-    base.OnPartCreatedFomInventory(moduleInventoryPart);
-    if (persistedLinkState != LinkState.Available) {
-      ClearLink();
-    }
-  }
-
-  /// <inheritdoc/>
   protected override void InitModuleSettings() {
     base.InitModuleSettings();
     if (isAutoAttachNode && parsedAttachNode != null) {
@@ -327,6 +319,14 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       parsedAttachNode.owner = part;
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
+  }
+
+  /// <inheritdoc/>
+  protected override void ResetEvaPartState() {
+    base.ResetEvaPartState();
+    persistedLinkState = LinkState.Available;
+    persistedLinkPartId = 0;
+    persistedLinkNodeName = "";
   }
   #endregion
 
@@ -484,9 +484,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   /// <summary>Reset any linked state on the EVA attached part since it's a clone.</summary>
   void OnEVAConstructionModePartAttached(Vessel v, Part p) {
-    if (part == p && persistedLinkState != LinkState.Available) {
-      ClearLink();
-    }
     if (p.parent == part) {
       StartCoroutine(ValidateCoupling(p, "EVA attach"));
     }
@@ -523,15 +520,6 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     }
     HostedDebugLog.Info(this, "Trigger coupling check: dependency={0}, reason={1}", p, reason);
     CheckCoupleNode();
-  }
-
-  /// <summary>Resets the linked state on this peer.</summary>
-  void ClearLink() {
-    HostedDebugLog.Fine(
-        this, "Reset connection state for a cloned part: {0} => {1}", persistedLinkState, LinkState.Available);
-    persistedLinkState = LinkState.Available;
-    persistedLinkPartId = 0;
-    persistedLinkNodeName = "";
   }
   #endregion
 }
