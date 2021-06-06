@@ -289,6 +289,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     InitStartState();
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
   }
+  /// <inheritdoc/>
+  public override void OnStartFinished(StartState state) {
+    base.OnStartFinished(state);
+    if (isLinked && !linkJoint.isLinked) {
+      if (linkJoint.CreateJoint(this, linkTarget)) {
+        HostedDebugLog.Info(this, "Restored joint with {0}", linkTarget);
+      } else {
+        HostedDebugLog.Info(this, "Cannot restore joint with {0}", linkTarget);
+      }
+    }
+  }
 
   /// <inheritdoc/>
   public override void OnInitialize() {
@@ -423,11 +434,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       });
     }
     
-    // Restore the link state if not yet done.
-    if (isLinked && !linkJoint.isLinked) {
-      linkJoint.CreateJoint(this, linkTarget);
-    }
-
     UpdateContextMenu();
   }
 
