@@ -748,9 +748,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Breaks the link due to a peer is being acted in the stock construction mode.</summary>
   /// <remarks>This method must to reset the part to a state which is safe for the stock EVA system operation.</remarks>
-  protected virtual void BreakLinkDueToEvaAction() {
+  protected virtual void BreakLinkDueToEvaAction(ILinkPeer targetPeer) {
     HostedDebugLog.Info(
-        this, "Unlinking from {0} due to the part is being modified in the EVA construction mode", otherPeer);
+        this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, targetPeer);
     ScreenMessages.PostScreenMessage(
         EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
     UISoundPlayer.instance.Play(SoundLinkForceBroken);
@@ -793,9 +793,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     if (UIPartActionControllerInventory.Instance != null
         && UIPartActionControllerInventory.Instance.CurrentCargoPart != null) {
       var evaCargoPart = UIPartActionControllerInventory.Instance.CurrentCargoPart;
-      if (evaCargoPart != null
-          && (part.flightID == evaCargoPart.flightID || linkTarget.part.flightID == evaCargoPart.flightID)) {
-        BreakLinkDueToEvaAction();
+      if (part.flightID == evaCargoPart.flightID) {
+        BreakLinkDueToEvaAction(this);
+        return;
+      }
+      if (linkTarget.part.flightID == evaCargoPart.flightID) {
+        BreakLinkDueToEvaAction(linkTarget);
         return;
       }
     }
@@ -829,8 +832,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Breaks the link if nay to avoid physics in EVA construction mode.</summary>
   void OnEVAConstructionModePartDetached(Vessel v, Part p) {
-    if (isLinked && (p == part || p == linkTarget?.part)) {
-      BreakLinkDueToEvaAction();
+    if (isLinked) {
+      if (p == part) {
+        BreakLinkDueToEvaAction(this);
+      } else if (p == linkTarget?.part) {
+        BreakLinkDueToEvaAction(linkTarget);
+      }
     }
   }
   #endregion
