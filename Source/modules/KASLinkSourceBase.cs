@@ -748,6 +748,9 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <summary>Breaks the link due to a peer is being acted in the stock construction mode.</summary>
   /// <remarks>This method must to reset the part to a state which is safe for the stock EVA system operation.</remarks>
+  /// <param name="targetPeer">
+  /// The peer that is being manipulated in the EVA editor mode. It can be either side of the link.
+  /// </param>
   protected virtual void BreakLinkDueToEvaAction(ILinkPeer targetPeer) {
     HostedDebugLog.Info(
         this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, targetPeer);
