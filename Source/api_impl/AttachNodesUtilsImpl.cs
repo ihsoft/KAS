@@ -67,6 +67,9 @@ internal class AttachNodesUtilsImpl : KASAPIv2.IAttachNodesUtils {
       HostedDebugLog.Fine(part, "Drop attach node: {0}", NodeId(attachNode));
       part.attachNodes.Remove(attachNode);
       attachNode.attachedPartId = 0;  // Just in case.
+      if (attachNode.icon != null) {
+        attachNode.DestroyNodeIcon();
+      }
     }
   }
 
