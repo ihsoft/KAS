@@ -300,11 +300,9 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
     if (isAutoAttachNode) {
-      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
-          part, attachNodeDef, attachNodeName);
+      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(part, attachNodeDef, attachNodeName);
       if (parsedAttachNode != null) {
-        HostedDebugLog.Fine(
-            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
+        HostedDebugLog.Fine(this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
         if (coupleNode != null && (HighLogic.LoadedSceneIsFlight && vessel != null || HighLogic.LoadedSceneIsEditor)) {
           // Only pre-add the node in the scenes that assume restoring a vessel state.
           // We'll drop it in the OnStartFinished if not used.
