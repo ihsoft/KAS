@@ -634,6 +634,16 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
+  protected override void BreakLinkDueToEvaAction(ILinkPeer targetPeer) {
+    base.BreakLinkDueToEvaAction(targetPeer);
+    if (targetPeer.part == part) {
+      // If a part is being dragged in the EVA editor, it must not have ANY physics. 
+      SetConnectorState(ConnectorState.Locked);
+      Colliders.UpdateColliders(gameObject, isPhysical: false);  // The locked connector can have some colliders.
+    }
+  }
+
+  /// <inheritdoc/>
   protected override void LogicalLink(ILinkTarget target) {
     StopPhysicsOnConnector();
     base.LogicalLink(target);
