@@ -483,7 +483,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     base.OnEvaPartLoaded();
     persistedIsConnectorLocked = true;
     persistedConnectorPosAndRot = null;
-    SetConnectorState(ConnectorState.Locked);
   }
 
   /// <inheritdoc/>
