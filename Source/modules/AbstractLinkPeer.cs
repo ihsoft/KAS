@@ -322,8 +322,8 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <inheritdoc/>
-  protected override void ResetEvaPartState() {
-    base.ResetEvaPartState();
+  protected override void OnEvaPartLoaded() {
+    base.OnEvaPartLoaded();
     persistedLinkState = LinkState.Available;
     persistedLinkPartId = 0;
     persistedLinkNodeName = "";

@@ -479,8 +479,8 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  protected override void ResetEvaPartState() {
-    base.ResetEvaPartState();
+  protected override void OnEvaPartLoaded() {
+    base.OnEvaPartLoaded();
     persistedIsConnectorLocked = true;
     persistedConnectorPosAndRot = null;
     SetConnectorState(ConnectorState.Locked);
