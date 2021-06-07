@@ -441,6 +441,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
+  public override void OnStartFinished(StartState state) {
+    base.OnStartFinished(state);
+    if (HighLogic.LoadedSceneIsEditor) {
+      SetConnectorState(ConnectorState.Locked);
+    }
+  }
+  /// <inheritdoc/>
   protected override void CheckSettingsConsistency() {
     if (!allowCoupling) {
       // Connector docking mode is required!
