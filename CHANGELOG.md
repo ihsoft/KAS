@@ -5,6 +5,7 @@
 * [Fix #306] Logs spam from the parts dropped on the ground.
 * [Fix #308] Linked parts can be dragged in construct mode.
 * [Fix #314] Retract cable option is visible when the connector is locked.
+* [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
 
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.

@@ -275,7 +275,7 @@ public class KASLinkTargetBase :
   /// <param name="isHighlighted">The highlighting state.</param>
   /// <seealso cref="highlightCompatibleTargets"/>
   void SetEligiblePartHighlighting(bool isHighlighted) {
-    if (highlightCompatibleTargets) {
+    if (highlightCompatibleTargets && !EVAConstructionModeController.Instance.IsOpen) {
       if (isHighlighted) {
         part.SetHighlightType(Part.HighlightType.AlwaysOn);
         part.SetHighlightColor(highlightColor);
