@@ -550,7 +550,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.onAfterTransition += (start, end) => {
       if (end != null) { // Do nothing on state machine shutdown.
         persistedIsConnectorLocked = isConnectorLocked;
-        if (end == ConnectorState.Locked) {
+        if (end == ConnectorState.Locked && !isAutoAttachNode) {
           KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
         } else if (coupleNode.attachedPart == null) {
           KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
