@@ -357,6 +357,12 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// </para>
   /// </remarks>
   protected virtual void CheckCoupleNode() {
+    if (parsedAttachNode.attachedPart != null
+        && parsedAttachNode.attachedPart.physicalSignificance != Part.PhysicalSignificance.FULL) {
+      HostedDebugLog.Error(
+          this, "KSP ISSUE: Detected a non-physic part at the couple node: part={0}. This will NOT work properly!",
+          parsedAttachNode.attachedPart);
+    }
     if (isAutoAttachNode && coupleNode != null && coupleNode.attachedPart == null) {
       // Ensure the auto node is removed and is cleared from the attached part if not used.
       KASAPI.AttachNodesUtils.DropNode(part, coupleNode);

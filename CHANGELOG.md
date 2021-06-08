@@ -1,5 +1,6 @@
 # 1.8 (pre-release):
 * [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. If you need to reattach a linked KAS part, make sure you've broke the link first.
+* [NOTICE] The non-physical parts, attached to a winch, cannot be properly managed by KAS. They will stay attached, but the winch functionality will be blocked. Use the EVA construction mode to remove the incompatible parts.
 * [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets broken in this case.
 * [Fix #302] GUI does not respect hide/show function.
 * [Fix #306] Logs spam from the parts dropped on the ground.
@@ -7,6 +8,7 @@
 * [Fix #308] Linked parts can be dragged in construct mode.
 * [Fix #314] Retract cable option is visible when the connector is locked.
 * [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
+* [Fix #316] The detached physicsless parts stay physicsless.
 
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.
