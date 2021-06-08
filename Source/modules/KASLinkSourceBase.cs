@@ -30,7 +30,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02010.
+// Next localization ID: #kasLOC_02011.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
 // ReSharper disable once InconsistentNaming
@@ -111,6 +111,14 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "<color=red>Unlinking due to the EVA construction action</color>",
       description: "Message to display when a linked part becomes a target to EVA construction move or detach"
       + " operation.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message CannotLinkInEvaConstructionModeMsg = new Message(
+      "#kasLOC_02010",
+      defaultTemplate: "Interactive links are not allowed in the EVA construction mode",
+      description: "Message to display when an interactive link mode is being enabled while the stock EVA construction"
+      + " mode is active. In this mode the KAS interactive links are completely disabled to not interfere with the"
+      + " stock game functionality.");
   #endregion
 
   #region Constants and inheratable fields
@@ -547,6 +555,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region ILinkSource implementation
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
+    if (mode == GUILinkMode.Interactive && EVAConstructionModeController.Instance.IsOpen) {
+      ShowStatusMessage(CannotLinkInEvaConstructionModeMsg, isError: true);
+      HostedDebugLog.Warning(this, "Cannot make interactive links in the EVA construction mode");
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
+      return false;
+    }
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
       if (actor == LinkActorType.Player) {
         ShowStatusMessage(SourceIsNotAvailableForLinkMsg, isError: true);
