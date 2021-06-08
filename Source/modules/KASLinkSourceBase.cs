@@ -30,7 +30,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02009.
+// Next localization ID: #kasLOC_02010.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
 // ReSharper disable once InconsistentNaming
@@ -107,7 +107,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message EvaActionBrokeLinkMsg = new Message(
-      "##kasLOC_02009",
+      "#kasLOC_02009",
       defaultTemplate: "<color=red>Unlinking due to the EVA construction action</color>",
       description: "Message to display when a linked part becomes a target to EVA construction move or detach"
       + " operation.");
