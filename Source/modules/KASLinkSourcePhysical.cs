@@ -520,13 +520,11 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     linkStateMachine.AddStateHandlers(
         LinkState.NodeIsBlocked,
         enterHandler: oldState => {
-          if (decoupleIncompatibleTargets
-              && coupleNode != null && coupleNode.attachedPart != null) {
+          if (decoupleIncompatibleTargets && coupleNode?.attachedPart != null) {
             HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
                                    coupleNode.FindOpposingNode().attachedPart);
             UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
-            ShowStatusMessage(
-                CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
+            ShowStatusMessage(CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
             KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
             FlightGlobals.ActiveVessel.evaController.InterruptWeld(); // In case of it was the stock EVA action.
           }

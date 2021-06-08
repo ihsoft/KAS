@@ -30,8 +30,7 @@ public class KASJointRigid : AbstractJoint {
   /// <remarks>The created joint (if any) is populated to the hosting part.</remarks>
   void MaybeCreateStockJoint() {
     if (linkTarget.part.attachJoint == null) {
-      HostedDebugLog.Fine(
-          this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
+      HostedDebugLog.Fine(this, "Create a stock joint between: {0} <=> {1}", linkSource, linkTarget);
       linkTarget.part.CreateAttachJoint(AttachModes.STACK);
     }
   }
@@ -39,11 +38,9 @@ public class KASJointRigid : AbstractJoint {
   /// <summary>Creates a stock-alike joint between the unrelated parts.</summary>
   /// <remarks>The physical joints will be controlled by the module.</remarks>
   void CreateCustomJoint() {
-    HostedDebugLog.Fine(
-        this, "Create a stock-alike joint between: {0} <=> {1}", linkSource, linkTarget);
-    var stockJoint = PartJoint.Create(linkSource.part, linkTarget.part,
-                                      linkSource.coupleNode, linkTarget.coupleNode,
-                                      AttachModes.STACK);
+    HostedDebugLog.Fine(this, "Create a stock-alike joint between: {0} <=> {1}", linkSource, linkTarget);
+    var stockJoint = PartJoint.Create(
+        linkSource.part, linkTarget.part, linkSource.coupleNode, linkTarget.coupleNode, AttachModes.STACK);
     SetCustomJoints(stockJoint.joints.ToArray());
   }
   #endregion
