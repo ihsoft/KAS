@@ -502,17 +502,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
-  public override void OnPartDie() {
-    base.OnPartDie();
-    // Make sure the connector is locked into the winch to not leave it behind.
-    if (connectorObj != null) {
-      // Don't relay on the connector state machine, it will try to destroy immediately.
-      KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
-    }
-    SetConnectorState(ConnectorState.Locked);
-  }
-
-  /// <inheritdoc/>
   protected override void SetupStateMachine() {
     base.SetupStateMachine();
     linkStateMachine.onAfterTransition += (start, end) => UpdateContextMenu();
