@@ -240,6 +240,11 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   public override void OnStart(StartState state) {
     base.OnStart(state);
 
+    // KAS doesn't handle non-physical peers. Both ends of the link must be physical to work properly.
+    if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+      HostedDebugLog.Error(this, "The part is non-physical. KAS will NOT work properly with it!");
+    }
+
     // Adjust state of a newly added module.
     if (persistedLinkState == LinkState.Available) {
       var linkedModule = part.Modules.OfType<ILinkPeer>()
