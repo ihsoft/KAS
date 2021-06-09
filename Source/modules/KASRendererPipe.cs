@@ -460,15 +460,15 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var sphere = node.pipeAttach.Find(sphereName);
     if (config.sphereDiameter > float.Epsilon && makeProceduralModels) {
       if (sphere == null) {
-        sphere = Meshes2.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
-                                      colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
+                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
         sphere.name = sphereName;
         sphere.rotation = Quaternion.LookRotation(node.partAttach.up, node.partAttach.forward);
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
-      Hierarchy2.SafeDestroy(sphere);
+      Hierarchy.SafeDestroy(sphere);
     }
 
     // Parking position, if defined.
@@ -482,7 +482,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
     } else if (parkAttach != null) {
-      Hierarchy2.SafeDestroy(parkAttach);
+      Hierarchy.SafeDestroy(parkAttach);
     }
 
     // Place prefab between the part and the pipe if specified.
@@ -515,9 +515,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon
         && makeProceduralModels) {
       if (arm == null) {
-        arm = Meshes2.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
-                                     node.pipeAttach,
-                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        arm = Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                    node.pipeAttach,
+                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
         arm.name = armName;
       }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
@@ -526,7 +526,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       armTransform.localRotation = Quaternion.LookRotation(Vector3.forward);
       RescalePipeTexture(armTransform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
-      Hierarchy2.SafeDestroy(arm);
+      Hierarchy.SafeDestroy(arm);
     }
 
     // Adjust to the new target.
@@ -543,7 +543,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var colliderType = pipeColliderIsPhysical
         ? Colliders.PrimitiveCollider.Shape
         : Colliders.PrimitiveCollider.None;
-    pipeTransform = Meshes2.CreateCylinder(
+    pipeTransform = Meshes.CreateCylinder(
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
