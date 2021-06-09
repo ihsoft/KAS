@@ -526,7 +526,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
             UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
             ShowStatusMessage(CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
             KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
-            FlightGlobals.ActiveVessel.evaController.InterruptWeld(); // In case of it was the stock EVA action.
+            if (FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.evaController != null) {
+              FlightGlobals.ActiveVessel.evaController.InterruptWeld();  // In case of it was the stock EVA action.
+            }
           }
         },
         callOnShutdown: false);
