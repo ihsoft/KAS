@@ -521,11 +521,6 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         LinkState.NodeIsBlocked,
         enterHandler: oldState => {
           if (decoupleIncompatibleTargets && coupleNode?.attachedPart != null) {
-            if (coupleNode.attachedPart.physicalSignificance != Part.PhysicalSignificance.FULL) {
-              HostedDebugLog.Warning(
-                  this, "Not decoupling incompatible non-physic part: part={0}", coupleNode.attachedPart);
-              return;
-            }
             HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
                                    coupleNode.FindOpposingNode().attachedPart);
             UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);

@@ -5,6 +5,7 @@
 using KASAPIv2;
 using KSPDev.LogUtils;
 using System.Linq;
+using UnityEngine;
 
 // ReSharper disable once CheckNamespace
 namespace KASImpl {
@@ -112,6 +113,7 @@ class LinkUtilsImpl : ILinkUtils {
       DebugEx.Warning("Cannot decouple {0} <=> {1} - not coupled!", part1, part2);
       return null;
     }
+    var parentPart = partToDecouple.parent;
 
     if (partToDecouple.vessel != null && vesselInfo != null) {
       // Simulate the IActivateOnDecouple behaviour since Undock() doesn't do it.
@@ -142,6 +144,18 @@ class LinkUtilsImpl : ILinkUtils {
       DebugEx.Warning("No vessel info found! Just decoupling");
       partToDecouple.decouple();
     }
+
+    // KSP sometimes fails to restore the physic state of the decoupled parts. Fix it here. No guarantees, though.
+    foreach (var rb in partToDecouple.GetComponentsInChildren<Rigidbody>()) {
+      if (rb.isKinematic) {
+        DebugEx.Warning("KSP ISSUE WORKAROUND: Make rigidbody physical: part={0}, rb={1}",
+                        partToDecouple, DbgFormatter.TranformPath(rb.gameObject));
+        rb.isKinematic = false;
+        rb.velocity = parentPart.rb.velocity;
+        rb.angularVelocity = parentPart.rb.angularVelocity;
+      }
+    }
+
     if (part1.vessel != null) {
       part1.vessel.CycleAllAutoStrut();
       if (vesselInfo1 != null) {
