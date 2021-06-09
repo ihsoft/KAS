@@ -287,8 +287,8 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   /// <inheritdoc/>
   public bool coupleOnLinkMode {
-    get { return coupleWhenLinked; }
-    private set { coupleWhenLinked = value; }
+    get => coupleWhenLinked;
+    private set => coupleWhenLinked = value;
   }
 
   /// <inheritdoc/>
@@ -910,8 +910,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </remarks>
   /// <param name="source">The link source at the moment of cleanup.</param>
   void MaybeBreakLink(ILinkSource source) {
-    // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
-    // they will be null'ed on the link destruction.
+    // Delay the nodes cleanup to let the other logic work smoothly.
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (isLinked) {
         source.BreakCurrentLink(LinkActorType.Physics);
