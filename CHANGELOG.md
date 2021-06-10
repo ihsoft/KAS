@@ -1,7 +1,7 @@
 # 1.8 (pre-release):
-* [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. If you need to reattach a linked KAS part, make sure you've broke the link first.
-* [NOTICE] The interactive links (like in `PCB`) are now not possible in EVA construction mode. Disable it if you want to link the parts.
-* [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets broken in this case.
+* [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. To avoid unpexected behvior, it's recommended to manually break the link before using EVA construction mode.
+* [NOTICE] The interactive links (like in `PCB`) are now not possible in EVA construction mode.
+* [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets proeprly broken in this case.
 * [Enhancement] Allow attaching to the winches surface to let reinforcing them with struts.
 * [Fix #302] GUI does not respect hide/show function.
 * [Fix #306] Logs spam from the parts dropped on the ground.
