@@ -836,8 +836,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     // Remember the vessel info to restore it on the decoupling. And do the couple!
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
-    KASAPI.LinkUtils.CoupleParts(
-        linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
+    KASAPI.LinkUtils.CoupleParts(linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
     SetupPhysXJoints();
   }
 
@@ -929,7 +928,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     return vesselInfo;
   }
 
-  /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
+  /// <summary>Restores the name and type of the vessel of the former coupled part.</summary>
   /// <remarks>
   /// The source and target parts need to be separated, but the logical link still need to exist.
   /// On restore the vessel info will be cleared on the module. Alas, when the link is broken
@@ -940,7 +939,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     var childPart = weDecouple ? source.part : target.part;
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (childPart != null && childPart.vessel != null) {
-        HostedDebugLog.Warning(this, "Restoring vessel info on {0}: type={1}, name={2}",
+        HostedDebugLog.Warning(this, "Restoring vessel info on {0} without root: type={1}, name={2}",
                                childPart, vesselInfo.vesselType, vesselInfo.name);
         childPart.vessel.vesselType = vesselInfo.vesselType;
         childPart.vessel.vesselName = vesselInfo.name;
