@@ -78,6 +78,22 @@ class LinkUtilsImpl : ILinkUtils {
     targetNode.attachedPart = srcPart;
     targetNode.attachedPartId = srcPart.flightID;
     tgtPart.attachMode = AttachModes.STACK;
+
+    // In KPS 1.11 the landed vessels are anchored to the surface with a constantly renewable fixed joint.
+    // When it breaks (and it breaks on every fixed frame), the game recognizes this as a detachment of the connected
+    // part from the vessel's root. Once coupled, the source's anchor makes no sense and interferes with the KAS logic.
+    if (srcPart.vessel.IsAnchored) {
+      DebugEx.Info("Reset RB anchor on vessel: {0}", srcPart.vessel.vesselName);
+      srcPart.vessel.ResetRBAnchor();
+      // The reset method only requests destroying. The joint still can emit a break event on the next physical frame.
+      var rbAnchor = srcPart.vessel.rootPart.GetComponents<FixedJoint>().FirstOrDefault(j => j.connectedBody == null);
+      if (rbAnchor != null) {
+        Object.DestroyImmediate(rbAnchor);
+      } else {
+        DebugEx.Error("Cannot find the anchor joint on vessel: {0}", srcPart.vessel.vesselName);
+      }
+    }
+
     srcPart.Couple(tgtPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
     // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    

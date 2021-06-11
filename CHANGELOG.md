@@ -7,6 +7,7 @@
 * [Fix #306] Logs spam from the parts dropped on the ground.
 * [Fix #307] Interactive attach mode conflicts with construction mode.
 * [Fix #308] Linked parts can be dragged in construct mode.
+* [Fix #313] Coupling vessels via the rigid link cause vessel breakage.
 * [Fix #314] Retract cable option is visible when the connector is locked.
 * [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
 * [Fix #316] The detached physicsless parts stay physicsless.
