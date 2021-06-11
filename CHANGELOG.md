@@ -11,6 +11,7 @@
 * [Fix #314] Retract cable option is visible when the connector is locked.
 * [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
 * [Fix #316] The detached physicsless parts stay physicsless.
+* [Fix #317] Coupling role delegation doesn't work.
 
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.

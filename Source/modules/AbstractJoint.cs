@@ -459,6 +459,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   public override void OnAwake() {
     base.OnAwake();
     RegisterGameEventListener(GameEvents.onVesselRename, OnVesselRename);
+    RegisterGameEventListener(GameEvents.onPartDeCoupleNewVesselComplete, OnVesselDecoupled);
   }
   #endregion
 
@@ -862,10 +863,6 @@ public abstract class AbstractJoint : AbstractPartModule,
     selfDecoupledAction = false;
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
-    if (vessel != null && linkTarget.part.vessel != null) {
-      // Don't delegate when part decouples via the construction mode. 
-      DelegateCouplingRole(linkTarget.part);
-    }
     SetCustomJoints(null);
   }
 
@@ -949,44 +946,46 @@ public abstract class AbstractJoint : AbstractPartModule,
     });
   }
 
-  /// <summary>
-  /// Goes thru the parts on the source and target vessels, and tries to restore the coupling
-  /// between the vessels.
-  /// </summary>
+  static bool _globalCouplingCheckInProcess;
+  void OnVesselDecoupled(Vessel parentVessel, Vessel newVessel) {
+    // This callback will trigger in all joints, but only one check must be done.
+    if (!_globalCouplingCheckInProcess) {
+      HostedDebugLog.Info(this, "Scheduling global coupling check...");
+      _globalCouplingCheckInProcess = true;
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        _globalCouplingCheckInProcess = false;
+        CheckIfCanRestoreCoupling(parentVessel, newVessel);
+      });
+    }
+  }
+
+  /// <summary>Tries to couple back two newly separated vessels.</summary>
   /// <remarks>
-  /// Any linking module on the source or the target vessel, which is linked and in the docking
-  /// mode, will be attempted to restore the vessels coupling. This work will be done at the end of
-  /// frame to let the other logic to cleanup.
+  /// Walks over all KAS link joints in the both vessels to find out if any of them can keep the vessels coupled. If
+  /// that's the case, then the coupling is re-established through the found joint. Must be called at the end of frame.
   /// </remarks>
-  /// <param name="tgtPart">
-  /// The former target part that was holding the coupling with this part.
-  /// </param>
-  void DelegateCouplingRole(Part tgtPart) {
-    AsyncCall.CallOnEndOfFrame(this, () => {
-      var candidates = new List<ILinkJoint>()
-          .Concat(
-              vessel.parts
-                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-                  .Where(
-                      j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
-                          && j.linkTarget.part.vessel == tgtPart.vessel))
-          .Concat(
-              tgtPart.vessel.parts
-                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-                  .Where(
-                      j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel))
-          .ToList();
-      foreach (var joint in candidates) {
-        HostedDebugLog.Fine(this, "Trying to couple via: {0}", joint);
-        if (joint.SetCoupleOnLinkMode(true)) {
-          HostedDebugLog.Info(this, "The coupling role is delegated to: {0}", joint);
-          return;
-        }
+  /// <param name="parentVessel">The former parent in the parts hierarchy.</param>
+  /// <param name="newVessel">The former child in the parts hierarchy.</param>
+  void CheckIfCanRestoreCoupling(Vessel parentVessel, Vessel newVessel) {
+    _globalCouplingCheckInProcess = false;
+    var candidates = new List<ILinkJoint>()
+        .Concat(
+            parentVessel.parts
+                .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == newVessel))
+        .Concat(
+            newVessel.parts
+                .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == parentVessel))
+        .ToList();
+    foreach (var linkJoint in candidates) {
+      if (linkJoint.SetCoupleOnLinkMode(true)) {
+        HostedDebugLog.Info(this, "The coupling role is delegated to: {0}", linkJoint);
+        return;
+      } else {
+        HostedDebugLog.Fine(this, "The coupling attempt has been rejected by: {0}", linkJoint);
       }
-      if (candidates.Any()) {
-        HostedDebugLog.Warning(this, "None of the found candidates took the coupling role");
-      }
-    });
+    }
   }
   #endregion
 }
