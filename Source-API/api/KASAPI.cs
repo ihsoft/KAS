@@ -21,7 +21,7 @@ public static class KASAPI {
   /// <summary>Tells if API V1 was loaded and ready to use.</summary>
   public static bool isLoaded;
 
-  /// <summary>KAS joints untils.</summary>
+  /// <summary>KAS joints utils.</summary>
   public static IJointUtils JointUtils;
 
   /// <summary>KAS attach nodes utils.</summary>

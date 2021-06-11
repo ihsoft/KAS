@@ -6,13 +6,13 @@ namespace KASAPIv2 {
 
 /// <summary>Base interface for a KAS joint.</summary>
 /// <remarks>
-/// <para>
+/// <p>
 /// Every KAS part <b>must</b> have a joint module that controls how the KAS joints are maintained.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// This interface is primarily designed for use form the <see cref="ILinkSource"/> implementations.
 /// A third-party code must not interact with it directly.
-/// </para>
+/// </p>
 /// </remarks>
 public interface ILinkJoint {
   /// <summary>Identifier of the joint on the part.</summary>
@@ -22,9 +22,9 @@ public interface ILinkJoint {
 
   /// <summary>Tells the current coupling mode.</summary>
   /// <remarks>
-  /// Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled thru
+  /// Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled through
   /// this specific joint module. It only means that the parts, linked via this joint, are
-  /// guaranteed to belong to the same vessel, but the coupling can actually be done thru the other
+  /// guaranteed to belong to the same vessel, but the coupling can actually be done through the other
   /// parts.
   /// </remarks>
   /// <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
@@ -45,14 +45,14 @@ public interface ILinkJoint {
 
   /// <summary>Sets up a physical joint between the source and target.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// This method can be called either to establish a new joint or to restore an existing link on
   /// load.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// This method will call the <see cref="CheckConstraints"/> method to ensure there are no errors.
   /// If there are some, then the link is not created and the errors are reported to the logs.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <returns><c>true</c> if joint was successfully created or updated.</returns>
   /// <param name="source">The link's source. This part owns the joint module.</param>
@@ -82,17 +82,17 @@ public interface ILinkJoint {
 
   /// <summary>Changes the current parts couple mode.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// When both the source and the target peers support coupling, this mode can be arbitrary set or
   /// reset via the joint module. If the new mode is "coupling", and the source and the target
   /// vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
   /// and the source and the target parts are coupled, then a decoupling event is triggered. In all
   /// the other cases it's just a boolean property change.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// The modules must support the cycles and be ready to pick up the coupling role when the former
   /// part has gave up.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="isCoupleOnLink">The new settings of the mode.</param>
   /// <returns>
@@ -109,7 +109,7 @@ public interface ILinkJoint {
   /// <returns>
   /// An empty array if the link can be created, or a list of user friendly errors otherwise.
   /// </returns>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
   string[] CheckConstraints(ILinkSource source, ILinkTarget target);
 }
 

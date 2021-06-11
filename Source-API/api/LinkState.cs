@@ -4,8 +4,8 @@
 
 namespace KASAPIv2 {
 
-/// <summary>Defines currect state of the link.</summary>
-/// <remarks>Each implementation defines own state tranistion model. E.g.
+/// <summary>Defines correct state of the link.</summary>
+/// <remarks>Each implementation defines own state transition model. E.g.
 /// <see cref="ILinkSource"/> or <see cref="ILinkTarget"/>. In every state the module can only
 /// handle a very specific set of actions. Such approach helps keeping module logic more clear and
 /// granular.
@@ -13,7 +13,7 @@ namespace KASAPIv2 {
 public enum LinkState {
   /// <summary>Initial and an invalid state. It must never be normally used.</summary>
   None = 0,
-  /// <summary>Module is avalable for the links.</summary>
+  /// <summary>Module is available for the links.</summary>
   Available,
   /// <summary>
   /// Module is unavailable for the link because of another module on the same node has already

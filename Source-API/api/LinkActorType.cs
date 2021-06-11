@@ -17,13 +17,13 @@ namespace KASAPIv2 {
 public enum LinkActorType {
   /// <summary>Actor is unspecified.</summary>
   /// <remarks>
-  /// It really depends on the situation how to treat this actor. In a normal case ther is always a
+  /// It really depends on the situation how to treat this actor. In a normal case there is always a
   /// specific actor set, but if an event originator cannot determine the actor then this type can
   /// be used. However, the event originator must ensure that the components that receive this event
   /// will know how to deal with it.
   /// </remarks>
   None = 0,
-  /// <summary>Thrid-party code has affected the link during its normal workflow.</summary>
+  /// <summary>Third-party code has affected the link during its normal workflow.</summary>
   /// <remarks>The implementations must <i>not</i> execute any user facing effects when the action
   /// is executed from the API.
   /// </remarks>

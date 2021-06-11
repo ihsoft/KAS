@@ -22,7 +22,7 @@ public interface IWinchControl : ILinkSource {
   /// <summary>Tells if the cable connector head is locked into the winch.</summary>
   /// <remarks>
   /// In the locked state there is no free cable available, and there is no moving part
-  /// (the connector). If the winch is linked to a part and the connector is locked, then the traget
+  /// (the connector). If the winch is linked to a part and the connector is locked, then the target
   /// part is <i>docked</i> to the vessel that owns the winch. When the connector unlocks, the
   /// attached part <i>undocks</i> from the vessel.
   /// </remarks>
@@ -48,25 +48,25 @@ public interface IWinchControl : ILinkSource {
   /// <seealso cref="ILinkTarget"/>
   float currentCableLength { get; }
 
-  /// <summary>Current speed of the motor spindel.</summary>
+  /// <summary>Current speed of the motor spindle.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// This is the speed at which the cable is being extended or retracted at the current moment.
   /// The actual speed of the motor can differ from what was set via the control methods (e.g.
-  /// <see cref="SetMotor"/>) due to there is some inetria momentum. Negative speed means the cable
-  /// is being retracted, and the positive speed means the cable is being extened.
-  /// </para>
-  /// <para>
+  /// <see cref="SetMotor"/>) due to there is some inertia momentum. Negative speed means the cable
+  /// is being retracted, and the positive speed means the cable is being extended.
+  /// </p>
+  /// <p>
   /// The motor speed is always trying to match the <see cref="motorTargetSpeed"/>. Depending on the
   /// part's implementation and settings, some time may be needed to actually have the match.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <value>The speed in meters per second.</value>
   /// <seealso cref="SetMotor"/>
   /// <seealso cref="motorTargetSpeed"/>
   float motorCurrentSpeed { get; }
 
-  /// <summary>Desired speed of the motor spindel.</summary>
+  /// <summary>Desired speed of the motor spindle.</summary>
   /// <remarks>
   /// Ideally, the motor is always working at this speed. However, in the physics world of KSP the
   /// motor may operate at the lower or the higher speeds. It depends of the various conditions.
@@ -79,31 +79,31 @@ public interface IWinchControl : ILinkSource {
 
   /// <summary>Sets the winch motor to the desired speed.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// The motor is responsible for the deployed cable length changing. It can extend the cable,
   /// retract the cable, or do nothing (idle). The winch and its head cannot get separated at a
   /// greater distance than the current deployed cable length. That said, the motor is controlling
   /// the distance.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// The motor speed is not required to change immediately. The motor may need some time to get to
   /// the target speed. It depends on the part implementation and configuration. The rule of thumb
   /// is to not expect the <see cref="motorCurrentSpeed"/> to match the
   /// <paramref name="targetSpeed"/> right after the method call. There may be some time needed
   /// before the values will match. However, the <see cref="motorTargetSpeed"/> value will change
   /// immediately, and will match the parameter. 
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Setting the motor speed may affect the connector state. E.g. if the connector was locked,
   /// and the motor speed is set to a positive value (extending), then the connector is get
   /// deployed.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// The motor will automatically stop when the cable length reaches zero or the maximum allowed
   /// value. In case of the zero length, the connector will be attempted to lock into the winch.
   /// This attempt may fail due to the bad align of the connector. To retry the attempt, just call
   /// this method again with a negative value.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="targetSpeed">
   /// The new speed of the motor. The <i>positive</i> value instructs to extend the cable, and the

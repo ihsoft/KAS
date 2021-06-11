@@ -20,17 +20,17 @@ public interface ILinkUtils {
 
   /// <summary>Couples two parts together given they belong to the different vessels.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
   /// other vessel. The new merged vessel will become active. Which vessel will be destroyed is
   /// determined by the <paramref name="toDominantVessel"/> parameter.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// This coupling requires the both attach nodes to be provided, and creates a "stack" nodes
   /// coupling.
-  /// </para>
+  /// </p>
+  /// <p><i>IMPORTANT</i>. The attach nodes must have a valid <c>owner</c> set.</p>
   /// </remarks>
-  /// <para><i>IMPORTANT</i>. The attach nodes must have a valid <c>owner</c> set.</para>
   /// <param name="sourceNode">
   /// The attach node at the source part that defines the source vessel. It must not be <c>null</c>. 
   /// </param>
@@ -41,7 +41,7 @@ public interface ILinkUtils {
   /// If <c>false</c>, then the source vessel will get coupled with the target. As a result, the
   /// source vessel will be destroyed. If <c>true</c>, then the method will find the <i>least</i>
   /// significant vessel of the two, and couple it with the <i>most</i> significant one. The least
-  /// signficant vessel will be destroyed.
+  /// significant vessel will be destroyed.
   /// </param>
   /// <returns>The part that attached as a child into the new hierarchy.</returns>
   /// <seealso cref="ILinkVesselInfo"/>

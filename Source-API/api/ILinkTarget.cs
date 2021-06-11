@@ -6,14 +6,15 @@ namespace KASAPIv2 {
 
 /// <summary>A generic target of a KAS link between two parts.</summary>
 /// <remarks>
-/// <para>
+/// <p>
 /// The target is a sink for a link initiated by the another part's <see cref="ILinkSource"/>.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// The link target have a state that defines what it can do (<see cref="ILinkPeer.linkState"/>).
 /// Not all actions are allowed in any state. The following state diagram tells what the target
 /// can do and when:
-/// </para>
+/// </p>
+/// <p>
 /// <list type="table">
 /// <listheader>
 /// <term>Transition</term><description>Action</description>
@@ -66,32 +67,33 @@ namespace KASAPIv2 {
 /// <item>
 /// <term><see cref="LinkState.RejectingLinks"/> => <see cref="LinkState.Locked"/></term>
 /// <description>
-/// A source from the world has linked to the owner of this target but thru another target.
+/// A source from the world has linked to the owner of this target but through another target.
 /// </description>
 /// </item>
 /// </list>
+/// </p>
 /// </remarks>
 /// <example>See <see cref="ILinkSource"/> for the examples.</example>
 public interface ILinkTarget : ILinkPeer {
   /// <summary>Source that maintains the link.</summary>
   /// <value>Source or <c>null</c> if nothing is linked.</value>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// Setting of this property changes the target state:
   /// <list type="bullet">
   /// <item>A non-null value changes the state to <see cref="LinkState.Linked"/>.</item>
   /// <item><c>null</c> value changes the state to <see cref="LinkState.Available"/>.</item>
   /// </list>
-  /// </para>
-  /// <para>Assigning the same value to this property doesn't trigger a state change event.</para>
-  /// <para>
+  /// </p>
+  /// <p>Assigning the same value to this property doesn't trigger a state change event.</p>
+  /// <p>
   /// Note, that not any state transition is possible. If the transition is invalid then an
   /// exception is thrown.
-  /// </para>
-  /// <para>
-  /// It's descouraged to assign this property from a code other than an implementation of
+  /// </p>
+  /// <p>
+  /// It's discouraged to assign this property from a code other than an implementation of
   /// <see cref="ILinkSource"/>.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <seealso cref="ILinkPeer.linkState"/>
   /// <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>

@@ -30,10 +30,10 @@ public interface ILinkPeer {
   /// <summary>Name of the attach node on the part.</summary>
   /// <value>Arbitrary string. It cannot be empty.</value>
   /// <remarks>
-  /// Every link peer is bound to an attach node thru which the link is made (including the coupling
+  /// Every link peer is bound to an attach node through which the link is made (including the coupling
   /// operations). Several peer modules can share the same node, but in case of any of the modules
   /// has made a link, the other dependents will go into the <see cref="LinkState.Locked"/> state.
-  /// I.e. only one link can be made thru one attach node.
+  /// I.e. only one link can be made through one attach node.
   /// </remarks>
   string cfgAttachNodeName { get; }
 
@@ -42,18 +42,18 @@ public interface ILinkPeer {
   /// with.
   /// </summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// The module will track the nodes and will adjust its state as those nodes were owned by the
   /// module. However, this module will never change the mode of those nodes. This can be used to
   /// lock or block the peer modules that control the different primary nodes, but need to cooperate
   /// with the other similar modules on the part. This setting allows defining a group of peer
   /// modules which only allow linking of a single module at the time.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Note, that the part's <see cref="cfgAttachNodeName"/> is <i>not</i> present in this list by
   /// default. The implementation should explicitly check for the primary node, or the config must
   /// take care of it.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <value>The list of the node names. It's never <c>null</c>.</value>
   string[] cfgDependentNodeNames { get; }
@@ -106,7 +106,7 @@ public interface ILinkPeer {
   /// <value>The attach node. It's never <c>null</c>.</value>
   AttachNode attachNode { get; }
 
-  /// <summary>Tells if this peer is currectly linked to another peer.</summary>
+  /// <summary>Tells if this peer is currently linked to another peer.</summary>
   /// <value>The current state of the link.</value>
   /// <seealso cref="linkState"/>
   bool isLinked { get; }

@@ -8,16 +8,16 @@ namespace KASAPIv2 {
 
 /// <summary>A generic source of a KAS link between two parts.</summary>
 /// <remarks>
-/// <para>
+/// <p>
 /// Source is the initiator of the link to the another part. It holds all the logic on making and
 /// maintaining the actual connection between the two parts. The other end of the connection must be
 /// <see cref="ILinkTarget"/> which implements its own piece of the logic.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// The link source have a state that defines what it can do (<see cref="ILinkPeer.linkState"/>).
 /// Not all actions are allowed in any state. The following state diagram tells what the source
 /// can do and when:
-/// </para>
+/// </p>
 /// <list type="table">
 /// <listheader>
 /// <term>Transition</term><description>Action</description>
@@ -97,11 +97,11 @@ public interface ILinkSource : ILinkPeer {
 
   /// <summary>Starts the linking mode of this source.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// Only one source at the time can be linking. If the part has more sources or targets, they are
   /// expected to become <see cref="LinkState.Locked"/>.
-  /// </para>
-  /// <para>A module can refuse the mode by returning <c>false</c>.</para>
+  /// </p>
+  /// <p>A module can refuse the mode by returning <c>false</c>.</p>
   /// </remarks>
   /// <param name="mode">
   /// Defines how the pending link should be displayed. See <see cref="GUILinkMode"/> for more
@@ -123,20 +123,20 @@ public interface ILinkSource : ILinkPeer {
 
   /// <summary>Establishes a link between two parts.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// The linking mode must be started via the <see cref="StartLinking"/> call for this method to
   /// succeed.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// If the link has been established successfully, the source and the target parts become
   /// associated with each other.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// The link conditions will be checked via <see cref="CheckCanLinkTo"/> before creating the link.
   /// If the were errors, they will be reported to GUI if the linking mode was started with actor
   /// <see cref="LinkActorType.Player"/>. The linking mode won't be cancelled in case of the link
   /// failure.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="target">The target to link with.</param>
   /// <returns><c>true</c> if the parts were linked successfully.</returns>
@@ -174,8 +174,8 @@ public interface ILinkSource : ILinkPeer {
   /// <seealso cref="LinkToTarget(LinkActorType, ILinkTarget)"/>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
   /// <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.Joint.OnJointBreak']"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.MonoBehaviour.FixedUpdate']"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='M:UnityEngine.Joint.OnJointBreak']"/>
   void BreakCurrentLink(LinkActorType actorType);
 
   /// <summary>Verifies if a link between the parts can be successful.</summary>

@@ -11,20 +11,20 @@ namespace KASAPIv2 {
 /// maximum, but don't restrict any other movements of the objects relative to each other.
 /// </summary>
 /// <remarks>
-/// <para>
+/// <p>
 /// The specifics of this module is that the distance between the linked parts becomes variable.
 /// Once the link is created, the distance limit is set to the actual distance between the source
 /// and target. This limit won't allow the objects to separate too far from each other, but the
 /// objects will be allowed to come closer. The code can adjust the limit once the joint is
 /// created.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Due to the specifics of handling this kind of joints in PhysX, the real distance between the
 /// objects <i>can</i> become greater than the distance limit. In fact, if there are forces that try
 /// to separate the objects, then the actual distance will always be a bit more than the limit. Do
 /// not expect this difference to have any meaning, it depends on the PhysX engine and can be
 /// anything.
-/// </para>
+/// </p>
 /// </remarks>
 /// <seealso cref="deployedCableLength"/>
 /// <seealso cref="realCableLength"/>
@@ -115,17 +115,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// Sets the maximum possible distance between the source and the head/target physical anchors.
   /// </summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// Setting the new length may trigger the physical effects if the value is less than the real
   /// cable length, since it will force the engine to pull the objects together. Don't reduce the
   /// length too rapidly to avoid the strong forces applied.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Calling for this method doesn't have any effect if the PhysX joint is not created. When a
   /// brand new joint is created, it always has the distance limit set to the actual distance
   /// between the physical objects. I.e. this method must be called <i>after</i> the physical joint
   /// is created.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="length">
   /// The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
