@@ -46,8 +46,7 @@ public interface ILinkUtils {
   /// <returns>The part that attached as a child into the new hierarchy.</returns>
   /// <seealso cref="ILinkVesselInfo"/>
   /// <seealso cref="IAttachNodesUtils"/>
-  Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
-                   bool toDominantVessel = false);
+  Part CoupleParts(AttachNode sourceNode, AttachNode targetNode, bool toDominantVessel = false);
 
   /// <summary>Decouples the connected parts and breaks down one vessel into two.</summary>
   /// <remarks>

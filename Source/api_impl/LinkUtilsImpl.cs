@@ -55,8 +55,7 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
-                          bool toDominantVessel = false) {
+  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode, bool toDominantVessel = false) {
     if (toDominantVessel) {
       var dominantVessel =
           Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
@@ -66,9 +65,8 @@ class LinkUtilsImpl : ILinkUtils {
         targetNode = tmp;
       }
     }
-    DebugEx.Fine("Couple {0} to {1}",
-                 KASAPI.AttachNodesUtils.NodeId(sourceNode),
-                 KASAPI.AttachNodesUtils.NodeId(targetNode));
+    DebugEx.Fine(
+        "Couple {0} to {1}", KASAPI.AttachNodesUtils.NodeId(sourceNode), KASAPI.AttachNodesUtils.NodeId(targetNode));
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
