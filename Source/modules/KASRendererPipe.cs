@@ -18,43 +18,43 @@ namespace KAS {
 /// <summary>Module that draws a pipe between two nodes.</summary>
 /// <remarks>
 /// Usually, the renderer is started or stopped by a link source. However, it can be any module.  
-/// <para>
+/// <p>
 /// At each end of the pipe a model can be drawn to make the connection look nicer, it's
 /// configured separately for the pipe source and target. If nothing is configured, then the pipe
 /// (which is a cylinder mesh) simply touches the attach nodes of the parts. If the pipe diameter
 /// is big, then it may look bad since the edges of the cylinder won't mix nicely with the part
 /// meshes.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// One way to improve appearance is adding a sphere mesh of the same or bigger diameter at the
 /// location where pipe touches the part. This way the cylinder edges will "sink" in the spheres.
 /// The sphere diameter can be set via <c>sphereDiameter</c> setting.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// By default, the sphere is placed at the part's mesh (depending on how the part's attach node
 /// is configured, actually). If it needs to be offset above or below of the default position, the
 /// <c>sphereOffset</c> setting can be used.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// If the sphere is offset above the part's mesh, there may be desirable to simulate a small
 /// piece of pipe between the part's mesh and the sphere. This can be done by defining pipe diameter
 /// via <c>armDiameter</c>.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Finally, a complete prefab model can be inserted! This model will be inserted between the part
 /// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the
 /// model, two extra parameters are needed: <c>modelPartAttachAt</c>, which defines how the model
 /// attaches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
 /// model. If sphere or offsets were set, they will be counter relative to <c>modelPipeAttachAt</c>. 
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Normally, the pipe models are shown and hidden depending on the state the pipe. However, it's
 /// possible to define a static position where the model(s) will be placed when the renderer is
 /// stopped. This is done via setting <c>parkAttachAt</c>.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
+/// </p>
 /// <list type="bullet">
 /// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
 /// <item><c>StdPersistentGroups.PartPersistant</c></item>
