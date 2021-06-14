@@ -8,7 +8,6 @@ using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
-using KSPDev.PartUtils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -536,7 +535,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       UpdateLink();
       yield return null;
     }
-    // The coroutine is expected to be terminated explicitly!
+    // The coroutine is expected to be terminated explicitly before unlinking.
     HostedDebugLog.Warning(this, "Terminate coroutine on renderer stop!");
   }
   #endregion

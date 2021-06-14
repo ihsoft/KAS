@@ -124,8 +124,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   public string cfgAttachNodeName => attachNodeName;
 
   /// <inheritdoc/>
-  public string[] cfgDependentNodeNames =>
-      _dependentNodeNames ?? (_dependentNodeNames = dependentNodes.Split(','));
+  public string[] cfgDependentNodeNames => _dependentNodeNames ??= dependentNodes.Split(',');
   string[] _dependentNodeNames;
 
   /// <inheritdoc/>
@@ -372,7 +371,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   /// <summary>Sets the peer's state machine.</summary>
   protected virtual void SetupStateMachine() {
-    linkStateMachine.onAfterTransition += (start, end) => {
+    linkStateMachine.onAfterTransition += (_, end) => {
       persistedLinkState = linkState;
       if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
         if (end == LinkState.Available) {
