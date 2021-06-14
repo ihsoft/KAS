@@ -257,12 +257,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region AbstractLinkPeer overrides
-  /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
-    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartDetached, OnEVAConstructionModePartDetached);
-  }
-
   /// <summary>Reacts on a part de-coupling and adjusts the docking mode.</summary>
   /// <remarks>
   /// This is a cleanup method that verifies that all links in the DOCKED mode remained coupled
@@ -760,18 +754,15 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     return errors.ToArray();
   }
 
-  /// <summary>Breaks the link due to a peer is being acted in the stock construction mode.</summary>
-  /// <remarks>This method must to reset the part to a state which is safe for the stock EVA system operation.</remarks>
-  /// <param name="targetPeer">
-  /// The peer that is being manipulated in the EVA editor mode. It can be either side of the link.
-  /// </param>
-  protected virtual void BreakLinkDueToEvaAction(ILinkPeer targetPeer) {
-    HostedDebugLog.Info(
-        this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, targetPeer);
-    ScreenMessages.PostScreenMessage(
-        EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
-    UISoundPlayer.instance.Play(SoundLinkForceBroken);
-    BreakCurrentLink(LinkActorType.API);
+  /// <inheritdoc/>
+  protected override void OnPeerManipulatedInEva(ILinkPeer target) {
+    if (isLinked) {
+      HostedDebugLog.Info(this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, target);
+      ScreenMessages.PostScreenMessage(
+          EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
+      UISoundPlayer.instance.Play(SoundLinkForceBroken);
+      BreakCurrentLink(LinkActorType.API);
+    }
   }
   #endregion
 
@@ -806,19 +797,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
         || (targetVessel != vessel && targetVessel != linkTarget.part.vessel)) {
       return;  // Nothing to do.
     }
-    // Verify if the vessel is being destroyed due to EVA construction mode actions.
-    if (UIPartActionControllerInventory.Instance != null
-        && UIPartActionControllerInventory.Instance.CurrentCargoPart != null) {
-      var evaCargoPart = UIPartActionControllerInventory.Instance.CurrentCargoPart;
-      if (part.flightID == evaCargoPart.flightID) {
-        BreakLinkDueToEvaAction(this);
-        return;
-      }
-      if (linkTarget.part.flightID == evaCargoPart.flightID) {
-        BreakLinkDueToEvaAction(linkTarget);
-        return;
-      }
-    }
     HostedDebugLog.Info(
         this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
     BreakCurrentLink(LinkActorType.Physics);
@@ -845,17 +823,6 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       HostedDebugLog.Error(this, "Cannot find renderer module: {0}", linkRendererName);
     }
     linkRenderer = linkRenderer ?? oldLinkRenderer;
-  }
-
-  /// <summary>Breaks the link if nay to avoid physics in EVA construction mode.</summary>
-  void OnEVAConstructionModePartDetached(Vessel v, Part p) {
-    if (isLinked) {
-      if (p == part) {
-        BreakLinkDueToEvaAction(this);
-      } else if (p == linkTarget?.part) {
-        BreakLinkDueToEvaAction(linkTarget);
-      }
-    }
   }
   #endregion
 }

@@ -227,7 +227,9 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     SetupStateMachine();
     RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
     RegisterGameEventListener(GameEvents.onPartDie, OnPartDieEvent);
-    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartAttached, OnEVAConstructionModePartAttached);
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartAttached, OnEVAConstructionModePartAttachedGameEvent);
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartDetached, OnEVAConstructionModePartDetachedGameEvent);
+    RegisterGameEventListener(GameEvents.onVesselWillDestroy, OnVesselWillDestroyGameEvent);
   }
 
   /// <inheritdoc/>
@@ -435,6 +437,12 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     }
     OnPeerChange(oldPeer);
   }
+
+  /// <summary>Triggers when any of the peers becomes a target to the EVA construction operations.</summary>
+  /// <remarks>This callback is called before the actual interaction happens.</remarks>
+  /// <param name="target">The peer that is being manipulated.</param>
+  protected virtual void OnPeerManipulatedInEva(ILinkPeer target) {
+  }
   #endregion
 
   #region ILinkStateEventListener implementation
@@ -484,9 +492,32 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   }
 
   /// <summary>Reset any linked state on the EVA attached part since it's a clone.</summary>
-  void OnEVAConstructionModePartAttached(Vessel v, Part p) {
+  void OnEVAConstructionModePartAttachedGameEvent(Vessel v, Part p) {
     if (p.parent == part) {
       StartCoroutine(ValidateCoupling(p, "EVA attach"));
+    }
+  }
+
+  /// <summary>Detects if any of the peers was detached from the parent vessel vai EVA construction mode.</summary>
+  void OnEVAConstructionModePartDetachedGameEvent(Vessel v, Part p) {
+    if (p == part) {
+      OnPeerManipulatedInEva(this);
+    } else if (p == otherPeer?.part) {
+      OnPeerManipulatedInEva(otherPeer);
+    }
+  }
+
+  /// <summary>Detects of any the peers was picked up in the EVA construction mode.</summary>
+  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
+    if (UIPartActionControllerInventory.Instance == null
+        || UIPartActionControllerInventory.Instance.CurrentCargoPart == null) {
+      return;  // Nothing to do.
+    }
+    var evaCargoPart = UIPartActionControllerInventory.Instance.CurrentCargoPart;
+    if (part.flightID == evaCargoPart.flightID) {
+      OnPeerManipulatedInEva(this);
+    } else if (otherPeer?.part.flightID == evaCargoPart.flightID) {
+      OnPeerManipulatedInEva(otherPeer);
     }
   }
 
