@@ -6,6 +6,8 @@ using KSPDev.ConfigUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
+using KSPDev.ProcessingUtils;
 using KSPDev.Types;
 using System;
 using UnityEngine;
@@ -311,6 +313,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
 
   /// <inheritdoc/>
+  public override void OnStart(StartState state) {
+    base.OnAwake();
+    RegisterGameEventListener(GameEvents.onVesselWasModified, VesselModifiedGameEvent);
+  }
+
+  /// <inheritdoc/>
   public override void OnDestroy() {
     base.OnDestroy();
     if (isStarted) {
@@ -332,6 +340,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
     UpdateJointNode(sourceJointNode, sourceTransform);
     UpdateJointNode(targetJointNode, targetTransform);
 
+    // Update highlighters on the newly created/moved objects.
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      PartModel.UpdateHighlighters(part, exclude: sourceTransform);
+      PartModel.UpdateHighlighters(targetPart, exclude: targetTransform);
+    });
+
     // Have the overrides applied if any.
     UpdateMaterialOverrides();
     UpdateColliderOverrides();
@@ -350,6 +364,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (targetJointNode != null && targetTransform != null) {
       UpdateJointNode(targetJointNode, null);
     }
+
+    // Update highlighters on the deleted/moved objects.
+    PartModel.UpdateHighlighters(part);
+    PartModel.UpdateHighlighters(targetPart);
   }
 
   /// <inheritdoc/>
@@ -613,6 +631,25 @@ public class KASRendererPipe : AbstractPipeRenderer,
       var nrmScale = material.GetTextureScale(propName);
       material.SetTextureScale(propName, new Vector2(nrmScale.x, newScale));
     });
+  }
+  #endregion
+
+  #region Local utility methods
+  void VesselModifiedGameEvent(Vessel v) {
+    if (v == vessel && isStarted) {
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (isStarted) {
+          PartModel.UpdateHighlighters(part, exclude: sourceTransform);
+        }
+      });
+    }
+    if (targetPart != null && v == targetPart.vessel) {
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (targetPart != null) {
+          PartModel.UpdateHighlighters(targetPart, exclude: targetTransform);
+        }
+      });
+    }
   }
   #endregion
 }

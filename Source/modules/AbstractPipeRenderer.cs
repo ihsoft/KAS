@@ -270,10 +270,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     targetPart = targetTransform.GetComponentInParent<Part>();
     CreatePipeMesh();
 
-    // Update the meshes on the source vessel. 
-    PartModel.UpdateHighlighters(part);
-    sourceTransform.GetComponentsInChildren<Renderer>().ToList()
-        .ForEach(r => r.SetPropertyBlock(part.mpb));
+    // Update the meshes on the source vessel.
     if (vessel != null) {
       // Vessel can be NULL for the EVA dragged parts.
       vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
@@ -281,9 +278,6 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
     // Update the target vessel relations (if any).
     if (targetPart != null) {
-      PartModel.UpdateHighlighters(targetPart);
-      targetTransform.GetComponentsInChildren<Renderer>().ToList()
-          .ForEach(r => r.SetPropertyBlock(targetPart.mpb));
       if (targetPart.vessel != null && targetPart.vessel != vessel) {
         // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
@@ -315,11 +309,9 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
 
     DestroyPipeMesh();
-    PartModel.UpdateHighlighters(part);
 
     // Update the target vessel relations (if any).
     if (targetPart != null) {
-      PartModel.UpdateHighlighters(targetPart);
       if (targetPart.vessel != null && targetPart.vessel != vessel) {
         // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts
