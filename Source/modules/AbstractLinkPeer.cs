@@ -290,7 +290,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
             .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
                                        || p.cfgDependentNodeNames.Contains(attachNodeName)))
             .ToList()
-            .ForEach(m => SetLinkState(LinkState.Available));
+            .ForEach(m => m.SetLinkState(LinkState.Available));
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }

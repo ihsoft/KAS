@@ -354,7 +354,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
     if (pipeTransform != null) {
-      UnityEngine.Object.Destroy(pipeTransform.gameObject);
+      Destroy(pipeTransform.gameObject);
     }
     pipeTransform = null;
     pipeMeshRenderer = null;
