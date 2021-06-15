@@ -574,10 +574,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
       UpdateResourcesTransferGui();
     }
-    
-    GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), GUI.skin.box);
-    GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), GUI.skin.box);
     for (var i = _resourceRows.Length - 1; i >= 0; i--) {
+
+    GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), _guiNoWrapCenteredStyle);
+    GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), _guiNoWrapCenteredStyle);
       var row = _resourceRows[i];
       _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
