@@ -470,8 +470,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region KASLinkSourcePhysical overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
+  public override void OnStart(StartState state) {
+    base.OnStart(state);
     RegisterGameEventListener(GameEvents.onVesselWasModified, OnVesselUpdated);
     RegisterGameEventListener(GameEvents.onVesselDestroy, OnVesselUpdated);
     RegisterGameEventListener(GameEvents.onVesselCreate, OnVesselUpdated);
