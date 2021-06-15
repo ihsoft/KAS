@@ -556,8 +556,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     // In the docked mode the players must use the stock transfer mechanism.
     if (vessel == linkTarget.part.vessel) {
-      GUILayout.Label(NotAvailableInDockedMode, new GUIStyle(GUI.skin.label) { wordWrap = false });
-      if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
+      GUILayout.Label(NotAvailableInDockedMode, _guiNoWrapCenteredStyle);
+      if (GUILayout.Button(CloseDialogBtn)) {
         _isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
