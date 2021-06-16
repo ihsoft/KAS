@@ -554,6 +554,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region GUI methods
+  /// <summary>The last tooltip, captured in the layout phase of the <see cref="OnGUI"/> method.</summary>
+  /// <remarks>It only makes sense in the <see cref="OnGUI"/> method. The value is refreshed on every frame.</remarks>
+  string _lastGuiTooltip = "";
+
   /// <summary>Shows a window that displays the resource transfer controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
@@ -628,12 +632,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
     GUILayout.Label(TransferSpeedTxt.Format(_transferSpeed));
 
-    using (new GUILayout.HorizontalScope()) {
-      if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
-        _guiActions.Add(() => _isGuiOpen = false);
-      }
-      GUILayout.Label("");
-      GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
+    if (GUILayout.Button(CloseDialogBtn)) {
+      _guiActions.Add(() => isGuiOpen = false);
+    }
+    if (_lastGuiTooltip != "") {
+      GUILayout.Label(_lastGuiTooltip);
+    }
+    if (Event.current.type == EventType.Repaint) {
+      _lastGuiTooltip = GUI.tooltip;
     }
   }
 
