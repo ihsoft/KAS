@@ -280,8 +280,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate = "Open GUI",
       description = "The context menu event that opens the resources transfer GUI.")]
   public void OpenGuiEvent() {
-    if (isLinked && !_isGuiOpen) {
-      _isGuiOpen = true;
+    if (isLinked && !isGuiOpen) {
+      isGuiOpen = true;
       SetPendingTransferOption(null);
       _resourceListNeedsUpdate = true;
       MaybeUpdateResourceOptionList();
@@ -303,6 +303,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
 
   /// <summary>Tells if GUI is open.</summary>
+  bool isGuiOpen {
+    get => _isGuiOpen;
+    set {
+      if (value) {
+        UpdateResourcesTransferGui(force: true);
+      }
+      _isGuiOpen = value;
+    }
+  }
   bool _isGuiOpen;
 
   /// <summary>GUI table to align resource names and quantities.</summary>
@@ -558,7 +567,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (vessel == linkTarget.part.vessel) {
       GUILayout.Label(NotAvailableInDockedMode, _guiNoWrapCenteredStyle);
       if (GUILayout.Button(CloseDialogBtn)) {
-        _isGuiOpen = false;
+        isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
       return;
