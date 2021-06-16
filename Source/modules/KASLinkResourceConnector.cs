@@ -541,7 +541,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    _isGuiOpen &= linkTarget != null;
+    isGuiOpen &= linkTarget != null && !linkTarget.part.isVesselEVA;
     if (Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
       return;  // No events and menu in the paused mode.
     }
