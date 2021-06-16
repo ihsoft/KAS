@@ -20,7 +20,7 @@ namespace KAS {
 
 /// <summary>Module which transfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
-// Next localization ID: #kasLOC_12017
+// Next localization ID: #kasLOC_12018
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
 // ReSharper disable once InconsistentNaming
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
@@ -153,6 +153,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate: "Not available in the docked mode",
       description: "The message to present in the transfer dialog when the parts are docked."
       + " Hence, the stock game functionality must be used to transfer the resources.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message NoResourcesFound = new Message(
+      "#kasLOC_12017",
+      defaultTemplate: "Not found any resources for transfer",
+      description: "The message to present when there are no resources that can be transferred in any direction between"
+      + " the vessels.");
   #endregion
 
   #region Part's config fields
@@ -321,6 +328,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Definition of all the resources for the both linked vessels.</summary>
   ResourceTransferOption[] _resourceRows = new ResourceTransferOption[0];
 
+  /// <summary>List of resources that can actually be transferred in any direction.</summary>
+  /// <remarks>
+  /// It's derived from <see cref="_resourceRows"/> and only have rows where both sides of the link have non zero
+  /// capacity for the resource.
+  /// </remarks>
+  ResourceTransferOption[] _canTransferResources = new ResourceTransferOption[0];
+
   /// <summary>Index of the vessels resources.</summary>
   Dictionary<int, ResourceTransferOption> _resourceRowsHash =
       new Dictionary<int, ResourceTransferOption>();
@@ -386,6 +400,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
+    public bool leftHasCapacity;
+    public bool rightHasCapacity;
     public double previousUpdate;
     
     readonly int _hashCode;
@@ -586,10 +602,21 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
       UpdateResourcesTransferGui();
     }
-    for (var i = _resourceRows.Length - 1; i >= 0; i--) {
 
     GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), _guiNoWrapCenteredStyle);
     GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), _guiNoWrapCenteredStyle);
+
+    // No resources, no transfer.
+    if (_canTransferResources.Length == 0) {
+      GUILayout.Label(NoResourcesFound, _guiNoWrapCenteredStyle);
+      if (GUILayout.Button(CloseDialogBtn)) {
+        isGuiOpen = false;
+      }
+      SetPendingTransferOption(null);  // Cancel all transfers.
+      return;
+    }
+
+    for (var i = _canTransferResources.Length - 1; i >= 0; i--) {
       var row = _resourceRows[i];
       _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
@@ -759,6 +786,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = _resourceRows.Length - 1; i >= 0; i--) {
       UpdateOptionTransferGui(_resourceRows[i]);
     }
+    _canTransferResources =
+        _resourceRows.Where(r => r.leftHasCapacity && r.rightHasCapacity).ToArray();
   }
 
   /// <summary>Updates the resources amounts and the transfer states in GUI.</summary>
@@ -769,10 +798,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var rightInfoString = "";
     resOption.canMoveRightToLeft = true;
     resOption.canMoveLeftToRight = true;
+    var leftCapacity = 0.0;
+    var rightCapacity = 0.0;
     for (var i = 0; i < resOption.resources.Length; i++) {
       part.GetConnectedResourceTotals(
           resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
           out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
+      leftCapacity += resOption.leftCapacities[i];
       leftInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.leftAmounts[i])
           + " / "
@@ -780,6 +812,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       linkTarget.part.GetConnectedResourceTotals(
           resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
           out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
+      rightCapacity += resOption.rightCapacities[i];
       rightInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.rightAmounts[i])
           + " / "
@@ -793,6 +826,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         resOption.canMoveLeftToRight = false;
       }
     }
+    resOption.leftHasCapacity = leftCapacity >= double.Epsilon;
+    resOption.rightHasCapacity = rightCapacity >= double.Epsilon;
     resOption.leftInfo.text = leftInfoString;
     resOption.rightInfo.text = rightInfoString;
   }
