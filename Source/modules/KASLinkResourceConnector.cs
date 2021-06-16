@@ -498,8 +498,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.OnUpdate();
     if (_rotatingCylinder != null) {
       if (cableJoint.realCableLength > float.Epsilon) {
-        var angle = 360.0f
-            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
+        var angle = 360.0f * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
         _rotatingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
       }
     }
