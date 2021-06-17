@@ -57,8 +57,7 @@ class LinkUtilsImpl : ILinkUtils {
   /// <inheritdoc/>
   public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode, bool toDominantVessel = false) {
     if (toDominantVessel) {
-      var dominantVessel =
-          Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
+      var dominantVessel = GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
       if (dominantVessel != targetNode.owner.vessel) {
         var tmp = sourceNode;
         sourceNode = targetNode;
@@ -185,6 +184,28 @@ class LinkUtilsImpl : ILinkUtils {
       }
     }
     return partToDecouple;
+  }
+
+  /// <summary>Finds which of the two vessels is more important.</summary>
+  /// <remarks>Used in the linking operations to figure which vessel should be the parent.</remarks>
+  /// <param name="v1">The first vessel.</param>
+  /// <param name="v2">The second vessel.</param>
+  /// <returns>The vessel that is recognized as the most important.</returns>
+  public static Vessel GetDominantVessel(Vessel v1, Vessel v2) {
+    var type1 = v1.vesselType <= VesselType.Base ? v1.vesselType : VesselType.Debris;
+    var type2 = v2.vesselType <= VesselType.Base ? v2.vesselType : VesselType.Debris;
+    if (type1 > type2) {
+      return v1;
+    }
+    if (type2 > type1) {
+      return v2;
+    }
+    var totalMass1 = v1.GetTotalMass();
+    var totalMass2 = v2.GetTotalMass();
+    if (Mathf.Abs(totalMass1 - totalMass2) < float.Epsilon) {
+      return v1.id.CompareTo(v2.id) <= 0 ? v2 : v1;  // For stable result.
+    }
+    return totalMass1 > totalMass2 ? v1 : v2;
   }
 }
 
