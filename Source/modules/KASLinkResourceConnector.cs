@@ -323,7 +323,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>GUI table to align resource names and quantities.</summary>
   /// <remarks>Left Name + Left Amount + Right Amount + Right Name</remarks>
-  readonly GUILayoutStringTable _guiResourcesTable = new GUILayoutStringTable(4);
+  readonly GUILayoutStringTable _guiResourcesTable = new GUILayoutStringTable(4, keepMaxSize: true);
 
   /// <summary>Definition of all the resources for the both linked vessels.</summary>
   ResourceTransferOption[] _resourceRows = new ResourceTransferOption[0];
@@ -548,6 +548,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
 
   /// <inheritdoc/>
+  protected override void LogicalLink(ILinkTarget target) {
+    base.LogicalLink(target);
+    _guiResourcesTable.ResetMaxSizes();
+  }
+
+  /// <inheritdoc/>
   protected override void PhysicalLink() {
     base.PhysicalLink();
     SetCableLength(float.PositiveInfinity);
@@ -685,6 +691,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       return;
     }
     _guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box) {
+    _guiResourcesTable.ResetMaxSizes();
         wordWrap = false,
         alignment = TextAnchor.MiddleCenter
     };
