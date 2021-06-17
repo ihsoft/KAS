@@ -12,6 +12,7 @@ using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using System.Collections.Generic;
 using System.Linq;
+using KASAPIv2;
 using KSP.UI;
 using UnityEngine;
 
@@ -301,7 +302,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   Rect _windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
-  readonly Rect _titleBarRect = new Rect(0, 0, 10000, 20);
+  Rect _titleBarRect;
 
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   readonly GuiActionsList _guiActions = new GuiActionsList();
@@ -363,6 +364,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>The timeout to update the resources counters in GUI in seconds.</summary>
   /// <remarks>It's a performance affecting settings.</remarks>
   const float TransferStateUpdatePeriod = 0.1f;
+
+  GuiScaledSkin _scaledSkin; 
   #endregion
 
   #region Cached values
@@ -376,8 +379,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region GUI styles & contents
   GUIStyle _guiNoWrapCenteredStyle;
-  GUIStyle _guiResourceStyle;
-  GUIStyle _guiTransferBtnStyle;
   GUIContent _autoScaleToggleCnt;
   GUIContent _leftToRightToggleCnt;
   GUIContent _leftToRightButtonCnt;
@@ -495,6 +496,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region KASLinkSourcePhysical overrides
   /// <inheritdoc/>
+  public override void OnAwake() {
+    base.OnAwake();
+    _scaledSkin = new GuiScaledSkin(() => HighLogic.Skin, onSkinUpdatedFn: MakeGuiStyles);
+  }
+
+  /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
     RegisterGameEventListener(GameEvents.onVesselWasModified, OnVesselUpdated);
@@ -564,10 +571,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public void OnGUI() {
     isGuiOpen &= linkTarget != null && !linkTarget.part.isVesselEVA;
-    if (Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
-      return;  // No events and menu in the paused mode.
+    if (!isGuiOpen || Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
+      return;
     }
-    if (_isGuiOpen) {
+    using (new GuiSkinScope(_scaledSkin.scaledSkin)) {
       _windowRect = GUILayout.Window(
           GetInstanceID(), _windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
           GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
@@ -585,8 +592,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   void TransferResourcesWindowFunc(int windowId) {
     // Allow the window to be dragged by its title bar.
     GuiWindow.DragWindow(ref _windowRect, _titleBarRect);
-
-    MakeGuiStyles();
 
     // In the docked mode the players must use the stock transfer mechanism.
     if (vessel == linkTarget.part.vessel) {
@@ -626,30 +631,26 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       var row = _resourceRows[i];
       _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
-        _guiResourcesTable.AddTextColumn(
-            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
-        _guiResourcesTable.AddTextColumn(
-            row.leftInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(row.caption, _guiNoWrapCenteredStyle);
+        _guiResourcesTable.AddTextColumn(row.leftInfo, _guiNoWrapCenteredStyle);
         using (new GuiEnabledStateScope(row.canMoveRightToLeft)) {
           row.rightToLeftTransferToggle = GUILayoutButtons.Toggle(
-              row.rightToLeftTransferToggle, _leftToRightToggleCnt, _guiTransferBtnStyle, null,
+              row.rightToLeftTransferToggle, _leftToRightToggleCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.rightToLeftTransferPress = GUILayoutButtons.Push(
-              row.rightToLeftTransferPress, _leftToRightButtonCnt, _guiTransferBtnStyle, null,
+              row.rightToLeftTransferPress, _leftToRightButtonCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
         using (new GuiEnabledStateScope(row.canMoveLeftToRight)) {
           row.leftToRightTransferPress = GUILayoutButtons.Push(
-              row.leftToRightTransferPress, _rightToLeftButtonCnt, _guiTransferBtnStyle, null,
+              row.leftToRightTransferPress, _rightToLeftButtonCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.leftToRightTransferToggle = GUILayoutButtons.Toggle(
-              row.leftToRightTransferToggle, _rightToLeftToggleCnt, _guiTransferBtnStyle, null,
+              row.leftToRightTransferToggle, _rightToLeftToggleCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
-        _guiResourcesTable.AddTextColumn(
-            row.rightInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
-        _guiResourcesTable.AddTextColumn(
-            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(row.rightInfo, _guiNoWrapCenteredStyle);
+        _guiResourcesTable.AddTextColumn(row.caption, _guiNoWrapCenteredStyle);
       }
     }
 
@@ -686,19 +687,14 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
 
   /// <summary>Creates the styles. Only does it once.</summary>
-  void MakeGuiStyles() {
-    if (_guiNoWrapCenteredStyle != null) {
-      return;
-    }
-    _guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box) {
+  void MakeGuiStyles(GUISkin skin) {
     _guiResourcesTable.ResetMaxSizes();
+    _titleBarRect = new Rect(0, 0, 10000, _scaledSkin.guiTitleHeight);
+    _guiNoWrapCenteredStyle = new GUIStyle(skin.box) {
         wordWrap = false,
-        alignment = TextAnchor.MiddleCenter
-    };
-    _guiResourceStyle = new GUIStyle(_guiNoWrapCenteredStyle);
-    _guiTransferBtnStyle = new GUIStyle(GUI.skin.button) {
         alignment = TextAnchor.MiddleCenter,
-        stretchHeight = true
+        margin = skin.button.margin,
+        padding = skin.button.padding,
     };
   }
   #endregion
