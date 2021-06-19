@@ -15,7 +15,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 
@@ -247,6 +246,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   public Vector3 anchorAtTarget = Vector3.zero;
   #endregion
 
+  // ReSharper disable MemberCanBePrivate.Global
   #region CFG/persistent fields
   /// <summary>
   /// Tells if the source and the target parts should couple when making a link between the
@@ -276,6 +276,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float persistedLinkLength = -1.0f;
+
+  // ReSharper enable MemberCanBePrivate.Global
   #endregion
 
   #region ILinkJoint properties
@@ -304,7 +306,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
   /// about the particular length in the current state, and it's up to the implementation.
   /// </value>
-  protected float? originalLength => persistedLinkLength < 0 ? (float?) null : persistedLinkLength;
+  protected float? originalLength => persistedLinkLength < 0 ? null : persistedLinkLength;
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
@@ -402,7 +404,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
+    /// <inheritdoc cref="IKSPActivateOnDecouple.DecoupleAction" />
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (isLinked && !selfDecoupledAction
         && linkSource.coupleNode != null && linkSource.coupleNode.id == nodeName) {
@@ -414,7 +416,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IJointEventsListener implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IJointEventsListener.OnJointBreak" />
   public virtual void OnJointBreak(float breakForce) {
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
@@ -569,7 +571,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IModuleInfo implementation
-  /// <inheritdoc/>
+
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetInfo" />
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     if (linkBreakForce > 0) {
@@ -593,17 +596,17 @@ public abstract class AbstractJoint : AbstractPartModule,
     return sb.ToString();
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetModuleTitle" />
   public virtual string GetModuleTitle() {
     return ModuleTitle;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetDrawModulePanelCallback" />
   public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
   public virtual string GetPrimaryField() {
     return null;
   }
