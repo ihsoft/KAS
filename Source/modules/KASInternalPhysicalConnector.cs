@@ -143,8 +143,6 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
     var connectorObj = connectorRb.gameObject;
     var oldParent = connectorObj.transform.parent;
     connectorObj.transform.parent = null;
-    PartModel.UpdateHighlighters(oldParent);
-    PartModel.UpdateHighlighters(connectorObj.transform);
     if (connectorRb.isKinematic) {
       // The kinematic RB must be parented, or else it's considered static.
       connectorRb.transform.parent = ownerModule.gameObject.transform;
@@ -181,8 +179,6 @@ sealed class KASInternalPhysicalConnector : MonoBehaviour {
       // Bring the model back to the part or to the new host.
       var oldParent = gameObject.transform.parent;
       gameObject.transform.parent = Hierarchy.GetPartModelTransform(ownerModule.part);
-      PartModel.UpdateHighlighters(oldParent);
-      PartModel.UpdateHighlighters(ownerModule.part);
     }
     if (destroyImmediate) {
       DestroyImmediate(connectorRb);

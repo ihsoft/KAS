@@ -16,6 +16,7 @@
 * [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
 * [Fix #316] The detached physicsless parts stay physicsless.
 * [Fix #317] Coupling role delegation doesn't work.
+* [Fix #318] EVA construction mode highlighting stays on the KAS pipes after the mode is canceled.
 * [Fix #320] Renderer is active even on the locked winch connector.
 
 # 1.7 (July 30th, 2020):
