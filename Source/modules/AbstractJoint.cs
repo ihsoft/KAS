@@ -816,15 +816,6 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <seealso cref="DecoupleParts"/>
   void CoupleParts() {
     if (isCoupled) {
-      // If the parts are already coupled, then refresh the state and update the joints.
-      if (persistedSrcVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
-        persistedSrcVesselInfo = GetVesselInfo(vessel);
-      }
-      if (persistedTgtVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
-        persistedTgtVesselInfo = GetVesselInfo(vessel);
-      }
       SetupPhysXJoints();
       return;
     }
