@@ -929,7 +929,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
     var childPart = weDecouple ? source.part : target.part;
     AsyncCall.CallOnEndOfFrame(this, () => {
-      if (childPart != null && childPart.vessel != null) {
+      if (childPart != null && childPart.vessel != null && vesselInfo != null) {
         HostedDebugLog.Warning(this, "Restoring vessel info on {0} without root: type={1}, name={2}",
                                childPart, vesselInfo.vesselType, vesselInfo.name);
         childPart.vessel.vesselType = vesselInfo.vesselType;
