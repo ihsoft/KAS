@@ -756,6 +756,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   /// <inheritdoc/>
   protected override void OnPeerManipulatedInEva(ILinkPeer target) {
+    base.OnPeerManipulatedInEva(target);
     if (isLinked) {
       HostedDebugLog.Info(this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, target);
       ScreenMessages.PostScreenMessage(
