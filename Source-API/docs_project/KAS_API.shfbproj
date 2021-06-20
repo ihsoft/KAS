@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--The configuration and platform will be used to determine which
 assemblies to include from solution and project documentation
@@ -12,8 +12,8 @@ sources-->
     <AssemblyName>Documentation</AssemblyName>
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
-    <OutputPath>..\..\docs\APIv1\</OutputPath>
-    <HtmlHelpName>KAS_API_v1</HtmlHelpName>
+    <OutputPath>..\..\docs\APIv2\</OutputPath>
+    <HtmlHelpName>KAS_API</HtmlHelpName>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\KAS-API.csproj" />
     </DocumentationSources>
@@ -27,12 +27,12 @@ sources-->
     <Preliminary>False</Preliminary>
     <NamingMethod>MemberName</NamingMethod>
     <Language>en-US</Language>
-    <HelpTitle>KAS API v1</HelpTitle>
+    <HelpTitle>KAS API</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
     <HelpFileFormat>Website</HelpFileFormat>
     <IndentHtml>False</IndentHtml>
-    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <KeepLogFile>False</KeepLogFile>
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
     <CleanIntermediates>True</CleanIntermediates>
@@ -42,10 +42,6 @@ sources-->
     <VisibleItems>Attributes, ExplicitInterfaceImplementations, Protected, ProtectedInternalAsProtected, PublicCompilerGenerated, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
     <ComponentConfigurations>
-      <ComponentConfig id="API Token Resolution" enabled="True">
-        <component id="API Token Resolution">{@TokenFiles}
-<replace elements="/*//token" item="string(.)" /></component>
-      </ComponentConfig>
       <ComponentConfig id="Code Block Component" enabled="True">
         <component id="Code Block Component">
           <basePath value="{@HtmlEncProjectFolder}" />
@@ -68,14 +64,14 @@ sources-->
       <Argument Key="maxVersionParts" Value="" />
       <Argument Key="defaultLanguage" Value="cs" />
       <Argument Key="includeEnumValues" Value="true" />
-      <Argument Key="baseSourceCodeUrl" Value="https://github.com/ihsoft/KAS/tree/KAS-v1.0/Source/" />
+      <Argument Key="baseSourceCodeUrl" Value="https://github.com/ihsoft/KAS/tree/master/Source-API/" />
       <Argument Key="requestExampleUrl" Value="https://github.com/ihsoft/KAS/issues/new" />
     </TransformComponentArguments>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="KAS" isDocumented="False">&lt;para&gt;The main namespace for the KAS functionality &lt;i&gt;implementations&lt;/i&gt;.&lt;/para&gt;
 &lt;para&gt;A third-party code usually don't need to access anything from this namespace. The only legitimate exception is writing a module that inherits a KAS module. In all the other cases a third-party code must use &lt;see cref="N:KASAPIv1"&gt;KAS API&lt;/see&gt; to interact with the KAS modules.&lt;/para&gt;
 &lt;para&gt;If inheriting is the case then a depedent mod must include a reference to the &lt;c&gt;KAS.dll&lt;/c&gt; assembly. However, this assembly must not be released together with the mod. Having two KAS assemblies in the game may badly break it.&lt;/para&gt;</NamespaceSummaryItem>
-<NamespaceSummaryItem name="KASAPIv1" isDocumented="True">&lt;para&gt;KAS API namespace. The third-party code must use the types and interfaces from this namespace instead of depending on the mod modules.&lt;/para&gt;
+      <NamespaceSummaryItem name="KASAPIv1" isDocumented="False">&lt;para&gt;KAS API namespace. The third-party code must use the types and interfaces from this namespace instead of depending on the mod modules.&lt;/para&gt;
 &lt;para&gt;Each API release has a version. Once the API is released to the public, its methods cannot be changed. In case of a new functionality is relased, a new version (and the namespace) will be created. The old namespace will not be removed, so the mods that were built with the old version will continue to work.&lt;/para&gt;
 &lt;para&gt;If API is needed, the depedent mod should only include a reference to &lt;c&gt;KAS-API-v1.dll&lt;/c&gt; (version number may vary). This assembly version never changes, so the dependency will never break. It's OK to provide an API assembly with the mod since multliple API assemblies will not conflict with each other. Moreover, having "own" copy of the API ensures the mod will load even if KAS is not installed in the game. There is an ability to check if KAS is installed in the run-time (see example below).&lt;/para&gt;
 &lt;example&gt;
@@ -95,16 +91,28 @@ public class MyModule : PartModule {
 }
 ]]&gt;&lt;/code&gt;
 &lt;/example&gt;</NamespaceSummaryItem>
-<NamespaceSummaryItem name="(global)" isDocumented="False" /></NamespaceSummaries>
+      <NamespaceSummaryItem name="(global)" isDocumented="False" />
+      <NamespaceSummaryItem name="KASAPIv2" isDocumented="True">&lt;para&gt;KAS API namespace. The third-party code must use the types and interfaces from this namespace instead of depending on the mod modules.&lt;/para&gt;
+&lt;para&gt;Each API release has a version. Once the API is released to the public, its methods cannot be changed. In case of a new functionality is relased, a new version (and the namespace) will be created. The old namespace will not be removed, so the mods that were built with the old version will continue to work.&lt;/para&gt;
+&lt;para&gt;If API is needed, the depedent mod should only include a reference to &lt;c&gt;KAS-API-v2.dll&lt;/c&gt; (version number may vary). This assembly version never changes, so the dependency will never break. It's OK to provide an API assembly with the mod since multliple API assemblies will not conflict with each other. Moreover, having "own" copy of the API ensures the mod will load even if KAS is not installed in the game. There is an ability to check if KAS is installed in the run-time (see example below).&lt;/para&gt;
+&lt;example&gt;
+Always use API interfaces, they are clearly defined and never change once released.
+&lt;code&gt;&lt;![CDATA[ 
+using KASAPIv1;
+
+public class MyModule : PartModule {
+  public void RightSample() {
+    if (KASAPI.isLoaded) {
+      var model = KASAPI.LinkUtils.DecoupleParts(part, part.parent);
+    } else {
+      Debug.LogWarning("KAS is not installed");
+    }
+  }
+}
+]]&gt;&lt;/code&gt;
+&lt;/example&gt;</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <PlugInConfigurations>
-      <PlugInConfig id="Additional Reference Links" enabled="True">
-        <configuration>
-          <targets>
-            <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="KSP_API.shfbproj" />
-            <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="KSPDevUtils_API.shfbproj" />
-          </targets>
-        </configuration>
-      </PlugInConfig>
     </PlugInConfigurations>
     <WorkingPath>Help\Working\KAS\</WorkingPath>
     <MissingTags>Summary, Parameter, Returns, Value, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
