@@ -1107,7 +1107,7 @@
             <summary>KAS API, version 2.</summary>
         </member>
         <member name="F:KASAPIv2.KASAPI.isLoaded">
-            <summary>Tells if API V1 was loaded and ready to use.</summary>
+            <summary>Tells if API was loaded and ready to use.</summary>
         </member>
         <member name="F:KASAPIv2.KASAPI.JointUtils">
             <summary>KAS joints utils.</summary>
