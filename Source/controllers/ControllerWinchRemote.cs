@@ -276,7 +276,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   WinchState[] _sortedSceneModules;
 
   /// <summary>Actual screen position of the console window.</summary>
-  /// TODO(ihsoft): Persist and restore.
   static Rect _windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
@@ -304,7 +303,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   /// <summary>GUI table to align winch status fields.</summary>
   /// <remarks>Cable status + Motor status</remarks>
-  readonly GUILayoutStringTable _guiWinchTable = new GUILayoutStringTable(2);
+  readonly GUILayoutStringTable _guiWinchTable = new(2);
   #endregion
 
   #region IHasGUI implementation
@@ -364,6 +363,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   }
   #endregion
 
+  #region Local utility methods
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
@@ -610,6 +610,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   void OnVesselUpdated(Vessel v) {
     _modulesNeedUpdate = true;
   }
+  #endregion
 }
 
 }  // namespace
