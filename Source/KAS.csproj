@@ -144,6 +144,9 @@
     </None>
     <None Include="Unity3D_HelpIndex.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="KSPDev_candidates\README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
