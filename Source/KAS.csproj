@@ -21,6 +21,7 @@
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <DocumentationFile>bin\Release\KAS.xml</DocumentationFile>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>

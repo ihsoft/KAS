@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <SourceAnalysisOverrideSettingsFile>C:\Users\IH\AppData\Roaming\ICSharpCode\SharpDevelop5\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
