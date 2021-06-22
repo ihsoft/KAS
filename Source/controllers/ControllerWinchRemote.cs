@@ -245,8 +245,8 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #endregion
 
   #region GUI styles and contents
-  GUIStyle _guiNoWrapStyle;
-  GUIStyle _guiNoWrapCenteredStyle;
+  GUIStyle _guiNoWrapCenteredLabelStyle;
+  GUIStyle _guiNoWrapCenteredBoxStyle;
   // These fields are set/updated in LoadLocalizedContent.
   GUIContent _highlightWinchCnt;
   GUIContent _startRetractingCnt;
@@ -365,6 +365,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
+    // Allow the window to be dragged by its title bar.
+    GuiWindow.DragWindow(ref _windowRect, TitleBarRect);
+
     MakeGuiStyles();
 
     if (GuiActions.ExecutePendingGuiActions()) {
@@ -373,7 +376,11 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     }
 
     if (_sortedSceneModules.Length == 0) {
-      GUILayout.Label(NoContentTxt, _guiNoWrapStyle);
+      GUILayout.Label(NoContentTxt, _guiNoWrapCenteredBoxStyle);
+      if (GUILayout.Button(_closeGuiCnt)) {
+        GuiActions.Add(() => _isGuiOpen = false);
+      }
+      return;
     }
 
     // TODO(ihsoft): Add paging and the setting for the number of items per page.
@@ -426,16 +433,16 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         
         // Cable length/status column.
         if (!winch.part.vessel.IsControllable) {
-          _guiWinchTable.AddTextColumn(_winchModeOfflineCnt, _guiNoWrapCenteredStyle);
+          _guiWinchTable.AddTextColumn(_winchModeOfflineCnt, _guiNoWrapCenteredLabelStyle);
         } else if (winch.isNodeBlocked || winch.isLocked) {
-          _guiWinchTable.AddTextColumn(_winchModeBlockedCnt, _guiNoWrapCenteredStyle);
+          _guiWinchTable.AddTextColumn(_winchModeBlockedCnt, _guiNoWrapCenteredLabelStyle);
         } else if (winch.isConnectorLocked) {
-          _guiWinchTable.AddTextColumn(_winchModeRetractedCnt, _guiNoWrapCenteredStyle);
+          _guiWinchTable.AddTextColumn(_winchModeRetractedCnt, _guiNoWrapCenteredLabelStyle);
         } else {
           _cableStatusCnt.text = winchCable.realCableLength <= winch.currentCableLength
               ? RelaxedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength)
               : StrainedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength);
-          _guiWinchTable.AddTextColumn(_cableStatusCnt, _guiNoWrapCenteredStyle);
+          _guiWinchTable.AddTextColumn(_cableStatusCnt, _guiNoWrapCenteredLabelStyle);
         }
 
         // Cable extending controls.
@@ -489,7 +496,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
         // Motor speed info column.
         _motorSpeedCnt.text = MotorSpeedTxt.Format(Mathf.Abs(winch.motorCurrentSpeed), motorSpeed);
-        _guiWinchTable.AddTextColumn(_motorSpeedCnt, _guiNoWrapCenteredStyle);
+        _guiWinchTable.AddTextColumn(_motorSpeedCnt, _guiNoWrapCenteredLabelStyle);
 
         // Release cable column.
         using (new GuiEnabledStateScope(
@@ -522,21 +529,22 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       GUILayout.Label("");
       GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
     }
-
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref _windowRect, TitleBarRect);
   }
 
   /// <summary>Creates the styles. Only does it once.</summary>
   void MakeGuiStyles() {
-    if (_guiNoWrapStyle == null) {
-      _guiNoWrapStyle = new GUIStyle(GUI.skin.label) {
-          stretchHeight = true,
+    if (_guiNoWrapCenteredLabelStyle == null) {
+      _guiNoWrapCenteredLabelStyle = new GUIStyle(GUI.skin.label) {
           wordWrap = false,
-          alignment = TextAnchor.MiddleLeft
+          margin = GUI.skin.button.margin,
+          padding = GUI.skin.button.padding,
+          alignment = TextAnchor.MiddleCenter,
       };
-      _guiNoWrapCenteredStyle = new GUIStyle(_guiNoWrapStyle) {
-          alignment = TextAnchor.MiddleCenter
+      _guiNoWrapCenteredBoxStyle = new GUIStyle(GUI.skin.box) {
+          wordWrap = false,
+          margin = GUI.skin.button.margin,
+          padding = GUI.skin.button.padding,
+          alignment = TextAnchor.MiddleCenter,
       };
     }
   }
