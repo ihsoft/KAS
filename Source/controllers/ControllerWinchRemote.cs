@@ -233,7 +233,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   class WinchState {
     // ReSharper disable once InconsistentNaming
     public string vesselGUID;
-    public string vesselName;
     public IWinchControl winchModule;
     public uint flightId;
     public float motorSpeedSetting = 1.0f;
@@ -593,7 +592,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             ? _sceneModules[w.part.flightID]
             : new WinchState() {
               vesselGUID = w.part.vessel.id.ToString(),
-              vesselName = w.part.vessel.vesselName,
               flightId = w.part.flightID,
               winchModule = w,
             })
