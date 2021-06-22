@@ -362,6 +362,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #endregion
 
   #region Local utility methods
+  /// <summary>The GUI tooltip control. Only used in the <see cref="ConsoleWindowFunc"/> method.</summary>
+  readonly GuiTooltip _tooltip = new();
+
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
@@ -522,13 +525,10 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       }
     }
 
-    using (new GUILayout.HorizontalScope()) {
-      if (GUILayout.Button(_closeGuiCnt, MinSizeLayout)) {
-        GuiActions.Add(() => _isGuiOpen = false);
-      }
-      GUILayout.Label("");
-      GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
+    if (GUILayout.Button(_closeGuiCnt)) {
+      GuiActions.Add(() => _isGuiOpen = false);
     }
+    _tooltip.Update();
   }
 
   /// <summary>Creates the styles. Only does it once.</summary>
