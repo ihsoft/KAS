@@ -263,7 +263,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   GUIContent _stretchBtnCnt;
   GUIContent _detachBtnCnt;
   GUIContent _closeGuiCnt;
-  float _winchCableStatusMinWidth;
   #endregion
 
   #region Local fields
@@ -302,7 +301,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   /// <summary>GUI table to align winch status fields.</summary>
   /// <remarks>Cable status + Motor status</remarks>
-  readonly GUILayoutStringTable _guiWinchTable = new(2);
+  readonly GUILayoutStringTable _guiWinchTable = new(2, keepMaxSize: true);
   #endregion
 
   #region IHasGUI implementation
@@ -427,20 +426,16 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         
         // Cable length/status column.
         if (!winch.part.vessel.IsControllable) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeOfflineCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeOfflineCnt, _guiNoWrapCenteredStyle);
         } else if (winch.isNodeBlocked || winch.isLocked) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeBlockedCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeBlockedCnt, _guiNoWrapCenteredStyle);
         } else if (winch.isConnectorLocked) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeRetractedCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeRetractedCnt, _guiNoWrapCenteredStyle);
         } else {
           _cableStatusCnt.text = winchCable.realCableLength <= winch.currentCableLength
               ? RelaxedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength)
               : StrainedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength);
-          _guiWinchTable.AddTextColumn(
-              _cableStatusCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_cableStatusCnt, _guiNoWrapCenteredStyle);
         }
 
         // Cable extending controls.
@@ -494,8 +489,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
         // Motor speed info column.
         _motorSpeedCnt.text = MotorSpeedTxt.Format(Mathf.Abs(winch.motorCurrentSpeed), motorSpeed);
-        _guiWinchTable.AddTextColumn(
-            _motorSpeedCnt, _guiNoWrapCenteredStyle, minWidth: MotorSpeedTxt.guiTags.minWidth);
+        _guiWinchTable.AddTextColumn(_motorSpeedCnt, _guiNoWrapCenteredStyle);
 
         // Release cable column.
         using (new GuiEnabledStateScope(
@@ -569,12 +563,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     _winchModeRetractedCnt = new GUIContent(WinchModeRetractedTxt, WinchModeRetractedTxtHint);
     RelaxedCableLengthTxt.LoadLocalization();  // To update guiTags.
     StrainedCableLengthTxt.LoadLocalization();  // To update guiTags.
-    _winchCableStatusMinWidth = Mathf.Max(
-        RelaxedCableLengthTxt.guiTags.minWidth,
-        StrainedCableLengthTxt.guiTags.minWidth,
-        WinchModeOfflineTxt.guiTags.minWidth,
-        WinchModeBlockedTxt.guiTags.minWidth,
-        WinchModeRetractedTxt.guiTags.minWidth);
   }
 
   /// <summary>Checks if the cached list of the winch controllers needs to be refreshed.</summary>
