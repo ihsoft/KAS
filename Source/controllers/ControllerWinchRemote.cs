@@ -472,7 +472,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
         using (new GuiEnabledStateScope(!disableWinchGui)) {
           // Motor speed settings column.
-          using (new GUILayout.VerticalScope(_motorSpeedSettingsCnt, GUI.skin.label)) {
+          using (new GUILayout.VerticalScope(_motorSpeedSettingsCnt, _guiNoWrapCenteredLabelStyle)) {
             GUI.changed = false;
             GUILayout.FlexibleSpace();
             var newMotorSpeedSetting = GUILayout.HorizontalSlider(
