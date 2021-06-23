@@ -22,10 +22,14 @@ public class GuiTooltip {
   /// <remarks>It always behind one frame!</remarks>
   string _tooltip = "";
 
+  /// <summary>The last tooltip that was not an empty string.</summary>
+  /// <summary>It's used to present the tooltip during the <c>hideDelay</c> perdiod.</summary>
+  string _lastNonEmptyTooltip = "";
+
   /// <summary>The last time a non-empty tooltip was spotted </summary>
   /// <remarks>Used to determine if the control should be hidden.</remarks>
   /// <seealso cref="_hideDelay"/>
-  float _latestNonEmptyTooltipRecordedTs;
+  float _lastNonEmptyTooltipRecordedTs;
 
   /// <summary>A controller for the Unity GUI tooltip.</summary>
   /// <remarks>
@@ -34,7 +38,7 @@ public class GuiTooltip {
   /// code can decide if the control should or should not be shown. This class handles all the requirements.
   /// </remarks>
   /// <param name="alwaysEmitTheControl">
-  /// If set to <c>tru</c>, then an empty label will be presented even when there is no active tooltip in the frame. It
+  /// If set to <c>true</c>, then an empty label will be presented even when there is no active tooltip in the frame. It
   /// may be useful for the fixed size layouts. 
   /// </param>
   /// <param name="hideDelay">
@@ -55,13 +59,17 @@ public class GuiTooltip {
   /// </remarks>
   /// <param name="style">The style of the tooltip. If not provided, then <c>GUI.skin.label</c> will be used.</param>
   public void Update(GUIStyle style = null) {
-    if (_tooltip != "" || _alwaysEmitTheControl || _latestNonEmptyTooltipRecordedTs + _hideDelay >= Time.time) {
-      GUILayout.Label(_tooltip, style ?? GUI.skin.label);
+    var tooltipStyle = style ?? GUI.skin.label;
+    if (_tooltip != "" || _alwaysEmitTheControl) {
+      GUILayout.Label(_tooltip, tooltipStyle);
+    } else if (_lastNonEmptyTooltip != "" && _lastNonEmptyTooltipRecordedTs + _hideDelay > Time.time) {
+      GUILayout.Label(_lastNonEmptyTooltip, tooltipStyle);
     }
     if (Event.current.type == EventType.Repaint) {
       _tooltip = GUI.tooltip;
       if (_tooltip != "") {
-        _latestNonEmptyTooltipRecordedTs = Time.time;
+        _lastNonEmptyTooltipRecordedTs = Time.time;
+        _lastNonEmptyTooltip = _tooltip;
       }
     }
   }
