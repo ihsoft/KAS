@@ -274,13 +274,13 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   WinchState[] _sortedSceneModules;
 
   /// <summary>Actual screen position of the console window.</summary>
-  static Rect _windowRect = new Rect(100, 100, 1, 1);
+  Rect _windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A title bar location.</summary>
-  static readonly Rect TitleBarRect = new Rect(0, 0, 10000, 20);
+  Rect TitleBarRect = new Rect(0, 0, 10000, 20);
 
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
-  static readonly GuiActionsList GuiActions = new GuiActionsList();
+  readonly GuiActionsList GuiActions = new GuiActionsList();
 
 
   /// <summary>Keyboard event that opens/closes the remote GUI.</summary>
