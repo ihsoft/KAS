@@ -365,6 +365,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <remarks>It's a performance affecting settings.</remarks>
   const float TransferStateUpdatePeriod = 0.1f;
 
+  /// <summary> The controller of the game's UI scale.</summary>
   GuiScaledSkin _scaledSkin; 
   #endregion
 
