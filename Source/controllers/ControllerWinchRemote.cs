@@ -408,7 +408,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             actionsList: GuiActions);
 
         // Cable retracting controls.
-        System.Diagnostics.Debug.Assert(winchCable != null, nameof(winchCable) + " != null");
         using (new GuiEnabledStateScope(!disableWinchGui && winchCable.realCableLength > 0)) {
           // Start retracting the cable column.
           winchState.retractBtnPressed &= winch.motorTargetSpeed < 0;
