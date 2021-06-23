@@ -481,6 +481,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             var newMotorSpeedSetting = GUILayout.HorizontalSlider(
                 winchState.motorSpeedSetting, 0.1f, 1.0f,
                 GUILayout.Width(100f));
+            GUILayout.FlexibleSpace();
             if (GUI.changed) {
               var state = winchState;
               GuiActions.Add(() => {
