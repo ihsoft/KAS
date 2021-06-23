@@ -282,8 +282,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   static readonly GuiActionsList GuiActions = new GuiActionsList();
 
-  /// <summary>Style to draw a control of the minimum size.</summary>
-  static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
 
   /// <summary>Keyboard event that opens/closes the remote GUI.</summary>
   static Event _openGuiEvent;
@@ -418,7 +416,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.retractBtnPressed,
               _startRetractingCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnOn: () => winch.SetMotor(-motorSpeed),
               fnOff: () => winch.SetMotor(0),
               actionsList: GuiActions);
@@ -428,7 +426,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.retracting,
               _retractCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnPush: () => winch.SetMotor(-motorSpeed),
               fnRelease: () => winch.SetMotor(0),
               actionsList: GuiActions);
@@ -457,7 +455,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.extendBtnPressed,
               _startExtendingCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnOn: () => winch.SetMotor(motorSpeed),
               fnOff: () => winch.SetMotor(0),
               actionsList: GuiActions);
@@ -467,7 +465,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.extending,
               _extendCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnPush: () => winch.SetMotor(motorSpeed),
               fnRelease: () => winch.SetMotor(0),
               actionsList: GuiActions);
@@ -505,21 +503,21 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         // Release cable column.
         using (new GuiEnabledStateScope(
             !disableWinchGui && winch.currentCableLength < winch.cfgMaxCableLength)) {
-          if (GUILayout.Button(_releaseBtnCnt, GUI.skin.button, MinSizeLayout)) {
+          if (GUILayout.Button(_releaseBtnCnt, GUI.skin.button)) {
             GuiActions.Add(winch.ReleaseCable);
           }
         }
 
         // Stretch cable column.
         using (new GuiEnabledStateScope(!disableWinchGui && !winch.isConnectorLocked)) {
-          if (GUILayout.Button(_stretchBtnCnt, GUI.skin.button, MinSizeLayout)) {
+          if (GUILayout.Button(_stretchBtnCnt, GUI.skin.button)) {
             GuiActions.Add(winch.StretchCable);
           }
         }
 
         // Disconnect connector column.
         using (new GuiEnabledStateScope(!disableWinchGui && winch.isLinked)) {
-          if (GUILayout.Button(_detachBtnCnt, GUI.skin.button, MinSizeLayout)) {
+          if (GUILayout.Button(_detachBtnCnt, GUI.skin.button)) {
             GuiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
           }
         }
