@@ -280,6 +280,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   // ReSharper restore FieldCanBeMadeReadOnly.Global
   #endregion
 
+  #region Global settings
+  // ReSharper disable FieldCanBeMadeReadOnly.Local
+  // ReSharper disable ConvertToConstant.Local
+
+  /// <summary>Tells if the control hints should be shown in the transfer dialog.</summary>
+  [PersistentField("RTS/showTransferDialogHints", group = StdPersistentGroups.Default)]
+  bool _showTransferDialogHints = true;
+
+  // ReSharper enable FieldCanBeMadeReadOnly.Local
+  // ReSharper enable ConvertToConstant.Local
+  #endregion
+
   #region Context menu events/actions
   /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
@@ -665,7 +677,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (GUILayout.Button(CloseDialogBtn)) {
       _guiActions.Add(() => isGuiOpen = false);
     }
-    _tooltip.Update();
+    if (_showTransferDialogHints) {
+      _tooltip.Update();
+    }
     GUI.DragWindow();
   }
 

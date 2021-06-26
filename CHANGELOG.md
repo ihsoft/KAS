@@ -4,6 +4,7 @@
 * [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets properly broken in this case.
 * [Enhancement] Allow attaching to the winches surface to let reinforcing them with struts.
 * [Enhancement] Don't show resources that cannot be transferred in the RTS GUI.
+* [Enhancement] Allow disabling the controls hints in the RTS resource transfer dialog. Use setting `showTransferDialogHints`.
 * [Enhancement #248] Add ability to scale Transfer GUI.
 * [Enhancement #321] Scale the Winch GUI dialog.
 * [Fix #302] GUI does not respect hide/show function.
