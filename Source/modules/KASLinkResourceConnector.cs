@@ -301,14 +301,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Actual screen position of the console window.</summary>
   Rect _windowRect = new Rect(100, 100, 1, 1);
   
-  /// <summary>A title bar location.</summary>
-  Rect _titleBarRect;
-
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   readonly GuiActionsList _guiActions = new GuiActionsList();
-
-  /// <summary>Style to draw a control of the minimum size.</summary>
-  static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
 
   /// <summary>Tells if GUI is open.</summary>
   bool isGuiOpen {
@@ -366,7 +360,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   const float TransferStateUpdatePeriod = 0.1f;
 
   /// <summary> The controller of the game's UI scale.</summary>
-  GuiScaledSkin _scaledSkin; 
+  GuiScale _guiScale;
   #endregion
 
   #region Cached values
@@ -499,7 +493,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
-    _scaledSkin = new GuiScaledSkin(() => HighLogic.Skin, onSkinUpdatedFn: MakeGuiStyles);
+    _guiScale = new GuiScale(
+        getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
   }
 
   /// <inheritdoc/>
@@ -575,7 +570,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (!isGuiOpen || Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
       return;
     }
-    using (new GuiSkinScope(_scaledSkin.scaledSkin)) {
+    using (new GuiMatrixScope()) {
+      _guiScale.UpdateMatrix();
       _windowRect = GUILayout.Window(
           GetInstanceID(), _windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
           GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
@@ -584,16 +580,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region GUI methods
-  /// <summary>The last tooltip, captured in the layout phase of the <see cref="OnGUI"/> method.</summary>
-  /// <remarks>It only makes sense in the <see cref="OnGUI"/> method. The value is refreshed on every frame.</remarks>
-  string _lastGuiTooltip = "";
+  /// <summary>The GUI tooltip control. Only used in the <see cref="TransferResourcesWindowFunc"/> method.</summary>
+  readonly GuiTooltip _tooltip = new();
 
   /// <summary>Shows a window that displays the resource transfer controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref _windowRect, _titleBarRect);
-
     // In the docked mode the players must use the stock transfer mechanism.
     if (vessel == linkTarget.part.vessel) {
       GUILayout.Label(NotAvailableInDockedMode, _guiNoWrapCenteredStyle);
@@ -601,6 +593,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
+      GUI.DragWindow();
       return;
     }
 
@@ -626,6 +619,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
+      GUI.DragWindow();
       return;
     }
 
@@ -671,12 +665,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (GUILayout.Button(CloseDialogBtn)) {
       _guiActions.Add(() => isGuiOpen = false);
     }
-    if (_lastGuiTooltip != "") {
-      GUILayout.Label(_lastGuiTooltip);
-    }
-    if (Event.current.type == EventType.Repaint) {
-      _lastGuiTooltip = GUI.tooltip;
-    }
+    _tooltip.Update();
+    GUI.DragWindow();
   }
 
   /// <summary>Finds the currently active option and makes it active.</summary>
@@ -689,9 +679,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   }
 
   /// <summary>Creates the styles. Only does it once.</summary>
-  void MakeGuiStyles(GUISkin skin) {
+  void MakeGuiStyles() {
+    var skin = GUI.skin; 
     _guiResourcesTable.ResetMaxSizes();
-    _titleBarRect = new Rect(0, 0, 10000, _scaledSkin.guiTitleHeight);
     _guiNoWrapCenteredStyle = new GUIStyle(skin.box) {
         wordWrap = false,
         alignment = TextAnchor.MiddleCenter,
