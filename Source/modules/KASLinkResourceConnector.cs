@@ -692,7 +692,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     MaybeAutoScaleSpeed();
   }
 
-  /// <summary>Creates the styles. Only does it once.</summary>
+  /// <summary>Creates the styles when the scale changes or initializes.</summary>
   void MakeGuiStyles() {
     var skin = GUI.skin; 
     _guiResourcesTable.ResetMaxSizes();
