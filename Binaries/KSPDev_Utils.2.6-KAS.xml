@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.2.5</name>
+        <name>KSPDev_Utils.2.6-KAS</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -1801,8 +1801,108 @@
         <member name="M:KSPDev.GUIUtils.GUILayoutVerticalScrollView.EndView">
             <summary>Marks the scrollable view end.</summary>
         </member>
+        <member name="T:KSPDev.GUIUtils.GuiMatrixScope">
+            <summary>A utility class to render windows with an alternative transformation matrix.</summary>
+            <remarks>This scope will remember the <c>GUI.matrix</c> property and restore it on exit.</remarks>
+            <seealso cref="T:KSPDev.GUIUtils.GuiScaledSkin"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiMatrixScope.#ctor">
+            <summary>Stores the old matrix.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiMatrixScope.Dispose">
+            <summary>Restores the matrix that was set before the scope started.</summary>
+        </member>
+        <member name="T:KSPDev.GUIUtils.GuiScale">
+             <summary>Component for GUI dialog rescaling, based on the current game's GUI scale setting.</summary>
+             <remarks>
+             <p>
+             The scale is applied to the dialog controls by adjusting <c>GUI.matrix</c>, which is a global variable. It must be
+             restored to the original value before exiting <c>OnGUI</c>, or else the other controls in the game will also be
+             affected.
+             </p>
+             <p>
+             This control simply magnifies the dialog. The good side of it is that the original code doesn't need to be changed.
+             The bad side is that the low-res graphics (like the controls backgrounds) may not look nice when stretched up.
+             </p>
+             </remarks>
+             <example>
+             <code>
+             <![CDATA[
+             GuiScale _guiScale;
+             Rect _windowRect;
+            
+             void OnAwake() {
+               _guiScale = new GuiScale(getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y));
+             }
+            
+             void OnGUI() {
+               using (new GuiMatrixScope() {
+                 _guiSkin.UpdateMatrix();
+                 _windowRect = GUILayout.Window(GetInstanceID(), _windowRect, WindowFunc, WindowTitle);
+               }
+             }
+             ]]>
+             </code>
+             </example>
+             <seealso cref="T:KSPDev.GUIUtils.GuiMatrixScope"/>
+             <seealso cref="T:KSPDev.GUIUtils.GuiSkinScope"/>
+        </member>
+        <member name="P:KSPDev.GUIUtils.GuiScale.pivot">
+            <summary>The pivot point to scale the dialog at.</summary>
+            <remarks>In a simple c case it's the position of the top-left corner of the dialog.</remarks>
+            <value>The pivot point to make the matrix at.</value>
+        </member>
+        <member name="P:KSPDev.GUIUtils.GuiScale.scale">
+            <summary>The current scale which this control is tracking.</summary>
+            <value>The scale for which the last <c>onScaleUpdatedFn</c> was called.</value>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiScale.scaleIsDirty">
+            <summary>Tells if the scale must be recalculated on the next access to <see cref="P:KSPDev.GUIUtils.GuiScale.scale"/>.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiScale.#ctor(System.Func{UnityEngine.Vector2},System.Action)">
+            <summary>Creates a scaled skin instance.</summary>
+            <param name="getPivotFn">
+            A function that returns the pivot point for the scale transformation. In a regular usual case, this method returns
+            the position top-left corner of the last known dialog position. 
+            </param>
+            <param name="onScaleUpdatedFn">
+            A callback which will be called every time the game's UI scale is updated. The mods can react on it to
+            update their internal cached styles. This callback is processed from the <see cref="M:KSPDev.GUIUtils.GuiScale.UpdateMatrix"/> method.
+            </param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiScale.UpdateMatrix">
+            <summary>Updates the current GUI matrix to adjust the scale.</summary>
+            <remarks>
+            This method can trigger the <c>onScaleUpdatedFn</c> callback. So it's best to call it at the very beginning of
+            the <c>OnGUI</c> method.
+            </remarks>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiScale.Finalize">
+            <summary>Unregisters any game's callbacks. </summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiScale.UpdateScale">
+            <summary>Makes a scaled skin based on the origin one.</summary>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiScale.OnUIScaleChangeGameEvent">
+            <summary>Reacts on the GUI scale change event and recalculates the skin.</summary>
+        </member>
         <member name="T:KSPDev.GUIUtils.GuiScaledSkin">
              <summary>Component for automatic <c>GUISkin</c> rescaling, based on the current game's GUI scale setting.</summary>
+             <remarks>
+             <p>
+             The scaling is achieved by proportional increase/decrease of the font size and margin/padding rects. The default
+             font stays unchanged, but all the controls that use default font size will get overrides for the nwe scaled size.
+             Some more elements will not get scaled:
+             </p>
+             <p>
+             <list type="bullet">
+             <item>The background images.</item>
+             <item>The textures, rendered via <c>Label</c> and <c>DrawTexture</c> controls.</item>
+             <item>The <c>GUILayoutOption</c> size settings.</item>
+             <item>The <c>GUILayout.Space()</c> control.</item>
+             </list>
+             </p> 
+             </remarks>
              <example>
              <code>
              <![CDATA[
@@ -1833,6 +1933,7 @@
         </member>
         <member name="P:KSPDev.GUIUtils.GuiScaledSkin.guiScale">
             <summary>The scale setting which this instance currently tracks.</summary>
+            <remarks>It's updated from the <see cref="P:KSPDev.GUIUtils.GuiScaledSkin.scaledSkin"/> property getter.</remarks>
             <value>The scale of <see cref="P:KSPDev.GUIUtils.GuiScaledSkin.scaledSkin"/>.</value>
         </member>
         <member name="P:KSPDev.GUIUtils.GuiScaledSkin.guiTitleHeight">
@@ -1894,6 +1995,56 @@
         </member>
         <member name="M:KSPDev.GUIUtils.GuiSkinScope.Dispose">
             <summary>Restores the skin that was set before the scope started.</summary>
+        </member>
+        <member name="T:KSPDev.GUIUtils.GuiTooltip">
+            <summary>A simple wrapper around the GUI tooltip.</summary>
+            <remarks>It tracks changes of the current tooltip and emits a <c>GUILayout.Label</c> when appropriate.</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiTooltip._alwaysEmitTheControl">
+            <summary>Tells if even an empty tooltip control still have to be rendered.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiTooltip._hideDelay">
+            <summary>A delay for the tooltip control to hide when empty.</summary>
+            <seealso cref="F:KSPDev.GUIUtils.GuiTooltip._alwaysEmitTheControl"/>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiTooltip._tooltip">
+            <summary>The tooltip, captured in the last frame.</summary>
+            <remarks>It always behind one frame!</remarks>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiTooltip._lastNonEmptyTooltip">
+            <summary>The last tooltip that was not an empty string.</summary>
+            <summary>It's used to present the tooltip during the <c>hideDelay</c> period.</summary>
+        </member>
+        <member name="F:KSPDev.GUIUtils.GuiTooltip._lastNonEmptyTooltipRecordedTs">
+            <summary>The last time a non-empty tooltip was spotted.</summary>
+            <remarks>Used to determine if the control should be hidden.</remarks>
+            <seealso cref="F:KSPDev.GUIUtils.GuiTooltip._hideDelay"/>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiTooltip.#ctor(System.Boolean,System.Single)">
+            <summary>A controller for the Unity GUI tooltip.</summary>
+            <remarks>
+            It gives a better control on how and when the GUI element tooltip is shown. The tooltip content is rendered as a
+            <c>GUILayout.Label</c> with the style provided. The Unity GUI layout mechanism applies limitations on when the
+            code can decide if the control should or should not be shown. This class handles all the requirements.
+            </remarks>
+            <param name="alwaysEmitTheControl">
+            If set to <c>true</c>, then an empty label will be presented even if there is no active tooltip in the frame. It
+            may be useful for the fixed size layouts. 
+            </param>
+            <param name="hideDelay">
+            Tells for how long the empty tooltip is to be show as an element until a new non-empty value is obtained. It helps
+            to mitigate the UI flickering when the tooltip controls are located close to each other. The value is of the
+            <c>seconds</c> unit. The sparse dialogs may want to set this value to zero. On the other hand, the compact dialogs
+            with a lot of hinted elements may want to set some delay. As a rule of thumb, in UX a <c>200ms</c> delay is
+            considered to be not noticeable by a regular human user.  
+            </param>
+        </member>
+        <member name="M:KSPDev.GUIUtils.GuiTooltip.Update(UnityEngine.GUIStyle)">
+            <summary>Presents the tooltip control and updates the internal state.</summary>
+            <remarks>
+            Must be called in every <c>OnGUI</c> call at the place where the tooltip content is supposed to be shown.
+            </remarks>
+            <param name="style">The style of the tooltip. If not provided, then <c>GUI.skin.label</c> will be used.</param>
         </member>
         <member name="T:KSPDev.GUIUtils.HermeticGUIControlBoolean">
             <summary>Hermetic GUI control for the boolean members.</summary>
@@ -5460,7 +5611,7 @@
             </remarks>
         </member>
         <member name="P:KSPDev.LibraryLoader.assemblyVersionStr">
-            <summary>Loaded library indentifier.</summary>
+            <summary>Loaded library identifier.</summary>
         </member>
         <member name="F:KSPDev.LibraryLoader.loaded">
             <summary>Tells if the loader has already initialized.</summary>
