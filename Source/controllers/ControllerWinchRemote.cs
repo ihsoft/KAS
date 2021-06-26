@@ -222,10 +222,20 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #endregion
 
   #region Configuration settings
+  // ReSharper disable FieldCanBeMadeReadOnly.Local
+  // ReSharper disable ConvertToConstant.Local
+
   /// <summary>Keyboard key to trigger the GUI.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("Winch/remoteControlKey")]
   public string openGuiKey = "&P";  // Alt+P
+
+  /// <summary>Tells if the control hints should be shown in the remote winches control dialog.</summary>
+  [PersistentField("Winch/showRemoteControlDialogHints", group = StdPersistentGroups.Default)]
+  bool _showRemoteControlDialogHints = true;
+
+  // ReSharper enable FieldCanBeMadeReadOnly.Local
+  // ReSharper enable ConvertToConstant.Local
   #endregion
 
   #region Internal helper types
@@ -525,7 +535,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     if (GUILayout.Button(_closeGuiCnt)) {
       GuiActions.Add(() => _isGuiOpen = false);
     }
-    _tooltip.Update();
+    if (_showRemoteControlDialogHints) {
+      _tooltip.Update();
+    }
     GUI.DragWindow();
   }
 
