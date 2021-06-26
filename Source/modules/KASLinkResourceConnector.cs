@@ -280,11 +280,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   // ReSharper restore FieldCanBeMadeReadOnly.Global
   #endregion
 
-  #region Global settings
+  #region Configuration settings
   // ReSharper disable FieldCanBeMadeReadOnly.Local
   // ReSharper disable ConvertToConstant.Local
 
   /// <summary>Tells if the control hints should be shown in the transfer dialog.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("RTS/showTransferDialogHints", group = StdPersistentGroups.Default)]
   bool _showTransferDialogHints = true;
 

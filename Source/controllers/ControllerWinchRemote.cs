@@ -23,7 +23,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_11028.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
-internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
+sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(
@@ -227,10 +227,11 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   /// <summary>Keyboard key to trigger the GUI.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [PersistentField("Winch/remoteControlKey")]
-  public string openGuiKey = "&P";  // Alt+P
+  [PersistentField("Winch/remoteControlKey", group = StdPersistentGroups.Default)]
+  string _openGuiKey = "&P";  // Alt+P
 
   /// <summary>Tells if the control hints should be shown in the remote winches control dialog.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("Winch/showRemoteControlDialogHints", group = StdPersistentGroups.Default)]
   bool _showRemoteControlDialogHints = true;
 
@@ -287,7 +288,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   Rect _windowRect = new Rect(100, 100, 1, 1);
   
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
-  readonly GuiActionsList GuiActions = new GuiActionsList();
+  readonly GuiActionsList _guiActions = new GuiActionsList();
 
   /// <summary> The controller of the game's UI scale.</summary>
   GuiScale _guiScale;
@@ -352,9 +353,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   void Awake() {
     DebugEx.Info("Winch remote controller created");
     ConfigAccessor.ReadFieldsInType(GetType(), this);
-    _guiScale = new GuiScale(
-        getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
-    _openGuiEvent = Event.KeyboardEvent(openGuiKey);
+    _guiScale =
+        new GuiScale(getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
+    _openGuiEvent = Event.KeyboardEvent(_openGuiKey);
     _instance = this;
     LoadLocalizedContent();
     GameEvents.onLanguageSwitched.Add(LoadLocalizedContent);
@@ -380,7 +381,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
-    if (GuiActions.ExecutePendingGuiActions()) {
+    if (_guiActions.ExecutePendingGuiActions()) {
       MaybeUpdateModules();
       _guiWinchTable.UpdateFrame();
     }
@@ -388,7 +389,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     if (_sortedSceneModules.Length == 0) {
       GUILayout.Label(NoContentTxt, _guiNoWrapCenteredBoxStyle);
       if (GUILayout.Button(_closeGuiCnt)) {
-        GuiActions.Add(() => _isGuiOpen = false);
+        _guiActions.Add(() => _isGuiOpen = false);
       }
       return;
     }
@@ -398,6 +399,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     foreach (var winchState in _sortedSceneModules) {
       var winch = winchState.winchModule;
       var winchCable = winchState.winchModule.linkJoint as ILinkCableJoint;
+      if (winchCable == null) {
+        continue;  // Wrong setup, but we don't want massive NPEs.
+      }
       var disableWinchGui =
           !winch.part.vessel.IsControllable || winch.isNodeBlocked || winch.isLocked;
       var motorSpeed = winchState.motorSpeedSetting * winch.cfgMotorMaxSpeed;
@@ -414,7 +418,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             fnOff: () => {
               winch.part.SetHighlightDefault();
             },
-            actionsList: GuiActions);
+            actionsList: _guiActions);
 
         // Cable retracting controls.
         using (new GuiEnabledStateScope(!disableWinchGui && winchCable.realCableLength > 0)) {
@@ -427,7 +431,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               null,
               fnOn: () => winch.SetMotor(-motorSpeed),
               fnOff: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
           // Retract the cable column.
           winchState.retracting &= winch.motorTargetSpeed < 0;
           winchState.retracting = GUILayoutButtons.Push(
@@ -437,7 +441,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               null,
               fnPush: () => winch.SetMotor(-motorSpeed),
               fnRelease: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
         }
         
         // Cable length/status column.
@@ -466,7 +470,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               null,
               fnOn: () => winch.SetMotor(motorSpeed),
               fnOff: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
           // Extend the cable column.
           winchState.extending &= winch.motorTargetSpeed > 0;
           winchState.extending = GUILayoutButtons.Push(
@@ -476,7 +480,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               null,
               fnPush: () => winch.SetMotor(motorSpeed),
               fnRelease: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
         }
 
         using (new GuiEnabledStateScope(!disableWinchGui)) {
@@ -484,13 +488,12 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
           using (new GUILayout.VerticalScope(_motorSpeedSettingsCnt, _guiNoWrapCenteredLabelStyle)) {
             GUI.changed = false;
             GUILayout.FlexibleSpace();
-            var newMotorSpeedSetting = GUILayout.HorizontalSlider(
-                winchState.motorSpeedSetting, 0.1f, 1.0f,
-                GUILayout.Width(100f));
+            var newMotorSpeedSetting =
+                GUILayout.HorizontalSlider(winchState.motorSpeedSetting, 0.1f, 1.0f, GUILayout.Width(100f));
             GUILayout.FlexibleSpace();
             if (GUI.changed) {
               var state = winchState;
-              GuiActions.Add(() => {
+              _guiActions.Add(() => {
                 state.motorSpeedSetting = newMotorSpeedSetting;
                 var newSpeed = newMotorSpeedSetting * winch.cfgMotorMaxSpeed;
                 if (state.extending || state.extendBtnPressed) {
@@ -512,28 +515,28 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
         using (new GuiEnabledStateScope(
             !disableWinchGui && winch.currentCableLength < winch.cfgMaxCableLength)) {
           if (GUILayout.Button(_releaseBtnCnt, GUI.skin.button)) {
-            GuiActions.Add(winch.ReleaseCable);
+            _guiActions.Add(winch.ReleaseCable);
           }
         }
 
         // Stretch cable column.
         using (new GuiEnabledStateScope(!disableWinchGui && !winch.isConnectorLocked)) {
           if (GUILayout.Button(_stretchBtnCnt, GUI.skin.button)) {
-            GuiActions.Add(winch.StretchCable);
+            _guiActions.Add(winch.StretchCable);
           }
         }
 
         // Disconnect connector column.
         using (new GuiEnabledStateScope(!disableWinchGui && winch.isLinked)) {
           if (GUILayout.Button(_detachBtnCnt, GUI.skin.button)) {
-            GuiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
+            _guiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
           }
         }
       }
     }
 
     if (GUILayout.Button(_closeGuiCnt)) {
-      GuiActions.Add(() => _isGuiOpen = false);
+      _guiActions.Add(() => _isGuiOpen = false);
     }
     if (_showRemoteControlDialogHints) {
       _tooltip.Update();
