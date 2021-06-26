@@ -276,12 +276,11 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Actual screen position of the console window.</summary>
   Rect _windowRect = new Rect(100, 100, 1, 1);
   
-  /// <summary>A title bar location.</summary>
-  Rect TitleBarRect = new Rect(0, 0, 10000, 20);
-
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   readonly GuiActionsList GuiActions = new GuiActionsList();
 
+  /// <summary> The controller of the game's UI scale.</summary>
+  GuiScale _guiScale;
 
   /// <summary>Keyboard event that opens/closes the remote GUI.</summary>
   static Event _openGuiEvent;
@@ -313,9 +312,12 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       ToggleGui(!_isGuiOpen);
     }
     if (_isGuiOpen) {
-      _windowRect = GUILayout.Window(
-          GetInstanceID(), _windowRect, ConsoleWindowFunc, WindowTitleTxt.Format(_openGuiEvent),
-          GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      using (new GuiMatrixScope()) {
+        _guiScale.UpdateMatrix();
+        _windowRect = GUILayout.Window(
+            GetInstanceID(), _windowRect, ConsoleWindowFunc, WindowTitleTxt.Format(_openGuiEvent),
+            GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      }
     }
   }
   #endregion
@@ -340,6 +342,8 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   void Awake() {
     DebugEx.Info("Winch remote controller created");
     ConfigAccessor.ReadFieldsInType(GetType(), this);
+    _guiScale = new GuiScale(
+        getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
     _openGuiEvent = Event.KeyboardEvent(openGuiKey);
     _instance = this;
     LoadLocalizedContent();
@@ -366,11 +370,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref _windowRect, TitleBarRect);
-
-    MakeGuiStyles();
-
     if (GuiActions.ExecutePendingGuiActions()) {
       MaybeUpdateModules();
       _guiWinchTable.UpdateFrame();
@@ -527,24 +526,27 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       GuiActions.Add(() => _isGuiOpen = false);
     }
     _tooltip.Update();
+    GUI.DragWindow();
   }
 
-  /// <summary>Creates the styles. Only does it once.</summary>
+  /// <summary>Creates the styles when the scale changes or initializes.</summary>
   void MakeGuiStyles() {
-    if (_guiNoWrapCenteredLabelStyle == null) {
-      _guiNoWrapCenteredLabelStyle = new GUIStyle(GUI.skin.label) {
-          wordWrap = false,
-          margin = GUI.skin.button.margin,
-          padding = GUI.skin.button.padding,
-          alignment = TextAnchor.MiddleCenter,
-      };
-      _guiNoWrapCenteredBoxStyle = new GUIStyle(GUI.skin.box) {
-          wordWrap = false,
-          margin = GUI.skin.button.margin,
-          padding = GUI.skin.button.padding,
-          alignment = TextAnchor.MiddleCenter,
-      };
-    }
+    var skin = GUI.skin; 
+    _guiWinchTable.ResetMaxSizes();
+    var buttonStyle = skin.button;
+    _guiNoWrapCenteredLabelStyle = new GUIStyle(skin.label) {
+        stretchHeight = true,
+        wordWrap = false,
+        margin = buttonStyle.margin,
+        padding = buttonStyle.padding,
+        alignment = TextAnchor.MiddleCenter,
+    };
+    _guiNoWrapCenteredBoxStyle = new GUIStyle(skin.box) {
+        wordWrap = false,
+        margin = buttonStyle.margin,
+        padding = buttonStyle.padding,
+        alignment = TextAnchor.MiddleCenter,
+    };
   }
 
   /// <summary>Prepares or updates the localizable GUI strings.</summary>

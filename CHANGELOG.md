@@ -5,6 +5,7 @@
 * [Enhancement] Allow attaching to the winches surface to let reinforcing them with struts.
 * [Enhancement] Don't show resources that cannot be transferred in the RTS GUI.
 * [Enhancement #248] Add ability to scale Transfer GUI.
+* [Enhancement #321] Scale the Winch GUI dialog.
 * [Fix #302] GUI does not respect hide/show function.
 * [Fix #306] Logs spam from the parts dropped on the ground.
 * [Fix #307] Interactive attach mode conflicts with construction mode.
