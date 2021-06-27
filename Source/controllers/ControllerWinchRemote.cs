@@ -97,7 +97,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeOfflineTxt = new Message(
       "#kasLOC_11011",
-      defaultTemplate: "<gui:min:150,0><color=red>Offline</color>",
+      defaultTemplate: "<color=red>Offline</color>",
       description: "The text for the winch status in which it cannot be remotely operated for any"
       + " reason.");
 
@@ -110,7 +110,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeBlockedTxt = new Message(
       "#kasLOC_11013",
-      defaultTemplate: "<gui:min:150,0><color=red>Blocked</color>",
+      defaultTemplate: "<color=red>Blocked</color>",
       description: "The text for the winch status that tells that the main winch attach node is"
       + " occupied by an incompatible (non-KAS) part.");
 
@@ -123,7 +123,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeRetractedTxt = new Message(
       "#kasLOC_11015",
-      defaultTemplate: "<gui:min:150,0><color=#00ff00>Retracted</color>",
+      defaultTemplate: "<color=#00ff00>Retracted</color>",
       description: "The text for the winch status that tells that the cable connector is locked to"
       + " the winch, and the cable length is zero.");
 
@@ -195,7 +195,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<DistanceType, DistanceType> RelaxedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11025",
-          defaultTemplate: "<gui:min:150,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The formatter string for the cable lengths when the cable is *not* under"
           + " strain. I.e. its actual length is not greater than the winch allows."
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
@@ -205,7 +205,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<DistanceType, DistanceType> StrainedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11026",
-          defaultTemplate: "<gui:min:150,0><<1>> / <color=magenta><<2>></color>",
+          defaultTemplate: "<<1>> / <color=magenta><<2>></color>",
           description: "The formatter string for the cable lengths when the cable *is* under strain."
           + " I.e. its actual length is greater than the winch allows."
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
@@ -215,7 +215,7 @@ sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<VelocityType, VelocityType> MotorSpeedTxt =
       new Message<VelocityType, VelocityType>(
           "#kasLOC_11027",
-          defaultTemplate: "<gui:min:150,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The formatter string for the winch motor speed."
           + "\nArgument <<1>> is the current motor speed type VelocityType."
           + "\nArgument <<2>> is the settings for the desired motor speed of type VelocityType.");

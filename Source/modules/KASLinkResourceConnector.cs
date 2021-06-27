@@ -60,7 +60,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly Message<CompactNumberType, CompactNumberType> ResourceAmounts =
       new Message<CompactNumberType, CompactNumberType>(
           "#kasLOC_12003",
-          defaultTemplate: "<gui:min:100,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The status string saying current and maximum amounts of the resource in the"
           + " vessel. The gui tags are suggested to define the minimum size of the text, to avoid"
           + " the dialog flickering when the resource is being transferred."
