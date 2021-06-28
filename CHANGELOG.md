@@ -1,6 +1,7 @@
 # 1.8 (pre-release):
 * [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. To avoid unpexected behvior, it's recommended to manually break the link before using EVA construction mode.
 * [NOTICE] The interactive links (like in `PCB`) are now not possible in EVA construction mode.
+* [Compatibility] Drop AVC version check due to the KSP `1.12` duplicated mods handling bug.
 * [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets properly broken in this case.
 * [Enhancement] Allow attaching to the winches surface to let reinforcing them with struts.
 * [Enhancement] Don't show resources that cannot be transferred in the RTS GUI.
