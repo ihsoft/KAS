@@ -108,7 +108,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message EvaActionBrokeLinkMsg = new Message(
       "#kasLOC_02009",
-      defaultTemplate: "<color=red>Unlinking due to the EVA construction action</color>",
+      defaultTemplate: "Unlinking due to the EVA construction action",
       description: "Message to display when a linked part becomes a target to EVA construction move or detach"
       + " operation.");
 
@@ -759,8 +759,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     base.OnPeerManipulatedInEva(target);
     if (isLinked) {
       HostedDebugLog.Info(this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, target);
-      ScreenMessages.PostScreenMessage(
-          EvaActionBrokeLinkMsg, ScreenMessaging.DefaultErrorTimeout, ScreenMessageStyle.UPPER_RIGHT);
+      ShowStatusMessage(EvaActionBrokeLinkMsg, isError: true);
       UISoundPlayer.instance.Play(SoundLinkForceBroken);
       BreakCurrentLink(LinkActorType.API);
     }
