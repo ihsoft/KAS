@@ -1,4 +1,4 @@
-# 1.8 (pre-release):
+# 1.8 (June 27th, 2021):
 * [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. To avoid unpexected behvior, it's recommended to manually break the link before using EVA construction mode.
 * [NOTICE] The interactive links (like in `PCB`) are now not possible in EVA construction mode.
 * [Compatibility] Drop AVC version check due to the KSP `1.12` duplicated mods handling bug.
