@@ -21,15 +21,15 @@
 			encodeURIComponent("Please add an example for " + document.title + ".%0D%0DTODO (optional): Describe a specific " +
 			"scenario you would like to see addressed.%0D%0DHelp Topic: " + window.location.href).replace(/%250D/g, "%0D");
 		HT_requestExampleLink.innerHTML = HT_requestExampleLinkText;
-		</script><a target="_blank" class="button" href="https://github.com/ihsoft/KAS/tree/master/Source-API/api/Utils/ILinkUtils.cs" rel="noopener noreferrer" title="View the source code">View Source</a><h4 class="subHeading">Parameters</h4><dl><dt><span class="parameter">part1</span></dt><dd>Type: <span class="nolink">Part</span><br />
+		</script><a target="_blank" class="button" href="https://github.com/ihsoft/KAS/tree/master/Source-API/api/Utils/ILinkUtils.cs" rel="noopener noreferrer" title="View the source code">View Source</a><h4 class="subHeading">Parameters</h4><dl><dt><span class="parameter">part1</span></dt><dd>Type: <span class="nolink">(Default Namespace)<span id="LST4E30710_1"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST4E30710_1?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>Part</span><br />
             The first part of the connection. It must be a direct parent or a child of the
             <span class="parameter">part2</span>.
-            </dd><dt><span class="parameter">part2</span></dt><dd>Type: <span class="nolink">Part</span><br />
+            </dd><dt><span class="parameter">part2</span></dt><dd>Type: <span class="nolink">(Default Namespace)<span id="LST4E30710_2"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST4E30710_2?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>Part</span><br />
             The second part of the connection. It must be a direct parent or a child of the
             <span class="parameter">part1</span>.
-            </dd><dt><span class="parameter">vesselInfo1</span> (Optional)</dt><dd>Type: <span class="nolink">DockedVesselInfo</span><br />
+            </dd><dt><span class="parameter">vesselInfo1</span> (Optional)</dt><dd>Type: <span class="nolink">(Default Namespace)<span id="LST4E30710_3"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST4E30710_3?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>DockedVesselInfo</span><br />
             The optional info of the vessel that owned the <span class="parameter">part1</span> on coupling.
-            </dd><dt><span class="parameter">vesselInfo2</span> (Optional)</dt><dd>Type: <span class="nolink">DockedVesselInfo</span><br />
+            </dd><dt><span class="parameter">vesselInfo2</span> (Optional)</dt><dd>Type: <span class="nolink">(Default Namespace)<span id="LST4E30710_4"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST4E30710_4?cs=.|vb=.|cpp=::|nu=.|fs=.");</script>DockedVesselInfo</span><br />
             The optional info of the vessel that owned the <span class="parameter">part2</span> on coupling.
             </dd></dl><h4 class="subHeading">Return Value</h4>Type: <span class="nolink">Part</span><br />The child part that has decoupled from the owner vessel.</div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Remarks</span></div><div id="ID2RBSection" class="collapsibleSection">
             If the part, being decoupled, has the <span class="code">DockedVesselInfo</span> provided, then additionally to

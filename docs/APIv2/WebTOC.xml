@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpTOC>
 
-  <HelpTOCNode Id="3fc6d6ab-d259-499f-89e6-265bcb064edf" Title="KASAPIv2" Url="html/N_KASAPIv2.htm">
+  <HelpTOCNode Id="b83fc4fe-58af-4ed5-aaed-5659169c19f7" Title="KASAPIv2" Url="html/N_KASAPIv2.htm">
     <HelpTOCNode Title="GUILinkMode Enumeration" Url="html/T_KASAPIv2_GUILinkMode.htm" />
-    <HelpTOCNode Id="33b974e4-6e88-4a5c-8cd1-0ec86bbba3ed" Title="IAttachNodesUtils Interface" Url="html/T_KASAPIv2_IAttachNodesUtils.htm">
-      <HelpTOCNode Id="104bbbb3-e8d9-4d9c-ba07-858a4d6d0463" Title="IAttachNodesUtils Methods" Url="html/Methods_T_KASAPIv2_IAttachNodesUtils.htm">
+    <HelpTOCNode Id="cc6729d0-5e88-4280-8c64-e8151223abd1" Title="IAttachNodesUtils Interface" Url="html/T_KASAPIv2_IAttachNodesUtils.htm">
+      <HelpTOCNode Id="4c4d0c7e-3d79-4059-a5c2-d7753b8e6999" Title="IAttachNodesUtils Methods" Url="html/Methods_T_KASAPIv2_IAttachNodesUtils.htm">
         <HelpTOCNode Title="AddNode Method " Url="html/M_KASAPIv2_IAttachNodesUtils_AddNode.htm" />
         <HelpTOCNode Title="CreateNode Method " Url="html/M_KASAPIv2_IAttachNodesUtils_CreateNode.htm" />
         <HelpTOCNode Title="DropNode Method " Url="html/M_KASAPIv2_IAttachNodesUtils_DropNode.htm" />
@@ -13,15 +13,15 @@
         <HelpTOCNode Title="ParseNodeFromString Method " Url="html/M_KASAPIv2_IAttachNodesUtils_ParseNodeFromString.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="e8d71d1b-7e22-49e2-b744-1f8cc26dfe39" Title="ICommonConfig Interface" Url="html/T_KASAPIv2_ICommonConfig.htm">
-      <HelpTOCNode Id="2c06315f-9f73-40d2-8bdb-3c0605b52f11" Title="ICommonConfig Properties" Url="html/Properties_T_KASAPIv2_ICommonConfig.htm">
+    <HelpTOCNode Id="43ff3397-6930-4c9e-b127-33466698eb8c" Title="ICommonConfig Interface" Url="html/T_KASAPIv2_ICommonConfig.htm">
+      <HelpTOCNode Id="779b5e32-c5d1-430e-93ad-7ee19729f0b2" Title="ICommonConfig Properties" Url="html/Properties_T_KASAPIv2_ICommonConfig.htm">
         <HelpTOCNode Title="keyDropConnector Property " Url="html/P_KASAPIv2_ICommonConfig_keyDropConnector.htm" />
         <HelpTOCNode Title="keyPickupConnector Property " Url="html/P_KASAPIv2_ICommonConfig_keyPickupConnector.htm" />
         <HelpTOCNode Title="sndPathBipWrong Property " Url="html/P_KASAPIv2_ICommonConfig_sndPathBipWrong.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="ab76b1df-4911-418d-afa4-813044bef4d4" Title="IJointUtils Interface" Url="html/T_KASAPIv2_IJointUtils.htm">
-      <HelpTOCNode Id="197f75b3-cbdf-4ee3-9561-ce178db5f706" Title="IJointUtils Methods" Url="html/Methods_T_KASAPIv2_IJointUtils.htm">
+    <HelpTOCNode Id="bfa0ee2b-6704-4e37-8034-616586fda9c3" Title="IJointUtils Interface" Url="html/T_KASAPIv2_IJointUtils.htm">
+      <HelpTOCNode Id="307bd9ad-2311-40fb-b73e-c3f64a3d821e" Title="IJointUtils Methods" Url="html/Methods_T_KASAPIv2_IJointUtils.htm">
         <HelpTOCNode Title="DumpJoint Method " Url="html/M_KASAPIv2_IJointUtils_DumpJoint.htm" />
         <HelpTOCNode Title="DumpSpringJoint Method " Url="html/M_KASAPIv2_IJointUtils_DumpSpringJoint.htm" />
         <HelpTOCNode Title="ResetJoint Method " Url="html/M_KASAPIv2_IJointUtils_ResetJoint.htm" />
@@ -31,50 +31,50 @@
         <HelpTOCNode Title="SetupSphericalJoint Method " Url="html/M_KASAPIv2_IJointUtils_SetupSphericalJoint.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="867015b9-9733-4801-a50d-7473bf8d40be" Title="IKasEvents Interface" Url="html/T_KASAPIv2_IKasEvents.htm">
-      <HelpTOCNode Id="4a64480a-b6d3-43b3-aa64-75af2a3f91a4" Title="IKasEvents Properties" Url="html/Properties_T_KASAPIv2_IKasEvents.htm">
+    <HelpTOCNode Id="1461359c-beac-4ae5-a3c2-bbeb1d7ededb" Title="IKasEvents Interface" Url="html/T_KASAPIv2_IKasEvents.htm">
+      <HelpTOCNode Id="c38000d7-7d2c-4124-9f2e-594d1fc70075" Title="IKasEvents Properties" Url="html/Properties_T_KASAPIv2_IKasEvents.htm">
         <HelpTOCNode Title="OnLinkBroken Property " Url="html/P_KASAPIv2_IKasEvents_OnLinkBroken.htm" />
         <HelpTOCNode Title="OnLinkCreated Property " Url="html/P_KASAPIv2_IKasEvents_OnLinkCreated.htm" />
         <HelpTOCNode Title="OnStartLinking Property " Url="html/P_KASAPIv2_IKasEvents_OnStartLinking.htm" />
         <HelpTOCNode Title="OnStopLinking Property " Url="html/P_KASAPIv2_IKasEvents_OnStopLinking.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="50ab639b-9f4b-47b4-95e6-b773aaa8cf29" Title="IKasJointEventsListener Interface" Url="html/T_KASAPIv2_IKasJointEventsListener.htm">
-      <HelpTOCNode Id="abcb2b6e-47b1-4618-a64e-3e195b167e91" Title="IKasJointEventsListener Methods" Url="html/Methods_T_KASAPIv2_IKasJointEventsListener.htm">
+    <HelpTOCNode Id="0e061936-582f-4f79-8d0d-61638d511576" Title="IKasJointEventsListener Interface" Url="html/T_KASAPIv2_IKasJointEventsListener.htm">
+      <HelpTOCNode Id="478c5c61-1a33-4a7b-a5e6-8753854d9cfe" Title="IKasJointEventsListener Methods" Url="html/Methods_T_KASAPIv2_IKasJointEventsListener.htm">
         <HelpTOCNode Title="OnKASJointBreak Method " Url="html/M_KASAPIv2_IKasJointEventsListener_OnKASJointBreak.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="90c51fdf-2fb8-42c7-a3cf-00a4c21a684e" Title="IKasLinkEvent Interface" Url="html/T_KASAPIv2_IKasLinkEvent.htm">
-      <HelpTOCNode Id="3ac0a90d-2494-4c56-99c1-480dedd28443" Title="IKasLinkEvent Properties" Url="html/Properties_T_KASAPIv2_IKasLinkEvent.htm">
+    <HelpTOCNode Id="6253959b-5f5c-4993-bff7-9d4d2cb44a65" Title="IKasLinkEvent Interface" Url="html/T_KASAPIv2_IKasLinkEvent.htm">
+      <HelpTOCNode Id="cdb2c9d8-625a-4938-a20a-eefc436dc74a" Title="IKasLinkEvent Properties" Url="html/Properties_T_KASAPIv2_IKasLinkEvent.htm">
         <HelpTOCNode Title="actor Property " Url="html/P_KASAPIv2_IKasLinkEvent_actor.htm" />
         <HelpTOCNode Title="source Property " Url="html/P_KASAPIv2_IKasLinkEvent_source.htm" />
         <HelpTOCNode Title="target Property " Url="html/P_KASAPIv2_IKasLinkEvent_target.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="6deb0803-a4c7-434f-a4e2-45505cbe4d0e" Title="ILinkCableJoint Interface" Url="html/T_KASAPIv2_ILinkCableJoint.htm">
-      <HelpTOCNode Id="3a77d764-f35e-4165-b27d-7fff75e10ff5" Title="ILinkCableJoint Properties" Url="html/Properties_T_KASAPIv2_ILinkCableJoint.htm">
+    <HelpTOCNode Id="424d9ab3-2a9d-45b0-8588-0adf515be852" Title="ILinkCableJoint Interface" Url="html/T_KASAPIv2_ILinkCableJoint.htm">
+      <HelpTOCNode Id="e0c691f8-eca2-4cfe-a4f9-f7fd86d302e8" Title="ILinkCableJoint Properties" Url="html/Properties_T_KASAPIv2_ILinkCableJoint.htm">
         <HelpTOCNode Title="cfgMaxCableLength Property " Url="html/P_KASAPIv2_ILinkCableJoint_cfgMaxCableLength.htm" />
         <HelpTOCNode Title="deployedCableLength Property " Url="html/P_KASAPIv2_ILinkCableJoint_deployedCableLength.htm" />
         <HelpTOCNode Title="headRb Property " Url="html/P_KASAPIv2_ILinkCableJoint_headRb.htm" />
         <HelpTOCNode Title="isLockedWhenCoupled Property " Url="html/P_KASAPIv2_ILinkCableJoint_isLockedWhenCoupled.htm" />
         <HelpTOCNode Title="realCableLength Property " Url="html/P_KASAPIv2_ILinkCableJoint_realCableLength.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="e0dc0505-131b-40c8-9539-709e2ba7689e" Title="ILinkCableJoint Methods" Url="html/Methods_T_KASAPIv2_ILinkCableJoint.htm">
+      <HelpTOCNode Id="176ab1a8-18c0-41df-a455-d740512d116e" Title="ILinkCableJoint Methods" Url="html/Methods_T_KASAPIv2_ILinkCableJoint.htm">
         <HelpTOCNode Title="SetCableLength Method " Url="html/M_KASAPIv2_ILinkCableJoint_SetCableLength.htm" />
         <HelpTOCNode Title="SetLockedOnCouple Method " Url="html/M_KASAPIv2_ILinkCableJoint_SetLockedOnCouple.htm" />
         <HelpTOCNode Title="StartPhysicalHead Method " Url="html/M_KASAPIv2_ILinkCableJoint_StartPhysicalHead.htm" />
         <HelpTOCNode Title="StopPhysicalHead Method " Url="html/M_KASAPIv2_ILinkCableJoint_StopPhysicalHead.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="2f7f69c1-cdfe-42cd-bce7-803c83fe5dd6" Title="ILinkJoint Interface" Url="html/T_KASAPIv2_ILinkJoint.htm">
-      <HelpTOCNode Id="c68ef575-8eaa-46bf-9e95-be341367a5bb" Title="ILinkJoint Properties" Url="html/Properties_T_KASAPIv2_ILinkJoint.htm">
+    <HelpTOCNode Id="3537f769-5763-4b8a-810c-5d3dd30e4399" Title="ILinkJoint Interface" Url="html/T_KASAPIv2_ILinkJoint.htm">
+      <HelpTOCNode Id="9edcc6e7-6e1e-41e1-b83c-8a2ec814a7bf" Title="ILinkJoint Properties" Url="html/Properties_T_KASAPIv2_ILinkJoint.htm">
         <HelpTOCNode Title="cfgJointName Property " Url="html/P_KASAPIv2_ILinkJoint_cfgJointName.htm" />
         <HelpTOCNode Title="coupleOnLinkMode Property " Url="html/P_KASAPIv2_ILinkJoint_coupleOnLinkMode.htm" />
         <HelpTOCNode Title="isLinked Property " Url="html/P_KASAPIv2_ILinkJoint_isLinked.htm" />
         <HelpTOCNode Title="linkSource Property " Url="html/P_KASAPIv2_ILinkJoint_linkSource.htm" />
         <HelpTOCNode Title="linkTarget Property " Url="html/P_KASAPIv2_ILinkJoint_linkTarget.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="d36661df-5ed3-45b7-b543-75b7919cfe89" Title="ILinkJoint Methods" Url="html/Methods_T_KASAPIv2_ILinkJoint.htm">
+      <HelpTOCNode Id="80b50425-0b1b-4206-a810-a69e45e22b97" Title="ILinkJoint Methods" Url="html/Methods_T_KASAPIv2_ILinkJoint.htm">
         <HelpTOCNode Title="AdjustJoint Method " Url="html/M_KASAPIv2_ILinkJoint_AdjustJoint.htm" />
         <HelpTOCNode Title="CheckConstraints Method " Url="html/M_KASAPIv2_ILinkJoint_CheckConstraints.htm" />
         <HelpTOCNode Title="CreateJoint Method " Url="html/M_KASAPIv2_ILinkJoint_CreateJoint.htm" />
@@ -82,8 +82,8 @@
         <HelpTOCNode Title="SetCoupleOnLinkMode Method " Url="html/M_KASAPIv2_ILinkJoint_SetCoupleOnLinkMode.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="67ded751-f396-4967-83d2-f7ccb5f2edd0" Title="ILinkPeer Interface" Url="html/T_KASAPIv2_ILinkPeer.htm">
-      <HelpTOCNode Id="bd5774be-66c2-453f-b040-d0567368f04f" Title="ILinkPeer Properties" Url="html/Properties_T_KASAPIv2_ILinkPeer.htm">
+    <HelpTOCNode Id="2e0161bb-0f01-4140-aedb-a7d5e2e43ff1" Title="ILinkPeer Interface" Url="html/T_KASAPIv2_ILinkPeer.htm">
+      <HelpTOCNode Id="6caa4f0e-cf33-44a4-8527-d8c4e055f23a" Title="ILinkPeer Properties" Url="html/Properties_T_KASAPIv2_ILinkPeer.htm">
         <HelpTOCNode Title="attachNode Property " Url="html/P_KASAPIv2_ILinkPeer_attachNode.htm" />
         <HelpTOCNode Title="cfgAttachNodeName Property " Url="html/P_KASAPIv2_ILinkPeer_cfgAttachNodeName.htm" />
         <HelpTOCNode Title="cfgDependentNodeNames Property " Url="html/P_KASAPIv2_ILinkPeer_cfgDependentNodeNames.htm" />
@@ -100,8 +100,8 @@
         <HelpTOCNode Title="part Property " Url="html/P_KASAPIv2_ILinkPeer_part.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="cc83c8ac-890e-42c6-bf9d-3c936baa63d2" Title="ILinkRenderer Interface" Url="html/T_KASAPIv2_ILinkRenderer.htm">
-      <HelpTOCNode Id="1d85861f-5aae-4b4a-bc60-4657287a1318" Title="ILinkRenderer Properties" Url="html/Properties_T_KASAPIv2_ILinkRenderer.htm">
+    <HelpTOCNode Id="0c57cc06-2503-49df-a2e7-5a7a7a1c2d65" Title="ILinkRenderer Interface" Url="html/T_KASAPIv2_ILinkRenderer.htm">
+      <HelpTOCNode Id="5c2eb4ac-a8dc-47c0-8ee9-d35ac220697b" Title="ILinkRenderer Properties" Url="html/Properties_T_KASAPIv2_ILinkRenderer.htm">
         <HelpTOCNode Title="cfgRendererName Property " Url="html/P_KASAPIv2_ILinkRenderer_cfgRendererName.htm" />
         <HelpTOCNode Title="colorOverride Property " Url="html/P_KASAPIv2_ILinkRenderer_colorOverride.htm" />
         <HelpTOCNode Title="isPhysicalCollider Property " Url="html/P_KASAPIv2_ILinkRenderer_isPhysicalCollider.htm" />
@@ -110,7 +110,7 @@
         <HelpTOCNode Title="sourceTransform Property " Url="html/P_KASAPIv2_ILinkRenderer_sourceTransform.htm" />
         <HelpTOCNode Title="targetTransform Property " Url="html/P_KASAPIv2_ILinkRenderer_targetTransform.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="6685a187-7896-4772-a5c2-12b58f3a6d38" Title="ILinkRenderer Methods" Url="html/Methods_T_KASAPIv2_ILinkRenderer.htm">
+      <HelpTOCNode Id="5e1df2f2-6505-4527-aff9-496c4361abe2" Title="ILinkRenderer Methods" Url="html/Methods_T_KASAPIv2_ILinkRenderer.htm">
         <HelpTOCNode Title="CheckColliderHits Method " Url="html/M_KASAPIv2_ILinkRenderer_CheckColliderHits.htm" />
         <HelpTOCNode Title="GetMeshByName Method " Url="html/M_KASAPIv2_ILinkRenderer_GetMeshByName.htm" />
         <HelpTOCNode Title="StartRenderer Method " Url="html/M_KASAPIv2_ILinkRenderer_StartRenderer.htm" />
@@ -118,54 +118,54 @@
         <HelpTOCNode Title="UpdateLink Method " Url="html/M_KASAPIv2_ILinkRenderer_UpdateLink.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="67e28891-c86d-4b01-b96c-837123b58493" Title="ILinkSource Interface" Url="html/T_KASAPIv2_ILinkSource.htm">
-      <HelpTOCNode Id="f97dc263-6d58-43cc-971c-a385b0836955" Title="ILinkSource Properties" Url="html/Properties_T_KASAPIv2_ILinkSource.htm">
+    <HelpTOCNode Id="63e70a4f-06d2-422d-a88f-d06597b19b8b" Title="ILinkSource Interface" Url="html/T_KASAPIv2_ILinkSource.htm">
+      <HelpTOCNode Id="a8563c94-872b-419b-b6ed-f535ef6e1cec" Title="ILinkSource Properties" Url="html/Properties_T_KASAPIv2_ILinkSource.htm">
         <HelpTOCNode Title="linkJoint Property " Url="html/P_KASAPIv2_ILinkSource_linkJoint.htm" />
         <HelpTOCNode Title="linkRenderer Property " Url="html/P_KASAPIv2_ILinkSource_linkRenderer.htm" />
         <HelpTOCNode Title="linkTarget Property " Url="html/P_KASAPIv2_ILinkSource_linkTarget.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="e96bbd43-88fd-402b-8e17-7c1c51c99732" Title="ILinkSource Methods" Url="html/Methods_T_KASAPIv2_ILinkSource.htm">
+      <HelpTOCNode Id="860ce996-f343-47c9-a256-2e3e3d23941e" Title="ILinkSource Methods" Url="html/Methods_T_KASAPIv2_ILinkSource.htm">
         <HelpTOCNode Title="BreakCurrentLink Method " Url="html/M_KASAPIv2_ILinkSource_BreakCurrentLink.htm" />
         <HelpTOCNode Title="CancelLinking Method " Url="html/M_KASAPIv2_ILinkSource_CancelLinking.htm" />
         <HelpTOCNode Title="CheckCanLinkTo Method " Url="html/M_KASAPIv2_ILinkSource_CheckCanLinkTo.htm" />
-        <HelpTOCNode Id="70a4d693-d586-445f-be49-a27b240d2d3d" Title="LinkToTarget Method " Url="html/Overload_KASAPIv2_ILinkSource_LinkToTarget.htm">
+        <HelpTOCNode Id="9916d1a8-b08f-46be-bb38-8333a73d971a" Title="LinkToTarget Method " Url="html/Overload_KASAPIv2_ILinkSource_LinkToTarget.htm">
           <HelpTOCNode Title="LinkToTarget Method (ILinkTarget)" Url="html/M_KASAPIv2_ILinkSource_LinkToTarget.htm" />
           <HelpTOCNode Title="LinkToTarget Method (LinkActorType, ILinkTarget)" Url="html/M_KASAPIv2_ILinkSource_LinkToTarget_1.htm" />
         </HelpTOCNode>
         <HelpTOCNode Title="StartLinking Method " Url="html/M_KASAPIv2_ILinkSource_StartLinking.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="34ab42cc-448e-4243-ab28-276c3056022a" Title="ILinkStateEventListener Interface" Url="html/T_KASAPIv2_ILinkStateEventListener.htm">
-      <HelpTOCNode Id="1cadef4b-269e-4b7a-b799-7088e7233274" Title="ILinkStateEventListener Methods" Url="html/Methods_T_KASAPIv2_ILinkStateEventListener.htm">
+    <HelpTOCNode Id="bdeab565-1f2d-4b03-89cd-7ce2b40f7ada" Title="ILinkStateEventListener Interface" Url="html/T_KASAPIv2_ILinkStateEventListener.htm">
+      <HelpTOCNode Id="c717018e-a51f-43ec-933f-8231e8647e83" Title="ILinkStateEventListener Methods" Url="html/Methods_T_KASAPIv2_ILinkStateEventListener.htm">
         <HelpTOCNode Title="OnKASLinkedState Method " Url="html/M_KASAPIv2_ILinkStateEventListener_OnKASLinkedState.htm" />
         <HelpTOCNode Title="OnKASNodeBlockedState Method " Url="html/M_KASAPIv2_ILinkStateEventListener_OnKASNodeBlockedState.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="2d2b3e0f-6e3e-4b42-913d-f16f8098cf27" Title="ILinkTarget Interface" Url="html/T_KASAPIv2_ILinkTarget.htm">
-      <HelpTOCNode Id="f00c9a7f-61aa-4784-b514-c9d518f431fa" Title="ILinkTarget Properties" Url="html/Properties_T_KASAPIv2_ILinkTarget.htm">
+    <HelpTOCNode Id="a01edeee-3447-490c-abf5-6212cece0b01" Title="ILinkTarget Interface" Url="html/T_KASAPIv2_ILinkTarget.htm">
+      <HelpTOCNode Id="cf320f19-5315-486b-9cd7-2520d6d43eb5" Title="ILinkTarget Properties" Url="html/Properties_T_KASAPIv2_ILinkTarget.htm">
         <HelpTOCNode Title="linkSource Property " Url="html/P_KASAPIv2_ILinkTarget_linkSource.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="8f58ecb3-9be5-4336-9f29-99d26e9f956a" Title="ILinkUtils Interface" Url="html/T_KASAPIv2_ILinkUtils.htm">
-      <HelpTOCNode Id="d7d373a1-c632-484f-9eb7-ee699fc6ece5" Title="ILinkUtils Methods" Url="html/Methods_T_KASAPIv2_ILinkUtils.htm">
+    <HelpTOCNode Id="6e9e9325-8873-44db-a873-5150c78e250b" Title="ILinkUtils Interface" Url="html/T_KASAPIv2_ILinkUtils.htm">
+      <HelpTOCNode Id="d3702a47-1dff-43d4-a74b-37358b9fe248" Title="ILinkUtils Methods" Url="html/Methods_T_KASAPIv2_ILinkUtils.htm">
         <HelpTOCNode Title="CoupleParts Method " Url="html/M_KASAPIv2_ILinkUtils_CoupleParts.htm" />
         <HelpTOCNode Title="DecoupleParts Method " Url="html/M_KASAPIv2_ILinkUtils_DecoupleParts.htm" />
         <HelpTOCNode Title="FindLinkPeer Method " Url="html/M_KASAPIv2_ILinkUtils_FindLinkPeer.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="a6b66de1-ccb1-43fb-966e-ccc647ca4edd" Title="ILinkVesselInfo Interface" Url="html/T_KASAPIv2_ILinkVesselInfo.htm">
-      <HelpTOCNode Id="d0e5a506-cc65-4d8c-92fb-ad06037bfd15" Title="ILinkVesselInfo Properties" Url="html/Properties_T_KASAPIv2_ILinkVesselInfo.htm">
+    <HelpTOCNode Id="46431513-4a7d-4dd1-9eb6-28cc02166bbb" Title="ILinkVesselInfo Interface" Url="html/T_KASAPIv2_ILinkVesselInfo.htm">
+      <HelpTOCNode Id="0104b01e-b0bc-47b0-9308-53b68b433c22" Title="ILinkVesselInfo Properties" Url="html/Properties_T_KASAPIv2_ILinkVesselInfo.htm">
         <HelpTOCNode Title="part Property " Url="html/P_KASAPIv2_ILinkVesselInfo_part.htm" />
         <HelpTOCNode Title="vesselInfo Property " Url="html/P_KASAPIv2_ILinkVesselInfo_vesselInfo.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="14947dc5-fea1-4b87-a7ae-681a339d43f9" Title="IPhysicsUtils Interface" Url="html/T_KASAPIv2_IPhysicsUtils.htm">
-      <HelpTOCNode Id="0b623dd9-0a88-42b6-9133-ab6ce8e05364" Title="IPhysicsUtils Methods" Url="html/Methods_T_KASAPIv2_IPhysicsUtils.htm">
+    <HelpTOCNode Id="d1d54182-1183-4010-8e24-1fb7ebae4541" Title="IPhysicsUtils Interface" Url="html/T_KASAPIv2_IPhysicsUtils.htm">
+      <HelpTOCNode Id="6f678be9-b3ea-471e-a041-1036d581aec9" Title="IPhysicsUtils Methods" Url="html/Methods_T_KASAPIv2_IPhysicsUtils.htm">
         <HelpTOCNode Title="ApplyGravity Method " Url="html/M_KASAPIv2_IPhysicsUtils_ApplyGravity.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="d87db0b8-a945-4360-8418-e32cf53a57c1" Title="IWinchControl Interface" Url="html/T_KASAPIv2_IWinchControl.htm">
-      <HelpTOCNode Id="c3f0cf5a-6f6f-44b3-8f05-aca2a771e6a3" Title="IWinchControl Properties" Url="html/Properties_T_KASAPIv2_IWinchControl.htm">
+    <HelpTOCNode Id="e8463fe9-9b33-41b8-9095-5d7bc35352dc" Title="IWinchControl Interface" Url="html/T_KASAPIv2_IWinchControl.htm">
+      <HelpTOCNode Id="6881883e-776d-4580-8ae8-c90f34869255" Title="IWinchControl Properties" Url="html/Properties_T_KASAPIv2_IWinchControl.htm">
         <HelpTOCNode Title="cfgMaxCableLength Property " Url="html/P_KASAPIv2_IWinchControl_cfgMaxCableLength.htm" />
         <HelpTOCNode Title="cfgMotorMaxSpeed Property " Url="html/P_KASAPIv2_IWinchControl_cfgMotorMaxSpeed.htm" />
         <HelpTOCNode Title="currentCableLength Property " Url="html/P_KASAPIv2_IWinchControl_currentCableLength.htm" />
@@ -173,14 +173,14 @@
         <HelpTOCNode Title="motorCurrentSpeed Property " Url="html/P_KASAPIv2_IWinchControl_motorCurrentSpeed.htm" />
         <HelpTOCNode Title="motorTargetSpeed Property " Url="html/P_KASAPIv2_IWinchControl_motorTargetSpeed.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="2cea9a15-3580-4227-8dcc-b1e87c44a9d5" Title="IWinchControl Methods" Url="html/Methods_T_KASAPIv2_IWinchControl.htm">
+      <HelpTOCNode Id="dda78582-1db1-4793-9b80-eb39468b158e" Title="IWinchControl Methods" Url="html/Methods_T_KASAPIv2_IWinchControl.htm">
         <HelpTOCNode Title="ReleaseCable Method " Url="html/M_KASAPIv2_IWinchControl_ReleaseCable.htm" />
         <HelpTOCNode Title="SetMotor Method " Url="html/M_KASAPIv2_IWinchControl_SetMotor.htm" />
         <HelpTOCNode Title="StretchCable Method " Url="html/M_KASAPIv2_IWinchControl_StretchCable.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="67d45dfc-e350-425b-b273-97e9bfc3fcbc" Title="KASAPI Class" Url="html/T_KASAPIv2_KASAPI.htm">
-      <HelpTOCNode Id="1a2ae86c-454a-463c-9590-9294ee84a159" Title="KASAPI Fields" Url="html/Fields_T_KASAPIv2_KASAPI.htm">
+    <HelpTOCNode Id="8eeb5012-106a-4699-b111-d6c9d08e29e4" Title="KASAPI Class" Url="html/T_KASAPIv2_KASAPI.htm">
+      <HelpTOCNode Id="f8b8310a-c58e-4243-966d-da9ce0a15ed9" Title="KASAPI Fields" Url="html/Fields_T_KASAPIv2_KASAPI.htm">
         <HelpTOCNode Title="AttachNodesUtils Field" Url="html/F_KASAPIv2_KASAPI_AttachNodesUtils.htm" />
         <HelpTOCNode Title="CommonConfig Field" Url="html/F_KASAPIv2_KASAPI_CommonConfig.htm" />
         <HelpTOCNode Title="isLoaded Field" Url="html/F_KASAPIv2_KASAPI_isLoaded.htm" />
