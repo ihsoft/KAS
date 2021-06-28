@@ -228,9 +228,7 @@ public class KASJointCableBase : AbstractJoint,
   #endregion
 
   #region Utility methods
-  /// <summary>
-  /// Creates a distance joint between the source and an arbitrary physical object.   
-  /// </summary>
+  /// <summary>Creates a distance joint between the source and an arbitrary physical object.</summary>
   /// <remarks>It sets the maximum cable length to the persisted value. Even if it's zero!</remarks>
   /// <param name="source">The source of the link.</param>
   /// <param name="tgtRb">The rigidbody of the physical object.</param>

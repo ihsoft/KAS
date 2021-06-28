@@ -27,11 +27,11 @@ public interface IKasEvents {
 
   /// <summary>Triggers when a link between two parts has been successfully established.</summary>
   /// <remarks>
-  /// <para>The argument of the callback is a KAS event object that describes the link.</para>
-  /// <para>
+  /// <p>The argument of the callback is a KAS event object that describes the link.</p>
+  /// <p>
   /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
   /// is needed in scope of just one part.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <value>Collection to add or remove a callback.</value>
   /// <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
@@ -39,11 +39,11 @@ public interface IKasEvents {
 
   /// <summary>Triggers when a link between two parts has been broken.</summary>
   /// <remarks>
-  /// <para>The argument of the callback is a KAS event object that describes the link.</para>
-  /// <para>
+  /// <p>The argument of the callback is a KAS event object that describes the link.</p>
+  /// <p>
   /// Consider using <see cref="ILinkStateEventListener.OnKASLinkedState"/> when this state change
   /// is needed in scope of just one part.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <value>Collection to add or remove a callback.</value>
   /// <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>

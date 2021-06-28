@@ -2,16 +2,16 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
+using System.Collections;
 using KASAPIv2;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.PartUtils;
 using KSPDev.ProcessingUtils;
-using System;
 using System.Linq;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 
@@ -27,7 +27,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     // KAS interfaces.
     ILinkPeer, ILinkStateEventListener,
     // KSPDev syntax sugar interfaces.
-    IKSPActivateOnDecouple {
+    IsPartDeathListener, IKSPActivateOnDecouple {
 
   #region Part's config fields
   /// <summary>See <see cref="cfgLinkType"/>.</summary>
@@ -124,8 +124,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   public string cfgAttachNodeName => attachNodeName;
 
   /// <inheritdoc/>
-  public string[] cfgDependentNodeNames =>
-      _dependentNodeNames ?? (_dependentNodeNames = dependentNodes.Split(','));
+  public string[] cfgDependentNodeNames => _dependentNodeNames ??= dependentNodes.Split(',');
   string[] _dependentNodeNames;
 
   /// <inheritdoc/>
@@ -205,13 +204,18 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   #endregion
 
   #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPActivateOnDecouple.DecoupleAction" />
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (nodeName == attachNodeName) {
       HostedDebugLog.Fine(this, "Schedule coupling check from DECOUPLE action...");
       AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
     }
   }
+  #endregion
+
+  #region IsPartDeathListener declaration
+  /// <inheritdoc/>
+  public abstract void OnPartDie();
   #endregion
 
   #region AbstractPartModule overrides
@@ -221,6 +225,10 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     linkStateMachine = new SimpleStateMachine<LinkState>();
     SetupStateMachine();
     RegisterGameEventListener(GameEvents.onPartCouple, OnPartCoupleEvent);
+    RegisterGameEventListener(GameEvents.onPartDie, OnPartDieEvent);
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartAttached, OnEVAConstructionModePartAttachedGameEvent);
+    RegisterGameEventListener(GameEvents.OnEVAConstructionModePartDetached, OnEVAConstructionModePartDetachedGameEvent);
+    RegisterGameEventListener(GameEvents.onVesselWillDestroy, OnVesselWillDestroyGameEvent);
   }
 
   /// <inheritdoc/>
@@ -232,7 +240,12 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
   /// <inheritdoc/>
   public override void OnStart(StartState state) {
     base.OnStart(state);
-    
+
+    // KAS doesn't handle non-physical peers. Both ends of the link must be physical to work properly.
+    if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+      HostedDebugLog.Error(this, "The part is non-physical. KAS will NOT work properly with it!");
+    }
+
     // Adjust state of a newly added module.
     if (persistedLinkState == LinkState.Available) {
       var linkedModule = part.Modules.OfType<ILinkPeer>()
@@ -276,7 +289,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
             .Where(p => p.isLinked && (p.cfgAttachNodeName == attachNodeName
                                        || p.cfgDependentNodeNames.Contains(attachNodeName)))
             .ToList()
-            .ForEach(m => SetLinkState(LinkState.Available));
+            .ForEach(m => m.SetLinkState(LinkState.Available));
       } else {
         HostedDebugLog.Fine(this, "Restored link to: {0}", otherPeer);
       }
@@ -293,12 +306,10 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     parsedAttachNode = part.FindAttachNode(attachNodeName);
     isAutoAttachNode = parsedAttachNode == null;
     if (isAutoAttachNode) {
-      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(
-          part, attachNodeDef, attachNodeName);
+      parsedAttachNode = KASAPI.AttachNodesUtils.ParseNodeFromString(part, attachNodeDef, attachNodeName);
       if (parsedAttachNode != null) {
-        HostedDebugLog.Fine(
-            this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
-        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
+        HostedDebugLog.Fine(this, "Created auto node: {0}", KASAPI.AttachNodesUtils.NodeId(parsedAttachNode));
+        if (coupleNode != null && (HighLogic.LoadedSceneIsFlight && vessel != null || HighLogic.LoadedSceneIsEditor)) {
           // Only pre-add the node in the scenes that assume restoring a vessel state.
           // We'll drop it in the OnStartFinished if not used.
           KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
@@ -313,18 +324,23 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       nodeTransform = KASAPI.AttachNodesUtils.GetTransformForNode(part, parsedAttachNode);
     }
   }
+
+  /// <inheritdoc/>
+  protected override void OnEvaPartLoaded() {
+    base.OnEvaPartLoaded();
+    persistedLinkState = LinkState.Available;
+    persistedLinkPartId = 0;
+    persistedLinkNodeName = "";
+  }
   #endregion
 
   #region IsPackable implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IsPackable.OnPartUnpack" />
   public virtual void OnPartUnpack() {
-    // The check may want to establish a link, but this will only succeed if the physics has
-    // started.
-    HostedDebugLog.Fine(this, "Schedule coupling check from UNPACK...");
-    AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
+    StartCoroutine(ValidateCoupling(part, "UNPACK"));
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IsPackable.OnPartPack" />
   public virtual void OnPartPack() {
   }
   #endregion
@@ -346,11 +362,16 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       // Ensure the auto node is removed and is cleared from the attached part if not used.
       KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
     }
+    // Unblock node if the blocker is removed.
+    if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
+      HostedDebugLog.Fine(this, "Resetting the blocked state due to the attachment has cleared");
+      SetLinkState(LinkState.Available);
+    }
   }
 
   /// <summary>Sets the peer's state machine.</summary>
   protected virtual void SetupStateMachine() {
-    linkStateMachine.onAfterTransition += (start, end) => {
+    linkStateMachine.onAfterTransition += (_, end) => {
       persistedLinkState = linkState;
       if (coupleNode != null && (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)) {
         if (end == LinkState.Available) {
@@ -407,13 +428,19 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
     var oldPeer = _otherPeer;
     _otherPeer = peer;
     if (_otherPeer != null) {
-      persistedLinkPartId = (uint) _otherPeer?.part.flightID;
+      persistedLinkPartId = _otherPeer.part.flightID;
       persistedLinkNodeName = _otherPeer.cfgAttachNodeName;
     } else {
       persistedLinkPartId = 0;
       persistedLinkNodeName = "";
     }
     OnPeerChange(oldPeer);
+  }
+
+  /// <summary>Triggers when any of the peers becomes a target to the EVA construction operations.</summary>
+  /// <remarks>This callback is called before the actual interaction happens.</remarks>
+  /// <param name="target">The peer that is being manipulated.</param>
+  protected virtual void OnPeerManipulatedInEva(ILinkPeer target) {
   }
   #endregion
 
@@ -437,7 +464,7 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
 
   /// <inheritdoc/>
   public void OnKASNodeBlockedState(ILinkPeer ownerPeer, bool isBlocked) {
-    throw new NotImplementedException();  // Obsolete.
+    HostedDebugLog.Error(this, "Method call is unexpected! Doing nothing");  // Obsolete.
   }
   #endregion
 
@@ -451,10 +478,80 @@ public abstract class AbstractLinkPeer : AbstractPartModule,
       node = action.to.FindPartThroughNodes(action.from);
     }
     if (node != null && node.id == attachNodeName) {
-      HostedDebugLog.Fine(this, "Schedule coupling check on coupling event: from={0}, to={1}",
-                          action.from, action.to);
-      AsyncCall.CallOnEndOfFrame(this, CheckCoupleNode);
+      StartCoroutine(ValidateCoupling(part, "Couple Event"));
     }
+  }
+
+  /// <summary>Reacts on this part death and initiates the death callbacks.</summary>
+  void OnPartDieEvent(Part p) {
+    if (p == part) {
+      HostedDebugLog.Fine(this, "Link peer dies...");
+      OnPartDie();
+    }
+  }
+
+  /// <summary>Reset any linked state on the EVA attached part since it's a clone.</summary>
+  void OnEVAConstructionModePartAttachedGameEvent(Vessel v, Part p) {
+    if (p.parent == part) {
+      StartCoroutine(ValidateCoupling(p, "EVA attach"));
+    }
+  }
+
+  /// <summary>Detects if any of the peers was detached from the parent vessel vai EVA construction mode.</summary>
+  void OnEVAConstructionModePartDetachedGameEvent(Vessel v, Part p) {
+    if (p == part) {
+      OnPeerManipulatedInEva(this);
+    } else if (p == otherPeer?.part) {
+      OnPeerManipulatedInEva(otherPeer);
+    }
+  }
+
+  /// <summary>Detects of any the peers was picked up in the EVA construction mode.</summary>
+  void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
+    if (UIPartActionControllerInventory.Instance == null
+        || UIPartActionControllerInventory.Instance.CurrentCargoPart == null) {
+      return;  // Nothing to do.
+    }
+    var evaCargoPart = UIPartActionControllerInventory.Instance.CurrentCargoPart;
+    if (part.flightID == evaCargoPart.flightID) {
+      OnPeerManipulatedInEva(this);
+    } else if (otherPeer?.part.flightID == evaCargoPart.flightID) {
+      OnPeerManipulatedInEva(otherPeer);
+    }
+  }
+
+  /// <summary>Validates coupling state on the parts that may be in a packed state.</summary>
+  /// <summary>
+  /// Use this method when the part in question can be packed. Rhe method will wait till it unpacks, and then will call
+  /// the <see cref="CheckCoupleNode"/> on it.
+  /// </summary>
+  /// <param name="p">The part to wait for the state on.</param>
+  /// <param name="reason">A brief reason of why the method is being called. Only used for logging.</param>
+  /// <returns>Co-routine enumerator.</returns>
+  IEnumerator ValidateCoupling(Part p, string reason) {
+    Func<bool> stateCheckFn = () =>
+        linkState == LinkState.Available && p.State == PartStates.IDLE && (p == part || p.parent == part)
+        && coupleNode?.attachedPart != null;
+    if (!stateCheckFn.Invoke()) {
+      yield break;  // Nothing to do. 
+    }
+    if (p.packed) {
+      HostedDebugLog.Fine(this, "Waiting for the packed part to unpack: part={0}", p);
+      yield return new WaitWhile(() => p.packed && stateCheckFn.Invoke());
+    }
+    if (linkState != LinkState.Available) {
+      HostedDebugLog.Fine(this, "Another module took the ownership on the link");
+      yield break;
+    }
+    if (!stateCheckFn.Invoke()) {
+      HostedDebugLog.Warning(
+          this, "Part has changed while waiting for coupling: state={0}, parent={1}, coupleNode={2}, attachedPart={3}",
+          p.State, p.parent, coupleNode, coupleNode?.attachedPart);
+      yield break;
+    }
+    yield return new WaitForEndOfFrame();
+    HostedDebugLog.Fine(this, "Trigger coupling check: dependency={0}, reason={1}", p, reason);
+    CheckCoupleNode();
   }
   #endregion
 }

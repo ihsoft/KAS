@@ -17,7 +17,7 @@ namespace KASAPIv2 {
 /// </remarks>
 public interface ILinkRenderer {
   /// <summary>
-  /// Unique name of the randerer that is used by the other modules to find this renderer.
+  /// Unique name of the renderer that is used by the other modules to find this renderer.
   /// </summary>
   /// <value>Arbitrary string. Can be empty.</value>
   string cfgRendererName { get; }
@@ -38,7 +38,7 @@ public interface ILinkRenderer {
   /// <value>The current state of the collider(s).</value>
   /// <remarks>
   /// Setting this property to <c>false</c> disables the link colliders, if there were any. Setting
-  /// this oroperty to <c>true</c> doesn't make the link physlcal, it only enables the colliders
+  /// this property to <c>true</c> doesn't make the link physical, it only enables the colliders
   /// that were already on the link.
   /// </remarks>
   /// <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">
@@ -74,21 +74,21 @@ public interface ILinkRenderer {
 
   /// <summary>Starts rendering a link between the objects.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// This method only indicates that the link is to be drawn between the specified points. The
   /// renderer is allowed to draw meshes even when not started. E.g. if there are constant parts of
   /// the link like the joint pivots.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// The ends of the link are not required to be located at the surface of the owning parts. It's
   /// up to the renderer to decide how to draw the link.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// It's OK to call this method multiple times with different or the same source/target arguments:
   /// the renderer must accept the values and update accordingly. However, this operation is rated
   /// as performance expensive, so the callers are discouraged to invoke this method too frequently
   /// (e.g. on every frame update).
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="source">The source node.</param>
   /// <param name="target">The target node.</param>
@@ -96,30 +96,34 @@ public interface ILinkRenderer {
 
   /// <summary>Cancels rendering the link.</summary>
   /// <remarks>
+  /// <p>
   /// The stopped renderer is not required to not render anything. The stopped state only tells
   /// that the source and the target positions provided to the <see cref="StartRenderer"/> method
-  /// must not be respresented as connected anymore. A specific renderer implementation is free to
+  /// must not be represented as connected anymore. A specific renderer implementation is free to
   /// choose how to represent this mode.
-  /// <para>
+  /// </p>
+  /// <p>
   /// It's OK to call this method multiple time. If the renderer is already stopped the call must be
   /// treated as NO-OP with a little or no performance cost.
-  /// </para>
+  /// </p>
   /// </remarks>
   void StopRenderer();
 
   /// <summary>Called when a link representation update is required.</summary>
   /// <remarks>
+  /// <p>
   /// It's called on every frame update if the link is started. The performance cost of this method
   /// is rated as moderate. The callers should consider optimization techniques to avoid calling
   /// this method on the every frame update.
-  /// <para>
+  /// </p>
+  /// <p>
   /// A specific renderer implementation may introduce own optimization algorithm when the call
   /// becomes too heavy and slow.
-  /// </para>
+  /// </p>
   /// </remarks>
   void UpdateLink();
 
-  /// <summary>Verifies that there are no obstacles beween the points.</summary>
+  /// <summary>Verifies that there are no obstacles between the points.</summary>
   /// <remarks>The renderer is not required to be started for this method to call.</remarks>
   /// <param name="source">The source node.</param>
   /// <param name="target">The target node.</param>

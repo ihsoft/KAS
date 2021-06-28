@@ -61,6 +61,11 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   #endregion
 
   #region Part's config fields
+  // ReSharper disable MemberCanBePrivate.Global
+  // ReSharper disable CollectionNeverUpdated.Global
+  // ReSharper disable FieldCanBeMadeReadOnly.Global
+  // ReSharper disable ClassNeverInstantiated.Global
+
   /// <summary>Name of the renderer for this procedural part.</summary>
   /// <remarks>
   /// This setting is used to let link source know primary renderer for the linked state.
@@ -183,7 +188,12 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [PersistentField("parkedOrientation", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public List<Orientation> parkedOrientations = new List<Orientation>();
+  public List<Orientation> parkedOrientations = new();
+
+  // ReSharper enable MemberCanBePrivate.Global
+  // ReSharper enable CollectionNeverUpdated.Global
+  // ReSharper enable FieldCanBeMadeReadOnly.Global
+  // ReSharper enable ClassNeverInstantiated.Global
   #endregion
 
   // FIXME: check colliders.
@@ -221,7 +231,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public Color? colorOverride {
-    get { return _colorOverride; }
+    get => _colorOverride;
     set {
       _colorOverride = value;
       Meshes.UpdateMaterials(_srcPartJoint.gameObject, newColor: _colorOverride ?? materialColor);
@@ -231,7 +241,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public string shaderNameOverride {
-    get { return _shaderNameOverride; }
+    get => _shaderNameOverride;
     set {
       _shaderNameOverride = value;
       // FIXME: update material everywhere.
@@ -245,7 +255,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public bool isPhysicalCollider {
-    get { return _isPhysicalCollider; }
+    get => _isPhysicalCollider;
     set {
       _isPhysicalCollider = value;
       Colliders.UpdateColliders(_srcPartJoint.gameObject, isEnabled: value);
@@ -258,7 +268,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public Transform sourceTransform {
-    get { return _sourceTransform; }
+    get => _sourceTransform;
     private set {
       _sourceTransform = value;
       UpdateLinkLengthAndOrientation();
@@ -268,7 +278,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public Transform targetTransform {
-    get { return _targetTransform; }
+    get => _targetTransform;
     private set {
       _targetTransform = value;
       UpdateLinkLengthAndOrientation();
@@ -507,7 +517,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   }
   #endregion
 
-  #region ILinkRenderer implemetation
+  #region ILinkRenderer implementation
   /// <inheritdoc/>
   public void StartRenderer(Transform source, Transform target) {
     sourceTransform = source;
@@ -594,12 +604,13 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
           new Vector3(0, 0, GetClampedLinkLength(linkVector) - _tgtJointHandleLength));
       // 4. Rotate tgtStrutJoint around Z axis so what its pivot axle (X) is perpendicular to
       //    the target part attach node.
+      var forward = targetTransform.forward;
       _tgtStrutJoint.rotation =
-          Quaternion.LookRotation(_tgtStrutJoint.forward, targetTransform.forward);
+          Quaternion.LookRotation(_tgtStrutJoint.forward, forward);
       // 5. Rotate tgtPivot around X axis (pivot axle) so that its forward vector points along
       //    target attach node direction.
       _tgtStrutJointPivot.localRotation =
-          Quaternion.Euler(Vector3.Angle(_tgtStrutJoint.forward, -targetTransform.forward), 0, 0);
+          Quaternion.Euler(Vector3.Angle(_tgtStrutJoint.forward, -forward), 0, 0);
     }
 
     // Distribute pistons between the first and the last while keeping the direction.
@@ -696,7 +707,7 @@ public sealed class KASRendererTelescopicPipe : AbstractProceduralModel,
   /// </summary>
   /// <remarks>
   /// Same model in this part is copied several times, and they are organized into a hierarchy. So
-  /// if there were any scale or rotation adjustments they will accumulate thru the hierarchy
+  /// if there were any scale or rotation adjustments they will accumulate through the hierarchy
   /// breaking the whole model. That's why all local transformations must be default.
   /// </remarks>
   /// <param name="model">Model to copy.</param>

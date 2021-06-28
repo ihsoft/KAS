@@ -113,6 +113,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   [Debug.KASDebugAdjustable("Connector mass")]
   public float connectorMass = 0.01f;
 
+  /// <summary>Center of mass of the connector object.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Connector CoM")]
+  public Vector3 connectorCenterOfMass = Vector3.zero;
+
   /// <summary>Maximum distance at which an EVA kerbal can pickup a dropped connector.</summary>
   /// <seealso cref="KASLinkTargetKerbal"/>
   [KSPField]
@@ -242,8 +248,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         && linkTarget != null && linkTarget.part.vessel == FlightGlobals.ActiveVessel) {
       BreakCurrentLink(LinkActorType.Player);
       SetConnectorState(ConnectorState.Locked);
-      HostedDebugLog.Info(
-          this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
+      HostedDebugLog.Info(this, "{0} has returned the winch connector", FlightGlobals.ActiveVessel.vesselName);
     }
   }
 
@@ -397,6 +402,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   /// <inheritdoc/>
   public override void OnDebugAdjustablesUpdated() {
     base.OnDebugAdjustablesUpdated();
+    if (connectorObj != null && connectorObj.GetComponent<Rigidbody>() != null) {
+      connectorObj.GetComponent<Rigidbody>().centerOfMass = connectorCenterOfMass;
+    }
     AsyncCall.CallOnEndOfFrame(
         this,
         () => {
@@ -432,6 +440,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     RegisterGameEventListener(GameEvents.onVesselChange, OnVesselChange);
   }
 
+  /// <inheritdoc/>
+  public override void OnStartFinished(StartState state) {
+    base.OnStartFinished(state);
+    if (HighLogic.LoadedSceneIsEditor) {
+      SetConnectorState(ConnectorState.Locked);
+    }
+  }
   /// <inheritdoc/>
   protected override void CheckSettingsConsistency() {
     if (!allowCoupling) {
@@ -471,23 +486,19 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   }
 
   /// <inheritdoc/>
+  protected override void OnEvaPartLoaded() {
+    base.OnEvaPartLoaded();
+    persistedIsConnectorLocked = true;
+    persistedConnectorPosAndRot = null;
+  }
+
+  /// <inheritdoc/>
   protected override void RestoreOtherPeer() {
     base.RestoreOtherPeer();
     if (otherPeer == null) {
       persistedIsConnectorLocked = true;
       linkJoint?.DropJoint();  // Cleanup the joints state.
     }
-  }
-
-  /// <inheritdoc/>
-  public override void OnPartDie() {
-    base.OnPartDie();
-    // Make sure the connector is locked into the winch to not leave it behind.
-    if (connectorObj != null) {
-      // Don't relay on the connector state machine, it will try to destroy immediately.
-      KASInternalPhysicalConnector.Demote(connectorObj.gameObject, true);
-    }
-    SetConnectorState(ConnectorState.Locked);
   }
 
   /// <inheritdoc/>
@@ -509,14 +520,15 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     linkStateMachine.AddStateHandlers(
         LinkState.NodeIsBlocked,
         enterHandler: oldState => {
-          if (decoupleIncompatibleTargets
-              && coupleNode != null && coupleNode.attachedPart != null) {
+          if (decoupleIncompatibleTargets && coupleNode?.attachedPart != null) {
             HostedDebugLog.Warning(this, "Decouple incompatible part from the node: {0}",
                                    coupleNode.FindOpposingNode().attachedPart);
             UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
-            ShowStatusMessage(
-                CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
+            ShowStatusMessage(CannotLinkToPreAttached.Format(coupleNode.attachedPart), isError: true);
             KASAPI.LinkUtils.DecoupleParts(part, coupleNode.attachedPart);
+            if (FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.evaController != null) {
+              FlightGlobals.ActiveVessel.evaController.InterruptWeld();  // In case of it was the stock EVA action.
+            }
           }
         },
         callOnShutdown: false);
@@ -527,7 +539,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.onAfterTransition += (start, end) => {
       if (end != null) { // Do nothing on state machine shutdown.
         persistedIsConnectorLocked = isConnectorLocked;
-        if (end == ConnectorState.Locked) {
+        if (end == ConnectorState.Locked && !isAutoAttachNode) {
           KASAPI.AttachNodesUtils.AddNode(part, coupleNode);
         } else if (coupleNode.attachedPart == null) {
           KASAPI.AttachNodesUtils.DropNode(part, coupleNode);
@@ -577,6 +589,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         enterHandler: oldState => {
           SaveConnectorModelPosAndRot();
           cableJoint.SetLockedOnCouple(true);
+          linkRenderer.StopRenderer();
 
           // Align the docking part to the nodes if it's a separate vessel.
           if (oldState.HasValue && linkTarget.part.vessel != vessel) {
@@ -587,6 +600,9 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         },
         leaveHandler: newState => {
           cableJoint.SetLockedOnCouple(false);
+          if (linkTarget != null) {
+            linkRenderer.StartRenderer(nodeTransform, linkTarget.nodeTransform);
+          }
           SaveConnectorModelPosAndRot(saveNonPhysical: newState == ConnectorState.Deployed);
           linkJoint.SetCoupleOnLinkMode(false);
         },
@@ -601,13 +617,22 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
         ConnectorState.Deployed,
         enterHandler: oldState => StartPhysicsOnConnector(),
         leaveHandler: newState => StopPhysicsOnConnector(),
-        callOnShutdown: false);
+        callOnShutdown: true);
   }
 
   /// <inheritdoc/>
   protected override void ShutdownStateMachine() {
     base.ShutdownStateMachine();
     connectorStateMachine.currentState = null;
+  }
+
+  /// <inheritdoc/>
+  protected override void OnPeerManipulatedInEva(ILinkPeer target) {
+    base.OnPeerManipulatedInEva(target);
+    if (ReferenceEquals(target, this) && !isLinked) {
+      SetConnectorState(ConnectorState.Locked);
+      Colliders.UpdateColliders(gameObject, isPhysical: false);  // The locked connector can have some colliders.
+    }
   }
 
   /// <inheritdoc/>
@@ -680,7 +705,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
   #endregion
 
   #region Inheritable utility methods
-  /// <summary>Changes the connector state</summary>
+  /// <summary>Changes the connector state.</summary>
   /// <remarks>
   /// It's a convenience method. The caller can change the state of the connector state machine
   /// instead.
@@ -692,16 +717,13 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     connectorStateMachine.currentState = newState;
   }
 
-  /// <summary>
-  /// Tells if the currently active vessel is an EVA kerbal who carries the connector.
-  /// </summary>
+  /// <summary>Tells if the currently active vessel is an EVA kerbal who carries the connector.</summary>
   /// <returns><c>true</c> if the connector on the kerbal.</returns>
   protected bool IsActiveEvaHoldingConnector() {
     return FlightGlobals.fetch != null  // To prevent NRE on the game shutdown. 
         && FlightGlobals.ActiveVessel != null  // It's null in the non-flight scenes.
         && FlightGlobals.ActiveVessel.isEVA
-        && isLinked
-        && linkTarget != null && linkTarget.part != null
+        && isLinked && linkTarget?.part != null  // For the inconsistent cases.
         && linkTarget.part.vessel == FlightGlobals.ActiveVessel;
   }
 
@@ -808,8 +830,7 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
       return;
     }
     if (saveNonPhysical && connectorObj == null && persistedConnectorPosAndRot != null) {
-      // For non physical connector only update connector if not yet updated. To allow restoring
-      // a deployed connector at an arbitrary location.
+      // Only save non-physical connector if not yet done.
       return;
     }
     var connector = connectorObj
@@ -845,11 +866,12 @@ public class KASLinkSourcePhysical : KASLinkSourceBase {
     var connector = KASInternalPhysicalConnector.Promote(
         this, connectorObj.gameObject, connectorInteractDistance);
     connector.connectorRb.mass = connectorMass;
+    connector.connectorRb.centerOfMass = connectorCenterOfMass;
     part.mass -= connectorMass;
     part.rb.mass -= connectorMass;
 
     linkRenderer.StartRenderer(nodeTransform, physPartAttach);
-    Colliders.UpdateColliders(connectorModel.gameObject);
+    Colliders.UpdateColliders(connectorModel.gameObject, isEnabled: true);
     cableJoint.StartPhysicalHead(this, physPipeAttachObj);
     SaveConnectorModelPosAndRot();
   }

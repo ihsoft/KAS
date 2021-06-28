@@ -23,7 +23,7 @@ public interface IJointUtils {
 
   /// <summary>Initializes joint to a consistent state.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// It's not the same as creating a default joint. The state is consistent but different from the
   /// default:
   /// <list type="bullet">
@@ -39,33 +39,33 @@ public interface IJointUtils {
   /// will remember the new relative rotation/position of the connected objects.
   /// </item>
   /// </list>
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Use this method before setting up a new or existing joint. By resetting the joint, you ensure
   /// it's in a consistent state, and the further adjustments will always give the same result
   /// regardless to how the joint was created and what components were affecting it.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="joint">Joint to reset.</param>
   void ResetJoint(ConfigurableJoint joint);
 
   /// <summary>Sets up joint so what it becomes a prismatic joint.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// It's a standard PhysX configuration. Main axis is set to Z. Moving along it is allowed but can
   /// be constrained by a spring and limit. Drive mode is set to
   /// <see cref="JointDriveMode.Position"/>.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Only main axis linear settings are changed. Consider using <see cref="ResetJoint"/> to
   /// eliminate side effects from the previous settings of the joint.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Pure prismatic joint assumes 5 out of the 6 degrees of freedom to be locked (everything,
   /// except the main axis linear motion). Consider setting <see cref="Joint.enablePreprocessing"/>
-  /// to <c>true</c> since it may improve PhysXperformance.
-  /// </para>
-  /// <para>
+  /// to <c>true</c> since it may improve PhysX performance.
+  /// </p>
+  /// <p>
   /// For performance reasons some parameters combindations may result in different motion modes:
   /// <list type="bullet">
   /// <item>
@@ -81,11 +81,11 @@ public interface IJointUtils {
   /// don't forget to update the mode as well.
   /// </item>
   /// </list>
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Regardless to the modes set all the other parameters are also applied. I.e. you don't need to
   /// re-apply them when changing mode.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="joint">Joint to setup.</param>
   /// <param name="springForce">
@@ -120,23 +120,23 @@ public interface IJointUtils {
 
   /// <summary>Sets up joint so what it becomes a spherical hinge joint.</summary>
   /// <remarks>
-  /// <para>
-  /// It's a standard PhysiX configuration. Main axis is set to Z, and angular rotation around it is
+  /// <p>
+  /// It's a standard PhysX configuration. Main axis is set to Z, and angular rotation around it is
   /// completely unrestricted. Secondary axes are X&amp;Y can be restricted by applying spring force
   /// and/or limits. Drive mode is set to <see cref="JointDriveMode.Position"/>.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Only angular settings are set. If joint had linear constraints defined they will stay
   /// unchanged. Consider using <see cref="ResetJoint"/> to eliminate side effects from the previous
   /// settings of the joint.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Pure spherical joint assumes 3 out of the 6 degrees of freedom to be locked (all the three
   /// axes linear motions). Consider setting <see cref="Joint.enablePreprocessing"/> to <c>true</c>
   /// since it may improve PhysX performance.
-  /// </para>
-  /// <para>
-  /// For performance reasons some parameters combindations may result in different angular modes:
+  /// </p>
+  /// <p>
+  /// For performance reasons some parameters combinations may result in different angular modes:
   /// <list type="bullet">
   /// <item>
   /// When <paramref name="springForce"/> is <c>Infinite</c> or <paramref name="angleLimit"/> is
@@ -149,11 +149,11 @@ public interface IJointUtils {
   /// If you plan to change either of the parameters don't forget to update the modes as well.
   /// </item>
   /// </list>
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Regardless to the modes set all the other parameters are also applied. I.e. you don't need to
   /// re-apply them when changing mode.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="joint">Joint to setup.</param>
   /// <param name="springForce">
@@ -183,7 +183,7 @@ public interface IJointUtils {
                            float angleLimitForce = 0,
                            float angleLimitDamperRatio = 0.1f);
 
-  /// <summary>Sets up a cannonical distance joint.</summary>
+  /// <summary>Sets up a canonical distance joint.</summary>
   /// <remarks>
   /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
   /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this
@@ -195,7 +195,7 @@ public interface IJointUtils {
   /// </param>
   /// <param name="springDamper">The force to apply to calm down the oscillations.</param>
   /// <param name="maxDistance">
-  /// The maximum distance to allow between the obejcts before applying the spring force.
+  /// The maximum distance to allow between the objects before applying the spring force.
   /// </param>
   /// <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#distance-joint">
   /// PhysX: Distant Joint
@@ -205,7 +205,7 @@ public interface IJointUtils {
                           float springDamper = 0,
                           float maxDistance = Mathf.Infinity);
 
-  /// <summary>Sets up a cannonical fixed joint.</summary>
+  /// <summary>Sets up a canonical fixed joint.</summary>
   /// <remarks>
   /// This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
   /// result, the joint must be reset via a <see cref="ResetJoint"/> call before invoking this

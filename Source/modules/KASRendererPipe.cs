@@ -6,6 +6,8 @@ using KSPDev.ConfigUtils;
 using KSPDev.KSPInterfaces;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
+using KSPDev.PartUtils;
+using KSPDev.ProcessingUtils;
 using KSPDev.Types;
 using System;
 using UnityEngine;
@@ -18,43 +20,43 @@ namespace KAS {
 /// <summary>Module that draws a pipe between two nodes.</summary>
 /// <remarks>
 /// Usually, the renderer is started or stopped by a link source. However, it can be any module.  
-/// <para>
+/// <p>
 /// At each end of the pipe a model can be drawn to make the connection look nicer, it's
 /// configured separately for the pipe source and target. If nothing is configured, then the pipe
 /// (which is a cylinder mesh) simply touches the attach nodes of the parts. If the pipe diameter
 /// is big, then it may look bad since the edges of the cylinder won't mix nicely with the part
 /// meshes.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// One way to improve appearance is adding a sphere mesh of the same or bigger diameter at the
 /// location where pipe touches the part. This way the cylinder edges will "sink" in the spheres.
 /// The sphere diameter can be set via <c>sphereDiameter</c> setting.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// By default, the sphere is placed at the part's mesh (depending on how the part's attach node
 /// is configured, actually). If it needs to be offset above or below of the default position, the
 /// <c>sphereOffset</c> setting can be used.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// If the sphere is offset above the part's mesh, there may be desirable to simulate a small
 /// piece of pipe between the part's mesh and the sphere. This can be done by defining pipe diameter
 /// via <c>armDiameter</c>.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Finally, a complete prefab model can be inserted! This model will be inserted between the part
 /// and the sphere. The model path is defined via <c>model</c> setting. To properly orient the
 /// model, two extra parameters are needed: <c>modelPartAttachAt</c>, which defines how the model
 /// attaches to the part; and <c>modelPipeAttachAt</c>, which defines where the pipe attaches to the
 /// model. If sphere or offsets were set, they will be counter relative to <c>modelPipeAttachAt</c>. 
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Normally, the pipe models are shown and hidden depending on the state the pipe. However, it's
 /// possible to define a static position where the model(s) will be placed when the renderer is
 /// stopped. This is done via setting <c>parkAttachAt</c>.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
+/// </p>
 /// <list type="bullet">
 /// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
 /// <item><c>StdPersistentGroups.PartPersistant</c></item>
@@ -311,6 +313,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
   }
 
   /// <inheritdoc/>
+  public override void OnStart(StartState state) {
+    base.OnAwake();
+    RegisterGameEventListener(GameEvents.onVesselWasModified, VesselModifiedGameEvent);
+  }
+
+  /// <inheritdoc/>
   public override void OnDestroy() {
     base.OnDestroy();
     if (isStarted) {
@@ -332,6 +340,12 @@ public class KASRendererPipe : AbstractPipeRenderer,
     UpdateJointNode(sourceJointNode, sourceTransform);
     UpdateJointNode(targetJointNode, targetTransform);
 
+    // Update highlighters on the newly created/moved objects.
+    AsyncCall.CallOnEndOfFrame(this, () => {
+      PartModel.UpdateHighlighters(part, exclude: sourceTransform);
+      PartModel.UpdateHighlighters(targetPart, exclude: targetTransform);
+    });
+
     // Have the overrides applied if any.
     UpdateMaterialOverrides();
     UpdateColliderOverrides();
@@ -340,7 +354,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
   /// <inheritdoc/>
   protected override void DestroyPipeMesh() {
     if (pipeTransform != null) {
-      UnityEngine.Object.Destroy(pipeTransform.gameObject);
+      Destroy(pipeTransform.gameObject);
     }
     pipeTransform = null;
     pipeMeshRenderer = null;
@@ -350,6 +364,10 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (targetJointNode != null && targetTransform != null) {
       UpdateJointNode(targetJointNode, null);
     }
+
+    // Update highlighters on the deleted/moved objects.
+    PartModel.UpdateHighlighters(part);
+    PartModel.UpdateHighlighters(targetPart);
   }
 
   /// <inheritdoc/>
@@ -460,15 +478,15 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var sphere = node.pipeAttach.Find(sphereName);
     if (config.sphereDiameter > float.Epsilon && makeProceduralModels) {
       if (sphere == null) {
-        sphere = Meshes2.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
-                                      colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        sphere = Meshes.CreateSphere(config.sphereDiameter, pipeMaterial, node.pipeAttach,
+                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
         sphere.name = sphereName;
         sphere.rotation = Quaternion.LookRotation(node.partAttach.up, node.partAttach.forward);
       }
       sphere.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
       RescalePipeTexture(sphere, sphere.localScale.z * config.sphereDiameter * 2.0f);
     } else if (sphere != null) {
-      Hierarchy2.SafeDestroy(sphere);
+      Hierarchy.SafeDestroy(sphere);
     }
 
     // Parking position, if defined.
@@ -482,7 +500,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
                              newPosition: config.parkAttachAt.pos,
                              newRotation: config.parkAttachAt.rot);
     } else if (parkAttach != null) {
-      Hierarchy2.SafeDestroy(parkAttach);
+      Hierarchy.SafeDestroy(parkAttach);
     }
 
     // Place prefab between the part and the pipe if specified.
@@ -515,9 +533,9 @@ public class KASRendererPipe : AbstractPipeRenderer,
     if (config.armDiameter > float.Epsilon && config.sphereOffset > float.Epsilon
         && makeProceduralModels) {
       if (arm == null) {
-        arm = Meshes2.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
-                                     node.pipeAttach,
-                                     colliderType: Colliders.PrimitiveCollider.Shape).transform;
+        arm = Meshes.CreateCylinder(config.armDiameter, config.sphereOffset, pipeMaterial,
+                                    node.pipeAttach,
+                                    colliderType: Colliders.PrimitiveCollider.Shape).transform;
         arm.name = armName;
       }
       arm.GetComponent<Renderer>().sharedMaterial = pipeMaterial;  // For performance.
@@ -526,7 +544,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
       armTransform.localRotation = Quaternion.LookRotation(Vector3.forward);
       RescalePipeTexture(armTransform, arm.localScale.z * config.sphereOffset);
     } else if (arm != null) {
-      Hierarchy2.SafeDestroy(arm);
+      Hierarchy.SafeDestroy(arm);
     }
 
     // Adjust to the new target.
@@ -543,7 +561,7 @@ public class KASRendererPipe : AbstractPipeRenderer,
     var colliderType = pipeColliderIsPhysical
         ? Colliders.PrimitiveCollider.Shape
         : Colliders.PrimitiveCollider.None;
-    pipeTransform = Meshes2.CreateCylinder(
+    pipeTransform = Meshes.CreateCylinder(
         pipeDiameter, 1.0f, pipeMaterial, sourceTransform, colliderType: colliderType).transform;
     pipeTransform.GetComponent<Renderer>().sharedMaterial = pipeMaterial;
     pipeMeshRenderer = pipeTransform.GetComponent<Renderer>();  // To speedup OnUpdate() handling.
@@ -613,6 +631,25 @@ public class KASRendererPipe : AbstractPipeRenderer,
       var nrmScale = material.GetTextureScale(propName);
       material.SetTextureScale(propName, new Vector2(nrmScale.x, newScale));
     });
+  }
+  #endregion
+
+  #region Local utility methods
+  void VesselModifiedGameEvent(Vessel v) {
+    if (v == vessel && isStarted) {
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (isStarted) {
+          PartModel.UpdateHighlighters(part, exclude: sourceTransform);
+        }
+      });
+    }
+    if (targetPart != null && v == targetPart.vessel) {
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (targetPart != null) {
+          PartModel.UpdateHighlighters(targetPart, exclude: targetTransform);
+        }
+      });
+    }
   }
   #endregion
 }

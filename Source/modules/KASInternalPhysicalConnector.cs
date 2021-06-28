@@ -14,7 +14,7 @@ namespace KAS {
 /// <remarks>
 /// <para>
 /// This is an <i>internal</i> module. It must not be instantiated or accessed outside of the KAS
-/// mod. The module must only be created thru the factory method.
+/// mod. The module must only be created through the factory method.
 /// </para>
 /// <para>
 /// The promoted object becomes independent from the creator. When the module is destroyed, its
@@ -25,7 +25,7 @@ namespace KAS {
 /// <seealso cref="Promote"/>
 /// <seealso cref="Demote"/>
 // ReSharper disable once InconsistentNaming
-internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
+sealed class KASInternalPhysicalConnector : MonoBehaviour {
   #region Factory methods (static)
   /// <summary>Promotes the specified object into a physical connector object.</summary>
   /// <remarks>
@@ -35,6 +35,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   /// <param name="ownerModule">The part's module which will control the connector.</param>
   /// <param name="obj">The object to be promoted.</param>
   /// <param name = "interactionDistance"></param>
+  /// <returns>The <c>KASInternalPhysicalConnector</c> module that was created and added to the object.</returns>
   public static KASInternalPhysicalConnector Promote(
       PartModule ownerModule, GameObject obj, float interactionDistance = 0) {
     var connectorRb = obj.GetComponent<Rigidbody>() ?? obj.AddComponent<Rigidbody>();
@@ -42,8 +43,6 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
     connectorRb.isKinematic = ownerModule.part.packed;
     connectorRb.velocity = ownerModule.part.rb.velocity;
     connectorRb.angularVelocity = ownerModule.part.rb.angularVelocity;
-    connectorRb.ResetInertiaTensor();
-    connectorRb.ResetCenterOfMass();
     var connectorModule = obj.AddComponent<KASInternalPhysicalConnector>();
     connectorModule.ownerModule = ownerModule;
 
@@ -51,8 +50,7 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
     if (interactionDistance > 0) {
       // This mesh is placed on a special layer which is not rendered in the game. It's only
       // used to detect the special zones triggers, so keep it simple.
-      var interactionTriggerObj = Meshes2.CreatePrimitive(
-          PrimitiveType.Cube, Vector3.one, null, obj.transform);
+      var interactionTriggerObj = Meshes.CreatePrimitive(PrimitiveType.Cube, Vector3.one, null, obj.transform);
       interactionTriggerObj.name = InteractionAreaCollider;
       var collider = interactionTriggerObj.AddComponent<SphereCollider>();
       collider.isTrigger = true;
@@ -145,8 +143,6 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
     var connectorObj = connectorRb.gameObject;
     var oldParent = connectorObj.transform.parent;
     connectorObj.transform.parent = null;
-    PartModel.UpdateHighlighters(oldParent);
-    PartModel.UpdateHighlighters(connectorObj.transform);
     if (connectorRb.isKinematic) {
       // The kinematic RB must be parented, or else it's considered static.
       connectorRb.transform.parent = ownerModule.gameObject.transform;
@@ -163,7 +159,8 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
   }
 
   void FixedUpdate() {
-    if (connectorRb != null && ownerModule != null && !connectorRb.isKinematic) {
+    // Vessel can be NULL for the EVA dragged parts.
+    if (connectorRb != null && ownerModule != null && ownerModule.vessel != null && !connectorRb.isKinematic) {
       KASAPI.PhysicsUtils.ApplyGravity(connectorRb, ownerModule.vessel);
     }
   }
@@ -182,8 +179,6 @@ internal sealed class KASInternalPhysicalConnector : MonoBehaviour {
       // Bring the model back to the part or to the new host.
       var oldParent = gameObject.transform.parent;
       gameObject.transform.parent = Hierarchy.GetPartModelTransform(ownerModule.part);
-      PartModel.UpdateHighlighters(oldParent);
-      PartModel.UpdateHighlighters(ownerModule.part);
     }
     if (destroyImmediate) {
       DestroyImmediate(connectorRb);

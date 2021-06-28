@@ -16,12 +16,12 @@
 // Name of the namespace denotes the API version.
 namespace KASAPIv2 {
 
-/// <summary>KAS API, version 1.</summary>
+/// <summary>KAS API, version 2.</summary>
 public static class KASAPI {
-  /// <summary>Tells if API V1 was loaded and ready to use.</summary>
+  /// <summary>Tells if API was loaded and ready to use.</summary>
   public static bool isLoaded;
 
-  /// <summary>KAS joints untils.</summary>
+  /// <summary>KAS joints utils.</summary>
   public static IJointUtils JointUtils;
 
   /// <summary>KAS attach nodes utils.</summary>

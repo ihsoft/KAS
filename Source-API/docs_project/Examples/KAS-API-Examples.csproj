@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <SourceAnalysisOverrideSettingsFile>C:\Users\IH\AppData\Roaming\ICSharpCode\SharpDevelop5\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -48,6 +49,12 @@
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
     <StartAction>Project</StartAction>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="ICommonConfig-Examples.cs" />
     <Compile Include="IKasEvents-Examples.cs" />
@@ -66,8 +73,8 @@
     <Reference Include="KAS-API-v2">
       <HintPath>..\..\..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.4, Version=2.4.7504.27510, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\Binaries\KSPDev_Utils.2.4.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.6-KAS, Version=2.6.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Binaries\KSPDev_Utils.2.6-KAS.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>

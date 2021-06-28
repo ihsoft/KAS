@@ -5,6 +5,7 @@
 using KASAPIv2;
 using KSPDev.LogUtils;
 using System.Linq;
+using UnityEngine;
 
 // ReSharper disable once CheckNamespace
 namespace KASImpl {
@@ -54,20 +55,17 @@ class LinkUtilsImpl : ILinkUtils {
   }
 
   /// <inheritdoc/>
-  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode,
-                          bool toDominantVessel = false) {
+  public Part CoupleParts(AttachNode sourceNode, AttachNode targetNode, bool toDominantVessel = false) {
     if (toDominantVessel) {
-      var dominantVessel =
-          Vessel.GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
+      var dominantVessel = GetDominantVessel(sourceNode.owner.vessel, targetNode.owner.vessel);
       if (dominantVessel != targetNode.owner.vessel) {
         var tmp = sourceNode;
         sourceNode = targetNode;
         targetNode = tmp;
       }
     }
-    DebugEx.Fine("Couple {0} to {1}",
-                 KASAPI.AttachNodesUtils.NodeId(sourceNode),
-                 KASAPI.AttachNodesUtils.NodeId(targetNode));
+    DebugEx.Fine(
+        "Couple {0} to {1}", KASAPI.AttachNodesUtils.NodeId(sourceNode), KASAPI.AttachNodesUtils.NodeId(targetNode));
     var srcPart = sourceNode.owner;
     var srcVessel = srcPart.vessel;
     KASAPI.AttachNodesUtils.AddNode(srcPart, sourceNode);
@@ -79,6 +77,22 @@ class LinkUtilsImpl : ILinkUtils {
     targetNode.attachedPart = srcPart;
     targetNode.attachedPartId = srcPart.flightID;
     tgtPart.attachMode = AttachModes.STACK;
+
+    // In KPS 1.11 the landed vessels are anchored to the surface with a constantly renewable fixed joint.
+    // When it breaks (and it breaks on every fixed frame), the game recognizes this as a detachment of the connected
+    // part from the vessel's root. Once coupled, the source's anchor makes no sense and interferes with the KAS logic.
+    if (srcPart.vessel.IsAnchored) {
+      DebugEx.Info("Reset RB anchor on vessel: {0}", srcPart.vessel.vesselName);
+      srcPart.vessel.ResetRBAnchor();
+      // The reset method only requests destroying. The joint still can emit a break event on the next physical frame.
+      var rbAnchor = srcPart.vessel.rootPart.GetComponents<FixedJoint>().FirstOrDefault(j => j.connectedBody == null);
+      if (rbAnchor != null) {
+        Object.DestroyImmediate(rbAnchor);
+      } else {
+        DebugEx.Error("Cannot find the anchor joint on vessel: {0}", srcPart.vessel.vesselName);
+      }
+    }
+
     srcPart.Couple(tgtPart);
     // Depending on how active vessel has updated do either force active or make active. Note, that
     // active vessel can be EVA kerbal, in which case nothing needs to be adjusted.    
@@ -112,8 +126,9 @@ class LinkUtilsImpl : ILinkUtils {
       DebugEx.Warning("Cannot decouple {0} <=> {1} - not coupled!", part1, part2);
       return null;
     }
+    var parentPart = partToDecouple.parent;
 
-    if (vesselInfo != null) {
+    if (partToDecouple.vessel != null && vesselInfo != null) {
       // Simulate the IActivateOnDecouple behaviour since Undock() doesn't do it.
       var srcAttachNode = partToDecouple.FindAttachNodeByPart(partToDecouple.parent);
       if (srcAttachNode != null) {
@@ -134,14 +149,63 @@ class LinkUtilsImpl : ILinkUtils {
       vesselInfo.Save(vesselInfoCfg);
       DebugEx.Fine("Restore vessel info:\n{0}", vesselInfoCfg);
       partToDecouple.Undock(vesselInfo);
+    } else if (partToDecouple.vessel == null) {
+      // During the EVA construction mode the parts can have no vessel.
+      DebugEx.Fine("EVA construction mode detected. Skip decoupling.");
     } else {
       // Do simple decouple event which will screw the decoupled vessel root part.
       DebugEx.Warning("No vessel info found! Just decoupling");
       partToDecouple.decouple();
     }
-    part1.vessel.CycleAllAutoStrut();
-    part2.vessel.CycleAllAutoStrut();
+
+    // KSP sometimes fails to restore the physic state of the decoupled parts. Fix it here. No guarantees, though.
+    foreach (var rb in partToDecouple.GetComponentsInChildren<Rigidbody>()) {
+      if (rb.isKinematic) {
+        DebugEx.Warning("KSP ISSUE WORKAROUND: Make rigidbody physical: part={0}, rb={1}",
+                        partToDecouple, DbgFormatter.TranformPath(rb.gameObject));
+        rb.isKinematic = false;
+        rb.velocity = parentPart.rb.velocity;
+        rb.angularVelocity = parentPart.rb.angularVelocity;
+      }
+    }
+
+    if (part1.vessel != null) {
+      part1.vessel.CycleAllAutoStrut();
+      if (vesselInfo1 != null) {
+        part1.vessel.vesselName = vesselInfo1.name;
+        part1.vessel.vesselType = vesselInfo1.vesselType;
+      }
+    }
+    if (part2.vessel != null) {
+      part2.vessel.CycleAllAutoStrut();
+      if (vesselInfo2 != null) {
+        part2.vessel.vesselName = vesselInfo2.name;
+        part2.vessel.vesselType = vesselInfo2.vesselType;
+      }
+    }
     return partToDecouple;
+  }
+
+  /// <summary>Finds which of the two vessels is more important.</summary>
+  /// <remarks>Used in the linking operations to figure which vessel should be the parent.</remarks>
+  /// <param name="v1">The first vessel.</param>
+  /// <param name="v2">The second vessel.</param>
+  /// <returns>The vessel that is recognized as the most important.</returns>
+  public static Vessel GetDominantVessel(Vessel v1, Vessel v2) {
+    var type1 = v1.vesselType <= VesselType.Base ? v1.vesselType : VesselType.Debris;
+    var type2 = v2.vesselType <= VesselType.Base ? v2.vesselType : VesselType.Debris;
+    if (type1 > type2) {
+      return v1;
+    }
+    if (type2 > type1) {
+      return v2;
+    }
+    var totalMass1 = v1.GetTotalMass();
+    var totalMass2 = v2.GetTotalMass();
+    if (Mathf.Abs(totalMass1 - totalMass2) < float.Epsilon) {
+      return v1.id.CompareTo(v2.id) <= 0 ? v2 : v1;  // For stable result.
+    }
+    return totalMass1 > totalMass2 ? v1 : v2;
   }
 }
 

@@ -60,11 +60,11 @@
         <member name="P:KASAPIv2.IKasEvents.OnLinkCreated">
             <summary>Triggers when a link between two parts has been successfully established.</summary>
             <remarks>
-            <para>The argument of the callback is a KAS event object that describes the link.</para>
-            <para>
+            <p>The argument of the callback is a KAS event object that describes the link.</p>
+            <p>
             Consider using <see cref="M:KASAPIv2.ILinkStateEventListener.OnKASLinkedState(KASAPIv2.IKasLinkEvent,System.Boolean)"/> when this state change
             is needed in scope of just one part.
-            </para>
+            </p>
             </remarks>
             <value>Collection to add or remove a callback.</value>
             <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
@@ -72,11 +72,11 @@
         <member name="P:KASAPIv2.IKasEvents.OnLinkBroken">
             <summary>Triggers when a link between two parts has been broken.</summary>
             <remarks>
-            <para>The argument of the callback is a KAS event object that describes the link.</para>
-            <para>
+            <p>The argument of the callback is a KAS event object that describes the link.</p>
+            <p>
             Consider using <see cref="M:KASAPIv2.ILinkStateEventListener.OnKASLinkedState(KASAPIv2.IKasLinkEvent,System.Boolean)"/> when this state change
             is needed in scope of just one part.
-            </para>
+            </p>
             </remarks>
             <value>Collection to add or remove a callback.</value>
             <example><code source="Examples/IKasEvents-Examples.cs" region="KasEventsExample1"/></example>
@@ -114,7 +114,7 @@
         </member>
         <member name="P:KASAPIv2.IKasLinkEvent.actor">
             <summary>Actor who changed the links tate.</summary>
-            <value>The actor type that initated the action.</value>
+            <value>The actor type that initiated the action.</value>
         </member>
         <member name="T:KASAPIv2.ILinkPeer">
             <summary>Base interface for an end of the link.</summary>
@@ -142,10 +142,10 @@
             <summary>Name of the attach node on the part.</summary>
             <value>Arbitrary string. It cannot be empty.</value>
             <remarks>
-            Every link peer is bound to an attach node thru which the link is made (including the coupling
+            Every link peer is bound to an attach node through which the link is made (including the coupling
             operations). Several peer modules can share the same node, but in case of any of the modules
             has made a link, the other dependents will go into the <see cref="F:KASAPIv2.LinkState.Locked"/> state.
-            I.e. only one link can be made thru one attach node.
+            I.e. only one link can be made through one attach node.
             </remarks>
         </member>
         <member name="P:KASAPIv2.ILinkPeer.cfgDependentNodeNames">
@@ -154,18 +154,18 @@
             with.
             </summary>
             <remarks>
-            <para>
+            <p>
             The module will track the nodes and will adjust its state as those nodes were owned by the
             module. However, this module will never change the mode of those nodes. This can be used to
             lock or block the peer modules that control the different primary nodes, but need to cooperate
             with the other similar modules on the part. This setting allows defining a group of peer
             modules which only allow linking of a single module at the time.
-            </para>
-            <para>
+            </p>
+            <p>
             Note, that the part's <see cref="P:KASAPIv2.ILinkPeer.cfgAttachNodeName"/> is <i>not</i> present in this list by
             default. The implementation should explicitly check for the primary node, or the config must
             take care of it.
-            </para>
+            </p>
             </remarks>
             <value>The list of the node names. It's never <c>null</c>.</value>
         </member>
@@ -218,7 +218,7 @@
             <value>The attach node. It's never <c>null</c>.</value>
         </member>
         <member name="P:KASAPIv2.ILinkPeer.isLinked">
-            <summary>Tells if this peer is currectly linked to another peer.</summary>
+            <summary>Tells if this peer is currently linked to another peer.</summary>
             <value>The current state of the link.</value>
             <seealso cref="P:KASAPIv2.ILinkPeer.linkState"/>
         </member>
@@ -246,213 +246,28 @@
         </member>
         <member name="T:KASAPIv2.ILinkCableJoint">
             <summary>
-            Interface for a physical cable link. Such links keep the dsitance between the object below the
-            maximum, but don't restict any other movements of the objects relative to each other.
+            Interface for a physical cable link. Such links keep the distance between the object below the
+            maximum, but don't restrict any other movements of the objects relative to each other.
             </summary>
             <remarks>
-            <para>
+            <p>
             The specifics of this module is that the distance between the linked parts becomes variable.
             Once the link is created, the distance limit is set to the actual distance between the source
             and target. This limit won't allow the objects to separate too far from each other, but the
             objects will be allowed to come closer. The code can adjust the limit once the joint is
             created.
-            </para>
-            <para>
+            </p>
+            <p>
             Due to the specifics of handling this kind of joints in PhysX, the real distance between the
             objects <i>can</i> become greater than the distance limit. In fact, if there are forces that try
             to separate the objects, then the actual distance will always be a bit more than the limit. Do
             not expect this difference to have any meaning, it depends on the PhysX engine and can be
             anything.
-            </para>
+            </p>
             </remarks>
             <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
             <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength"/>
             <seealso cref="M:KASAPIv2.ILinkCableJoint.SetCableLength(System.Single)"/>
-        </member>
-        <member name="T:KASAPIv2.ILinkJoint">
-            <summary>Base interface for a KAS joint.</summary>
-            <remarks>
-            <para>
-            Every KAS part <b>must</b> have a joint module that controls how the KAS joints are maintained.
-            </para>
-            <para>
-            This interface is primarily designed for use form the <see cref="T:KASAPIv2.ILinkSource"/> implementations.
-            A third-party code must not interact with it directly.
-            </para>
-            </remarks>
-        </member>
-        <member name="M:KASAPIv2.ILinkJoint.CreateJoint(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)">
-            <summary>Sets up a physical joint between the source and target.</summary>
-            <remarks>
-            <para>
-            This method can be called either to establish a new joint or to restore an existing link on
-            load.
-            </para>
-            <para>
-            This method will call the <see cref="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/> method to ensure there are no errors.
-            If there are some, then the link is not created and the errors are reported to the logs.
-            </para>
-            </remarks>
-            <returns><c>true</c> if joint was successfully created or updated.</returns>
-            <param name="source">The link's source. This part owns the joint module.</param>
-            <param name="target">The link's target.</param>
-            <seealso cref="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/>
-            <seealso cref="T:KASAPIv2.ILinkSource"/>
-            <seealso cref="T:KASAPIv2.ILinkTarget"/>
-            <seealso cref="M:KASAPIv2.ILinkJoint.DropJoint"/>
-            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
-        </member>
-        <member name="M:KASAPIv2.ILinkJoint.DropJoint">
-            <summary>Destroys a physical link between the source and the target.</summary>
-            <remarks>
-            This is a cleanup method. It must be safe to execute in any joint state, and should not throw
-            any errors. E.g. it may get called when the part's state is incomplete.
-            </remarks>
-            <seealso cref="M:KASAPIv2.ILinkJoint.CreateJoint(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/>
-        </member>
-        <member name="M:KASAPIv2.ILinkJoint.AdjustJoint(System.Boolean)">
-            <summary>Requests the joint to become unbreakable or normal.</summary>
-            <remarks>
-            Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
-            moment. In unbreakable state joint must behave as a hard connection that cannot be changed or
-            destructed by any force.</remarks>
-            <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
-        </member>
-        <member name="M:KASAPIv2.ILinkJoint.SetCoupleOnLinkMode(System.Boolean)">
-            <summary>Changes the current parts couple mode.</summary>
-            <remarks>
-            <para>
-            When both the source and the target peers support coupling, this mode can be arbitrary set or
-            reset via the joint module. If the new mode is "coupling", and the source and the target
-            vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
-            and the source and the target parts are coupled, then a decoupling event is triggered. In all
-            the other cases it's just a boolean property change.
-            </para>
-            <para>
-            The modules must support the cycles and be ready to pick up the coupling role when the former
-            part has gave up.
-            </para>
-            </remarks>
-            <param name="isCoupleOnLink">The new settings of the mode.</param>
-            <returns>
-            <c>true</c> if the new mode has been accepted. The change may be refused for any reason by the
-            implementation, and the caller must react accordingly.
-            </returns>
-            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
-            <seealso cref="P:KASAPIv2.ILinkPeer.coupleNode"/>
-        </member>
-        <member name="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)">
-            <summary>Checks if the joint constraints allow the link to be established.</summary>
-            <param name="source">The possible source of the link.</param>
-            <param name="target">The possible target of the link.</param>
-            <returns>
-            An empty array if the link can be created, or a list of user friendly errors otherwise.
-            </returns>
-            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
-        </member>
-        <member name="P:KASAPIv2.ILinkJoint.cfgJointName">
-            <summary>Identifier of the joint on the part.</summary>
-            <remarks>It's unique in scope of the part.</remarks>
-            <value>An arbitary string that identifies this joint.</value>
-        </member>
-        <member name="P:KASAPIv2.ILinkJoint.coupleOnLinkMode">
-            <summary>Tells the current coupling mode.</summary>
-            <remarks>
-            Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled thru
-            this specific joint module. It only means that the parts, linked via this joint, are
-            guaranteed to belong to the same vessel, but the coupling can actually be done thru the other
-            parts.
-            </remarks>
-            <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
-            <seealso cref="M:KASAPIv2.ILinkJoint.SetCoupleOnLinkMode(System.Boolean)"/>
-        </member>
-        <member name="P:KASAPIv2.ILinkJoint.isLinked">
-            <summary>Tells if there is a physical joint created.</summary>
-            <value><c>true</c> if the source and target parts are physically linked.</value>
-        </member>
-        <member name="P:KASAPIv2.ILinkJoint.linkSource">
-            <summary>Tells the current link source.</summary>
-            <value>The link's source or <c>null</c> if the link is not established.</value>
-        </member>
-        <member name="P:KASAPIv2.ILinkJoint.linkTarget">
-            <summary>Tells the current link target.</summary>
-            <value>The link's target or <c>null</c> if the link is not established.</value>
-        </member>
-        <member name="M:KASAPIv2.ILinkCableJoint.StartPhysicalHead(KASAPIv2.ILinkSource,UnityEngine.Transform)">
-            <summary>
-            Attaches the specified object to the source and starts the environmental forces on it.  
-            </summary>
-            <remarks>
-            The cable maximum length will be set to the actual distance between the source and the head.
-            </remarks>
-            <param name="source">The source object that owns the head.</param>
-            <param name="headObjAnchor">
-            The transform at the head object to attach the cable to. It's also used as a starting point
-            to find the rigidbody.
-            </param>
-            <seealso cref="M:KASAPIv2.ILinkCableJoint.StopPhysicalHead"/>
-            <seealso cref="T:KASAPIv2.ILinkSource"/>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength"/>
-            <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
-            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
-        </member>
-        <member name="M:KASAPIv2.ILinkCableJoint.StopPhysicalHead">
-            <summary>Stops handling the physical head.</summary>
-            <remarks>
-            It must not be called from the physics update methods (e.g. <c>FixedUpdate</c> or
-            <c>OnJointBreak</c>) since the link's physical objects may be deleted immediately. If the link
-            needs to be broken from these methods, use a coroutine to postpone the call till the end of
-            the frame.
-            </remarks>
-            <seealso cref="M:KASAPIv2.ILinkCableJoint.StartPhysicalHead(KASAPIv2.ILinkSource,UnityEngine.Transform)"/>
-        </member>
-        <member name="M:KASAPIv2.ILinkCableJoint.SetCableLength(System.Single)">
-            <summary>
-            Sets the maximum possible distance between the source and the head/target physical anchors.
-            </summary>
-            <remarks>
-            <para>
-            Setting the new length may trigger the physical effects if the value is less than the real
-            cable length, since it will force the engine to pull the objects together. Don't reduce the
-            length too rapidly to avoid the strong forces applied.
-            </para>
-            <para>
-            Calling for this method doesn't have any effect if the PhysX joint is not created. When a
-            brand new joint is created, it always has the distance limit set to the actual distance
-            between the physical objects. I.e. this method must be called <i>after</i> the physical joint
-            is created.
-            </para>
-            </remarks>
-            <param name="length">
-            The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
-            within the limits, then it's rounded to the closest boundary. Also, there are special values:
-            <list type="bullet">
-            <item>
-            <c>PositiveInfinity</c>. Set the length to the maximum possible value, configured via
-            <see cref="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength"/>.
-            </item>
-            <item>
-            <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
-            less than the current limit. When the real distance is greater than the limit, it means the
-            cable is under a strain due to the physical forces, and nothing will be changed to not trigger
-            extra effects.
-            </item>
-            </list>
-            </param>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength"/>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength"/>
-        </member>
-        <member name="M:KASAPIv2.ILinkCableJoint.SetLockedOnCouple(System.Boolean)">
-            <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
-            <remarks>
-            If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
-            affect the joint. If the part were coupled at the momemnt, then the joint is recreated
-            according to the new setting.
-            </remarks>
-            <param name="mode">The new mode.</param>
-            <seealso cref="P:KASAPIv2.ILinkCableJoint.isLockedWhenCoupled"/>
         </member>
         <member name="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength">
             <summary>Maximum allowed distance between the parts to establish a link.</summary>
@@ -460,7 +275,7 @@
         </member>
         <member name="P:KASAPIv2.ILinkCableJoint.headRb">
             <summary>Rigidbody of the physical cable head.</summary>
-            <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
+            <value>The rigidbody object, or <c>null</c> if there is no physical head started.</value>
             <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
         </member>
         <member name="P:KASAPIv2.ILinkCableJoint.deployedCableLength">
@@ -500,11 +315,196 @@
             <remarks>
             This mode only has effect when the parts are coupled. Basically, when the locked mode is
             <c>true</c>, the stock joint between the parts is preserved. When the mode is <c>false</c>,
-            the stiock joint is destroyed and repalced by a PhysX distant joint.
+            the stock joint is destroyed and replaced by a PhysX distant joint.
             </remarks>
             <value><c>true</c> if the joint is rigid.</value>
             <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
             <seealso cref="M:KASAPIv2.ILinkCableJoint.SetLockedOnCouple(System.Boolean)"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkCableJoint.StartPhysicalHead(KASAPIv2.ILinkSource,UnityEngine.Transform)">
+            <summary>Attaches the source to the specified physical object (a connector head).</summary>
+            <remarks>
+            The cable maximum length will be set to the actual distance between the source and the physical object. Note, that
+            this method must not be used to create a regular link between the source and target.
+            </remarks>
+            <param name="source">The source object that owns the head.</param>
+            <param name="headObjAnchor">
+            The transform at the head object to attach the cable to. It's also used as a starting point
+            to find the rigidbody.
+            </param>
+            <seealso cref="M:KASAPIv2.ILinkCableJoint.StopPhysicalHead" />
+            <seealso cref="T:KASAPIv2.ILinkSource" />
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength" />
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength" />
+            <seealso href="https://docs.unity3d.com/ScriptReference/Rigidbody.html">Untiy3D: Rigidbody</seealso>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
+            FIXME: rename
+        </member>
+        <member name="M:KASAPIv2.ILinkCableJoint.StopPhysicalHead">
+            <summary>Stops handling the physical head.</summary>
+            <remarks>
+            It must not be called from the physics update methods (e.g. <c>FixedUpdate</c> or
+            <c>OnJointBreak</c>) since the link's physical objects may be deleted immediately. If the link
+            needs to be broken from these methods, use a coroutine to postpone the call till the end of
+            the frame.
+            </remarks>
+            <seealso cref="M:KASAPIv2.ILinkCableJoint.StartPhysicalHead(KASAPIv2.ILinkSource,UnityEngine.Transform)"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkCableJoint.SetCableLength(System.Single)">
+            <summary>
+            Sets the maximum possible distance between the source and the head/target physical anchors.
+            </summary>
+            <remarks>
+            <p>
+            Setting the new length may trigger the physical effects if the value is less than the real
+            cable length, since it will force the engine to pull the objects together. Don't reduce the
+            length too rapidly to avoid the strong forces applied.
+            </p>
+            <p>
+            Calling for this method doesn't have any effect if the PhysX joint is not created. When a
+            brand new joint is created, it always has the distance limit set to the actual distance
+            between the physical objects. I.e. this method must be called <i>after</i> the physical joint
+            is created.
+            </p>
+            </remarks>
+            <param name="length">
+            The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
+            within the limits, then it's rounded to the closest boundary. Also, there are special values:
+            <list type="bullet">
+            <item>
+            <c>PositiveInfinity</c>. Set the length to the maximum possible value, configured via
+            <see cref="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength"/>.
+            </item>
+            <item>
+            <c>NegativeInfinity</c>. Set the limit to the real distance, but only if the real distance is
+            less than the current limit. When the real distance is greater than the limit, it means the
+            cable is under a strain due to the physical forces, and nothing will be changed to not trigger
+            extra effects.
+            </item>
+            </list>
+            </param>
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.cfgMaxCableLength"/>
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.deployedCableLength"/>
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.realCableLength"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkCableJoint.SetLockedOnCouple(System.Boolean)">
+            <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
+            <remarks>
+            If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
+            affect the joint. If the part were coupled at the moment, then the joint is recreated
+            according to the new setting.
+            </remarks>
+            <param name="mode">The new mode.</param>
+            <seealso cref="P:KASAPIv2.ILinkCableJoint.isLockedWhenCoupled"/>
+        </member>
+        <member name="T:KASAPIv2.ILinkJoint">
+            <summary>Base interface for a KAS joint.</summary>
+            <remarks>
+            <p>
+            Every KAS part <b>must</b> have a joint module that controls how the KAS joints are maintained.
+            </p>
+            <p>
+            This interface is primarily designed for use form the <see cref="T:KASAPIv2.ILinkSource"/> implementations.
+            A third-party code must not interact with it directly.
+            </p>
+            </remarks>
+        </member>
+        <member name="P:KASAPIv2.ILinkJoint.cfgJointName">
+            <summary>Identifier of the joint on the part.</summary>
+            <remarks>It's unique in scope of the part.</remarks>
+            <value>An arbitrary string that identifies this joint.</value>
+        </member>
+        <member name="P:KASAPIv2.ILinkJoint.coupleOnLinkMode">
+            <summary>Tells the current coupling mode.</summary>
+            <remarks>
+            Note, that if this mode set to <c>true</c>, it doesn't mean that the parts are coupled through
+            this specific joint module. It only means that the parts, linked via this joint, are
+            guaranteed to belong to the same vessel, but the coupling can actually be done through the other
+            parts.
+            </remarks>
+            <value><c>true</c> if the vessels should couple on link (merge them into one).</value>
+            <seealso cref="M:KASAPIv2.ILinkJoint.SetCoupleOnLinkMode(System.Boolean)"/>
+        </member>
+        <member name="P:KASAPIv2.ILinkJoint.isLinked">
+            <summary>Tells if there is a physical joint created.</summary>
+            <value><c>true</c> if the source and target parts are physically linked.</value>
+        </member>
+        <member name="P:KASAPIv2.ILinkJoint.linkSource">
+            <summary>Tells the current link source.</summary>
+            <value>The link's source or <c>null</c> if the link is not established.</value>
+        </member>
+        <member name="P:KASAPIv2.ILinkJoint.linkTarget">
+            <summary>Tells the current link target.</summary>
+            <value>The link's target or <c>null</c> if the link is not established.</value>
+        </member>
+        <member name="M:KASAPIv2.ILinkJoint.CreateJoint(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)">
+            <summary>Sets up a physical joint between the source and target.</summary>
+            <remarks>
+            <p>
+            This method can be called either to establish a new joint or to restore an existing link on
+            load.
+            </p>
+            <p>
+            This method will call the <see cref="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/> method to ensure there are no errors.
+            If there are some, then the link is not created and the errors are reported to the logs.
+            </p>
+            </remarks>
+            <returns><c>true</c> if joint was successfully created or updated.</returns>
+            <param name="source">The link's source. This part owns the joint module.</param>
+            <param name="target">The link's target.</param>
+            <seealso cref="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/>
+            <seealso cref="T:KASAPIv2.ILinkSource"/>
+            <seealso cref="T:KASAPIv2.ILinkTarget"/>
+            <seealso cref="M:KASAPIv2.ILinkJoint.DropJoint"/>
+            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkJoint.DropJoint">
+            <summary>Destroys a physical link between the source and the target.</summary>
+            <remarks>
+            This is a cleanup method. It must be safe to execute in any joint state, and should not throw
+            any errors. E.g. it may get called when the part's state is incomplete.
+            </remarks>
+            <seealso cref="M:KASAPIv2.ILinkJoint.CreateJoint(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkJoint.AdjustJoint(System.Boolean)">
+            <summary>Requests the joint to become unbreakable or normal.</summary>
+            <remarks>
+            Normally, joint is set to unbreakable on time warp, but in general callers may do it at any
+            moment. In unbreakable state joint must behave as a hard connection that cannot be changed or
+            destructed by any force.</remarks>
+            <param name="isUnbreakable">If <c>true</c> then joint must become unbreakable.</param>
+        </member>
+        <member name="M:KASAPIv2.ILinkJoint.SetCoupleOnLinkMode(System.Boolean)">
+            <summary>Changes the current parts couple mode.</summary>
+            <remarks>
+            <p>
+            When both the source and the target peers support coupling, this mode can be arbitrary set or
+            reset via the joint module. If the new mode is "coupling", and the source and the target
+            vessels are different, then a coupling action will trigger. If the new mode is "don't couple",
+            and the source and the target parts are coupled, then a decoupling event is triggered. In all
+            the other cases it's just a boolean property change.
+            </p>
+            <p>
+            The modules must support the cycles and be ready to pick up the coupling role when the former
+            part has gave up.
+            </p>
+            </remarks>
+            <param name="isCoupleOnLink">The new settings of the mode.</param>
+            <returns>
+            <c>true</c> if the new mode has been accepted. The change may be refused for any reason by the
+            implementation, and the caller must react accordingly.
+            </returns>
+            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
+            <seealso cref="P:KASAPIv2.ILinkPeer.coupleNode"/>
+        </member>
+        <member name="M:KASAPIv2.ILinkJoint.CheckConstraints(KASAPIv2.ILinkSource,KASAPIv2.ILinkTarget)">
+            <summary>Checks if the joint constraints allow the link to be established.</summary>
+            <param name="source">The possible source of the link.</param>
+            <param name="target">The possible target of the link.</param>
+            <returns>
+            An empty array if the link can be created, or a list of user friendly errors otherwise.
+            </returns>
+            <seealso href="https://docs.unity3d.com/ScriptReference/Transform.html">Untiy3D: Transform</seealso>
         </member>
         <member name="T:KASAPIv2.ILinkRenderer">
             <summary>
@@ -516,75 +516,9 @@
             the representation if the connecting points have moved (<see cref="M:KASAPIv2.ILinkRenderer.UpdateLink"/>).
             </remarks>
         </member>
-        <member name="M:KASAPIv2.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)">
-            <summary>Starts rendering a link between the objects.</summary>
-            <remarks>
-            <para>
-            This method only indicates that the link is to be drawn between the specified points. The
-            renderer is allowed to draw meshes even when not started. E.g. if there are constant parts of
-            the link like the joint pivots.
-            </para>
-            <para>
-            The ends of the link are not required to be located at the surface of the owning parts. It's
-            up to the renderer to decide how to draw the link.
-            </para>
-            <para>
-            It's OK to call this method multiple times with different or the same source/target arguments:
-            the renderer must accept the values and update accordingly. However, this operation is rated
-            as performance expensive, so the callers are discouraged to invoke this method too frequently
-            (e.g. on every frame update).
-            </para>
-            </remarks>
-            <param name="source">The source node.</param>
-            <param name="target">The target node.</param>
-        </member>
-        <member name="M:KASAPIv2.ILinkRenderer.StopRenderer">
-            <summary>Cancels rendering the link.</summary>
-            <remarks>
-            The stopped renderer is not required to not render anything. The stopped state only tells
-            that the source and the target positions provided to the <see cref="M:KASAPIv2.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)"/> method
-            must not be respresented as connected anymore. A specific renderer implementation is free to
-            choose how to represent this mode.
-            <para>
-            It's OK to call this method multiple time. If the renderer is already stopped the call must be
-            treated as NO-OP with a little or no performance cost.
-            </para>
-            </remarks>
-        </member>
-        <member name="M:KASAPIv2.ILinkRenderer.UpdateLink">
-            <summary>Called when a link representation update is required.</summary>
-            <remarks>
-            It's called on every frame update if the link is started. The performance cost of this method
-            is rated as moderate. The callers should consider optimization techniques to avoid calling
-            this method on the every frame update.
-            <para>
-            A specific renderer implementation may introduce own optimization algorithm when the call
-            becomes too heavy and slow.
-            </para>
-            </remarks>
-        </member>
-        <member name="M:KASAPIv2.ILinkRenderer.CheckColliderHits(UnityEngine.Transform,UnityEngine.Transform)">
-            <summary>Verifies that there are no obstacles beween the points.</summary>
-            <remarks>The renderer is not required to be started for this method to call.</remarks>
-            <param name="source">The source node.</param>
-            <param name="target">The target node.</param>
-            <returns>
-            An empty array if no hits were detected, or a list of user friendly errors otherwise.
-            </returns>
-        </member>
-        <member name="M:KASAPIv2.ILinkRenderer.GetMeshByName(System.String)">
-            <summary>Returns a mesh, created by the renderer.</summary>
-            <remarks>
-            It depends on the implementation which meshes a specific renderer creates. The caller must be
-            aware of which renderer it uses and don't request unknown meshes.
-            </remarks>
-            <param name="meshName">The name of the mesh. It's not required to be the object name!</param>
-            <returns>The object or <c>null</c> if the named mesh is not created.</returns>
-            <exception cref="T:System.ArgumentException">If the mesh cannot be retrieved.</exception>
-        </member>
         <member name="P:KASAPIv2.ILinkRenderer.cfgRendererName">
             <summary>
-            Unique name of the randerer that is used by the other modules to find this renderer.
+            Unique name of the renderer that is used by the other modules to find this renderer.
             </summary>
             <value>Arbitrary string. Can be empty.</value>
         </member>
@@ -603,7 +537,7 @@
             <value>The current state of the collider(s).</value>
             <remarks>
             Setting this property to <c>false</c> disables the link colliders, if there were any. Setting
-            this oroperty to <c>true</c> doesn't make the link physlcal, it only enables the colliders
+            this property to <c>true</c> doesn't make the link physical, it only enables the colliders
             that were already on the link.
             </remarks>
             <seealso href="https://docs.unity3d.com/ScriptReference/Collider.html">
@@ -632,66 +566,136 @@
             <remarks>The value is undefined if the renderer is not started.</remarks>
             <seealso cref="M:KASAPIv2.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)"/>
         </member>
+        <member name="M:KASAPIv2.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)">
+            <summary>Starts rendering a link between the objects.</summary>
+            <remarks>
+            <p>
+            This method only indicates that the link is to be drawn between the specified points. The
+            renderer is allowed to draw meshes even when not started. E.g. if there are constant parts of
+            the link like the joint pivots.
+            </p>
+            <p>
+            The ends of the link are not required to be located at the surface of the owning parts. It's
+            up to the renderer to decide how to draw the link.
+            </p>
+            <p>
+            It's OK to call this method multiple times with different or the same source/target arguments:
+            the renderer must accept the values and update accordingly. However, this operation is rated
+            as performance expensive, so the callers are discouraged to invoke this method too frequently
+            (e.g. on every frame update).
+            </p>
+            </remarks>
+            <param name="source">The source node.</param>
+            <param name="target">The target node.</param>
+        </member>
+        <member name="M:KASAPIv2.ILinkRenderer.StopRenderer">
+            <summary>Cancels rendering the link.</summary>
+            <remarks>
+            <p>
+            The stopped renderer is not required to not render anything. The stopped state only tells
+            that the source and the target positions provided to the <see cref="M:KASAPIv2.ILinkRenderer.StartRenderer(UnityEngine.Transform,UnityEngine.Transform)"/> method
+            must not be represented as connected anymore. A specific renderer implementation is free to
+            choose how to represent this mode.
+            </p>
+            <p>
+            It's OK to call this method multiple time. If the renderer is already stopped the call must be
+            treated as NO-OP with a little or no performance cost.
+            </p>
+            </remarks>
+        </member>
+        <member name="M:KASAPIv2.ILinkRenderer.UpdateLink">
+            <summary>Called when a link representation update is required.</summary>
+            <remarks>
+            <p>
+            It's called on every frame update if the link is started. The performance cost of this method
+            is rated as moderate. The callers should consider optimization techniques to avoid calling
+            this method on the every frame update.
+            </p>
+            <p>
+            A specific renderer implementation may introduce own optimization algorithm when the call
+            becomes too heavy and slow.
+            </p>
+            </remarks>
+        </member>
+        <member name="M:KASAPIv2.ILinkRenderer.CheckColliderHits(UnityEngine.Transform,UnityEngine.Transform)">
+            <summary>Verifies that there are no obstacles between the points.</summary>
+            <remarks>The renderer is not required to be started for this method to call.</remarks>
+            <param name="source">The source node.</param>
+            <param name="target">The target node.</param>
+            <returns>
+            An empty array if no hits were detected, or a list of user friendly errors otherwise.
+            </returns>
+        </member>
+        <member name="M:KASAPIv2.ILinkRenderer.GetMeshByName(System.String)">
+            <summary>Returns a mesh, created by the renderer.</summary>
+            <remarks>
+            It depends on the implementation which meshes a specific renderer creates. The caller must be
+            aware of which renderer it uses and don't request unknown meshes.
+            </remarks>
+            <param name="meshName">The name of the mesh. It's not required to be the object name!</param>
+            <returns>The object or <c>null</c> if the named mesh is not created.</returns>
+            <exception cref="T:System.ArgumentException">If the mesh cannot be retrieved.</exception>
+        </member>
         <member name="T:KASAPIv2.ILinkSource">
             <summary>A generic source of a KAS link between two parts.</summary>
             <remarks>
-            <para>
+            <p>
             Source is the initiator of the link to the another part. It holds all the logic on making and
             maintaining the actual connection between the two parts. The other end of the connection must be
             <see cref="T:KASAPIv2.ILinkTarget"/> which implements its own piece of the logic.
-            </para>
-            <para>
+            </p>
+            <p>
             The link source have a state that defines what it can do (<see cref="P:KASAPIv2.ILinkPeer.linkState"/>).
             Not all actions are allowed in any state. The following state diagram tells what the source
             can do and when:
-            </para>
+            </p>
             <list type="table">
             <listheader>
             <term>Transition</term><description>Action</description>
             </listheader>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Available"/> =&gt; <see cref="F:KASAPIv2.LinkState.Linking"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Available"/> => <see cref="F:KASAPIv2.LinkState.Linking"/></term>
             <description>
             This module has initiated a link via the <see cref="M:KASAPIv2.ILinkSource.StartLinking(KASAPIv2.GUILinkMode,KASAPIv2.LinkActorType)"/> method call.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Available"/> =&gt; <see cref="F:KASAPIv2.LinkState.RejectingLinks"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Available"/> => <see cref="F:KASAPIv2.LinkState.RejectingLinks"/></term>
             <description>
             Some other source module in the world has initiated a link.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Linking"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Linking"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             This module has cancelled the linking mode via the <see cref="M:KASAPIv2.ILinkSource.CancelLinking"/> method call.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Linking"/> =&gt; <see cref="F:KASAPIv2.LinkState.Linked"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Linking"/> => <see cref="F:KASAPIv2.LinkState.Linked"/></term>
             <description>This module has established a link.</description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             Some other module, which initiated a link, has cancelled or completed the linking mode.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Locked"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> => <see cref="F:KASAPIv2.LinkState.Locked"/></term>
             <description>
             Some other module on the same part, which initiated a link, has established a link. I.e. this
             part cannot have more links.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Linked"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Linked"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             This module has broke its link via the <see cref="M:KASAPIv2.ILinkSource.BreakCurrentLink(KASAPIv2.LinkActorType)"/> method call.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Locked"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Locked"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             Some other module on the same part, which was linked, has broke its link via the
             <see cref="M:KASAPIv2.ILinkSource.BreakCurrentLink(KASAPIv2.LinkActorType)"/> method call.
@@ -707,14 +711,29 @@
             </example>
             <example><code source="Examples/ILinkSource-Examples.cs" region="StateModel"/></example>
         </member>
+        <member name="P:KASAPIv2.ILinkSource.linkTarget">
+            <summary>Target of the link.</summary>
+            <value>Target or <c>null</c> if nothing is linked.</value>
+            <remarks>It only defined for an established link.</remarks>
+            <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
+        </member>
+        <member name="P:KASAPIv2.ILinkSource.linkJoint">
+            <summary>Joint module that manages a physical link.</summary>
+            <value>The physical joint module on the part.</value>
+        </member>
+        <member name="P:KASAPIv2.ILinkSource.linkRenderer">
+            <summary>Renderer of the link meshes.</summary>
+            <value>The renderer that represents the link.</value>
+            <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
+        </member>
         <member name="M:KASAPIv2.ILinkSource.StartLinking(KASAPIv2.GUILinkMode,KASAPIv2.LinkActorType)">
             <summary>Starts the linking mode of this source.</summary>
             <remarks>
-            <para>
+            <p>
             Only one source at the time can be linking. If the part has more sources or targets, they are
             expected to become <see cref="F:KASAPIv2.LinkState.Locked"/>.
-            </para>
-            <para>A module can refuse the mode by returning <c>false</c>.</para>
+            </p>
+            <p>A module can refuse the mode by returning <c>false</c>.</p>
             </remarks>
             <param name="mode">
             Defines how the pending link should be displayed. See <see cref="T:KASAPIv2.GUILinkMode"/> for more
@@ -736,20 +755,20 @@
         <member name="M:KASAPIv2.ILinkSource.LinkToTarget(KASAPIv2.ILinkTarget)">
             <summary>Establishes a link between two parts.</summary>
             <remarks>
-            <para>
+            <p>
             The linking mode must be started via the <see cref="M:KASAPIv2.ILinkSource.StartLinking(KASAPIv2.GUILinkMode,KASAPIv2.LinkActorType)"/> call for this method to
             succeed.
-            </para>
-            <para>
+            </p>
+            <p>
             If the link has been established successfully, the source and the target parts become
             associated with each other.
-            </para>
-            <para>
+            </p>
+            <p>
             The link conditions will be checked via <see cref="M:KASAPIv2.ILinkSource.CheckCanLinkTo(KASAPIv2.ILinkTarget,System.Boolean,System.Boolean,System.Boolean)"/> before creating the link.
             If the were errors, they will be reported to GUI if the linking mode was started with actor
             <see cref="F:KASAPIv2.LinkActorType.Player"/>. The linking mode won't be cancelled in case of the link
             failure.
-            </para>
+            </p>
             </remarks>
             <param name="target">The target to link with.</param>
             <returns><c>true</c> if the parts were linked successfully.</returns>
@@ -783,10 +802,10 @@
             Specifies what initiates the action. The final result of the action doesn't depend on it, but
             the visual and sound representations may differ for the different actors.
             </param>
-            <seealso cref="M:KASAPIv2.ILinkSource.LinkToTarget(KASAPIv2.ILinkTarget)"/>
-            <seealso cref="M:KASAPIv2.ILinkSource.LinkToTarget(KASAPIv2.LinkActorType,KASAPIv2.ILinkTarget)"/>
-            <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts"/></example>
-            <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod"/></example>
+            <seealso cref="M:KASAPIv2.ILinkSource.LinkToTarget(KASAPIv2.ILinkTarget)" />
+            <seealso cref="M:KASAPIv2.ILinkSource.LinkToTarget(KASAPIv2.LinkActorType,KASAPIv2.ILinkTarget)" />
+            <example><code source="Examples/ILinkSource-Examples.cs" region="DisconnectParts" /></example>
+            <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_BreakFromPhysyicalMethod" /></example>
             <item name="M:UnityEngine.MonoBehaviour.FixedUpdate">
   <seealso href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">Untiy3D: MonoBehaviour.FixedUpdate</seealso>
 </item>
@@ -799,7 +818,7 @@
             <param name="target">The target to connect with.</param>
             <param name="checkStates">
             Tells if the source and target states needs to be checked. This check can be disabled when
-            checking for a "theoretical" posibility of the link. However, keep in mind that before doing
+            checking for a "theoretical" possibility of the link. However, keep in mind that before doing
             the actual link, the full check will be performed.
             </param>
             <param name="reportToGUI">
@@ -815,25 +834,10 @@
             <returns><c>true</c> if the link can be made.</returns>
             <example><code source="Examples/ILinkSource-Examples.cs" region="ConnectPartsWithCheck"/></example>
         </member>
-        <member name="P:KASAPIv2.ILinkSource.linkTarget">
-            <summary>Target of the link.</summary>
-            <value>Target or <c>null</c> if nothing is linked.</value>
-            <remarks>It only defined for an established link.</remarks>
-            <example><code source="Examples/ILinkSource-Examples.cs" region="FindTargetFromSource"/></example>
-        </member>
-        <member name="P:KASAPIv2.ILinkSource.linkJoint">
-            <summary>Joint module that manages a physical link.</summary>
-            <value>The physical joint module on the part.</value>
-        </member>
-        <member name="P:KASAPIv2.ILinkSource.linkRenderer">
-            <summary>Renderer of the link meshes.</summary>
-            <value>The renderer that represents the link.</value>
-            <example><code source="Examples/ILinkSource-Examples.cs" region="ILinkSourceExample_linkRenderer"/></example>
-        </member>
         <member name="T:KASAPIv2.ILinkStateEventListener">
             <summary>Part module interface that defines the events for a link state changes.</summary>
             <remarks>
-            Both the source and the target parts can recieve these events. To receive the events, a module
+            Both the source and the target parts can receive these events. To receive the events, a module
             needs to implement this interface.
             </remarks>
         </member>
@@ -862,70 +866,72 @@
         <member name="T:KASAPIv2.ILinkTarget">
             <summary>A generic target of a KAS link between two parts.</summary>
             <remarks>
-            <para>
+            <p>
             The target is a sink for a link initiated by the another part's <see cref="T:KASAPIv2.ILinkSource"/>.
-            </para>
-            <para>
+            </p>
+            <p>
             The link target have a state that defines what it can do (<see cref="P:KASAPIv2.ILinkPeer.linkState"/>).
             Not all actions are allowed in any state. The following state diagram tells what the target
             can do and when:
-            </para>
+            </p>
+            <p>
             <list type="table">
             <listheader>
             <term>Transition</term><description>Action</description>
             </listheader>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Available"/> =&gt; <see cref="F:KASAPIv2.LinkState.AcceptingLinks"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Available"/> => <see cref="F:KASAPIv2.LinkState.AcceptingLinks"/></term>
             <description>
             This target is able to connect to a source that has just initiated a link.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Available"/> =&gt; <see cref="F:KASAPIv2.LinkState.RejectingLinks"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Available"/> => <see cref="F:KASAPIv2.LinkState.RejectingLinks"/></term>
             <description>
             This target cannot connect to a source that has just initiated a link.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             The source module has ended its linking mode without linking to this target.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Linked"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> => <see cref="F:KASAPIv2.LinkState.Linked"/></term>
             <description>A source from the world has linked to this target.</description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Locked"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.AcceptingLinks"/> => <see cref="F:KASAPIv2.LinkState.Locked"/></term>
             <description>
             A source from the world has linked to another target on the part that owns this target.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Linked"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Linked"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>The link to this target has been broken by the source.</description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.Locked"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.Locked"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             A source from the world has broke a link to another target on the part that owns this
             target.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Available"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> => <see cref="F:KASAPIv2.LinkState.Available"/></term>
             <description>
             A source from the world has ended the linking mode, and the target's part hasn't linked.
             </description>
             </item>
             <item>
-            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> =&gt; <see cref="F:KASAPIv2.LinkState.Locked"/></term>
+            <term><see cref="F:KASAPIv2.LinkState.RejectingLinks"/> => <see cref="F:KASAPIv2.LinkState.Locked"/></term>
             <description>
-            A source from the world has linked to the owner of this target but thru another target.
+            A source from the world has linked to the owner of this target but through another target.
             </description>
             </item>
             </list>
+            </p>
             </remarks>
             <example>See <see cref="T:KASAPIv2.ILinkSource"/> for the examples.</example>
         </member>
@@ -933,22 +939,22 @@
             <summary>Source that maintains the link.</summary>
             <value>Source or <c>null</c> if nothing is linked.</value>
             <remarks>
-            <para>
+            <p>
             Setting of this property changes the target state:
             <list type="bullet">
             <item>A non-null value changes the state to <see cref="F:KASAPIv2.LinkState.Linked"/>.</item>
             <item><c>null</c> value changes the state to <see cref="F:KASAPIv2.LinkState.Available"/>.</item>
             </list>
-            </para>
-            <para>Assigning the same value to this property doesn't trigger a state change event.</para>
-            <para>
+            </p>
+            <p>Assigning the same value to this property doesn't trigger a state change event.</p>
+            <p>
             Note, that not any state transition is possible. If the transition is invalid then an
             exception is thrown.
-            </para>
-            <para>
-            It's descouraged to assign this property from a code other than an implementation of
+            </p>
+            <p>
+            It's discouraged to assign this property from a code other than an implementation of
             <see cref="T:KASAPIv2.ILinkSource"/>.
-            </para>
+            </p>
             </remarks>
             <seealso cref="P:KASAPIv2.ILinkPeer.linkState"/>
             <example><code source="Examples/ILinkTarget-Examples.cs" region="FindSourceFromTarget"/></example>
@@ -967,34 +973,105 @@
         <member name="T:KASAPIv2.IWinchControl">
             <summary>Interface that allows operating the winch parts.</summary>
         </member>
+        <member name="P:KASAPIv2.IWinchControl.cfgMotorMaxSpeed">
+            <summary>Maximum speed of retracting or extending the cable.</summary>
+            <value>Speed in meters per second.</value>
+            <seealso cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>
+            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
+        </member>
+        <member name="P:KASAPIv2.IWinchControl.cfgMaxCableLength">
+            <summary>Maximum reserve of the cable in the winch.</summary>
+            <remarks>
+            This is the maximum possible distance between the winch and its connector head. 
+            </remarks>
+            <value>The length of the cable in meters.</value>
+        </member>
+        <member name="P:KASAPIv2.IWinchControl.isConnectorLocked">
+            <summary>Tells if the cable connector head is locked into the winch.</summary>
+            <remarks>
+            In the locked state there is no free cable available, and there is no moving part
+            (the connector). If the winch is linked to a part and the connector is locked, then the target
+            part is <i>docked</i> to the vessel that owns the winch. When the connector unlocks, the
+            attached part <i>undocks</i> from the vessel.
+            </remarks>
+            <value><c>true</c> if the connector is rigid relative to the owner part.</value>
+            <seealso cref="P:KASAPIv2.ILinkPeer.isLinked"/>
+            <seealso cref="P:KASAPIv2.ILinkSource.linkJoint"/>
+            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
+            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
+        </member>
+        <member name="P:KASAPIv2.IWinchControl.currentCableLength">
+            <summary>Amount of the cable that was extended till the moment.</summary>
+            <remarks>
+            This value is dynamic and can be affected by the motor. This is <i>not</i> the actual distance
+            between the winch and the connector head! In order to find one, take the
+            <c>physicalAnchorTransform</c> values from the source and target, and calculate the
+            distance between their positions.
+            </remarks>
+            <value>The length of the cable in meters.</value>
+            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
+            <seealso cref="M:KASAPIv2.IWinchControl.StretchCable"/>
+            <seealso cref="M:KASAPIv2.IWinchControl.ReleaseCable"/>
+            <seealso cref="T:KASAPIv2.ILinkSource"/>
+            <seealso cref="T:KASAPIv2.ILinkTarget"/>
+        </member>
+        <member name="P:KASAPIv2.IWinchControl.motorCurrentSpeed">
+            <summary>Current speed of the motor spindle.</summary>
+            <remarks>
+            <p>
+            This is the speed at which the cable is being extended or retracted at the current moment.
+            The actual speed of the motor can differ from what was set via the control methods (e.g.
+            <see cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>) due to there is some inertia momentum. Negative speed means the cable
+            is being retracted, and the positive speed means the cable is being extended.
+            </p>
+            <p>
+            The motor speed is always trying to match the <see cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>. Depending on the
+            part's implementation and settings, some time may be needed to actually have the match.
+            </p>
+            </remarks>
+            <value>The speed in meters per second.</value>
+            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
+            <seealso cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>
+        </member>
+        <member name="P:KASAPIv2.IWinchControl.motorTargetSpeed">
+            <summary>Desired speed of the motor spindle.</summary>
+            <remarks>
+            Ideally, the motor is always working at this speed. However, in the physics world of KSP the
+            motor may operate at the lower or the higher speeds. It depends of the various conditions.
+            </remarks>
+            <value>The speed target. It's can never exceed the part's limits setting.</value>
+            <seealso cref="P:KASAPIv2.IWinchControl.motorCurrentSpeed"/>
+            <seealso cref="P:KASAPIv2.IWinchControl.cfgMotorMaxSpeed"/>
+            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
+        </member>
         <member name="M:KASAPIv2.IWinchControl.SetMotor(System.Single)">
             <summary>Sets the winch motor to the desired speed.</summary>
             <remarks>
-            <para>
+            <p>
             The motor is responsible for the deployed cable length changing. It can extend the cable,
             retract the cable, or do nothing (idle). The winch and its head cannot get separated at a
             greater distance than the current deployed cable length. That said, the motor is controlling
             the distance.
-            </para>
-            <para>
+            </p>
+            <p>
             The motor speed is not required to change immediately. The motor may need some time to get to
             the target speed. It depends on the part implementation and configuration. The rule of thumb
             is to not expect the <see cref="P:KASAPIv2.IWinchControl.motorCurrentSpeed"/> to match the
             <paramref name="targetSpeed"/> right after the method call. There may be some time needed
             before the values will match. However, the <see cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/> value will change
             immediately, and will match the parameter. 
-            </para>
-            <para>
+            </p>
+            <p>
             Setting the motor speed may affect the connector state. E.g. if the connector was locked,
             and the motor speed is set to a positive value (extending), then the connector is get
             deployed.
-            </para>
-            <para>
+            </p>
+            <p>
             The motor will automatically stop when the cable length reaches zero or the maximum allowed
             value. In case of the zero length, the connector will be attempted to lock into the winch.
             This attempt may fail due to the bad align of the connector. To retry the attempt, just call
             this method again with a negative value.
-            </para>
+            </p>
             </remarks>
             <param name="targetSpeed">
             The new speed of the motor. The <i>positive</i> value instructs to extend the cable, and the
@@ -1026,85 +1103,14 @@
             <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
             <seealso cref="M:KASAPIv2.IWinchControl.StretchCable"/>
         </member>
-        <member name="P:KASAPIv2.IWinchControl.cfgMotorMaxSpeed">
-            <summary>Maximum speed of retracting or extending the cable.</summary>
-            <value>Speed in meters per second.</value>
-            <seealso cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>
-            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
-        </member>
-        <member name="P:KASAPIv2.IWinchControl.cfgMaxCableLength">
-            <summary>Maximum reserve of the cable in the winch.</summary>
-            <remarks>
-            This is the maximum possible distance between the winch and its connector head. 
-            </remarks>
-            <value>The length of the cable in meters.</value>
-        </member>
-        <member name="P:KASAPIv2.IWinchControl.isConnectorLocked">
-            <summary>Tells if the cable connector head is locked into the winch.</summary>
-            <remarks>
-            In the locked state there is no free cable available, and there is no moving part
-            (the connector). If the winch is linked to a part and the connector is locked, then the traget
-            part is <i>docked</i> to the vessel that owns the winch. When the connector unlocks, the
-            attached part <i>undocks</i> from the vessel.
-            </remarks>
-            <value><c>true</c> if the connector is rigid relative to the owner part.</value>
-            <seealso cref="P:KASAPIv2.ILinkPeer.isLinked"/>
-            <seealso cref="P:KASAPIv2.ILinkSource.linkJoint"/>
-            <seealso cref="P:KASAPIv2.ILinkJoint.coupleOnLinkMode"/>
-            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
-        </member>
-        <member name="P:KASAPIv2.IWinchControl.currentCableLength">
-            <summary>Amount of the cable that was extended till the moment.</summary>
-            <remarks>
-            This value is dynamic and can be affected by the motor. This is <i>not</i> the actual distance
-            between the winch and the connector head! In order to find one, take the
-            <c>physicalAnchorTransform</c> values from the source and target, and calculate the
-            distance between their positions.
-            </remarks>
-            <value>The length of the cable in meters.</value>
-            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
-            <seealso cref="M:KASAPIv2.IWinchControl.StretchCable"/>
-            <seealso cref="M:KASAPIv2.IWinchControl.ReleaseCable"/>
-            <seealso cref="T:KASAPIv2.ILinkSource"/>
-            <seealso cref="T:KASAPIv2.ILinkTarget"/>
-        </member>
-        <member name="P:KASAPIv2.IWinchControl.motorCurrentSpeed">
-            <summary>Current speed of the motor spindel.</summary>
-            <remarks>
-            <para>
-            This is the speed at which the cable is being extended or retracted at the current moment.
-            The actual speed of the motor can differ from what was set via the control methods (e.g.
-            <see cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>) due to there is some inetria momentum. Negative speed means the cable
-            is being retracted, and the positive speed means the cable is being extened.
-            </para>
-            <para>
-            The motor speed is always trying to match the <see cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>. Depending on the
-            part's implementation and settings, some time may be needed to actually have the match.
-            </para>
-            </remarks>
-            <value>The speed in meters per second.</value>
-            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
-            <seealso cref="P:KASAPIv2.IWinchControl.motorTargetSpeed"/>
-        </member>
-        <member name="P:KASAPIv2.IWinchControl.motorTargetSpeed">
-            <summary>Desired speed of the motor spindel.</summary>
-            <remarks>
-            Ideally, the motor is always working at this speed. However, in the physics world of KSP the
-            motor may operate at the lower or the higher speeds. It depends of the various conditions.
-            </remarks>
-            <value>The speed target. It's can never exceed the part's limits setting.</value>
-            <seealso cref="P:KASAPIv2.IWinchControl.motorCurrentSpeed"/>
-            <seealso cref="P:KASAPIv2.IWinchControl.cfgMotorMaxSpeed"/>
-            <seealso cref="M:KASAPIv2.IWinchControl.SetMotor(System.Single)"/>
-        </member>
         <member name="T:KASAPIv2.KASAPI">
-            <summary>KAS API, version 1.</summary>
+            <summary>KAS API, version 2.</summary>
         </member>
         <member name="F:KASAPIv2.KASAPI.isLoaded">
-            <summary>Tells if API V1 was loaded and ready to use.</summary>
+            <summary>Tells if API was loaded and ready to use.</summary>
         </member>
         <member name="F:KASAPIv2.KASAPI.JointUtils">
-            <summary>KAS joints untils.</summary>
+            <summary>KAS joints utils.</summary>
         </member>
         <member name="F:KASAPIv2.KASAPI.AttachNodesUtils">
             <summary>KAS attach nodes utils.</summary>
@@ -1136,14 +1142,14 @@
         <member name="F:KASAPIv2.LinkActorType.None">
             <summary>Actor is unspecified.</summary>
             <remarks>
-            It really depends on the situation how to treat this actor. In a normal case ther is always a
+            It really depends on the situation how to treat this actor. In a normal case there is always a
             specific actor set, but if an event originator cannot determine the actor then this type can
             be used. However, the event originator must ensure that the components that receive this event
             will know how to deal with it.
             </remarks>
         </member>
         <member name="F:KASAPIv2.LinkActorType.API">
-            <summary>Thrid-party code has affected the link during its normal workflow.</summary>
+            <summary>Third-party code has affected the link during its normal workflow.</summary>
             <remarks>The implementations must <i>not</i> execute any user facing effects when the action
             is executed from the API.
             </remarks>
@@ -1155,8 +1161,8 @@
             <summary>Player input has affected the link state.</summary>
         </member>
         <member name="T:KASAPIv2.LinkState">
-            <summary>Defines currect state of the link.</summary>
-            <remarks>Each implementation defines own state tranistion model. E.g.
+            <summary>Defines correct state of the link.</summary>
+            <remarks>Each implementation defines own state transition model. E.g.
             <see cref="T:KASAPIv2.ILinkSource"/> or <see cref="T:KASAPIv2.ILinkTarget"/>. In every state the module can only
             handle a very specific set of actions. Such approach helps keeping module logic more clear and
             granular.
@@ -1166,7 +1172,7 @@
             <summary>Initial and an invalid state. It must never be normally used.</summary>
         </member>
         <member name="F:KASAPIv2.LinkState.Available">
-            <summary>Module is avalable for the links.</summary>
+            <summary>Module is available for the links.</summary>
         </member>
         <member name="F:KASAPIv2.LinkState.Locked">
             <summary>
@@ -1176,7 +1182,7 @@
         </member>
         <member name="F:KASAPIv2.LinkState.Linking">
             <summary>
-            Module has initated an outgoing link request and expecting for it to be accepted.
+            Module has initiated an outgoing link request and expecting for it to be accepted.
             </summary>
         </member>
         <member name="F:KASAPIv2.LinkState.Linked">
@@ -1203,17 +1209,19 @@
         <member name="M:KASAPIv2.IAttachNodesUtils.CreateNode(Part,System.String,UnityEngine.Transform)">
             <summary>Creates a new attach node on the part.</summary>
             <remarks>
+            <p>
             It's expected there is no node with the same name on the part already. If there is one, then
             no extra node will be created, and the properties of the existing node will be updated instead
             (see below). However, it's an unexpected situation, so a warning record will be logged.
-            <para>
+            </p>
+            <p>
             The node will have the following properties:
             <list type="bullet">
             <item>Size is "small".</item>
             <item>Attach method is <c>FIXED_JOINT</c>.</item>
             <item>Node type is <c>Stack</c>.</item>
             </list>
-            </para>
+            </p>
             </remarks>
             <param name="part">Part to create node for.</param>
             <param name="nodeName">Name of the node to create.</param>
@@ -1231,7 +1239,7 @@
             <remarks>
             If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
             Normally, it's not expected to add an attach node into a part that doesn't own it. If the node
-            is alaready in the part, then this method does nothing.
+            is already in the part, then this method does nothing.
             </remarks>
             <param name="part">The part to add the node into.</param>
             <param name="attachNode">The attach node to add.</param>
@@ -1257,12 +1265,13 @@
         <member name="M:KASAPIv2.IAttachNodesUtils.ParseNodeFromString(Part,System.String,System.String)">
             <summary>Creates an attach node form the part's config definition string.</summary>
             <remarks>
-            <para>
+            <p>
             The string format is exactly the same as for the part's attach node definition. It consists of
             10 parts, separated by a comma. Only the first 6 parts are mandatory, the others are optional.
             The format is the following:
             <c>Position(X,Y,Z), Orientation(X,Y,Z), Size, AttachMethod, CrossFeedAllowed, IsRigid</c>
-            </para>
+            </p>
+            <p>
             <list type="bullet">
             <item><c>Position</c> is defined by the first 3 float numbers.</item>
             <item><c>Orientation</c> is defined by the next 3 float numbers.</item>
@@ -1284,6 +1293,7 @@
             of the two coupling nodes require it.
             </item>
             </list>
+            </p>
             </remarks>
             <param name="ownerPart">
             The part to parse the node for. The new node will <i>not</i> be added to this part, but the
@@ -1299,7 +1309,7 @@
         </member>
         <member name="M:KASAPIv2.IAttachNodesUtils.GetTransformForNode(Part,AttachNode)">
             <summary>Gets or creates a transform object for the attach node.</summary>
-            <remarks>The trasnform is added into the root of the part model.</remarks>
+            <remarks>The transform is added into the root of the part model.</remarks>
             <param name="ownerPart">The part that owns the node.</param>
             <param name="an">The attach node to create the transform for.</param>
             <returns>The object that matches the attach node connect point.</returns>
@@ -1320,7 +1330,7 @@
         <member name="M:KASAPIv2.IJointUtils.ResetJoint(UnityEngine.ConfigurableJoint)">
             <summary>Initializes joint to a consistent state.</summary>
             <remarks>
-            <para>
+            <p>
             It's not the same as creating a default joint. The state is consistent but different from the
             default:
             <list type="bullet">
@@ -1336,33 +1346,33 @@
             will remember the new relative rotation/position of the connected objects.
             </item>
             </list>
-            </para>
-            <para>
+            </p>
+            <p>
             Use this method before setting up a new or existing joint. By resetting the joint, you ensure
             it's in a consistent state, and the further adjustments will always give the same result
             regardless to how the joint was created and what components were affecting it.
-            </para>
+            </p>
             </remarks>
             <param name="joint">Joint to reset.</param>
         </member>
         <member name="M:KASAPIv2.IJointUtils.SetupPrismaticJoint(UnityEngine.ConfigurableJoint,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
             <summary>Sets up joint so what it becomes a prismatic joint.</summary>
             <remarks>
-            <para>
+            <p>
             It's a standard PhysX configuration. Main axis is set to Z. Moving along it is allowed but can
             be constrained by a spring and limit. Drive mode is set to
             <see cref="F:UnityEngine.JointDriveMode.Position"/>.
-            </para>
-            <para>
+            </p>
+            <p>
             Only main axis linear settings are changed. Consider using <see cref="M:KASAPIv2.IJointUtils.ResetJoint(UnityEngine.ConfigurableJoint)"/> to
             eliminate side effects from the previous settings of the joint.
-            </para>
-            <para>
+            </p>
+            <p>
             Pure prismatic joint assumes 5 out of the 6 degrees of freedom to be locked (everything,
             except the main axis linear motion). Consider setting <see cref="P:UnityEngine.Joint.enablePreprocessing"/>
-            to <c>true</c> since it may improve PhysXperformance.
-            </para>
-            <para>
+            to <c>true</c> since it may improve PhysX performance.
+            </p>
+            <p>
             For performance reasons some parameters combindations may result in different motion modes:
             <list type="bullet">
             <item>
@@ -1378,11 +1388,11 @@
             don't forget to update the mode as well.
             </item>
             </list>
-            </para>
-            <para>
+            </p>
+            <p>
             Regardless to the modes set all the other parameters are also applied. I.e. you don't need to
             re-apply them when changing mode.
-            </para>
+            </p>
             </remarks>
             <param name="joint">Joint to setup.</param>
             <param name="springForce">
@@ -1395,13 +1405,13 @@
             <param name="maxSpringForce">
             Maximum spring force to apply when joint distance deviates from the original.
             </param>
-            <param name="distanceLimit">
+            <param name = "distanceLimit">
             Maximum allowed distance relative to the original value.  Also, see remarks to the method.
             </param>
-            <param name="distanceLimitForce">
+            <param name = "distanceLimitForce">
             Force to apply to keep distance in limits. If it's <c>0</c> then the limit is impassible.
             </param>
-            <param name="distanceLimitDamperRatio">
+            <param name = "distanceLimitDamperRatio">
             Percentage of the limit force to use for dampering oscillation effect.
             </param>
             <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#prismatic-joint">
@@ -1411,23 +1421,23 @@
         <member name="M:KASAPIv2.IJointUtils.SetupSphericalJoint(UnityEngine.ConfigurableJoint,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
             <summary>Sets up joint so what it becomes a spherical hinge joint.</summary>
             <remarks>
-            <para>
-            It's a standard PhysiX configuration. Main axis is set to Z, and angular rotation around it is
+            <p>
+            It's a standard PhysX configuration. Main axis is set to Z, and angular rotation around it is
             completely unrestricted. Secondary axes are X&amp;Y can be restricted by applying spring force
             and/or limits. Drive mode is set to <see cref="F:UnityEngine.JointDriveMode.Position"/>.
-            </para>
-            <para>
+            </p>
+            <p>
             Only angular settings are set. If joint had linear constraints defined they will stay
             unchanged. Consider using <see cref="M:KASAPIv2.IJointUtils.ResetJoint(UnityEngine.ConfigurableJoint)"/> to eliminate side effects from the previous
             settings of the joint.
-            </para>
-            <para>
+            </p>
+            <p>
             Pure spherical joint assumes 3 out of the 6 degrees of freedom to be locked (all the three
             axes linear motions). Consider setting <see cref="P:UnityEngine.Joint.enablePreprocessing"/> to <c>true</c>
             since it may improve PhysX performance.
-            </para>
-            <para>
-            For performance reasons some parameters combindations may result in different angular modes:
+            </p>
+            <p>
+            For performance reasons some parameters combinations may result in different angular modes:
             <list type="bullet">
             <item>
             When <paramref name="springForce"/> is <c>Infinite</c> or <paramref name="angleLimit"/> is
@@ -1440,11 +1450,11 @@
             If you plan to change either of the parameters don't forget to update the modes as well.
             </item>
             </list>
-            </para>
-            <para>
+            </p>
+            <p>
             Regardless to the modes set all the other parameters are also applied. I.e. you don't need to
             re-apply them when changing mode.
-            </para>
+            </p>
             </remarks>
             <param name="joint">Joint to setup.</param>
             <param name="springForce">
@@ -1468,7 +1478,7 @@
             </seealso>
         </member>
         <member name="M:KASAPIv2.IJointUtils.SetupDistanceJoint(UnityEngine.ConfigurableJoint,System.Single,System.Single,System.Single)">
-            <summary>Sets up a cannonical distance joint.</summary>
+            <summary>Sets up a canonical distance joint.</summary>
             <remarks>
             This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
             result, the joint must be reset via a <see cref="M:KASAPIv2.IJointUtils.ResetJoint(UnityEngine.ConfigurableJoint)"/> call before invoking this
@@ -1480,14 +1490,14 @@
             </param>
             <param name="springDamper">The force to apply to calm down the oscillations.</param>
             <param name="maxDistance">
-            The maximum distance to allow between the obejcts before applying the spring force.
+            The maximum distance to allow between the objects before applying the spring force.
             </param>
             <seealso href="http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Joints.html#distance-joint">
             PhysX: Distant Joint
             </seealso>
         </member>
         <member name="M:KASAPIv2.IJointUtils.SetupFixedJoint(UnityEngine.ConfigurableJoint)">
-            <summary>Sets up a cannonical fixed joint.</summary>
+            <summary>Sets up a canonical fixed joint.</summary>
             <remarks>
             This method does <i>not</i> set all the properties of the PhysX joint! To get a consistent
             result, the joint must be reset via a <see cref="M:KASAPIv2.IJointUtils.ResetJoint(UnityEngine.ConfigurableJoint)"/> call before invoking this
@@ -1514,17 +1524,17 @@
         <member name="M:KASAPIv2.ILinkUtils.CoupleParts(AttachNode,AttachNode,System.Boolean)">
             <summary>Couples two parts together given they belong to the different vessels.</summary>
             <remarks>
-            <para>
+            <p>
             Once the coupling is done, one of the vessels will be destroyed. It will become a part of the
             other vessel. The new merged vessel will become active. Which vessel will be destroyed is
             determined by the <paramref name="toDominantVessel"/> parameter.
-            </para>
-            <para>
+            </p>
+            <p>
             This coupling requires the both attach nodes to be provided, and creates a "stack" nodes
             coupling.
-            </para>
+            </p>
+            <p><i>IMPORTANT</i>. The attach nodes must have a valid <c>owner</c> set.</p>
             </remarks>
-            <para><i>IMPORTANT</i>. The attach nodes must have a valid <c>owner</c> set.</para>
             <param name="sourceNode">
             The attach node at the source part that defines the source vessel. It must not be <c>null</c>. 
             </param>
@@ -1535,7 +1545,7 @@
             If <c>false</c>, then the source vessel will get coupled with the target. As a result, the
             source vessel will be destroyed. If <c>true</c>, then the method will find the <i>least</i>
             significant vessel of the two, and couple it with the <i>most</i> significant one. The least
-            signficant vessel will be destroyed.
+            significant vessel will be destroyed.
             </param>
             <returns>The part that attached as a child into the new hierarchy.</returns>
             <seealso cref="T:KASAPIv2.ILinkVesselInfo"/>
@@ -1565,10 +1575,10 @@
             <returns>The child part that has decoupled from the owner vessel.</returns>
         </member>
         <member name="T:KASAPIv2.IPhysicsUtils">
-            <summary>Various tools to deal with the gme's physics.</summary>
+            <summary>Various tools to deal with the game's physics.</summary>
         </member>
         <member name="M:KASAPIv2.IPhysicsUtils.ApplyGravity(UnityEngine.Rigidbody,Vessel,System.Double)">
-            <summary>Applies the forces that affect a rigidbody on a selectial body.</summary>
+            <summary>Applies the forces that affect a rigidbody on a celestial body.</summary>
             <remarks>
             This method replicates the logic from <see cref="T:FlightIntegrator"/> for the physical objects.
             Alas, this method is not available for a plain rigidbody.
@@ -1581,7 +1591,6 @@
             <param name="rbAirDragMult">
             The multiplier that tells how significantly the rigidbody is resisting to the air flow.
             </param>
-            <returns>Target or <c>null</c> if no valid target was found.</returns>
         </member>
     </members>
 </doc>

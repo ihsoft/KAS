@@ -21,6 +21,7 @@
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
     <DocumentationFile>bin\Release\KAS.xml</DocumentationFile>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -58,8 +59,8 @@
     <Reference Include="KAS-API-v2, Version=2.0.7239.35367, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.4, Version=2.4.7504.27510, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Binaries\KSPDev_Utils.2.4.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.6-KAS, Version=2.6.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Binaries\KSPDev_Utils.2.6-KAS.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -113,8 +114,6 @@
     <Compile Include="controllers\ControllerPartEditorTool.cs" />
     <Compile Include="controllers\ControllerWinchRemote.cs" />
     <Compile Include="debug\KASDebugAdjustableAttribute.cs" />
-    <Compile Include="KSPDev_candidates\Hierarchy2.cs" />
-    <Compile Include="KSPDev_candidates\Meshes2.cs" />
     <Compile Include="modules\AbstractJoint.cs" />
     <Compile Include="modules\AbstractLinkPeer.cs" />
     <Compile Include="modules\AbstractPipeRenderer.cs" />
@@ -146,6 +145,9 @@
     </None>
     <None Include="Unity3D_HelpIndex.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="KSPDev_candidates\README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "Q:\GameData\KAS" xcopy "$(TargetPath)" "Q:\GameData\KAS\Plugins\" /Y
@@ -154,5 +156,11 @@ IF EXIST "Q:\GameData\KAS" xcopy "$(TargetDir)KAS-API-v2.*" "Q:\GameData\KAS\Plu
 "$(ProjectDir)..\Tools\msxsl.exe" -t "KAS.xml" "SpecialDocTagsExpand.xslt" -o KAS.xml
 
 </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
 </Project>

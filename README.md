@@ -72,6 +72,10 @@ If you want doing EVA comfortably, you really should consider adding these mods 
 Ask questions and propose suggestions on
 [the forum](https://forum.kerbalspaceprogram.com/index.php?/topic/142594-15-kerbal-attachment-system-kas-v10/).
 
+# Using KAS in other mods
+
+Read the [KAS API docs](https://ihsoft.github.io/KAS/) to learn how KAS can be accessed from the other mods.
+
 # Development
 
 To start your local building environment read [BUILD.md](https://github.com/ihsoft/KAS/blob/master/BUILD.md).

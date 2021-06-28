@@ -14,7 +14,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 
@@ -31,7 +30,7 @@ namespace KAS {
 /// KSP: IActivateOnDecouple</seealso>
 /// <seealso cref="ILinkSource"/>
 /// <seealso cref="ILinkStateEventListener"/>
-// Next localization ID: #kasLOC_02009.
+// Next localization ID: #kasLOC_02011.
 // TODO(ihsoft): Handle KIS actions.
 // TODO(ihsoft): Handle part staged action.
 // ReSharper disable once InconsistentNaming
@@ -41,7 +40,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     // KAS interfaces.
     ILinkSource,
     // KSPDev syntax sugar interfaces.
-    IsPartDeathListener, IKSPDevModuleInfo, IHasContextMenu {
+    IKSPDevModuleInfo, IHasContextMenu {
 
   #region Localizable GUI strings
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
@@ -105,6 +104,27 @@ public class KASLinkSourceBase : AbstractLinkPeer,
       defaultTemplate: "Target cannot couple",
       description: "Message to display when the target is refusing to couple (dock) with the link"
       + " source.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message EvaActionBrokeLinkMsg = new Message(
+      "#kasLOC_02009",
+      defaultTemplate: "Unlinking due to the EVA construction action",
+      description: "Message to display when a linked part becomes a target to EVA construction move or detach"
+      + " operation.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message CannotLinkInEvaConstructionModeMsg = new Message(
+      "#kasLOC_02010",
+      defaultTemplate: "Interactive links are not allowed in the EVA construction mode",
+      description: "Message to display when an interactive link mode is being enabled while the stock EVA construction"
+      + " mode is active. In this mode the KAS interactive links are completely disabled to not interfere with the"
+      + " stock game functionality.");
+  #endregion
+
+  #region Constants and inheratable fields
+  /// <summary>Path to the sound that indicates the link was broken forcibly (for any reason).</summary>
+  /// TODO(IgorZ): Move to the common config.
+  protected const string SoundLinkForceBroken = "KAS/Sounds/broke";
   #endregion
 
   #region ILinkSource properties implementation
@@ -271,6 +291,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     InitStartState();
     RegisterGameEventListener(GameEvents.onPartDeCoupleComplete, OnPartDeCoupleCompleteEvent);
   }
+  /// <inheritdoc/>
+  public override void OnStartFinished(StartState state) {
+    base.OnStartFinished(state);
+    if (isLinked && !linkJoint.isLinked) {
+      if (linkJoint.CreateJoint(this, linkTarget)) {
+        HostedDebugLog.Info(this, "Restored joint with {0}", linkTarget);
+      } else {
+        HostedDebugLog.Info(this, "Cannot restore joint with {0}", linkTarget);
+      }
+    }
+  }
 
   /// <inheritdoc/>
   public override void OnInitialize() {
@@ -349,67 +380,63 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <inheritdoc/>
   protected override void CheckCoupleNode() {
     base.CheckCoupleNode();
+
+    // Handle a case when this source doesn't want to couple with the child.
     if (coupleNode == null) {
-      // If the part doesn't want to couple, then we should obey.
       if (parsedAttachNode.attachedPart != null) {
-        HostedDebugLog.Error(
-            this, "Cannot maintain coupling with: {0}", parsedAttachNode.attachedPart);
+        HostedDebugLog.Error(this, "Cannot maintain coupling with: {0}", parsedAttachNode.attachedPart);
         if (linkState == LinkState.Available) {
           AsyncCall.CallOnEndOfFrame(this, () => {
             if (parsedAttachNode.attachedPart) {
-              HostedDebugLog.Info(
-                  this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
+              HostedDebugLog.Info(this, "Decoupling incompatible part: {0}", parsedAttachNode.attachedPart);
               parsedAttachNode.attachedPart.decouple();
+              UpdateContextMenu();
             }
           });
         } else if (linkState == LinkState.Linked && linkTarget != null) {
           HostedDebugLog.Warning(this, "Breaking the link to: {0}", linkTarget);
-          AsyncCall.CallOnEndOfFrame(this, () => BreakCurrentLink(LinkActorType.API));
+          AsyncCall.CallOnEndOfFrame(this, () => {
+            BreakCurrentLink(LinkActorType.API);
+            UpdateContextMenu();
+          });
         } else {
           AsyncCall.CallOnEndOfFrame(this, () => {
             if (parsedAttachNode.attachedPart) {
-              HostedDebugLog.Error(
-                  this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
+              HostedDebugLog.Error(this, "Cannot pickup coupling in unexpected link state: {0}", linkState);
               parsedAttachNode.attachedPart.decouple();
+              UpdateContextMenu();
             }
           });
         }
       }
       return;
     }
-    if (linkState == LinkState.Available && coupleNode != null && coupleNode.attachedPart != null) {
-      var target = coupleNode.attachedPart.Modules
+
+    // Handle the case when a part is attached externally. 
+    if (linkState == LinkState.Available && coupleNode?.attachedPart != null) {
+      // Try all the possible targets on the other part to make the link.
+      var targets = coupleNode.attachedPart.Modules
           .OfType<ILinkTarget>()
-          .FirstOrDefault(t => t.cfgLinkType == cfgLinkType && t.linkState == LinkState.Available
-                               && t.coupleNode != null && t.coupleNode.attachedPart == part
-                               && CheckCanLinkTo(t));
-      if (target != null) {
-        HostedDebugLog.Fine(this, "Linking with the pre-attached part: {0}", target);
-        LinkToTarget(LinkActorType.API, target);
+          .Where(t => t.coupleNode?.attachedPart == part && CheckCanLinkTo(t, reportToLog: false));
+      foreach (var target in targets) {
+        if (LinkToTarget(LinkActorType.API, target)) {
+          HostedDebugLog.Info(this, "Restored the link with the externally attached part: {0}", target);
+          break;
+        }
+        HostedDebugLog.Warning(this, "The link attempt has been rejected: {0}", target);
       }
-      if (!isLinked) {
-        // Let the other part a chance to couple, and block if it didn't succeed.
-        HostedDebugLog.Fine(this, "Cannot link, wait for the other part: target={0}",
-                            coupleNode.attachedPart);
-        AsyncCall.CallOnEndOfFrame(this, () => {
-          if (linkState == LinkState.Available && coupleNode.attachedPart != null) {
-            HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
-                                   KASAPI.AttachNodesUtils.NodeId(coupleNode),
-                                   KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
-            SetLinkState(LinkState.NodeIsBlocked);
-          }
-        });
-      }
-    } else if (linkState == LinkState.NodeIsBlocked && parsedAttachNode.attachedPart == null) {
-      SetLinkState(LinkState.Available);
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        if (linkState == LinkState.Available && coupleNode?.attachedPart != null) {
+          HostedDebugLog.Warning(this, "Cannot link to the pre-attached part: from={0}, to={1}",
+                                 KASAPI.AttachNodesUtils.NodeId(coupleNode),
+                                 KASAPI.AttachNodesUtils.NodeId(coupleNode.FindOpposingNode()));
+          SetLinkState(LinkState.NodeIsBlocked);
+          UpdateContextMenu();
+        }
+      });
     }
     
-    // Restore the link state if not yet done.
-    if (isLinked && !linkJoint.isLinked) {
-      linkJoint.CreateJoint(this, linkTarget);
-    }
-
-    UpdateContextMenu();  // To update the dock/undock menu.
+    UpdateContextMenu();
   }
 
   /// <inheritdoc/>
@@ -484,7 +511,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
 
   #region IsPartDeathListener implementation
   /// <inheritdoc/>
-  public virtual void OnPartDie() {
+  public override void OnPartDie() {
     if (isLinked) {
       HostedDebugLog.Info(this, "Part has died. Drop the link to: {0}", linkTarget);
       BreakCurrentLink(LinkActorType.Physics);
@@ -522,6 +549,12 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #region ILinkSource implementation
   /// <inheritdoc/>
   public virtual bool StartLinking(GUILinkMode mode, LinkActorType actor) {
+    if (mode == GUILinkMode.Interactive && EVAConstructionModeController.Instance.IsOpen) {
+      ShowStatusMessage(CannotLinkInEvaConstructionModeMsg, isError: true);
+      HostedDebugLog.Warning(this, "Cannot make interactive links in the EVA construction mode");
+      UISoundPlayer.instance.Play(KASAPI.CommonConfig.sndPathBipWrong);
+      return false;
+    }
     if (!linkStateMachine.CheckCanSwitchTo(LinkState.Linking)) {
       if (actor == LinkActorType.Player) {
         ShowStatusMessage(SourceIsNotAvailableForLinkMsg, isError: true);
@@ -720,6 +753,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     }
     return errors.ToArray();
   }
+
+  /// <inheritdoc/>
+  protected override void OnPeerManipulatedInEva(ILinkPeer target) {
+    base.OnPeerManipulatedInEva(target);
+    if (isLinked) {
+      HostedDebugLog.Info(this, "Unlinking from {0} due EVA construction action: target={1}", otherPeer, target);
+      ShowStatusMessage(EvaActionBrokeLinkMsg, isError: true);
+      UISoundPlayer.instance.Play(SoundLinkForceBroken);
+      BreakCurrentLink(LinkActorType.API);
+    }
+  }
   #endregion
 
   #region KASEvents listeners
@@ -749,12 +793,13 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   /// <remarks>This event can get called from the physics callbacks.</remarks>
   /// <param name="targetVessel">The vessel that is being destroyed.</param>
   void OnVesselWillDestroyGameEvent(Vessel targetVessel) {
-    if (isLinked && vessel != linkTarget.part.vessel
-        && (targetVessel == vessel || targetVessel == linkTarget.part.vessel)) {
-      HostedDebugLog.Info(
-          this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
-      BreakCurrentLink(LinkActorType.Physics);
+    if (!isLinked || vessel == linkTarget.part.vessel
+        || (targetVessel != vessel && targetVessel != linkTarget.part.vessel)) {
+      return;  // Nothing to do.
     }
+    HostedDebugLog.Info(
+        this, "Drop the link due to the peer vessel destruction: {0}", targetVessel);
+    BreakCurrentLink(LinkActorType.Physics);
   }
 
   /// <summary>Loads the state that should be processed after all the modules are created.</summary>

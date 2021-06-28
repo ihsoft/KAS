@@ -23,7 +23,7 @@ namespace KAS {
 // Next localization ID: #kasLOC_11028.
 [KSPAddon(KSPAddon.Startup.Flight, false /*once*/)]
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
-internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
+sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #region Localizable GUI strings.
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message<KeyboardEventType> WindowTitleTxt = new Message<KeyboardEventType>(
@@ -97,7 +97,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeOfflineTxt = new Message(
       "#kasLOC_11011",
-      defaultTemplate: "<gui:min:150,0><color=red>Offline</color>",
+      defaultTemplate: "<color=red>Offline</color>",
       description: "The text for the winch status in which it cannot be remotely operated for any"
       + " reason.");
 
@@ -110,7 +110,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeBlockedTxt = new Message(
       "#kasLOC_11013",
-      defaultTemplate: "<gui:min:150,0><color=red>Blocked</color>",
+      defaultTemplate: "<color=red>Blocked</color>",
       description: "The text for the winch status that tells that the main winch attach node is"
       + " occupied by an incompatible (non-KAS) part.");
 
@@ -123,7 +123,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
   static readonly Message WinchModeRetractedTxt = new Message(
       "#kasLOC_11015",
-      defaultTemplate: "<gui:min:150,0><color=#00ff00>Retracted</color>",
+      defaultTemplate: "<color=#00ff00>Retracted</color>",
       description: "The text for the winch status that tells that the cable connector is locked to"
       + " the winch, and the cable length is zero.");
 
@@ -195,7 +195,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<DistanceType, DistanceType> RelaxedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11025",
-          defaultTemplate: "<gui:min:150,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The formatter string for the cable lengths when the cable is *not* under"
           + " strain. I.e. its actual length is not greater than the winch allows."
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
@@ -205,7 +205,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<DistanceType, DistanceType> StrainedCableLengthTxt =
       new Message<DistanceType, DistanceType>(
           "#kasLOC_11026",
-          defaultTemplate: "<gui:min:150,0><<1>> / <color=magenta><<2>></color>",
+          defaultTemplate: "<<1>> / <color=magenta><<2>></color>",
           description: "The formatter string for the cable lengths when the cable *is* under strain."
           + " I.e. its actual length is greater than the winch allows."
           + "\nArgument <<1>> is the length, allowed by the winch of type DistanceType."
@@ -215,17 +215,28 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   static readonly Message<VelocityType, VelocityType> MotorSpeedTxt =
       new Message<VelocityType, VelocityType>(
           "#kasLOC_11027",
-          defaultTemplate: "<gui:min:150,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The formatter string for the winch motor speed."
           + "\nArgument <<1>> is the current motor speed type VelocityType."
           + "\nArgument <<2>> is the settings for the desired motor speed of type VelocityType.");
   #endregion
 
   #region Configuration settings
+  // ReSharper disable FieldCanBeMadeReadOnly.Local
+  // ReSharper disable ConvertToConstant.Local
+
   /// <summary>Keyboard key to trigger the GUI.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
-  [PersistentField("Winch/remoteControlKey")]
-  public string openGuiKey = "&P";  // Alt+P
+  [PersistentField("Winch/remoteControlKey", group = StdPersistentGroups.Default)]
+  string _openGuiKey = "&P";  // Alt+P
+
+  /// <summary>Tells if the control hints should be shown in the remote winches control dialog.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [PersistentField("Winch/showRemoteControlDialogHints", group = StdPersistentGroups.Default)]
+  bool _showRemoteControlDialogHints = true;
+
+  // ReSharper enable FieldCanBeMadeReadOnly.Local
+  // ReSharper enable ConvertToConstant.Local
   #endregion
 
   #region Internal helper types
@@ -233,7 +244,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   class WinchState {
     // ReSharper disable once InconsistentNaming
     public string vesselGUID;
-    public string vesselName;
     public IWinchControl winchModule;
     public uint flightId;
     public float motorSpeedSetting = 1.0f;
@@ -246,8 +256,8 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   #endregion
 
   #region GUI styles and contents
-  GUIStyle _guiNoWrapStyle;
-  GUIStyle _guiNoWrapCenteredStyle;
+  GUIStyle _guiNoWrapCenteredLabelStyle;
+  GUIStyle _guiNoWrapCenteredBoxStyle;
   // These fields are set/updated in LoadLocalizedContent.
   GUIContent _highlightWinchCnt;
   GUIContent _startRetractingCnt;
@@ -264,7 +274,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   GUIContent _stretchBtnCnt;
   GUIContent _detachBtnCnt;
   GUIContent _closeGuiCnt;
-  float _winchCableStatusMinWidth;
   #endregion
 
   #region Local fields
@@ -276,17 +285,13 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   WinchState[] _sortedSceneModules;
 
   /// <summary>Actual screen position of the console window.</summary>
-  /// TODO(ihsoft): Persist and restore.
-  static Rect _windowRect = new Rect(100, 100, 1, 1);
+  Rect _windowRect = new Rect(100, 100, 1, 1);
   
-  /// <summary>A title bar location.</summary>
-  static readonly Rect TitleBarRect = new Rect(0, 0, 10000, 20);
-
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
-  static readonly GuiActionsList GuiActions = new GuiActionsList();
+  readonly GuiActionsList _guiActions = new GuiActionsList();
 
-  /// <summary>Style to draw a control of the minimum size.</summary>
-  static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
+  /// <summary> The controller of the game's UI scale.</summary>
+  GuiScale _guiScale;
 
   /// <summary>Keyboard event that opens/closes the remote GUI.</summary>
   static Event _openGuiEvent;
@@ -304,7 +309,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
   /// <summary>GUI table to align winch status fields.</summary>
   /// <remarks>Cable status + Motor status</remarks>
-  readonly GUILayoutStringTable _guiWinchTable = new GUILayoutStringTable(2);
+  readonly GUILayoutStringTable _guiWinchTable = new(2, keepMaxSize: true);
   #endregion
 
   #region IHasGUI implementation
@@ -318,9 +323,12 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
       ToggleGui(!_isGuiOpen);
     }
     if (_isGuiOpen) {
-      _windowRect = GUILayout.Window(
-          GetInstanceID(), _windowRect, ConsoleWindowFunc, WindowTitleTxt.Format(_openGuiEvent),
-          GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      using (new GuiMatrixScope()) {
+        _guiScale.UpdateMatrix();
+        _windowRect = GUILayout.Window(
+            GetInstanceID(), _windowRect, ConsoleWindowFunc, WindowTitleTxt.Format(_openGuiEvent),
+            GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
+      }
     }
   }
   #endregion
@@ -345,7 +353,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   void Awake() {
     DebugEx.Info("Winch remote controller created");
     ConfigAccessor.ReadFieldsInType(GetType(), this);
-    _openGuiEvent = Event.KeyboardEvent(openGuiKey);
+    _guiScale =
+        new GuiScale(getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
+    _openGuiEvent = Event.KeyboardEvent(_openGuiKey);
     _instance = this;
     LoadLocalizedContent();
     GameEvents.onLanguageSwitched.Add(LoadLocalizedContent);
@@ -364,18 +374,24 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   }
   #endregion
 
+  #region Local utility methods
+  /// <summary>The GUI tooltip control. Only used in the <see cref="ConsoleWindowFunc"/> method.</summary>
+  readonly GuiTooltip _tooltip = new();
+
   /// <summary>Shows a window that displays the winch controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void ConsoleWindowFunc(int windowId) {
-    MakeGuiStyles();
-
-    if (GuiActions.ExecutePendingGuiActions()) {
+    if (_guiActions.ExecutePendingGuiActions()) {
       MaybeUpdateModules();
       _guiWinchTable.UpdateFrame();
     }
 
     if (_sortedSceneModules.Length == 0) {
-      GUILayout.Label(NoContentTxt, _guiNoWrapStyle);
+      GUILayout.Label(NoContentTxt, _guiNoWrapCenteredBoxStyle);
+      if (GUILayout.Button(_closeGuiCnt)) {
+        _guiActions.Add(() => _isGuiOpen = false);
+      }
+      return;
     }
 
     // TODO(ihsoft): Add paging and the setting for the number of items per page.
@@ -383,6 +399,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     foreach (var winchState in _sortedSceneModules) {
       var winch = winchState.winchModule;
       var winchCable = winchState.winchModule.linkJoint as ILinkCableJoint;
+      if (winchCable == null) {
+        continue;  // Wrong setup, but we don't want massive NPEs.
+      }
       var disableWinchGui =
           !winch.part.vessel.IsControllable || winch.isNodeBlocked || winch.isLocked;
       var motorSpeed = winchState.motorSpeedSetting * winch.cfgMotorMaxSpeed;
@@ -399,10 +418,9 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             fnOff: () => {
               winch.part.SetHighlightDefault();
             },
-            actionsList: GuiActions);
+            actionsList: _guiActions);
 
         // Cable retracting controls.
-        System.Diagnostics.Debug.Assert(winchCable != null, nameof(winchCable) + " != null");
         using (new GuiEnabledStateScope(!disableWinchGui && winchCable.realCableLength > 0)) {
           // Start retracting the cable column.
           winchState.retractBtnPressed &= winch.motorTargetSpeed < 0;
@@ -410,38 +428,34 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.retractBtnPressed,
               _startRetractingCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnOn: () => winch.SetMotor(-motorSpeed),
               fnOff: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
           // Retract the cable column.
           winchState.retracting &= winch.motorTargetSpeed < 0;
           winchState.retracting = GUILayoutButtons.Push(
               winchState.retracting,
               _retractCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnPush: () => winch.SetMotor(-motorSpeed),
               fnRelease: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
         }
         
         // Cable length/status column.
         if (!winch.part.vessel.IsControllable) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeOfflineCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeOfflineCnt, _guiNoWrapCenteredLabelStyle);
         } else if (winch.isNodeBlocked || winch.isLocked) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeBlockedCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeBlockedCnt, _guiNoWrapCenteredLabelStyle);
         } else if (winch.isConnectorLocked) {
-          _guiWinchTable.AddTextColumn(
-              _winchModeRetractedCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_winchModeRetractedCnt, _guiNoWrapCenteredLabelStyle);
         } else {
           _cableStatusCnt.text = winchCable.realCableLength <= winch.currentCableLength
               ? RelaxedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength)
               : StrainedCableLengthTxt.Format(winch.currentCableLength, winchCable.realCableLength);
-          _guiWinchTable.AddTextColumn(
-              _cableStatusCnt, _guiNoWrapCenteredStyle, minWidth: _winchCableStatusMinWidth);
+          _guiWinchTable.AddTextColumn(_cableStatusCnt, _guiNoWrapCenteredLabelStyle);
         }
 
         // Cable extending controls.
@@ -453,33 +467,33 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
               winchState.extendBtnPressed,
               _startExtendingCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnOn: () => winch.SetMotor(motorSpeed),
               fnOff: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
           // Extend the cable column.
           winchState.extending &= winch.motorTargetSpeed > 0;
           winchState.extending = GUILayoutButtons.Push(
               winchState.extending,
               _extendCnt,
               GUI.skin.button,
-              new[] {MinSizeLayout},
+              null,
               fnPush: () => winch.SetMotor(motorSpeed),
               fnRelease: () => winch.SetMotor(0),
-              actionsList: GuiActions);
+              actionsList: _guiActions);
         }
 
         using (new GuiEnabledStateScope(!disableWinchGui)) {
           // Motor speed settings column.
-          using (new GUILayout.VerticalScope(_motorSpeedSettingsCnt, GUI.skin.label)) {
+          using (new GUILayout.VerticalScope(_motorSpeedSettingsCnt, _guiNoWrapCenteredLabelStyle)) {
             GUI.changed = false;
             GUILayout.FlexibleSpace();
-            var newMotorSpeedSetting = GUILayout.HorizontalSlider(
-                winchState.motorSpeedSetting, 0.1f, 1.0f,
-                GUILayout.Width(100f));
+            var newMotorSpeedSetting =
+                GUILayout.HorizontalSlider(winchState.motorSpeedSetting, 0.1f, 1.0f, GUILayout.Width(100f));
+            GUILayout.FlexibleSpace();
             if (GUI.changed) {
               var state = winchState;
-              GuiActions.Add(() => {
+              _guiActions.Add(() => {
                 state.motorSpeedSetting = newMotorSpeedSetting;
                 var newSpeed = newMotorSpeedSetting * winch.cfgMotorMaxSpeed;
                 if (state.extending || state.extendBtnPressed) {
@@ -495,57 +509,59 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
 
         // Motor speed info column.
         _motorSpeedCnt.text = MotorSpeedTxt.Format(Mathf.Abs(winch.motorCurrentSpeed), motorSpeed);
-        _guiWinchTable.AddTextColumn(
-            _motorSpeedCnt, _guiNoWrapCenteredStyle, minWidth: MotorSpeedTxt.guiTags.minWidth);
+        _guiWinchTable.AddTextColumn(_motorSpeedCnt, _guiNoWrapCenteredLabelStyle);
 
         // Release cable column.
         using (new GuiEnabledStateScope(
             !disableWinchGui && winch.currentCableLength < winch.cfgMaxCableLength)) {
-          if (GUILayout.Button(_releaseBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            GuiActions.Add(winch.ReleaseCable);
+          if (GUILayout.Button(_releaseBtnCnt, GUI.skin.button)) {
+            _guiActions.Add(winch.ReleaseCable);
           }
         }
 
         // Stretch cable column.
         using (new GuiEnabledStateScope(!disableWinchGui && !winch.isConnectorLocked)) {
-          if (GUILayout.Button(_stretchBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            GuiActions.Add(winch.StretchCable);
+          if (GUILayout.Button(_stretchBtnCnt, GUI.skin.button)) {
+            _guiActions.Add(winch.StretchCable);
           }
         }
 
         // Disconnect connector column.
         using (new GuiEnabledStateScope(!disableWinchGui && winch.isLinked)) {
-          if (GUILayout.Button(_detachBtnCnt, GUI.skin.button, MinSizeLayout)) {
-            GuiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
+          if (GUILayout.Button(_detachBtnCnt, GUI.skin.button)) {
+            _guiActions.Add(() => winch.BreakCurrentLink(LinkActorType.Player));
           }
         }
       }
     }
 
-    using (new GUILayout.HorizontalScope()) {
-      if (GUILayout.Button(_closeGuiCnt, MinSizeLayout)) {
-        GuiActions.Add(() => _isGuiOpen = false);
-      }
-      GUILayout.Label("");
-      GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
+    if (GUILayout.Button(_closeGuiCnt)) {
+      _guiActions.Add(() => _isGuiOpen = false);
     }
-
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref _windowRect, TitleBarRect);
+    if (_showRemoteControlDialogHints) {
+      _tooltip.Update();
+    }
+    GUI.DragWindow();
   }
 
-  /// <summary>Creates the styles. Only does it once.</summary>
+  /// <summary>Creates the styles when the scale changes or initializes.</summary>
   void MakeGuiStyles() {
-    if (_guiNoWrapStyle == null) {
-      _guiNoWrapStyle = new GUIStyle(GUI.skin.label) {
-          stretchHeight = true,
-          wordWrap = false,
-          alignment = TextAnchor.MiddleLeft
-      };
-      _guiNoWrapCenteredStyle = new GUIStyle(_guiNoWrapStyle) {
-          alignment = TextAnchor.MiddleCenter
-      };
-    }
+    var skin = GUI.skin; 
+    _guiWinchTable.ResetMaxSizes();
+    var buttonStyle = skin.button;
+    _guiNoWrapCenteredLabelStyle = new GUIStyle(skin.label) {
+        stretchHeight = true,
+        wordWrap = false,
+        margin = buttonStyle.margin,
+        padding = buttonStyle.padding,
+        alignment = TextAnchor.MiddleCenter,
+    };
+    _guiNoWrapCenteredBoxStyle = new GUIStyle(skin.box) {
+        wordWrap = false,
+        margin = buttonStyle.margin,
+        padding = buttonStyle.padding,
+        alignment = TextAnchor.MiddleCenter,
+    };
   }
 
   /// <summary>Prepares or updates the localizable GUI strings.</summary>
@@ -570,12 +586,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
     _winchModeRetractedCnt = new GUIContent(WinchModeRetractedTxt, WinchModeRetractedTxtHint);
     RelaxedCableLengthTxt.LoadLocalization();  // To update guiTags.
     StrainedCableLengthTxt.LoadLocalization();  // To update guiTags.
-    _winchCableStatusMinWidth = Mathf.Max(
-        RelaxedCableLengthTxt.guiTags.minWidth,
-        StrainedCableLengthTxt.guiTags.minWidth,
-        WinchModeOfflineTxt.guiTags.minWidth,
-        WinchModeBlockedTxt.guiTags.minWidth,
-        WinchModeRetractedTxt.guiTags.minWidth);
   }
 
   /// <summary>Checks if the cached list of the winch controllers needs to be refreshed.</summary>
@@ -593,7 +603,6 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
             ? _sceneModules[w.part.flightID]
             : new WinchState() {
               vesselGUID = w.part.vessel.id.ToString(),
-              vesselName = w.part.vessel.vesselName,
               flightId = w.part.flightID,
               winchModule = w,
             })
@@ -610,6 +619,7 @@ internal sealed class ControllerWinchRemote : MonoBehaviour, IHasGUI {
   void OnVesselUpdated(Vessel v) {
     _modulesNeedUpdate = true;
   }
+  #endregion
 }
 
 }  // namespace

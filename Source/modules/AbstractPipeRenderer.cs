@@ -8,7 +8,6 @@ using KSPDev.GUIUtils.TypeFormatters;
 using KSPDev.DebugUtils;
 using KSPDev.LogUtils;
 using KSPDev.ModelUtils;
-using KSPDev.PartUtils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +24,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   #region Localizable GUI strings
   /// <include file="../SpecialDocTags.xml" path="Tags/Message1/*"/>
-  public static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
+  static readonly Message<PartType> LinkCollidesWithObjectMsg = new Message<PartType>(
       "#kasLOC_07000",
       defaultTemplate: "Link collides with: <<1>>",
       description: "Message to display when the link cannot be created due to an obstacle."
@@ -33,7 +32,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       example: "Link collides with: Mk2 Cockpit");
 
   /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
-  public static readonly Message LinkCollidesWithSurfaceMsg = new Message(
+  static readonly Message LinkCollidesWithSurfaceMsg = new Message(
       "#kasLOC_07001",
       defaultTemplate: "Link collides with the surface",
       description: "Message to display when the link strut orientation cannot be changed due to it"
@@ -139,7 +138,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual Color? colorOverride {
-    get { return _colorOverride; }
+    get => _colorOverride;
     set {
       _colorOverride = value;
       UpdateMaterialOverrides();
@@ -149,7 +148,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual string shaderNameOverride {
-    get { return _shaderNameOverride; }
+    get => _shaderNameOverride;
     set {
       _shaderNameOverride = value;
       UpdateMaterialOverrides();
@@ -159,7 +158,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
 
   /// <inheritdoc/>
   public virtual bool isPhysicalCollider {
-    get { return _isPhysicalCollider; }
+    get => _isPhysicalCollider;
     set {
       _isPhysicalCollider = value;
       UpdateColliderOverrides();
@@ -254,6 +253,10 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
   #region ILinkRenderer implemetation
   /// <inheritdoc/>
   public virtual void StartRenderer(Transform source, Transform target) {
+    if (source == null || target == null) {
+      HostedDebugLog.Error(this, "Cannot make renderer: source={0}, target={1}", source, target);
+      return;
+    }
     if (isStarted) {
       if (sourceTransform == source && targetTransform == target) {
         return;  // NO-OP
@@ -266,18 +269,16 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     targetPart = targetTransform.GetComponentInParent<Part>();
     CreatePipeMesh();
 
-    // Update the meshes on the source vessel. 
-    PartModel.UpdateHighlighters(part);
-    sourceTransform.GetComponentsInChildren<Renderer>().ToList()
-        .ForEach(r => r.SetPropertyBlock(part.mpb));
-    vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+    // Update the meshes on the source vessel.
+    if (vessel != null) {
+      // Vessel can be NULL for the EVA dragged parts.
+      vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
+    }
 
     // Update the target vessel relations (if any).
     if (targetPart != null) {
-      PartModel.UpdateHighlighters(targetPart);
-      targetTransform.GetComponentsInChildren<Renderer>().ToList()
-          .ForEach(r => r.SetPropertyBlock(targetPart.mpb));
-      if (targetPart.vessel != vessel) {
+      if (targetPart.vessel != null && targetPart.vessel != vessel) {
+        // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts.ForEach(p => SetCollisionIgnores(p, true));
       }
     }
@@ -307,12 +308,11 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
     }
 
     DestroyPipeMesh();
-    PartModel.UpdateHighlighters(part);
 
     // Update the target vessel relations (if any).
     if (targetPart != null) {
-      PartModel.UpdateHighlighters(targetPart);
-      if (targetPart.vessel != vessel) {
+      if (targetPart.vessel != null && targetPart.vessel != vessel) {
+        // Vessel can be NULL for the EVA dragged parts.
         targetPart.vessel.parts
             .Where(p => p != null)  // It's a cleanup method.
             .ToList()
@@ -535,7 +535,7 @@ public abstract class AbstractPipeRenderer : AbstractProceduralModel,
       UpdateLink();
       yield return null;
     }
-    // The coroutine is expected to be terminated explicitly!
+    // The coroutine is expected to be terminated explicitly before unlinking.
     HostedDebugLog.Warning(this, "Terminate coroutine on renderer stop!");
   }
   #endregion

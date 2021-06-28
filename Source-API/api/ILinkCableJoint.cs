@@ -7,24 +7,24 @@ using UnityEngine;
 namespace KASAPIv2 {
 
 /// <summary>
-/// Interface for a physical cable link. Such links keep the dsitance between the object below the
-/// maximum, but don't restict any other movements of the objects relative to each other.
+/// Interface for a physical cable link. Such links keep the distance between the object below the
+/// maximum, but don't restrict any other movements of the objects relative to each other.
 /// </summary>
 /// <remarks>
-/// <para>
+/// <p>
 /// The specifics of this module is that the distance between the linked parts becomes variable.
 /// Once the link is created, the distance limit is set to the actual distance between the source
 /// and target. This limit won't allow the objects to separate too far from each other, but the
 /// objects will be allowed to come closer. The code can adjust the limit once the joint is
 /// created.
-/// </para>
-/// <para>
+/// </p>
+/// <p>
 /// Due to the specifics of handling this kind of joints in PhysX, the real distance between the
 /// objects <i>can</i> become greater than the distance limit. In fact, if there are forces that try
 /// to separate the objects, then the actual distance will always be a bit more than the limit. Do
 /// not expect this difference to have any meaning, it depends on the PhysX engine and can be
 /// anything.
-/// </para>
+/// </p>
 /// </remarks>
 /// <seealso cref="deployedCableLength"/>
 /// <seealso cref="realCableLength"/>
@@ -35,8 +35,8 @@ public interface ILinkCableJoint : ILinkJoint {
   float cfgMaxCableLength { get; }
 
   /// <summary>Rigidbody of the physical cable head.</summary>
-  /// <value>The rigibody object, or <c>null</c> if there is no physical head started.</value>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
+  /// <value>The rigidbody object, or <c>null</c> if there is no physical head started.</value>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
   Rigidbody headRb { get; }
 
   /// <summary>
@@ -75,18 +75,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <remarks>
   /// This mode only has effect when the parts are coupled. Basically, when the locked mode is
   /// <c>true</c>, the stock joint between the parts is preserved. When the mode is <c>false</c>,
-  /// the stiock joint is destroyed and repalced by a PhysX distant joint.
+  /// the stock joint is destroyed and replaced by a PhysX distant joint.
   /// </remarks>
   /// <value><c>true</c> if the joint is rigid.</value>
   /// <seealso cref="ILinkJoint.coupleOnLinkMode"/>
   /// <seealso cref="SetLockedOnCouple"/>
   bool isLockedWhenCoupled { get; }
 
-  /// <summary>
-  /// Attaches the specified object to the source and starts the environmental forces on it.  
-  /// </summary>
+  /// <summary>Attaches the source to the specified physical object (a connector head).</summary>
   /// <remarks>
-  /// The cable maximum length will be set to the actual distance between the source and the head.
+  /// The cable maximum length will be set to the actual distance between the source and the physical object. Note, that
+  /// this method must not be used to create a regular link between the source and target.
   /// </remarks>
   /// <param name="source">The source object that owns the head.</param>
   /// <param name="headObjAnchor">
@@ -97,8 +96,9 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <seealso cref="ILinkSource"/>
   /// <seealso cref="deployedCableLength"/>
   /// <seealso cref="realCableLength"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
-  /// <include file="Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Rigidbody']/*"/>
+  /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Transform']/*"/>
+  /// FIXME: rename
   void StartPhysicalHead(ILinkSource source, Transform headObjAnchor);
 
   /// <summary>Stops handling the physical head.</summary>
@@ -115,17 +115,17 @@ public interface ILinkCableJoint : ILinkJoint {
   /// Sets the maximum possible distance between the source and the head/target physical anchors.
   /// </summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// Setting the new length may trigger the physical effects if the value is less than the real
   /// cable length, since it will force the engine to pull the objects together. Don't reduce the
   /// length too rapidly to avoid the strong forces applied.
-  /// </para>
-  /// <para>
+  /// </p>
+  /// <p>
   /// Calling for this method doesn't have any effect if the PhysX joint is not created. When a
   /// brand new joint is created, it always has the distance limit set to the actual distance
   /// between the physical objects. I.e. this method must be called <i>after</i> the physical joint
   /// is created.
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="length">
   /// The new length. The value must be in range <c>[0; cfgMaxCableLength]</c>. If the value is not
@@ -151,7 +151,7 @@ public interface ILinkCableJoint : ILinkJoint {
   /// <summary>Defines if the joint should be fixed when the parts are coupled.</summary>
   /// <remarks>
   /// If the mode is set on the non-coupled parts, then it only changes the bit and doesn't actually
-  /// affect the joint. If the part were coupled at the momemnt, then the joint is recreated
+  /// affect the joint. If the part were coupled at the moment, then the joint is recreated
   /// according to the new setting.
   /// </remarks>
   /// <param name="mode">The new mode.</param>

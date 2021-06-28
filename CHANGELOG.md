@@ -1,3 +1,28 @@
+# 1.8 (June 27th, 2021):
+* [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. To avoid unpexected behvior, it's recommended to manually break the link before using EVA construction mode.
+* [NOTICE] The interactive links (like in `PCB`) are now not possible in EVA construction mode.
+* [Compatibility] Drop AVC version check due to the KSP `1.12` duplicated mods handling bug.
+* [Change] Better detect if any of the peers in the KAS connection got destroyed for any reason. The link gets properly broken in this case.
+* [Enhancement] Allow attaching to the winches surface to let reinforcing them with struts.
+* [Enhancement] Don't show resources that cannot be transferred in the RTS GUI.
+* [Enhancement] Allow disabling the controls hints in the RTS resource transfer dialog. Use setting `showTransferDialogHints`.
+* [Enhancement] Allow disabling the controls hints in the winches remote control dialog. Use setting `showRemoteControlDialogHints`.
+* [Enhancement #248] Add ability to scale Transfer GUI.
+* [Enhancement #321] Scale the Winch GUI dialog.
+* [Fix #302] GUI does not respect hide/show function.
+* [Fix #306] Logs spam from the parts dropped on the ground.
+* [Fix #307] Interactive attach mode conflicts with construction mode.
+* [Fix #308] Linked parts can be dragged in construct mode.
+* [Fix #309] TJ parts cannot align when pulled out of cargo.
+* [Fix #311] Breaks the Asteroid Redirect Training Mission.
+* [Fix #313] Coupling vessels via the rigid link cause vessel breakage.
+* [Fix #314] Retract cable option is visible when the connector is locked.
+* [Fix #315] Attaching KAS links resets EVA editor parts highlighting.
+* [Fix #316] The detached physicsless parts stay physicsless.
+* [Fix #317] Coupling role delegation doesn't work.
+* [Fix #318] EVA construction mode highlighting stays on the KAS pipes after the mode is canceled.
+* [Fix #320] Renderer is active even on the locked winch connector.
+
 # 1.7 (July 30th, 2020):
 * [Change] Better react on the attached part(s) destruction to properly reset the link state.
 * [Change] Some performance improvement for the winch connector handling.

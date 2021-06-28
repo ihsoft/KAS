@@ -15,7 +15,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-// ReSharper disable InheritdocInvalidUsage
 // ReSharper disable once CheckNamespace
 namespace KAS {
 
@@ -247,6 +246,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   public Vector3 anchorAtTarget = Vector3.zero;
   #endregion
 
+  // ReSharper disable MemberCanBePrivate.Global
   #region CFG/persistent fields
   /// <summary>
   /// Tells if the source and the target parts should couple when making a link between the
@@ -276,6 +276,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <include file="../SpecialDocTags.xml" path="Tags/PersistentConfigSetting/*"/>
   [KSPField(isPersistant = true)]
   public float persistedLinkLength = -1.0f;
+
+  // ReSharper enable MemberCanBePrivate.Global
   #endregion
 
   #region ILinkJoint properties
@@ -287,8 +289,8 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   /// <inheritdoc/>
   public bool coupleOnLinkMode {
-    get { return coupleWhenLinked; }
-    private set { coupleWhenLinked = value; }
+    get => coupleWhenLinked;
+    private set => coupleWhenLinked = value;
   }
 
   /// <inheritdoc/>
@@ -304,7 +306,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// Distance in meters or <c>null</c>. The <c>null</c> value means that this joint doesn't care
   /// about the particular length in the current state, and it's up to the implementation.
   /// </value>
-  protected float? originalLength => persistedLinkLength < 0 ? (float?) null : persistedLinkLength;
+  protected float? originalLength => persistedLinkLength < 0 ? null : persistedLinkLength;
 
   /// <summary>Tells if the parts of the link are coupled in the vessels hierarchy.</summary>
   /// <value>
@@ -402,7 +404,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IActivateOnDecouple implementation
-  /// <inheritdoc/>
+    /// <inheritdoc cref="IKSPActivateOnDecouple.DecoupleAction" />
   public virtual void DecoupleAction(string nodeName, bool weDecouple) {
     if (isLinked && !selfDecoupledAction
         && linkSource.coupleNode != null && linkSource.coupleNode.id == nodeName) {
@@ -414,13 +416,12 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IJointEventsListener implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IJointEventsListener.OnJointBreak" />
   public virtual void OnJointBreak(float breakForce) {
-    HostedDebugLog.Fine(this, "Joint is broken with force: {0}", breakForce);
     Part parentPart = null;
     Vector3 relPos = Vector3.zero;
     Quaternion relRot = Quaternion.identity;
-    if (isLinked && part.parent != linkTarget.part) {
+    if (isLinked && part.parent != null && part.parent != linkTarget.part) {
       // Calculate relative position and rotation of the part to properly restore the coupling.
       parentPart = part.parent;
       var root = vessel.rootPart.transform;
@@ -438,9 +439,11 @@ public abstract class AbstractJoint : AbstractPartModule,
     // doesn't validate which joint has actually broke.
     AsyncCall.CallOnFixedUpdate(this, () => {
       if (isLinked && customJoints.Any(x => x == null)) {
+        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
+        linkSource.BreakCurrentLink(LinkActorType.Physics);
         // It was KAS joint that broke. Restore the part attachment and break KAS link.
         if (parentPart != null) {
-          HostedDebugLog.Fine(this, "Restore coupling with: {0}", parentPart);
+          HostedDebugLog.Info(this, "Restore coupling with: {0}", parentPart);
           var parentPartTransform = parentPart.transform;
           var parentPartRotation = parentPartTransform.rotation;
           var partTransform = part.transform;
@@ -448,8 +451,6 @@ public abstract class AbstractJoint : AbstractPartModule,
           partTransform.rotation = parentPartRotation * relRot;
           part.Couple(parentPart);
         }
-        HostedDebugLog.Info(this, "KAS joint is broken, unlink the parts");
-        linkSource.BreakCurrentLink(LinkActorType.Physics);
       }
     });
   }
@@ -460,6 +461,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   public override void OnAwake() {
     base.OnAwake();
     RegisterGameEventListener(GameEvents.onVesselRename, OnVesselRename);
+    RegisterGameEventListener(GameEvents.onPartDeCoupleNewVesselComplete, OnVesselDecoupled);
   }
   #endregion
 
@@ -569,7 +571,8 @@ public abstract class AbstractJoint : AbstractPartModule,
   #endregion
 
   #region IModuleInfo implementation
-  /// <inheritdoc/>
+
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetInfo" />
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     if (linkBreakForce > 0) {
@@ -593,17 +596,17 @@ public abstract class AbstractJoint : AbstractPartModule,
     return sb.ToString();
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetModuleTitle" />
   public virtual string GetModuleTitle() {
     return ModuleTitle;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetDrawModulePanelCallback" />
   public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
   public virtual string GetPrimaryField() {
     return null;
   }
@@ -816,15 +819,6 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// <seealso cref="DecoupleParts"/>
   void CoupleParts() {
     if (isCoupled) {
-      // If the parts are already coupled, then refresh the state and update the joints.
-      if (persistedSrcVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link source vessel info to: {0}", vessel);
-        persistedSrcVesselInfo = GetVesselInfo(vessel);
-      }
-      if (persistedTgtVesselInfo == null) {
-        HostedDebugLog.Fine(this, "Update link target vessel info to: {0}", vessel);
-        persistedTgtVesselInfo = GetVesselInfo(vessel);
-      }
       SetupPhysXJoints();
       return;
     }
@@ -837,8 +831,7 @@ public abstract class AbstractJoint : AbstractPartModule,
     // Remember the vessel info to restore it on the decoupling. And do the couple!
     persistedSrcVesselInfo = GetVesselInfo(linkSource.part.vessel);
     persistedTgtVesselInfo = GetVesselInfo(linkTarget.part.vessel);
-    KASAPI.LinkUtils.CoupleParts(
-        linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
+    KASAPI.LinkUtils.CoupleParts(linkSource.coupleNode, linkTarget.coupleNode, toDominantVessel: true);
     SetupPhysXJoints();
   }
 
@@ -864,7 +857,6 @@ public abstract class AbstractJoint : AbstractPartModule,
     selfDecoupledAction = false;
     persistedSrcVesselInfo = null;
     persistedTgtVesselInfo = null;
-    DelegateCouplingRole(linkTarget.part);
     SetCustomJoints(null);
   }
 
@@ -908,8 +900,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   /// </remarks>
   /// <param name="source">The link source at the moment of cleanup.</param>
   void MaybeBreakLink(ILinkSource source) {
-    // Delay the nodes cleanup to let the other logic work smoothly. Copy the properties since
-    // they will be null'ed on the link destruction.
+    // Delay the nodes cleanup to let the other logic work smoothly.
     AsyncCall.CallOnEndOfFrame(this, () => {
       if (isLinked) {
         source.BreakCurrentLink(LinkActorType.Physics);
@@ -928,19 +919,18 @@ public abstract class AbstractJoint : AbstractPartModule,
     return vesselInfo;
   }
 
-  /// <summary>Restores the name and type of the vessels of the former coupled parts.</summary>
+  /// <summary>Restores the name and type of the vessel of the former coupled part.</summary>
   /// <remarks>
   /// The source and target parts need to be separated, but the logical link still need to exist.
   /// On restore the vessel info will be cleared on the module. Alas, when the link is broken
   /// externally, the root vessel part cannot be properly restored.
   /// </remarks>
   void RestorePartialVesselInfo(ILinkSource source, ILinkTarget target, bool weDecouple) {
+    var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
+    var childPart = weDecouple ? source.part : target.part;
     AsyncCall.CallOnEndOfFrame(this, () => {
-      var vesselInfo = weDecouple ? persistedSrcVesselInfo : persistedTgtVesselInfo;
-      var childPart = weDecouple ? source.part : target.part;
-      if (childPart.vessel.vesselType != vesselInfo.vesselType
-          || childPart.vessel.vesselName != vesselInfo.name) {
-        HostedDebugLog.Warning(this, "Partially restoring vessel info on {0}: type={1}, name={2}",
+      if (childPart != null && childPart.vessel != null && vesselInfo != null) {
+        HostedDebugLog.Warning(this, "Restoring vessel info on {0} without root: type={1}, name={2}",
                                childPart, vesselInfo.vesselType, vesselInfo.name);
         childPart.vessel.vesselType = vesselInfo.vesselType;
         childPart.vessel.vesselName = vesselInfo.name;
@@ -950,44 +940,46 @@ public abstract class AbstractJoint : AbstractPartModule,
     });
   }
 
-  /// <summary>
-  /// Goes thru the parts on the source and target vessels, and tries to restore the coupling
-  /// between the vessels.
-  /// </summary>
+  static bool _globalCouplingCheckInProcess;
+  void OnVesselDecoupled(Vessel parentVessel, Vessel newVessel) {
+    // This callback will trigger in all joints, but only one check must be done.
+    if (!_globalCouplingCheckInProcess) {
+      HostedDebugLog.Info(this, "Scheduling global coupling check...");
+      _globalCouplingCheckInProcess = true;
+      AsyncCall.CallOnEndOfFrame(this, () => {
+        _globalCouplingCheckInProcess = false;
+        CheckIfCanRestoreCoupling(parentVessel, newVessel);
+      });
+    }
+  }
+
+  /// <summary>Tries to couple back two newly separated vessels.</summary>
   /// <remarks>
-  /// Any linking module on the source or the target vessel, which is linked and in the docking
-  /// mode, will be attempted to restore the vessels coupling. This work will be done at the end of
-  /// frame to let the other logic to cleanup.
+  /// Walks over all KAS link joints in the both vessels to find out if any of them can keep the vessels coupled. If
+  /// that's the case, then the coupling is re-established through the found joint. Must be called at the end of frame.
   /// </remarks>
-  /// <param name="tgtPart">
-  /// The former target part that was holding the coupling with this part.
-  /// </param>
-  void DelegateCouplingRole(Part tgtPart) {
-    AsyncCall.CallOnEndOfFrame(this, () => {
-      var candidates = new List<ILinkJoint>()
-          .Concat(
-              vessel.parts
-                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-                  .Where(
-                      j => !ReferenceEquals(j, this) && j.coupleOnLinkMode && j.isLinked
-                          && j.linkTarget.part.vessel == tgtPart.vessel))
-          .Concat(
-              tgtPart.vessel.parts
-                  .SelectMany(p => p.Modules.OfType<ILinkJoint>())
-                  .Where(
-                      j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == vessel))
-          .ToList();
-      foreach (var joint in candidates) {
-        HostedDebugLog.Fine(this, "Trying to couple via: {0}", joint);
-        if (joint.SetCoupleOnLinkMode(true)) {
-          HostedDebugLog.Info(this, "The coupling role is delegated to: {0}", joint);
-          return;
-        }
+  /// <param name="parentVessel">The former parent in the parts hierarchy.</param>
+  /// <param name="newVessel">The former child in the parts hierarchy.</param>
+  void CheckIfCanRestoreCoupling(Vessel parentVessel, Vessel newVessel) {
+    _globalCouplingCheckInProcess = false;
+    var candidates = new List<ILinkJoint>()
+        .Concat(
+            parentVessel.parts
+                .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == newVessel))
+        .Concat(
+            newVessel.parts
+                .SelectMany(p => p.Modules.OfType<ILinkJoint>())
+                .Where(j => j.coupleOnLinkMode && j.isLinked && j.linkTarget.part.vessel == parentVessel))
+        .ToList();
+    foreach (var linkJoint in candidates) {
+      if (linkJoint.SetCoupleOnLinkMode(true)) {
+        HostedDebugLog.Info(this, "The coupling role is delegated to: {0}", linkJoint);
+        return;
+      } else {
+        HostedDebugLog.Fine(this, "The coupling attempt has been rejected by: {0}", linkJoint);
       }
-      if (candidates.Any()) {
-        HostedDebugLog.Warning(this, "None of the found candidates took the coupling role");
-      }
-    });
+    }
   }
   #endregion
 }

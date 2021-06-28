@@ -12,6 +12,8 @@ using KSPDev.PartUtils;
 using KSPDev.ResourceUtils;
 using System.Collections.Generic;
 using System.Linq;
+using KASAPIv2;
+using KSP.UI;
 using UnityEngine;
 
 // ReSharper disable once CheckNamespace
@@ -19,7 +21,7 @@ namespace KAS {
 
 /// <summary>Module which transfer resources between two linked vessels.</summary>
 /// <seealso cref="KASLinkSourcePhysical"/>
-// Next localization ID: #kasLOC_12017
+// Next localization ID: #kasLOC_12018
 [PersistentFieldsDatabase("KAS/settings/KASConfig")]
 // ReSharper disable once InconsistentNaming
 public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
@@ -58,7 +60,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   static readonly Message<CompactNumberType, CompactNumberType> ResourceAmounts =
       new Message<CompactNumberType, CompactNumberType>(
           "#kasLOC_12003",
-          defaultTemplate: "<gui:min:100,0><<1>> / <<2>>",
+          defaultTemplate: "<<1>> / <<2>>",
           description: "The status string saying current and maximum amounts of the resource in the"
           + " vessel. The gui tags are suggested to define the minimum size of the text, to avoid"
           + " the dialog flickering when the resource is being transferred."
@@ -152,9 +154,22 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate: "Not available in the docked mode",
       description: "The message to present in the transfer dialog when the parts are docked."
       + " Hence, the stock game functionality must be used to transfer the resources.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message NoResourcesFound = new Message(
+      "#kasLOC_12017",
+      defaultTemplate: "Not found any resources for transfer",
+      description: "The message to present when there are no resources that can be transferred in any direction between"
+      + " the vessels.");
   #endregion
 
   #region Part's config fields
+  // ReSharper disable MemberCanBePrivate.Global
+  // ReSharper disable CollectionNeverUpdated.Global
+  // ReSharper disable ClassNeverInstantiated.Global
+  // ReSharper disable ConvertToConstant.Global
+  // ReSharper disable FieldCanBeMadeReadOnly.Global
+
   /// <summary>The maximum allowed speed of transferring a resource.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -191,12 +206,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// beyond this list will be ignored.
   /// </summary>
   /// <remarks>
-  /// <see cref="resourceOverride"/> is ignored when the allowed resources list is set.
+  /// <see cref="resourceOverrides"/> is ignored when the allowed resources list is set.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("allowedResource", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public List<string> allowedResource = new List<string>();
+  public List<string> allowedResources = new List<string>();
 
   /// <summary>
   /// The list of the resources that will be forcibly allowed or disallowed for the transfer via
@@ -222,19 +237,17 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// disallow a resource, add a negative override: <c>-LiquidFuel</c>.
   /// </para>
   /// </remarks>
-  /// <seealso cref="allowedResource"/>
+  /// <seealso cref="allowedResources"/>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [PersistentField("resourceOverride", isCollection = true,
                    group = StdPersistentGroups.PartConfigLoadGroup)]
-  public List<string> resourceOverride = new List<string>();
+  public List<string> resourceOverrides = new List<string>();
 
   /// <summary>Container for the fuel mixture component.</summary>
   // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixtureComponent {
     /// <summary>Name of the resource.</summary>
     [PersistentField("name")]
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    // ReSharper disable once ConvertToConstant.Global
     public string name = "";
 
     /// <summary>
@@ -242,18 +255,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     /// <c>1.0</c> to get the percentage.
     /// </summary>
     [PersistentField("ratio")]
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    // ReSharper disable once ConvertToConstant.Global
-    public double ratio;
+    public double ratio = 0.0;
   }
 
   /// <summary>Container for the fuel mixture.</summary>
-  // ReSharper disable once ClassNeverInstantiated.Global
   public class FuelMixture {
     /// <summary>The mixture components.</summary>
     [PersistentField("component", isCollection = true)]
-    // ReSharper disable once CollectionNeverUpdated.Global
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public List<FuelMixtureComponent> components = new List<FuelMixtureComponent>();
   }
 
@@ -264,6 +272,25 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// </remarks>
   [PersistentField("RTS/fuelMixture", isCollection = true)]
   public List<FuelMixture> fuelMixtures = new List<FuelMixture>();
+
+  // ReSharper restore MemberCanBePrivate.Global
+  // ReSharper restore CollectionNeverUpdated.Global
+  // ReSharper restore ClassNeverInstantiated.Global
+  // ReSharper restore ConvertToConstant.Global
+  // ReSharper restore FieldCanBeMadeReadOnly.Global
+  #endregion
+
+  #region Configuration settings
+  // ReSharper disable FieldCanBeMadeReadOnly.Local
+  // ReSharper disable ConvertToConstant.Local
+
+  /// <summary>Tells if the control hints should be shown in the transfer dialog.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [PersistentField("RTS/showTransferDialogHints", group = StdPersistentGroups.Default)]
+  bool _showTransferDialogHints = true;
+
+  // ReSharper enable FieldCanBeMadeReadOnly.Local
+  // ReSharper enable ConvertToConstant.Local
   #endregion
 
   #region Context menu events/actions
@@ -274,8 +301,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       defaultTemplate = "Open GUI",
       description = "The context menu event that opens the resources transfer GUI.")]
   public void OpenGuiEvent() {
-    if (isLinked && !_isGuiOpen) {
-      _isGuiOpen = true;
+    if (isLinked && !isGuiOpen) {
+      isGuiOpen = true;
       SetPendingTransferOption(null);
       _resourceListNeedsUpdate = true;
       MaybeUpdateResourceOptionList();
@@ -287,24 +314,34 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Actual screen position of the console window.</summary>
   Rect _windowRect = new Rect(100, 100, 1, 1);
   
-  /// <summary>A title bar location.</summary>
-  readonly Rect _titleBarRect = new Rect(0, 0, 10000, 20);
-
   /// <summary>A list of actions to apply at the end of the GUI frame.</summary>
   readonly GuiActionsList _guiActions = new GuiActionsList();
 
-  /// <summary>Style to draw a control of the minimum size.</summary>
-  static readonly GUILayoutOption MinSizeLayout = GUILayout.ExpandWidth(false);
-
   /// <summary>Tells if GUI is open.</summary>
+  bool isGuiOpen {
+    get => _isGuiOpen;
+    set {
+      if (value) {
+        UpdateResourcesTransferGui(force: true);
+      }
+      _isGuiOpen = value;
+    }
+  }
   bool _isGuiOpen;
 
   /// <summary>GUI table to align resource names and quantities.</summary>
   /// <remarks>Left Name + Left Amount + Right Amount + Right Name</remarks>
-  readonly GUILayoutStringTable _guiResourcesTable = new GUILayoutStringTable(4);
+  readonly GUILayoutStringTable _guiResourcesTable = new GUILayoutStringTable(4, keepMaxSize: true);
 
   /// <summary>Definition of all the resources for the both linked vessels.</summary>
   ResourceTransferOption[] _resourceRows = new ResourceTransferOption[0];
+
+  /// <summary>List of resources that can actually be transferred in any direction.</summary>
+  /// <remarks>
+  /// It's derived from <see cref="_resourceRows"/> and only have rows where both sides of the link have non zero
+  /// capacity for the resource.
+  /// </remarks>
+  ResourceTransferOption[] _canTransferResources = new ResourceTransferOption[0];
 
   /// <summary>Index of the vessels resources.</summary>
   Dictionary<int, ResourceTransferOption> _resourceRowsHash =
@@ -334,6 +371,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>The timeout to update the resources counters in GUI in seconds.</summary>
   /// <remarks>It's a performance affecting settings.</remarks>
   const float TransferStateUpdatePeriod = 0.1f;
+
+  /// <summary> The controller of the game's UI scale.</summary>
+  GuiScale _guiScale;
   #endregion
 
   #region Cached values
@@ -347,8 +387,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   #region GUI styles & contents
   GUIStyle _guiNoWrapCenteredStyle;
-  GUIStyle _guiResourceStyle;
-  GUIStyle _guiTransferBtnStyle;
   GUIContent _autoScaleToggleCnt;
   GUIContent _leftToRightToggleCnt;
   GUIContent _leftToRightButtonCnt;
@@ -371,31 +409,33 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
+    public bool leftHasCapacity;
+    public bool rightHasCapacity;
     public double previousUpdate;
     
     readonly int _hashCode;
 
     public bool leftToRightTransferToggle {
-      get { return _leftToRightTransferToggle; }
-      set { UpdateTransferTriggerFlag(ref _leftToRightTransferToggle, value); }
+      get => _leftToRightTransferToggle;
+      set => UpdateTransferTriggerFlag(ref _leftToRightTransferToggle, value);
     }
     bool _leftToRightTransferToggle;
 
     public bool leftToRightTransferPress {
-      get { return _leftToRightTransferPress; }
-      set { UpdateTransferTriggerFlag(ref _leftToRightTransferPress, value); }
+      get => _leftToRightTransferPress;
+      set => UpdateTransferTriggerFlag(ref _leftToRightTransferPress, value);
     }
     bool _leftToRightTransferPress;
 
     public bool rightToLeftTransferToggle {
-      get { return _rightToLeftTransferToggle; }
-      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferToggle, value); }
+      get => _rightToLeftTransferToggle;
+      set => UpdateTransferTriggerFlag(ref _rightToLeftTransferToggle, value);
     }
     bool _rightToLeftTransferToggle;
 
     public bool rightToLeftTransferPress {
-      get { return _rightToLeftTransferPress; }
-      set { UpdateTransferTriggerFlag(ref _rightToLeftTransferPress, value); }
+      get => _rightToLeftTransferPress;
+      set => UpdateTransferTriggerFlag(ref _rightToLeftTransferPress, value);
     }
     bool _rightToLeftTransferPress;
 
@@ -466,6 +506,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <inheritdoc/>
   public override void OnAwake() {
     base.OnAwake();
+    _guiScale = new GuiScale(
+        getPivotFn: () => new Vector2(_windowRect.x, _windowRect.y), onScaleUpdatedFn: MakeGuiStyles);
+  }
+
+  /// <inheritdoc/>
+  public override void OnStart(StartState state) {
+    base.OnStart(state);
     RegisterGameEventListener(GameEvents.onVesselWasModified, OnVesselUpdated);
     RegisterGameEventListener(GameEvents.onVesselDestroy, OnVesselUpdated);
     RegisterGameEventListener(GameEvents.onVesselCreate, OnVesselUpdated);
@@ -483,8 +530,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.OnUpdate();
     if (_rotatingCylinder != null) {
       if (cableJoint.realCableLength > float.Epsilon) {
-        var angle = 360.0f
-            * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
+        var angle = 360.0f * (cableJoint.realCableLength % cylinderPerimeterLength) / cylinderPerimeterLength;
         _rotatingCylinder.localRotation = Quaternion.Euler(angle, 0, 0);
       }
     }
@@ -512,8 +558,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     base.UpdateContextMenu();
 
     PartModuleUtils.SetupEvent(this, OpenGuiEvent, e => {
-      e.active = linkTarget != null && linkTarget.part != null && !linkTarget.part.vessel.isEVA;
+      e.active = linkTarget != null && linkTarget.part != null
+          && linkTarget.part.vessel != null && !linkTarget.part.vessel.isEVA;
     });
+  }
+
+  /// <inheritdoc/>
+  protected override void LogicalLink(ILinkTarget target) {
+    base.LogicalLink(target);
+    _guiResourcesTable.ResetMaxSizes();
   }
 
   /// <inheritdoc/>
@@ -526,11 +579,12 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #region IHasGUI implementation
   /// <inheritdoc/>
   public void OnGUI() {
-    _isGuiOpen &= linkTarget != null;
-    if (Time.timeScale <= float.Epsilon) {
-      return;  // No events and menu in the paused mode.
+    isGuiOpen &= linkTarget != null && !linkTarget.part.isVesselEVA;
+    if (!isGuiOpen || Time.timeScale <= float.Epsilon || !UIMasterController.Instance.IsUIShowing) {
+      return;
     }
-    if (_isGuiOpen) {
+    using (new GuiMatrixScope()) {
+      _guiScale.UpdateMatrix();
       _windowRect = GUILayout.Window(
           GetInstanceID(), _windowRect, TransferResourcesWindowFunc, WindowTitleTxt,
           GUILayout.MaxHeight(1), GUILayout.MaxWidth(1));
@@ -539,21 +593,20 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   #endregion
 
   #region GUI methods
+  /// <summary>The GUI tooltip control. Only used in the <see cref="TransferResourcesWindowFunc"/> method.</summary>
+  readonly GuiTooltip _tooltip = new();
+
   /// <summary>Shows a window that displays the resource transfer controls.</summary>
   /// <param name="windowId">Window ID.</param>
   void TransferResourcesWindowFunc(int windowId) {
-    // Allow the window to be dragged by its title bar.
-    GuiWindow.DragWindow(ref _windowRect, _titleBarRect);
-
-    MakeGuiStyles();
-
     // In the docked mode the players must use the stock transfer mechanism.
     if (vessel == linkTarget.part.vessel) {
-      GUILayout.Label(NotAvailableInDockedMode, new GUIStyle(GUI.skin.label) { wordWrap = false });
-      if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
-        _isGuiOpen = false;
+      GUILayout.Label(NotAvailableInDockedMode, _guiNoWrapCenteredStyle);
+      if (GUILayout.Button(CloseDialogBtn)) {
+        isGuiOpen = false;
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
+      GUI.DragWindow();
       return;
     }
 
@@ -567,37 +620,46 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       }
       UpdateResourcesTransferGui();
     }
-    
-    GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), GUI.skin.box);
-    GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), GUI.skin.box);
-    for (var i = _resourceRows.Length - 1; i >= 0; i--) {
+
+    GUILayout.Label(OwnerVesselTxt.Format(vessel.vesselName), _guiNoWrapCenteredStyle);
+    GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), _guiNoWrapCenteredStyle);
+
+    // No resources, no transfer.
+    if (_canTransferResources.Length == 0) {
+      GUILayout.Label(NoResourcesFound, _guiNoWrapCenteredStyle);
+      if (GUILayout.Button(CloseDialogBtn)) {
+        //        GuiActions.Add(() => _isGuiOpen = false);
+        isGuiOpen = false;
+      }
+      SetPendingTransferOption(null);  // Cancel all transfers.
+      GUI.DragWindow();
+      return;
+    }
+
+    for (var i = _canTransferResources.Length - 1; i >= 0; i--) {
       var row = _resourceRows[i];
       _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
-        _guiResourcesTable.AddTextColumn(
-            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
-        _guiResourcesTable.AddTextColumn(
-            row.leftInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(row.caption, _guiNoWrapCenteredStyle);
+        _guiResourcesTable.AddTextColumn(row.leftInfo, _guiNoWrapCenteredStyle);
         using (new GuiEnabledStateScope(row.canMoveRightToLeft)) {
           row.rightToLeftTransferToggle = GUILayoutButtons.Toggle(
-              row.rightToLeftTransferToggle, _leftToRightToggleCnt, _guiTransferBtnStyle, null,
+              row.rightToLeftTransferToggle, _leftToRightToggleCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.rightToLeftTransferPress = GUILayoutButtons.Push(
-              row.rightToLeftTransferPress, _leftToRightButtonCnt, _guiTransferBtnStyle, null,
+              row.rightToLeftTransferPress, _leftToRightButtonCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
         using (new GuiEnabledStateScope(row.canMoveLeftToRight)) {
           row.leftToRightTransferPress = GUILayoutButtons.Push(
-              row.leftToRightTransferPress, _rightToLeftButtonCnt, _guiTransferBtnStyle, null,
+              row.leftToRightTransferPress, _rightToLeftButtonCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
           row.leftToRightTransferToggle = GUILayoutButtons.Toggle(
-              row.leftToRightTransferToggle, _rightToLeftToggleCnt, _guiTransferBtnStyle, null,
+              row.leftToRightTransferToggle, _rightToLeftToggleCnt, GUI.skin.button, null,
               GuiActionUpdateTransferItem, GuiActionUpdateTransferItem, _guiActions);
         }
-        _guiResourcesTable.AddTextColumn(
-            row.rightInfo, _guiNoWrapCenteredStyle, minWidth: ResourceAmounts.guiTags.minWidth);
-        _guiResourcesTable.AddTextColumn(
-            row.caption, _guiResourceStyle, minWidth: ResourceName.guiTags.minWidth);
+        _guiResourcesTable.AddTextColumn(row.rightInfo, _guiNoWrapCenteredStyle);
+        _guiResourcesTable.AddTextColumn(row.caption, _guiNoWrapCenteredStyle);
       }
     }
 
@@ -613,13 +675,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
     GUILayout.Label(TransferSpeedTxt.Format(_transferSpeed));
 
-    using (new GUILayout.HorizontalScope()) {
-      if (GUILayout.Button(CloseDialogBtn, MinSizeLayout)) {
-        _guiActions.Add(() => _isGuiOpen = false);
-      }
-      GUILayout.Label("");
-      GUI.Label(GUILayoutUtility.GetLastRect(), GUI.tooltip);
+    if (GUILayout.Button(CloseDialogBtn)) {
+      _guiActions.Add(() => isGuiOpen = false);
     }
+    if (_showTransferDialogHints) {
+      _tooltip.Update();
+    }
+    GUI.DragWindow();
   }
 
   /// <summary>Finds the currently active option and makes it active.</summary>
@@ -631,19 +693,15 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     MaybeAutoScaleSpeed();
   }
 
-  /// <summary>Creates the styles. Only does it once.</summary>
+  /// <summary>Creates the styles when the scale changes or initializes.</summary>
   void MakeGuiStyles() {
-    if (_guiNoWrapCenteredStyle != null) {
-      return;
-    }
-    _guiNoWrapCenteredStyle = new GUIStyle(GUI.skin.box) {
+    var skin = GUI.skin; 
+    _guiResourcesTable.ResetMaxSizes();
+    _guiNoWrapCenteredStyle = new GUIStyle(skin.box) {
         wordWrap = false,
-        alignment = TextAnchor.MiddleCenter
-    };
-    _guiResourceStyle = new GUIStyle(_guiNoWrapCenteredStyle);
-    _guiTransferBtnStyle = new GUIStyle(GUI.skin.button) {
         alignment = TextAnchor.MiddleCenter,
-        stretchHeight = true
+        margin = skin.button.margin,
+        padding = skin.button.padding,
     };
   }
   #endregion
@@ -661,7 +719,6 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var maxUnscaledAmount = double.PositiveInfinity;
     for (var i = _pendingOption.resources.Length - 1; i >= 0; i--) {
       var unit = _pendingOption.resourceRatios[i];
-      var resource = _pendingOption.resources[i];
       var amount = _currentFromPartAmounts[i] / unit;
       if (amount < maxUnscaledAmount) {
         maxUnscaledAmount = amount;
@@ -727,10 +784,10 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Updates GUI for all the resources.</summary>
   /// <remarks>
-  /// To not waste too much CPU, this method opdates by timer. However, when an instant update is
+  /// To not waste too much CPU, this method updates by timer. However, when an instant update is
   /// needed, it can be requested via the parameter.
   /// </remarks>
-  /// <param name="force">Tells if GUI must be upadted regardless to the timer.</param>
+  /// <param name="force">Tells if GUI must be updated regardless to the timer.</param>
   void UpdateResourcesTransferGui(bool force = false) {
     if (!force && Time.unscaledTime - _lastResourcesGuiUpdate < TransferStateUpdatePeriod) {
       return;
@@ -739,6 +796,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     for (var i = _resourceRows.Length - 1; i >= 0; i--) {
       UpdateOptionTransferGui(_resourceRows[i]);
     }
+    _canTransferResources =
+        _resourceRows.Where(r => r.leftHasCapacity && r.rightHasCapacity).ToArray();
   }
 
   /// <summary>Updates the resources amounts and the transfer states in GUI.</summary>
@@ -749,10 +808,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     var rightInfoString = "";
     resOption.canMoveRightToLeft = true;
     resOption.canMoveLeftToRight = true;
+    var leftCapacity = 0.0;
+    var rightCapacity = 0.0;
     for (var i = 0; i < resOption.resources.Length; i++) {
       part.GetConnectedResourceTotals(
           resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
           out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
+      leftCapacity += resOption.leftCapacities[i];
       leftInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.leftAmounts[i])
           + " / "
@@ -760,6 +822,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       linkTarget.part.GetConnectedResourceTotals(
           resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
           out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
+      rightCapacity += resOption.rightCapacities[i];
       rightInfoString += (i > 0 ? "\n" : "")
           + CompactNumberType.Format(resOption.rightAmounts[i])
           + " / "
@@ -773,6 +836,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         resOption.canMoveLeftToRight = false;
       }
     }
+    resOption.leftHasCapacity = leftCapacity >= double.Epsilon;
+    resOption.rightHasCapacity = rightCapacity >= double.Epsilon;
     resOption.leftInfo.text = leftInfoString;
     resOption.rightInfo.text = rightInfoString;
   }
@@ -803,18 +868,18 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
         .ToList();
 
     // Find the predefined resources that the part can pump between the vessels.
-    var allowedResourceIds = allowedResource
-        .Select(x => StockResourceNames.GetId(x))
+    var allowedResourceIds = allowedResources
+        .Select(StockResourceNames.GetId)
         .ToArray();
 
     if (allowedResourceIds.Length == 0) {
       // If no specific resources set, then allow all the vessel resources that are material and
       // not restricted for pumping. Allow overriding to include/exclude a specific resource. 
-      var overrideEnabled = resourceOverride
+      var overrideEnabled = resourceOverrides
           .Where(x => x.Length > 0 && x[0] == '+')
           .Select(x => StockResourceNames.GetId(x.Substring(1)))
           .ToArray();
-      var overrideDisabled = resourceOverride
+      var overrideDisabled = resourceOverrides
           .Where(x => x.Length > 0 && x[0] == '-')
           .Select(x => StockResourceNames.GetId(x.Substring(1)));
       var nonMovableIds = PartResourceLibrary.Instance.resourceDefinitions
@@ -858,8 +923,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Sets the currently transferring option. Erasing the previous one.</summary>
   /// <param name="newOption">The new option or <c>null</c>.</param>
   void SetPendingTransferOption(ResourceTransferOption newOption) {
-    if (newOption != _pendingOption && _pendingOption != null) {
-      _pendingOption.StopAllTransfers();
+    if (newOption != _pendingOption) {
+      _pendingOption?.StopAllTransfers();
     }
     _pendingOption = newOption;
     if (_pendingOption == null && _autoScaleSpeed) {

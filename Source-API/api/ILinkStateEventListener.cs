@@ -8,7 +8,7 @@ namespace KASAPIv2 {
 
 /// <summary>Part module interface that defines the events for a link state changes.</summary>
 /// <remarks>
-/// Both the source and the target parts can recieve these events. To receive the events, a module
+/// Both the source and the target parts can receive these events. To receive the events, a module
 /// needs to implement this interface.
 /// </remarks>
 public interface ILinkStateEventListener {

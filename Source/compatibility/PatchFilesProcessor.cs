@@ -25,6 +25,9 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
   #region implemented abstract members of UpgradeScript
   /// <inheritdoc/>
   public override TestResult OnTest(ConfigNode node, LoadContext loadContext, ref string nodeName) {
+    if (_partPatches.Count == 0) {
+      return TestResult.Pass;  // No need to patch.
+    }
     if (node.GetValue("$$failed") != null) {
       return TestResult.Failed;
     }
@@ -32,9 +35,8 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
     if (partName == null) {
       return TestResult.Pass;  // Part was dropped during the upgrade.
     }
-    List<ConfigNodePatch> patches;
     var hasMatches = false;
-    if (_partPatches.TryGetValue(partName, out patches)) {
+    if (_partPatches.TryGetValue(partName, out var patches)) {
       for (var i = patches.Count - 1; i >= 0; --i) {
         var patch = patches[i];
         try {
@@ -89,7 +91,7 @@ internal sealed class PatchFilesProcessor : UpgradeScript {
       Versioning.version_major, Versioning.version_minor, Versioning.Revision);
   #endregion
 
-  #region UpgradeScript oevrrides
+  #region UpgradeScript overrides
   /// <inheritdoc/>
   protected override void OnInit() {
     _partPatches = PartNodePatcher.GetPatches("KAS")

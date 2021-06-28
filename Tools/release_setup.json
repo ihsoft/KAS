@@ -23,7 +23,8 @@
       "bin/Release/{PACKAGE_NAME}.xml",
       "{MINIAVC_VERSION_FILE}",
       "/Binaries/*",
-      "-MiniAVC-V2.version"
+      "-MiniAVC-V2.version",
+      "-MiniAVC-V2.dll"
     ]
   }
 }

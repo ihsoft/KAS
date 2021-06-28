@@ -12,17 +12,19 @@ namespace KASAPIv2 {
 public interface IAttachNodesUtils {
   /// <summary>Creates a new attach node on the part.</summary>
   /// <remarks>
+  /// <p>
   /// It's expected there is no node with the same name on the part already. If there is one, then
   /// no extra node will be created, and the properties of the existing node will be updated instead
   /// (see below). However, it's an unexpected situation, so a warning record will be logged.
-  /// <para>
+  /// </p>
+  /// <p>
   /// The node will have the following properties:
   /// <list type="bullet">
   /// <item>Size is "small".</item>
   /// <item>Attach method is <c>FIXED_JOINT</c>.</item>
   /// <item>Node type is <c>Stack</c>.</item>
   /// </list>
-  /// </para>
+  /// </p>
   /// </remarks>
   /// <param name="part">Part to create node for.</param>
   /// <param name="nodeName">Name of the node to create.</param>
@@ -40,7 +42,7 @@ public interface IAttachNodesUtils {
   /// <remarks>
   /// If the node doesn't belong to the part, then the owner will be fixed and a warning logged.
   /// Normally, it's not expected to add an attach node into a part that doesn't own it. If the node
-  /// is alaready in the part, then this method does nothing.
+  /// is already in the part, then this method does nothing.
   /// </remarks>
   /// <param name="part">The part to add the node into.</param>
   /// <param name="attachNode">The attach node to add.</param>
@@ -66,12 +68,13 @@ public interface IAttachNodesUtils {
 
   /// <summary>Creates an attach node form the part's config definition string.</summary>
   /// <remarks>
-  /// <para>
+  /// <p>
   /// The string format is exactly the same as for the part's attach node definition. It consists of
   /// 10 parts, separated by a comma. Only the first 6 parts are mandatory, the others are optional.
   /// The format is the following:
   /// <c>Position(X,Y,Z), Orientation(X,Y,Z), Size, AttachMethod, CrossFeedAllowed, IsRigid</c>
-  /// </para>
+  /// </p>
+  /// <p>
   /// <list type="bullet">
   /// <item><c>Position</c> is defined by the first 3 float numbers.</item>
   /// <item><c>Orientation</c> is defined by the next 3 float numbers.</item>
@@ -93,6 +96,7 @@ public interface IAttachNodesUtils {
   /// of the two coupling nodes require it.
   /// </item>
   /// </list>
+  /// </p>
   /// </remarks>
   /// <param name="ownerPart">
   /// The part to parse the node for. The new node will <i>not</i> be added to this part, but the
@@ -108,7 +112,7 @@ public interface IAttachNodesUtils {
   AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId);
 
   /// <summary>Gets or creates a transform object for the attach node.</summary>
-  /// <remarks>The trasnform is added into the root of the part model.</remarks>
+  /// <remarks>The transform is added into the root of the part model.</remarks>
   /// <param name="ownerPart">The part that owns the node.</param>
   /// <param name="an">The attach node to create the transform for.</param>
   /// <returns>The object that matches the attach node connect point.</returns>
