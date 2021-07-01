@@ -627,8 +627,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     if (_canTransferResources.Length == 0) {
       GUILayout.Label(NoResourcesFound, _guiNoWrapCenteredStyle);
       if (GUILayout.Button(CloseDialogBtn)) {
-        //        GuiActions.Add(() => _isGuiOpen = false);
-        isGuiOpen = false;
+        _guiActions.Add(() => _isGuiOpen = false);
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
       GUI.DragWindow();
