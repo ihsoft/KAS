@@ -1,4 +1,5 @@
 # 1.9 (pre-release):
+* [Fix #324] Resources intermittently disappear from RTS transfer dialog.
 
 # 1.8 (June 27th, 2021):
 * [NOTICE] If a connected KAS part gets involved in a stock EVA construction operation, it will get immediately detached from the peer. To avoid unpexected behvior, it's recommended to manually break the link before using EVA construction mode.
