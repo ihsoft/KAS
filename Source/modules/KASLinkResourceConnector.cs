@@ -344,8 +344,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   ResourceTransferOption[] _canTransferResources = new ResourceTransferOption[0];
 
   /// <summary>Index of the vessels resources.</summary>
-  Dictionary<int, ResourceTransferOption> _resourceRowsHash =
-      new Dictionary<int, ResourceTransferOption>();
+  Dictionary<int, ResourceTransferOption> _resourceRowsHash = new();
 
   /// <summary>The currently behaving resource transfer.</summary>
   ResourceTransferOption _pendingOption;
@@ -403,9 +402,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public readonly double[] leftCapacities;
     public readonly double[] rightAmounts;
     public readonly double[] rightCapacities;
-    public readonly GUIContent caption = new GUIContent();
-    public readonly GUIContent leftInfo = new GUIContent();
-    public readonly GUIContent rightInfo = new GUIContent();
+    public readonly GUIContent caption = new();
+    public readonly GUIContent leftInfo = new();
+    public readonly GUIContent rightInfo = new();
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
