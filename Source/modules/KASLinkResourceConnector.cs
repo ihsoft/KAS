@@ -336,16 +336,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
   /// <summary>Definition of all the resources for the both linked vessels.</summary>
   ResourceTransferOption[] _resourceRows = new ResourceTransferOption[0];
 
-  /// <summary>List of resources that can actually be transferred in any direction.</summary>
-  /// <remarks>
-  /// It's derived from <see cref="_resourceRows"/> and only have rows where both sides of the link have non zero
-  /// capacity for the resource.
-  /// </remarks>
-  ResourceTransferOption[] _canTransferResources = new ResourceTransferOption[0];
-
   /// <summary>Index of the vessels resources.</summary>
-  Dictionary<int, ResourceTransferOption> _resourceRowsHash =
-      new Dictionary<int, ResourceTransferOption>();
+  Dictionary<int, ResourceTransferOption> _resourceRowsHash = new();
 
   /// <summary>The currently behaving resource transfer.</summary>
   ResourceTransferOption _pendingOption;
@@ -403,14 +395,13 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     public readonly double[] leftCapacities;
     public readonly double[] rightAmounts;
     public readonly double[] rightCapacities;
-    public readonly GUIContent caption = new GUIContent();
-    public readonly GUIContent leftInfo = new GUIContent();
-    public readonly GUIContent rightInfo = new GUIContent();
+    public readonly GUIContent caption = new();
+    public readonly GUIContent leftInfo = new();
+    public readonly GUIContent rightInfo = new();
 
     public bool canMoveRightToLeft;
     public bool canMoveLeftToRight;
-    public bool leftHasCapacity;
-    public bool rightHasCapacity;
+    public bool zeroCapacity;
     public double previousUpdate;
     
     readonly int _hashCode;
@@ -484,6 +475,45 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
       _leftToRightTransferToggle = false;
       _rightToLeftTransferPress = false;
       _rightToLeftTransferToggle = false;
+    }
+
+    /// <summary>Updates the internal state to the current state of the parts.</summary>
+    /// <remarks>This method is called at a high frequency, so it must be optimized.</remarks>
+    /// <param name="leftPart">The owner vessel RTS part.</param>
+    /// <param name="rightPart">The connected vessel socket part.</param>
+    public void Update(Part leftPart, Part rightPart) {
+      var leftInfoString = "";
+      var rightInfoString = "";
+      canMoveRightToLeft = true;
+      canMoveLeftToRight = true;
+      for (var i = 0; i < resources.Length; i++) {
+        leftPart.GetConnectedResourceTotals(
+            resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE, out leftAmounts[i], out leftCapacities[i]);
+        leftInfoString += (i > 0 ? "\n" : "")
+            + CompactNumberType.Format(leftAmounts[i]) + " / " + CompactNumberType.Format(leftCapacities[i]);
+        rightPart.GetConnectedResourceTotals(
+            resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
+            out rightAmounts[i], out rightCapacities[i]);
+        rightInfoString += (i > 0 ? "\n" : "")
+            + CompactNumberType.Format(rightAmounts[i]) + " / " + CompactNumberType.Format(rightCapacities[i]);
+        if (rightAmounts[i] < double.Epsilon || leftAmounts[i] >= leftCapacities[i]) {
+          canMoveRightToLeft = false;
+        }
+        if (leftAmounts[i] < double.Epsilon || rightAmounts[i] >= rightCapacities[i]) {
+          canMoveLeftToRight = false;
+        }
+      }
+      leftInfo.text = leftInfoString;
+      rightInfo.text = rightInfoString;
+
+      // If either of the sides has zero capacity for the resource, then it cannot be transferred. 
+      zeroCapacity = false;
+      for (var i = leftCapacities.Length - 1; !zeroCapacity && i >= 0; i--) {
+        zeroCapacity = leftCapacities[i] < double.Epsilon;
+      }
+      for (var i = rightCapacities.Length - 1; !zeroCapacity && i >= 0; i--) {
+        zeroCapacity = rightCapacities[i] < double.Epsilon;
+      }
     }
 
     /// <summary>Updates the transfer trigger flag.</summary>
@@ -625,18 +655,17 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     GUILayout.Label(ConnectedVesselTxt.Format(linkTarget.part.vessel.vesselName), _guiNoWrapCenteredStyle);
 
     // No resources, no transfer.
-    if (_canTransferResources.Length == 0) {
+    if (_resourceRows.Length == 0) {
       GUILayout.Label(NoResourcesFound, _guiNoWrapCenteredStyle);
       if (GUILayout.Button(CloseDialogBtn)) {
-        //        GuiActions.Add(() => _isGuiOpen = false);
-        isGuiOpen = false;
+        _guiActions.Add(() => _isGuiOpen = false);
       }
       SetPendingTransferOption(null);  // Cancel all transfers.
       GUI.DragWindow();
       return;
     }
 
-    for (var i = _canTransferResources.Length - 1; i >= 0; i--) {
+    for (var i = _resourceRows.Length - 1; i >= 0; i--) {
       var row = _resourceRows[i];
       _guiResourcesTable.StartNewRow();
       using (new GUILayout.HorizontalScope()) {
@@ -794,52 +823,8 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
     }
     _lastResourcesGuiUpdate = Time.unscaledTime;
     for (var i = _resourceRows.Length - 1; i >= 0; i--) {
-      UpdateOptionTransferGui(_resourceRows[i]);
+      _resourceRows[i].Update(part, linkTarget.part);
     }
-    _canTransferResources =
-        _resourceRows.Where(r => r.leftHasCapacity && r.rightHasCapacity).ToArray();
-  }
-
-  /// <summary>Updates the resources amounts and the transfer states in GUI.</summary>
-  /// <remarks>This method must be performance optimized.</remarks>
-  /// <param name="resOption">The resource transfer option to update.</param>
-  void UpdateOptionTransferGui(ResourceTransferOption resOption) {
-    var leftInfoString = "";
-    var rightInfoString = "";
-    resOption.canMoveRightToLeft = true;
-    resOption.canMoveLeftToRight = true;
-    var leftCapacity = 0.0;
-    var rightCapacity = 0.0;
-    for (var i = 0; i < resOption.resources.Length; i++) {
-      part.GetConnectedResourceTotals(
-          resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
-          out resOption.leftAmounts[i], out resOption.leftCapacities[i]);
-      leftCapacity += resOption.leftCapacities[i];
-      leftInfoString += (i > 0 ? "\n" : "")
-          + CompactNumberType.Format(resOption.leftAmounts[i])
-          + " / "
-          + CompactNumberType.Format(resOption.leftCapacities[i]);
-      linkTarget.part.GetConnectedResourceTotals(
-          resOption.resources[i], ResourceFlowMode.ALL_VESSEL_BALANCE,
-          out resOption.rightAmounts[i], out resOption.rightCapacities[i]);
-      rightCapacity += resOption.rightCapacities[i];
-      rightInfoString += (i > 0 ? "\n" : "")
-          + CompactNumberType.Format(resOption.rightAmounts[i])
-          + " / "
-          + CompactNumberType.Format(resOption.rightCapacities[i]);
-      if (resOption.rightAmounts[i] < double.Epsilon
-          || resOption.leftAmounts[i] >= resOption.leftCapacities[i]) {
-        resOption.canMoveRightToLeft = false;
-      }
-      if (resOption.leftAmounts[i] < double.Epsilon
-          || resOption.rightAmounts[i] >= resOption.rightCapacities[i]) {
-        resOption.canMoveLeftToRight = false;
-      }
-    }
-    resOption.leftHasCapacity = leftCapacity >= double.Epsilon;
-    resOption.rightHasCapacity = rightCapacity >= double.Epsilon;
-    resOption.leftInfo.text = leftInfoString;
-    resOption.rightInfo.text = rightInfoString;
   }
 
   /// <summary>
@@ -912,7 +897,9 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
           mixture.components.Select(x => x.ratio).ToArray()));
     }
 
+    movableResources.ForEach(r => r.Update(part, linkTarget.part));
     _resourceRows = movableResources
+        .Where(r => !r.zeroCapacity)
         .Select(resource => _resourceRowsHash.ContainsKey(resource.GetHashCode())
             ? _resourceRowsHash[resource.GetHashCode()]
             : resource)
