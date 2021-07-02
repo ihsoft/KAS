@@ -8,7 +8,7 @@
     "KSP_VERSION": {
         "MAJOR": 1, 
         "MINOR": 12, 
-        "PATCH": 0
+        "PATCH": 1
     }, 
     "KSP_VERSION_MAX": {
         "MAJOR": 1, 
@@ -23,9 +23,9 @@
     "NAME": "KAS", 
     "URL": "https://github.com/ihsoft/KAS/blob/master/KAS.version", 
     "VERSION": {
-        "BUILD": 38781, 
+        "BUILD": 42225, 
         "MAJOR": 1, 
-        "MINOR": 8, 
-        "PATCH": 7848
+        "MINOR": 9, 
+        "PATCH": 7852
     }
 }

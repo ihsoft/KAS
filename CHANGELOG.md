@@ -1,4 +1,4 @@
-# 1.9 (pre-release):
+# 1.9 (July 1st, 2021):
 * [Fix #324] Resources intermittently disappear from RTS transfer dialog.
 
 # 1.8 (June 27th, 2021):
