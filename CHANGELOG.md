@@ -1,4 +1,5 @@
 # 1.10 (pre-release):
+* [Fix #326] Error in the logs when an inactive vessel gets in range.
 
 # 1.9 (July 1st, 2021):
 * [Fix #324] Resources intermittently disappear from RTS transfer dialog.

@@ -458,8 +458,8 @@ public abstract class AbstractJoint : AbstractPartModule,
 
   #region AbstractPartModule overrides
   /// <inheritdoc/>
-  public override void OnAwake() {
-    base.OnAwake();
+  public override void OnStart(StartState state) {
+    base.OnStart(state);
     RegisterGameEventListener(GameEvents.onVesselRename, OnVesselRename);
     RegisterGameEventListener(GameEvents.onPartDeCoupleNewVesselComplete, OnVesselDecoupled);
   }
@@ -943,7 +943,7 @@ public abstract class AbstractJoint : AbstractPartModule,
   static bool _globalCouplingCheckInProcess;
   void OnVesselDecoupled(Vessel parentVessel, Vessel newVessel) {
     // This callback will trigger in all joints, but only one check must be done.
-    if (!_globalCouplingCheckInProcess) {
+    if (!_globalCouplingCheckInProcess && isActiveAndEnabled) {
       HostedDebugLog.Info(this, "Scheduling global coupling check...");
       _globalCouplingCheckInProcess = true;
       AsyncCall.CallOnEndOfFrame(this, () => {
