@@ -724,7 +724,7 @@ public sealed class KASLinkResourceConnector : KASLinkSourcePhysical,
 
   /// <summary>Creates the styles when the scale changes or initializes.</summary>
   void MakeGuiStyles() {
-    var skin = GUI.skin; 
+    var skin = GUI.skin;
     _guiResourcesTable.ResetMaxSizes();
     _guiNoWrapCenteredStyle = new GUIStyle(skin.box) {
         wordWrap = false,
