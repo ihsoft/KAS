@@ -1,4 +1,4 @@
-# 1.10 (pre-release):
+# 1.10 (October 20th, 2021):
 * [Fix #326] Error in the logs when an inactive vessel gets in range.
 
 # 1.9 (July 1st, 2021):
