@@ -20,20 +20,17 @@ namespace KAS {
 
 /// <summary>Module for a simple winch with a deployable connector and a motor.</summary>
 /// <remarks>
-/// <para>
-/// The connector is attached to the winch with a cable, and it can link with the compatible link
-/// targets. The winch itself is a <see cref="ILinkSource">link source</see>. An EVA kerbal can
-/// "grab" the connector and carry it as far as the cable maximum length allows.
-/// </para>
-/// <para>
-/// This winch implementation requires the associated joint module to support coupling. The winch
-/// cable targets are also required to support coupling. The winch module behavior is undetermined
-/// if the coupling is rejected when a plugged connector is being locked (going into the "docked"
-/// state).
-/// </para>
-/// <para>
-/// The descendants of this module can use the custom persistent fields of groups:
-/// </para>
+/// <p>
+/// The connector is attached to the winch with a cable, and it can link with the compatible link targets. The winch
+/// itself is a <see cref="ILinkSource">link source</see>. An EVA kerbal can "grab" the connector and carry it as far as
+/// the cable maximum length allows.
+/// </p>
+/// <p>
+/// This winch implementation requires the associated joint module to support coupling. The winch cable targets are also
+/// required to support coupling. The winch module behavior is undetermined if the coupling is rejected when a plugged
+/// connector is being locked (going into the "docked" state).
+/// </p>
+/// <p>The descendants of this module can use the custom persistent fields of groups:</p>
 /// <list type="bullet">
 /// <item><c>StdPersistentGroups.PartConfigLoadGroup</c></item>
 /// <item><c>StdPersistentGroups.PartPersistant</c></item>
@@ -127,25 +124,20 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region Part's config fields
   /// <summary>Maximum cable length at which the cable connector can lock to the winch.</summary>
   /// <remarks>
-  /// A spring joint in PhysX will never pull the objects together to the zero distance regardless
-  /// to the spring strength. For this reason the there should be always be a reasonable error
-  /// allowed. Setting the error to a too big value will result in unpleasant locking behavior and
-  /// increase the force at which the connector hits the winch on locking. A too small value of the
-  /// allowed error will make the locking harder, up to not being able to lock at all.
+  /// A spring joint in PhysX will never pull the objects together to the zero distance regardless to the spring
+  /// strength. For this reason the there should be always be a reasonable error allowed. Setting the error to a too big
+  /// value will result in unpleasant locking behavior and increase the force at which the connector hits the winch on
+  /// locking. A too small value of the allowed error will make the locking harder, up to not being able to lock at all.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
   [Debug.KASDebugAdjustable("Connector lock distance error")]
   public float connectorLockMaxErrorDist = 0.05f;
 
-  /// <summary>
-  /// Maximum direction error to allow for the cable connector to lock to the winch. It's in
-  /// degrees.
-  /// </summary>
+  /// <summary>Maximum direction error to allow for the cable connector to lock to the winch. It's in degrees.</summary>
   /// <remarks>
-  /// This value is always positive, and it determines how significantly the direction of the
-  /// <c>forward</c> and <c>up</c> vectors of the connector can differ from the winch's attach node
-  /// direction.
+  /// This value is always positive, and it determines how significantly the direction of the <c>forward</c> and
+  /// <c>up</c> vectors of the connector can differ from the winch's attach node direction.
   /// </remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   /// <include file="../Unity3D_HelpIndex.xml" path="//item[@name='T:UnityEngine.Vector3']/*"/>
@@ -159,9 +151,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   [Debug.KASDebugAdjustable("Motor max speed")]
   public float motorMaxSpeed = 2;
 
-  /// <summary>
-  /// Acceleration to apply to reach the target motor speed. Meters per second squared.
-  /// </summary>
+  /// <summary>Acceleration to apply to reach the target motor speed. Meters per second squared.</summary>
   /// <remarks>It must not be <c>0</c>, since in this case the motor will never start.</remarks>
   /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
   [KSPField]
@@ -209,7 +199,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   #region Context menu events/actions
   // Keep the events that may change their visibility states at the bottom. When an item goes out
-  // of the menu, its height is reduced, but the lower left corner of the dialog is retained. 
+  // of the menu, its height is reduced, but the lower left corner of the dialog is retained.
 
   /// <summary>A context menu item that opens the winches GUI.</summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -225,8 +215,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   /// <summary>A context menu item that starts/stops extending the cable.</summary>
   /// <remarks>
-  /// If the connector was locked it will be deployed. This method does nothing is the cable cannot
-  /// be extended for any reason.
+  /// If the connector was locked it will be deployed. This method does nothing is the cable cannot be extended for any
+  /// reason.
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
   /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -238,8 +228,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   /// <summary>A context menu item that starts/stops retracting the cable.</summary>
   /// <remarks>
-  /// If the cable length is zero but the connector is not locked, then this method will try to lock
-  /// the connector. It does nothing is the cable cannot be retracted for any reason.
+  /// If the cable length is zero but the connector is not locked, then this method will try to lock the connector. It
+  /// does nothing is the cable cannot be retracted for any reason.
   /// </remarks>
   /// <seealso cref="UpdateContextMenu"/>
   /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
@@ -250,8 +240,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
 
   /// <summary>
-  /// A context menu item that sets the cable length to the maximum, and unlocks the connector if it
-  /// was locked.
+  /// A context menu item that sets the cable length to the maximum, and unlocks the connector if it was locked.
   /// </summary>
   /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
   [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
@@ -320,8 +309,8 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   [LocalizableItem(
       tag = "#kasLOC_08018",
       defaultTemplate = "Release cable",
-      description = "name of the action that sets the cable length to the maximum, and unlocks"
-      + " the connector if it was locked.")]
+      description = "Name of the action that sets the cable length to the maximum, and unlocks the connector if it was" 
+      + " locked.")]
   public virtual void ReleaseCableAction(KSPActionParam unused) {
     ReleaseCableEvent();
   }
@@ -558,15 +547,11 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     }
   }
 
-  /// <summary>
-  /// Checks if the cable connector can be locked without triggering significant physical forces.
-  /// </summary>
-  /// <param name="logCheckResult">
-  /// If <c>true</c> then the result of the check will be logged.
-  /// </param>
+  /// <summary>Checks if the cable connector can be locked without triggering significant physical forces.</summary>
+  /// <param name="logCheckResult">If <c>true</c> then the result of the check will be logged.</param>
   /// <returns>
-  /// <c>true</c> if projection of the position and direction of the connector, and whatever is
-  /// attached to it, won't deal a significant disturbance to the system.
+  /// <c>true</c> if projection of the position and direction of the connector, and whatever is attached to it, won't
+  /// deal a significant disturbance to the system.
   /// </returns>
   bool CheckIsConnectorAligned(bool logCheckResult) {
     // Check the pre-conditions. 
@@ -608,9 +593,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
 
   /// <summary>Checks if the cable connector can be locked, and attempts to lock it.</summary>
   /// <remarks>The successful attempt will be logged to GUI.</remarks>
-  /// <param name="reportIfCannot">
-  /// If <c>true</c> then the failed attempt will be logged to GUI.
-  /// </param>
+  /// <param name="reportIfCannot">If <c>true</c> then the failed attempt will be logged to GUI.</param>
   /// <returns><c>true</c> if the connector was successfully locked.</returns>
   // ReSharper disable once UnusedMethodReturnValue.Local
   bool TryLockingConnector(bool reportIfCannot = true) {
