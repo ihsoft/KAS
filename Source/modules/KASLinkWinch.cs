@@ -456,7 +456,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   }
   #endregion
 
-  #region IWinControl implementation
+  #region IWinchControl implementation
   /// <inheritdoc/>
   public void SetMotor(float targetSpeed) {
     if (targetSpeed > 0 && cableJoint.deployedCableLength >= cableJoint.cfgMaxCableLength) {
