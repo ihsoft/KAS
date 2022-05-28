@@ -494,7 +494,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IModuleInfo implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetInfo" />
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(LinksWithSocketTypeInfo.Format(
@@ -504,17 +504,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     return sb.ToString();
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetModuleTitle" />
   public virtual string GetModuleTitle() {
     return ModuleTitleInfo;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetDrawModulePanelCallback" />
   public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
   public virtual string GetPrimaryField() {
     return null;
   }
