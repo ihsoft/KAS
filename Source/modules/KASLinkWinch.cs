@@ -2,6 +2,8 @@
 // Author: igor.zavoychinskiy@gmail.com
 // License: Public Domain
 
+using System;
+using System.Collections;
 using KASAPIv2;
 using KSPDev.GUIUtils;
 using KSPDev.GUIUtils.TypeFormatters;
@@ -37,7 +39,7 @@ namespace KAS {
 /// </list>
 /// </remarks>
 /// <seealso cref="ILinkJoint.SetCoupleOnLinkMode"/>
-// Next localization ID: #kasLOC_08019.
+// Next localization ID: #kasLOC_08021.
 // ReSharper disable once InconsistentNaming
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class KASLinkWinch : KASLinkSourcePhysical,
@@ -119,6 +121,13 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       defaultTemplate: "Max motor speed: <<1>>",
       description: "Info string that tells how fast the winch can extend or retract the cable."
       + "\nArgument <<1>> is the speed of type VelocityType.");
+
+  /// <include file="../SpecialDocTags.xml" path="Tags/Message0/*"/>
+  static readonly Message<ForceType> EjectionForceInfo = new(
+      "#kasLOC_08019",
+      defaultTemplate: "Ejection force: <<1>>",
+      description: "Info string that tells what force the winch will apply on an ejected head when requested."
+      + "\nArgument <<1>> is the force of type ForceType.");
   #endregion
 
   #region Part's config fields
@@ -163,6 +172,24 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   [KSPField]
   [Debug.KASDebugAdjustable("Motor power drain")]
   public double motorPowerDrain = 0.5f;
+
+  /// <summary>Indicates if the connector can be ejected.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Ejection - enabled")]
+  public bool ejectEnabled;
+
+  /// <summary>Specifies the force at which the connector eject.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Ejection - force")]
+  public float ejectForce;
+
+  /// <summary>URL of the sound for the connector head ejection.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/ConfigSetting/*"/>
+  [KSPField]
+  [Debug.KASDebugAdjustable("Ejection - sound")]
+  public string sndPathEject = "";
 
   /// <summary>URL of the sound for the working winch motor.</summary>
   /// <remarks>This sound will be looped while the motor is active.</remarks>
@@ -266,6 +293,24 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       + " connector.")]
   public virtual void InstantStretchEvent() {
     StretchCable();
+  }
+
+  /// <summary>A context menu event that triggers connector ejection.</summary>
+  /// <include file="../SpecialDocTags.xml" path="Tags/KspEvent/*"/>
+  [KSPEvent(guiActive = true, guiActiveUnfocused = true)]
+  [LocalizableItem(
+      tag = "#kasLOC_08020",
+      defaultTemplate = "Eject connector",
+      description = "Name of the action that triggers the ejection of the connector. The connector gets thrown towards"
+      + " its forward direction with a force.")]
+  public virtual void EjectConnectorEvent() {
+    if (!ejectEnabled) {
+      throw new InvalidOperationException("Connector cannot be ejected on part: " + part.name);
+    }
+    if (!isConnectorLocked) {
+      throw new InvalidOperationException("Cannot eject a non-locked connector");
+    }
+    StartCoroutine(EjectConnector());
   }
 
   /// <summary>Action that starts the cable extending.</summary>
@@ -374,7 +419,20 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(MotorSpeedInfo.Format(motorMaxSpeed));
+    if (ejectEnabled) {
+      sb.AppendLine(EjectionForceInfo.Format(ejectForce));
+    }
     sb.AppendLine(resHandler.PrintModuleResources());
+    return sb.ToString();
+  }
+
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
+  public override string GetPrimaryField() {
+    if (!ejectEnabled) {
+      return base.GetPrimaryField();
+    }
+    var sb = new StringBuilder(base.GetPrimaryField() ?? "");
+    sb.AppendLine(EjectionForceInfo.Format(ejectForce));
     return sb.ToString();
   }
 
@@ -452,6 +510,9 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     });
     PartModuleUtils.SetupEvent(this, ReleaseCableEvent, e => {
       e.active = linkState != LinkState.NodeIsBlocked;
+    });
+    PartModuleUtils.SetupEvent(this, EjectConnectorEvent, e => {
+       e.active = ejectEnabled && connectorState is ConnectorState.Docked or ConnectorState.Locked;
     });
   }
   #endregion
@@ -617,6 +678,42 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       ShowStatusMessage(ConnectorLockedMsg);
     }
     return true;
+  }
+
+  /// <summary>Ejects a locked winch connector.</summary>
+  /// <remarks>
+  /// Given the maximum length of the cable this coroutine estimates how long will it take for a dart to hit anything,
+  /// and this time is used as a timeout. When a target is hit, the dart module is responsible to reset the collision
+  /// check mode. If it didn't happen and the timeout expired, then it's assumed nothing has been hit.
+  /// </remarks>
+  IEnumerator EjectConnector() {
+    ReleaseCable();
+    yield return new WaitForFixedUpdate(); // Let the physics to settle.
+
+    var ejectRb = cableJoint.headRb != null ? cableJoint.headRb : linkJoint.linkTarget.part.rb;
+    var ejectImpulse = nodeTransform.TransformDirection(Vector3.forward) * ejectForce * Time.fixedDeltaTime;
+    ejectRb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+    ejectRb.AddForce(ejectImpulse, ForceMode.Impulse);
+    part.rb.AddForce(-ejectImpulse, ForceMode.Impulse);
+    UISoundPlayer.instance.Play(sndPathEject);
+    HostedDebugLog.Info(this, "Ejected the head: impulse={0}", ejectImpulse);
+
+    // Give one physics update frame for the eject force to apply and the ejected part(s) to react.
+    yield return new WaitForFixedUpdate();
+
+    // Figure out how much time it will take for the projectile to fly at the maximum distance.
+    var rbVelocity = ejectRb.velocity.magnitude;
+    var maxTimeToFly = cfgMaxCableLength / rbVelocity;
+    HostedDebugLog.Info(this,
+        "Projectile {0} has been ejected at speed {1}. Max cable length {2} will be exhausted in {3} seconds.",
+        ejectRb, rbVelocity, cfgMaxCableLength, maxTimeToFly);
+    yield return new WaitForSeconds(maxTimeToFly + 0.5f);  // Add a delta just in case.
+
+    // Restore performance mode if the projectile hasn't hit anything.
+    if (ejectRb.collisionDetectionMode != CollisionDetectionMode.Discrete) {
+      ejectRb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+      HostedDebugLog.Info(this, "Projectile {0} hasn't hit anything", ejectRb);
+    }
   }
   #endregion
 }
