@@ -429,7 +429,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #region IHasContextMenu implementation
   /// <inheritdoc/>
   public override void UpdateContextMenu() {
-    if (part.partInfo.partPrefab == part) {
+    if (part.partInfo == null || part.partInfo.partPrefab == part) {
       return; // It's a prefab.
     }
     base.UpdateContextMenu();
