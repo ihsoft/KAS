@@ -423,7 +423,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
       sb.AppendLine(EjectionForceInfo.Format(ejectForce));
     }
     sb.AppendLine(resHandler.PrintModuleResources());
-    return sb.ToString();
+    return sb.ToString().Trim();
   }
 
   /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
@@ -433,7 +433,7 @@ public class KASLinkWinch : KASLinkSourcePhysical,
     }
     var sb = new StringBuilder(base.GetPrimaryField() ?? "");
     sb.AppendLine(EjectionForceInfo.Format(ejectForce));
-    return sb.ToString();
+    return sb.ToString().Trim();
   }
 
   /// <inheritdoc/>
