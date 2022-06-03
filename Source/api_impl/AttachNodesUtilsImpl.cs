@@ -85,12 +85,12 @@ internal class AttachNodesUtilsImpl : KASAPIv2.IAttachNodesUtils {
   /// <inheritdoc/>
   public AttachNode ParseNodeFromString(Part ownerPart, string def, string nodeId) {
     ArgumentGuard.NotNull(ownerPart, "ownerPart");
-    ArgumentGuard.NotNullOrEmpty(def, "def", context: ownerPart);
+    ArgumentGuard.NotNull(def, "def", context: ownerPart);
     ArgumentGuard.NotNullOrEmpty(nodeId, "nodeId", context: ownerPart);
-    var array = def.Split(',');
-    ArgumentGuard.InRange(array.Length, "def", 6, 10,
-                          message: "Unexpected number of components", context: ownerPart);
     try {
+      var array = def.Split(',');
+      ArgumentGuard.InRange(array.Length, "def", 6, 10, message: "Unexpected number of components", context: ownerPart);
+
       // The logic is borrowed from PartLoader.ParsePart.
       var attachNode = new AttachNode {
           owner = ownerPart,
@@ -115,8 +115,7 @@ internal class AttachNodesUtilsImpl : KASAPIv2.IAttachNodesUtils {
       }
       attachNode.nodeType = AttachNode.NodeType.Stack;
       return attachNode;
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       HostedDebugLog.Error(ownerPart, "Cannot parse node '{0}' from: {1}\nError: {2}",
                            nodeId, def, ex.Message);
       return null;
