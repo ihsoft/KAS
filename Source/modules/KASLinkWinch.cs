@@ -410,12 +410,12 @@ public class KASLinkWinch : KASLinkSourcePhysical,
   #endregion
 
   #region KASLikSourcePhysical overrides
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetModuleTitle" />
   public override string GetModuleTitle() {
     return ModuleTitleInfo;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetInfo" />
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(MotorSpeedInfo.Format(motorMaxSpeed));
