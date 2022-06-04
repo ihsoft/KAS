@@ -73,8 +73,8 @@
     <Reference Include="KAS-API-v2">
       <HintPath>..\..\..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.6-KAS, Version=2.6.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\Binaries\KSPDev_Utils.2.6-KAS.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.7, Version=2.7.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Binaries\KSPDev_Utils.2.7.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>Q:\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>

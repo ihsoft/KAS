@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>KSPDev_Utils.2.6-KAS</name>
+        <name>KSPDev_Utils.2.7</name>
     </assembly>
     <members>
         <member name="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto">
@@ -918,8 +918,8 @@
         <member name="M:KSPDev.ConfigUtils.ConfigAccessor.WriteFieldsIntoFile(System.String,System.Type,System.Object,System.String,System.Boolean,System.String)">
             <summary>Writes values of the annotated persistent fields into a file.</summary>
             <remarks>
-            All persitent values are <b>added</b> into the file provided. I.e. if node had already had a
-            value being persited then it either overwritten (ordinary fields) or extended (collection
+            All persistent values are <b>added</b> into the file provided. I.e. if node had already had a
+            value being persisted then it either overwritten (ordinary fields) or extended (collection
             fields).
             </remarks>
             <param name="filePath">
@@ -927,7 +927,7 @@
             <see cref="M:KSPDev.FSUtils.KspPaths.MakeAbsPathForGameData(System.String[])"/>.
             </param>
             <param name="rootNodePath">
-            A path to the node in the file where the data should be written. If the node already exsists
+            A path to the node in the file where the data should be written. If the node already exists
             it will be deleted.
             </param>
             <param name="type">A type to write fields for.</param>
@@ -1431,6 +1431,7 @@
              <seealso cref="T:KSPDev.ConfigUtils.AbstractOrdinaryValueTypeProto"/>
              <seealso cref="T:KSPDev.ConfigUtils.AbstractCollectionTypeProto"/>
              <seealso cref="T:KSPDev.ConfigUtils.IPersistentField"/>
+             <seealso cref="T:KSPDev.ConfigUtils.StdPersistentGroups"/>
              <seealso href="https://kerbalspaceprogram.com/api/interface_i_config_node.html">KSP: IConfigNode</seealso>
         </member>
         <member name="P:KSPDev.ConfigUtils.PersistentFieldAttribute.isCollection">
@@ -1810,7 +1811,7 @@
             <summary>Stores the old matrix.</summary>
         </member>
         <member name="M:KSPDev.GUIUtils.GuiMatrixScope.Dispose">
-            <summary>Restores the matrix that was set before the scope started.</summary>
+            <summary>Restores the matrix that was set after the scope has started.</summary>
         </member>
         <member name="T:KSPDev.GUIUtils.GuiScale">
              <summary>Component for GUI dialog rescaling, based on the current game's GUI scale setting.</summary>
@@ -1836,8 +1837,8 @@
              }
             
              void OnGUI() {
-               using (new GuiMatrixScope() {
-                 _guiSkin.UpdateMatrix();
+               using (new GuiMatrixScope()) {
+                 _guiScale.UpdateMatrix();
                  _windowRect = GUILayout.Window(GetInstanceID(), _windowRect, WindowFunc, WindowTitle);
                }
              }
@@ -1859,7 +1860,7 @@
         <member name="F:KSPDev.GUIUtils.GuiScale.scaleIsDirty">
             <summary>Tells if the scale must be recalculated on the next access to <see cref="P:KSPDev.GUIUtils.GuiScale.scale"/>.</summary>
         </member>
-        <member name="M:KSPDev.GUIUtils.GuiScale.#ctor(System.Func{UnityEngine.Vector2},System.Action)">
+        <member name="M:KSPDev.GUIUtils.GuiScale.#ctor(System.Func{UnityEngine.Vector2},System.Action,System.Boolean)">
             <summary>Creates a scaled skin instance.</summary>
             <param name="getPivotFn">
             A function that returns the pivot point for the scale transformation. In a regular usual case, this method returns
@@ -1869,6 +1870,11 @@
             A callback which will be called every time the game's UI scale is updated. The mods can react on it to
             update their internal cached styles. This callback is processed from the <see cref="M:KSPDev.GUIUtils.GuiScale.UpdateMatrix"/> method.
             </param>
+            <param name="highFps">
+            Indicates if this object is created frequently. Even though it's not recommended to create this object frequently,
+            this setting would tell the code to limit any logging or checks.
+            </param>
+            FIXME: allow no pivot fn (see update matrix)
         </member>
         <member name="M:KSPDev.GUIUtils.GuiScale.UpdateMatrix">
             <summary>Updates the current GUI matrix to adjust the scale.</summary>
@@ -1876,6 +1882,7 @@
             This method can trigger the <c>onScaleUpdatedFn</c> callback. So it's best to call it at the very beginning of
             the <c>OnGUI</c> method.
             </remarks>
+            FIXME: accept an optional pivot for high FPS cases.
         </member>
         <member name="M:KSPDev.GUIUtils.GuiScale.Finalize">
             <summary>Unregisters any game's callbacks. </summary>
@@ -1913,7 +1920,7 @@
              }
             
              void OnGUI() {
-               using (new GuiSkinScope(GuiScaledSkin.scaledSkin) {
+               using (new GuiSkinScope(_guiScaledSkin.scaledSkin)) {
                  _windowRect = GUILayout.Window(GetInstanceID(), _windowRect, WindowFunc, WindowTitle);
                }
              }
@@ -4670,7 +4677,7 @@
             </summary>
             <remarks>
             The files in this directory will be ignored by the game during the loading process. This
-            is a common palce to put tghe mod's settings. A directory with such name can be placed
+            is a common place to put the mod's settings. A directory with such name can be placed
             anywhere within the <c>GameData</c> folder. However, it's usually a subfolder of
             <see cref="F:KSPDev.FSUtils.KspPaths.PluginFolderName"/>.
             </remarks>
@@ -4713,7 +4720,7 @@
             Note that method doesn't care if the path exists. The returned path will always use <c>/</c>
             as directory separator regardless to the platform.
             </remarks>
-            <param name="pathParts">Path parts tp consutruct an absolute or relative path.</param>
+            <param name="pathParts">Path parts tp construct an absolute or relative path.</param>
             <returns>
             Relative path. All relative casts (e.g. '..') will be resolved, and all
             directory separators will be translated to <c>/</c> regardless to the platform settings.
@@ -4758,14 +4765,14 @@
             <inheritdoc cref="M:KSPDev.FSUtils.KspPaths.GetModsPath(System.Type)"/>
         </member>
         <member name="M:KSPDev.FSUtils.KspPaths.GetModsDataFilePath(System.Object,System.String,System.Boolean,System.String)">
-            <summary>Returns a relative game's path to the file located in the data folder.</summary>
-            <param name="obj">The object instance to use to resolve the mod's assembly.</param>
-            <param name="fileName">The data file name.</param>
+            <summary>Returns full path to the file located in the data folder.</summary>
+            <param name="obj">The object instance to use to resolve the mod's assembly. This gives the base path.</param>
+            <param name="fileName">The file name to resolve.</param>
             <param name="createMissingDirs">
             Instructs the method to create all the directories and subdirectories in the specified path,
             should they not already exist.
             </param>
-            <param name="subFolder">The optional sub-folder name to add to the path.</param>
+            <param name="subFolder">The optional sub-folder name(s) to add to the path before the file name.</param>
             <returns>An absolute path.</returns>
         </member>
         <member name="T:KSPDev.InputUtils.KeyModifiers">
@@ -4893,8 +4900,7 @@
         </member>
         <member name="T:KSPDev.InputUtils.KeyboardInputSwitch">
              <summary>
-             Wrapper around a keyboard key code that incapsulates the persiting and the handling logic into
-             a single class.
+             Wrapper around a keyboard key code that encapsulates the persisting and the handling logic into a single class.
              </summary>
              <remarks>
              <para>
@@ -4981,8 +4987,8 @@
              }
              ]]></code>
              <para>
-             In many cases you may want to load a key bining from a config file. It can be achieved by
-             adding an attribute to the field of this type:
+             In many cases you may want to load a key binding from a config file. It can be achieved by adding an attribute to
+             the field of this type:
              </para>
              <code><![CDATA[
              [PersistentFieldsFile("my/mod/settings.cfg", "")]
@@ -5048,8 +5054,7 @@
         </member>
         <member name="F:KSPDev.InputUtils.KeyboardInputSwitch.keyboardEnabled">
             <summary>
-            Determines if the switch should react on the keyboard events from the <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.Update"/>
-            method.
+            Determines if the switch should react on the keyboard events from the <see cref="M:KSPDev.InputUtils.KeyboardInputSwitch.Update"/> method.
             </summary>
             <remarks>
             If switch is disabled while the key was pressed then the hold state will <i>not</i> be reset.
@@ -5925,7 +5930,7 @@
             <param name="newPosition">The new position of the vessel.</param>
             <param name="newRotation">The new rotation of the vessel.</param>
             <param name="refVessel">
-            The vessel to alignt the velocity with. If it's <c>null</c>, then the velocity on the moving
+            The vessel to align the velocity with. If it's <c>null</c>, then the velocity on the moving
             vessel will just be zeroed.
             </param>
         </member>
@@ -6391,7 +6396,7 @@
         </member>
         <member name="F:KSPDev.ModelUtils.KspLayer.Fx">
             <summary>The layer for FX objects.</summary>
-            <remarks>E.g. <c>PadFXReceiver</c> on the Kerbins VAB launchpad.</remarks>
+            <remarks>E.g. <c>PadFXReceiver</c> on the Kerbin's VAB launchpad.</remarks>
         </member>
         <member name="T:KSPDev.ModelUtils.KspLayerMask">
             <summary>A convinience type to deal with the <see cref="T:KSPDev.ModelUtils.KspLayer">layers</see>.</summary>
@@ -6990,7 +6995,7 @@
             <typeparam name="T">Type of value to check.</typeparam>
             <param name="arg">The argument value to check.</param>
             <param name="argName">The argument name.</param>
-            <param name="minValue">The minumum allowed value.</param>
+            <param name="minValue">The minimum allowed value.</param>
             <param name="maxValue">The maximum allowed value.</param>
             <param name="message">An optional message to present in the error.</param>
             <param name="context">The optional "owner" object.</param>
@@ -7255,16 +7260,16 @@
             <remarks>
             The exceptions that the callback may rise are logged as errors, but the flow is not get
             interrupted. Such behavior may be handy when calling cleanup methods or notifying multiple
-            recepients where the failure is not an option.
+            recipients where the failure is not an option.
             </remarks>
-            <param name="fn">The action to exectue.</param>
+            <param name="fn">The action to execute.</param>
         </member>
         <member name="M:KSPDev.ProcessingUtils.SafeCallbacks.Func``1(System.Func{``0},``0)">
             <summary>Executes a function, intercepting any exceptions that it rises.</summary>
             <remarks>
             The exceptions that the callback may rise are logged as errors, but the flow is not get
             interrupted. Such behavior may be handy when calling cleanup methods or notifying multiple
-            recepients where the failure is not an option.
+            recipients where the failure is not an option.
             </remarks>
             <param name="fn">The function to call.</param>
             <param name="failValue">
