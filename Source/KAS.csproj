@@ -59,8 +59,8 @@
     <Reference Include="KAS-API-v2, Version=2.0.7239.35367, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Binaries\KAS-API-v2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.6-KAS, Version=2.6.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\Binaries\KSPDev_Utils.2.6-KAS.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.7, Version=2.7.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Binaries\KSPDev_Utils.2.7.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -128,6 +128,7 @@
     <Compile Include="modules\KASLinkTargetKerbal.cs" />
     <Compile Include="modules\KASLinkSourceBase.cs" />
     <Compile Include="modules\KASLinkTargetBase.cs" />
+    <Compile Include="modules\KASModuleDart.cs" />
     <Compile Include="modules\KASRendererBezierPipe.cs" />
     <Compile Include="modules\KASRendererTelescopicPipe.cs" />
     <Compile Include="modules\KASJointTowBar.cs" />

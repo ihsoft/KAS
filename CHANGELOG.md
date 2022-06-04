@@ -1,3 +1,6 @@
+# 1.11 (June 3rd, 2022):
+* [Enhancement #329] Bring back haroon and grapling hook.
+
 # 1.10 (October 20th, 2021):
 * [Fix #326] Error in the logs when an inactive vessel gets in range.
 

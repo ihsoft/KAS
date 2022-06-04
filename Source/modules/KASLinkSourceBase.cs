@@ -465,47 +465,21 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IHasDebugAdjustables implementation
-  ILinkTarget _dbgOldTarget;
-  float _dbgOldCableLength;
-
   /// <inheritdoc/>
   public override void OnBeforeDebugAdjustablesUpdate() {
-    base.OnBeforeDebugAdjustablesUpdate();
-    if (linkState != LinkState.Linked && linkState != LinkState.Available) {
+    if (linkState != LinkState.Available) {
       throw new InvalidOperationException("Cannot adjust value in link state: " + linkState);
     }
-    _dbgOldTarget = linkTarget;
-    _dbgOldCableLength = -1;
-    if (isLinked) {
-      var cableJoint = linkJoint as ILinkCableJoint;
-      if (cableJoint != null) {
-        _dbgOldCableLength = cableJoint.deployedCableLength;
-      }
-      BreakCurrentLink(LinkActorType.Player);
-    }
+    base.OnBeforeDebugAdjustablesUpdate();
   }
 
   /// <inheritdoc/>
   public override void OnDebugAdjustablesUpdated() {
     base.OnDebugAdjustablesUpdated();
-    AsyncCall.CallOnEndOfFrame(
-        this,
-        () => {
-          HostedDebugLog.Warning(this, "Reloading settings...");
-          InitModuleSettings();
-          InitStartState();
-          UpdateContextMenu();
-          if (_dbgOldTarget != null) {
-            HostedDebugLog.Warning(this, "Relinking to target: {0}", _dbgOldTarget);
-            LinkToTarget(LinkActorType.Player, _dbgOldTarget);
-            var cableJoint = linkJoint as ILinkCableJoint;
-            if (cableJoint != null) {
-              HostedDebugLog.Warning(this, "Restoring cable length: {0}", _dbgOldCableLength);
-              cableJoint.SetCableLength(_dbgOldCableLength);
-            }
-          }
-        },
-        skipFrames: 1);  // The link's logic is asynchronous.
+    HostedDebugLog.Warning(this, "Reloading settings...");
+    InitModuleSettings();
+    InitStartState();
+    UpdateContextMenu();
   }
   #endregion
 
@@ -520,7 +494,7 @@ public class KASLinkSourceBase : AbstractLinkPeer,
   #endregion
 
   #region IModuleInfo implementation
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetInfo" />
   public override string GetInfo() {
     var sb = new StringBuilder(base.GetInfo());
     sb.AppendLine(LinksWithSocketTypeInfo.Format(
@@ -530,17 +504,17 @@ public class KASLinkSourceBase : AbstractLinkPeer,
     return sb.ToString();
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetModuleTitle" />
   public virtual string GetModuleTitle() {
     return ModuleTitleInfo;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetDrawModulePanelCallback" />
   public virtual Callback<Rect> GetDrawModulePanelCallback() {
     return null;
   }
 
-  /// <inheritdoc/>
+  /// <inheritdoc cref="IKSPDevModuleInfo.GetPrimaryField" />
   public virtual string GetPrimaryField() {
     return null;
   }

@@ -23,9 +23,9 @@
     "NAME": "KAS", 
     "URL": "https://github.com/ihsoft/KAS/blob/master/KAS.version", 
     "VERSION": {
-        "BUILD": 36977, 
+        "BUILD": 42072, 
         "MAJOR": 1, 
-        "MINOR": 10, 
-        "PATCH": 7963
+        "MINOR": 11, 
+        "PATCH": 8189
     }
 }
