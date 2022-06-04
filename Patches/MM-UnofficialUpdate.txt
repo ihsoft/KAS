@@ -1,0 +1,100 @@
+// This patch allows KAS parts to be carried in the stock inventory.
+// However, at this point it was PROVEN that KAS doesn't behave well when its parts are attached via the stock system.
+// You may enable this patch and start using KAS via the stock inventory system, but be aware that the bugs ARE expected.
+// The bug reports are welcome. And be sure to not do anyhting without a save state!
+// KUDOs to https://forum.kerbalspaceprogram.com/index.php?/profile/157548-eberkain/ for this patch.
+
+// As usual, to activate this patch, rename it to a CFG type (MM-UnofficialUpdate.cfg).
+
+@PART[KAS.CH1]:NEEDS[KAS] //hook
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		stackableQuantity = 5
+		packedVolume = 10
+	}
+}
+@PART[KAS.PCB1]:NEEDS[KAS] //5m winch
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 50
+	}
+}
+@PART[KAS.JS1]:NEEDS[KAS] //socket
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 10
+		stackableQuantity = 5
+	}
+}
+@PART[KAS.PortPylon]:NEEDS[KAS] //pylon
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 30
+		stackableQuantity = 2
+	}
+}
+@PART[KAS.PortPylonPwr]:NEEDS[KAS] //command pylon
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 30
+		stackableQuantity = 2
+	}
+}
+@PART[KAS.RTS1]:NEEDS[KAS] //hose
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 100 
+	}
+}
+@PART[KAS.TB60]:NEEDS[KAS] //tow bar
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 40
+	}
+}
+@PART[KAS.TJ1]:NEEDS[KAS] //towbar
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 40
+	}
+}
+@PART[KAS.TJ2]:NEEDS[KAS] //towbar
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 40
+	}
+}
+@PART[KAS.W1]:NEEDS[KAS] //winch 50 m
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 80
+	}
+}
+@PART[KAS.W2]:NEEDS[KAS] //winch 80m
+{
+	MODULE
+	{
+		name = ModuleCargoPart
+		packedVolume = 100
+	}
+}
