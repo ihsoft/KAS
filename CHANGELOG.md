@@ -1,4 +1,5 @@
 # 1.12 (September 7th, 2022):
+* [Fix] Set a proper normal texture to the RTS hose.
 
 # 1.11 (June 3rd, 2022):
 * [Enhancement #329] Bring back haroon and grapling hook.
