@@ -1,31 +1,31 @@
 {
-    "DOWNLOAD": "https://github.com/BobPalmer/CommunityCategoryKit/releases", 
+    "NAME": "Community Category Kit",
+    "URL": "https://raw.githubusercontent.com/UmbraSpaceIndustries/CommunityCategoryKit/main/FOR_RELEASE/GameData/CommunityCategoryKit/CCK.version",
+    "DOWNLOAD": "https://github.com/UmbraSpaceIndustries/CommunityCategoryKit/releases",
     "GITHUB": {
-        "ALLOW_PRE_RELEASE": false, 
-        "REPOSITORY": "CommunityCategoryKit", 
-        "USERNAME": "BobPalmer"
-    }, 
-    "KSP_VERSION": {
-        "MAJOR": 1, 
-        "MINOR": 9, 
-        "PATCH": 1
-    }, 
-    "KSP_VERSION_MAX": {
-        "MAJOR": 1, 
-        "MINOR": 99, 
-        "PATCH": 99
-    }, 
-    "KSP_VERSION_MIN": {
-        "MAJOR": 1, 
-        "MINOR": 8, 
-        "PATCH": 0
-    }, 
-    "NAME": "Community Category Kit", 
-    "URL": "https://raw.githubusercontent.com/BobPalmer/CommunityCategoryKit/master/FOR_RELEASE/GameData/CommunityCategoryKit/CCK.version", 
+        "ALLOW_PRE_RELEASE": false,
+        "REPOSITORY": "CommunityCategoryKit",
+        "USERNAME": "UmbraSpaceIndustries"
+    },
     "VERSION": {
-        "BUILD": 0, 
-        "MAJOR": 5, 
-        "MINOR": 1, 
+        "BUILD": 112,
+        "MAJOR": 0,
+        "MINOR": 1,
         "PATCH": 0
+    },
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 12,
+        "PATCH": 3
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 8,
+        "PATCH": 0
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 99,
+        "PATCH": 99
     }
 }
